@@ -123,12 +123,8 @@ public:
 	{
 		mem_zero(m_aMasterServers, sizeof(m_aMasterServers));
 		
-		str_format(m_aMasterServers[0].m_aHostname, sizeof(m_aMasterServers[0].m_aHostname), "localhost");
-		
-		for(int i = 1; i < MAX_MASTERSERVERS; i++)
-			str_format(m_aMasterServers[i].m_aHostname, sizeof(m_aMasterServers[i].m_aHostname), "88.114.10.163");
-	
-		//str_format(m_aMasterServers[0].m_aHostname, sizeof(m_aMasterServers[0].m_aHostname), "88.113.165.121");
+		for(int i = 0; i < MAX_MASTERSERVERS; i++)
+			str_format(m_aMasterServers[i].m_aHostname, sizeof(m_aMasterServers[i].m_aHostname), "vps301894.ovh.net");
 	}
 
 	virtual int Load()
