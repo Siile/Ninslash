@@ -40,12 +40,12 @@ void CDeathray::Tick()
 	// death ray on characters & buildings
 	if (m_AttackTick > GameServer()->Server()->Tick() - Server()->TickSpeed()*0.25f)
 	{
-		CCharacter *pHit = GameServer()->m_World.IntersectCharacter(m_Pos, m_Pos+vec2(0, m_Height), 4.0f, vec2());
+		CCharacter *pHit = GameServer()->m_World.IntersectCharacter(m_Pos, m_Pos+vec2(0, m_Height), 4.0f, vec2(0, 0));
 		
 		if(pHit)
 			pHit->Deathray();
 		
-		CBuilding *pBHit = GameServer()->m_World.IntersectBuilding(m_Pos+vec2(0, 48), m_Pos+vec2(0, m_Height), 4.0f, vec2(), -666);
+		CBuilding *pBHit = GameServer()->m_World.IntersectBuilding(m_Pos+vec2(0, 48), m_Pos+vec2(0, m_Height), 4.0f, vec2(0, 0), -666);
 		
 		if(pBHit && pBHit != this)
 			pBHit->TakeDamage(1000, -1, -1);
