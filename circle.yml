@@ -16,4 +16,4 @@ test:
   override:
     - |
         ../bam/bam release
-        mv "./teeworlds_srv" $CIRCLE_ARTIFACTS"/."
+        mv "./ninslash_srv" $CIRCLE_ARTIFACTS"/."
