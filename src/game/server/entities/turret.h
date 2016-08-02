@@ -1,0 +1,31 @@
+#ifndef GAME_SERVER_ENTITIES_TURRET_H
+#define GAME_SERVER_ENTITIES_TURRET_H
+
+#include <game/server/entity.h>
+#include <game/server/entities/building.h>
+
+
+class CTurret : public CBuilding
+{
+public:
+	CTurret(CGameWorld *pGameWorld, vec2 Pos, int Team);
+
+	virtual void Tick();
+	virtual void TickPaused();
+	virtual void Snap(int SnappingClient);
+
+	int m_AttackTick;
+	int m_TargetTimer;
+	vec2 m_Target;
+	int m_Angle;
+	
+private:
+	bool FindTarget();
+	bool Target();
+	void Shoot();
+	int m_TargetIndex;
+	
+	int m_ShootTimer;
+};
+
+#endif
