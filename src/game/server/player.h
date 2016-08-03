@@ -113,10 +113,8 @@ public:
 
 	struct
 	{
-		char m_SkinName[64];
 		char m_TopperName[64];
 		char m_EyeName[64];
-		int m_UseCustomColor;
 		int m_ColorBody;
 		int m_ColorFeet;
 		int m_ColorTopper;

@@ -532,7 +532,11 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 			Type = POWERUP_ARMOR;
 		else if(Index == ENTITY_HEALTH_1)
 			Type = POWERUP_HEALTH;
-		/*
+		else if(Index == ENTITY_WEAPON_CHAINSAW)
+		{
+			Type = POWERUP_WEAPON;
+			SubType = WEAPON_CHAINSAW;
+		}
 		else if(Index == ENTITY_WEAPON_SHOTGUN)
 		{
 			Type = POWERUP_WEAPON;
@@ -548,7 +552,21 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 			Type = POWERUP_WEAPON;
 			SubType = WEAPON_RIFLE;
 		}
-		*/
+		else if(Index == ENTITY_WEAPON_ELECTRIC)
+		{
+			Type = POWERUP_WEAPON;
+			SubType = WEAPON_ELECTRIC;
+		}
+		else if(Index == ENTITY_WEAPON_LASER)
+		{
+			Type = POWERUP_WEAPON;
+			SubType = WEAPON_LASER;
+		}
+		else if(Index == ENTITY_WEAPON_FLAMER)
+		{
+			Type = POWERUP_WEAPON;
+			SubType = WEAPON_FLAMER;
+		}
 	}
 
 	if(Type != -1)
@@ -714,7 +732,6 @@ void IGameController::OnPlayerInfoChange(class CPlayer *pP)
 	const int aTeamColors[2] = {65387, 10223467};
 	if(IsTeamplay())
 	{
-		pP->m_TeeInfos.m_UseCustomColor = 1;
 		if(pP->GetTeam() >= TEAM_RED && pP->GetTeam() <= TEAM_BLUE)
 		{
 			pP->m_TeeInfos.m_ColorBody = aTeamColors[pP->GetTeam()];

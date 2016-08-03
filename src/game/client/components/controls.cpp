@@ -7,9 +7,12 @@
 #include <game/collision.h>
 #include <game/client/gameclient.h>
 #include <game/client/component.h>
+#include <game/client/components/picker.h>
 #include <game/client/components/chat.h>
 #include <game/client/components/menus.h>
 #include <game/client/components/scoreboard.h>
+
+#include <game/client/customstuff.h>
 
 #include "controls.h"
 
@@ -115,6 +118,19 @@ void CControls::OnMessage(int Msg, void *pRawMsg)
 			m_InputData.m_WantedWeapon = pMsg->m_Weapon+1;
 	}
 	*/
+	
+	if(Msg == NETMSGTYPE_SV_WEAPONPICKUP)
+	{
+		CNetMsg_Sv_WeaponPickup *pMsg = (CNetMsg_Sv_WeaponPickup *)pRawMsg;
+		if(g_Config.m_ClAutoswitchWeapons)
+		{
+			CustomStuff()->m_LocalWeapons |= 1 << (pMsg->m_Weapon);
+			
+			char aBuf[32];
+			str_format(aBuf, sizeof(aBuf), "weaponpick %d", pMsg->m_Weapon-1);
+			Console()->ExecuteLine(aBuf);
+		}
+	}
 }
 
 int CControls::SnapInput(int *pData)

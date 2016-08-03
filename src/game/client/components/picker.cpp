@@ -77,12 +77,14 @@ void CPicker::ConEmote(IConsole::IResult *pResult, void *pUserData)
 
 void CPicker::OnConsoleInit()
 {
-	Console()->Register("+itempicker", "", CFGFLAG_CLIENT, ConKeyItemPicker, this, "Open item selector");
+	//Console()->Register("+itempicker", "", CFGFLAG_CLIENT, ConKeyItemPicker, this, "Open item selector");
+	//Console()->Register("+gamepaditempicker", "", CFGFLAG_CLIENT, ConKeyItemPicker, this, "Open item selector");
+	
 	Console()->Register("+picker", "", CFGFLAG_CLIENT, ConKeyPicker, this, "Open weapon selector");
 	Console()->Register("+gamepadpicker", "", CFGFLAG_CLIENT, ConKeyPicker, this, "Open weapon selector");
-	Console()->Register("+gamepaditempicker", "", CFGFLAG_CLIENT, ConKeyItemPicker, this, "Open item selector");
+	Console()->Register("weaponpick", "i", CFGFLAG_CLIENT, ConWeaponpick, this, "Use weapon");
+	
 	Console()->Register("+emote", "", CFGFLAG_CLIENT, ConKeyEmote, this, "Open emote selector");
-	//Console()->Register("weaponpick", "i", CFGFLAG_CLIENT, ConWeaponpick, this, "Use weapon");
 	Console()->Register("emote", "i", CFGFLAG_CLIENT, ConEmote, this, "Use emote");
 }
 

@@ -174,7 +174,6 @@ public:
 	// client data
 	struct CClientData
 	{
-		int m_UseCustomColor;
 		int m_ColorBody;
 		int m_ColorFeet;
 		int m_ColorTopper;
@@ -183,10 +182,8 @@ public:
 		char m_aName[MAX_NAME_LENGTH];
 		char m_aClan[MAX_CLAN_LENGTH];
 		int m_Country;
-		char m_aSkinName[64];
 		char m_aTopperName[64];
 		char m_aEyeName[64];
-		int m_SkinID;
 		int m_TopperID;
 		int m_EyeID;
 		int m_SkinColor;

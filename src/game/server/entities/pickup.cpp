@@ -177,7 +177,11 @@ void CPickup::Tick()
 						break;
 					}
 					
-					if (pChr->GiveCustomWeapon(m_Subtype, 0.2f + frandom()*0.3f))
+					float AmmoFill = 1.0f;
+					if (m_Dropable)
+						AmmoFill = 0.3f + frandom()*0.3f;
+					
+					if (pChr->GiveCustomWeapon(m_Subtype, AmmoFill))
 					{
 						if(Parent == WEAPON_GRENADE)
 							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE);
@@ -187,6 +191,8 @@ void CPickup::Tick()
 						if(pChr->GetPlayer())
 						{
 							//GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), Parent);
+							
+							GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), m_Subtype);
 							
 							char aBuf[256]; str_format(aBuf, sizeof(aBuf), "Picked up %s", aCustomWeapon[m_Subtype].m_Name);
 							GameServer()->SendChatTarget(pChr->GetPlayer()->GetCID(), aBuf);
@@ -198,10 +204,13 @@ void CPickup::Tick()
 					}
 					else
 					{
-						if (pChr->GiveAmmo(&m_Subtype, 0.5f))
+						if (pChr->GiveAmmo(&m_Subtype, AmmoFill))
 						{
 							//char aBuf[256]; str_format(aBuf, sizeof(aBuf), "Picked up ammo for %s", aCustomWeapon[m_Subtype].m_Name);
 							//GameServer()->SendChatTarget(pChr->GetPlayer()->GetCID(), aBuf);
+							
+							if(pChr->GetPlayer())
+								GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), m_Subtype);
 							
 							RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
 							m_Life = 0;

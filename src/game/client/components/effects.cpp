@@ -333,41 +333,6 @@ void CEffects::PlayerSpawn(vec2 Pos)
 
 void CEffects::PlayerDeath(vec2 Pos, int ClientID)
 {
-	/*
-	vec3 BloodColor(0.75f,0.75f,0.75f);
-
-	if(ClientID >= 0)
-	{
-		if(m_pClient->m_aClients[ClientID].m_UseCustomColor)
-			BloodColor = m_pClient->m_pSkins->GetColorV3(m_pClient->m_aClients[ClientID].m_ColorBody);
-		else
-		{
-			const CSkins::CSkin *s = m_pClient->m_pSkins->Get(m_pClient->m_aClients[ClientID].m_SkinID);
-			if(s)
-				BloodColor = s->m_BloodColor;
-		}
-	}
-
-	for(int i = 0; i < 64; i++)
-	{
-		CParticle p;
-		p.SetDefault();
-		p.m_Spr = SPRITE_PART_SPLAT01 + (rand()%3);
-		p.m_Pos = Pos;
-		p.m_Vel = RandomDir() * ((frandom()+0.1f)*900.0f);
-		p.m_LifeSpan = 0.3f + frandom()*1.3f;
-		p.m_StartSize = 16.0f + frandom()*20;
-		p.m_EndSize = 0;
-		p.m_Rot = frandom()*pi*2;
-		p.m_Rotspeed = (frandom()-0.5f) * pi;
-		p.m_Gravity = 800.0f;
-		p.m_Friction = 0.8f;
-		vec3 c = BloodColor * (0.75f + frandom()*0.25f);
-		p.m_Color = vec4(c.r, c.g, c.b, 0.75f);
-		m_pClient->m_pParticles->Add(CParticles::GROUP_GENERAL, &p);
-	}
-	*/
-	
 	CParticle p;
 	p.SetDefault();
 	p.m_Spr = SPRITE_DEATH1;

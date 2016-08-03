@@ -151,6 +151,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	GiveCustomWeapon(W_PISTOL);
 	//GiveCustomWeapon(W_CHAINSAW);
 	SetCustomWeapon(W_HAMMER);
+	SetCustomWeapon(W_PISTOL);
 	
 	if (pPlayer->m_pAI)
 	{
@@ -1794,6 +1795,13 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos,
 
 void CCharacter::TakeSawbladeDamage(vec2 SawbladePos)
 {
+	if (m_ShieldHealth > 0)
+	{
+		GameServer()->CreateEffect(FX_SHIELDHIT, (m_Pos+SawbladePos) / 2.0f);
+		m_ShieldHealth -= 5;
+		return;
+	}
+	
 	m_DamageTaken++;
 	
 	m_Core.m_DamageTick = Server()->Tick();

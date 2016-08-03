@@ -274,10 +274,6 @@ Objects = [
 		NetIntAny("m_Clan0"), NetIntAny("m_Clan1"), NetIntAny("m_Clan2"),
 
 		NetIntAny("m_Country"),
-
-		# 4*6 = 24 charachters
-		NetIntAny("m_Skin0"), NetIntAny("m_Skin1"), NetIntAny("m_Skin2"),
-		NetIntAny("m_Skin3"), NetIntAny("m_Skin4"), NetIntAny("m_Skin5"),
 		
 		# 4*6 = 24 charachters
 		NetIntAny("m_Topper0"), NetIntAny("m_Topper1"), NetIntAny("m_Topper2"),
@@ -286,8 +282,6 @@ Objects = [
 		# 4*6 = 24 charachters
 		NetIntAny("m_Eye0"), NetIntAny("m_Eye1"), NetIntAny("m_Eye2"),
 		NetIntAny("m_Eye3"), NetIntAny("m_Eye4"), NetIntAny("m_Eye5"),
-
-		NetIntRange("m_UseCustomColor", 0, 1),
 
 		NetIntAny("m_ColorBody"),
 		NetIntAny("m_ColorFeet"),
@@ -441,10 +435,8 @@ Messages = [
 		NetStringStrict("m_pName"),
 		NetStringStrict("m_pClan"),
 		NetIntAny("m_Country"),
-		NetStringStrict("m_pSkin"),
 		NetStringStrict("m_pTopper"),
 		NetStringStrict("m_pEye"),
-		NetBool("m_UseCustomColor"),
 		NetIntAny("m_ColorBody"),
 		NetIntAny("m_ColorFeet"),
 		NetIntAny("m_ColorTopper"),
@@ -455,10 +447,8 @@ Messages = [
 		NetStringStrict("m_pName"),
 		NetStringStrict("m_pClan"),
 		NetIntAny("m_Country"),
-		NetStringStrict("m_pSkin"),
 		NetStringStrict("m_pTopper"),
 		NetStringStrict("m_pEye"),
-		NetBool("m_UseCustomColor"),
 		NetIntAny("m_ColorBody"),
 		NetIntAny("m_ColorFeet"),
 		NetIntAny("m_ColorTopper"),

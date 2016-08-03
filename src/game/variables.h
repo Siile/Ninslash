@@ -37,12 +37,10 @@ MACRO_CONFIG_STR(ClVersionServer, cl_version_server, 100, "version.ninslash.com"
 
 MACRO_CONFIG_STR(ClLanguagefile, cl_languagefile, 255, "", CFGFLAG_CLIENT|CFGFLAG_SAVE, "What language file to use")
 
-MACRO_CONFIG_INT(PlayerUseCustomColor, player_use_custom_color, 0, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Toggles usage of custom colors")
 MACRO_CONFIG_INT(PlayerColorBody, player_color_body, 65408, 0, 0xFFFFFF, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player body color")
 MACRO_CONFIG_INT(PlayerColorFeet, player_color_feet, 65408, 0, 0xFFFFFF, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player feet color")
 MACRO_CONFIG_INT(PlayerColorTopper, player_color_topper, 65408, 0, 0xFFFFFF, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player topper color")
 MACRO_CONFIG_INT(PlayerColorSkin, player_color_skin, 65535, 0, 0xFFFFFF, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player skin color")
-MACRO_CONFIG_STR(PlayerSkin, player_skin, 24, "default", CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player skin")
 MACRO_CONFIG_STR(PlayerTopper, player_topper, 24, "default", CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player hair or hat")
 MACRO_CONFIG_STR(PlayerEye, player_eye, 24, "default", CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player eyes")
 

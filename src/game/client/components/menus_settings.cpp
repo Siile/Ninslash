@@ -372,7 +372,6 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	// render player
 	{
 		CTeeRenderInfo Info;
-		Info.m_Texture = m_pClient->m_pSkins->Get(0)->m_ColorTexture;
 		Info.m_ColorBody = m_pClient->m_pSkins->GetColorV4(g_Config.m_PlayerColorBody);
 		Info.m_ColorFeet = m_pClient->m_pSkins->GetColorV4(g_Config.m_PlayerColorFeet);
 		Info.m_TopperTexture = m_pClient->m_pSkins->GetTopper(m_pClient->m_pSkins->FindTopper(g_Config.m_PlayerTopper))->m_Texture;

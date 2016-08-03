@@ -29,7 +29,7 @@ void CPowerupper::Tick()
 	if (m_Item >= 0)
 	{
 		CCharacter *apEnts[MAX_CLIENTS];
-		int Num = GameServer()->m_World.FindEntities(m_Pos+vec2(0, -24), 32.0f, (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
+		int Num = GameServer()->m_World.FindEntities(m_Pos+vec2(0, -24), 16.0f, (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
 		
 		for(int i = 0; i < Num; i++)
 		{
