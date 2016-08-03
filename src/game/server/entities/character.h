@@ -57,8 +57,6 @@ public:
 	virtual void Snap(int SnappingClient);
 
 	bool IsGrounded();
-	bool HookGrabbed();
-	bool HookGrabbedToPlayer();
 	
 	void HandleWeaponSwitch();
 	void DoWeaponSwitch();
@@ -114,8 +112,6 @@ public:
 	bool IsAlive() const { return m_Alive; }
 	class CPlayer *GetPlayer() { return m_pPlayer; }
 
-	bool Hooking();
-	int HookedPlayer();
 	
 	bool m_IsBot;
 	int m_HiddenHealth;
@@ -126,8 +122,6 @@ public:
 	bool m_WeaponPicked;
 	
 	int GetActiveWeapon(){ return m_ActiveWeapon; }
-	
-	void ForceHook(int PlayerID);
 	
 	int m_SkipPickups;
 	

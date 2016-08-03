@@ -1,0 +1,44 @@
+#ifndef GAME_CLIENT_COMPONENTS_PICKER_H
+#define GAME_CLIENT_COMPONENTS_PICKER_H
+#include <base/vmath.h>
+#include <game/client/component.h>
+
+class CPicker : public CComponent
+{
+	void DrawCircle(float x, float y, float r, int Segments);
+	void DrawEmoticons();
+	void DrawWeapons();
+	void DrawItems();
+
+	bool m_WasActive;
+	bool m_Active;
+
+	vec2 m_SelectorMouse;
+	int m_Selected;
+
+	static void ConKeyItemPicker(IConsole::IResult *pResult, void *pUserData);
+	static void ConKeyPicker(IConsole::IResult *pResult, void *pUserData);
+	static void ConItempick(IConsole::IResult *pResult, void *pUserData);
+	static void ConWeaponpick(IConsole::IResult *pResult, void *pUserData);
+	static void ConKeyEmote(IConsole::IResult *pResult, void *pUserData);
+	static void ConEmote(IConsole::IResult *pResult, void *pUserData);
+	
+	int m_PickerType;
+	bool m_ResetMouse;
+
+public:
+	CPicker();
+
+	virtual void OnReset();
+	virtual void OnConsoleInit();
+	virtual void OnRender();
+	virtual void OnRelease();
+	virtual void OnMessage(int MsgType, void *pRawMsg);
+	virtual bool OnMouseMove(float x, float y);
+
+	void Weaponpick(int Weapon);
+	void Itempick(int Item);
+	void Emote(int Emoticon);
+};
+
+#endif

@@ -16,7 +16,6 @@ enum PlayerItems
 	NUM_PLAYERITEMS,
 };
 
-/*
 static const char *aPlayerItemName[NUM_PLAYERITEMS] =
 {
 	"Heal",
@@ -26,7 +25,6 @@ static const char *aPlayerItemName[NUM_PLAYERITEMS] =
 	"Electromine",
 	"Shield"
 };
-*/
 
 
 struct CWeapon

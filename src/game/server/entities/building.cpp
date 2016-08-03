@@ -62,7 +62,7 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 
 void CBuilding::Reset()
 {
-	GameServer()->m_World.DestroyEntity(this);
+	//GameServer()->m_World.DestroyEntity(this);
 }
 
 

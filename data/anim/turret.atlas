@@ -1,0 +1,48 @@
+
+turret.png
+size: 512,64
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+1
+  rotate: false
+  xy: 196, 2
+  size: 82, 17
+  orig: 82, 17
+  offset: 0, 0
+  index: -1
+2
+  rotate: false
+  xy: 294, 21
+  size: 58, 23
+  orig: 58, 23
+  offset: 0, 0
+  index: -1
+2_team
+  rotate: false
+  xy: 354, 21
+  size: 58, 23
+  orig: 58, 23
+  offset: 0, 0
+  index: -1
+3
+  rotate: true
+  xy: 196, 21
+  size: 23, 96
+  orig: 23, 96
+  offset: 0, 0
+  index: -1
+weapon
+  rotate: false
+  xy: 2, 2
+  size: 95, 42
+  orig: 95, 42
+  offset: 0, 0
+  index: -1
+weapon_team
+  rotate: false
+  xy: 99, 2
+  size: 95, 42
+  orig: 95, 42
+  offset: 0, 0
+  index: -1

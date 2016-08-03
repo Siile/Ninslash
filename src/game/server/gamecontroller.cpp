@@ -581,9 +581,9 @@ const char *IGameController::GetTeamName(int Team)
 	if(IsTeamplay())
 	{
 		if(Team == TEAM_RED)
-			return "terrorists";
+			return "red team";
 		else if(Team == TEAM_BLUE)
-			return "counter terrorists";
+			return "blue team";
 	}
 	else
 	{
@@ -756,7 +756,7 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 	
 	if(pKiller && (pKiller->GetTeam() != pVictim->GetPlayer()->GetTeam() || !IsTeamplay()))
 	{
-		pKiller->m_Score++;
+		//pKiller->m_Score++;
 		pKiller->m_InterestPoints += 60;
 	}
 	

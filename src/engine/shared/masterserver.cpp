@@ -122,9 +122,12 @@ public:
 	virtual void SetDefault()
 	{
 		mem_zero(m_aMasterServers, sizeof(m_aMasterServers));
-		
+				
 		for(int i = 0; i < MAX_MASTERSERVERS; i++)
 			str_format(m_aMasterServers[i].m_aHostname, sizeof(m_aMasterServers[i].m_aHostname), "vps301894.ovh.net");
+			//str_format(m_aMasterServers[i].m_aHostname, sizeof(m_aMasterServers[i].m_aHostname), "164.132.46.180");
+	
+		//str_format(m_aMasterServers[0].m_aHostname, sizeof(m_aMasterServers[0].m_aHostname), "88.113.165.121");
 	}
 
 	virtual int Load()

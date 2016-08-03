@@ -80,41 +80,6 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	m_DeathrayTick = 0;
 }
 
-bool CCharacter::Hooking()
-{
-	if (m_Core.m_HookState == HOOK_GRABBED || m_Core.m_HookState == HOOK_FLYING)
-		return true;
-		
-	return false;
-}
-
-int CCharacter::HookedPlayer()
-{
-	if (m_Core.m_HookState == HOOK_GRABBED && m_Core.m_HookedPlayer >= 0)
-		return m_Core.m_HookedPlayer;
-		
-	return -1;
-}
-
-
-void CCharacter::ForceHook(int PlayerID)
-{
-	if (m_Core.m_HookState != HOOK_GRABBED)
-	{
-		m_Core.m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
-		m_Core.m_HookState = HOOK_GRABBED;
-	}
-	
-	//CCharacterCore *pCharCore = GameServer()->m_World.m_Core.m_apCharacters[PlayerID];
-	//if(pCharCore)
-	//	m_Core.m_HookPos = pCharCore->m_Pos;
-
-	m_Core.m_HookedPlayer = PlayerID;
-	//m_Core.m_HookTick = Server()->Tick() - 50;
-	m_Core.m_HookTick--;
-	
-}
-
 
 void CCharacter::Reset()
 {
@@ -1345,6 +1310,10 @@ void CCharacter::UpdateCoreStatus()
 		if (m_aStatus[STATUS_AFLAME] > 0)
 			TakeDamage(vec2(0, 0), 4, m_aStatusFrom[STATUS_AFLAME], m_aStatusWeapon[STATUS_AFLAME], vec2(0, 0), DAMAGETYPE_FLAME);
 	}
+	
+	// rolling stops flames faster
+	if (m_Core.m_Roll > 0 && m_aStatus[STATUS_AFLAME] > 0)
+		m_aStatus[STATUS_AFLAME]--;
 }
 
 
@@ -1496,11 +1465,6 @@ void CCharacter::TickDefered()
 
 	if(Events&COREEVENT_GROUND_JUMP) GameServer()->CreateSound(m_Pos, SOUND_PLAYER_JUMP, Mask);
 
-	if(Events&COREEVENT_HOOK_ATTACH_PLAYER) GameServer()->CreateSound(m_Pos, SOUND_HOOK_ATTACH_PLAYER, CmaskAll());
-	if(Events&COREEVENT_HOOK_ATTACH_GROUND) GameServer()->CreateSound(m_Pos, SOUND_HOOK_ATTACH_GROUND, Mask);
-	if(Events&COREEVENT_HOOK_HIT_NOHOOK) GameServer()->CreateSound(m_Pos, SOUND_HOOK_NOATTACH, Mask);
-
-
 	if(m_pPlayer->GetTeam() == TEAM_SPECTATORS)
 	{
 		m_Pos.x = m_Input.m_TargetX;
@@ -1538,21 +1502,6 @@ void CCharacter::TickPaused()
 		++m_EmoteStop;
 }
 
-bool CCharacter::HookGrabbed()
-{
-	if (m_Core.m_HookState == HOOK_GRABBED)
-		return true;
-		
-	return false;
-}
-
-bool CCharacter::HookGrabbedToPlayer()
-{
-	if (m_Core.m_HookState == HOOK_GRABBED && m_Core.m_HookedPlayer >= 0)
-		return true;
-		
-	return false;
-}
 
 void CCharacter::SetHealth(int Health)
 {

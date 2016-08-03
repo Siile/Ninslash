@@ -411,7 +411,7 @@ void CGameContext::CreateFlameExplosion(vec2 Pos, int Owner, int Weapon, bool No
 				if(l)
 					ForceDir = normalize(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
-				float Dmg = 4 * l;
+				float Dmg = 8 * l;
 
 				if((int)Dmg && Dmg > 0.0f)
 				{

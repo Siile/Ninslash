@@ -1,0 +1,250 @@
+
+
+#ifndef GAME_CLIENT_RENDER_H
+#define GAME_CLIENT_RENDER_H
+
+#include <base/vmath.h>
+#include <base/tl/array.h>
+#include <engine/graphics.h>
+#include <game/mapitems.h>
+#include "ui.h"
+#include "spine.h"
+
+#include <map>
+
+class CTeeRenderInfo
+{
+public:
+	CTeeRenderInfo()
+	{
+		m_Texture = -1;
+		m_TopperTexture = -1;
+		m_EyeTexture = -1;
+		m_ColorBody = vec4(1,1,1,1);
+		m_ColorFeet = vec4(1,1,1,1);
+		m_ColorTopper = vec4(1,1,1,1);
+		m_ColorSkin = vec4(1,1,1,1);
+		m_Size = 1.0f;
+		m_GotAirJump = 1;
+	};
+
+	int m_Texture;
+	int m_TopperTexture;
+	int m_EyeTexture;
+	vec4 m_ColorBody;
+	vec4 m_ColorFeet;
+	vec4 m_ColorTopper;
+	vec4 m_ColorSkin;
+	float m_Size;
+	int m_GotAirJump;
+};
+
+// sprite renderings
+enum
+{
+	SPRITE_FLAG_FLIP_Y=1,
+	SPRITE_FLAG_FLIP_X=2,
+
+	LAYERRENDERFLAG_OPAQUE=1,
+	LAYERRENDERFLAG_TRANSPARENT=2,
+
+	TILERENDERFLAG_EXTEND=4,
+};
+
+
+// bone animation
+class CAnimBone
+{
+public:
+	CAnimBone *m_pParent; // NULL if root
+
+	string m_Name; // needed for animation
+
+	vec2 m_Position;
+	vec2 m_Scale;
+	float m_Rotation;
+
+	mat33 m_Transform; // absolute transformation, needs to be updated on change of position/scale/rotation
+	float m_Length; // debug only, remove later?
+};
+
+class CAnimAttachmentSlot
+{
+public:
+	CAnimBone *m_pBone;
+
+	string m_Name;
+	string m_AttachmentSetup;
+};
+
+enum
+{
+	ATTACHMENT_SPRITE=1,
+	ATTACHMENT_BBOX,
+	ATTACHMENT_SKINNED_MESH,
+};
+
+class CAnimAttachment
+{
+public:
+	string m_Name;
+	int m_Type;
+};
+
+class CAnimAttachmentSprite : public CAnimAttachment
+{
+public:
+	CAnimAttachmentSprite() { m_Type = ATTACHMENT_SPRITE; }
+
+	vec2 m_Position;
+	vec2 m_Scale;
+	float m_Rotation;
+	float m_Width, m_Height;
+};
+
+class CAnimAttachmentSkinnedMesh : public CAnimAttachment
+{
+public:
+	CAnimAttachmentSkinnedMesh() { m_Type = ATTACHMENT_SKINNED_MESH; }
+
+	struct SVertex
+	{
+		array<int> m_aBones;
+		array<vec2> m_aPoints;
+		array<float> m_aWeights;
+	};
+
+	array<vec2> m_aUVs;
+	array<int> m_aTriangles;
+	array<int> m_aEdges;
+	array<SVertex> m_aVertices;
+};
+
+class CAnimSkeletonInfo
+{
+public:
+	array<CAnimBone *> m_lBones; // care on removing bones, owned ptrs
+	array<CAnimAttachmentSlot *> m_lSlots; // owned ptrs
+	std::map<string, std::map<string, std::map<string, CAnimAttachment *> > > m_lSkins; // owned ptrs
+
+	// lazy mode (:
+	std::map<string, CSpineAnimation> m_lAnimations;
+
+public:
+
+	CAnimSkeletonInfo() {}
+	~CAnimSkeletonInfo();
+
+	void UpdateBones(float Time = 0.0f, CSpineAnimation *pAnimation = 0x0, class CSkeletonAnimation *pAnimData = 0x0, int WeaponAngle = 0);
+	void UpdateBones(float Time1, float Time2, CSpineAnimation *pAnimation1, CSpineAnimation *pAnimation2, float Mix);
+};
+
+// texture atlas
+class CTextureAtlasSprite
+{
+public:
+	int m_PageId;
+
+	bool m_Rotate;
+	float m_X, m_Y;
+	float m_Width, m_Height;
+};
+
+class CTextureAtlasPage : public CImageInfo
+{
+public:
+	int m_TexId;
+};
+
+class CTextureAtlas
+{
+public:
+	array<CTextureAtlasPage> m_lPages;
+	std::map<string, CTextureAtlasSprite> m_lSprites;
+};
+
+typedef void (*ENVELOPE_EVAL)(float TimeOffset, int Env, float *pChannels, void *pUser);
+typedef float (*ANIM_EVAL)(float TimeOffset, void *pUser);
+
+
+class CRenderTools
+{
+public:
+	class IGraphics *m_pGraphics;
+	class CUI *m_pUI;
+	class CSkelebank *m_pSkelebank;
+
+	class IGraphics *Graphics() const { return m_pGraphics; }
+	class CUI *UI() const { return m_pUI; }
+	class CSkelebank *Skelebank() { return m_pSkelebank; }
+
+	// spine import
+	void LoadSkeletonFromSpine(CAnimSkeletonInfo *pSkeleton,
+		const array<CSpineBone> &lBones,
+		const array<CSpineSlot> &lSlots,
+		const SkinMap &mSkins,
+		const std::map<string, CSpineAnimation> &mAnimations);
+
+	bool LoadAtlasFromSpine(CTextureAtlas *pAtlas, const CSpineAtlas &rSpineAtlas);
+
+	void SelectSprite(struct CDataSprite *pSprite, int Flags=0, int sx=0, int sy=0);
+	void SelectSprite(int id, int Flags=0, int sx=0, int sy=0);
+
+	void DrawSprite(float x, float y, float size);
+
+	// rects
+	void DrawRoundRect(float x, float y, float w, float h, float r);
+	void DrawRoundRectExt(float x, float y, float w, float h, float r, int Corners);
+
+	void DrawUIRect(const CUIRect *pRect, vec4 Color, int Corners, float Rounding);
+	
+	// larger rendering methods
+	void RenderTilemapGenerateSkip(class CLayers *pLayers);
+
+	// object render methods (gc_render_obj.cpp)
+	//void RenderTee(class CAnimState *pAnim, CTeeRenderInfo *pInfo, int Emote, vec2 Dir, vec2 Pos);
+	
+	
+	// for selection menu
+	void RenderTopper(CTeeRenderInfo *pInfo, vec2 Pos);
+	void RenderEye(CTeeRenderInfo *pInfo, vec2 Pos);
+
+
+	void RenderShield(vec2 Pos, vec2 Size, float State);
+	void RenderHeal(vec2 Pos, vec2 Size, float State);
+	
+	// render player with custom info (teesplatter, bounciness etc...)
+	void RenderPlayer(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, int WeaponNum, int Emote, vec2 Dir, vec2 Pos);
+	
+	
+	void RenderStaticPlayer(CTeeRenderInfo *pInfo, vec2 Pos);
+	void RenderPortrait(CTeeRenderInfo *pInfo, vec2 Position, int EyeType);
+
+	void RenderMonster(vec2 Pos, float Time, int Dir, int Status);
+	
+	// skeleton render methods
+	void RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, class CSkeletonAnimation *AnimData, float Rotation, CAnimSkeletonInfo *pSkeleton, CTextureAtlas *pAtlas, class CPlayerInfo *PlayerInfo = NULL);
+	void RenderBuilding(vec2 Position, CAnimSkeletonInfo *pSkeleton, CTextureAtlas *pAtlas, int Team, int WeaponAngle = 0);
+
+	template<typename TKeyframe>
+	static void RenderEvalSkeletonAnim(TKeyframe *pKeyFrame, int NumKeyframes, float Time, typename TKeyframe::KeyframeReturnType *pResult);
+
+	
+	// map render methods (gc_render_map.cpp)
+	static void RenderEvalEnvelope(CEnvPoint *pPoints, int NumPoints, int Channels, float Time, float *pResult);
+	void RenderQuads(CQuad *pQuads, int NumQuads, int Flags, ENVELOPE_EVAL pfnEval, void *pUser);
+	void RenderTilemap(CTile *pTiles, int w, int h, float Scale, vec4 Color, int RenderFlags, ENVELOPE_EVAL pfnEval, void *pUser, int ColorEnv, int ColorEnvOffset);
+
+	// helpers
+	void MapscreenToWorld(float CenterX, float CenterY, float ParallaxX, float ParallaxY,
+		float OffsetX, float OffsetY, float Aspect, float Zoom, float *pPoints);
+
+	vec3 GetColorV3(int v);
+
+	
+	void RenderFullScreenLayer();
+};
+
+#include "render_anim.inl"
+
+#endif

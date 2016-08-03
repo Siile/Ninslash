@@ -1,1 +1,1 @@
-Ninslash test server
+Ninslash.com

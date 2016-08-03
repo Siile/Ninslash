@@ -1,0 +1,29 @@
+Teeworlds Copyright (C) 2007-2014 Magnus Auvinen
+Ninslash Copyright (C) 2016 Juho Syrjänen
+
+This software is provided 'as-is', without any express or implied
+warranty.  In no event will the authors be held liable for any damages
+arising from the use of this software.
+
+You are free to:
+
+Share — copy and redistribute the material in any medium or format
+Adapt — remix, transform, and build upon the material
+
+Under the following terms:
+
+Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+NonCommercial — You may not use the material for commercial purposes.
+ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+
+------------------------------------------------------------------------
+
+All content under 'data' except the font (which has its own license) and all content under 'src' is
+released under CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/).
+
+------------------------------------------------------------------------
+
+IMPORTANT NOTE! The source under src/engine/external are stripped
+libraries with their own licenses. Mostly BSD or zlib/libpng license but
+check the individual libraries.

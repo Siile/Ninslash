@@ -1,1 +1,1 @@
-@start explorer %APPDATA%\Teeworlds
+@start explorer %APPDATA%\Ninslash
