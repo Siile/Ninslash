@@ -97,7 +97,7 @@ void CBinds::SetDefaults()
 
 	Bind(KEY_SPACE, "+jump");
 	Bind(KEY_MOUSE_1, "+fire");
-	Bind(KEY_MOUSE_2, "+hook");
+	Bind(KEY_MOUSE_2, "+turbo");
 	Bind(KEY_E, "+picker");
 	Bind(KEY_LSHIFT, "+emote");
 	//Bind(KEY_E, "+itempicker");
@@ -111,8 +111,8 @@ void CBinds::SetDefaults()
 	Bind(KEY_GAMEPAD_AXIS_RIGHT, "+gamepadright");
 	
 	Bind(KEY_GAMEPAD_TRIGGER_RIGHT, "+gamepadfire");
-	//Bind(KEY_GAMEPAD_TRIGGER_LEFT, "+gamepadhook");
-	Bind(KEY_GAMEPAD_TRIGGER_LEFT, "+gamepadhook");
+	//Bind(KEY_GAMEPAD_TRIGGER_LEFT, "+gamepadturbo");
+	Bind(KEY_GAMEPAD_TRIGGER_LEFT, "+gamepadturbo");
 	Bind(KEY_GAMEPAD_BUTTON_LEFTSTICK, "+gamepadpicker");
 	
 	Bind(KEY_GAMEPAD_SHOULDER_LEFT, "+gamepadweapon1");

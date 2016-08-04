@@ -729,13 +729,14 @@ void IGameController::PostReset()
 
 void IGameController::OnPlayerInfoChange(class CPlayer *pP)
 {
-	const int aTeamColors[2] = {65387, 10223467};
+	const int aTeamColors[2] = {2555648, 8912640};
+	const int aTeamFeetColors[2] = {65280, 10354432};
 	if(IsTeamplay())
 	{
 		if(pP->GetTeam() >= TEAM_RED && pP->GetTeam() <= TEAM_BLUE)
 		{
 			pP->m_TeeInfos.m_ColorBody = aTeamColors[pP->GetTeam()];
-			pP->m_TeeInfos.m_ColorFeet = aTeamColors[pP->GetTeam()];
+			pP->m_TeeInfos.m_ColorFeet = aTeamFeetColors[pP->GetTeam()];
 		}
 		else
 		{

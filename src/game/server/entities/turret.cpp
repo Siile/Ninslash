@@ -91,7 +91,7 @@ void CTurret::Shoot()
 	{
 		m_ShootTimer = 7;
 		
-		GameServer()->CreateSound(m_Pos, aCustomWeapon[WEAPON_GUN].m_Sound);
+		GameServer()->CreateSound(m_Pos, aCustomWeapon[WEAPON_RIFLE].m_Sound);
 		
 		vec2 TurretPos = m_Pos+vec2(0, -67);
 		float Angle = (m_Angle + 90) / (180/pi);

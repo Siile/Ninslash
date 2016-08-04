@@ -98,10 +98,6 @@ void CRenderTools::RenderQuads(CQuad *pQuads, int NumQuads, int RenderFlags, ENV
 			b = aChannels[2];
 			a = aChannels[3];
 		}
-
-		r *= g_Config.m_GoreBackgroundBrightness / 100.0f;
-		g *= g_Config.m_GoreBackgroundBrightness / 100.0f;
-		b *= g_Config.m_GoreBackgroundBrightness / 100.0f;
 		
 		bool Opaque = false;
 		/* TODO: Analyze quadtexture
@@ -193,10 +189,6 @@ void CRenderTools::RenderTilemap(CTile *pTiles, int w, int h, float Scale, vec4 
 		a = aChannels[3];
 	}
 	
-	r *= g_Config.m_GoreTileBrightness / 100.0f;
-	g *= g_Config.m_GoreTileBrightness / 100.0f;
-	b *= g_Config.m_GoreTileBrightness / 100.0f;
-
 	Graphics()->QuadsBegin();
 	Graphics()->SetColor(Color.r*r, Color.g*g, Color.b*b, Color.a*a);
 

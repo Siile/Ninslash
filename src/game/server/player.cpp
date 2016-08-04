@@ -486,11 +486,12 @@ void CPlayer::SetRandomSkin()
 	default: str_copy(m_TeeInfos.m_TopperName, "default", 64);
 	};	
 	
-	switch (rand()%4)
+	switch (rand()%5)
 	{
 	case 0: str_copy(m_TeeInfos.m_EyeName, "halfhollow", 64); break;	
 	case 1: str_copy(m_TeeInfos.m_EyeName, "single", 64); break;
 	case 2: str_copy(m_TeeInfos.m_EyeName, "birdy", 64); break;
+	case 3: str_copy(m_TeeInfos.m_EyeName, "lid", 64); break;
 	default: str_copy(m_TeeInfos.m_EyeName, "default", 64);
 	};
 	

@@ -611,12 +611,13 @@ static CKeyInfo gs_aKeys[] =
 	{ "Move right", "+right", 0 },
 	{ "Jump", "+jump", 0 },
 	{ "Fire", "+fire", 0 },
-	{ "Hook", "+hook", 0 },
-	{ "Hammer", "+weapon1", 0 },
-	{ "Pistol", "+weapon2", 0 },
-	{ "Shotgun", "+weapon3", 0 },
-	{ "Grenade", "+weapon4", 0 },
-	{ "Rifle", "+weapon5", 0 },
+	{ "Turbo", "+turbo", 0 },
+	{ "Primary weapon", "+weapon1", 0 },
+	{ "Secondary weapon", "+weapon2", 0 },
+	{ "Weapon picker", "+picker", 0 },
+	{ "(not in use)", "+weapon3", 0 },
+	{ "(not in use)", "+weapon4", 0 },
+	//{ "Rifle", "+weapon5", 0 },
 	{ "Next weapon", "+nextweapon", 0 },
 	{ "Prev. weapon", "+prevweapon", 0 },
 	{ "Vote yes", "vote yes", 0 },
@@ -624,7 +625,6 @@ static CKeyInfo gs_aKeys[] =
 	{ "Chat", "chat all", 0 },
 	{ "Team chat", "chat team", 0 },
 	{ "Show chat", "+show_chat", 0 },
-	{ "Weapon picker", "+picker", 0 },
 	//{ "Item picker", "+itempicker", 0 },
 	{ "Emoticon", "+emote", 0 },
 	{ "Spectator mode", "+spectate", 0 },
@@ -634,7 +634,7 @@ static CKeyInfo gs_aKeys[] =
 	{ "Remote console", "toggle_remote_console", 0 },
 	{ "Screenshot", "screenshot", 0 },
 	{ "Scoreboard", "+scoreboard", 0 },
-	{ "Respawn", "kill", 0 },
+	{ "Respawn (not in use)", "kill", 0 },
 };
 
 /*	This is for scripts/update_localization.py to work, don't remove!
@@ -1108,11 +1108,6 @@ void CMenus::RenderSettingsCustom(CUIRect MainView)
 		g_Config.m_GoreAimLine ^= 1;
 
 
-	MainView.HSplitTop(20.0f, &Button, &MainView);
-	if(DoButton_CheckBox(&g_Config.m_GoreCustomTeams, Localize("Enable custom team styles"), g_Config.m_GoreCustomTeams, &Button))
-		g_Config.m_GoreCustomTeams ^= 1;
-	
-	
 	// camera slider
 	{
 		CUIRect Button, Label;
@@ -1122,32 +1117,6 @@ void CMenus::RenderSettingsCustom(CUIRect MainView)
 		Button.HMargin(2.0f, &Button);
 		UI()->DoLabelScaled(&Label, "Camera drag", 14.0f, -1);
 		g_Config.m_GoreCameraDelay = (int)(DoScrollbarH(&g_Config.m_GoreCameraDelay, &Button, g_Config.m_GoreCameraDelay/24.0f)*24.0f);
-		MainView.HSplitTop(20.0f, 0, &MainView);
-	}
-	
-	// tile brightness slider
-	{
-		CUIRect Button, Label;
-		MainView.HSplitTop(5.0f, &Button, &MainView);
-		MainView.HSplitTop(20.0f, &Button, &MainView);
-		Button.VSplitLeft(190.0f, &Label, &Button);
-		Button.HMargin(2.0f, &Button);
-		UI()->DoLabelScaled(&Label, "Tile brightness", 14.0f, -1);
-		g_Config.m_GoreTileBrightness = (int)(DoScrollbarH(&g_Config.m_GoreTileBrightness, &Button, g_Config.m_GoreTileBrightness/100.0f)*100.0f);
-
-		MainView.HSplitTop(20.0f, 0, &MainView);
-	}
-	
-	// background brightness slider
-	{
-		CUIRect Button, Label;
-		MainView.HSplitTop(5.0f, &Button, &MainView);
-		MainView.HSplitTop(20.0f, &Button, &MainView);
-		Button.VSplitLeft(190.0f, &Label, &Button);
-		Button.HMargin(2.0f, &Button);
-		UI()->DoLabelScaled(&Label, "Background brightness", 14.0f, -1);
-		g_Config.m_GoreBackgroundBrightness = (int)(DoScrollbarH(&g_Config.m_GoreBackgroundBrightness, &Button, g_Config.m_GoreBackgroundBrightness/100.0f)*100.0f);
-
 		MainView.HSplitTop(20.0f, 0, &MainView);
 	}
 }

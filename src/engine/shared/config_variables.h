@@ -68,15 +68,9 @@ MACRO_CONFIG_INT(GoreBlood, gore_blood, 30, 0, 100, CFGFLAG_SAVE|CFGFLAG_CLIENT,
 MACRO_CONFIG_INT(GoreWallSplatter, gore_wallsplatter, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Wall splatter enable")
 
 MACRO_CONFIG_INT(GoreAimLine, gore_aimline, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Aim line enable")
-MACRO_CONFIG_INT(GoreCustomMelee, gore_custommelee, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Custom melee weapons")
-
-MACRO_CONFIG_INT(GoreCustomTeams, gore_customteams, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Custom team styles")
 
 
 MACRO_CONFIG_INT(GoreCameraDelay, gore_cameradelay, 0, 0, 24, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Camera delay")
-
-MACRO_CONFIG_INT(GoreBackgroundBrightness, gore_backgroundbrightness, 60, 0, 100, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Background brightness")
-MACRO_CONFIG_INT(GoreTileBrightness, gore_tilebrightness, 80, 0, 100, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Tile brightness")
 
 
 MACRO_CONFIG_INT(SndNonactiveMute, snd_nonactive_mute, 0, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "")

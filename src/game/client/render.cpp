@@ -247,7 +247,7 @@ void CRenderTools::LoadSkeletonFromSpine(CAnimSkeletonInfo *pSkeleton,
 	{
 		string SkinName = IterSkin->first;
 
-		for(std::map<string, std::map<string, CSpineAttachment>>::const_iterator IterSlot = IterSkin->second.begin(); IterSlot != IterSkin->second.end(); IterSlot++)
+		for(std::map<string, std::map<string, CSpineAttachment> >::const_iterator IterSlot = IterSkin->second.begin(); IterSlot != IterSkin->second.end(); IterSlot++)
 		{
 			string SlotName = IterSlot->first;
 
@@ -1467,9 +1467,9 @@ void CRenderTools::RenderBuilding(vec2 Position, CAnimSkeletonInfo *pSkeleton, C
 	vec4 TeamColor = vec4(0.3f, 0.3f, 0.3f, 1);
 	
 	if (Team == TEAM_RED)
-		TeamColor = vec4(1.0f, 0.5f, 0.0f, 1);
+		TeamColor = vec4(1.0f, 0.3f, 0.0f, 1);
 	else if (Team == TEAM_BLUE)
-		TeamColor = vec4(0.0f, 1.0f, 0.5f, 1);
+		TeamColor = vec4(0.0f, 0.3f, 1.0f, 1);
 	
 	dbg_assert(pSkeleton != 0x0, "missing skeleton information");
 	

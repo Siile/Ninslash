@@ -287,12 +287,13 @@ void CPicker::DrawItems()
 	}
 	Graphics()->QuadsEnd();
 	
+	/*
 	if (m_Selected >= 0 && m_Selected < NUM_PLAYERITEMS)
 	{
 		float Size = 18;
 		TextRender()->Text(0, Screen.w/2-TextRender()->TextWidth(0,Size,aPlayerItemName[m_Selected], -1)/2, Screen.h/2-9, Size, aPlayerItemName[m_Selected], -1);
-
 	}
+	*/
 }
 
 

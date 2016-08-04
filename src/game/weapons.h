@@ -16,6 +16,7 @@ enum PlayerItems
 	NUM_PLAYERITEMS,
 };
 
+/*
 static const char *aPlayerItemName[NUM_PLAYERITEMS] =
 {
 	"Heal",
@@ -25,6 +26,7 @@ static const char *aPlayerItemName[NUM_PLAYERITEMS] =
 	"Electromine",
 	"Shield"
 };
+*/
 
 
 struct CWeapon
@@ -264,7 +266,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		"Assault rifle",
 		WEAPON_RIFLE,
 		PROJTYPE_BULLET,
-		SOUND_GUN_FIRE,
+		SOUND_RIFLE_FIRE,
 		100, // cost
 		13, // damage
 		0, // extra1
@@ -292,7 +294,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		7, // powerup size
 		20, // max ammo
 		0.4f, // bullet life
-		240, // bullet reload time
+		220, // bullet reload time
 		12.5f, // bullet knockback
 		1.5f // self knockback
 		),

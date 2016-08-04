@@ -177,9 +177,6 @@ void CPlayers::RenderPlayer(
 	bool InAir = !Collision()->CheckPoint(Player.m_X, Player.m_Y+16);
 	bool WantOtherDir = (Player.m_Direction == -1 && Vel.x > 0) || (Player.m_Direction == 1 && Vel.x < 0);
 
-	// evaluate animation
-	float WalkTime = fmod(absolute(Position.x), 100.0f)/100.0f;
-
 	
 	// flip feet animation when needed
 	if (!InAir || ((Direction.x < 0 && Player.m_VelX < 0) || (Direction.x > 0 && Player.m_VelX > 0)))
@@ -272,8 +269,6 @@ void CPlayers::RenderPlayer(
 		s_LastGameTickTime = Client()->GameTickTime();
 	if (Player.m_Weapon == WEAPON_HAMMER || Player.m_Weapon == WEAPON_TOOL)
 	{
-		float ct = (Client()->PrevGameTick()-Player.m_AttackTick)/(float)SERVER_TICK_SPEED + s_LastGameTickTime;
-		
 		// melee attack effect
 		if (pCustomPlayerInfo->m_MeleeTick < Player.m_AttackTick)
 		{
@@ -874,12 +869,10 @@ vec3 CPlayers::GetColorV3(int v)
 
 void CPlayers::OnRender()
 {
-	const int aTeamColors[2] = {65387, 10223467};
+	const int aTeamColors[2] = {2555648, 8912640};
+	const int aTeamFeetColors[2] = {65280, 10354432};
 	
 	// update RenderInfo for ninja
-	bool IsTeamplay = false;
-	if(m_pClient->m_Snap.m_pGameInfoObj)
-		IsTeamplay = (m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_TEAMS) != 0;
 	for(int i = 0; i < MAX_CLIENTS; ++i)
 	{
 		m_aRenderInfo[i] = m_pClient->m_aClients[i].m_RenderInfo;
@@ -887,6 +880,7 @@ void CPlayers::OnRender()
 		vec3 TeamColor = GetColorV3(aTeamColors[TEAM_RED]);
 		
 		// change to custom team colors
+		/*
 		if (g_Config.m_GoreCustomTeams)
 		{
 			if (m_aRenderInfo[i].m_ColorBody.r == TeamColor.r && m_aRenderInfo[i].m_ColorBody.g == TeamColor.g && m_aRenderInfo[i].m_ColorBody.b == TeamColor.b)
@@ -915,6 +909,7 @@ void CPlayers::OnRender()
 				}
 			}
 		}
+		*/
 	}
 
 	// render other players in two passes, first pass we render the other, second pass we render our self

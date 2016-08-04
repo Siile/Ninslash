@@ -503,7 +503,7 @@ bool CSpineReader::LoadAtlas(const char *pAtlasData, CSpineAtlas *pAtlas)
 			// fill new page
 			CSpineAtlasPage Page;
 			Page.m_Name = pLine;
-			dbg_msg("spine", "atlas page: %s", Page.m_Name);
+			//dbg_msg("spine", "atlas page: %s", Page.m_Name);
 
 			{
 				// size

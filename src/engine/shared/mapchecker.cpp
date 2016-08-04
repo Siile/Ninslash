@@ -27,7 +27,7 @@ void CMapChecker::Init()
 
 void CMapChecker::SetDefaults()
 {
-	AddMaplist(s_aMapVersionList, s_NumMapVersionItems);
+	//AddMaplist(s_aMapVersionList, s_NumMapVersionItems);
 	m_RemoveDefaultList = true;
 }
 

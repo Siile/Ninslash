@@ -123,15 +123,10 @@ void CEffects::Spark(vec2 Pos)
 	CSinglespark b;
 	b.SetDefault();
 	b.m_Pos = Pos;
-
 	b.m_LifeSpan = 0.1f + frandom()*0.2f;
 	b.m_Rotspeed = frandom()*12.0f - frandom()*12.0f;
-	
 	b.m_Vel = RandomDir() * ((frandom()+0.165f)*500.0f);
-	
 	b.m_Rot = GetAngle(b.m_Vel);
-	
-	float c = 0.1f + frandom()*0.5f;
 	
 	b.m_Color = vec4(1.0f, 0.2f + frandom()*0.8f, 0.0f, 1.0f);
 	m_pClient->m_pSpark->Add(CSpark::GROUP_SPARKS, &b);

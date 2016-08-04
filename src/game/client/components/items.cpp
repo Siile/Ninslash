@@ -343,9 +343,10 @@ void CItems::RenderFlag(const CNetObj_Flag *pPrev, const CNetObj_Flag *pCurrent,
 			(pCurrent->m_Team == TEAM_BLUE && pCurGameData->m_FlagCarrierBlue == m_pClient->m_Snap.m_LocalClientID)))
 			Pos = m_pClient->m_LocalCharacterPos;
 			
-		if ((pCurrent->m_Team == TEAM_RED && pCurGameData->m_FlagCarrierRed > 0) ||
-			(pCurrent->m_Team == TEAM_BLUE && pCurGameData->m_FlagCarrierBlue > 0))
-			Pos += vec2(0, -32);
+			
+		if ((pCurrent->m_Team == TEAM_RED && pCurGameData->m_FlagCarrierRed >= 0) ||
+			(pCurrent->m_Team == TEAM_BLUE && pCurGameData->m_FlagCarrierBlue >= 0))
+			Pos += vec2(0, -42);
 	}
 	
 	
@@ -415,7 +416,7 @@ void CItems::RenderFlag(const CNetObj_Flag *pPrev, const CNetObj_Flag *pCurrent,
 	}
 	
 	
-	IGraphics::CQuadItem QuadItem(Pos.x+m_FlagOffset[Team].x + m_FlagTilt[Team] * 2, Pos.y-Size*0.75f+m_FlagOffset[Team].y, Size, Size*2);
+	IGraphics::CQuadItem QuadItem(Pos.x+m_FlagOffset[Team].x + m_FlagTilt[Team] * 2, Pos.y-Size*0.75f+m_FlagOffset[Team].y + 10.0f, Size*1.2f, Size*2.4f);
 	Graphics()->QuadsDraw(&QuadItem, 1);
 	Graphics()->QuadsEnd();
 }
