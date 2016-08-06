@@ -31,7 +31,14 @@ void CCustomStuff::Reset()
 	
 	for (int i = 0; i < NUM_PLAYERITEMS; i++)
 		m_aLocalItems[i] = 0;
+	
+	m_WeaponpickTimer = 0;
+	m_WeaponpickWeapon = 0;
+	
+	m_LastWeaponPicked = true;
 }
+
+
 
 
 
@@ -41,6 +48,14 @@ void CCustomStuff::Tick()
 	
 	// Client side building animation
 	m_SawbladeAngle += 0.07f;
+	
+	if (m_WeaponpickTimer > 0.0f)
+	{
+		m_WeaponpickTimer -= 0.0035f;
+		
+		if (m_LastWeaponPicked)
+			m_WeaponpickTimer -= 0.0035f;
+	}
 	
 	m_MonsterAnim += 0.006f;
 	//if (m_MonsterAnim >= 1.0f)

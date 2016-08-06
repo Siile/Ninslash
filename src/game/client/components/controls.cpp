@@ -122,10 +122,14 @@ void CControls::OnMessage(int Msg, void *pRawMsg)
 	if(Msg == NETMSGTYPE_SV_WEAPONPICKUP)
 	{
 		CNetMsg_Sv_WeaponPickup *pMsg = (CNetMsg_Sv_WeaponPickup *)pRawMsg;
+		
+		CustomStuff()->m_LocalWeapons |= 1 << (pMsg->m_Weapon);
+		CustomStuff()->m_WeaponpickTimer = 1.0f;
+		CustomStuff()->m_WeaponpickWeapon = pMsg->m_Weapon;
+		CustomStuff()->m_LastWeaponPicked = false;
+			
 		if(g_Config.m_ClAutoswitchWeapons)
 		{
-			CustomStuff()->m_LocalWeapons |= 1 << (pMsg->m_Weapon);
-			
 			char aBuf[32];
 			str_format(aBuf, sizeof(aBuf), "weaponpick %d", pMsg->m_Weapon-1);
 			Console()->ExecuteLine(aBuf);

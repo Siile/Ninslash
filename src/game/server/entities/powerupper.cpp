@@ -19,9 +19,9 @@ CPowerupper::CPowerupper(CGameWorld *pGameWorld, vec2 Pos)
 
 void CPowerupper::Tick()
 {
-	if (m_Item < 0 && (m_ItemTakenTick + Server()->TickSpeed()*20.0f < GameServer()->Server()->Tick() || m_ItemTakenTick == 0))
+	if (m_Item < 0 && (m_ItemTakenTick + Server()->TickSpeed()*30.0f < GameServer()->Server()->Tick() || m_ItemTakenTick == 0))
 	{
-		while (m_Item < 0 || m_Item == PLAYERITEM_LANDMINE || m_Item == PLAYERITEM_ELECTROMINE)
+		while (m_Item < 0 || m_Item == PLAYERITEM_LANDMINE || m_Item == PLAYERITEM_ELECTROMINE || m_Item == PLAYERITEM_HEAL)
 			m_Item = rand()%NUM_PLAYERITEMS;
 	}
 	

@@ -1218,13 +1218,13 @@ void CCharacter::SelectItem(int Item)
 	
 	if (Item == PLAYERITEM_HEAL && m_aStatus[STATUS_HEAL] <= 0)
 	{
-		m_aStatus[STATUS_HEAL] = Server()->TickSpeed() * 0.65f;
+		m_aStatus[STATUS_HEAL] = Server()->TickSpeed() * 0.75f;
 		m_aItem[Item]--;
 	}
 
 	if (Item == PLAYERITEM_RAGE && m_aStatus[STATUS_RAGE] <= 0)
 	{
-		m_aStatus[STATUS_RAGE] = Server()->TickSpeed() * 15.0f;
+		m_aStatus[STATUS_RAGE] = Server()->TickSpeed() * 20.0f;
 		m_aItem[Item]--;
 	}
 	
@@ -1242,7 +1242,7 @@ void CCharacter::SelectItem(int Item)
 	
 	if (Item == PLAYERITEM_SHIELD && m_aStatus[STATUS_SHIELD] <= 0)
 	{
-		m_aStatus[STATUS_SHIELD] = Server()->TickSpeed() * 15.0f;
+		m_aStatus[STATUS_SHIELD] = Server()->TickSpeed() * 20.0f;
 		m_ShieldHealth = 70;
 		m_ShieldRadius = 16;
 		m_aItem[Item]--;
@@ -1250,7 +1250,7 @@ void CCharacter::SelectItem(int Item)
 	
 	if (Item == PLAYERITEM_INVISIBILITY && m_aStatus[STATUS_INVISIBILITY] <= 0)
 	{
-		m_aStatus[STATUS_INVISIBILITY] = Server()->TickSpeed() * 15.0f;
+		m_aStatus[STATUS_INVISIBILITY] = Server()->TickSpeed() * 20.0f;
 		m_aItem[Item]--;
 	}
 }
@@ -1258,21 +1258,24 @@ void CCharacter::SelectItem(int Item)
 void CCharacter::GiveBuff(int Item)
 {
 	if (Item == PLAYERITEM_HEAL)
-		m_aStatus[STATUS_HEAL] = Server()->TickSpeed() * 0.65f;
+		m_aStatus[STATUS_HEAL] = Server()->TickSpeed() * 0.75f;
 
 	if (Item == PLAYERITEM_RAGE)
-		m_aStatus[STATUS_RAGE] = Server()->TickSpeed() * 15.0f;
+		m_aStatus[STATUS_RAGE] = Server()->TickSpeed() * 20.0f;
+	
+	if (Item == PLAYERITEM_FUEL)
+		m_aStatus[STATUS_FUEL] = Server()->TickSpeed() * 20.0f;
 	
 	
 	if (Item == PLAYERITEM_SHIELD)
 	{
-		m_aStatus[STATUS_SHIELD] = Server()->TickSpeed() * 15.0f;
+		m_aStatus[STATUS_SHIELD] = Server()->TickSpeed() * 20.0f;
 		m_ShieldHealth = 70;
 		m_ShieldRadius = 16;
 	}
 	
 	if (Item == PLAYERITEM_INVISIBILITY)
-		m_aStatus[STATUS_INVISIBILITY] = Server()->TickSpeed() * 15.0f;
+		m_aStatus[STATUS_INVISIBILITY] = Server()->TickSpeed() * 20.0f;
 }
 
 
@@ -1309,7 +1312,7 @@ void CCharacter::UpdateCoreStatus()
 		
 		 // flame damage
 		if (m_aStatus[STATUS_AFLAME] > 0)
-			TakeDamage(vec2(0, 0), 4, m_aStatusFrom[STATUS_AFLAME], m_aStatusWeapon[STATUS_AFLAME], vec2(0, 0), DAMAGETYPE_FLAME);
+			TakeDamage(vec2(0, 0), 3, m_aStatusFrom[STATUS_AFLAME], m_aStatusWeapon[STATUS_AFLAME], vec2(0, 0), DAMAGETYPE_FLAME);
 	}
 	
 	// rolling stops flames faster

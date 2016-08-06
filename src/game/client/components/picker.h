@@ -19,6 +19,7 @@ class CPicker : public CComponent
 	static void ConKeyItemPicker(IConsole::IResult *pResult, void *pUserData);
 	static void ConKeyPicker(IConsole::IResult *pResult, void *pUserData);
 	static void ConItempick(IConsole::IResult *pResult, void *pUserData);
+	static void ConLastWeaponpick(IConsole::IResult *pResult, void *pUserData);
 	static void ConWeaponpick(IConsole::IResult *pResult, void *pUserData);
 	static void ConKeyEmote(IConsole::IResult *pResult, void *pUserData);
 	static void ConEmote(IConsole::IResult *pResult, void *pUserData);
@@ -36,6 +37,7 @@ public:
 	virtual void OnMessage(int MsgType, void *pRawMsg);
 	virtual bool OnMouseMove(float x, float y);
 
+	void LastWeaponpick();
 	void Weaponpick(int Weapon);
 	void Itempick(int Item);
 	void Emote(int Emoticon);

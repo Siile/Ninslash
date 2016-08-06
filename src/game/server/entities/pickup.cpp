@@ -164,6 +164,7 @@ void CPickup::Tick()
 				}
 				break;
 
+			// todo: clean and remove parent weapon type
 			case POWERUP_WEAPON:
 				if(m_Subtype >= 0 && m_Subtype < NUM_CUSTOMWEAPONS)
 				{
@@ -194,8 +195,8 @@ void CPickup::Tick()
 							
 							GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), m_Subtype);
 							
-							char aBuf[256]; str_format(aBuf, sizeof(aBuf), "Picked up %s", aCustomWeapon[m_Subtype].m_Name);
-							GameServer()->SendChatTarget(pChr->GetPlayer()->GetCID(), aBuf);
+							//char aBuf[256]; str_format(aBuf, sizeof(aBuf), "Picked up %s", aCustomWeapon[m_Subtype].m_Name);
+							//GameServer()->SendChatTarget(pChr->GetPlayer()->GetCID(), aBuf);
 						}
 						
 						RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
@@ -206,6 +207,11 @@ void CPickup::Tick()
 					{
 						if (pChr->GiveAmmo(&m_Subtype, AmmoFill))
 						{
+							if(Parent == WEAPON_GRENADE)
+								GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE);
+							else
+								GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN);
+							
 							//char aBuf[256]; str_format(aBuf, sizeof(aBuf), "Picked up ammo for %s", aCustomWeapon[m_Subtype].m_Name);
 							//GameServer()->SendChatTarget(pChr->GetPlayer()->GetCID(), aBuf);
 							

@@ -42,11 +42,17 @@ public:
 	float m_SawbladeAngle;
 	float m_MonsterAnim;
 	
+	// for weapon picker
 	int m_WantedWeapon;
 	int m_SelectedGroup;
 	
 	int m_LocalWeapons;
 	int m_aLocalItems[NUM_PLAYERITEMS];
+	
+	// for weapon pick effect
+	float m_WeaponpickTimer;
+	int m_WeaponpickWeapon;
+	bool m_LastWeaponPicked;
 	
 	int m_SelectedWeapon;
 

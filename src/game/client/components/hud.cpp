@@ -518,8 +518,52 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	*/
 	
 	CustomStuff()->m_SelectedGroup = pCharacter->m_SelectedGroup+1;
+	
+	// weapon pickup effect
+	if (CustomStuff()->m_WeaponpickTimer > 0.0f)
+	{
+		x += 60;
+		y -= 18;
+		
+		float a = sin(CustomStuff()->m_WeaponpickTimer*pi)*sin(CustomStuff()->m_WeaponpickTimer*pi);
+		
+		Graphics()->SetColor(1, 1, 1, a);
+		
+		
+		RenderTools()->SelectSprite(SPRITE_WEAPON_PICKUP);
+		RenderTools()->DrawSprite(x, y, 42);
+		
+		
+		a = sin(CustomStuff()->m_WeaponpickTimer*pi)*sin(CustomStuff()->m_WeaponpickTimer*pi);
+		
+		Graphics()->SetColor(1, 1, 1, a);
+		
+		int iw = clamp(CustomStuff()->m_WeaponpickWeapon, 0, NUM_WEAPONS-1);
+		
+		Size = 0.5f * sin(CustomStuff()->m_WeaponpickTimer*pi)*sin(CustomStuff()->m_WeaponpickTimer*pi);
+		
+		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[iw].m_pSpriteBody);
+		RenderTools()->DrawSprite(x, y, g_pData->m_Weapons.m_aId[iw].m_VisualSize * Size);
+	}
+	
 		
 	Graphics()->QuadsEnd();
+	
+	// select last picked weapon quick event helper
+	if (CustomStuff()->m_WeaponpickTimer > 0.0f && !CustomStuff()->m_LastWeaponPicked)
+	{
+		//const char *pLastWeaponKey = m_pClient->m_pBinds->GetKey("+lastweapon");
+		//char aBuf[32];
+		//str_format(aBuf, sizeof(aBuf), "%s", pLastWeaponKey);
+		
+		float a = sin(CustomStuff()->m_WeaponpickTimer*pi)*sin(CustomStuff()->m_WeaponpickTimer*pi);
+		TextRender()->TextColor(0.2f, 0.7f, 0.2f, min(1.0f, a*2.0f));
+		
+		float Size = 10;
+		TextRender()->Text(0, x + 7, y + 4, Size, m_pClient->m_pBinds->GetKey("+lastweapon"), -1);
+
+		TextRender()->TextColor(1, 1, 1, 1);
+	}
 }
 
 void CHud::RenderSpectatorHud()

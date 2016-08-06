@@ -190,8 +190,8 @@ container.sounds.Add(SoundSet("hammer_hit", FileList("audio/wp_sword_hit-%02d.wv
 container.sounds.Add(SoundSet("chainsaw_idle", ["audio/wp_chainsaw_idle.wv"]))
 container.sounds.Add(SoundSet("chainsaw_fire", ["audio/wp_chainsaw_fire.wv"]))
 container.sounds.Add(SoundSet("grenade_explode", FileList("audio/wp_flump_explo-%02d.wv", 3)))
-container.sounds.Add(SoundSet("rifle_fire", FileList("audio/wp_gun_fire-%02d.wv", 3)))
-container.sounds.Add(SoundSet("laser_fire", FileList("audio/wp_rifle_fire-%02d.wv", 3)))
+container.sounds.Add(SoundSet("rifle_fire", FileList("audio/wp_rifle_fire-%02d.wv", 3)))
+container.sounds.Add(SoundSet("laser_fire", FileList("audio/wp_laser_fire-%02d.wv", 3)))
 container.sounds.Add(SoundSet("laser_bounce", FileList("audio/wp_rifle_bnce-%02d.wv", 3)))
 container.sounds.Add(SoundSet("weapon_switch", FileList("audio/wp_switch-%02d.wv", 3)))
 
@@ -251,6 +251,7 @@ container.sounds.Add(SoundSet("item_invisibility", ["audio/item_invisibility.wv"
 container.sounds.Add(SoundSet("item_shield", ["audio/item_shield.wv"]))
 container.sounds.Add(SoundSet("item_heal", ["audio/item_heal.wv"]))
 container.sounds.Add(SoundSet("item_rage", ["audio/item_rage.wv"]))
+container.sounds.Add(SoundSet("item_fuel", ["audio/item_fuel.wv"]))
 
 container.sounds.Add(SoundSet("electromine", ["audio/electromine.wv"]))
 
@@ -571,6 +572,9 @@ container.sprites.Add(Sprite("part6", set_game, 8,1,1,1))
 container.sprites.Add(Sprite("part7", set_game, 9,0,2,2))
 container.sprites.Add(Sprite("part8", set_game, 11,0,2,2))
 container.sprites.Add(Sprite("part9", set_game, 13,0,2,2))
+
+
+container.sprites.Add(Sprite("weapon_pickup", set_weapons, 8,12,4,4))
 
 container.sprites.Add(Sprite("weapon_tool_body", set_weapons, 0,0,4,2))
 container.sprites.Add(Sprite("weapon_tool_pickup", set_pickups, 0,0,0,0))

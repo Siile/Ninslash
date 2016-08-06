@@ -411,12 +411,12 @@ void CGameContext::CreateFlameExplosion(vec2 Pos, int Owner, int Weapon, bool No
 				if(l)
 					ForceDir = normalize(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
-				float Dmg = 8 * l;
+				float Dmg = 7 * l;
 
 				if((int)Dmg && Dmg > 0.0f)
 				{
 					apEnts[i]->TakeDamage(ForceDir*Dmg*0.9f, (int)Dmg, Owner, Weapon, vec2(0, 0), DAMAGETYPE_FLAME);
-					apEnts[i]->SetAflame(0.5f+Dmg*0.5f, Owner, Weapon);
+					apEnts[i]->SetAflame(0.65f+Dmg*0.4f, Owner, Weapon);
 				}
 			}
 		}

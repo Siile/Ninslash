@@ -523,9 +523,9 @@ void CChat::OnRender()
 		else if(m_aLines[r].m_Team)
 			TextRender()->TextColor(0.45f, 0.9f, 0.45f, Blend); // team message
 		else if(m_aLines[r].m_NameColor == TEAM_RED)
-			TextRender()->TextColor(1.0f, 0.3f, 0.0f, Blend); // red
+			TextRender()->TextColor(1.0f, 0.4f, 0.1f, Blend); // red
 		else if(m_aLines[r].m_NameColor == TEAM_BLUE)
-			TextRender()->TextColor(0.0f, 0.3f, 1.0f, Blend); // blue
+			TextRender()->TextColor(0.1f, 0.4f, 1.0f, Blend); // blue
 		else if(m_aLines[r].m_NameColor == TEAM_SPECTATORS)
 			TextRender()->TextColor(0.75f, 0.5f, 0.75f, Blend); // spectator
 		else

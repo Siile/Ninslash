@@ -99,6 +99,7 @@ void CBinds::SetDefaults()
 	Bind(KEY_MOUSE_1, "+fire");
 	Bind(KEY_MOUSE_2, "+turbo");
 	Bind(KEY_E, "+picker");
+	Bind(KEY_Q, "+lastweapon");
 	Bind(KEY_LSHIFT, "+emote");
 	//Bind(KEY_E, "+itempicker");
 	Bind(KEY_RSHIFT, "+spectate");

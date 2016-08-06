@@ -477,12 +477,22 @@ void CPlayer::TryRespawn()
 
 void CPlayer::SetRandomSkin()
 {
-	switch (rand()%5)
+	switch (rand()%15)
 	{
 	case 0: str_copy(m_TeeInfos.m_TopperName, "tigerboy", 64); break;	
 	case 1: str_copy(m_TeeInfos.m_TopperName, "emo", 64); break;
-	case 2: str_copy(m_TeeInfos.m_TopperName, "dr", 64); break;
-	case 3: str_copy(m_TeeInfos.m_TopperName, "gentlenin", 64); break;
+	case 2: str_copy(m_TeeInfos.m_TopperName, "emo2", 64); break;
+	case 3: str_copy(m_TeeInfos.m_TopperName, "dr", 64); break;
+	case 4: str_copy(m_TeeInfos.m_TopperName, "gentlenin", 64); break;
+	case 5: str_copy(m_TeeInfos.m_TopperName, "gentlenin2", 64); break;
+	case 6: str_copy(m_TeeInfos.m_TopperName, "casual", 64); break;
+	case 7: str_copy(m_TeeInfos.m_TopperName, "casual2", 64); break;
+	case 8: str_copy(m_TeeInfos.m_TopperName, "casual3", 64); break;
+	case 9: str_copy(m_TeeInfos.m_TopperName, "pipo", 64); break;
+	case 10: str_copy(m_TeeInfos.m_TopperName, "nitters", 64); break;
+	case 11: str_copy(m_TeeInfos.m_TopperName, "raiden", 64); break;
+	case 12: str_copy(m_TeeInfos.m_TopperName, "afro", 64); break;
+	case 13: str_copy(m_TeeInfos.m_TopperName, "long", 64); break;
 	default: str_copy(m_TeeInfos.m_TopperName, "default", 64);
 	};	
 	

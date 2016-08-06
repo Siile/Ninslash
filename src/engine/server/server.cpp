@@ -1848,93 +1848,35 @@ void CServer::AddZombie()
 	char aName1[128];
 	char aName2[128];
 	
-	switch (rand() % 40)
+	switch (rand() % 7)
 	{
-		case 0: str_format(aName1, sizeof(aName1), "Ran"); break;
-		case 1: str_format(aName1, sizeof(aName1), "Dom"); break;
-		case 2: str_format(aName1, sizeof(aName1), "Lan"); break;
-		case 3: str_format(aName1, sizeof(aName1), "Mag"); break;
-		case 4: str_format(aName1, sizeof(aName1), "Kit"); break;
-		case 5: str_format(aName1, sizeof(aName1), "Dog"); break;
-		case 6: str_format(aName1, sizeof(aName1), "Bana"); break;
-		case 7: str_format(aName1, sizeof(aName1), "Sync"); break;
-		case 8: str_format(aName1, sizeof(aName1), "Ju"); break;
-		case 9: str_format(aName1, sizeof(aName1), "Rub"); break;
-		case 10: str_format(aName1, sizeof(aName1), "Hor"); break;
-		case 11: str_format(aName1, sizeof(aName1), "Afro"); break;
-		case 12: str_format(aName1, sizeof(aName1), "Red"); break;
-		case 13: str_format(aName1, sizeof(aName1), "And"); break;
-		case 14: str_format(aName1, sizeof(aName1), "Boss"); break;
-		case 15: str_format(aName1, sizeof(aName1), "Nek"); break;
-		case 16: str_format(aName1, sizeof(aName1), "Pat"); break;
-		case 17: str_format(aName1, sizeof(aName1), "Hos"); break;
-		case 18: str_format(aName1, sizeof(aName1), "Tee"); break;
-		case 19: str_format(aName1, sizeof(aName1), "Dis"); break;
-		case 20: str_format(aName1, sizeof(aName1), "Fat"); break;
-		case 21: str_format(aName1, sizeof(aName1), "Win"); break;
-		case 22: str_format(aName1, sizeof(aName1), "Los"); break;
-		case 23: str_format(aName1, sizeof(aName1), "Def"); break;
-		case 24: str_format(aName1, sizeof(aName1), "Whi"); break;
-		case 25: str_format(aName1, sizeof(aName1), "Dil"); break;
-		case 26: str_format(aName1, sizeof(aName1), "Ban"); break;
-		case 27: str_format(aName1, sizeof(aName1), "Pet"); break;
-		case 28: str_format(aName1, sizeof(aName1), "Cat"); break;
-		case 29: str_format(aName1, sizeof(aName1), "Moo"); break;
-		case 30: str_format(aName1, sizeof(aName1), "Piu"); break;
-		case 31: str_format(aName1, sizeof(aName1), "Pau"); break;
-		case 32: str_format(aName1, sizeof(aName1), "Two"); break;
-		case 33: str_format(aName1, sizeof(aName1), "One"); break;
-		case 34: str_format(aName1, sizeof(aName1), "Jon"); break;
-		case 35: str_format(aName1, sizeof(aName1), "Hax"); break;
-		case 36: str_format(aName1, sizeof(aName1), "Nig"); break;
-		case 37: str_format(aName1, sizeof(aName1), "Ho"); break;
-		case 38: str_format(aName1, sizeof(aName1), "Ta"); break;
-		default: str_format(aName1, sizeof(aName1), "Lol"); break;
+		case 0: str_format(aName1, sizeof(aName1), "i"); break;
+		case 1: str_format(aName1, sizeof(aName1), "a"); break;
+		case 2: str_format(aName1, sizeof(aName1), "u"); break;
+		case 3: str_format(aName1, sizeof(aName1), "o"); break;
+		case 4: str_format(aName1, sizeof(aName1), "q"); break;
+		case 5: str_format(aName1, sizeof(aName1), "e"); break;
+		case 6: str_format(aName1, sizeof(aName1), "y"); break;
 	}
 	
-	switch (rand() % 40)
+	switch (rand() % 16)
 	{
-		case 0: str_format(aName2, sizeof(aName2), "dom"); break;
-		case 1: str_format(aName2, sizeof(aName2), "ina"); break;
-		case 2: str_format(aName2, sizeof(aName2), "dil"); break;
-		case 3: str_format(aName2, sizeof(aName2), "net"); break;
-		case 4: str_format(aName2, sizeof(aName2), "ty"); break;
-		case 5: str_format(aName2, sizeof(aName2), "ie"); break;
-		case 6: str_format(aName2, sizeof(aName2), "na"); break;
-		case 7: str_format(aName2, sizeof(aName2), "hack"); break;
-		case 8: str_format(aName2, sizeof(aName2), "fox"); break;
-		case 9: str_format(aName2, sizeof(aName2), "duck"); break;
-		case 10: str_format(aName2, sizeof(aName2), "ero"); break;
-		case 11: str_format(aName2, sizeof(aName2), "gon"); break;
-		case 12: str_format(aName2, sizeof(aName2), "ho"); break;
-		case 13: str_format(aName2, sizeof(aName2), "pie"); break;
-		case 14: str_format(aName2, sizeof(aName2), "la"); break;
-		case 15: str_format(aName2, sizeof(aName2), "sie"); break;
-		case 16: str_format(aName2, sizeof(aName2), "doge"); break;
-		case 17: str_format(aName2, sizeof(aName2), "nana"); break;
-		case 18: str_format(aName2, sizeof(aName2), "per"); break;
-		case 19: str_format(aName2, sizeof(aName2), "style"); break;
-		case 20: str_format(aName2, sizeof(aName2), "tee"); break;
-		case 21: str_format(aName2, sizeof(aName2), "lan"); break;
-		case 22: str_format(aName2, sizeof(aName2), "ly"); break;
-		case 23: str_format(aName2, sizeof(aName2), "ling"); break;
-		case 24: str_format(aName2, sizeof(aName2), "do"); break;
-		case 25: str_format(aName2, sizeof(aName2), "die"); break;
-		case 26: str_format(aName2, sizeof(aName2), "be"); break;
-		case 27: str_format(aName2, sizeof(aName2), "lol"); break;
-		case 28: str_format(aName2, sizeof(aName2), "er"); break;
-		case 29: str_format(aName2, sizeof(aName2), "cat"); break;
-		case 30: str_format(aName2, sizeof(aName2), "gie"); break;
-		case 31: str_format(aName2, sizeof(aName2), "gy"); break;
-		case 32: str_format(aName2, sizeof(aName2), "piu"); break;
-		case 33: str_format(aName2, sizeof(aName2), "pau"); break;
-		case 34: str_format(aName2, sizeof(aName2), "pack"); break;
-		case 35: str_format(aName2, sizeof(aName2), "cent"); break;
-		case 36: str_format(aName2, sizeof(aName2), "hax"); break;
-		case 37: str_format(aName2, sizeof(aName2), "ger"); break;
-		case 38: str_format(aName2, sizeof(aName2), "mo"); break;
-		case 39: str_format(aName2, sizeof(aName2), "rd"); break;
-		default: str_format(aName2, sizeof(aName2), "uit"); break;
+		case 0: str_format(aName2, sizeof(aName2), "w"); break;
+		case 1: str_format(aName2, sizeof(aName2), "t"); break;
+		case 2: str_format(aName2, sizeof(aName2), "i"); break;
+		case 3: str_format(aName2, sizeof(aName2), "o"); break;
+		case 4: str_format(aName2, sizeof(aName2), "p"); break;
+		case 5: str_format(aName2, sizeof(aName2), "a"); break;
+		case 6: str_format(aName2, sizeof(aName2), "f"); break;
+		case 7: str_format(aName2, sizeof(aName2), "g"); break;
+		case 8: str_format(aName2, sizeof(aName2), "j"); break;
+		case 9: str_format(aName2, sizeof(aName2), "l"); break;
+		case 10: str_format(aName2, sizeof(aName2), "x"); break;
+		case 11: str_format(aName2, sizeof(aName2), "c"); break;
+		case 12: str_format(aName2, sizeof(aName2), "v"); break;
+		case 13: str_format(aName2, sizeof(aName2), "b"); break;
+		case 14: str_format(aName2, sizeof(aName2), "n"); break;
+		case 15: str_format(aName2, sizeof(aName2), "m"); break;
 	}
 	
 	

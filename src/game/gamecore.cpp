@@ -631,6 +631,11 @@ void CCharacterCore::Tick(bool UseInput)
 	s = m_Status;
 	if (s & (1<<STATUS_ELECTRIC))
 		m_Vel.x *= 0.85f;
+	
+	// infinite fuel effect
+	s = m_Status;
+	if (s & (1<<STATUS_FUEL))
+		m_JetpackPower = 100;
 }
 
 

@@ -59,6 +59,11 @@ void CPicker::ConKeyPicker(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CPicker::ConLastWeaponpick(IConsole::IResult *pResult, void *pUserData)
+{
+	((CPicker *)pUserData)->LastWeaponpick();
+}
+
 void CPicker::ConWeaponpick(IConsole::IResult *pResult, void *pUserData)
 {
 	((CPicker *)pUserData)->Weaponpick(pResult->GetInteger(0));
@@ -80,6 +85,7 @@ void CPicker::OnConsoleInit()
 	//Console()->Register("+itempicker", "", CFGFLAG_CLIENT, ConKeyItemPicker, this, "Open item selector");
 	//Console()->Register("+gamepaditempicker", "", CFGFLAG_CLIENT, ConKeyItemPicker, this, "Open item selector");
 	
+	Console()->Register("+lastweapon", "", CFGFLAG_CLIENT, ConLastWeaponpick, this, "Select last picked weapon");
 	Console()->Register("+picker", "", CFGFLAG_CLIENT, ConKeyPicker, this, "Open weapon selector");
 	Console()->Register("+gamepadpicker", "", CFGFLAG_CLIENT, ConKeyPicker, this, "Open weapon selector");
 	Console()->Register("weaponpick", "i", CFGFLAG_CLIENT, ConWeaponpick, this, "Use weapon");
@@ -417,9 +423,21 @@ void CPicker::Itempick(int Item)
 }
 
 
+void CPicker::LastWeaponpick()
+{
+	if (CustomStuff()->m_WeaponpickTimer > 0.0f)
+	{
+		Weaponpick(CustomStuff()->m_WeaponpickWeapon-1);
+		CustomStuff()->m_LastWeaponPicked = true;
+	}
+}
+	
 void CPicker::Weaponpick(int Weapon)
 {
 	int Group = CustomStuff()->m_SelectedGroup-1;
+	
+	if (Weapon < 0 || Weapon >= NUM_WEAPONS)
+		return;
 	
 	if (Group < 0 || Group > 1)
 		return;

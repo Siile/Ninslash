@@ -503,7 +503,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 				CTeeRenderInfo Info;
 				Info.m_TopperTexture = s->m_Texture;
 				Info.m_ColorTopper = m_pClient->m_pSkins->GetColorV4(g_Config.m_PlayerColorTopper);
-				Info.m_Size = UI()->Scale()*50.0f;
+				Info.m_Size = UI()->Scale()*80.0f;
 				Item.m_Rect.HSplitTop(5.0f, 0, &Item.m_Rect); // some margin from the top
 				
 				RenderTools()->RenderTopper(&Info, vec2(Item.m_Rect.x+Item.m_Rect.w/2, Item.m_Rect.y+Item.m_Rect.h/2));
@@ -615,7 +615,7 @@ static CKeyInfo gs_aKeys[] =
 	{ "Primary weapon", "+weapon1", 0 },
 	{ "Secondary weapon", "+weapon2", 0 },
 	{ "Weapon picker", "+picker", 0 },
-	{ "(not in use)", "+weapon3", 0 },
+	{ "Select last picked weapon", "+lastweapon", 0 },
 	{ "(not in use)", "+weapon4", 0 },
 	//{ "Rifle", "+weapon5", 0 },
 	{ "Next weapon", "+nextweapon", 0 },

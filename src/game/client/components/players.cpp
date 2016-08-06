@@ -344,15 +344,17 @@ void CPlayers::RenderPlayer(
 		
 		// do outline
 		if (Player.m_Weapon == WEAPON_SHOTGUN)
-			Graphics()->SetColor(1.0f, 1.0f, 0.2f, 0.5f*a);
+			Graphics()->SetColor(1.0f, 1.0f, 0.2f, 0.3f*a);
 		else if (Player.m_Weapon == WEAPON_RIFLE)
-			Graphics()->SetColor(0.2f, 0.2f, 1.0f, 0.5f*a);
-		else if (Player.m_Weapon == WEAPON_GRENADE)
-			Graphics()->SetColor(1.0f, 0.2f, 0.2f, 0.5f*a);
+			Graphics()->SetColor(0.2f, 1.0f, 0.2f, 0.3f*a);
+		else if (Player.m_Weapon == WEAPON_GRENADE || Player.m_Weapon == WEAPON_FLAMER)
+			Graphics()->SetColor(1.0f, 0.2f, 0.2f, 0.3f*a);
+		else if (Player.m_Weapon == WEAPON_LASER || Player.m_Weapon == WEAPON_ELECTRIC)
+			Graphics()->SetColor(0.2f, 0.2f, 1.0f, 0.3f*a);
 		else if (Player.m_Weapon == WEAPON_CHAINSAW || Player.m_Weapon == WEAPON_HAMMER)
 			Graphics()->SetColor(1.0f, 0.2f, 0.2f, 0.0f);
 		else
-			Graphics()->SetColor(0.2f, 1.0f, 0.2f, 0.5f*a);
+			Graphics()->SetColor(0.2f, 1.0f, 0.2f, 0.3f*a);
 
 		Out = vec2(Dir.y, -Dir.x) * 1.0f;
 
@@ -391,6 +393,8 @@ void CPlayers::RenderPlayer(
 			Graphics()->ShaderBegin(SHADER_INVISIBILITY, pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY]);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] > 0.0f)
 			Graphics()->ShaderBegin(SHADER_RAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE]);
+		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] > 0.0f)
+			Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL]);
 		
 		//Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
@@ -526,6 +530,8 @@ void CPlayers::RenderPlayer(
 			Graphics()->ShaderBegin(SHADER_INVISIBILITY, pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY]);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] > 0.0f)
 			Graphics()->ShaderBegin(SHADER_RAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE]);
+		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] > 0.0f)
+			Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL]);
 		
 		switch (Player.m_Weapon)
 		{
@@ -705,6 +711,14 @@ void CPlayers::RenderPlayer(
 	}	
 	
 	s = Player.m_Status;
+	if (s & (1<<STATUS_FUEL))
+	{
+		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] <= 0.0f)
+			m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_ITEM_FUEL, 1.0f, Position);
+		pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] = 1.0f;
+	}	
+	
+	s = Player.m_Status;
 	if (s & (1<<STATUS_SPAWNING))
 	{
 		pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING] = 1.0f;
@@ -743,6 +757,8 @@ void CPlayers::RenderPlayer(
 		Graphics()->ShaderBegin(SHADER_INVISIBILITY, pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY]);
 	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] > 0.0f)
 		Graphics()->ShaderBegin(SHADER_RAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE]);
+	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] > 0.0f)
+		Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL]);
 	
 	RenderTools()->RenderPlayer(&CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID], &RenderInfo, Player.m_Weapon, Player.m_Emote, Direction, Position);
 	
@@ -793,6 +809,7 @@ void CPlayers::RenderPlayer(
 	}
 	else
 		pCustomPlayerInfo->m_Shield = false;
+
 	
 	
 	s = Player.m_Status;
