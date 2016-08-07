@@ -18,8 +18,8 @@ other/icons/*.res
 /map_version*
 /mastersrv*
 /packetgen*
-/teeworlds*
-/teeworlds_srv*
+/ninslash*
+/ninslash_srv*
 /serverlaunch*
 /tileset_border*
 /versionsrv*
