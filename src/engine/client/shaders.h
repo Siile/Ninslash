@@ -13,6 +13,7 @@ typedef struct {
     const char *frag_source;
 } ShaderData;
 
+#if defined(CONF_FAMILY_WINDOWS)
 static PFNGLATTACHOBJECTARBPROC glAttachObjectARB;
 static PFNGLCOMPILESHADERARBPROC glCompileShaderARB;
 static PFNGLCREATEPROGRAMOBJECTARBPROC glCreateProgramObjectARB;
@@ -28,7 +29,7 @@ static PFNGLUNIFORM1FARBPROC glUniform1fARB;
 static PFNGLUNIFORM2FVPROC glUniform2fv;
 static PFNGLUNIFORM4FVPROC glUniform4fv;
 static PFNGLUSEPROGRAMOBJECTARBPROC glUseProgramObjectARB;
-
+#endif
 
 
 GLuint LoadShader(const char *vertex_path, const char *fragment_path);

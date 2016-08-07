@@ -207,6 +207,12 @@ function build(settings)
 	wavpack = Compile(settings, Collect("src/engine/external/wavpack/*.c"))
 	pnglite = Compile(settings, Collect("src/engine/external/pnglite/*.c"))
 	json_parser = Compile(settings, Collect("src/engine/external/json-parser/*.c"))
+	
+	-- add the c++11 flag after compiling the c libraries
+	-- TODO: this is just a workaround, better avoid the auto keyword instead :/
+	if config.compiler.driver == "gcc" then
+		settings.cc.flags:Add("--std=c++11")
+	end
 
 	-- build game components
 	engine_settings = settings:Copy()
