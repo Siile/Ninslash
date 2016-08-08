@@ -15,6 +15,9 @@
 #include "shaders.h"
 #include "backend_sdl.h"
 
+constexpr const char * const CCommandProcessorFragment_OpenGL::CUniformLocationCache::ms_apUniformNames[CCommandProcessorFragment_OpenGL::CUniformLocationCache::NUM_UNIFORMS];
+
+
 // ------------ CGraphicsBackend_Threaded
 
 void CGraphicsBackend_Threaded::ThreadFunc(void *pUser)
@@ -390,6 +393,8 @@ void CCommandProcessorFragment_OpenGL::Cmd_LoadShaders(const CCommandBuffer::SCo
 	m_aShader[SHADER_INVISIBILITY] = LoadShader("data/shaders/basic.vert", "data/shaders/invisibility.frag");
 	m_aShader[SHADER_RAGE] = LoadShader("data/shaders/basic.vert", "data/shaders/rage.frag");
 	m_aShader[SHADER_FUEL] = LoadShader("data/shaders/basic.vert", "data/shaders/fuel.frag");
+	for(int i = 0; i < NUM_SHADERS; i++)
+		m_aShaderLocationCache[i] = CUniformLocationCache();
 }
 
 
@@ -398,11 +403,11 @@ void CCommandProcessorFragment_OpenGL::Cmd_ShaderBegin(const CCommandBuffer::SCo
 {
 	glUseProgramObjectARB(m_aShader[pCommand->m_Shader]);
 	
-	GLint location = glGetUniformLocationARB(m_aShader[pCommand->m_Shader], "rnd");
+	GLint location = getUniformLocation(pCommand->m_Shader, CUniformLocationCache::UNIFORM_RND);
 	if (location >= 0)
 		glUniform1fARB(location, GLfloat(frandom()));
 	
-	location = glGetUniformLocationARB(m_aShader[pCommand->m_Shader], "intensity");
+	location = getUniformLocation(pCommand->m_Shader, CUniformLocationCache::UNIFORM_INTENSITY);
 	if (location >= 0)
 		glUniform1fARB(location, GLfloat(pCommand->m_Intensity));
 }
@@ -414,6 +419,14 @@ void CCommandProcessorFragment_OpenGL::Cmd_ShaderEnd(const CCommandBuffer::SComm
 }
 
 
+GLint CCommandProcessorFragment_OpenGL::getUniformLocation(int Shader, int Uniform)
+{
+	GLint& rCachePos = m_aShaderLocationCache[Shader].m_aLocations[Uniform];
+	if(rCachePos >= 0)
+		return rCachePos;
+
+	return (rCachePos = glGetUniformLocationARB(m_aShader[Shader], CUniformLocationCache::ms_apUniformNames[Uniform]));
+}
 
 
 void CCommandProcessorFragment_OpenGL::Cmd_Clear(const CCommandBuffer::SCommand_Clear *pCommand)

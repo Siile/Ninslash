@@ -100,6 +100,28 @@ class CCommandProcessorFragment_OpenGL
 	GLuint textureBuffer[NUM_RENDERBUFFERS];
 	GLuint renderedTexture[NUM_RENDERBUFFERS];
 	GLuint m_aShader[NUM_SHADERS];
+
+	struct CUniformLocationCache // TODO: new generalized uniforms must be added here.
+	{
+		enum
+		{
+			UNIFORM_RND,
+			UNIFORM_INTENSITY,
+			NUM_UNIFORMS
+		};
+
+		static constexpr const char * const ms_apUniformNames[NUM_UNIFORMS] = {
+				"rnd",
+				"intensity"
+		};
+
+		CUniformLocationCache() { for(int i = 0; i < NUM_UNIFORMS; i++) m_aLocations[i] = -1; }
+
+		GLint m_aLocations[NUM_UNIFORMS];
+	};
+
+	CUniformLocationCache m_aShaderLocationCache[NUM_SHADERS];
+	GLint getUniformLocation(int Shader, int Uniform);
 	
 public:
 	enum
