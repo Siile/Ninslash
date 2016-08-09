@@ -15,6 +15,7 @@
 #include "shaders.h"
 #include "backend_sdl.h"
 
+
 // ------------ CGraphicsBackend_Threaded
 
 void CGraphicsBackend_Threaded::ThreadFunc(void *pUser)
@@ -396,13 +397,14 @@ void CCommandProcessorFragment_OpenGL::Cmd_LoadShaders(const CCommandBuffer::SCo
 
 void CCommandProcessorFragment_OpenGL::Cmd_ShaderBegin(const CCommandBuffer::SCommand_ShaderBegin *pCommand)
 {
-	glUseProgramObjectARB(m_aShader[pCommand->m_Shader]);
+	CShader *pShader = &(m_aShader[pCommand->m_Shader]);
+	glUseProgramObjectARB(pShader->Handle());
 	
-	GLint location = glGetUniformLocationARB(m_aShader[pCommand->m_Shader], "rnd");
+	GLint location = pShader->getUniformLocation("rnd");
 	if (location >= 0)
 		glUniform1fARB(location, GLfloat(frandom()));
-	
-	location = glGetUniformLocationARB(m_aShader[pCommand->m_Shader], "intensity");
+
+	location = pShader->getUniformLocation("intensity");
 	if (location >= 0)
 		glUniform1fARB(location, GLfloat(pCommand->m_Intensity));
 }
@@ -414,6 +416,14 @@ void CCommandProcessorFragment_OpenGL::Cmd_ShaderEnd(const CCommandBuffer::SComm
 }
 
 
+GLint CCommandProcessorFragment_OpenGL::CShader::getUniformLocation(const GLcharARB *pName)
+{
+	GLint& rCachePos = m_aUniformLocationCache[pName].value;
+	if(rCachePos > -2)
+		return rCachePos;
+
+	return (rCachePos = glGetUniformLocationARB(m_Program, pName));
+}
 
 
 void CCommandProcessorFragment_OpenGL::Cmd_Clear(const CCommandBuffer::SCommand_Clear *pCommand)
