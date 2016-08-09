@@ -218,13 +218,7 @@ public:
 		return false;
 	}
 	
-	bool Invisible()
-	{
-		if (m_aStatus[STATUS_INVISIBILITY] > 0 && m_aStatus[STATUS_SHIELD] <= 0)
-			return true;
-		
-		return false;
-	}
+	bool Invisible();
 	
 	
 	int m_ShieldHealth;

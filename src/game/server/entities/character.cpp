@@ -289,7 +289,7 @@ bool CCharacter::IsGrounded()
 	int c1 = GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/2, m_Pos.y+m_ProximityRadius/2+5);
 	int c2 = GameServer()->Collision()->GetCollisionAt(m_Pos.x-m_ProximityRadius/2, m_Pos.y+m_ProximityRadius/2+5);
 	
-	if (c1&CCollision::COLFLAG_SOLID || c1&CCollision::COLFLAG_NOHOOK || c2&CCollision::COLFLAG_SOLID || c2&CCollision::COLFLAG_NOHOOK)
+	if (c1&CCollision::COLFLAG_SOLID || c2&CCollision::COLFLAG_SOLID)
 		return true;
 	
 	return false;
@@ -1038,7 +1038,7 @@ void CCharacter::ShowArmor()
 void CCharacter::AutoWeaponChange()
 {
 	//if (HasAmmo() && frandom()*100 > 4 && m_ActiveCustomWeapon != W_HAMMER && m_ActiveCustomWeapon != W_PISTOL && m_ActiveCustomWeapon != W_TOOL)
-	if (HasAmmo() && frandom()*100 > 4 && m_ActiveCustomWeapon != W_TOOL)// && m_ActiveCustomWeapon != W_PISTOL && m_ActiveCustomWeapon != W_TOOL)
+	if (HasAmmo() && frandom()*100 > 4 && m_ActiveCustomWeapon != W_HAMMER)// && m_ActiveCustomWeapon != W_PISTOL && m_ActiveCustomWeapon != W_TOOL)
 		return;
 	
 	// -1 because smoke grenade shouldn't be included
@@ -1208,7 +1208,22 @@ void CCharacter::ResetInput()
 	m_LatestPrevInput = m_LatestInput = m_Input;
 }
 
-
+bool CCharacter::Invisible()
+{
+	if ((m_Core.m_Jetpack == 1 || m_Core.m_Input.m_Hook > 0) && m_Core.m_JetpackPower > 0)
+		return false;
+		
+	if (m_DamageTakenTick > Server()->Tick() - Server()->TickSpeed() * 1.0f)
+		return false;
+		
+	if (m_AttackTick > Server()->Tick() - Server()->TickSpeed() * 1.0f)
+		return false;
+	
+	if (m_aStatus[STATUS_INVISIBILITY] > 0 && m_aStatus[STATUS_SHIELD] <= 0)
+		return true;
+		
+	return false;
+}
 
 
 void CCharacter::SelectItem(int Item)
@@ -1306,6 +1321,9 @@ void CCharacter::UpdateCoreStatus()
 		}
 	}
 	
+	if (g_Config.m_SvUnlimitedTurbo)
+		m_Core.m_JetpackPower = 100;
+	
 	if(m_LastStatusEffect+Server()->TickSpeed()/3 <= Server()->Tick())
 	{
 		m_LastStatusEffect = Server()->Tick();
@@ -1374,20 +1392,24 @@ void CCharacter::Tick()
 	if (m_CryTimer > 0)
 		m_CryTimer--;
 
-	// handle death-tiles and leaving gamelayer
+	// handle death-tiles
 	if(GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y-m_ProximityRadius/3.f-24)&CCollision::COLFLAG_DEATH ||
 		GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y+m_ProximityRadius/3.f)&CCollision::COLFLAG_DEATH ||
 		GameServer()->Collision()->GetCollisionAt(m_Pos.x-m_ProximityRadius/3.f, m_Pos.y-m_ProximityRadius/3.f-24)&CCollision::COLFLAG_DEATH ||
-		GameServer()->Collision()->GetCollisionAt(m_Pos.x-m_ProximityRadius/3.f, m_Pos.y+m_ProximityRadius/3.f)&CCollision::COLFLAG_DEATH ||
+		GameServer()->Collision()->GetCollisionAt(m_Pos.x-m_ProximityRadius/3.f, m_Pos.y+m_ProximityRadius/3.f)&CCollision::COLFLAG_DEATH)
+	{
+		m_DeathTileTimer = 10;
+		TakeDeathtileDamage();
+	}
+	
+	// handle insta death-tiles and leaving gamelayer
+	if(GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y-m_ProximityRadius/3.f-24)&CCollision::COLFLAG_INSTADEATH ||
+		GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y+m_ProximityRadius/3.f)&CCollision::COLFLAG_INSTADEATH ||
+		GameServer()->Collision()->GetCollisionAt(m_Pos.x-m_ProximityRadius/3.f, m_Pos.y-m_ProximityRadius/3.f-24)&CCollision::COLFLAG_INSTADEATH ||
+		GameServer()->Collision()->GetCollisionAt(m_Pos.x-m_ProximityRadius/3.f, m_Pos.y+m_ProximityRadius/3.f)&CCollision::COLFLAG_INSTADEATH ||
 		GameLayerClipped(m_Pos))
 	{
-		if (g_Config.m_SvInstaDeathTiles)
-			Die(m_pPlayer->GetCID(), DEATHTYPE_SPIKE);
-		else
-		{
-			m_DeathTileTimer = 10;
-			TakeDeathtileDamage();
-		}
+		Die(m_pPlayer->GetCID(), DEATHTYPE_SPIKE);
 	}
 	
 	// delayed death ray

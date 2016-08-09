@@ -43,6 +43,7 @@ MACRO_CONFIG_INT(PlayerColorTopper, player_color_topper, 65535, 0, 0xFFFFFF, CFG
 MACRO_CONFIG_INT(PlayerColorSkin, player_color_skin, 65535, 0, 0xFFFFFF, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player skin color")
 MACRO_CONFIG_STR(PlayerTopper, player_topper, 24, "default", CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player hair or hat")
 MACRO_CONFIG_STR(PlayerEye, player_eye, 24, "default", CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player eyes")
+MACRO_CONFIG_INT(PlayerBody, player_body, 0, 0, 4, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player body")
 
 MACRO_CONFIG_INT(UiPage, ui_page, 6, 0, 10, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Interface page")
 MACRO_CONFIG_INT(UiToolboxPage, ui_toolbox_page, 0, 0, 2, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Toolbox page")
@@ -96,9 +97,9 @@ MACRO_CONFIG_INT(SvSurvivalMode, sv_survivalmode, 0, 0, 1, CFGFLAG_SERVER, "Surv
 MACRO_CONFIG_INT(SvAbilities, sv_abilities, 0, 0, 1, CFGFLAG_SERVER, "Enable classes & abilities")
 MACRO_CONFIG_INT(SvPickupDrops, sv_pickupdrops, 1, 0, 1, CFGFLAG_SERVER, "Pickup drops")
 MACRO_CONFIG_INT(SvVanillaPickups, sv_vanillapickups, 1, 0, 1, CFGFLAG_SERVER, "Enable vanilla's pickups")
-MACRO_CONFIG_INT(SvInstaDeathTiles, sv_instadeathtiles, 0, 0, 1, CFGFLAG_SERVER, "Instakill death tiles")
 MACRO_CONFIG_INT(SvWeaponDrops, sv_weapondrops, 1, 0, 1, CFGFLAG_SERVER, "Enable weapon drops")
 MACRO_CONFIG_INT(SvPreferredTeamSize, sv_preferredteamsize, 5, 1, 8, CFGFLAG_SERVER, "Preferred team size")
+MACRO_CONFIG_INT(SvUnlimitedTurbo, sv_unlimited_turbo, 0, 0, 1, CFGFLAG_SERVER, "Unlimited turbo")
 
 MACRO_CONFIG_INT(SvSpectatorUpdateTime, sv_spectatorupdatetime, 2, 1, 20, CFGFLAG_SERVER, "Time between spectator view changes to spectators")
 MACRO_CONFIG_INT(SvSpectateOnlyHumans, sv_spectateonlyhumans, 0, 0, 1, CFGFLAG_SERVER, "Spectate only humans")

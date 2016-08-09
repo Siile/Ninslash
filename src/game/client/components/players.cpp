@@ -264,13 +264,19 @@ void CPlayers::RenderPlayer(
 		}
 	}
 		
+	bool Paused = true;
+		
 	static float s_LastGameTickTime = Client()->GameTickTime();
 	if(m_pClient->m_Snap.m_pGameInfoObj && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
+	{
 		s_LastGameTickTime = Client()->GameTickTime();
+		Paused = false;
+	}
+		
 	if (Player.m_Weapon == WEAPON_HAMMER || Player.m_Weapon == WEAPON_TOOL)
 	{
 		// melee attack effect
-		if (pCustomPlayerInfo->m_MeleeTick < Player.m_AttackTick)
+		if (pCustomPlayerInfo->m_MeleeTick < Player.m_AttackTick && !Paused)
 		{
 			pCustomPlayerInfo->m_MeleeTick = Player.m_AttackTick;
 			
@@ -453,7 +459,7 @@ void CPlayers::RenderPlayer(
 			p = Position + Dir * g_pData->m_Weapons.m_aId[iw].m_Offsetx + CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoil + CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_Weapon2Recoil + WeaponOffset;
 			
 			// chainsaw shaking
-			if (Player.m_Weapon == WEAPON_CHAINSAW && Player.m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)
+			if (!Paused && Player.m_Weapon == WEAPON_CHAINSAW && Player.m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)
 			{
 				p = p + vec2(frandom()-frandom(), frandom()-frandom()) * 4.0f;
 			}

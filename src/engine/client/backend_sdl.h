@@ -107,7 +107,7 @@ class CCommandProcessorFragment_OpenGL
 		struct CUniformLocation
 		{
 			GLint value;
-			CUniformLocation() { value = -2; } // need this to initialize new keys in our map correctly
+			CUniformLocation() { value = -1; } // need this to initialize new keys in our map correctly
 		};
 
 		GLuint m_Program;

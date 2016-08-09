@@ -190,7 +190,7 @@ void CPlayerInfo::Tick()
 			if (i == EFFECT_DAMAGE)
 				m_EffectIntensity[i] -= 0.01f;
 			
-			if (i != EFFECT_INVISIBILITY && i != EFFECT_RAGE)
+			if (i != EFFECT_INVISIBILITY && i != EFFECT_RAGE && i != EFFECT_FUEL)
 				m_EffectIntensity[EFFECT_INVISIBILITY] -= 0.05f;
 		}
 		

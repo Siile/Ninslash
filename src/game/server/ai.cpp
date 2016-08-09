@@ -241,6 +241,9 @@ void CAI::DoJumping()
 			m_Jump = 1;
 	}
 
+	if (Player()->GetCharacter()->IsGrounded() && GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y))
+		m_Jump = 1;
+	
 	/*
 	if (Player()->GetCharacter()->IsGrounded() &&
 		(GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y) || GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 96, m_Pos.y)))
@@ -475,10 +478,12 @@ void CAI::Unstuck()
 	}
 	
 	// death tile check
+	/*
 	if (Player()->GetCharacter()->GetVel().y > 0 && GameServer()->Collision()->GetCollisionAt(m_Pos.x, m_Pos.y+32)&CCollision::COLFLAG_DEATH)
 	{
 		m_Jump = 1;
 	}
+	*/
 }
 
 
@@ -550,7 +555,6 @@ bool CAI::MoveTowardsTarget(int Dist)
 
 bool CAI::MoveTowardsWaypoint(int Dist)
 {
-
 	if (distance(m_LastPos, m_WaypointPos) < Dist)
 	{
 		m_Move = 0;
@@ -735,8 +739,8 @@ void CAI::ShootAtClosestHuman()
 		}
 	}
 		
-	if (m_AutoWeaponChange)
-		Player()->GetCharacter()->AutoWeaponChange();
+	//if (m_AutoWeaponChange)
+	//	Player()->GetCharacter()->AutoWeaponChange();
 }
 
 
@@ -799,8 +803,8 @@ void CAI::ShootAtClosestEnemy()
 		}
 	}
 	
-	if (m_AutoWeaponChange)
-		Player()->GetCharacter()->AutoWeaponChange();
+	//if (m_AutoWeaponChange)
+	//	Player()->GetCharacter()->AutoWeaponChange();
 }
 
 
@@ -1209,6 +1213,9 @@ void CAI::Tick()
 	
 		DoBehavior();
 		UseItems();
+		
+		if (m_AutoWeaponChange)
+			Player()->GetCharacter()->AutoWeaponChange();
 		
 		if (m_DontMoveTick > GameServer()->Server()->Tick())
 		{

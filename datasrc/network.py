@@ -86,6 +86,8 @@ enum
 	DEATHTYPE_MONSTER,
 	NUM_DEATHTYPES,
 	
+	NUM_BODIES=3,
+	
 	SPEC_FREEVIEW=-1,
 };
 '''
@@ -284,6 +286,7 @@ Objects = [
 		NetIntAny("m_Eye0"), NetIntAny("m_Eye1"), NetIntAny("m_Eye2"),
 		NetIntAny("m_Eye3"), NetIntAny("m_Eye4"), NetIntAny("m_Eye5"),
 
+		NetIntAny("m_Body"),
 		NetIntAny("m_ColorBody"),
 		NetIntAny("m_ColorFeet"),
 		NetIntAny("m_ColorTopper"),
@@ -438,6 +441,7 @@ Messages = [
 		NetIntAny("m_Country"),
 		NetStringStrict("m_pTopper"),
 		NetStringStrict("m_pEye"),
+		NetIntAny("m_Body"), 
 		NetIntAny("m_ColorBody"),
 		NetIntAny("m_ColorFeet"),
 		NetIntAny("m_ColorTopper"),
@@ -450,6 +454,7 @@ Messages = [
 		NetIntAny("m_Country"),
 		NetStringStrict("m_pTopper"),
 		NetStringStrict("m_pEye"),
+		NetIntAny("m_Body"),
 		NetIntAny("m_ColorBody"),
 		NetIntAny("m_ColorFeet"),
 		NetIntAny("m_ColorTopper"),

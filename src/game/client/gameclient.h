@@ -174,6 +174,7 @@ public:
 	// client data
 	struct CClientData
 	{
+		int m_Body;
 		int m_ColorBody;
 		int m_ColorFeet;
 		int m_ColorTopper;

@@ -1314,6 +1314,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				SkipSending = true;
 			}
 			*/
+			
 		
 			if (!SkipSending)
 			{
@@ -1622,6 +1623,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			Server()->SetClientCountry(ClientID, pMsg->m_Country);
 			str_copy(pPlayer->m_TeeInfos.m_TopperName, pMsg->m_pTopper, sizeof(pPlayer->m_TeeInfos.m_TopperName));
 			str_copy(pPlayer->m_TeeInfos.m_EyeName, pMsg->m_pEye, sizeof(pPlayer->m_TeeInfos.m_EyeName));
+			pPlayer->m_TeeInfos.m_Body = pMsg->m_Body;
 			pPlayer->m_TeeInfos.m_ColorBody = pMsg->m_ColorBody;
 			pPlayer->m_TeeInfos.m_ColorFeet = pMsg->m_ColorFeet;
 			pPlayer->m_TeeInfos.m_ColorTopper = pMsg->m_ColorTopper;
@@ -1680,6 +1682,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			Server()->SetClientCountry(ClientID, pMsg->m_Country);
 			str_copy(pPlayer->m_TeeInfos.m_TopperName, pMsg->m_pTopper, sizeof(pPlayer->m_TeeInfos.m_TopperName));
 			str_copy(pPlayer->m_TeeInfos.m_EyeName, pMsg->m_pEye, sizeof(pPlayer->m_TeeInfos.m_EyeName));
+			pPlayer->m_TeeInfos.m_Body = pMsg->m_Body;
 			pPlayer->m_TeeInfos.m_ColorBody = pMsg->m_ColorBody;
 			pPlayer->m_TeeInfos.m_ColorFeet = pMsg->m_ColorFeet;
 			pPlayer->m_TeeInfos.m_ColorTopper = pMsg->m_ColorTopper;

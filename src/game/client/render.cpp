@@ -699,8 +699,12 @@ void CRenderTools::RenderPortrait(CTeeRenderInfo *pInfo, vec2 Pos, int EyeType)
 {
 	vec2 Position = Pos;
 	
-	int Atlas = ATLAS_TIGERBOY;
+	int Atlas = pInfo->m_Body;
+	if (Atlas < 0)
+		Atlas = 0;
 	
+	if (Atlas > NUM_BODIES-1)
+		Atlas = NUM_BODIES-1;
 
 	
 	CSkeletonAnimation *AnimData = CPlayerInfo::GetIdle()->Animation();
@@ -996,7 +1000,12 @@ void CRenderTools::RenderStaticPlayer(CTeeRenderInfo *pInfo, vec2 Pos)
 {
 	vec2 Position = Pos;
 	
-	int Atlas = ATLAS_TIGERBOY;
+	int Atlas = pInfo->m_Body;
+	if (Atlas < 0)
+		Atlas = 0;
+	
+	if (Atlas > NUM_BODIES-1)
+		Atlas = NUM_BODIES-1;
 	
 	RenderSkeleton(Position+vec2(0, 16), 
 		pInfo, 
@@ -1064,7 +1073,12 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 			break;
 	}
 	
-	int Atlas = ATLAS_TIGERBOY;
+	int Atlas = pInfo->m_Body;
+	if (Atlas < 0)
+		Atlas = 0;
+	
+	if (Atlas > NUM_BODIES-1)
+		Atlas = NUM_BODIES-1;
 	
 	RenderSkeleton(Position+vec2(0, 16), pInfo, PlayerInfo->Animation(), 0, Skelebank()->m_lSkeletons[Atlas], Skelebank()->m_lAtlases[Atlas], PlayerInfo);
 	

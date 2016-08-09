@@ -456,7 +456,11 @@ void CGameClient::UpdatePositions()
 		}
 	}
 	
-	CustomStuff()->Update();
+	bool Paused = false;
+	if(m_Snap.m_pGameInfoObj && m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED)
+		Paused = true;
+	
+	CustomStuff()->Update(Paused);
 }
 
 
@@ -529,7 +533,8 @@ void CGameClient::OnRender()
 			str_comp(g_Config.m_PlayerTopper, m_aClients[m_Snap.m_LocalClientID].m_aTopperName) ||
 			str_comp(g_Config.m_PlayerEye, m_aClients[m_Snap.m_LocalClientID].m_aEyeName) ||
 			(m_Snap.m_pGameInfoObj && !(m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_TEAMS) &&	// no teamgame?
-			(g_Config.m_PlayerColorBody != m_aClients[m_Snap.m_LocalClientID].m_ColorBody ||
+			(g_Config.m_PlayerBody != m_aClients[m_Snap.m_LocalClientID].m_Body ||
+			g_Config.m_PlayerColorBody != m_aClients[m_Snap.m_LocalClientID].m_ColorBody ||
 			g_Config.m_PlayerColorFeet != m_aClients[m_Snap.m_LocalClientID].m_ColorFeet ||
 			g_Config.m_PlayerColorSkin != m_aClients[m_Snap.m_LocalClientID].m_ColorSkin ||
 			g_Config.m_PlayerColorTopper != m_aClients[m_Snap.m_LocalClientID].m_ColorTopper)))
@@ -873,6 +878,7 @@ void CGameClient::OnNewSnapshot()
 				IntsToStr(&pInfo->m_Topper0, 6, m_aClients[ClientID].m_aTopperName);
 				IntsToStr(&pInfo->m_Eye0, 6, m_aClients[ClientID].m_aEyeName);
 
+				m_aClients[ClientID].m_Body = pInfo->m_Body;
 				m_aClients[ClientID].m_ColorBody = pInfo->m_ColorBody;
 				m_aClients[ClientID].m_ColorFeet = pInfo->m_ColorFeet;
 				m_aClients[ClientID].m_ColorTopper = pInfo->m_ColorTopper;
@@ -885,6 +891,7 @@ void CGameClient::OnNewSnapshot()
 				if(m_aClients[ClientID].m_aEyeName[0] == 'x' || m_aClients[ClientID].m_aEyeName[1] == '_')
 					str_copy(m_aClients[ClientID].m_aEyeName, "default", 64);
 
+				m_aClients[ClientID].m_SkinInfo.m_Body = m_aClients[ClientID].m_Body;
 				m_aClients[ClientID].m_SkinInfo.m_ColorBody = m_pSkins->GetColorV4(m_aClients[ClientID].m_ColorBody);
 				m_aClients[ClientID].m_SkinInfo.m_ColorFeet = m_pSkins->GetColorV4(m_aClients[ClientID].m_ColorFeet);
 				m_aClients[ClientID].m_SkinInfo.m_ColorTopper = m_pSkins->GetColorV4(m_aClients[ClientID].m_ColorTopper);
@@ -1271,6 +1278,7 @@ void CGameClient::CClientData::Reset()
 	m_aName[0] = 0;
 	m_aClan[0] = 0;
 	m_Country = -1;
+	m_Body = 0;
 	m_TopperID = 0;
 	m_EyeID = 0;
 	m_Team = 0;
@@ -1281,6 +1289,7 @@ void CGameClient::CClientData::Reset()
 	m_ChatIgnore = false;
 	m_SkinInfo.m_TopperTexture = g_GameClient.m_pSkins->GetTopper(0)->m_Texture;
 	m_SkinInfo.m_EyeTexture = g_GameClient.m_pSkins->GetEye(0)->m_Texture;
+	m_SkinInfo.m_Body = 0;
 	m_SkinInfo.m_ColorBody = vec4(1,1,1,1);
 	m_SkinInfo.m_ColorFeet = vec4(1,1,1,1);
 	m_SkinInfo.m_ColorTopper = vec4(1,1,1,1);
@@ -1305,6 +1314,7 @@ void CGameClient::SendInfo(bool Start)
 		Msg.m_Country = g_Config.m_PlayerCountry;
 		Msg.m_pTopper = g_Config.m_PlayerTopper;
 		Msg.m_pEye = g_Config.m_PlayerEye;
+		Msg.m_Body = g_Config.m_PlayerBody;
 		Msg.m_ColorBody = g_Config.m_PlayerColorBody;
 		Msg.m_ColorFeet = g_Config.m_PlayerColorFeet;
 		Msg.m_ColorTopper = g_Config.m_PlayerColorTopper;
@@ -1319,6 +1329,7 @@ void CGameClient::SendInfo(bool Start)
 		Msg.m_Country = g_Config.m_PlayerCountry;
 		Msg.m_pTopper = g_Config.m_PlayerTopper;
 		Msg.m_pEye = g_Config.m_PlayerEye;
+		Msg.m_Body = g_Config.m_PlayerBody;
 		Msg.m_ColorBody = g_Config.m_PlayerColorBody;
 		Msg.m_ColorFeet = g_Config.m_PlayerColorFeet;
 		Msg.m_ColorTopper = g_Config.m_PlayerColorTopper;

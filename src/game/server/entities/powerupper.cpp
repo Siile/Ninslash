@@ -1,3 +1,4 @@
+#include <engine/shared/config.h>
 #include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
 #include <game/weapons.h>
@@ -15,13 +16,19 @@ CPowerupper::CPowerupper(CGameWorld *pGameWorld, vec2 Pos)
 	m_ItemTakenTick = 0;
 }
 
+void CPowerupper::Reset()
+{
+	m_Life = 100;
 
+	m_Item = -1;
+	m_ItemTakenTick = 0;
+}
 
 void CPowerupper::Tick()
 {
 	if (m_Item < 0 && (m_ItemTakenTick + Server()->TickSpeed()*30.0f < GameServer()->Server()->Tick() || m_ItemTakenTick == 0))
 	{
-		while (m_Item < 0 || m_Item == PLAYERITEM_LANDMINE || m_Item == PLAYERITEM_ELECTROMINE || m_Item == PLAYERITEM_HEAL)
+		while (m_Item < 0 || m_Item == PLAYERITEM_LANDMINE || m_Item == PLAYERITEM_ELECTROMINE || m_Item == PLAYERITEM_HEAL || (m_Item == PLAYERITEM_FUEL && g_Config.m_SvUnlimitedTurbo))
 			m_Item = rand()%NUM_PLAYERITEMS;
 	}
 	

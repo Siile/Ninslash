@@ -10,6 +10,7 @@ class CPowerupper : public CBuilding
 public:
 	CPowerupper(CGameWorld *pGameWorld, vec2 Pos);
 
+	virtual void Reset();
 	virtual void Tick();
 	virtual void Snap(int SnappingClient);
 	

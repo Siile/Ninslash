@@ -42,7 +42,7 @@ void CCustomStuff::Reset()
 
 
 
-void CCustomStuff::Tick()
+void CCustomStuff::Tick(bool Paused)
 {
 	m_Tick++;
 	
@@ -61,12 +61,15 @@ void CCustomStuff::Tick()
 	//if (m_MonsterAnim >= 1.0f)
 	//	m_MonsterAnim -= 1.0f;
 	
-	for (int i = 0; i < MAX_CLIENTS; i++)
-		m_aPlayerInfo[i].Tick();
-	
-	for (int i = 0; i < MAX_MONSTERS; i++)
-		if (m_MonsterDamageIntensity[i] > 0.0f)
-			m_MonsterDamageIntensity[i] -= 0.05f;
+	if (!Paused)
+	{
+		for (int i = 0; i < MAX_CLIENTS; i++)
+			m_aPlayerInfo[i].Tick();
+		
+		for (int i = 0; i < MAX_MONSTERS; i++)
+			if (m_MonsterDamageIntensity[i] > 0.0f)
+				m_MonsterDamageIntensity[i] -= 0.05f;
+	}
 	
 	// Camera
 	
@@ -75,7 +78,7 @@ void CCustomStuff::Tick()
 }
 
 
-void CCustomStuff::Update()
+void CCustomStuff::Update(bool Paused)
 {
 	int64 currentTime = time_get();
 	if ((currentTime-m_LastUpdate > time_freq()) || (m_LastUpdate == 0))
@@ -89,7 +92,7 @@ void CCustomStuff::Update()
 	int i = 0;
 	for (;m_LastUpdate < currentTime; m_LastUpdate += step)
 	{
-		Tick();
+		Tick(Paused);
 		if (i++ > 20)
 			break;
 	}

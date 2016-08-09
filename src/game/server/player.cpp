@@ -204,8 +204,8 @@ void CPlayer::PostTick()
 	}
 
 	// update view pos for spectators
-	//if(m_Team == TEAM_SPECTATORS && m_SpectatorID != SPEC_FREEVIEW && GameServer()->m_apPlayers[m_SpectatorID])
-	if(m_Spectate && m_SpectatorID != SPEC_FREEVIEW && GameServer()->m_apPlayers[m_SpectatorID])
+	if(m_Team == TEAM_SPECTATORS && m_SpectatorID != SPEC_FREEVIEW && GameServer()->m_apPlayers[m_SpectatorID])
+	//if(m_Spectate && m_SpectatorID != SPEC_FREEVIEW && GameServer()->m_apPlayers[m_SpectatorID])
 		m_ViewPos = GameServer()->m_apPlayers[m_SpectatorID]->m_ViewPos;
 }
 
@@ -226,6 +226,7 @@ void CPlayer::Snap(int SnappingClient)
 	pClientInfo->m_Country = Server()->ClientCountry(m_ClientID);
 	StrToInts(&pClientInfo->m_Topper0, 6, m_TeeInfos.m_TopperName);
 	StrToInts(&pClientInfo->m_Eye0, 6, m_TeeInfos.m_EyeName);
+	pClientInfo->m_Body = m_TeeInfos.m_Body;
 	pClientInfo->m_ColorBody = m_TeeInfos.m_ColorBody;
 	pClientInfo->m_ColorFeet = m_TeeInfos.m_ColorFeet;
 	pClientInfo->m_ColorTopper = m_TeeInfos.m_ColorTopper;
@@ -239,8 +240,9 @@ void CPlayer::Snap(int SnappingClient)
 	pPlayerInfo->m_Local = 0;
 	pPlayerInfo->m_ClientID = m_ClientID;
 	pPlayerInfo->m_Score = m_Score;
-	//pPlayerInfo->m_Team = m_Team;
+	pPlayerInfo->m_Team = m_Team;
 	
+	/*
 	if (pPlayerInfo->m_Team != TEAM_SPECTATORS)
 	{
 		if (SnappingClient != GetCID())
@@ -253,6 +255,8 @@ void CPlayer::Snap(int SnappingClient)
 				pPlayerInfo->m_Team = TEAM_SPECTATORS;
 		}
 	}
+	*/
+	
 	
 	// snap weapons
 	pPlayerInfo->m_Weapons = 0;
@@ -280,6 +284,18 @@ void CPlayer::Snap(int SnappingClient)
 	if(m_ClientID == SnappingClient)
 		pPlayerInfo->m_Local = 1;
 
+	if(m_ClientID == SnappingClient && m_Team == TEAM_SPECTATORS)
+	{
+		CNetObj_SpectatorInfo *pSpectatorInfo = static_cast<CNetObj_SpectatorInfo *>(Server()->SnapNewItem(NETOBJTYPE_SPECTATORINFO, m_ClientID, sizeof(CNetObj_SpectatorInfo)));
+		if(!pSpectatorInfo)
+			return;
+
+		pSpectatorInfo->m_SpectatorID = m_SpectatorID;
+		pSpectatorInfo->m_X = m_ViewPos.x;
+		pSpectatorInfo->m_Y = m_ViewPos.y;
+	}
+	
+	/*
 	if(m_ClientID == SnappingClient && pPlayerInfo->m_Team == TEAM_SPECTATORS)
 	{
 		CNetObj_SpectatorInfo *pSpectatorInfo = static_cast<CNetObj_SpectatorInfo *>(Server()->SnapNewItem(NETOBJTYPE_SPECTATORINFO, m_ClientID, sizeof(CNetObj_SpectatorInfo)));
@@ -297,6 +313,7 @@ void CPlayer::Snap(int SnappingClient)
 			pSpectatorInfo->m_Y = m_ViewPos.y;
 		}
 	}
+	*/
 }
 
 void CPlayer::OnDisconnect(const char *pReason)
@@ -505,6 +522,8 @@ void CPlayer::SetRandomSkin()
 	default: str_copy(m_TeeInfos.m_EyeName, "default", 64);
 	};
 	
+	//m_TeeInfos.m_Body = rand()*NUM_BODIES;
+	m_TeeInfos.m_Body = 0;
 	m_TeeInfos.m_ColorTopper = rand()*(0xFFFFFF/RAND_MAX);
 	m_TeeInfos.m_ColorSkin = rand()*(0xFFFFFF/RAND_MAX);
 	m_TeeInfos.m_ColorBody = rand()*(0xFFFFFF/RAND_MAX);

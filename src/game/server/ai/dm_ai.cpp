@@ -55,7 +55,7 @@ void CAIdm::DoBehavior()
 	{
 		m_TargetPos = m_PlayerPos;
 				
-		if (m_EnemiesInSight > 1)
+		if (m_EnemiesInSight > 0)
 		{
 			// distance to the player
 			if (m_PlayerPos.x < m_Pos.x)
@@ -73,8 +73,8 @@ void CAIdm::DoBehavior()
 		AirJump();
 		
 		// jump if waypoint is above us
-		if (abs(m_WaypointPos.x - m_Pos.x) < 60 && m_WaypointPos.y < m_Pos.y - 100 && frandom()*20 < 4)
-			m_Jump = 1;
+		//if (abs(m_WaypointPos.x - m_Pos.x) < 60 && m_WaypointPos.y < m_Pos.y - 100 && frandom()*20 < 4)
+		//	m_Jump = 1;
 	}
 	else
 	{

@@ -493,23 +493,32 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	
 	//x += 16;
 	x += 32;
-	RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[pCharacter->m_WeaponGroup1].m_pSpriteBody);
-	RenderTools()->DrawSprite(x, y, g_pData->m_Weapons.m_aId[pCharacter->m_WeaponGroup1].m_VisualSize * Size);
 	
-	Size = (pCharacter->m_SelectedGroup == 1) ? 0.4f : 0.3f;
-	Graphics()->SetColor(1, 1, 1, 0.5f);
-	if (pCharacter->m_SelectedGroup == 1)
-		Graphics()->SetColor(1, 1, 1, 1);
+	// skip tool
+	if (pCharacter->m_WeaponGroup1 > 0)
+	{
+		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[pCharacter->m_WeaponGroup1].m_pSpriteBody);
+		RenderTools()->DrawSprite(x, y, g_pData->m_Weapons.m_aId[pCharacter->m_WeaponGroup1].m_VisualSize * Size);
+		
+		Size = (pCharacter->m_SelectedGroup == 1) ? 0.4f : 0.3f;
+		Graphics()->SetColor(1, 1, 1, 0.5f);
+		if (pCharacter->m_SelectedGroup == 1)
+			Graphics()->SetColor(1, 1, 1, 1);
+	}
 	
 	//x += 32;
 	x += 48;
-	RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[pCharacter->m_WeaponGroup2].m_pSpriteBody);
-	RenderTools()->DrawSprite(x, y, g_pData->m_Weapons.m_aId[pCharacter->m_WeaponGroup2].m_VisualSize * Size);
-	
-	Size = (pCharacter->m_SelectedGroup == 2) ? 0.4f : 0.3f;
-	Graphics()->SetColor(1, 1, 1, 0.5f);
-	if (pCharacter->m_SelectedGroup == 2)
-		Graphics()->SetColor(1, 1, 1, 1);
+	// skip tool
+	if (pCharacter->m_WeaponGroup2 > 0)
+	{
+		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[pCharacter->m_WeaponGroup2].m_pSpriteBody);
+		RenderTools()->DrawSprite(x, y, g_pData->m_Weapons.m_aId[pCharacter->m_WeaponGroup2].m_VisualSize * Size);
+		
+		Size = (pCharacter->m_SelectedGroup == 2) ? 0.4f : 0.3f;
+		Graphics()->SetColor(1, 1, 1, 0.5f);
+		if (pCharacter->m_SelectedGroup == 2)
+			Graphics()->SetColor(1, 1, 1, 1);
+	}
 	
 	/*
 	x += 32;

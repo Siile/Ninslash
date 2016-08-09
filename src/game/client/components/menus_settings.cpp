@@ -374,6 +374,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 		CTeeRenderInfo Info;
 		Info.m_ColorBody = m_pClient->m_pSkins->GetColorV4(g_Config.m_PlayerColorBody);
 		Info.m_ColorFeet = m_pClient->m_pSkins->GetColorV4(g_Config.m_PlayerColorFeet);
+		Info.m_Body = g_Config.m_PlayerBody;
 		Info.m_TopperTexture = m_pClient->m_pSkins->GetTopper(m_pClient->m_pSkins->FindTopper(g_Config.m_PlayerTopper))->m_Texture;
 		Info.m_EyeTexture = m_pClient->m_pSkins->GetEye(m_pClient->m_pSkins->FindEye(g_Config.m_PlayerEye))->m_Texture;
 		Info.m_ColorTopper = m_pClient->m_pSkins->GetColorV4(g_Config.m_PlayerColorTopper);
@@ -518,6 +519,58 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 		}
 	}
 	
+	
+	// body selector
+	if (s_SkinType == 0)
+	{
+		MainView.HSplitTop(20.0f, 0, &MainView);
+		static float s_ScrollValue = 0.0f;
+		static bool s_InitSkinlist = false;
+
+		int OldSelected = -1;
+		UiDoListboxStart(&s_InitSkinlist, &MainView, 50.0f, Localize("Body"), "", NUM_BODIES, 4, OldSelected, s_ScrollValue);
+
+		const int s[NUM_BODIES] = {0, 1, 2};
+		
+		for (int i = 0; i < NUM_BODIES; i++)
+		{
+			//if (i == 0)
+			//	continue;
+			
+			if (i == g_Config.m_PlayerBody)
+				OldSelected = i;
+			
+			CListboxItem Item = UiDoListboxNextItem(&s[i], OldSelected == i);
+			if (Item.m_Visible)
+			{
+				Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BODIES].m_Id);
+				Graphics()->QuadsBegin();
+				Graphics()->QuadsSetRotation(0);
+				Graphics()->SetColor(1, 1, 1, 1);
+
+				RenderTools()->SelectSprite(SPRITE_BODY1+i);
+				IGraphics::CQuadItem QuadItem(Item.m_Rect.x+Item.m_Rect.w/2, Item.m_Rect.y+Item.m_Rect.h/2, UI()->Scale()*40.0f, UI()->Scale()*40.0f);
+				Graphics()->QuadsDraw(&QuadItem, 1);
+				
+				Graphics()->QuadsEnd();
+			}
+		}
+
+		const int NewSelected = UiDoListboxEnd(&s_ScrollValue, 0);
+		if(OldSelected != NewSelected)
+		{
+			//mem_copy(g_Config.m_PlayerTopper, s_paSkinList[NewSelected]->m_aName, sizeof(g_Config.m_PlayerTopper));
+			g_Config.m_PlayerBody = NewSelected;
+			m_NeedSendinfo = true;
+			
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "new selected: '%d'", NewSelected);
+			Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "skin", aBuf);
+		}
+	}
+	
+	
+	
 	// skin selector
 	/*
 	MainView.HSplitTop(20.0f, 0, &MainView);
@@ -615,7 +668,7 @@ static CKeyInfo gs_aKeys[] =
 	{ "Primary weapon", "+weapon1", 0 },
 	{ "Secondary weapon", "+weapon2", 0 },
 	{ "Weapon picker", "+picker", 0 },
-	{ "Select last picked weapon", "+lastweapon", 0 },
+	{ "Select picked weapon", "+lastweapon", 0 },
 	{ "(not in use)", "+weapon4", 0 },
 	//{ "Rifle", "+weapon5", 0 },
 	{ "Next weapon", "+nextweapon", 0 },

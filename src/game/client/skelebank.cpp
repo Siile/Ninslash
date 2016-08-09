@@ -12,8 +12,14 @@ void CSkelebank::Init(IStorage *pStorage)
 {
 	m_pStorage = pStorage;
 	
-	AddSkeleton("data/anim/tigerboy.json", IStorage::STORAGETYPE_CLIENT);
-	AddAtlas("data/anim/tigerboy.atlas", IStorage::STORAGETYPE_CLIENT);
+	AddSkeleton("data/anim/body1.json", IStorage::STORAGETYPE_CLIENT);
+	AddAtlas("data/anim/body1.atlas", IStorage::STORAGETYPE_CLIENT);
+	
+	AddSkeleton("data/anim/body2.json", IStorage::STORAGETYPE_CLIENT);
+	AddAtlas("data/anim/body2.atlas", IStorage::STORAGETYPE_CLIENT);
+	
+	AddSkeleton("data/anim/body3.json", IStorage::STORAGETYPE_CLIENT);
+	AddAtlas("data/anim/body3.atlas", IStorage::STORAGETYPE_CLIENT);
 	
 	AddSkeleton("data/anim/turret.json", IStorage::STORAGETYPE_CLIENT);
 	AddAtlas("data/anim/turret.atlas", IStorage::STORAGETYPE_CLIENT);

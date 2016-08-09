@@ -63,7 +63,7 @@ void CAItdm::DoBehavior()
 			{
 				m_TargetPos = m_PlayerPos;
 						
-				if (m_EnemiesInSight > 1)
+				if (m_EnemiesInSight > 0)
 				{
 					// distance to the player
 					if (m_PlayerPos.x < m_Pos.x)
@@ -80,7 +80,7 @@ void CAItdm::DoBehavior()
 			{
 				m_TargetPos = m_PlayerPos;
 						
-				if (m_EnemiesInSight > 1)
+				if (m_EnemiesInSight > 0)
 				{
 					// distance to the player
 					if (m_PlayerPos.x < m_Pos.x)

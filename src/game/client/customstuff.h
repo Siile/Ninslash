@@ -65,8 +65,8 @@ public:
 	
 	void Reset();
 	
-	void Tick();
-	void Update();
+	void Tick(bool Paused);
+	void Update(bool Paused = false);
 	
 	CPlayerInfo m_aPlayerInfo[MAX_CLIENTS];
 };

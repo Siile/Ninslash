@@ -20,6 +20,7 @@ public:
 		m_Texture = -1;
 		m_TopperTexture = -1;
 		m_EyeTexture = -1;
+		m_Body = 0;
 		m_ColorBody = vec4(1,1,1,1);
 		m_ColorFeet = vec4(1,1,1,1);
 		m_ColorTopper = vec4(1,1,1,1);
@@ -31,6 +32,7 @@ public:
 	int m_Texture;
 	int m_TopperTexture;
 	int m_EyeTexture;
+	int m_Body;
 	vec4 m_ColorBody;
 	vec4 m_ColorFeet;
 	vec4 m_ColorTopper;
