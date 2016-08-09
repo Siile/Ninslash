@@ -308,7 +308,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	{
 		CUIRect Button;
 		ColorRect.VSplitLeft(80.0f, &Button, &ColorRect);
-		if(DoButton_MenuTab(aColor[i], aColor[i], s_CustomizationColor == i, &Button, CUI::CORNER_BR))
+		if(DoButton_MenuTab(&aColor[i], aColor[i], s_CustomizationColor == i, &Button, CUI::CORNER_BR))
 			s_CustomizationColor = i;
 	}
 	
@@ -404,7 +404,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 	{
 		CUIRect Button;
 		SkinSelect.VSplitLeft(80.0f, &Button, &SkinSelect);
-		if(DoButton_MenuTab(aSkinType[i], aSkinType[i], s_SkinType == i, &Button, CUI::CORNER_BR))
+		if(DoButton_MenuTab(&aSkinType[i], aSkinType[i], s_SkinType == i, &Button, CUI::CORNER_BR))
 			s_SkinType = i;
 	}
 
