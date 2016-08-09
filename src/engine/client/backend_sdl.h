@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include "graphics_threaded.h"
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -99,30 +101,26 @@ class CCommandProcessorFragment_OpenGL
 	
 	GLuint textureBuffer[NUM_RENDERBUFFERS];
 	GLuint renderedTexture[NUM_RENDERBUFFERS];
-	GLuint m_aShader[NUM_SHADERS];
 
-	struct CUniformLocationCache // TODO: new generalized uniforms must be added here.
+	class CShader
 	{
-		enum
+		struct CUniformLocation
 		{
-			UNIFORM_RND,
-			UNIFORM_INTENSITY,
-			NUM_UNIFORMS
+			GLint value;
+			CUniformLocation() { value = -1; } // need this to initialize new keys in our map correctly
 		};
 
-		static constexpr const char * const ms_apUniformNames[NUM_UNIFORMS] = {
-				"rnd",
-				"intensity"
-		};
+		GLuint m_Program;
+		std::map<const GLcharARB*, CUniformLocation> m_aUniformLocationCache;
 
-		CUniformLocationCache() { for(int i = 0; i < NUM_UNIFORMS; i++) m_aLocations[i] = -1; }
+	public:
+		GLuint Handle() const { return m_Program; }
+		GLint getUniformLocation(const char *pName);
 
-		GLint m_aLocations[NUM_UNIFORMS];
+		GLuint operator=(GLuint Program) { return (m_Program = Program); } // to easily assign a linked shader program
 	};
+	CShader m_aShader[NUM_SHADERS];
 
-	CUniformLocationCache m_aShaderLocationCache[NUM_SHADERS];
-	GLint getUniformLocation(int Shader, int Uniform);
-	
 public:
 	enum
 	{
