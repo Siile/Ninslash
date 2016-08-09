@@ -419,7 +419,7 @@ void CCommandProcessorFragment_OpenGL::Cmd_ShaderEnd(const CCommandBuffer::SComm
 GLint CCommandProcessorFragment_OpenGL::CShader::getUniformLocation(const GLcharARB *pName)
 {
 	GLint& rCachePos = m_aUniformLocationCache[pName].value;
-	if(rCachePos >= 0)
+	if(rCachePos > -2)
 		return rCachePos;
 
 	return (rCachePos = glGetUniformLocationARB(m_Program, pName));
