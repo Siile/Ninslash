@@ -10,6 +10,7 @@ src/game/generated/
 other/icons/*.res
 /SDL.dll
 /freetype.dll
+/autoexec.cfg
 
 /crapnet*
 /dilate*
