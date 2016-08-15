@@ -75,6 +75,8 @@ protected:
 
 	void CycleMap();
 	void ResetGame();
+	
+	int CountPlayers(int Team = -1);
 
 	char m_aMapWish[128];
 
@@ -98,13 +100,13 @@ protected:
 
 public:
 	// CSTT & CSBB
-	int GetRoundStatus(){ return m_GameState; }
+	int GetRoundState(){ return m_GameState; }
 	int GetRound(){ return m_Round; }
 
 	virtual int GetDefendingTeam();
 	
 	void SetPickup(vec2 Pos, int PickupType, int PickupSubtype, int Amount = 1);
-	void DropPickup(vec2 Pos, int PickupType, vec2 Force, int PickupSubtype, int Owner = -1);
+	void DropPickup(vec2 Pos, int PickupType, vec2 Force, int PickupSubtype, float Ammo = -1.0f);
 	
 	int GetTimeLeft();
 	
@@ -116,6 +118,7 @@ public:
 	const char *m_pGameType;
 
 	bool IsTeamplay() const;
+	bool IsInfection() const;
 	bool IsGameOver() const { return m_GameOverTick != -1; }
 
 	IGameController(class CGameContext *pGameServer);

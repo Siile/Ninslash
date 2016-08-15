@@ -204,7 +204,7 @@ CBuilding *CGameWorld::IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec
 	CBuilding *p = (CBuilding *)FindFirst(ENTTYPE_BUILDING);
 	for(; p; p = (CBuilding *)p->TypeNext())
  	{
-		if (Team == p->m_Team)
+		if (Team == p->m_Team && p->m_Type != BUILDING_MINE1 && p->m_Type != BUILDING_MINE2)
 			continue;
 		
 		vec2 IntersectPos = closest_point_on_line(Pos0, Pos1, p->m_Pos);

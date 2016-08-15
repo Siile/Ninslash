@@ -104,6 +104,8 @@ public:
 	bool IncreaseHealth(int Amount);
 	bool IncreaseArmor(int Amount);
 	
+	bool AddMine();
+	
 	void SetHealth(int Health);
 
 	void SetEmote(int Emote, int Tick);
@@ -226,6 +228,7 @@ public:
 	
 	void SelectItem(int Item);
 	void GiveBuff(int Item);
+	void GiveRandomBuff();
 	
 private:
 	// player controlling this character
@@ -235,6 +238,7 @@ private:
 	
 	int m_LastStatusEffect;
 	
+	int m_PrevWeapon;
 	
 	int m_aStatus[NUM_STATUSS];
 	int m_aStatusFrom[NUM_STATUSS];

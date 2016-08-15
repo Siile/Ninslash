@@ -64,16 +64,6 @@ public:
 
 	void KillCharacter(int Weapon = WEAPON_GAME);
 	CCharacter *GetCharacter();
-
-	void GiveCharacterAway()
-	{
-		m_pCharacter = NULL;
-	}
-	
-	void GiveCharacter(CCharacter *Character)
-	{
-		m_pCharacter = Character;
-	}
 	
 	// bomb planting & defusing
 	int m_ActionTimer;
@@ -160,6 +150,7 @@ public:
 	// custom
 	void SelectWeapon(int Weapon, int Group);
 	void SelectItem(int Item);
+	void DropWeapon();
 	
 	void JoinTeam();
 	

@@ -57,6 +57,7 @@ public:
 	int m_SelectedWeapon;
 
 	int LocalTick(){ return m_Tick; }
+	int m_WeaponDropTick;
 	
 	void SetCameraTarget(vec2 Center){ m_CameraTargetCenter = Center; }
 	vec2 GetCameraCenter(){ return m_CameraCenter; }

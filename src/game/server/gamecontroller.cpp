@@ -75,7 +75,7 @@ void IGameController::NextGameState(int NextGameState, float InHowManySeconds)
 }
 
 
-void IGameController::DropPickup(vec2 Pos, int PickupType, vec2 Force, int PickupSubtype, int Owner)
+void IGameController::DropPickup(vec2 Pos, int PickupType, vec2 Force, int PickupSubtype, float Ammo)
 {
 	for (int i = 0; i < m_PickupCount; i++)
 	{
@@ -88,8 +88,8 @@ void IGameController::DropPickup(vec2 Pos, int PickupType, vec2 Force, int Picku
 			
 			m_apPickup[i]->m_Vel = Force;
 			
-			if (Owner != -1)
-				m_apPickup[i]->m_Owner = Owner;
+			if (Ammo >= 0.0f)
+				m_apPickup[i]->m_Ammo = Ammo;
 			return;
 		}
 	}
@@ -292,7 +292,7 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, int Bot)
 	
 void IGameController::AutoBalance()
 {
-	if (!IsTeamplay())
+	if (!IsTeamplay() || IsInfection())
 	{
 		int Players = 0, Bots = 0, Spectators = 0;
 		int BotID = -1;
@@ -448,6 +448,12 @@ void IGameController::CreateDroppables()
 		m_apPickup[m_PickupCount]->m_Dropable = true;
 		m_PickupCount++;
 		
+		// mines
+		m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_MINE, 0);
+		m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
+		m_apPickup[m_PickupCount]->m_Dropable = true;
+		m_PickupCount++;
+		
 		// weapons
 		m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_WEAPON, 0);
 		m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
@@ -532,6 +538,8 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 			Type = POWERUP_ARMOR;
 		else if(Index == ENTITY_HEALTH_1)
 			Type = POWERUP_HEALTH;
+		else if(Index == ENTITY_MINE_1)
+			Type = POWERUP_MINE;
 		else if(Index == ENTITY_WEAPON_CHAINSAW)
 		{
 			Type = POWERUP_WEAPON;
@@ -579,6 +587,28 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 	return false;
 }
 
+
+int IGameController::CountPlayers(int Team)
+{
+	int Num = 0;
+		
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CPlayer *pPlayer = GameServer()->m_apPlayers[i];
+		if(!pPlayer)
+			continue;
+
+		if (pPlayer->GetTeam() != TEAM_SPECTATORS)
+		{
+			if (pPlayer->GetTeam() == Team || Team == -1)
+				Num++;
+		}
+	}
+	
+	return Num;
+}
+
+
 void IGameController::EndRound()
 {
 	if(m_Warmup) // game can't end when we are running warmup
@@ -598,10 +628,20 @@ const char *IGameController::GetTeamName(int Team)
 {
 	if(IsTeamplay())
 	{
-		if(Team == TEAM_RED)
-			return "red team";
-		else if(Team == TEAM_BLUE)
-			return "blue team";
+		if (IsInfection())
+		{
+			if(Team == TEAM_RED)
+				return "the living";
+			else if(Team == TEAM_BLUE)
+				return "the dead";
+		}
+		else
+		{
+			if(Team == TEAM_RED)
+				return "red team";
+			else if(Team == TEAM_BLUE)
+				return "blue team";
+		}
 	}
 	else
 	{
@@ -731,9 +771,20 @@ void IGameController::OnPlayerInfoChange(class CPlayer *pP)
 {
 	const int aTeamColors[2] = {2555648, 8912640};
 	const int aTeamFeetColors[2] = {65280, 10354432};
+	
+	const int aInfectedColor = 0;
+	
 	if(IsTeamplay())
 	{
-		if(pP->GetTeam() >= TEAM_RED && pP->GetTeam() <= TEAM_BLUE)
+		if (IsInfection())
+		{
+			if (pP->GetTeam() == TEAM_BLUE)
+			{
+				//pP->m_TeeInfos.m_ColorBody = aInfectedColor;
+				//pP->m_TeeInfos.m_ColorFeet = aInfectedColor;
+			}
+		}
+		else if(pP->GetTeam() >= TEAM_RED && pP->GetTeam() <= TEAM_BLUE)
 		{
 			pP->m_TeeInfos.m_ColorBody = aTeamColors[pP->GetTeam()];
 			pP->m_TeeInfos.m_ColorFeet = aTeamFeetColors[pP->GetTeam()];
@@ -782,11 +833,16 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 	if(!pKiller || Weapon == WEAPON_GAME)
 		return 0;
 	if(pKiller == pVictim->GetPlayer())
-		pVictim->GetPlayer()->m_Score--; // suicide
+	{
+		if (!(IsInfection() && pVictim->GetPlayer()->GetTeam() == TEAM_BLUE))
+			pVictim->GetPlayer()->m_Score--; // suicide
+	}
 	else
 	{
 		if(IsTeamplay() && pVictim->GetPlayer()->GetTeam() == pKiller->GetTeam())
+		{
 			pKiller->m_Score--; // teamkill
+		}
 		else
 			pKiller->m_Score++; // normal kill
 	}
@@ -1021,6 +1077,11 @@ bool IGameController::IsTeamplay() const
 	return m_GameFlags&GAMEFLAG_TEAMS;
 }
 
+bool IGameController::IsInfection() const
+{
+	return m_GameFlags&GAMEFLAG_INFECTION;
+}
+
 int IGameController::GetTimeLeft()
 {
 	if (m_TimeLimit == 0)
@@ -1077,7 +1138,10 @@ int IGameController::GetAutoTeam(int NotThisID)
 	// this will force the auto balancer to work overtime aswell
 	if(g_Config.m_DbgStress)
 		return 0;
-
+	
+	if (IsInfection() && m_Warmup)
+		return TEAM_RED;
+		
 	int aNumplayers[2] = {0,0};
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -1089,6 +1153,14 @@ int IGameController::GetAutoTeam(int NotThisID)
 		}
 	}
 
+	if (IsInfection())
+	{
+		//if (aNumplayers[TEAM_BLUE] > 0)
+		//	return TEAM_BLUE;
+		//else
+			return TEAM_RED;
+	}
+	
 	int Team = 0;
 	if(IsTeamplay())
 		Team = aNumplayers[TEAM_RED] > aNumplayers[TEAM_BLUE] ? TEAM_BLUE : TEAM_RED;
@@ -1160,6 +1232,9 @@ bool IGameController::CanChangeTeam(CPlayer *pPlayer, int JoinTeam)
 		//GameServer()->SendChatTarget(pPlayer->GetCID(), "Spectator mode disabled");
 		return true;
 	}
+	
+	if (IsInfection())
+		return false;
 	
 	if (!IsTeamplay() || JoinTeam == TEAM_SPECTATORS || !g_Config.m_SvTeambalanceTime)
 		return true;

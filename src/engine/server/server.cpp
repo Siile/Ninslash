@@ -328,6 +328,16 @@ int CServer::TrySetClientName(int ClientID, const char *pName)
 
 
 
+void CServer::SetBotDefault(int ClientID)
+{
+	if(ClientID < 0 || ClientID >= MAX_CLIENTS || m_aClients[ClientID].m_State < CClient::STATE_READY)
+		return;
+	
+	m_aClients[ClientID].m_Latency = 0;
+}
+	
+	
+	
 void CServer::SetClientName(int ClientID, const char *pName)
 {
 	if(ClientID < 0 || ClientID >= MAX_CLIENTS || m_aClients[ClientID].m_State < CClient::STATE_READY)
@@ -1834,8 +1844,14 @@ void CServer::AddZombie()
 	if (ClientID == -1)
 		return;
 	
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf), "zombie client id: %d", ClientID);
+	Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "server", aBuf);
+	
 	// fake reserve a slot
 	m_NetServer.m_SlotTakenByBot[ClientID] = true;
+	
+	m_aClients[ClientID].Reset();
 	
 	m_aClients[ClientID].m_State = CClient::STATE_CONNECTING;
 	GameServer()->OnClientConnected(ClientID, true);
@@ -1883,6 +1899,7 @@ void CServer::AddZombie()
 	char aName[128];
 	str_format(aName, sizeof(aName), "%s%s", aName1, aName2);
 	
+	SetBotDefault(ClientID);
 	SetClientName(ClientID, aName);
 	SetClientClan(ClientID, "ai");
 }

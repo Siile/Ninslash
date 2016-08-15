@@ -2,6 +2,7 @@
 
 #include "ai.h"
 #include "entities/character.h"
+#include "entities/monster.h"
 #include "entities/staticlaser.h"
 #include "entities/flag.h"
 #include "entities/bomb.h"
@@ -75,6 +76,8 @@ void CAI::Reset()
 	m_PlayerSpotCount = 0;
 	
 	m_TurnSpeed = 0.2f;
+	
+	m_MoveType = MOVE_IDLE;
 	
 	m_DontMoveTick = 0;
 	m_WaypointDir = vec2(0, 0);
@@ -555,6 +558,126 @@ bool CAI::MoveTowardsTarget(int Dist)
 
 bool CAI::MoveTowardsWaypoint(int Dist)
 {
+	m_Jump = 0;
+	m_Hook = 0;
+
+	bool OnWall = Player()->GetCharacter()->GetCore().m_OnWall;
+	
+	// handle basic movements
+	switch (m_MoveType)
+	{
+		case MOVE_IDLE:
+		{
+			m_Move = 0;
+			
+			if (rand()%5 == 2)
+				m_Move = -1;
+			else if (rand()%5 == 2)
+				m_Move = 1;
+		}
+		break;
+			
+		case MOVE_LEFT:
+		{
+			m_Move = -1;
+			
+			if (Player()->GetCharacter()->IsGrounded() && GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y))
+				m_Jump = 1;
+			
+			if (!OnWall)
+			{
+				if (m_EnemiesInSight > 0 && Player()->GetCharacter()->GetCore().m_JetpackPower > 50 && abs(Player()->GetCharacter()->GetCore().m_Vel.x) < 12)
+				{
+					m_Hook = 1;
+					m_Direction = m_WaypointDir;
+				}
+			}
+		}
+		break;
+			
+		case MOVE_RIGHT:
+		{
+			m_Move = 1;
+			
+			if (Player()->GetCharacter()->IsGrounded() && GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y))
+				m_Jump = 1;
+			
+			if (!OnWall)
+			{
+				if (m_EnemiesInSight > 0 && Player()->GetCharacter()->GetCore().m_JetpackPower > 50 && abs(Player()->GetCharacter()->GetCore().m_Vel.x) < 12)
+				{
+					m_Hook = 1;
+					m_Direction = m_WaypointDir;
+				}
+			}
+		}
+		break;
+			
+		case MOVE_UP:
+		{
+			if (Player()->GetCharacter()->IsGrounded())
+			{
+				if (Player()->GetCharacter()->GetCore().m_JetpackPower > 70)
+				{
+					m_Jump = 1;
+					if (rand()%5 == 2)
+						m_Move = -1;
+					else if (rand()%5 == 2)
+						m_Move = 1;
+				}
+				else
+				// load jetpack for a while if needed
+				{
+					m_Move = 0;
+					m_Hook = 0;
+				}
+			}
+			else
+			{
+				if (Player()->GetCharacter()->GetCore().m_JetpackPower > 50)
+				{
+					m_Hook = 1;
+					m_Direction = vec2(-1, 0);
+				}
+				
+				if (Player()->GetCharacter()->GetCore().m_OnWall)
+				{
+					m_Jump = 1;
+					m_Move *= -1;
+				}
+			}
+		}
+		break;
+	};
+	
+	
+	// movement logic
+	if (distance(m_LastPos, m_WaypointPos) < 40)
+	{
+		m_MoveType = MOVE_IDLE;
+		return true;
+	}
+	
+	if (abs(m_LastPos.x - m_WaypointPos.x) > 100)
+	{
+		if (m_LastPos.x < m_WaypointPos.x)
+			m_MoveType = MOVE_RIGHT;
+			
+		if (m_LastPos.x > m_WaypointPos.x)
+			m_MoveType = MOVE_LEFT;
+	}
+	else
+	{
+		if (m_LastPos.y > m_WaypointPos.y)
+			m_MoveType = MOVE_UP;
+		else
+			m_MoveType = MOVE_IDLE;
+		
+	}
+	
+	
+	
+	/*
 	if (distance(m_LastPos, m_WaypointPos) < Dist)
 	{
 		m_Move = 0;
@@ -566,6 +689,7 @@ bool CAI::MoveTowardsWaypoint(int Dist)
 		
 	if (m_LastPos.x > m_WaypointPos.x)
 		m_Move = -1;
+	*/
 		
 	return false;
 }
@@ -745,7 +869,7 @@ void CAI::ShootAtClosestHuman()
 
 
 
-void CAI::ShootAtClosestEnemy()
+bool CAI::ShootAtClosestEnemy()
 {
 	CCharacter *pClosestCharacter = NULL;
 	int ClosestDistance = 0;
@@ -787,9 +911,9 @@ void CAI::ShootAtClosestEnemy()
 	if (pClosestCharacter && ClosestDistance < WeaponShootRange()*1.2f)
 	{
 		vec2 AttackDirection = vec2(m_PlayerDirection.x+ClosestDistance*(frandom()*0.3f-frandom()*0.3f), m_PlayerDirection.y+ClosestDistance*(frandom()*0.3f-frandom()*0.3f));
-		
-		if (m_HookTick < GameServer()->Server()->Tick() - 20)
-			m_Direction = AttackDirection;
+
+		m_Direction = AttackDirection;
+		m_Hook = 0;
 		
 		// shooting part
 		if (m_AttackTimer++ > g_Config.m_SvBotReactTime)
@@ -800,11 +924,83 @@ void CAI::ShootAtClosestEnemy()
 				if (frandom()*30 < 2 && !Player()->GetCharacter()->UsingMeleeWeapon())
 					m_DontMoveTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed()*(1+frandom());
 			}
+			else
+			{
+				if (WeaponShootRange() < 300)
+					m_Hook = 1;
+			}
+		}
+		
+		return true;
+	}
+	
+	return false;
+}
+
+
+bool CAI::ShootAtClosestMonster()
+{
+	CMonster *pClosestMonster = NULL;
+	int ClosestDistance = 0;
+	
+	vec2 MonsterDir;
+	
+	// FIRST_BOT_ID, fix
+	CMonster *apEnts[3];
+	int Num = GameServer()->m_World.FindEntities(m_LastPos, 600, (CEntity**)apEnts, 3, CGameWorld::ENTTYPE_MONSTER);
+
+	for (int i = 0; i < Num; ++i)
+	{
+		//pClosestMonster
+		CMonster *pMonster = apEnts[i];
+
+		if (pMonster->m_Health <= 0)
+			continue;
+
+		vec2 Dir;
+		if (length(pMonster->m_Pos - m_LastPos) > 0.0f)
+			Dir = normalize(pMonster->m_Pos - m_LastPos);
+
+		int Distance = distance(pMonster->m_Pos, m_LastPos);
+		if (Distance < 800 && 
+			!GameServer()->Collision()->FastIntersectLine(pMonster->m_Pos + vec2(0, -20), m_LastPos))
+		{
+			if (!pClosestMonster || Distance < ClosestDistance)
+			{
+				pClosestMonster = pMonster;
+				ClosestDistance = Distance;
+				MonsterDir = pMonster->m_Pos - m_LastPos;
+			}
 		}
 	}
 	
-	//if (m_AutoWeaponChange)
-	//	Player()->GetCharacter()->AutoWeaponChange();
+	if (pClosestMonster && ClosestDistance < WeaponShootRange()*1.2f)
+	{
+		vec2 AttackDirection = vec2(MonsterDir.x+ClosestDistance*(frandom()*0.3f-frandom()*0.3f), MonsterDir.y+ClosestDistance*(frandom()*0.3f-frandom()*0.3f));
+
+		m_Direction = AttackDirection;
+		m_Hook = 0;
+		
+		// shooting part
+		if (m_AttackTimer++ > g_Config.m_SvBotReactTime)
+		{
+			if (ClosestDistance < WeaponShootRange() && abs(atan2(m_Direction.x, m_Direction.y) - atan2(AttackDirection.x, AttackDirection.y)) < PI / 4.0f)
+			{
+				m_Attack = 1;
+				if (frandom()*30 < 2 && !Player()->GetCharacter()->UsingMeleeWeapon())
+					m_DontMoveTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed()*(1+frandom());
+			}
+			else
+			{
+				//if (WeaponShootRange() < 300)
+				//	m_Hook = 1;
+			}
+		}
+		
+		return true;
+	}
+	
+	return false;
 }
 
 
@@ -903,6 +1099,15 @@ bool CAI::SeekRandomEnemy()
 	}
 	
 	return false;
+}
+
+
+
+bool CAI::SeekRandomWaypoint()
+{
+	m_TargetPos = GameServer()->Collision()->GetRandomWaypointPos();
+	
+	return true;
 }
 
 
@@ -1165,13 +1370,11 @@ bool CAI::SeekClosestEnemyInSight()
 
 void CAI::UseItems()
 {
-	/*
-	if (m_ItemUseTick < GameServer()->Server()->Tick() - GameServer()->Server()->TickSpeed() * 10)
+	if (m_ItemUseTick < GameServer()->Server()->Tick() - GameServer()->Server()->TickSpeed() * 2)
 	{
 		m_ItemUseTick = GameServer()->Server()->Tick();
 		m_pPlayer->SelectItem(rand()%NUM_PLAYERITEMS);
 	}
-	*/
 }
 
 

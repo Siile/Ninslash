@@ -15,12 +15,14 @@ class CPicker : public CComponent
 
 	vec2 m_SelectorMouse;
 	int m_Selected;
+	int m_ItemSelected;
 
 	static void ConKeyItemPicker(IConsole::IResult *pResult, void *pUserData);
 	static void ConKeyPicker(IConsole::IResult *pResult, void *pUserData);
 	static void ConItempick(IConsole::IResult *pResult, void *pUserData);
 	static void ConLastWeaponpick(IConsole::IResult *pResult, void *pUserData);
 	static void ConWeaponpick(IConsole::IResult *pResult, void *pUserData);
+	static void ConDropWeapon(IConsole::IResult *pResult, void *pUserData);
 	static void ConKeyEmote(IConsole::IResult *pResult, void *pUserData);
 	static void ConEmote(IConsole::IResult *pResult, void *pUserData);
 	
@@ -41,6 +43,7 @@ public:
 	void Weaponpick(int Weapon);
 	void Itempick(int Item);
 	void Emote(int Emoticon);
+	void DropWeapon();
 };
 
 #endif

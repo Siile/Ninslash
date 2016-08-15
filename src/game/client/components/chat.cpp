@@ -364,7 +364,12 @@ void CChat::AddLine(int ClientID, int Team, const char *pLine)
 			if(m_pClient->m_aClients[ClientID].m_Team == TEAM_SPECTATORS)
 				m_aLines[m_CurrentLine].m_NameColor = TEAM_SPECTATORS;
 
-			if(m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_TEAMS)
+			if(m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_INFECTION)
+			{
+				if(m_pClient->m_aClients[ClientID].m_Team == TEAM_BLUE)
+					m_aLines[m_CurrentLine].m_NameColor = TEAM_BLUE;
+			}
+			else if(m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_TEAMS)
 			{
 				if(m_pClient->m_aClients[ClientID].m_Team == TEAM_RED)
 					m_aLines[m_CurrentLine].m_NameColor = TEAM_RED;
@@ -525,7 +530,12 @@ void CChat::OnRender()
 		else if(m_aLines[r].m_NameColor == TEAM_RED)
 			TextRender()->TextColor(1.0f, 0.4f, 0.1f, Blend); // red
 		else if(m_aLines[r].m_NameColor == TEAM_BLUE)
-			TextRender()->TextColor(0.1f, 0.4f, 1.0f, Blend); // blue
+		{
+			if (m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_INFECTION)
+				TextRender()->TextColor(0.5f, 0.5f, 0.5f, Blend); // gray
+			else
+				TextRender()->TextColor(0.1f, 0.4f, 1.0f, Blend); // blue
+		}
 		else if(m_aLines[r].m_NameColor == TEAM_SPECTATORS)
 			TextRender()->TextColor(0.75f, 0.5f, 0.75f, Blend); // spectator
 		else

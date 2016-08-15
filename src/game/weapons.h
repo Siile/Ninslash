@@ -111,9 +111,9 @@ const int BotAttackRange[NUM_CUSTOMWEAPONS] =
 {
 	120, // W_TOOL,
 	270, // W_HAMMER,
-	160, // W_CHAINSAW,
+	180, // W_CHAINSAW,
 	750, // W_PISTOL,
-	400, // W_SHOTGUN,
+	440, // W_SHOTGUN,
 	650, // W_GRENADELAUNCHER,
 	780, // W_RIFLE,
 	780, // W_ELECTRIC,

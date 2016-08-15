@@ -79,12 +79,18 @@ void CPicker::ConEmote(IConsole::IResult *pResult, void *pUserData)
 	((CPicker *)pUserData)->Emote(pResult->GetInteger(0));
 }
 
+void CPicker::ConDropWeapon(IConsole::IResult *pResult, void *pUserData)
+{
+	((CPicker *)pUserData)->DropWeapon();
+}
+
 
 void CPicker::OnConsoleInit()
 {
 	//Console()->Register("+itempicker", "", CFGFLAG_CLIENT, ConKeyItemPicker, this, "Open item selector");
 	//Console()->Register("+gamepaditempicker", "", CFGFLAG_CLIENT, ConKeyItemPicker, this, "Open item selector");
 	
+	Console()->Register("+dropweapon", "", CFGFLAG_CLIENT, ConDropWeapon, this, "Drop weapon");
 	Console()->Register("+lastweapon", "", CFGFLAG_CLIENT, ConLastWeaponpick, this, "Select last picked weapon");
 	Console()->Register("+picker", "", CFGFLAG_CLIENT, ConKeyPicker, this, "Open weapon selector");
 	Console()->Register("+gamepadpicker", "", CFGFLAG_CLIENT, ConKeyPicker, this, "Open weapon selector");
@@ -99,6 +105,7 @@ void CPicker::OnReset()
 	m_WasActive = false;
 	m_Active = false;
 	m_Selected = -1;
+	m_ItemSelected = -1;
 	m_ResetMouse = true;
 }
 
@@ -194,6 +201,7 @@ void CPicker::DrawWeapons()
 		m_SelectorMouse = vec2(135.0f * cosf(Angle), 135.0f * sinf(Angle));
 		m_ResetMouse = false;
 		m_Selected = -1;
+		m_ItemSelected = -1;
 	}
 	
 	CUIRect Screen = *UI()->Screen();
@@ -221,6 +229,82 @@ void CPicker::DrawWeapons()
 	}
 
 	Graphics()->QuadsEnd();
+	
+	// render mines
+	if (CustomStuff()->m_aLocalItems[PLAYERITEM_LANDMINE] + CustomStuff()->m_aLocalItems[PLAYERITEM_ELECTROMINE] > 0)
+	{		
+		if (CustomStuff()->m_aLocalItems[PLAYERITEM_LANDMINE] > 0)
+		{
+			bool Selected = m_ItemSelected == PLAYERITEM_LANDMINE;
+			
+			Graphics()->TextureSet(-1);
+			Graphics()->QuadsBegin();
+			if (Selected)
+				Graphics()->SetColor(0.2f, 1.0f, 0.2f, 0.5f);
+			else
+				Graphics()->SetColor(0.4f, .4f, 0.4f, 0.5f);
+			DrawCircle(Screen.w/2-32, Screen.h/2, 28, 20);
+			Graphics()->QuadsEnd();
+			
+			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMS].m_Id);
+			Graphics()->QuadsBegin();
+			Graphics()->SetColor(1,1,1,1);
+
+			float Size = Selected ? 1.25f : 1.0f;
+		
+			RenderTools()->SelectSprite(SPRITE_ITEM1+PLAYERITEM_LANDMINE);
+			RenderTools()->DrawSprite(Screen.w/2 - 32, Screen.h/2, 64 * Size);
+			Graphics()->QuadsEnd();
+			
+			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMNUMBERS].m_Id);
+			Graphics()->QuadsBegin();
+			Graphics()->SetColor(0.7f, .7f, 0.7f, 1.0f);
+			RenderTools()->SelectSprite(SPRITE_ITEMNUMBER_0+CustomStuff()->m_aLocalItems[PLAYERITEM_LANDMINE]);
+			RenderTools()->DrawSprite(Screen.w/2 - 32+20, Screen.h/2+20, 26 * Size);
+			Graphics()->QuadsEnd();
+			
+		}
+		if (CustomStuff()->m_aLocalItems[PLAYERITEM_ELECTROMINE] > 0)
+		{
+			bool Selected = m_ItemSelected == PLAYERITEM_ELECTROMINE;
+			
+			Graphics()->TextureSet(-1);
+			Graphics()->QuadsBegin();
+			if (Selected)
+				Graphics()->SetColor(0.2f, 1.0f, 0.2f, 0.5f);
+			else
+				Graphics()->SetColor(0.4f, .4f, 0.4f, 0.5f);
+			DrawCircle(Screen.w/2+32, Screen.h/2, 28, 20);
+			Graphics()->QuadsEnd();
+			
+			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMS].m_Id);
+			Graphics()->QuadsBegin();
+			Graphics()->SetColor(1,1,1,1);
+			
+			float Size = Selected ? 1.25f : 1.0f;
+		
+			RenderTools()->SelectSprite(SPRITE_ITEM1+PLAYERITEM_ELECTROMINE);
+			RenderTools()->DrawSprite(Screen.w/2 + 32, Screen.h/2, 64 * Size);
+			Graphics()->QuadsEnd();
+			
+			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMNUMBERS].m_Id);
+			Graphics()->QuadsBegin();
+			Graphics()->SetColor(0.7f, .7f, 0.7f, 1.0f);
+			RenderTools()->SelectSprite(SPRITE_ITEMNUMBER_0+CustomStuff()->m_aLocalItems[PLAYERITEM_ELECTROMINE]);
+			RenderTools()->DrawSprite(Screen.w/2 + 32+20, Screen.h/2+20, 26 * Size);
+			Graphics()->QuadsEnd();
+		}
+	}
+	
+	/*
+	if (m_Selected >= 0 && m_Selected < NUM_PLAYERITEMS)
+	{
+		float Size = 18;
+		char aBuf[64];
+		str_format(aBuf, sizeof(aBuf), "(%d, %d)", int(m_SelectorMouse.x), int(m_SelectorMouse.y));
+		TextRender()->Text(0, Screen.w/2-TextRender()->TextWidth(0, Size, aBuf, -1)/2, Screen.h/2-9, Size, aBuf, -1);
+	}
+	*/
 }
 
 
@@ -312,14 +396,19 @@ void CPicker::OnRender()
 	if(!m_Active)
 	{
 		m_ResetMouse = true;
-		if(m_WasActive && m_Selected != -1)
+		if(m_WasActive && (m_Selected != -1  || m_ItemSelected != -1))
 		{
-			if (m_PickerType == PICKER_WEAPON)
-				Weaponpick(m_Selected);
-			if (m_PickerType == PICKER_EMOTICON)
-				Emote(m_Selected);
-			if (m_PickerType == PICKER_ITEM)
-				Itempick(m_Selected);
+			if (m_ItemSelected != -1)
+				Itempick(m_ItemSelected);
+			else
+			{
+				if (m_PickerType == PICKER_WEAPON)
+					Weaponpick(m_Selected);
+				if (m_PickerType == PICKER_EMOTICON)
+					Emote(m_Selected);
+				if (m_PickerType == PICKER_ITEM)
+					Itempick(m_Selected);
+			}
 		}
 		m_WasActive = false;
 		return;
@@ -341,12 +430,14 @@ void CPicker::OnRender()
 	if (SelectedAngle < 0)
 		SelectedAngle += 2*pi;
 
-	if (length(m_SelectorMouse) > 110.0f)
+	if (length(m_SelectorMouse) > 100.0f)
 	{
 		if (m_PickerType == PICKER_EMOTICON)
 			m_Selected = (int)(SelectedAngle / (2*pi) * NUM_EMOTICONS);
 		if (m_PickerType == PICKER_WEAPON)
 		{
+			m_ItemSelected = -1;
+			
 			int i = (int)(SelectedAngle / (2*pi) * (NUM_WEAPONS-1));
 			int w = CustomStuff()->m_LocalWeapons;
 			if (w & (1<<(i+1)))
@@ -365,6 +456,30 @@ void CPicker::OnRender()
 			
 			m_Selected = i;
 		}
+	}
+	// items in the middle
+	else if (m_PickerType == PICKER_WEAPON)
+	{
+		CUIRect Screen = *UI()->Screen();
+		
+		m_Selected = -1;
+			
+		if (distance(m_SelectorMouse, vec2(-32, 0)) < 32 && CustomStuff()->m_aLocalItems[PLAYERITEM_LANDMINE] > 0)
+		{
+			if (m_ItemSelected != PLAYERITEM_LANDMINE)
+				m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_PICK, 0);
+				
+			m_ItemSelected = PLAYERITEM_LANDMINE;
+		}
+		else if (distance(m_SelectorMouse, vec2(+32, 0)) < 32 && CustomStuff()->m_aLocalItems[PLAYERITEM_ELECTROMINE] > 0)
+		{
+			if (m_ItemSelected != PLAYERITEM_ELECTROMINE)
+				m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_PICK, 0);
+			
+			m_ItemSelected = PLAYERITEM_ELECTROMINE;
+		}
+		else
+			m_ItemSelected = -1;
 	}
 
 	CUIRect Screen = *UI()->Screen();
@@ -454,6 +569,22 @@ void CPicker::Weaponpick(int Weapon)
 	CNetMsg_Cl_SelectWeapon Msg;
 	Msg.m_Weapon = Weapon+1;
 	Msg.m_Group = Group;
+	Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+}
+
+void CPicker::DropWeapon()
+{
+	//m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_POSITIVE, 0);
+	
+	if (CustomStuff()->m_WeaponDropTick > CustomStuff()->LocalTick() - 30)
+	{
+		CustomStuff()->m_WeaponDropTick = CustomStuff()->LocalTick();
+		return;
+	}
+	
+	CustomStuff()->m_WeaponDropTick = CustomStuff()->LocalTick();
+	
+	CNetMsg_Cl_DropWeapon Msg;
 	Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
 }
 

@@ -10,6 +10,7 @@ CCustomStuff::CCustomStuff()
 
 void CCustomStuff::Reset()
 {
+	m_WeaponDropTick = 0;
 	m_SelectedWeapon = 0;
 	m_LocalWeapons = 0;
 	m_Picker = 0;

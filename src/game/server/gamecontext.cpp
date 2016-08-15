@@ -15,6 +15,7 @@
 #include "gamemodes/tdm.h"
 #include "gamemodes/ctf.h"
 #include "gamemodes/base.h"
+#include "gamemodes/texasrun.h"
 
 #include <game/server/entities/arrow.h>
 #include <game/server/entities/building.h>
@@ -805,6 +806,7 @@ void CGameContext::CheckPureTuning()
 
 	if(	str_comp(m_pController->m_pGameType, "DM")==0 ||
 		str_comp(m_pController->m_pGameType, "TDM")==0 ||
+		str_comp(m_pController->m_pGameType, "INF")==0 ||
 		str_comp(m_pController->m_pGameType, "CTF")==0)
 	{
 		CTuningParams p;
@@ -979,7 +981,7 @@ void CGameContext::UpdateSpectators()
 
 void CGameContext::SwapTeams()
 {
-	if(!m_pController->IsTeamplay())
+	if(!m_pController->IsTeamplay() || m_pController->IsInfection())
 		return;
 	
 	SendChat(-1, CGameContext::CHAT_ALL, "Teams were swapped");
@@ -1306,7 +1308,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				SkipSending = true;
 			}
 			
-			
+
 			/*
 			if ( strcmp(pMsg->m_pMessage, "/showwaypoints") == 0 )
 			{
@@ -1649,6 +1651,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			
 			pPlayer->SelectWeapon(pMsg->m_Weapon, pMsg->m_Group);
 		}
+		else if (MsgID == NETMSGTYPE_CL_DROPWEAPON && !m_World.m_Paused)
+		{
+			// TODO: spam protection
+			
+			pPlayer->DropWeapon();
+		}
 		else if (MsgID == NETMSGTYPE_CL_SELECTITEM && !m_World.m_Paused)
 		{
 			CNetMsg_Cl_SelectItem *pMsg = (CNetMsg_Cl_SelectItem *)pRawMsg;
@@ -1890,7 +1898,7 @@ void CGameContext::ConSwapTeams(IConsole::IResult *pResult, void *pUserData)
 void CGameContext::ConShuffleTeams(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
-	if(!pSelf->m_pController->IsTeamplay())
+	if(!pSelf->m_pController->IsTeamplay() || pSelf->m_pController->IsInfection())
 		return;
 
 	int CounterRed = 0;
@@ -2245,6 +2253,8 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		m_pController = new CGameControllerCTF(this);
 	else if(str_comp(g_Config.m_SvGametype, "tdm") == 0)
 		m_pController = new CGameControllerTDM(this);
+	else if(str_comp(g_Config.m_SvGametype, "inf") == 0)
+		m_pController = new CGameControllerTexasRun(this);
 	else if(str_comp(g_Config.m_SvGametype, "base") == 0)
 		m_pController = new CGameControllerBase(this);
 	else

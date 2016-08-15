@@ -50,10 +50,20 @@ void CNamePlates::RenderNameplate(
 		
 		if(g_Config.m_ClNameplatesTeamcolors && m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_TEAMS)
 		{
-			if(pPlayerInfo->m_Team == TEAM_RED)
-				TextRender()->TextColor(217/255.0f, 140/255.0f, 65/255.0f, a);
-			else if(pPlayerInfo->m_Team == TEAM_BLUE)
-				TextRender()->TextColor(100/255.0f, 140/255.0f, 100/255.0f, a);
+			if (m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_INFECTION)
+			{
+				if(pPlayerInfo->m_Team == TEAM_RED)
+					TextRender()->TextColor(255/255.0f, 200/255.0f, 200/255.0f, a);
+				else if(pPlayerInfo->m_Team == TEAM_BLUE)
+					TextRender()->TextColor(66/255.0f, 66/255.0f, 66/255.0f, a);
+			}
+			else
+			{		
+				if(pPlayerInfo->m_Team == TEAM_RED)
+					TextRender()->TextColor(250/255.0f, 100/255.0f, 0, a);
+				else if(pPlayerInfo->m_Team == TEAM_BLUE)
+					TextRender()->TextColor(0/255.0f, 100/255.0f, 230/255.0f, a);
+			}
 		}
 
 		TextRender()->Text(0, Position.x-tw/2.0f, Position.y-FontSize-38.0f, FontSize, pName, -1);

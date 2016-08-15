@@ -5,10 +5,10 @@
 #include <game/server/player.h>
 #include <game/server/gamecontext.h>
 
-#include "tdm_ai.h"
+#include "texas_ai.h"
 
 
-CAItdm::CAItdm(CGameContext *pGameServer, CPlayer *pPlayer)
+CAItexas::CAItexas(CGameContext *pGameServer, CPlayer *pPlayer)
 : CAI(pGameServer, pPlayer)
 {
 	m_SkipMoveUpdate = 0;
@@ -16,7 +16,7 @@ CAItdm::CAItdm(CGameContext *pGameServer, CPlayer *pPlayer)
 }
 
 
-void CAItdm::OnCharacterSpawn(CCharacter *pChr)
+void CAItexas::OnCharacterSpawn(CCharacter *pChr)
 {
 	CAI::OnCharacterSpawn(pChr);
 	
@@ -28,7 +28,7 @@ void CAItdm::OnCharacterSpawn(CCharacter *pChr)
 }
 
 
-void CAItdm::DoBehavior()
+void CAItexas::DoBehavior()
 {
 	// reset jump and attack
 	if (Player()->GetCharacter()->GetCore().m_JetpackPower < 10 || Player()->GetCharacter()->GetCore().m_Jetpack == 0)
@@ -44,64 +44,48 @@ void CAItdm::DoBehavior()
 	// if we see a player
 	if (m_EnemiesInSight > 0)
 	{
-		ShootAtClosestEnemy();
+		if (!ShootAtClosestEnemy())
+			ShootAtClosestMonster();
 		ReactToPlayer();
 	}
 	else
-		m_AttackTimer = 0;
-
-	int f = 1000+m_EnemiesInSight*100;
-
-	bool SeekEnemy = false;
-	
-	if (SeekClosestFriend())
 	{
-		m_TargetPos = m_PlayerPos;
-		
-		if (m_PlayerDistance < f)
-			SeekEnemy = true;
+		if (!ShootAtClosestMonster())
+			;
+			//m_AttackTimer = 0;
 	}
-	else
-		SeekEnemy = true;
-	
-	if (SeekEnemy)
+
+	int f = 1200+m_EnemiesInSight*100;
+
+	if (Player()->GetTeam() == TEAM_RED)
 	{
-		if (SeekClosestEnemy())
+		if (SeekClosestFriend())
 		{
 			m_TargetPos = m_PlayerPos;
-							
-			if (m_EnemiesInSight > 0)
-			{
-				if (WeaponShootRange() - m_PlayerDistance > 200)
-					SeekRandomWaypoint();
-			}
+			
+			if (m_PlayerDistance < f)
+				SeekRandomWaypoint();
 		}
 		else
 			SeekRandomWaypoint();
 	}
+	else if (Player()->GetTeam() == TEAM_BLUE)
+	{
+		if (SeekClosestEnemy())
+			m_TargetPos = m_PlayerPos;
+		else
+			SeekRandomWaypoint();
+	}
 	
-
 	if (UpdateWaypoint())
 	{
 		MoveTowardsWaypoint(20);
-		//HookMove();
-		//AirJump();
-		
-		// jump if waypoint is above us
-		//if (abs(m_WaypointPos.x - m_Pos.x) < 60 && m_WaypointPos.y < m_Pos.y - 100 && frandom()*20 < 4)
-		//	m_Jump = 1;
-		
-		//WallRun();
 	}
 	else
 	{
 		m_Hook = 0;
 	}
 	
-	
-	//DoJumping();
-	//Unstuck();
-
 	RandomlyStopShooting();
 	
 	// next reaction in

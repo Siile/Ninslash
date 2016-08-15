@@ -154,12 +154,17 @@ void CServerBrowser::Filter()
 		else if(g_Config.m_BrFilterPure &&
 			(str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "DM") != 0 &&
 			str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "TDM") != 0 &&
+			str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "Infect") != 0 &&
 			str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "CTF") != 0))
 		{
 			Filtered = 1;
 		}
 		else if(g_Config.m_BrFilterPureMap &&
-			!(str_comp(m_ppServerlist[i]->m_Info.m_aMap, "testdm1") == 0)
+			!(str_comp(m_ppServerlist[i]->m_Info.m_aMap, "dm1") == 0) &&
+			!(str_comp(m_ppServerlist[i]->m_Info.m_aMap, "dm2") == 0) &&
+			!(str_comp(m_ppServerlist[i]->m_Info.m_aMap, "dm2") == 0) &&
+			!(str_comp(m_ppServerlist[i]->m_Info.m_aMap, "grinder") == 0) &&
+			!(str_comp(m_ppServerlist[i]->m_Info.m_aMap, "ctf1") == 0)
 		)
 		{
 			Filtered = 1;

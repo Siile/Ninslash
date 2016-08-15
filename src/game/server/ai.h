@@ -82,6 +82,16 @@ protected:
 	
 	bool m_AutoWeaponChange;
 	
+	enum MoveType
+	{
+		MOVE_IDLE,
+		MOVE_LEFT,
+		MOVE_RIGHT,
+		MOVE_UP,
+	};
+	
+	int m_MoveType;
+	
 	// emotions
 	float m_aAnger[16]; // MAX_CLIENTS
 	float m_aAttachment[16]; // MAX_CLIENTS
@@ -175,7 +185,10 @@ protected:
 	bool SeekClosestEnemy();
 	bool SeekClosestEnemyInSight();
 	
-	void ShootAtClosestEnemy();
+	bool SeekRandomWaypoint();
+	
+	bool ShootAtClosestMonster();
+	bool ShootAtClosestEnemy();
 	int WeaponShootRange();
 	
 	int m_ItemUseTick;

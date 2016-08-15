@@ -233,31 +233,17 @@ void CItems::RenderPickup(const CNetObj_Pickup *pPrev, const CNetObj_Pickup *pCu
 		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[clamp(Weapon, 0, NUM_WEAPONS-1)].m_pSpriteBody);
 		Size = g_pData->m_Weapons.m_aId[clamp(pCurrent->m_Subtype, 0, NUM_WEAPONS-1)].m_VisualSize;
 	}
-	else if (pCurrent->m_Type == POWERUP_ARMOR && pCurrent->m_Subtype > 0)
-	{
-		if (pCurrent->m_Subtype == 1)
-		{
-			RenderTools()->SelectSprite(SPRITE_ELECTROMINE);
-			Pos.y -= 16.0f;
-			SkipOffset = true;
-		}
-		else if (pCurrent->m_Subtype == 2)
-		{
-			RenderTools()->SelectSprite(SPRITE_LANDMINE);
-			Pos.y -= 16.0f;
-			SkipOffset = true;
-		}
-	}
 	else
 	{
-		if (pCurrent->m_Type == POWERUP_ARMOR)
+		if (pCurrent->m_Type == POWERUP_ARMOR || pCurrent->m_Type == POWERUP_MINE)
 			SkipOffset = true;
 		
 		const int c[] = {
 			SPRITE_PICKUP_HEALTH,
 			SPRITE_PICKUP_ARMOR,
 			SPRITE_PICKUP_WEAPON,
-			SPRITE_PICKUP_WEAPON
+			SPRITE_PICKUP_WEAPON,
+			SPRITE_PICKUP_MINE
 			};
 		RenderTools()->SelectSprite(c[pCurrent->m_Type]);
 

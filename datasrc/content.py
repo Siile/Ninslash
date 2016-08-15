@@ -299,6 +299,8 @@ image_playerspawn = Image("playerspawn", "fx/playerspawn.png")
 image_monsterspawn = Image("monsterspawn", "fx/monsterspawn.png")
 image_heal = Image("heal", "fx/heal.png")
 
+image_texasmask = Image("texasmask", "texasmask.png")
+
 container.images.Add(image_null)
 container.images.Add(image_game)
 container.images.Add(image_flag)
@@ -342,6 +344,7 @@ container.images.Add(image_bloodfx)
 container.images.Add(image_playerspawn)
 container.images.Add(image_monsterspawn)
 container.images.Add(image_heal)
+container.images.Add(image_texasmask)
 
 container.pickups.Add(Pickup("health"))
 container.pickups.Add(Pickup("armor"))
@@ -648,6 +651,7 @@ container.sprites.Add(Sprite("weapon_flamer_proj", set_game, 6,0,1,1))
 container.sprites.Add(Sprite("hook_chain", set_game, 2,0,1,1))
 container.sprites.Add(Sprite("hook_head", set_game, 3,0,2,1))
 
+container.sprites.Add(Sprite("pickup_mine", set_weapons, 14,12,2,2))
 container.sprites.Add(Sprite("pickup_health", set_weapons, 12,14,2,2))
 container.sprites.Add(Sprite("pickup_armor", set_weapons, 14,14,2,2))
 container.sprites.Add(Sprite("pickup_weapon", set_game, 3,0,6,2))
@@ -665,10 +669,6 @@ for i in range(1, 9):
 
 container.sprites.Add(Sprite("flag_blue", set_game, 12,8,4,8))
 container.sprites.Add(Sprite("flag_red", set_game, 16,8,4,8))
-
-container.sprites.Add(Sprite("electromine", set_game, 20,8,4,3))
-container.sprites.Add(Sprite("landmine", set_game, 20,11,4,3))
-
 
 container.sprites.Add(Sprite("fireball1", set_game, 2, 7, 5, 2))
 container.sprites.Add(Sprite("fireball2", set_game, 2, 9, 5, 2))

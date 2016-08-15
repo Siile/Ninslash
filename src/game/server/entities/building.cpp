@@ -155,8 +155,11 @@ void CBuilding::Tick()
 		CCharacter *pChr = GameServer()->m_World.ClosestCharacter(m_Pos, m_ProximityRadius*1.7f, 0);
 		if(pChr && pChr->IsAlive())// && (pChr->GetPlayer()->GetTeam() != m_Team || !GameServer()->m_pController->IsTeamplay()))
 		{
-			m_DeathTimer = 1;
-			m_Life = 0;
+			if (pChr->GetPlayer()->GetTeam() != m_Team || !GameServer()->m_pController->IsTeamplay())
+			{
+				m_DeathTimer = 1;
+				m_Life = 0;
+			}
 		}
 	}
 }

@@ -587,7 +587,7 @@ void CPlayers::RenderPlayer(
 	
 	
 	// chainsaw effects
-	if (Player.m_Weapon == WEAPON_CHAINSAW)
+	if (Player.m_Weapon == WEAPON_CHAINSAW && !Paused)
 	{
 		// chainsaw sound
 		if (pCustomPlayerInfo->m_LastChainsawSoundTick < Client()->GameTick())

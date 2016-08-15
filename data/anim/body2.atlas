@@ -32,6 +32,13 @@ hat
   orig: 128, 128
   offset: 0, 0
   index: -1
+mask
+  rotate: false
+  xy: 2, 114
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
 head
   rotate: false
   xy: 2, 2

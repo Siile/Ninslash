@@ -12,8 +12,6 @@
 #include "electro.h"
 #include "projectile.h"
 #include "superexplosion.h"
-#include "landmine.h"
-#include "electromine.h"
 #include "monster.h"
 
 #include <game/weapons.h>
@@ -119,6 +117,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_LastNoAmmoSound = -1;
 	m_ActiveWeapon = WEAPON_HAMMER;
 	m_LastWeapon = WEAPON_HAMMER;
+	m_PrevWeapon = WEAPON_HAMMER;
 	m_QueuedCustomWeapon = -1;
 
 	m_PainSoundTimer = 0;
@@ -146,13 +145,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 	GameServer()->m_pController->OnCharacterSpawn(this, pPlayer->m_IsBot);
 	
-	//GiveCustomWeapon(W_TOOL);
-	GiveCustomWeapon(W_HAMMER);
-	GiveCustomWeapon(W_PISTOL);
-	//GiveCustomWeapon(W_CHAINSAW);
-	SetCustomWeapon(W_HAMMER);
-	SetCustomWeapon(W_PISTOL);
-	
 	if (pPlayer->m_pAI)
 	{
 		pPlayer->m_pAI->OnCharacterSpawn(this);
@@ -160,9 +152,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	}
 
 	GiveStartWeapon();
-	
-	// for testing items / effects
-	//SelectItem(PLAYERITEM_INVISIBILITY);
 	
 	return true;
 }
@@ -226,17 +215,29 @@ void CCharacter::Destroy()
 
 void CCharacter::DropWeapon()
 {
-	/*
-	if (m_ActiveCustomWeapon != W_HAMMER && m_ActiveCustomWeapon != W_PISTOL)
+	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
+		return;
+	
+	if (m_ActiveCustomWeapon != W_HAMMER && m_ActiveCustomWeapon != W_PISTOL && m_aWeapon[m_ActiveCustomWeapon].m_Got)
 	{
 		vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
-		GameServer()->m_pController->DropPickup(m_Pos-vec2(0, 16), POWERUP_WEAPON, Direction*13, m_ActiveCustomWeapon);
+		
+		float AmmoFill = float(m_aWeapon[m_ActiveCustomWeapon].m_Ammo) / aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo;
+		
+		GameServer()->m_pController->DropPickup(m_Pos-vec2(0, 16), POWERUP_WEAPON, Direction*13, m_ActiveCustomWeapon, AmmoFill);
 		m_aWeapon[m_ActiveCustomWeapon].m_Got = false;
 		m_SkipPickups = 20;
 		
-		SetCustomWeapon(W_HAMMER);
+		if (m_PrevWeapon >= 0 && m_PrevWeapon < NUM_CUSTOMWEAPONS)
+		{
+			if (m_aWeapon[m_PrevWeapon].m_Got)
+				SetCustomWeapon(m_PrevWeapon);
+			else
+				SetCustomWeapon(WEAPON_HAMMER);
+		}
+		else
+			SetCustomWeapon(WEAPON_HAMMER);
 	}
-	*/
 }
 
 
@@ -254,6 +255,8 @@ void CCharacter::SetCustomWeapon(int CustomWeapon)
 	
 	m_LastWeapon = m_ActiveCustomWeapon;
 	m_QueuedCustomWeapon = -1;
+	
+	m_PrevWeapon = m_ActiveCustomWeapon;
 	m_ActiveCustomWeapon = CustomWeapon;
 	GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
 	
@@ -327,7 +330,7 @@ void CCharacter::HandleWeaponSwitch()
 
 	int WantedGroup = m_WeaponGroup;
 	
-	
+
 	// weapon group selection
 	if(m_LatestInput.m_WantedWeapon)
 		WantedGroup = m_Input.m_WantedWeapon-1;
@@ -989,9 +992,12 @@ void CCharacter::FireWeapon()
 	
 
 	m_AttackTick = Server()->Tick();
-
-	if(m_aWeapon[m_ActiveCustomWeapon].m_Ammo > 0)
-		m_aWeapon[m_ActiveCustomWeapon].m_Ammo--;
+	
+	if (!(GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE))
+	{
+		if(m_aWeapon[m_ActiveCustomWeapon].m_Ammo > 0)
+			m_aWeapon[m_ActiveCustomWeapon].m_Ammo--;
+	}
 
 	/*
 	if(m_ReloadTimer <= 0)
@@ -1006,7 +1012,7 @@ void CCharacter::FireWeapon()
 	
 	
 void CCharacter::HandleWeapons()
-{
+{	
 	ShowArmor();
 
 	
@@ -1058,10 +1064,24 @@ void CCharacter::AutoWeaponChange()
 
 void CCharacter::GiveStartWeapon()
 {
+	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
+	{
+		GiveCustomWeapon(WEAPON_CHAINSAW);
+		SetCustomWeapon(WEAPON_CHAINSAW);
+		
+		m_aSelectedWeapon[0] = WEAPON_CHAINSAW;
+		m_aSelectedWeapon[1] = WEAPON_CHAINSAW;
+		
+		return;
+	}
+	
+	GiveCustomWeapon(W_HAMMER);
+	GiveCustomWeapon(W_PISTOL);
+	SetCustomWeapon(W_PISTOL);
+	
 	if (g_Config.m_SvRandomWeapons)
 	{
 		GiveRandomWeapon();
-		//GiveRandomWeapon();
 	}
 	
 	//GiveAllWeapons();
@@ -1071,6 +1091,9 @@ void CCharacter::GiveStartWeapon()
 
 void CCharacter::GiveRandomWeapon(int WeaponLevel)
 {
+	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
+		return;
+	
 	int w = 0;
 	while (w == W_TOOL || w == W_HAMMER || w == W_PISTOL)
 		w = rand()%(NUM_CUSTOMWEAPONS);
@@ -1089,6 +1112,9 @@ void CCharacter::GiveAllWeapons()
 
 bool CCharacter::GiveAmmo(int *CustomWeapon, float AmmoFill)
 {
+	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
+		return false;
+	
 	if(m_aWeapon[*CustomWeapon].m_Got)
 	{
 		if (m_aWeapon[*CustomWeapon].m_Ammo < aCustomWeapon[*CustomWeapon].m_MaxAmmo)
@@ -1108,6 +1134,9 @@ bool CCharacter::GiveAmmo(int *CustomWeapon, float AmmoFill)
 
 bool CCharacter::GiveCustomWeapon(int CustomWeapon, float AmmoFill)
 {
+	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE && CustomWeapon != WEAPON_CHAINSAW)
+		return false;
+	
 	if(!m_aWeapon[CustomWeapon].m_Got && !m_aWeapon[CustomWeapon].m_Disabled)
 	{	
 		m_aWeapon[CustomWeapon].m_Got = true;
@@ -1258,7 +1287,7 @@ void CCharacter::SelectItem(int Item)
 	if (Item == PLAYERITEM_SHIELD && m_aStatus[STATUS_SHIELD] <= 0)
 	{
 		m_aStatus[STATUS_SHIELD] = Server()->TickSpeed() * 20.0f;
-		m_ShieldHealth = 70;
+		m_ShieldHealth = 100;
 		m_ShieldRadius = 16;
 		m_aItem[Item]--;
 	}
@@ -1272,6 +1301,9 @@ void CCharacter::SelectItem(int Item)
 
 void CCharacter::GiveBuff(int Item)
 {
+	if (Item < 0)
+		return;
+	
 	if (Item == PLAYERITEM_HEAL)
 		m_aStatus[STATUS_HEAL] = Server()->TickSpeed() * 0.75f;
 
@@ -1285,12 +1317,22 @@ void CCharacter::GiveBuff(int Item)
 	if (Item == PLAYERITEM_SHIELD)
 	{
 		m_aStatus[STATUS_SHIELD] = Server()->TickSpeed() * 20.0f;
-		m_ShieldHealth = 70;
+		m_ShieldHealth = 100;
 		m_ShieldRadius = 16;
 	}
 	
 	if (Item == PLAYERITEM_INVISIBILITY)
 		m_aStatus[STATUS_INVISIBILITY] = Server()->TickSpeed() * 20.0f;
+}
+
+void CCharacter::GiveRandomBuff()
+{
+	int Buff = -1;
+	
+	while (Buff < 0 || Buff == PLAYERITEM_LANDMINE || Buff == PLAYERITEM_ELECTROMINE || Buff == PLAYERITEM_HEAL || (Buff == PLAYERITEM_FUEL && g_Config.m_SvUnlimitedTurbo))
+		Buff = rand()%NUM_PLAYERITEMS;
+	
+	GiveBuff(Buff);
 }
 
 
@@ -1542,6 +1584,34 @@ bool CCharacter::IncreaseHealth(int Amount)
 	m_HiddenHealth = clamp(m_HiddenHealth+Amount, 0, m_MaxHealth);
 	
 	//GetPlayer()->m_InterestPoints += 40;
+	
+	return true;
+}
+
+
+bool CCharacter::AddMine()
+{
+	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
+		return false;
+	
+	if (frandom()*10 < 5)
+	{
+		if (m_aItem[PLAYERITEM_LANDMINE] < MAX_PLAYERITEMS)
+			m_aItem[PLAYERITEM_LANDMINE]++;
+		else if (m_aItem[PLAYERITEM_ELECTROMINE] < MAX_PLAYERITEMS)
+			m_aItem[PLAYERITEM_ELECTROMINE]++;
+		else
+			return false;
+	}
+	else
+	{
+		if (m_aItem[PLAYERITEM_ELECTROMINE] < MAX_PLAYERITEMS)
+			m_aItem[PLAYERITEM_ELECTROMINE]++;
+		else if (m_aItem[PLAYERITEM_LANDMINE] < MAX_PLAYERITEMS)
+			m_aItem[PLAYERITEM_LANDMINE]++;
+		else
+			return false;
+	}
 	
 	return true;
 }

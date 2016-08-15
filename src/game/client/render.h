@@ -27,12 +27,14 @@ public:
 		m_ColorSkin = vec4(1,1,1,1);
 		m_Size = 1.0f;
 		m_GotAirJump = 1;
+		m_Mask = 0;
 	};
 
 	int m_Texture;
 	int m_TopperTexture;
 	int m_EyeTexture;
 	int m_Body;
+	int m_Mask;
 	vec4 m_ColorBody;
 	vec4 m_ColorFeet;
 	vec4 m_ColorTopper;

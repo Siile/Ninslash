@@ -669,7 +669,7 @@ static CKeyInfo gs_aKeys[] =
 	{ "Secondary weapon", "+weapon2", 0 },
 	{ "Weapon picker", "+picker", 0 },
 	{ "Select picked weapon", "+lastweapon", 0 },
-	{ "(not in use)", "+weapon4", 0 },
+	{ "Drop weapon", "+dropweapon", 0 },
 	//{ "Rifle", "+weapon5", 0 },
 	{ "Next weapon", "+nextweapon", 0 },
 	{ "Prev. weapon", "+prevweapon", 0 },

@@ -778,6 +778,7 @@ void CRenderTools::RenderPortrait(CTeeRenderInfo *pInfo, vec2 Pos, int EyeType)
 					// skip all but these
 					if (!strcmp(pAttachment->m_Name, "head") == 0 &&
 						!strcmp(pAttachment->m_Name, "hat") == 0 &&
+						!strcmp(pAttachment->m_Name, "mask") == 0 &&
 						!strcmp(pAttachment->m_Name, "eyes") == 0)
 						continue;
 					
@@ -804,6 +805,11 @@ void CRenderTools::RenderPortrait(CTeeRenderInfo *pInfo, vec2 Pos, int EyeType)
 					if (strcmp(pAttachment->m_Name, "hat") == 0)
 					{
 						Graphics()->TextureSet(pInfo->m_TopperTexture);
+						SybsetType = 1;
+					}
+					else if (strcmp(pAttachment->m_Name, "mask") == 0 && pInfo->m_Mask == 1)
+					{
+						Graphics()->TextureSet(g_pData->m_aImages[IMAGE_TEXASMASK].m_Id);
 						SybsetType = 1;
 					}
 					else if (strcmp(pAttachment->m_Name, "eyes") == 0)
@@ -1258,6 +1264,11 @@ void CRenderTools::RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, CSkeleto
 					if (strcmp(pAttachment->m_Name, "hat") == 0)
 					{
 						Graphics()->TextureSet(pInfo->m_TopperTexture);
+						SybsetType = 1;
+					}
+					else if (strcmp(pAttachment->m_Name, "mask") == 0 && pInfo->m_Mask == 1)
+					{
+						Graphics()->TextureSet(g_pData->m_aImages[IMAGE_TEXASMASK].m_Id);
 						SybsetType = 1;
 					}
 					else if (strcmp(pAttachment->m_Name, "eyes") == 0)

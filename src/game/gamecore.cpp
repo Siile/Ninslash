@@ -93,6 +93,7 @@ bool CCharacterCore::IsGrounded() {
 }
 
 
+
 int CCharacterCore::SlopeState() {
 	float PhysSize = 28.0f;
 	
@@ -206,6 +207,8 @@ void CCharacterCore::Tick(bool UseInput)
 	
 	float HandJetpackControlSpeed = 14.0f;
 	
+	m_OnWall = false;
+	
 	s = m_Status;
 	if (s & (1<<STATUS_RAGE))
 	{
@@ -265,6 +268,7 @@ void CCharacterCore::Tick(bool UseInput)
 					m_Anim = 1;
 					
 					LoadJetpack = true;
+					m_OnWall = true;
 				}
 					
 				if (m_Direction > 0 && m_pCollision->CheckPoint(m_Pos.x+PhysSize, m_Pos.y+PhysSize/2) &&
@@ -274,6 +278,7 @@ void CCharacterCore::Tick(bool UseInput)
 					m_Anim = -1;
 					
 					LoadJetpack = true;
+					m_OnWall = true;
 				}
 				
 				// wall jump
@@ -321,6 +326,7 @@ void CCharacterCore::Tick(bool UseInput)
 							m_Wallrun = 3;
 					
 					LoadJetpack = true;
+					m_OnWall = true;
 					
 					// wall jump
 					if(m_Input.m_Jump && !(m_Jumped&1))
@@ -348,6 +354,7 @@ void CCharacterCore::Tick(bool UseInput)
 							m_Wallrun = -3;
 
 					LoadJetpack = true;
+					m_OnWall = true;
 						
 					// wall jump
 					if(m_Input.m_Jump && !(m_Jumped&1))

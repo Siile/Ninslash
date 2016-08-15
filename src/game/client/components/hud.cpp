@@ -94,7 +94,7 @@ void CHud::RenderScoreHud()
 		float Whole = 300*Graphics()->ScreenAspect();
 		float StartY = 229.0f;
 
-		if(GameFlags&GAMEFLAG_TEAMS && m_pClient->m_Snap.m_pGameDataObj)
+		if(GameFlags&GAMEFLAG_TEAMS && !(GameFlags&GAMEFLAG_INFECTION) && m_pClient->m_Snap.m_pGameDataObj)
 		{
 			char aScoreTeam[2][32];
 			str_format(aScoreTeam[TEAM_RED], sizeof(aScoreTeam)/2, "%d", m_pClient->m_Snap.m_pGameDataObj->m_TeamscoreRed);
@@ -111,10 +111,22 @@ void CHud::RenderScoreHud()
 				Graphics()->BlendNormal();
 				Graphics()->TextureSet(-1);
 				Graphics()->QuadsBegin();
-				if(t == 0)
-					Graphics()->SetColor(1.0f, 0.0f, 0.0f, 0.25f);
+				
+				if (GameFlags&GAMEFLAG_INFECTION)
+				{
+					if(t == 0)
+						Graphics()->SetColor(1.0f, 0.7f, 0.7f, 0.3f);
+					else
+						Graphics()->SetColor(0.1f, 0.1f, 0.1f, 0.3f);
+				}
 				else
-					Graphics()->SetColor(0.0f, 0.0f, 1.0f, 0.25f);
+				{
+					if(t == 0)
+						Graphics()->SetColor(1.0f, 0.0f, 0.0f, 0.25f);
+					else
+						Graphics()->SetColor(0.0f, 0.0f, 1.0f, 0.25f);
+				}
+				
 				RenderTools()->DrawRoundRectExt(Whole-ScoreWidthMax-ImageSize-2*Split, StartY+t*20, ScoreWidthMax+ImageSize+2*Split, 18.0f, 5.0f, CUI::CORNER_L);
 				Graphics()->QuadsEnd();
 
@@ -296,6 +308,9 @@ void CHud::RenderConnectionWarning()
 
 void CHud::RenderTeambalanceWarning()
 {
+	if (m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_INFECTION)
+		return;
+	
 	// render prompt about team-balance
 	bool Flash = time_get()/(time_freq()/2)%2 == 0;
 	if(m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_TEAMS)

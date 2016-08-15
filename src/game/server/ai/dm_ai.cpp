@@ -57,11 +57,16 @@ void CAIdm::DoBehavior()
 				
 		if (m_EnemiesInSight > 0)
 		{
+			if (WeaponShootRange() - m_PlayerDistance > 200)
+				SeekRandomWaypoint();
+			
+			/*
 			// distance to the player
 			if (m_PlayerPos.x < m_Pos.x)
 				m_TargetPos.x = m_PlayerPos.x + WeaponShootRange()/2*(0.5f+frandom()*1.0f);
 			else
 				m_TargetPos.x = m_PlayerPos.x - WeaponShootRange()/2*(0.5f+frandom()*1.0f);
+			*/
 		}
 	}
 
@@ -69,8 +74,8 @@ void CAIdm::DoBehavior()
 	if (UpdateWaypoint())
 	{
 		MoveTowardsWaypoint(20);
-		HookMove();
-		AirJump();
+		//HookMove();
+		//AirJump();
 		
 		// jump if waypoint is above us
 		//if (abs(m_WaypointPos.x - m_Pos.x) < 60 && m_WaypointPos.y < m_Pos.y - 100 && frandom()*20 < 4)
@@ -82,8 +87,8 @@ void CAIdm::DoBehavior()
 	}
 	
 	
-	DoJumping();
-	Unstuck();
+	//DoJumping();
+	//Unstuck();
 
 	RandomlyStopShooting();
 	

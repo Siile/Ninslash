@@ -207,6 +207,7 @@ public:
 	int m_Jetpack;
 	int m_JetpackPower;
 	int m_Wallrun;
+	bool m_OnWall;
 	int m_Roll;
 	
 	int m_DamageTick;

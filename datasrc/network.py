@@ -2,12 +2,12 @@ from datatypes import *
 
 Emotes = ["NORMAL", "PAIN", "HAPPY", "SURPRISE", "ANGRY", "BLINK"]
 PlayerFlags = ["PLAYING", "IN_MENU", "CHATTING", "SCOREBOARD"]
-GameFlags = ["TEAMS", "FLAGS"]
+GameFlags = ["TEAMS", "INFECTION", "FLAGS"]
 GameStateFlags = ["GAMEOVER", "SUDDENDEATH", "PAUSED"]
 
 Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY", "GHOST", "SUSHI", "SPLATTEE", "DEVILTEE", "ZOMG", "ZZZ", "WTF", "EYES", "QUESTION"]
 
-Powerups = ["HEALTH", "ARMOR", "WEAPON", "NINJA"]
+Powerups = ["HEALTH", "ARMOR", "WEAPON", "NINJA", "MINE"]
 
 Statuses = ["EMPTY", "SPAWNING", "AFLAME", "SLOWED", "ELECTRIC", "DEATHRAY", "SHIELD", "RAGE", "INVISIBILITY", "HEAL", "FUEL"]
 
@@ -87,6 +87,7 @@ enum
 	NUM_DEATHTYPES,
 	
 	NUM_BODIES=3,
+	MAX_PLAYERITEMS=2,
 	
 	SPEC_FREEVIEW=-1,
 };
@@ -466,6 +467,9 @@ Messages = [
 	NetMessage("Cl_Emoticon", [
 		NetIntRange("m_Emoticon", 0, 'NUM_EMOTICONS-1'),
 	]),
+	
+	
+	NetMessage("Cl_DropWeapon", []),
 	
 	NetMessage("Cl_SelectWeapon", [
 		NetIntRange("m_Weapon", 0, 99),

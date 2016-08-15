@@ -51,9 +51,9 @@ void CMenus::RenderGame(CUIRect MainView)
 			}
 		}
 
-		if(m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_TEAMS)
+		if(m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_TEAMS && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_INFECTION))
 		{
-			if(m_pClient->m_Snap.m_pLocalInfo->m_Team != TEAM_RED)
+			if (m_pClient->m_Snap.m_pLocalInfo->m_Team != TEAM_RED)
 			{
 				ButtonBar.VSplitLeft(10.0f, 0, &ButtonBar);
 				ButtonBar.VSplitLeft(120.0f, &Button, &ButtonBar);
@@ -65,12 +65,12 @@ void CMenus::RenderGame(CUIRect MainView)
 				}
 			}
 
-			if(m_pClient->m_Snap.m_pLocalInfo->m_Team != TEAM_BLUE)
+			if (m_pClient->m_Snap.m_pLocalInfo->m_Team != TEAM_BLUE)
 			{
 				ButtonBar.VSplitLeft(10.0f, 0, &ButtonBar);
 				ButtonBar.VSplitLeft(120.0f, &Button, &ButtonBar);
 				static int s_SpectateButton = 0;
-				if(DoButton_Menu(&s_SpectateButton, Localize("Join blue"), 0, &Button))
+				if (DoButton_Menu(&s_SpectateButton, Localize("Join blue"), 0, &Button))
 				{
 					m_pClient->SendSwitchTeam(TEAM_BLUE);
 					SetActive(false);
@@ -79,7 +79,22 @@ void CMenus::RenderGame(CUIRect MainView)
 		}
 		else
 		{
-			if(m_pClient->m_Snap.m_pLocalInfo->m_Team != 0)
+			if (m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_INFECTION)
+			{
+				if (m_pClient->m_Snap.m_pLocalInfo->m_Team == TEAM_SPECTATORS)
+				{
+					ButtonBar.VSplitLeft(10.0f, 0, &ButtonBar);
+					ButtonBar.VSplitLeft(120.0f, &Button, &ButtonBar);
+					static int s_SpectateButton = 0;
+					if(DoButton_Menu(&s_SpectateButton, Localize("Join game"), 0, &Button))
+					{
+						m_pClient->SendSwitchTeam(0);
+						SetActive(false);
+					}
+				}
+			}
+			else
+			if (m_pClient->m_Snap.m_pLocalInfo->m_Team != 0)
 			{
 				ButtonBar.VSplitLeft(10.0f, 0, &ButtonBar);
 				ButtonBar.VSplitLeft(120.0f, &Button, &ButtonBar);

@@ -6,7 +6,7 @@
 #include "player.h"
 
 #include <game/weapons.h>
-
+#include "gamemodes/texasrun.h"
 
 
 MACRO_ALLOC_POOL_ID_IMPL(CPlayer, MAX_CLIENTS)
@@ -87,6 +87,12 @@ void CPlayer::SelectItem(int Item)
 {
 	if (GetCharacter() && Item >= 0 && Item < NUM_PLAYERITEMS)
 		GetCharacter()->SelectItem(Item);
+}
+
+void CPlayer::DropWeapon()
+{
+	if (GetCharacter())
+		GetCharacter()->DropWeapon();
 }
 	
 	
@@ -177,8 +183,19 @@ void CPlayer::Tick()
 		}
 		//else if(m_Spawning && m_RespawnTick <= Server()->Tick())
 
-		else if(m_Spawning && (m_RespawnTick <= Server()->Tick()))
-			TryRespawn();
+		else if(m_Spawning)
+		{
+			if (GameServer()->m_pController->IsInfection() && GetTeam() != TEAM_SPECTATORS)
+			{
+				if (GameServer()->m_pController->GetRoundState() > TEXAS_STARTED)
+					SetTeam(TEAM_BLUE);
+				else if (GameServer()->m_pController->GetRoundState() < TEXAS_STARTED)
+					SetTeam(TEAM_RED);
+			}
+			
+			if (m_RespawnTick <= Server()->Tick())
+				TryRespawn();
+		}
 
 	}
 	else
@@ -457,7 +474,9 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 	m_LastActionTick = Server()->Tick();
 	m_SpectatorID = SPEC_FREEVIEW;
 	// we got to wait 0.5 secs before respawning
-	m_RespawnTick = Server()->Tick();
+	if (!(GameServer()->m_pController->IsInfection() && Team == TEAM_BLUE))
+		m_RespawnTick = Server()->Tick();
+	
 	str_format(aBuf, sizeof(aBuf), "team_join player='%d:%s' m_Team=%d", m_ClientID, Server()->ClientName(m_ClientID), m_Team);
 	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
@@ -477,7 +496,7 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 void CPlayer::TryRespawn()
 {
 	vec2 SpawnPos;
-	
+
 	// todo remove
 	if(!GameServer()->m_pController->CanCharacterSpawn(GetCID()))
 		return;
@@ -522,8 +541,7 @@ void CPlayer::SetRandomSkin()
 	default: str_copy(m_TeeInfos.m_EyeName, "default", 64);
 	};
 	
-	//m_TeeInfos.m_Body = rand()*NUM_BODIES;
-	m_TeeInfos.m_Body = 0;
+	m_TeeInfos.m_Body = rand()%NUM_BODIES;
 	m_TeeInfos.m_ColorTopper = rand()*(0xFFFFFF/RAND_MAX);
 	m_TeeInfos.m_ColorSkin = rand()*(0xFFFFFF/RAND_MAX);
 	m_TeeInfos.m_ColorBody = rand()*(0xFFFFFF/RAND_MAX);

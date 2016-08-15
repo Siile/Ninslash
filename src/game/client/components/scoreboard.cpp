@@ -173,7 +173,9 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 		}
 	}
 	float tw = TextRender()->TextWidth(0, TitleFontsize, aBuf, -1);
-	TextRender()->Text(0, x+w-tw-20.0f, y, TitleFontsize, aBuf, -1);
+	
+	if (!(m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_INFECTION))
+		TextRender()->Text(0, x+w-tw-20.0f, y, TitleFontsize, aBuf, -1);
 
 	// calculate measurements
 	x += 10.0f;
@@ -379,8 +381,16 @@ void CScoreboard::OnRender()
 				TextRender()->Text(0, Width/2-w/2, 39, 86.0f, aText, -1);
 			}
 
-			RenderScoreboard(Width/2-w-5.0f, 150.0f, w, TEAM_RED, pRedClanName ? pRedClanName : Localize("Red team"));
-			RenderScoreboard(Width/2+5.0f, 150.0f, w, TEAM_BLUE, pBlueClanName ? pBlueClanName : Localize("Blue team"));
+			if (m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_INFECTION)
+			{
+				RenderScoreboard(Width/2-w-5.0f, 150.0f, w, TEAM_RED, Localize("The Living"));
+				RenderScoreboard(Width/2+5.0f, 150.0f, w, TEAM_BLUE, Localize("The Dead"));
+			}
+			else
+			{
+				RenderScoreboard(Width/2-w-5.0f, 150.0f, w, TEAM_RED, pRedClanName ? pRedClanName : Localize("Red team"));
+				RenderScoreboard(Width/2+5.0f, 150.0f, w, TEAM_BLUE, pBlueClanName ? pBlueClanName : Localize("Blue team"));
+			}
 		}
 	}
 
@@ -413,6 +423,7 @@ const char *CScoreboard::GetClanName(int Team)
 {
 	int ClanPlayers = 0;
 	const char *pClanName = 0;
+	
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
 		const CNetObj_PlayerInfo *pInfo = m_pClient->m_Snap.m_paInfoByScore[i];

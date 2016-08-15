@@ -122,7 +122,7 @@ void CBuildings::RenderBarrel(const struct CNetObj_Building *pCurrent)
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
 	Graphics()->QuadsBegin();
 	
-	RenderTools()->SelectSprite(SPRITE_BARREL8);
+	RenderTools()->SelectSprite(SPRITE_BARREL1+(pCurrent->m_X/32+pCurrent->m_Y)%8);
 	
 	Graphics()->SetColor(1, 1, 1, 1);
 	Graphics()->QuadsSetRotation(0);
