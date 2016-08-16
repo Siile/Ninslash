@@ -210,8 +210,8 @@ function build(settings)
 	
 	-- add the c++11 flag after compiling the c libraries
 	-- TODO: this is just a workaround, better avoid the auto keyword instead :/
-	if config.compiler.driver == "gcc" then
-		settings.cc.flags:Add("--std=c++11")
+	if config.compiler.driver == "gcc" or config.compiler.driver == "clang" then
+		settings.cc.flags_cxx:Add("--std=c++11")
 	end
 
 	-- build game components
