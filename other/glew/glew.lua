@@ -5,12 +5,16 @@ GLEW = {
 		local check = function(option, settings)
 			option.value = false
 			option.use_glewconfig = false
+			option.use_pkgconfig = false
 			option.use_winlib = 0
 			option.lib_path = nil
 			
 			if ExecuteSilent("glew-config") > 0 and ExecuteSilent("glew-config --cflags") == 0 then
 				option.value = true
 				option.use_glewconfig = true
+			elseif family ~= "windows" and ExecuteSilent("pkg-config glew") == 0 then
+				option.value = true
+				option.use_pkgconfig = true
 			end
 			
 			if platform == "win32" then
@@ -35,7 +39,10 @@ GLEW = {
 			-- include path
 			settings.cc.includes:Add(GLEW.basepath .. "/include")
 			
-			if family == "windows" then
+			if option.use_pkgconfig == true then
+				settings.cc.flags:Add("`pkg-config glew --cflags`")
+				settings.link.flags:Add("`pkg-config glew --libs`")
+			elseif family == "windows" then
 				settings.link.libpath:Add(GLEW.basepath .. "/windows/lib" .. option.use_winlib)
 				settings.link.libs:Add("glew32")
 			elseif platform == "linux" then
@@ -51,11 +58,13 @@ GLEW = {
 		local save = function(option, output)
 			output:option(option, "value")
 			output:option(option, "use_winlib")
+			output:option(option, "use_pkgconfig")
 		end
 		
 		local display = function(option)
 			if option.value == true then
 				if option.use_glewconfig == true then return "using glew-config" end
+				if option.use_pkgconfig == true then return "using pkg-config" end
 				if option.use_winlib == 32 then return "using supplied win32 libraries" end
 				if option.use_winlib == 64 then return "using supplied win64 libraries" end
 				return "using bundled libs"
