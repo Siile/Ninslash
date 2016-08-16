@@ -119,11 +119,11 @@ if family == "windows" then
 	if platform == "win32" then
 		table.insert(client_depends, CopyToDirectory(".", "other\\freetype\\lib32\\freetype.dll"))
 		table.insert(client_depends, CopyToDirectory(".", "other\\sdl2\\lib32\\SDL2.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\glew\\lib32\\glew32.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other\\glew\\windows\\lib32\\glew32.dll"))
 	else
 		table.insert(client_depends, CopyToDirectory(".", "other\\freetype\\lib64\\freetype.dll"))
 		table.insert(client_depends, CopyToDirectory(".", "other\\sdl2\\lib64\\SDL2.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\glew\\lib64\\glew32.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other\\glew\\windows\\lib64\\glew32.dll"))
 	end
 
 	if config.compiler.driver == "cl" then
