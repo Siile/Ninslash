@@ -233,7 +233,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		PROJTYPE_PELLET,
 		SOUND_SHOTGUN_FIRE,
 		75, // cost
-		6, // damage
+		7, // damage
 		0, // extra1
 		true, // autofire
 		0.04f, // bullet spread
@@ -305,7 +305,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		PROJTYPE_LASER,
 		SOUND_LASER_FIRE,
 		90, // cost
-		25, // damage
+		35, // damage
 		0, // extra1
 		true, // autofire
 		0, // bullet spread

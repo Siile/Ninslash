@@ -84,12 +84,18 @@ void CPicker::ConDropWeapon(IConsole::IResult *pResult, void *pUserData)
 	((CPicker *)pUserData)->DropWeapon();
 }
 
+void CPicker::ConSwitchGroup(IConsole::IResult *pResult, void *pUserData)
+{
+	((CPicker *)pUserData)->SwitchGroup();
+}
+
 
 void CPicker::OnConsoleInit()
 {
 	//Console()->Register("+itempicker", "", CFGFLAG_CLIENT, ConKeyItemPicker, this, "Open item selector");
 	//Console()->Register("+gamepaditempicker", "", CFGFLAG_CLIENT, ConKeyItemPicker, this, "Open item selector");
 	
+	Console()->Register("+switch", "", CFGFLAG_CLIENT, ConSwitchGroup, this, "Switch between weapon groups");
 	Console()->Register("+dropweapon", "", CFGFLAG_CLIENT, ConDropWeapon, this, "Drop weapon");
 	Console()->Register("+lastweapon", "", CFGFLAG_CLIENT, ConLastWeaponpick, this, "Select last picked weapon");
 	Console()->Register("+picker", "", CFGFLAG_CLIENT, ConKeyPicker, this, "Open weapon selector");
@@ -576,7 +582,7 @@ void CPicker::DropWeapon()
 {
 	//m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_POSITIVE, 0);
 	
-	if (CustomStuff()->m_WeaponDropTick > CustomStuff()->LocalTick() - 30)
+	if (CustomStuff()->m_WeaponDropTick > CustomStuff()->LocalTick() - 20)
 	{
 		CustomStuff()->m_WeaponDropTick = CustomStuff()->LocalTick();
 		return;
@@ -586,6 +592,30 @@ void CPicker::DropWeapon()
 	
 	CNetMsg_Cl_DropWeapon Msg;
 	Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+}
+
+
+void CPicker::SwitchGroup()
+{
+	//m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_POSITIVE, 0);
+	
+	if (CustomStuff()->m_SwitchTick > CustomStuff()->LocalTick() - 20)
+	{
+		CustomStuff()->m_SwitchTick = CustomStuff()->LocalTick();
+		return;
+	}
+	
+	CustomStuff()->m_SwitchTick = CustomStuff()->LocalTick();
+	
+	if (CustomStuff()->m_SelectedGroup == 1)
+		Console()->ExecuteLine("+weapon2");
+	else if (CustomStuff()->m_SelectedGroup == 2)
+		Console()->ExecuteLine("+weapon1");
+	
+	/*
+	CNetMsg_Cl_SwitchGroup Msg;
+	Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+	*/
 }
 
 

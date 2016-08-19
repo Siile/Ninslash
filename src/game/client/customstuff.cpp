@@ -11,11 +11,14 @@ CCustomStuff::CCustomStuff()
 void CCustomStuff::Reset()
 {
 	m_WeaponDropTick = 0;
+	m_SwitchTick = 0;
 	m_SelectedWeapon = 0;
 	m_LocalWeapons = 0;
 	m_Picker = 0;
 	m_LastUpdate = time_get();
 	m_Tick = 0;
+	
+	m_LocalTeam = TEAM_SPECTATORS;
 	
 	for (int i = 0; i < MAX_CLIENTS; i++)
 		m_aPlayerInfo[i].Reset();

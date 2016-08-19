@@ -53,7 +53,7 @@ bool CCollision::AStar(vec2 Start, vec2 End)
     StartWP->m_Opened = true;
 
 	
-	while (n == 0 || (CurrentWP != EndWP && n < 50))
+	while (n == 0 || (CurrentWP != EndWP && n < 200))
     {
         // Look for the smallest F value in the openList and make it the current point
         for (i = openList.begin(); i != openList.end(); ++ i)

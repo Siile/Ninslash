@@ -66,6 +66,7 @@ void CCharacterCore::Reset()
 	m_DamageTick = 0;
 	m_Pos = vec2(0,0);
 	m_Vel = vec2(0,0);
+	m_JumpTimer = 0;
 	m_Jumped = 0;
 	m_Sliding = 0;
 	m_Anim = 0;
@@ -74,6 +75,7 @@ void CCharacterCore::Reset()
 	m_JetpackPower = 100;
 	m_Wallrun = 0;
 	m_Roll = 0;
+	m_Slide = 0;
 	m_Status = 0;
 	m_Status |= 1 << STATUS_SPAWNING;
 	m_TriggeredEvents = 0;
@@ -230,12 +232,17 @@ void CCharacterCore::Tick(bool UseInput)
 	{
 		LoadJetpack = true;
 	}
+
 	
 	
 	// handle input
 	if(UseInput)
 	{
 		m_Direction = m_Input.m_Direction;
+		
+		
+		// sliding
+		Slide();
 		
 		if (m_LockDirection > 0)
 		{
@@ -418,6 +425,12 @@ void CCharacterCore::Tick(bool UseInput)
 			{
 				if(Grounded)
 				{
+					// lazy timer for jump animations
+					if (m_Slide > 0)
+						m_JumpTimer = -6;
+					else
+						m_JumpTimer = 6;
+					
 					m_TriggeredEvents |= COREEVENT_GROUND_JUMP;
 					if(slope == 0) 
 						m_Vel.y = -JumpPower;
@@ -472,6 +485,7 @@ void CCharacterCore::Tick(bool UseInput)
 		m_Sliding = true;
 	}
 	
+	
 
 	if(slope != 0 && m_Direction == slope && !m_Sliding)
 		MaxSpeed = SlopeDescendingControlSpeed;
@@ -488,20 +502,24 @@ void CCharacterCore::Tick(bool UseInput)
 			m_Vel.x += diff;
 	}
 	
+	
 	// add the speed modification according to players wanted direction
-	if(m_Direction < 0) // && (!m_Sliding || !Grounded))
+	if (m_Slide == 0)
 	{
-		if (slope > 0)
-			m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, -Accel*0.5f);
-		else
-			m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, -Accel);
-	}
-	if(m_Direction > 0) // && (!m_Sliding || !Grounded))
-	{
-		if (slope < 0)
-			m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, Accel*0.5f);
-		else
-			m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, Accel);
+		if(m_Direction < 0) // && (!m_Sliding || !Grounded))
+		{
+			if (slope > 0)
+				m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, -Accel*0.5f);
+			else
+				m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, -Accel);
+		}
+		if(m_Direction > 0) // && (!m_Sliding || !Grounded))
+		{
+			if (slope < 0)
+				m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, Accel*0.5f);
+			else
+				m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, Accel);
+		}
 	}
 	
 	if(m_Sliding && slope != 0) {
@@ -513,7 +531,7 @@ void CCharacterCore::Tick(bool UseInput)
 		//std::cerr << "Fric2..." << m_Pos.x << ", " << SlideFriction << std::endl;
 		m_Vel.x *= SlideFriction;
 	}
-	else if(m_Direction == 0) {
+	else if(m_Direction == 0 && m_Slide == 0) {
 		//std::cerr << "Fric3..." << m_Pos.x << std::endl;
 		if(slope != 0 && !m_Jumped) {
 			m_Vel.x *= Friction;// /invsqrt2;
@@ -579,6 +597,17 @@ void CCharacterCore::Tick(bool UseInput)
 	}
 
 
+	if (m_JumpTimer > 0)
+	{
+		m_JumpTimer--;
+		m_Anim = 5;
+	}
+	else if (m_JumpTimer < 0)
+	{
+		m_JumpTimer++;
+		m_Anim = -5;
+	}
+	
 
 	if(m_pWorld)
 	{
@@ -595,7 +624,10 @@ void CCharacterCore::Tick(bool UseInput)
 			// handle player <-> player collision
 			float Distance = distance(m_Pos, pCharCore->m_Pos);
 			vec2 Dir = normalize(m_Pos - pCharCore->m_Pos);
-			if(m_pWorld->m_Tuning.m_PlayerCollision && m_Roll == 0 && pCharCore->m_Roll == 0 && Distance < PhysSize*1.25f && Distance > 0.0f)
+			
+			if(m_pWorld->m_Tuning.m_PlayerCollision && m_Roll == 0 && m_Slide == 0 && 
+				pCharCore->m_Slide == 0 && pCharCore->m_Roll == 0 && 
+				Distance < PhysSize*1.25f && Distance > 0.0f)
 			{
 				float a = (PhysSize*1.45f - Distance);
 				float Velocity = 0.5f;
@@ -611,21 +643,24 @@ void CCharacterCore::Tick(bool UseInput)
 		}
 		
 		// monster collision
-		for(int i = 0; i < MAX_MONSTERS; i++)
+		if (m_Roll == 0 && m_Slide == 0)
 		{
-			vec2 MonsterPos = m_pWorld->m_aMonsterPos[i];
-				
-			if(MonsterPos.x == 0)
-				continue;
-
-			// handle player <-> monster collision
-			float Distance = distance(m_Pos, MonsterPos);
-			vec2 Dir = normalize(m_Pos - MonsterPos);
-			if(Distance < PhysSize*1.65f && Distance > 0.0f)
+			for(int i = 0; i < MAX_MONSTERS; i++)
 			{
-				//m_Status |= 1 << STATUS_ELECTRIC;
-				m_Vel = Dir*12.0f; // + vec2(0, -4);
-				m_MonsterDamage = true;
+				vec2 MonsterPos = m_pWorld->m_aMonsterPos[i];
+					
+				if(MonsterPos.x == 0)
+					continue;
+
+				// handle player <-> monster collision
+				float Distance = distance(m_Pos, MonsterPos);
+				vec2 Dir = normalize(m_Pos - MonsterPos);
+				if(Distance < PhysSize*1.65f && Distance > 0.0f)
+				{
+					//m_Status |= 1 << STATUS_ELECTRIC;
+					m_Vel = Dir*12.0f; // + vec2(0, -4);
+					m_MonsterDamage = true;
+				}
 			}
 		}
 	}
@@ -650,6 +685,9 @@ void CCharacterCore::Roll()
 {
 	float PhysSize = 28.0f;
 	
+	if (m_Roll > 0)
+		return;
+	
 	if (m_Vel.x < -2.0f && !m_pCollision->CheckPoint(m_Pos.x-(PhysSize+32), m_Pos.y+PhysSize/2))
 	{
 		m_Roll++;
@@ -659,6 +697,71 @@ void CCharacterCore::Roll()
 	{
 		m_Roll++;
 		m_LockDirection = 8;
+	}
+}
+
+
+void CCharacterCore::Slide()
+{
+	float PhysSize = 28.0f;
+	
+	if (IsGrounded() && m_Input.m_Down && m_Slide == 0 && m_Roll == 0)
+	{
+		vec2 TargetDirection = normalize(vec2(m_Input.m_TargetX, m_Input.m_TargetY));
+		if ((m_Vel.x < -7.0f && TargetDirection.x < 0) ||
+			(m_Vel.x > 7.0f && TargetDirection.x > 0))
+		m_Slide++;
+		
+		//m_Vel.x *= 1.1f;
+	}
+
+	if (!m_Input.m_Down && m_Slide > 0)
+		m_Slide = -4;
+	
+	if (m_Wallrun != 0)
+		m_Slide = 0;
+
+	if (m_Slide != 0)
+	{
+		m_Slide++;
+		
+		if (m_Slide > 0)
+		{
+			if (IsGrounded())
+			{
+				m_Vel.x *= 0.98f;
+			
+				if (m_Vel.x < -3.5f && !m_pCollision->CheckPoint(m_Pos.x-(PhysSize+32), m_Pos.y+PhysSize/2))
+				{
+					m_LockDirection = -2;
+					m_Anim = -3;
+				}
+				else if (m_Vel.x > 3.5f && !m_pCollision->CheckPoint(m_Pos.x+(PhysSize+32), m_Pos.y+PhysSize/2))
+				{
+					m_LockDirection = 2;
+					m_Anim = 3;
+				}
+				else
+					m_Slide = -4;
+			}
+			else
+				m_Slide = -4;
+		}
+		
+		// stand up animation after slide
+		if (m_Slide < 0)
+		{
+			if (m_Vel.x < 0.0f)
+			{
+				m_LockDirection = -2;
+				m_Anim = -4;
+			}
+			if (m_Vel.x > 0.0f)
+			{
+				m_LockDirection = 2;
+				m_Anim = 4;
+			}
+		}
 	}
 }
 	
@@ -688,7 +791,7 @@ void CCharacterCore::Move()
 	
 	m_Vel.x = m_Vel.x*(1.0f/RampValue);
 
-	if(m_pWorld && m_pWorld->m_Tuning.m_PlayerCollision && m_Roll == 0)
+	if(m_pWorld && m_pWorld->m_Tuning.m_PlayerCollision && m_Roll == 0 && m_Slide == 0)
 	{
 		// check player collision
 		float Distance = distance(m_Pos, NewPos);
@@ -767,6 +870,7 @@ void CCharacterCore::Write(CNetObj_CharacterCore *pObjCore)
 	pObjCore->m_VelY = round_to_int(m_Vel.y*256.0f);
 	pObjCore->m_DamageTick = m_DamageTick;
 	pObjCore->m_Jumped = m_Jumped;
+	pObjCore->m_JumpTimer = m_JumpTimer;
 	pObjCore->m_Direction = m_Direction;
 	pObjCore->m_Sliding = m_Sliding;
 	pObjCore->m_Grounded = IsGrounded();
@@ -777,6 +881,7 @@ void CCharacterCore::Write(CNetObj_CharacterCore *pObjCore)
 	pObjCore->m_JetpackPower = m_JetpackPower;
 	pObjCore->m_Wallrun = m_Wallrun;
 	pObjCore->m_Roll = m_Roll;
+	pObjCore->m_Slide = m_Slide;
 	pObjCore->m_Status = m_Status;
 	pObjCore->m_LockDirection = m_LockDirection;
 	pObjCore->m_Slope = SlopeState();
@@ -790,6 +895,7 @@ void CCharacterCore::Read(const CNetObj_CharacterCore *pObjCore)
 	m_Vel.y = pObjCore->m_VelY/256.0f;
 	m_DamageTick = pObjCore->m_DamageTick;
 	m_Jumped = pObjCore->m_Jumped;
+	m_JumpTimer = pObjCore->m_JumpTimer;
 	m_Direction = pObjCore->m_Direction;
 	m_Sliding = pObjCore->m_Sliding;
 	m_Angle = pObjCore->m_Angle;
@@ -799,6 +905,7 @@ void CCharacterCore::Read(const CNetObj_CharacterCore *pObjCore)
 	m_JetpackPower = pObjCore->m_JetpackPower;
 	m_Wallrun = pObjCore->m_Wallrun;
 	m_Roll = pObjCore->m_Roll;
+	m_Slide = pObjCore->m_Slide;
 	m_Status = pObjCore->m_Status;
 	m_LockDirection = pObjCore->m_LockDirection;
 }

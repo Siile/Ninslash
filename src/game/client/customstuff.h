@@ -35,6 +35,7 @@ public:
 	}
 
 	int m_Picker;
+	int m_LocalTeam;
 	
 	float m_MonsterDamageIntensity[MAX_MONSTERS];
 	float m_MonsterDamageType[MAX_MONSTERS];
@@ -58,6 +59,7 @@ public:
 
 	int LocalTick(){ return m_Tick; }
 	int m_WeaponDropTick;
+	int m_SwitchTick;
 	
 	void SetCameraTarget(vec2 Center){ m_CameraTargetCenter = Center; }
 	vec2 GetCameraCenter(){ return m_CameraCenter; }

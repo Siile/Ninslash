@@ -151,6 +151,7 @@ public:
 	void SelectWeapon(int Weapon, int Group);
 	void SelectItem(int Item);
 	void DropWeapon();
+	void SwitchGroup();
 	
 	void JoinTeam();
 	

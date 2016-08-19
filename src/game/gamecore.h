@@ -190,6 +190,7 @@ class CCharacterCore
 	CWorldCore *m_pWorld;
 	CCollision *m_pCollision;
 	void Roll();
+	void Slide();
 	
 public:
 	vec2 m_Pos;
@@ -200,6 +201,9 @@ public:
 
 	int m_Jumped;
 
+	// for animation, not syncronized
+	int m_JumpTimer;
+	
 	int m_Direction;
 	int m_Angle;
 	int m_Anim;
@@ -209,6 +213,7 @@ public:
 	int m_Wallrun;
 	bool m_OnWall;
 	int m_Roll;
+	int m_Slide;
 	
 	int m_DamageTick;
 	

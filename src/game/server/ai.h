@@ -88,9 +88,13 @@ protected:
 		MOVE_LEFT,
 		MOVE_RIGHT,
 		MOVE_UP,
+		MOVE_UPLEFT,
+		MOVE_UPRIGHT,
 	};
 	
 	int m_MoveType;
+	
+	bool m_EnemyInLine;
 	
 	// emotions
 	float m_aAnger[16]; // MAX_CLIENTS
@@ -119,6 +123,7 @@ protected:
 	
 	int m_Move;
 	int m_Jump;
+	int m_Down;
 	int m_Attack;
 	int m_LastAttack;
 	
@@ -164,7 +169,6 @@ protected:
 	
 	void Unstuck();
 	void HeadToMovingDirection();
-	void JumpIfPlayerIsAbove();
 	
 	bool UpdateWaypoint();
 	void HookMove();
@@ -180,7 +184,7 @@ protected:
 	bool SeekClosestHumanInSight();
 	
 	bool SeekRandomEnemy();
-	bool SeekClosestFriend();
+	bool SeekClosestFriend(bool OnlyUnharmed = false);
 	bool SeekClosestHuman();
 	bool SeekClosestEnemy();
 	bool SeekClosestEnemyInSight();
@@ -194,6 +198,9 @@ protected:
 	int m_ItemUseTick;
 	
 	void UseItems();
+	
+	int m_PowerLevel;
+	int m_DispersionTick;
 	
 public:
 	CAI(class CGameContext *pGameServer, class CPlayer *pPlayer);

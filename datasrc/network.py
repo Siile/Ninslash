@@ -123,6 +123,7 @@ Objects = [
 		NetIntAny("m_Jump"),
 		NetIntAny("m_Fire"),
 		NetIntAny("m_Hook"),
+		NetIntAny("m_Down"),
 
 		NetIntRange("m_PlayerFlags", 0, 256),
 
@@ -228,9 +229,14 @@ Objects = [
 		NetIntRange("m_JetpackPower", 0, 100),
 		NetIntRange("m_Wallrun", -100, 100),
 		NetIntRange("m_Roll", 0, 32),
+		NetIntRange("m_Slide", -10, 32),
+		
+		NetIntRange("m_JumpTimer", -10, 10),
 		
 		NetIntAny("m_Status"),
 		NetIntAny("m_DamageTick"),
+		
+		
 		
 		NetIntRange("m_Jumped", 0, 3),
 		
@@ -470,6 +476,8 @@ Messages = [
 	
 	
 	NetMessage("Cl_DropWeapon", []),
+	
+	NetMessage("Cl_SwitchGroup", []),
 	
 	NetMessage("Cl_SelectWeapon", [
 		NetIntRange("m_Weapon", 0, 99),

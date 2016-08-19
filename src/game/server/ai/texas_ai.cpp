@@ -25,11 +25,21 @@ void CAItexas::OnCharacterSpawn(CCharacter *pChr)
 	
 	//if (g_Config.m_SvRandomWeapons)
 	//	pChr->GiveRandomWeapon();
+
 }
 
 
 void CAItexas::DoBehavior()
+
 {
+	// power level
+	if (Player()->GetTeam() == TEAM_RED)
+		m_PowerLevel = GameServer()->m_pController->CountPlayers(TEAM_BLUE)*4;
+
+	if (Player()->GetTeam() == TEAM_BLUE)
+		m_PowerLevel = 14 - GameServer()->m_pController->CountPlayers(TEAM_BLUE)*2;
+		
+		
 	// reset jump and attack
 	if (Player()->GetCharacter()->GetCore().m_JetpackPower < 10 || Player()->GetCharacter()->GetCore().m_Jetpack == 0)
 		m_Jump = 0;
@@ -55,15 +65,21 @@ void CAItexas::DoBehavior()
 			//m_AttackTimer = 0;
 	}
 
-	int f = 1200+m_EnemiesInSight*100;
-
+	// main logic
 	if (Player()->GetTeam() == TEAM_RED)
 	{
-		if (SeekClosestFriend())
+		if (SeekClosestFriend(true))
 		{
 			m_TargetPos = m_PlayerPos;
 			
-			if (m_PlayerDistance < f)
+			if (m_PlayerDistance < 1400-m_EnemiesInSight*400-GameServer()->m_pController->CountPlayers(TEAM_BLUE)*60)
+				SeekRandomWaypoint();
+		}
+		else if (SeekClosestFriend())
+		{
+			m_TargetPos = m_PlayerPos;
+			
+			if (m_PlayerDistance < 1400-m_EnemiesInSight*400-GameServer()->m_pController->CountPlayers(TEAM_BLUE)*60)
 				SeekRandomWaypoint();
 		}
 		else
@@ -89,6 +105,6 @@ void CAItexas::DoBehavior()
 	RandomlyStopShooting();
 	
 	// next reaction in
-	m_ReactionTime = 2 + frandom()*4;
+	m_ReactionTime = 1 + frandom()*2;
 	
 }

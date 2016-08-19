@@ -1139,6 +1139,7 @@ enum InputList
 	INPUT_SHOOT = 4,
 	INPUT_JUMP = 3,
 	INPUT_HOOK = 5
+	INPUT_DOWN = 6
 	
 	//1 & 2 vectors for weapon direction
 };
@@ -1309,13 +1310,13 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 			
 
-			/*
+			
 			if ( strcmp(pMsg->m_pMessage, "/showwaypoints") == 0 )
 			{
 				m_ShowWaypoints = !m_ShowWaypoints;
 				SkipSending = true;
 			}
-			*/
+			
 			
 		
 			if (!SkipSending)
@@ -1656,6 +1657,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			// TODO: spam protection
 			
 			pPlayer->DropWeapon();
+		}
+		else if (MsgID == NETMSGTYPE_CL_SWITCHGROUP && !m_World.m_Paused)
+		{
+			// TODO: spam protection
+			
+			pPlayer->SwitchGroup();
 		}
 		else if (MsgID == NETMSGTYPE_CL_SELECTITEM && !m_World.m_Paused)
 		{

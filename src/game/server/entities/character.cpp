@@ -213,12 +213,23 @@ void CCharacter::Destroy()
 
 
 
+void CCharacter::SwitchGroup()
+{
+	m_ActiveWeaponGroup++;
+	if (m_ActiveWeaponGroup > 1)
+		m_ActiveWeaponGroup = 0;
+	
+	m_WeaponGroup = m_ActiveWeaponGroup;
+	
+	GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
+}
+
 void CCharacter::DropWeapon()
 {
 	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
 		return;
 	
-	if (m_ActiveCustomWeapon != W_HAMMER && m_ActiveCustomWeapon != W_PISTOL && m_aWeapon[m_ActiveCustomWeapon].m_Got)
+	if (m_ActiveCustomWeapon != W_HAMMER && m_ActiveCustomWeapon != W_TOOL && m_ActiveCustomWeapon != W_PISTOL && m_aWeapon[m_ActiveCustomWeapon].m_Got)
 	{
 		vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
 		
@@ -237,6 +248,8 @@ void CCharacter::DropWeapon()
 		}
 		else
 			SetCustomWeapon(WEAPON_HAMMER);
+		
+		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
 	}
 }
 
@@ -324,6 +337,14 @@ void CCharacter::SelectWeapon(int Weapon, int Group)
 
 void CCharacter::HandleWeaponSwitch()
 {
+	// check groups for changes (weapon drop)
+	for (int i = 0; i < 2; i++)
+	{
+		if (m_aSelectedWeapon[i] >= 0 && m_aSelectedWeapon[i] < NUM_CUSTOMWEAPONS &&
+			!m_aWeapon[m_aSelectedWeapon[i]].m_Got)
+			m_aSelectedWeapon[i] = WEAPON_HAMMER;
+	}
+	
 	if (m_ActiveWeaponGroup < 0 || m_ActiveWeaponGroup > 1)
 		m_ActiveWeaponGroup = 0;
 	
@@ -342,6 +363,7 @@ void CCharacter::HandleWeaponSwitch()
 	
 	
 	int WantedWeapon = m_aSelectedWeapon[m_WeaponGroup];
+	
 	//if(m_QueuedCustomWeapon != -1)
 	//	WantedWeapon = m_QueuedCustomWeapon;
 	
@@ -369,6 +391,9 @@ void CCharacter::HandleWeaponSwitch()
 				Prev--;
 		}
 	}
+	
+	if (!m_aWeapon[WantedWeapon].m_Got)
+		WantedWeapon = WEAPON_HAMMER;
 	
 	m_aSelectedWeapon[m_WeaponGroup] = WantedWeapon;
 	m_QueuedCustomWeapon = m_aSelectedWeapon[m_WeaponGroup];
@@ -1619,14 +1644,23 @@ bool CCharacter::AddMine()
 
 
 // use armor points as clips
-bool CCharacter::AddClip()
+bool CCharacter::AddClip(int Weapon)
 {
-	if (aCustomWeapon[m_ActiveCustomWeapon].m_PowerupSize <= 0 || aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo <= 0)
+	if (Weapon == -1)
+		Weapon = m_ActiveCustomWeapon;
+	
+	if (Weapon < 0 || Weapon >= NUM_CUSTOMWEAPONS)
+		return false;
+	
+	if (!m_aWeapon[Weapon].m_Got)
+		return false;
+	
+	if (aCustomWeapon[Weapon].m_PowerupSize <= 0 || aCustomWeapon[Weapon].m_MaxAmmo <= 0)
 		return false;
 
-	if (m_aWeapon[m_ActiveCustomWeapon].m_Ammo < aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo)
+	if (m_aWeapon[Weapon].m_Ammo < aCustomWeapon[Weapon].m_MaxAmmo)
 	{
-		m_aWeapon[m_ActiveCustomWeapon].m_Ammo = min(m_aWeapon[m_ActiveCustomWeapon].m_Ammo+aCustomWeapon[m_ActiveCustomWeapon].m_PowerupSize, aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo);
+		m_aWeapon[Weapon].m_Ammo = min(m_aWeapon[Weapon].m_Ammo+aCustomWeapon[Weapon].m_PowerupSize, aCustomWeapon[Weapon].m_MaxAmmo);
 		GetPlayer()->m_InterestPoints += 40;
 		return true;
 	}
@@ -1638,7 +1672,37 @@ bool CCharacter::AddClip()
 // use armor points as clips
 bool CCharacter::IncreaseArmor(int Amount)
 {
-	return AddClip();
+	if (AddClip())
+		return true;
+	
+	if (AddClip(m_PrevWeapon))
+		return true;
+	
+	for (int i = 0; i < NUM_CUSTOMWEAPONS; i++)
+	{
+		if (AddClip(i))
+			return true;
+	}
+	
+	return false;
+	
+		/*
+	if (m_PrevWeapon != Weapon)
+	{
+		if (AddClip(m_PrevWeapon))
+			return true;
+		
+	}
+	
+	for (int i = 0; i < NUM_CUSTOMWEAPONS; i++)
+	{
+		if (i == Weapon)
+			continue;
+
+		if (AddClip(i))
+			return true;
+	}
+	*/
 	
 	/*
 	if (aCustomWeapon[m_ActiveCustomWeapon].m_PowerupSize <= 0 || aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo <= 0)

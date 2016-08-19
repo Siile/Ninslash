@@ -30,6 +30,10 @@ void CNamePlates::RenderNameplate(
 	
 	float v = pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY];
 	
+	if ((CustomStuff()->m_LocalTeam == pPlayerInfo->m_Team && m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_TEAMS) ||
+		CustomStuff()->m_LocalTeam == TEAM_SPECTATORS)
+		v = 0.0f;
+	
 	//if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY] > 0.4f)
 	//	return;
 	
@@ -78,6 +82,8 @@ void CNamePlates::RenderNameplate(
 		TextRender()->TextColor(1,1,1,1);
 		TextRender()->TextOutlineColor(0.0f, 0.0f, 0.0f, 0.3f);
 	}
+	else
+		CustomStuff()->m_LocalTeam = pPlayerInfo->m_Team;
 }
 
 void CNamePlates::OnRender()

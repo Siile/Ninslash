@@ -147,7 +147,7 @@ public:
 		bool m_Ready;
 	} m_aWeapon[NUM_CUSTOMWEAPONS];
 	
-	bool AddClip();
+	bool AddClip(int Weapon = -1);
 	
 	// for pickup drops, easy access
 	bool HasAmmo()
@@ -190,6 +190,7 @@ public:
 	bool SetElectromine();
 
 	void DropWeapon();
+	void SwitchGroup();
 	
 	int m_CryTimer;
 	int m_CryState;
@@ -230,6 +231,9 @@ public:
 	void GiveBuff(int Item);
 	void GiveRandomBuff();
 	
+	int m_AttackTick;
+	int m_DamageTakenTick;
+	
 private:
 	// player controlling this character
 	class CPlayer *m_pPlayer;
@@ -266,7 +270,6 @@ private:
 	int m_LastWeapon;
 
 	int m_ReloadTimer;
-	int m_AttackTick;
 
 	int m_DamageTaken;
 
@@ -290,7 +293,6 @@ private:
 	int m_NumInputs;
 	int m_Jumped;
 
-	int m_DamageTakenTick;
 
 	int m_Health;
 	int m_Armor;

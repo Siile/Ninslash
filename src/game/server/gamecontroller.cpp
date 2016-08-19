@@ -805,10 +805,13 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 	// weapon drops
 	if (g_Config.m_SvWeaponDrops)
 	{
-		int DropWeapon = pVictim->m_ActiveCustomWeapon;
+		pVictim->DropWeapon();
 		
-		if (DropWeapon != W_HAMMER && DropWeapon != W_PISTOL && DropWeapon != W_TOOL)
-			DropPickup(pVictim->m_Pos, POWERUP_WEAPON, pVictim->m_LatestHitVel, DropWeapon);
+		//int DropWeapon = pVictim->m_ActiveCustomWeapon;
+		
+		//if (!(GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE) && 
+		//	DropWeapon != W_HAMMER && DropWeapon != W_PISTOL && DropWeapon != W_TOOL)
+			//DropPickup(pVictim->m_Pos, POWERUP_WEAPON, pVictim->m_LatestHitVel, DropWeapon);
 	}
 	
 	// pickup drops

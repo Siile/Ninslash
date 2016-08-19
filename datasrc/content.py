@@ -349,6 +349,7 @@ container.images.Add(image_texasmask)
 container.pickups.Add(Pickup("health"))
 container.pickups.Add(Pickup("armor"))
 container.pickups.Add(Pickup("weapon"))
+container.pickups.Add(Pickup("mine"))
 
 set_particles = SpriteSet("particles", image_particles, 8, 8)
 set_gore = SpriteSet("gore", image_gore, 8, 2)

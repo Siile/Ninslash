@@ -23,6 +23,7 @@ class CPicker : public CComponent
 	static void ConLastWeaponpick(IConsole::IResult *pResult, void *pUserData);
 	static void ConWeaponpick(IConsole::IResult *pResult, void *pUserData);
 	static void ConDropWeapon(IConsole::IResult *pResult, void *pUserData);
+	static void ConSwitchGroup(IConsole::IResult *pResult, void *pUserData);
 	static void ConKeyEmote(IConsole::IResult *pResult, void *pUserData);
 	static void ConEmote(IConsole::IResult *pResult, void *pUserData);
 	
@@ -44,6 +45,7 @@ public:
 	void Itempick(int Item);
 	void Emote(int Emoticon);
 	void DropWeapon();
+	void SwitchGroup();
 };
 
 #endif

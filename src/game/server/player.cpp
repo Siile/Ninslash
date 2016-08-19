@@ -95,6 +95,12 @@ void CPlayer::DropWeapon()
 		GetCharacter()->DropWeapon();
 }
 	
+void CPlayer::SwitchGroup()
+{
+	if (GetCharacter())
+		GetCharacter()->SwitchGroup();
+}
+	
 	
 void CPlayer::Tick()
 {

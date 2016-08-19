@@ -668,6 +668,79 @@ void CPlayers::RenderPlayer(
 	}
 	
 	
+	// sliding
+	if (Player.m_Anim == 3 && Player.m_Slide > 0)
+	{
+		if (Player.m_Slide > 4)
+		{
+			WantedAnimation = PANIM_SLIDE;
+			//AnimationSpeed = 0.022f;
+			AnimationSpeed = AnimSpeed;
+		}
+		else
+		{
+			WantedAnimation = PANIM_SLIDEDOWN;
+			AnimationSpeed = 0.022f;
+		}
+		
+		pCustomPlayerInfo->Animation()->m_Flip = false;
+	}
+	
+	if (Player.m_Anim == -3 && Player.m_Slide > 0)
+	{
+		if (Player.m_Slide > 4)
+		{
+			WantedAnimation = PANIM_SLIDE;
+			//AnimationSpeed = 0.022f;
+			AnimationSpeed = AnimSpeed;
+		}
+		else
+		{
+			WantedAnimation = PANIM_SLIDEDOWN;
+			AnimationSpeed = 0.022f;
+		}
+		
+		pCustomPlayerInfo->Animation()->m_Flip = true;
+	}
+	
+	
+	
+	if (Player.m_Anim == 4 && Player.m_Slide < 0)
+	{
+		WantedAnimation = PANIM_SLIDEUP;
+		AnimationSpeed = 0.017f;
+		//AnimationSpeed = AnimSpeed*0.3f;
+		
+		pCustomPlayerInfo->Animation()->m_Flip = false;
+	}
+	
+	if (Player.m_Anim == -4 && Player.m_Slide < 0)
+	{
+		WantedAnimation = PANIM_SLIDEUP;
+		AnimationSpeed = 0.017f;
+		//AnimationSpeed = AnimSpeed*0.3f;
+		
+		pCustomPlayerInfo->Animation()->m_Flip = true;
+	}
+	
+	/* ugly
+	if (Player.m_Anim == 5)
+	{
+		WantedAnimation = PANIM_JUMPGROUND;
+		AnimationSpeed = 0.025f;
+	}
+	*/
+	
+	if (Player.m_Anim == -5)
+	{
+		WantedAnimation = PANIM_JUMPSLIDE;
+		AnimationSpeed = 0.025f;
+	}
+	
+
+	
+	
+	
 	
 	// wallrun animations
 	if (Player.m_Wallrun > 0)

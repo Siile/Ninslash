@@ -662,6 +662,7 @@ static CKeyInfo gs_aKeys[] =
 {
 	{ "Move left", "+left", 0},		// Localize - these strings are localized within CLocConstString
 	{ "Move right", "+right", 0 },
+	{ "Slide / down", "+down", 0 },
 	{ "Jump", "+jump", 0 },
 	{ "Fire", "+fire", 0 },
 	{ "Turbo", "+turbo", 0 },
@@ -669,7 +670,7 @@ static CKeyInfo gs_aKeys[] =
 	{ "Secondary weapon", "+weapon2", 0 },
 	{ "Weapon picker", "+picker", 0 },
 	{ "Select picked weapon", "+lastweapon", 0 },
-	{ "Drop weapon", "+dropweapon", 0 },
+	{ "Switch weapon", "+switch", 0 },
 	//{ "Rifle", "+weapon5", 0 },
 	{ "Next weapon", "+nextweapon", 0 },
 	{ "Prev. weapon", "+prevweapon", 0 },
@@ -687,7 +688,7 @@ static CKeyInfo gs_aKeys[] =
 	{ "Remote console", "toggle_remote_console", 0 },
 	{ "Screenshot", "screenshot", 0 },
 	{ "Scoreboard", "+scoreboard", 0 },
-	{ "Respawn (not in use)", "kill", 0 },
+	{ "Drop weapon", "+dropweapon", 0 },
 };
 
 /*	This is for scripts/update_localization.py to work, don't remove!

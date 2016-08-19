@@ -75,8 +75,6 @@ protected:
 
 	void CycleMap();
 	void ResetGame();
-	
-	int CountPlayers(int Team = -1);
 
 	char m_aMapWish[128];
 
@@ -117,6 +115,8 @@ public:
 	//
 	const char *m_pGameType;
 
+	int CountPlayers(int Team = -1);
+	
 	bool IsTeamplay() const;
 	bool IsInfection() const;
 	bool IsGameOver() const { return m_GameOverTick != -1; }

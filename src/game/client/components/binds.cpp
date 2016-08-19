@@ -92,6 +92,7 @@ void CBinds::SetDefaults()
 	Bind(KEY_U, "+show_chat");
 	Bind(KEY_F10, "screenshot");
 
+	Bind(KEY_S, "+down");
 	Bind(KEY_A, "+left");
 	Bind(KEY_D, "+right");
 
@@ -100,6 +101,7 @@ void CBinds::SetDefaults()
 	Bind(KEY_MOUSE_2, "+turbo");
 	Bind(KEY_E, "+picker");
 	Bind(KEY_Q, "+lastweapon");
+	Bind(KEY_MOUSE_3, "+switch");
 	Bind(KEY_F, "+dropweapon");
 	Bind(KEY_LSHIFT, "+emote");
 	//Bind(KEY_E, "+itempicker");

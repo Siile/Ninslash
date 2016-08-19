@@ -29,6 +29,9 @@ void CAIdm::OnCharacterSpawn(CCharacter *pChr)
 
 void CAIdm::DoBehavior()
 {
+	// power level
+	m_PowerLevel = 20 - GameServer()->m_pController->CountPlayers()*1.5f;
+	
 	// reset jump and attack
 	if (frandom()*10 < 2)
 		m_Jump = 0;

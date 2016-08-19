@@ -38,6 +38,9 @@ void CAI::Reset()
 	m_ChatterStartTick = 0;
 	m_ChatterEndTick = 0;
 	
+	m_PowerLevel = 0;
+	m_DispersionTick = 0;
+	
 	m_Sleep = 0;
 	m_Stun = 0;
 	m_ReactionTime = 20;
@@ -46,6 +49,7 @@ void CAI::Reset()
 	m_Move = 0;
 	m_LastMove = 0;
 	m_Jump = 0;
+	m_Down = 0;
 	m_LastJump = 0;
 	m_LastAttack = 0;
 	m_Hook = 0;
@@ -211,6 +215,7 @@ void CAI::UpdateInput(int *Data)
 	Data[3] = m_Jump;
 	Data[4] = m_Attack;
 	Data[5] = m_Hook;
+	Data[6] = m_Down;
 }
 
 
@@ -431,15 +436,6 @@ void CAI::HookMove()
 
 
 
-void CAI::JumpIfPlayerIsAbove()
-{
-		if (abs(m_PlayerPos.x - m_Pos.x) < 100 && m_Pos.y > m_PlayerPos.y + 100)
-		{
-			if (frandom() * 10 < 4)
-				m_Jump = 1;
-		}
-}
-
 
 void CAI::HeadToMovingDirection()
 {
@@ -564,91 +560,152 @@ bool CAI::MoveTowardsWaypoint(int Dist)
 	bool OnWall = Player()->GetCharacter()->GetCore().m_OnWall;
 	
 	// handle basic movements
-	switch (m_MoveType)
+	int LastMoveType = -1;
+	int i = 0;
+	
+	while (LastMoveType != m_MoveType && i < 10)
 	{
-		case MOVE_IDLE:
+		LastMoveType = m_MoveType;
+		i++;
+		
+		switch (m_MoveType)
 		{
-			m_Move = 0;
-			
-			if (rand()%5 == 2)
+			case MOVE_IDLE:
+			{
+				m_Move = 0;
+				
+				if (rand()%5 == 2)
+					m_Move = -1;
+				else if (rand()%5 == 2)
+					m_Move = 1;
+			}
+			break;
+				
+			case MOVE_LEFT:
+			{
 				m_Move = -1;
-			else if (rand()%5 == 2)
-				m_Move = 1;
-		}
-		break;
-			
-		case MOVE_LEFT:
-		{
-			m_Move = -1;
-			
-			if (Player()->GetCharacter()->IsGrounded() && GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y))
-				m_Jump = 1;
-			
-			if (!OnWall)
-			{
-				if (m_EnemiesInSight > 0 && Player()->GetCharacter()->GetCore().m_JetpackPower > 50 && abs(Player()->GetCharacter()->GetCore().m_Vel.x) < 12)
-				{
-					m_Hook = 1;
-					m_Direction = m_WaypointDir;
-				}
-			}
-		}
-		break;
-			
-		case MOVE_RIGHT:
-		{
-			m_Move = 1;
-			
-			if (Player()->GetCharacter()->IsGrounded() && GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y))
-				m_Jump = 1;
-			
-			if (!OnWall)
-			{
-				if (m_EnemiesInSight > 0 && Player()->GetCharacter()->GetCore().m_JetpackPower > 50 && abs(Player()->GetCharacter()->GetCore().m_Vel.x) < 12)
-				{
-					m_Hook = 1;
-					m_Direction = m_WaypointDir;
-				}
-			}
-		}
-		break;
-			
-		case MOVE_UP:
-		{
-			if (Player()->GetCharacter()->IsGrounded())
-			{
-				if (Player()->GetCharacter()->GetCore().m_JetpackPower > 70)
-				{
+				
+				if (Player()->GetCharacter()->IsGrounded() && GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y))
 					m_Jump = 1;
-					if (rand()%5 == 2)
-						m_Move = -1;
-					else if (rand()%5 == 2)
-						m_Move = 1;
+				
+				if (!OnWall)
+				{
+					if (m_EnemiesInSight > 0 && Player()->GetCharacter()->GetCore().m_JetpackPower > 50 && abs(Player()->GetCharacter()->GetCore().m_Vel.x) < 12)
+					{
+						m_Hook = 1;
+						m_Direction = m_WaypointDir;
+					}
 				}
 				else
-				// load jetpack for a while if needed
-				{
 					m_Move = 0;
-					m_Hook = 0;
-				}
+				
+				if (Player()->GetCharacter()->IsGrounded() && m_EnemyInLine && abs(Player()->GetCharacter()->GetCore().m_Vel.x) > 9)
+					m_Down = 1;
+				else
+					m_Down = 0;
 			}
-			else
+			break;
+				
+			case MOVE_RIGHT:
 			{
-				if (Player()->GetCharacter()->GetCore().m_JetpackPower > 50)
+				m_Move = 1;
+				
+				if (Player()->GetCharacter()->IsGrounded() && GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y))
+					m_Jump = 1;
+				
+				if (!OnWall)
+				{
+					if (m_EnemiesInSight > 0 && Player()->GetCharacter()->GetCore().m_JetpackPower > 50 && abs(Player()->GetCharacter()->GetCore().m_Vel.x) < 12)
+					{
+						m_Hook = 1;
+						m_Direction = m_WaypointDir;
+					}
+				}
+				else
+					m_Move = 0;
+				
+				if (Player()->GetCharacter()->IsGrounded() && m_EnemyInLine && abs(Player()->GetCharacter()->GetCore().m_Vel.x) > 9)
+					m_Down = 1;
+				else
+					m_Down = 0;
+			}
+			break;
+				
+			
+			case MOVE_UPLEFT:
+			{
+				m_Jump = 1;
+				m_Move = -1;
+				
+				if (Player()->GetCharacter()->GetCore().m_JetpackPower > 40)
 				{
 					m_Hook = 1;
-					m_Direction = vec2(-1, 0);
+					m_Direction = vec2(-1, -0.75f);
 				}
+			};
+			break;
 				
-				if (Player()->GetCharacter()->GetCore().m_OnWall)
+			case MOVE_UPRIGHT:
+			{
+				m_Jump = 1;
+				m_Move = 1;
+				
+				if (Player()->GetCharacter()->GetCore().m_JetpackPower > 40)
 				{
+					m_Hook = 1;
+					m_Direction = vec2(1, -0.75f);
+				}
+			};
+			break;
+			
+				
+			case MOVE_UP:
+			{
+				if (Player()->GetCharacter()->IsGrounded())
+				{
+					if (Player()->GetCharacter()->GetCore().m_JetpackPower > 95)
+					{
+						m_Jump = 1;
+						if (rand()%6 == 2)
+							m_Move = -1;
+						else if (rand()%6 == 2)
+							m_Move = 1;
+					}
+					else
+					// load jetpack for a while if needed
+					{
+						m_Move = 0;
+						m_Hook = 0;
+					}
+				}
+				else
+				{
+					if (Player()->GetCharacter()->GetCore().m_JetpackPower > 50)
+					{
+						m_Hook = 1;
+						m_Direction = vec2(-1, 0);
+					}
+					
 					m_Jump = 1;
-					m_Move *= -1;
+					
+					if (Player()->GetCharacter()->GetCore().m_OnWall)
+					{
+						m_Jump = 1;
+						m_Move *= -1;
+					}
+					
+					if (GameServer()->Collision()->FastIntersectLine(m_Pos+vec2(-24, -32), m_Pos+vec2(-24, -48)))
+						m_MoveType = MOVE_UPRIGHT;
+					else if (GameServer()->Collision()->FastIntersectLine(m_Pos+vec2(+24, -32), m_Pos+vec2(+24, -48)))
+						m_MoveType = MOVE_UPLEFT;
 				}
 			}
-		}
-		break;
-	};
+			break;
+			
+			default:
+				;
+		};
+	}
 	
 	
 	// movement logic
@@ -658,13 +715,21 @@ bool CAI::MoveTowardsWaypoint(int Dist)
 		return true;
 	}
 	
-	if (abs(m_LastPos.x - m_WaypointPos.x) > 100)
+	if (abs(m_LastPos.x - m_WaypointPos.x) > 32)
 	{
 		if (m_LastPos.x < m_WaypointPos.x)
+		{
 			m_MoveType = MOVE_RIGHT;
+			if (m_LastPos.y > m_WaypointPos.y + 64 && abs(m_LastPos.x - m_WaypointPos.x) < 400 && Player()->GetCharacter()->GetCore().m_JetpackPower > 10)
+				m_MoveType = MOVE_UPRIGHT;
+		}
 			
 		if (m_LastPos.x > m_WaypointPos.x)
+		{
 			m_MoveType = MOVE_LEFT;
+			if (m_LastPos.y > m_WaypointPos.y + 64 && abs(m_LastPos.x - m_WaypointPos.x) < 400 && Player()->GetCharacter()->GetCore().m_JetpackPower > 10)
+				m_MoveType = MOVE_UPLEFT;
+		}
 	}
 	else
 	{
@@ -672,7 +737,6 @@ bool CAI::MoveTowardsWaypoint(int Dist)
 			m_MoveType = MOVE_UP;
 		else
 			m_MoveType = MOVE_IDLE;
-		
 	}
 	
 	
@@ -852,7 +916,7 @@ void CAI::ShootAtClosestHuman()
 			m_Direction = AttackDirection;
 		
 		// shooting part
-		if (m_AttackTimer++ > g_Config.m_SvBotReactTime)
+		if (m_AttackTimer++ > max(0, 20-m_PowerLevel))
 		{
 			if (ClosestDistance < WeaponShootRange() && abs(atan2(m_Direction.x, m_Direction.y) - atan2(AttackDirection.x, AttackDirection.y)) < PI / 4.0f)
 			{
@@ -873,6 +937,8 @@ bool CAI::ShootAtClosestEnemy()
 {
 	CCharacter *pClosestCharacter = NULL;
 	int ClosestDistance = 0;
+	
+	m_EnemyInLine = false;
 	
 	// FIRST_BOT_ID, fix
 	for (int i = 0; i < MAX_CLIENTS; i++)
@@ -898,37 +964,50 @@ bool CAI::ShootAtClosestEnemy()
 		if (Distance < 800 && 
 			!GameServer()->Collision()->FastIntersectLine(pCharacter->m_Pos, m_LastPos))
 		{
+			if (abs(pCharacter->m_Pos.x - m_LastPos.x) < 96 && abs(pCharacter->m_Pos.y - m_LastPos.y) < 22)
+				m_EnemyInLine = true;
+			
 			if (!pClosestCharacter || Distance < ClosestDistance)
 			{
 				pClosestCharacter = pCharacter;
 				ClosestDistance = Distance;
-				m_PlayerDirection = pCharacter->m_Pos - m_LastPos;
-				m_PlayerPos = pCharacter->m_Pos;
+				
+				float t = m_DispersionTick*0.01f;
+				vec2 Dispersion = vec2( 11*cos(t)-6*cos(11.0f/6 * t),
+										11*sin(t)-6*sin(11.0f/6 * t));
+				
+				// range 64 - 0, power level range 20
+				Dispersion *= 3.765f - m_PowerLevel*0.188f;
+				Dispersion *= 2.0f;
+				
+				m_PlayerDirection = pCharacter->m_Pos - m_LastPos + Dispersion;
+				m_PlayerPos = pCharacter->m_Pos + Dispersion;
 			}
 		}
 	}
 	
 	if (pClosestCharacter && ClosestDistance < WeaponShootRange()*1.2f)
 	{
-		vec2 AttackDirection = vec2(m_PlayerDirection.x+ClosestDistance*(frandom()*0.3f-frandom()*0.3f), m_PlayerDirection.y+ClosestDistance*(frandom()*0.3f-frandom()*0.3f));
+		vec2 AttackDirection = vec2(m_PlayerDirection.x+ClosestDistance*(frandom()*0.2f-frandom()*0.2f), m_PlayerDirection.y+ClosestDistance*(frandom()*0.2f-frandom()*0.2f));
 
 		m_Direction = AttackDirection;
 		m_Hook = 0;
 		
 		// shooting part
-		if (m_AttackTimer++ > g_Config.m_SvBotReactTime)
+		if (m_AttackTimer++ > max(0, 20-m_PowerLevel))
 		{
 			if (ClosestDistance < WeaponShootRange() && abs(atan2(m_Direction.x, m_Direction.y) - atan2(AttackDirection.x, AttackDirection.y)) < PI / 4.0f)
 			{
 				m_Attack = 1;
+				
+				if (m_PowerLevel < 10)
 				if (frandom()*30 < 2 && !Player()->GetCharacter()->UsingMeleeWeapon())
-					m_DontMoveTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed()*(1+frandom());
+					m_DontMoveTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed()*(1+frandom()-m_PowerLevel*0.1f);
 			}
-			else
-			{
-				if (WeaponShootRange() < 300)
-					m_Hook = 1;
-			}
+			
+			
+			if (WeaponShootRange() < 300 && m_PowerLevel >= 10)
+				m_Hook = 1;
 		}
 		
 		return true;
@@ -944,6 +1023,8 @@ bool CAI::ShootAtClosestMonster()
 	int ClosestDistance = 0;
 	
 	vec2 MonsterDir;
+	
+	m_EnemyInLine = false;
 	
 	// FIRST_BOT_ID, fix
 	CMonster *apEnts[3];
@@ -965,6 +1046,9 @@ bool CAI::ShootAtClosestMonster()
 		if (Distance < 800 && 
 			!GameServer()->Collision()->FastIntersectLine(pMonster->m_Pos + vec2(0, -20), m_LastPos))
 		{
+			if (abs(pMonster->m_Pos.x - m_LastPos.x) < 96 && abs(pMonster->m_Pos.y - m_LastPos.y) < 24)
+				m_EnemyInLine = true;
+			
 			if (!pClosestMonster || Distance < ClosestDistance)
 			{
 				pClosestMonster = pMonster;
@@ -982,18 +1066,13 @@ bool CAI::ShootAtClosestMonster()
 		m_Hook = 0;
 		
 		// shooting part
-		if (m_AttackTimer++ > g_Config.m_SvBotReactTime)
+		if (m_AttackTimer++ > max(0, 20-m_PowerLevel*2))
 		{
 			if (ClosestDistance < WeaponShootRange() && abs(atan2(m_Direction.x, m_Direction.y) - atan2(AttackDirection.x, AttackDirection.y)) < PI / 4.0f)
 			{
 				m_Attack = 1;
 				if (frandom()*30 < 2 && !Player()->GetCharacter()->UsingMeleeWeapon())
 					m_DontMoveTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed()*(1+frandom());
-			}
-			else
-			{
-				//if (WeaponShootRange() < 300)
-				//	m_Hook = 1;
 			}
 		}
 		
@@ -1010,7 +1089,7 @@ void CAI::RandomlyStopShooting()
 	{
 		m_Attack = 0;
 		
-		m_AttackTimer = g_Config.m_SvBotReactTime*0.5f;
+		m_AttackTimer = max(0, 20-m_PowerLevel)/2;
 	}
 }
 
@@ -1112,7 +1191,7 @@ bool CAI::SeekRandomWaypoint()
 
 
 
-bool CAI::SeekClosestFriend()
+bool CAI::SeekClosestFriend(bool OnlyUnharmed)
 {
 	CCharacter *pClosestCharacter = NULL;
 	int ClosestDistance = 0;
@@ -1136,6 +1215,13 @@ bool CAI::SeekClosestFriend()
 		
 		if (!pCharacter->IsAlive())
 			continue;
+		
+		if (OnlyUnharmed)
+		{
+			if (pCharacter->m_DamageTakenTick > GameServer()->Server()->Tick() - GameServer()->Server()->TickSpeed()*5 ||
+				pCharacter->m_AttackTick > GameServer()->Server()->Tick() - GameServer()->Server()->TickSpeed()*5)
+				continue;
+		}
 			
 		int Distance = distance(pCharacter->m_Pos, m_LastPos);
 		if ((!pClosestCharacter || Distance < ClosestDistance))
@@ -1408,6 +1494,7 @@ void CAI::Tick()
 	
 	TickEvents();
 	HandleEmotions();
+	m_DispersionTick++;
 	
 	// stupid AI can't even react to events every frame
 	if (m_NextReaction <= 0)
@@ -1453,8 +1540,8 @@ void CAI::Tick()
 	
 
 	
-	m_DisplayDirection.x += (m_Direction.x - m_DisplayDirection.x) / 4.0f;
-	m_DisplayDirection.y += (m_Direction.y - m_DisplayDirection.y) / 4.0f;
+	m_DisplayDirection.x += (m_Direction.x - m_DisplayDirection.x) / max(1.0f, 14.0f - m_PowerLevel*0.75f);
+	m_DisplayDirection.y += (m_Direction.y - m_DisplayDirection.y) / max(1.0f, 14.0f - m_PowerLevel*0.75f);
 }
 
 

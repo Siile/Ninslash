@@ -1844,9 +1844,9 @@ void CServer::AddZombie()
 	if (ClientID == -1)
 		return;
 	
-	char aBuf[256];
-	str_format(aBuf, sizeof(aBuf), "zombie client id: %d", ClientID);
-	Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "server", aBuf);
+	//char aBuf[256];
+	//str_format(aBuf, sizeof(aBuf), "zombie client id: %d", ClientID);
+	//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "server", aBuf);
 	
 	// fake reserve a slot
 	m_NetServer.m_SlotTakenByBot[ClientID] = true;

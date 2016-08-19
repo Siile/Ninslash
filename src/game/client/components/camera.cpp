@@ -32,7 +32,32 @@ void CCamera::OnRender()
 			m_pClient->m_pControls->ClampMousePos();
 			m_CamType = CAMTYPE_SPEC;
 		}
-		m_Center = m_pClient->m_pControls->m_MousePos;
+		
+		m_Center2 = m_pClient->m_pControls->m_MousePos;
+			
+		int64 currentTime = time_get();
+		if ((currentTime-m_LastUpdate > time_freq()) || (m_LastUpdate == 0))
+			m_LastUpdate = currentTime;
+				
+		int step = time_freq()/800;
+			
+		if (step <= 0)
+			step = 1;
+				
+		int i = 0;
+				
+		for (;m_LastUpdate < currentTime; m_LastUpdate += step)
+		{
+			m_Center.x += (m_Center2.x-m_Center.x) / float(50);
+			m_Center.y += (m_Center2.y-m_Center.y) / float(50);
+					
+			if (i++ > 20)
+				break;
+		}
+		
+		CustomStuff()->m_LocalTeam = TEAM_SPECTATORS;
+		
+		//m_Center = m_pClient->m_pControls->m_MousePos;
 	}
 	else
 	{
@@ -83,11 +108,7 @@ void CCamera::OnRender()
 				}
 			}
 			else
-			{
 				m_Center = m_Center2;
-			}
-			
-			
 		}
 	}
 
