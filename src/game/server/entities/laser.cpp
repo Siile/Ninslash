@@ -7,15 +7,16 @@
 #include "monster.h"
 #include "superexplosion.h"
 
-CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Damage, int ExtraInfo)
+CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Damage)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
 	m_Damage = Damage;
-	m_ExtraInfo = ExtraInfo;
 	m_Pos = Pos;
 	m_Owner = Owner;
 	m_Energy = StartEnergy;
 	m_Dir = Direction;
+	m_OwnerBuilding = NULL;
+	
 	//if (StartEnergy > 200)
 	//	m_Bounces = 2;
 	//else
@@ -73,7 +74,7 @@ bool CLaser::HitBuilding(vec2 From, vec2 To)
 	if (!pOwnerChar)
 		return false;
 	
-	CBuilding *pHit = GameServer()->m_World.IntersectBuilding(m_Pos, To, 8.0f, At, pOwnerChar->GetPlayer()->GetTeam());
+	CBuilding *pHit = GameServer()->m_World.IntersectBuilding(m_Pos, To, 8.0f, At, pOwnerChar->GetPlayer()->GetTeam(), m_OwnerBuilding);
 	if(!pHit)
 		return false;
 	
@@ -92,11 +93,13 @@ void CLaser::DoBounce()
 
 	if(m_Energy < 0)
 	{
+		/*
 		if (m_ExtraInfo == DOOMROCKETS)
 		{
 			CSuperexplosion *S = new CSuperexplosion(&GameServer()->m_World, m_Pos, m_Owner, WEAPON_RIFLE, 2);
 			GameServer()->m_World.InsertEntity(S);
 		}
+		*/
 		
 		GameServer()->m_World.DestroyEntity(this);
 		return;

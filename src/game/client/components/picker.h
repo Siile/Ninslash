@@ -9,6 +9,7 @@ class CPicker : public CComponent
 	void DrawEmoticons();
 	void DrawWeapons();
 	void DrawItems();
+	void DrawKit();
 
 	bool m_WasActive;
 	bool m_Active;
@@ -43,6 +44,7 @@ public:
 	void LastWeaponpick();
 	void Weaponpick(int Weapon);
 	void Itempick(int Item);
+	void UseKit(int Kit);
 	void Emote(int Emoticon);
 	void DropWeapon();
 	void SwitchGroup();

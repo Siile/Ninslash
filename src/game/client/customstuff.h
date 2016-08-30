@@ -37,6 +37,10 @@ public:
 	int m_Picker;
 	int m_LocalTeam;
 	
+	vec2 m_LocalPos;
+	int m_LocalWeapon;
+	vec4 m_LocalColor;
+	
 	float m_MonsterDamageIntensity[MAX_MONSTERS];
 	float m_MonsterDamageType[MAX_MONSTERS];
 	
@@ -48,6 +52,7 @@ public:
 	int m_SelectedGroup;
 	
 	int m_LocalWeapons;
+	int m_LocalKits;
 	int m_aLocalItems[NUM_PLAYERITEMS];
 	
 	// for weapon pick effect

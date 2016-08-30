@@ -273,7 +273,7 @@ void CPlayers::RenderPlayer(
 		Paused = false;
 	}
 		
-	if (Player.m_Weapon == WEAPON_HAMMER || Player.m_Weapon == WEAPON_TOOL)
+	if (Player.m_Weapon == WEAPON_HAMMER)
 	{
 		// melee attack effect
 		if (pCustomPlayerInfo->m_MeleeTick < Player.m_AttackTick && !Paused)
@@ -296,6 +296,16 @@ void CPlayers::RenderPlayer(
 			}
 		}
 	}
+	else if (Player.m_Weapon == WEAPON_TOOL)
+	{
+		// melee attack effect
+		if (pCustomPlayerInfo->m_MeleeTick < Player.m_AttackTick && !Paused)
+		{
+			pCustomPlayerInfo->m_MeleeTick = Player.m_AttackTick;
+			pCustomPlayerInfo->m_ToolAngleOffset = 45.0f;
+			pCustomPlayerInfo->m_Weapon2Recoil += Direction * 15;
+		}
+	}
 	else
 	{
 		pCustomPlayerInfo->m_MeleeTick = Player.m_AttackTick;
@@ -303,7 +313,7 @@ void CPlayers::RenderPlayer(
 
 
 	// do skidding
-	if(!InAir && WantOtherDir && length(Vel*50) > 400.0f) // from 500 to 400
+	if(!InAir && WantOtherDir && length(Vel*50) > 350.0f) // from 500 to 350
 	{
 		static int64 SkidSoundTime = 0;
 		if(time_get()-SkidSoundTime > time_freq()/10)
@@ -321,6 +331,9 @@ void CPlayers::RenderPlayer(
 	// store some data to customstuff for easy access
 	if (pInfo.m_Local)
 	{
+		CustomStuff()->m_LocalColor = RenderInfo.m_ColorBody;
+		CustomStuff()->m_LocalWeapon = Player.m_Weapon;
+		CustomStuff()->m_LocalPos = Position;
 		CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].SetLocal();
 		
 		int Group = m_pClient->m_pControls->m_InputData.m_WantedWeapon;
@@ -850,8 +863,8 @@ void CPlayers::RenderPlayer(
 		
 		RenderHand(&RenderInfo, HandPos, Direction, -pi/2, vec2(-8, 7));
 		
-		m_pClient->m_pEffects->Triangle(HandPos, -Direction*600);
-		m_pClient->m_pEffects->Triangle(HandPos, -Direction*620);
+		m_pClient->m_pEffects->Triangle(HandPos+vec2(0, +6), -Direction*600);
+		m_pClient->m_pEffects->Triangle(HandPos+vec2(0, +6), -Direction*620);
 		
 		//m_pClient->m_pEffects->Triangle(Position + vec2(-4, 8), vec2(Vel.x*-20, 600));
 		
@@ -951,7 +964,7 @@ void CPlayers::RenderPlayer(
 		Graphics()->SetColor(1.0f,1.0f,1.0f,a);
 		// client_datas::emoticon is an offset from the first emoticon
 		RenderTools()->SelectSprite(SPRITE_OOP + m_pClient->m_aClients[pInfo.m_ClientID].m_Emoticon);
-		IGraphics::CQuadItem QuadItem(Position.x, Position.y - 54 - 32*h, 64, 64*h);
+		IGraphics::CQuadItem QuadItem(Position.x, Position.y - 64 - 32*h, 64, 64*h);
 		Graphics()->QuadsDraw(&QuadItem, 1);
 		Graphics()->QuadsEnd();
 	}
@@ -1031,6 +1044,7 @@ void CPlayers::OnRender()
 				if (Local)
 				{
 					CustomStuff()->m_LocalWeapons = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapons;
+					CustomStuff()->m_LocalKits = ((const CNetObj_PlayerInfo *)pInfo)->m_Kits;
 					CustomStuff()->m_aLocalItems[0] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item1;
 					CustomStuff()->m_aLocalItems[1] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item2;
 					CustomStuff()->m_aLocalItems[2] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item3;

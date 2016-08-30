@@ -90,6 +90,7 @@ public:
 		GROUP_BLOODFX,
 		GROUP_PLAYERSPAWN,
 		GROUP_MONSTERSPAWN,
+		GROUP_CRAFTING,
 		NUM_GROUPS
 	};
 
@@ -142,5 +143,6 @@ private:
 	CRenderGroup<GROUP_BLOODFX> m_RenderBloodFX;
 	CRenderGroup<GROUP_PLAYERSPAWN> m_RenderPlayerSpawn;
 	CRenderGroup<GROUP_MONSTERSPAWN> m_RenderMonsterSpawn;
+	CRenderGroup<GROUP_CRAFTING> m_RenderCrafting;
 };
 #endif

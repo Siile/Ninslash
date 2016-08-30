@@ -62,6 +62,9 @@ public:
 	
 	bool m_AirJumpAnimLoaded;
 	
+	float m_ToolAngleOffset;
+	float m_ToolAngleVel;
+	
 	// called from CCustomStuff
 	void Tick();
 	

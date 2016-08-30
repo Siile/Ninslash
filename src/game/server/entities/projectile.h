@@ -19,8 +19,8 @@ enum ExplosionType
 class CProjectile : public CEntity
 {
 public:
-	CProjectile(CGameWorld *pGameWorld, int Type, int Owner, vec2 Pos, vec2 Dir, int Span,
-		int Damage, int Explosive, float Force, int SoundImpact, int Weapon, int ExtraInfo = -1);
+	CProjectile(CGameWorld *pGameWorld, int Weapon, int Owner, vec2 Pos, vec2 Dir, int Span,
+		int Damage, int Explosive, float Force, int SoundImpact);
 
 	vec2 GetPos(float Time);
 	void FillInfo(CNetObj_Projectile *pProj);
@@ -29,24 +29,21 @@ public:
 	virtual void Tick();
 	virtual void TickPaused();
 	virtual void Snap(int SnappingClient);
+	
+	class CBuilding *m_OwnerBuilding;
 
 private:
 	vec2 m_Direction;
 	int m_LifeSpan;
 	int m_Owner;
-	int m_Type;
+	int m_Weapon;
 	int m_Damage;
 	int m_SoundImpact;
-	int m_Weapon;
 	float m_Force;
 	int m_StartTick;
 	int m_Explosive;
-	int m_ExtraInfo;
 	
 	int m_ElectroTimer;
-	
-	// so neutral buildings wont hit themselves
-	int m_Time;
 };
 
 #endif

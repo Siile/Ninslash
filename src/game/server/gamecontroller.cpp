@@ -9,7 +9,6 @@
 #include "entities/flag.h"
 #include "entities/pickup.h"
 #include "entities/character.h"
-#include "entities/arrow.h"
 #include "entities/turret.h"
 #include "entities/building.h"
 #include "entities/deathray.h"
@@ -45,8 +44,6 @@ IGameController::IGameController(class CGameContext *pGameServer)
 	m_aNumSpawnPoints[0] = 0;
 	m_aNumSpawnPoints[1] = 0;
 	m_aNumSpawnPoints[2] = 0;
-	
-	m_HideArrow = true;
 	
 	
 	// custom
@@ -454,6 +451,12 @@ void IGameController::CreateDroppables()
 		m_apPickup[m_PickupCount]->m_Dropable = true;
 		m_PickupCount++;
 		
+		// kits
+		m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_KIT, 0);
+		m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
+		m_apPickup[m_PickupCount]->m_Dropable = true;
+		m_PickupCount++;
+		
 		// weapons
 		m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_WEAPON, 0);
 		m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
@@ -479,17 +482,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		CreateDroppables();
 	
 	// buildings
-	if (Index == ENTITY_TURRET_RED)
-	{
-		CTurret *pTurret = new CTurret(&GameServer()->m_World, Pos, TEAM_RED);
-		return true;
-	}
-	else if (Index == ENTITY_TURRET_BLUE)
-	{
-		CTurret *pTurret = new CTurret(&GameServer()->m_World, Pos, TEAM_BLUE);
-		return true;
-	}
-	else if (Index == ENTITY_SAWBLADE)
+	if (Index == ENTITY_SAWBLADE)
 	{
 		CBuilding *pSawblade = new CBuilding(&GameServer()->m_World, Pos, BUILDING_SAWBLADE, TEAM_NEUTRAL);
 		return true;
@@ -519,6 +512,11 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		CPowerupper *pLazer = new CPowerupper(&GameServer()->m_World, Pos+vec2(0, 12));
 		return true;
 	}
+	else if (Index == ENTITY_STAND)
+	{
+		new CBuilding(&GameServer()->m_World, Pos+vec2(0, -10), BUILDING_STAND, TEAM_NEUTRAL);
+		return true;
+	}
 	else if (Index == ENTITY_MONSTER1)
 	{
 		CMonster *pMonster = new CMonster(&GameServer()->m_World, Pos+vec2(0, 16));
@@ -540,6 +538,8 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 			Type = POWERUP_HEALTH;
 		else if(Index == ENTITY_MINE_1)
 			Type = POWERUP_MINE;
+		else if(Index == ENTITY_KIT)
+			Type = POWERUP_KIT;
 		else if(Index == ENTITY_WEAPON_CHAINSAW)
 		{
 			Type = POWERUP_WEAPON;
@@ -819,7 +819,12 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 	{
 		for (int i = 0; i < 2; i++)
 		{
-			if (frandom()*10 < 4)
+			if (pVictim->m_Kits > 0 && frandom()*10 < 6)
+			{
+				pVictim->m_Kits--;
+				DropPickup(pVictim->m_Pos, POWERUP_KIT, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
+			}
+			else if (frandom()*10 < 4)
 				DropPickup(pVictim->m_Pos, POWERUP_ARMOR, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 			else
 				DropPickup(pVictim->m_Pos, POWERUP_HEALTH, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
@@ -870,6 +875,18 @@ void IGameController::OnCharacterSpawn(class CCharacter *pChr, bool RequestAI)
 }
 
 
+
+
+
+vec2 IGameController::GetFlagPos(int Team)
+{
+	return vec2(0, 0);
+}
+
+int IGameController::GetFlagState(int Team)
+{
+	return -1;
+}
 
 
 
@@ -1058,17 +1075,6 @@ void IGameController::Tick()
 				}
 			}
 		}
-	}
-
-
-	if (GameServer()->m_pArrow)
-	{
-		GameServer()->m_pArrow->m_Hide = m_HideArrow;
-		GameServer()->m_pArrow->m_Target = m_ArrowTarget;
-	}
-	else
-	{
-		GameServer()->GenerateArrows();
 	}
 	
 	DoWincheck();

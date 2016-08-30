@@ -30,14 +30,16 @@ void CAIdm::OnCharacterSpawn(CCharacter *pChr)
 void CAIdm::DoBehavior()
 {
 	// power level
-	m_PowerLevel = 20 - GameServer()->m_pController->CountPlayers()*1.5f;
+	//m_PowerLevel = 20 - GameServer()->m_pController->CountPlayers()*1.5f;
+	m_PowerLevel = 6;
 	
 	// reset jump and attack
+	/*
 	if (frandom()*10 < 2)
 		m_Jump = 0;
-	
-	m_Attack = 0;
+	*/
 
+	m_Attack = 0;
 	
 	HeadToMovingDirection();
 
@@ -46,11 +48,17 @@ void CAIdm::DoBehavior()
 	// if we see a player
 	if (m_EnemiesInSight > 0)
 	{
-		ShootAtClosestEnemy();
+		if (!ShootAtClosestEnemy())
+			if (!ShootAtClosestBuilding())
+				ShootAtClosestMonster();
+		
 		ReactToPlayer();
 	}
 	else
-		m_AttackTimer = 0;
+	{
+		if (!ShootAtClosestBuilding())
+			ShootAtClosestMonster();
+	}
 
 
 	//if (SeekClosestEnemy())
@@ -96,6 +104,6 @@ void CAIdm::DoBehavior()
 	RandomlyStopShooting();
 	
 	// next reaction in
-	m_ReactionTime = 2 + frandom()*4;
+	m_ReactionTime = 1 + frandom()*2;
 	
 }

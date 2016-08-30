@@ -67,7 +67,7 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 		Curvature = m_pClient->m_Tuning.m_ShotgunCurvature;
 		Speed = m_pClient->m_Tuning.m_ShotgunSpeed;
 	}
-	else if(pCurrent->m_Type == WEAPON_GUN)
+	else if(pCurrent->m_Type == WEAPON_GUN || pCurrent->m_Type == WEAPON_RIFLE)
 	{
 		Curvature = m_pClient->m_Tuning.m_GunCurvature;
 		Speed = m_pClient->m_Tuning.m_GunSpeed;
@@ -181,7 +181,7 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	else
 	{
 		if(pCurrent->m_Type == WEAPON_SHOTGUN && Ct > 0.01f) m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.6f, 0.6f, 0.3f, 0.75f));
-		if(pCurrent->m_Type == WEAPON_GUN) m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(1.0f, 1.0f, 0.5f, 0.65f));
+		if(pCurrent->m_Type == WEAPON_GUN || pCurrent->m_Type == WEAPON_RIFLE) m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(1.0f, 1.0f, 0.5f, 0.65f));
 		
 		if (Collision()->GetCollisionAt(PredictPos.x, PredictPos.y)&1 ||  // solid
 			Collision()->GetCollisionAt(PredictPos.x, PredictPos.y)&4)    // nohook
@@ -235,15 +235,15 @@ void CItems::RenderPickup(const CNetObj_Pickup *pPrev, const CNetObj_Pickup *pCu
 	}
 	else
 	{
-		if (pCurrent->m_Type == POWERUP_ARMOR || pCurrent->m_Type == POWERUP_MINE)
+		if (pCurrent->m_Type == POWERUP_ARMOR || pCurrent->m_Type == POWERUP_MINE || pCurrent->m_Type == POWERUP_KIT)
 			SkipOffset = true;
 		
 		const int c[] = {
 			SPRITE_PICKUP_HEALTH,
 			SPRITE_PICKUP_ARMOR,
 			SPRITE_PICKUP_WEAPON,
-			SPRITE_PICKUP_WEAPON,
-			SPRITE_PICKUP_MINE
+			SPRITE_PICKUP_MINE,
+			SPRITE_PICKUP_KIT
 			};
 		RenderTools()->SelectSprite(c[pCurrent->m_Type]);
 

@@ -10,6 +10,9 @@
 #include <game/server/gamecontext.h>
 #include "ctf.h"
 
+#include <game/server/ai.h>
+#include <game/server/ai/ctf_ai.h>
+
 CGameControllerCTF::CGameControllerCTF(class CGameContext *pGameServer)
 : IGameController(pGameServer)
 {
@@ -18,6 +21,38 @@ CGameControllerCTF::CGameControllerCTF(class CGameContext *pGameServer)
 	m_pGameType = "CTF";
 	m_GameFlags = GAMEFLAG_TEAMS|GAMEFLAG_FLAGS;
 }
+
+
+// for ai
+
+vec2 CGameControllerCTF::GetFlagPos(int Team)
+{
+	if (Team != TEAM_RED && Team != TEAM_BLUE)
+		return vec2(0, 0);
+	
+	if (m_apFlags[Team])
+		return m_apFlags[Team]->m_Pos;
+	
+	return vec2(0, 0);
+}
+
+int CGameControllerCTF::GetFlagState(int Team)
+{
+	if (Team != TEAM_RED && Team != TEAM_BLUE)
+		return FLAG_ATSTAND;
+
+	if(m_apFlags[Team]->m_AtStand)
+		return FLAG_ATSTAND;
+	else if(m_apFlags[Team]->m_pCarryingCharacter && m_apFlags[Team]->m_pCarryingCharacter->GetPlayer())
+		return m_apFlags[Team]->m_pCarryingCharacter->GetPlayer()->GetCID();
+	else
+		return FLAG_TAKEN;
+	
+	return FLAG_ATSTAND;
+}
+
+
+
 
 bool CGameControllerCTF::OnEntity(int Index, vec2 Pos)
 {
@@ -36,6 +71,15 @@ bool CGameControllerCTF::OnEntity(int Index, vec2 Pos)
 	m_apFlags[Team] = F;
 	GameServer()->m_World.InsertEntity(F);
 	return true;
+}
+
+void CGameControllerCTF::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
+{
+	IGameController::OnCharacterSpawn(pChr);
+	
+	// init AI
+	if (RequestAI)
+		pChr->GetPlayer()->m_pAI = new CAIctf(GameServer(), pChr->GetPlayer());
 }
 
 int CGameControllerCTF::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int WeaponID)
@@ -280,4 +324,7 @@ void CGameControllerCTF::Tick()
 			}
 		}
 	}
+	
+	//AutoBalance();
+	//GameServer()->UpdateAI();
 }

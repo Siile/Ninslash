@@ -5,18 +5,17 @@
 #include <game/server/player.h>
 #include <game/server/gamecontext.h>
 
-#include "tdm_ai.h"
+#include "ctf_ai.h"
 
 
-CAItdm::CAItdm(CGameContext *pGameServer, CPlayer *pPlayer)
+CAIctf::CAIctf(CGameContext *pGameServer, CPlayer *pPlayer)
 : CAI(pGameServer, pPlayer)
 {
-	m_SkipMoveUpdate = 0;
 	pPlayer->SetRandomSkin();
 }
 
 
-void CAItdm::OnCharacterSpawn(CCharacter *pChr)
+void CAIctf::OnCharacterSpawn(CCharacter *pChr)
 {
 	CAI::OnCharacterSpawn(pChr);
 	
@@ -28,11 +27,10 @@ void CAItdm::OnCharacterSpawn(CCharacter *pChr)
 }
 
 
-void CAItdm::DoBehavior()
+void CAIctf::DoBehavior()
 {
 	// power level
-	//m_PowerLevel = 20 - GameServer()->m_pController->CountPlayers(Player()->GetTeam())*1.5f;
-	m_PowerLevel = 6;
+	m_PowerLevel = 20 - GameServer()->m_pController->CountPlayers(Player()->GetTeam())*1.5f;
 	
 	// reset jump and attack
 	if (Player()->GetCharacter()->GetCore().m_JetpackPower < 10 || Player()->GetCharacter()->GetCore().m_Jetpack == 0)
@@ -65,16 +63,38 @@ void CAItdm::DoBehavior()
 
 	bool SeekEnemy = false;
 	
-	if (SeekClosestFriend())
+	int EnemyTeam = TEAM_RED;
+	if (Player()->GetTeam() == TEAM_RED)
+		EnemyTeam = TEAM_BLUE;
+	
+	
+	if (GameServer()->m_pController->GetFlagState(Player()->GetTeam()) != FLAG_ATSTAND || 
+		GameServer()->m_pController->GetFlagState(EnemyTeam) == Player()->GetCID())
+	{
+		m_TargetPos = GameServer()->m_pController->GetFlagPos(Player()->GetTeam());
+	}
+	
+	/*if (GameServer()->m_pController->GetFlagState(Player()->GetTeam()) != FLAG_ATSTAND)
+	{
+		m_TargetPos = GameServer()->m_pController->GetFlagPos(Player()->GetTeam());
+	}*/
+	else
+	{
+		m_TargetPos = GameServer()->m_pController->GetFlagPos(EnemyTeam);
+	}
+	
+	
+	/*if (SeekClosestFriend())
 	{
 		m_TargetPos = m_PlayerPos;
 		
 		if (m_PlayerDistance < f)
 			SeekEnemy = true;
 	}
-	else
+	else*/
 		SeekEnemy = true;
 	
+	/*
 	if (SeekEnemy)
 	{
 		if (SeekClosestEnemy())
@@ -90,6 +110,7 @@ void CAItdm::DoBehavior()
 		else
 			SeekRandomWaypoint();
 	}
+	*/
 	
 
 	if (UpdateWaypoint())

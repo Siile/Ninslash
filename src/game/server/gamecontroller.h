@@ -34,11 +34,6 @@ class IGameController
 	void CreateDroppables();
 	
 protected:
-
-	bool m_HideArrow;
-	vec2 m_ArrowTarget;
-	
-
 	void AutoBalance();
 	
 	void RespawnPickups();
@@ -187,8 +182,9 @@ public:
 	*/
 	virtual int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon);
 	
-	
-
+	// for ctf ai
+	virtual vec2 GetFlagPos(int Team);
+	virtual int GetFlagState(int Team);
 	
 	virtual bool CanCharacterSpawn(int ClientID);
 

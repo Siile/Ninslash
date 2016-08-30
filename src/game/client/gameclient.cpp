@@ -181,6 +181,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderColorTrail);
 	m_All.Add(&m_pParticles->m_RenderLazerload);
 	m_All.Add(m_pBuildings);
+	m_All.Add(&m_pParticles->m_RenderCrafting);
 	m_All.Add(m_pItems);
 	m_All.Add(&m_pParticles->m_RenderPlayerSpawn);
 	m_All.Add(&gs_Monsters);
@@ -659,6 +660,7 @@ void CGameClient::OnGameOver()
 
 void CGameClient::OnStartGame()
 {
+	CustomStuff()->Reset();
 	if(Client()->State() != IClient::STATE_DEMOPLAYBACK)
 		Client()->DemoRecorder_HandleAutoStart();
 }
@@ -762,6 +764,16 @@ void CGameClient::ProcessEvents()
 		{
 			CNetEvent_Explosion *ev = (CNetEvent_Explosion *)pData;
 			g_GameClient.m_pEffects->Explosion(vec2(ev->m_X, ev->m_Y));
+		}
+		else if(Item.m_Type == NETEVENTTYPE_REPAIR)
+		{
+			CNetEvent_Repair *ev = (CNetEvent_Repair *)pData;
+			g_GameClient.m_pEffects->Repair(vec2(ev->m_X, ev->m_Y));
+		}
+		else if(Item.m_Type == NETEVENTTYPE_AMMOFILL)
+		{
+			CNetEvent_AmmoFill *ev = (CNetEvent_AmmoFill *)pData;
+			g_GameClient.m_pEffects->AmmoFill(vec2(ev->m_X, ev->m_Y), ev->m_Weapon);
 		}
 		else if(Item.m_Type == NETEVENTTYPE_FLAMEEXPLOSION)
 		{

@@ -254,6 +254,7 @@ container.sounds.Add(SoundSet("item_rage", ["audio/item_rage.wv"]))
 container.sounds.Add(SoundSet("item_fuel", ["audio/item_fuel.wv"]))
 
 container.sounds.Add(SoundSet("electromine", ["audio/electromine.wv"]))
+container.sounds.Add(SoundSet("negative", ["audio/negative.wv"]))
 
 container.sounds.Add(SoundSet("menu", ["audio/music_menu.wv"]))
 
@@ -350,6 +351,7 @@ container.pickups.Add(Pickup("health"))
 container.pickups.Add(Pickup("armor"))
 container.pickups.Add(Pickup("weapon"))
 container.pickups.Add(Pickup("mine"))
+container.pickups.Add(Pickup("kit"))
 
 set_particles = SpriteSet("particles", image_particles, 8, 8)
 set_gore = SpriteSet("gore", image_gore, 8, 2)
@@ -364,7 +366,7 @@ set_pickups = SpriteSet("pickups", image_pickups, 8, 2)
 set_deathtypes = SpriteSet("deathtypes", image_deathtypes, 8, 4)
 set_items = SpriteSet("items", image_items, 8, 1)
 set_itemnumbers = SpriteSet("itemnumbers", image_itemnumbers, 8, 2)
-set_buildings = SpriteSet("buildings", image_buildings, 8, 4)
+set_buildings = SpriteSet("buildings", image_buildings, 8, 8)
 set_tee = SpriteSet("tee", image_null, 8, 4)
 set_browseicons = SpriteSet("browseicons", image_browseicons, 4, 1)
 set_emoticons = SpriteSet("emoticons", image_emoticons, 4, 4)
@@ -585,6 +587,8 @@ container.sprites.Add(Sprite("part8", set_game, 11,0,2,2))
 container.sprites.Add(Sprite("part9", set_game, 13,0,2,2))
 
 
+container.sprites.Add(Sprite("repair", set_pickups, 6,1,2,1))
+
 container.sprites.Add(Sprite("weapon_pickup", set_weapons, 8,12,4,4))
 
 container.sprites.Add(Sprite("weapon_tool_body", set_weapons, 0,0,4,2))
@@ -626,7 +630,7 @@ container.sprites.Add(Sprite("weapon_grenade_proj", set_game, 10,8,2,2))
 container.sprites.Add(Sprite("weapon_rifle_body", set_weapons, 0,9,7,3))
 container.sprites.Add(Sprite("weapon_rifle_pickup", set_pickups, 2,0,1,1))
 container.sprites.Add(Sprite("weapon_rifle_cursor", set_game, 0,12,2,2))
-container.sprites.Add(Sprite("weapon_rifle_proj", set_game, 10,12,2,2))
+container.sprites.Add(Sprite("weapon_rifle_proj", set_game, 6,4,2,2))
 container.sprites.Add(Sprite("weapon_rifle_muzzle1", set_game, 8,4,3,2))
 container.sprites.Add(Sprite("weapon_rifle_muzzle2", set_game, 12,4,3,2))
 container.sprites.Add(Sprite("weapon_rifle_muzzle3", set_game, 16,4,3,2))
@@ -652,20 +656,33 @@ container.sprites.Add(Sprite("weapon_flamer_proj", set_game, 6,0,1,1))
 container.sprites.Add(Sprite("hook_chain", set_game, 2,0,1,1))
 container.sprites.Add(Sprite("hook_head", set_game, 3,0,2,1))
 
+container.sprites.Add(Sprite("pickup_kit", set_weapons, 13,2,3,3))
 container.sprites.Add(Sprite("pickup_mine", set_weapons, 14,12,2,2))
 container.sprites.Add(Sprite("pickup_health", set_weapons, 12,14,2,2))
 container.sprites.Add(Sprite("pickup_armor", set_weapons, 14,14,2,2))
 container.sprites.Add(Sprite("pickup_weapon", set_game, 3,0,6,2))
 
 # buildings.png
+for i in range(1, 9):
+	container.sprites.Add(Sprite("barrel"+str(i), set_buildings, i-1,2,1,2))
+
 container.sprites.Add(Sprite("mine1", set_buildings, 0,0,2,1))
 container.sprites.Add(Sprite("mine2", set_buildings, 0,1,2,1))
 container.sprites.Add(Sprite("sawblade", set_buildings, 4,0,2,2))
 container.sprites.Add(Sprite("lazer", set_buildings, 2,0,2,1))
 container.sprites.Add(Sprite("powerupper", set_buildings, 2,1,2,1))
 
-for i in range(1, 9):
-	container.sprites.Add(Sprite("barrel"+str(i), set_buildings, i-1,2,1,2))
+container.sprites.Add(Sprite("stand", set_buildings, 1, 4, 3, 4))
+container.sprites.Add(Sprite("turret_fastener", set_buildings, 4, 6, 2, 2))
+
+container.sprites.Add(Sprite("kit_base", set_buildings, 4, 4, 3, 1))
+container.sprites.Add(Sprite("kit_stand", set_buildings, 0, 4, 1, 4))
+container.sprites.Add(Sprite("kit_barrel", set_buildings, 3, 2, 1, 2))
+
+container.sprites.Add(Sprite("status_repair", set_buildings, 6, 0, 1, 1))
+container.sprites.Add(Sprite("status_nope", set_buildings, 7, 0, 1, 1))
+
+
 
 
 container.sprites.Add(Sprite("flag_blue", set_game, 12,8,4,8))

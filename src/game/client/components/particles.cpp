@@ -31,6 +31,7 @@ CParticles::CParticles()
 	m_RenderBloodFX.m_pParts = this;
 	m_RenderPlayerSpawn.m_pParts = this;
 	m_RenderMonsterSpawn.m_pParts = this;
+	m_RenderCrafting.m_pParts = this;
 }
 
 
@@ -287,6 +288,38 @@ void CParticles::RenderGroup(int Group)
 			Graphics()->SetColor(m_aParticles[i].m_Color.r, m_aParticles[i].m_Color.g, m_aParticles[i].m_Color.b, 1);
 			IGraphics::CQuadItem QuadItem(p.x, p.y+m_aParticles[i].m_Height/2, Size, m_aParticles[i].m_Height);
 			Graphics()->QuadsDraw(&QuadItem, 1);
+
+			i = m_aParticles[i].m_NextPart;
+		}
+		Graphics()->QuadsEnd();
+	}
+	else if (Group == GROUP_CRAFTING)
+	{
+		Graphics()->BlendNormal();
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_PICKUPS].m_Id);
+		Graphics()->QuadsBegin();
+		
+		int i = m_aFirstPart[Group];
+		while(i != -1)
+		{
+			float a = m_aParticles[i].m_Life / m_aParticles[i].m_LifeSpan;
+			vec2 p = m_aParticles[i].m_Pos;
+
+			float Size = mix(m_aParticles[i].m_StartSize, m_aParticles[i].m_EndSize*1.0f, a);
+			Graphics()->SetColor(m_aParticles[i].m_Color.r, m_aParticles[i].m_Color.g, m_aParticles[i].m_Color.b, 1.0f - a);
+			Graphics()->QuadsSetRotation(m_aParticles[i].m_Rot);
+			
+			RenderTools()->SelectSprite(SPRITE_REPAIR);
+			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
+			Graphics()->QuadsDraw(&QuadItem, 1);
+			
+			if (m_aParticles[i].m_Spr != SPRITE_REPAIR)
+			{
+				int iw = clamp(m_aParticles[i].m_Spr, 0, NUM_WEAPONS-1);
+				RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[iw].m_pSpritePickup);
+				IGraphics::CQuadItem QuadItem(p.x, p.y, Size/2, Size);
+				Graphics()->QuadsDraw(&QuadItem, 1);
+			}
 
 			i = m_aParticles[i].m_NextPart;
 		}

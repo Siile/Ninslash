@@ -196,7 +196,7 @@ void CGameWorld::Tick()
 }
 
 
-CBuilding *CGameWorld::IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, int Team)
+CBuilding *CGameWorld::IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, int Team, CEntity *pNotThis)
 {
 	float ClosestLen = distance(Pos0, Pos1) * 100.0f;
 	CBuilding *pClosest = 0;
@@ -204,6 +204,9 @@ CBuilding *CGameWorld::IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec
 	CBuilding *p = (CBuilding *)FindFirst(ENTTYPE_BUILDING);
 	for(; p; p = (CBuilding *)p->TypeNext())
  	{
+		if(p == pNotThis)
+			continue;
+		
 		if (Team == p->m_Team && p->m_Type != BUILDING_MINE1 && p->m_Type != BUILDING_MINE2)
 			continue;
 		
@@ -284,7 +287,7 @@ CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, v
 			}
 		}
 		// head shot
-		Len = distance(p->m_Pos + vec2(0, -18), IntersectPos);
+		Len = distance(p->m_Pos + vec2(0, -20), IntersectPos);
 		if(Len < p->m_ProximityRadius+Radius)
 		{
 			Len = distance(Pos0, IntersectPos);

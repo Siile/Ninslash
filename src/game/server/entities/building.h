@@ -8,8 +8,10 @@ const int TurretPhysSize = 32;
 const int SawbladePhysSize = 32;
 const int MinePhysSize = 6;
 const int BarrelPhysSize = 28;
-const int LazerPhysSize = 6;
+const int LazerPhysSize = 10;
 const int PowerupperPhysSize = 10;
+const int BasePhysSize = 10;
+const int StandPhysSize = 20;
 
 class CBuilding : public CEntity
 {
@@ -24,6 +26,12 @@ public:
 	int m_Type;
 	int m_Team;
 	int m_Life;
+	int m_MaxLife;
+	
+	bool Repair(int Amount = 10);
+	
+	int m_aStatus[NUM_BSTATUS];
+	int m_Status;
 	
 	vec2 m_Center;
 	
@@ -32,6 +40,9 @@ public:
 	
 	void TakeDamage(int Damage, int Owner, int Weapon);
 	void Destroy();
+	
+protected:
+	void UpdateStatus();
 	
 private:
 	int m_SetTimer;

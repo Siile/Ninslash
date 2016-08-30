@@ -8,11 +8,11 @@
 #include "smokescreen.h"
 
 
-CProjectile::CProjectile(CGameWorld *pGameWorld, int Type, int Owner, vec2 Pos, vec2 Dir, int Span,
-		int Damage, int Explosive, float Force, int SoundImpact, int Weapon, int ExtraInfo)
+CProjectile::CProjectile(CGameWorld *pGameWorld, int Weapon, int Owner, vec2 Pos, vec2 Dir, int Span,
+		int Damage, int Explosive, float Force, int SoundImpact)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE)
 {
-	m_Type = Type;
+	m_Weapon = Weapon;
 	m_Pos = Pos;
 	m_Direction = Dir;
 	m_LifeSpan = Span;
@@ -20,17 +20,12 @@ CProjectile::CProjectile(CGameWorld *pGameWorld, int Type, int Owner, vec2 Pos, 
 	m_Force = Force;
 	m_Damage = Damage;
 	m_SoundImpact = SoundImpact;
-	m_Weapon = Weapon;
 	m_StartTick = Server()->Tick();
 	m_Explosive = Explosive;
-	m_ExtraInfo = ExtraInfo;
-	
-	if (m_ExtraInfo == EXPLOSIVE)
-		m_Explosive = EXPLOSION_EXPLOSION;
 
 	m_ElectroTimer = 0;
 	
-	m_Time = 0;
+	m_OwnerBuilding = NULL;
 	
 	GameWorld()->InsertEntity(this);
 }
@@ -45,7 +40,7 @@ vec2 CProjectile::GetPos(float Time)
 	float Curvature = 0;
 	float Speed = 0;
 
-	switch(m_Type)
+	switch(m_Weapon)
 	{
 		case WEAPON_GRENADE:
 			Curvature = GameServer()->Tuning()->m_GrenadeCurvature;
@@ -67,6 +62,7 @@ vec2 CProjectile::GetPos(float Time)
 			Speed = GameServer()->Tuning()->m_ShotgunSpeed;
 			break;
 
+		case WEAPON_RIFLE:
 		case WEAPON_GUN:
 			Curvature = GameServer()->Tuning()->m_GunCurvature;
 			Speed = GameServer()->Tuning()->m_GunSpeed;
@@ -97,26 +93,19 @@ void CProjectile::Tick()
 	
 	CBuilding *TargetBuilding = GameServer()->m_World.IntersectBuilding(PrevPos, CurPos, 6.0f, CurPos, Team);
 	
-	if (m_Time < 1)
+	if (m_OwnerBuilding == TargetBuilding)
 		TargetBuilding = NULL;
 	
 	CMonster *TargetMonster = GameServer()->m_World.IntersectMonster(PrevPos, CurPos, 6.0f, CurPos);
 	
 	m_LifeSpan--;
-	m_Time++;
 
 	if(TargetMonster || TargetBuilding || TargetChr || Collide || m_LifeSpan < 0 || GameLayerClipped(CurPos))
 	{
 		if(m_LifeSpan >= 0 || m_Weapon == WEAPON_GRENADE || m_Weapon == WEAPON_FLAMER || m_Weapon == WEAPON_ELECTRIC)
 			GameServer()->CreateSound(CurPos, m_SoundImpact);
 
-		if (m_ExtraInfo == SMOKE)
-		{
-			CSmokescreen *S = new CSmokescreen(&GameServer()->m_World, CurPos, Server()->TickSpeed()*6);
-			GameServer()->m_World.InsertEntity(S);
-		}
-		
-		else if(m_Explosive == EXPLOSION_FLAME)
+		if(m_Explosive == EXPLOSION_FLAME)
 		{		
 			GameServer()->CreateFlameExplosion(CurPos, m_Owner, m_Weapon, false);
 		}
@@ -125,32 +114,10 @@ void CProjectile::Tick()
 		{		
 			GameServer()->CreateElectricExplosion(CurPos, m_Owner, m_Weapon, false);
 		}
-		
-		else if(m_Explosive == EXPLOSION_FLAME)
-		{		
-			GameServer()->CreateFlameExplosion(CurPos, m_Owner, m_Weapon, false);
-		}
 	
 		else if(m_Explosive == EXPLOSION_EXPLOSION)
 		{
-			
-			if (m_ExtraInfo == MEGAROCKETS)
-			{
-				/*GameServer()->CreateExplosion(CurPos+vec2(-32, -32), m_Owner, m_Weapon, false);
-				GameServer()->CreateExplosion(CurPos+vec2(+32, -32), m_Owner, m_Weapon, false);
-				GameServer()->CreateExplosion(CurPos+vec2(+32, +32), m_Owner, m_Weapon, false);
-				GameServer()->CreateExplosion(CurPos+vec2(-32, +32), m_Owner, m_Weapon, false);*/
-				
-				CSuperexplosion *S = new CSuperexplosion(&GameServer()->m_World, CurPos, m_Owner, m_Weapon, 1);
-				GameServer()->m_World.InsertEntity(S);
-			}
-			else if (m_ExtraInfo == DOOMROCKETS)
-			{
-				CSuperexplosion *S = new CSuperexplosion(&GameServer()->m_World, CurPos, m_Owner, m_Weapon, 2);
-				GameServer()->m_World.InsertEntity(S);
-			}
-			else
-				GameServer()->CreateExplosion(CurPos, m_Owner, m_Weapon, false);
+			GameServer()->CreateExplosion(CurPos, m_Owner, m_Weapon, false);
 		}
 
 		else if(TargetChr)
@@ -188,7 +155,7 @@ void CProjectile::FillInfo(CNetObj_Projectile *pProj)
 	pProj->m_VelX = (int)(m_Direction.x*100.0f);
 	pProj->m_VelY = (int)(m_Direction.y*100.0f);
 	pProj->m_StartTick = m_StartTick;
-	pProj->m_Type = m_Type;
+	pProj->m_Type = m_Weapon;
 }
 
 void CProjectile::Snap(int SnappingClient)

@@ -34,7 +34,7 @@ void CAItexas::DoBehavior()
 {
 	// power level
 	if (Player()->GetTeam() == TEAM_RED)
-		m_PowerLevel = GameServer()->m_pController->CountPlayers(TEAM_BLUE)*4;
+		m_PowerLevel = GameServer()->m_pController->CountPlayers(TEAM_BLUE)*2;
 
 	if (Player()->GetTeam() == TEAM_BLUE)
 		m_PowerLevel = 14 - GameServer()->m_pController->CountPlayers(TEAM_BLUE)*2;
@@ -55,14 +55,14 @@ void CAItexas::DoBehavior()
 	if (m_EnemiesInSight > 0)
 	{
 		if (!ShootAtClosestEnemy())
-			ShootAtClosestMonster();
+			if (!ShootAtClosestBuilding())
+				ShootAtClosestMonster();
 		ReactToPlayer();
 	}
 	else
 	{
-		if (!ShootAtClosestMonster())
-			;
-			//m_AttackTimer = 0;
+		if (!ShootAtClosestBuilding())
+			ShootAtClosestMonster();
 	}
 
 	// main logic

@@ -184,7 +184,23 @@ void CCollision::GenerateWaypoints()
 				(IsTileSolid((x+1)*32, (y-1)*32) && !IsTileSolid((x+1)*32, (y-0)*32) && !IsTileSolid((x-0)*32, (y-1)*32)))
 			{
 				// outer corner found -> create a waypoint
-				AddWaypoint(vec2(x, y));
+				
+				// check validity (solid tiles under the corner)
+				bool Found = false;
+				for (int i = 0; i < 20; ++i)
+					if (IsTileSolid(x*32, (y+i)*32))
+						Found = true;
+				
+				// count slopes
+				int Slopes = 0;
+				
+				if (GetTile((x-1)*32, y*32) >= COLFLAG_RAMP_LEFT) Slopes++;
+				if (GetTile((x+1)*32, y*32) >= COLFLAG_RAMP_LEFT) Slopes++;
+				if (GetTile(x*32, (y+1)*32) >= COLFLAG_RAMP_LEFT) Slopes++;
+				if (GetTile(x*32, (y+1)*32) >= COLFLAG_RAMP_LEFT) Slopes++;
+				
+				if (Found && Slopes < 2)
+					AddWaypoint(vec2(x, y));
 			}
 			else
 			// find all inner corners
@@ -192,7 +208,23 @@ void CCollision::GenerateWaypoints()
 			{
 				// inner corner found -> create a waypoint
 				//AddWaypoint(vec2(x, y), true);
-				AddWaypoint(vec2(x, y));
+				
+				// check validity (solid tiles under the corner)
+				bool Found = false;
+				for (int i = 0; i < 20; ++i)
+					if (IsTileSolid(x*32, (y+i)*32))
+						Found = true;
+					
+				// count slopes
+				int Slopes = 0;
+				
+				if (GetTile((x-1)*32, y*32) >= COLFLAG_RAMP_LEFT) Slopes++;
+				if (GetTile((x+1)*32, y*32) >= COLFLAG_RAMP_LEFT) Slopes++;
+				if (GetTile(x*32, (y+1)*32) >= COLFLAG_RAMP_LEFT) Slopes++;
+				if (GetTile(x*32, (y+1)*32) >= COLFLAG_RAMP_LEFT) Slopes++;
+				
+				if (Found && Slopes < 2)
+					AddWaypoint(vec2(x, y));
 			}
 		}
 	}
@@ -243,7 +275,6 @@ bool CCollision::GenerateSomeMoreWaypoints()
 						Result = true;
 					}
 				}
-				
 				
 				m_apWaypoint[i]->Unconnect(m_apWaypoint[j]);
 			}
@@ -481,7 +512,7 @@ int CCollision::SolidState(int x, int y, bool IncludeDeath)
 {
 	unsigned char sol = GetTile(x, y);
 
-	if(sol& COLFLAG_SOLID || (IncludeDeath && sol&COLFLAG_DEATH))
+	if(sol& COLFLAG_SOLID || (IncludeDeath && (sol&COLFLAG_DEATH || sol&COLFLAG_INSTADEATH)))
 		return true;
 	else if(sol&COLFLAG_RAMP_LEFT) {
 		//return ((31-x%32) > (31-y%32));
@@ -514,7 +545,7 @@ bool CCollision::IsTileSolid(int x, int y, bool IncludeDeath)
 	return GetTile(x, y)&COLFLAG_SOLID;
 	*/
 	
-	return SolidState(x,y) != SS_NOCOL;
+	return SolidState(x, y) != SS_NOCOL;
 }
 
 

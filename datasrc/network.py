@@ -7,7 +7,7 @@ GameStateFlags = ["GAMEOVER", "SUDDENDEATH", "PAUSED"]
 
 Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY", "GHOST", "SUSHI", "SPLATTEE", "DEVILTEE", "ZOMG", "ZZZ", "WTF", "EYES", "QUESTION"]
 
-Powerups = ["HEALTH", "ARMOR", "WEAPON", "NINJA", "MINE"]
+Powerups = ["HEALTH", "ARMOR", "WEAPON", "MINE", "KIT"]
 
 Statuses = ["EMPTY", "SPAWNING", "AFLAME", "SLOWED", "ELECTRIC", "DEATHRAY", "SHIELD", "RAGE", "INVISIBILITY", "HEAL", "FUEL"]
 
@@ -42,6 +42,17 @@ enum
 	BUILDING_TURRET,
 	BUILDING_LAZER,
 	BUILDING_POWERUPPER,
+	BUILDING_BASE,
+	BUILDING_STAND,
+	
+	KIT_BASE=0,
+	KIT_STAND,
+	KIT_BARREL,
+	NUM_KITS,
+	
+	BSTATUS_REPAIR=1,
+	BSTATUS_NOPE,
+	NUM_BSTATUS,
 	
 	FX_EXPLOSION1=1,
 	FX_EXPLOSION2,
@@ -171,6 +182,7 @@ Objects = [
 	NetObject("Building", [
 		NetIntAny("m_X"),
 		NetIntAny("m_Y"),
+		NetIntRange("m_Status", 0, 'max_int'),
 		NetIntRange("m_Type", 0, 'max_int'),
 		NetIntRange("m_Team", 'TEAM_RED', 'TEAM_NEUTRAL')
 	]),
@@ -178,6 +190,7 @@ Objects = [
 	
 	NetObject("Turret:Building", [
 		NetIntAny("m_Angle"),
+		NetIntRange("m_Weapon", 0, 'NUM_WEAPONS-1'),
 		NetIntRange("m_AttackTick", 0, 'max_int')
 	]),
 	
@@ -250,7 +263,7 @@ Objects = [
 		NetIntRange("m_Health", 0, 10),
 		NetIntRange("m_Armor", 0, 10),
 		NetIntRange("m_AmmoCount", 0, 30),
-		NetIntRange("m_SelectedGroup", 0, 2),
+		NetIntRange("m_SelectedGroup", 0, 3),
 		NetIntRange("m_Weapon", 0, 'NUM_WEAPONS-1'),
 		NetIntRange("m_WeaponGroup1", 0, 'NUM_WEAPONS-1'),
 		NetIntRange("m_WeaponGroup2", 0, 'NUM_WEAPONS-1'),
@@ -267,6 +280,7 @@ Objects = [
 		NetIntAny("m_Latency"),
 		
 		NetIntAny("m_Weapons"),
+		NetIntRange("m_Kits", 0, 9),
 		NetIntRange("m_Item1", 0, 9),
 		NetIntRange("m_Item2", 0, 9),
 		NetIntRange("m_Item3", 0, 9),
@@ -313,7 +327,12 @@ Objects = [
 		NetIntAny("m_Y"),
 	]),
 
-
+	# for buildings
+	NetEvent("AmmoFill:Common", [
+		NetIntRange("m_Weapon", 0, 'NUM_WEAPONS-1'),
+	]),
+	NetEvent("Repair:Common", []),
+	
 	NetEvent("BuildingHit:Common", []),
 	NetEvent("Explosion:Common", []),
 	NetEvent("FlameExplosion:Common", []),
@@ -486,6 +505,12 @@ Messages = [
 	
 	NetMessage("Cl_SelectItem", [
 		NetIntRange("m_Item", 0, 99),
+	]),
+	
+	NetMessage("Cl_UseKit", [
+		NetIntRange("m_Kit", 0, 99),
+		NetIntAny("m_X"),
+		NetIntAny("m_Y"),
 	]),
 	
 	NetMessage("Cl_SelectTool", [

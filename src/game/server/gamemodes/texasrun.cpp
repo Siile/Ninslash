@@ -147,6 +147,8 @@ void CGameControllerTexasRun::Tick()
 					GameServer()->SendBroadcast("Slaughter", -1); break;
 				case 2:
 					GameServer()->SendBroadcast("Ocean of blood", -1); break;
+				case 3:
+					GameServer()->SendBroadcast("Death takes all", -1); break;
 				default:
 					GameServer()->SendBroadcast("Everybody dies", -1); break;
 			};

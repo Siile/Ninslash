@@ -7,6 +7,7 @@
 
 #include "character.h"
 #include "building.h"
+#include "turret.h"
 #include "laser.h"
 #include "lightning.h"
 #include "electro.h"
@@ -59,6 +60,7 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	m_MaxHealth = 10;
 	m_Health = 0;
 	m_Armor = 0;
+	m_Kits = 0;
 	m_PainSoundTimer = 0;
 	m_Silent = false;
 	m_WeaponGroup = 0; // primary weapon
@@ -101,8 +103,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	
 	m_SkipPickups = 0;
 	m_HealthStored = 0;
-	
-	m_SwordReady = false;
 	
 	m_CryTimer = 0;
 	m_CryState = 0;
@@ -215,13 +215,15 @@ void CCharacter::Destroy()
 
 void CCharacter::SwitchGroup()
 {
+	/*
 	m_ActiveWeaponGroup++;
-	if (m_ActiveWeaponGroup > 1)
+	if (m_ActiveWeaponGroup > 2)
 		m_ActiveWeaponGroup = 0;
 	
 	m_WeaponGroup = m_ActiveWeaponGroup;
 	
 	GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
+	*/
 }
 
 void CCharacter::DropWeapon()
@@ -229,16 +231,89 @@ void CCharacter::DropWeapon()
 	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
 		return;
 	
+	// check if using dropable weapon
 	if (m_ActiveCustomWeapon != W_HAMMER && m_ActiveCustomWeapon != W_TOOL && m_ActiveCustomWeapon != W_PISTOL && m_aWeapon[m_ActiveCustomWeapon].m_Got)
 	{
 		vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
 		
-		float AmmoFill = float(m_aWeapon[m_ActiveCustomWeapon].m_Ammo) / aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo;
+		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
 		
-		GameServer()->m_pController->DropPickup(m_Pos-vec2(0, 16), POWERUP_WEAPON, Direction*13, m_ActiveCustomWeapon, AmmoFill);
+		
+		// check if near upgradeable buildings
+		float CheckRange = 48.0f;
+		CBuilding *pNear = NULL;
+		CBuilding *apEnts[16];
+		int Num = GameServer()->m_World.FindEntities(m_Pos, 32, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
+
+		// check for turret stands
+		for (int i = 0; i < Num; ++i)
+		{
+			CBuilding *pTarget = apEnts[i];
+			
+			if (pTarget->m_Type == BUILDING_STAND && distance(pTarget->m_Pos, m_Pos) < CheckRange)
+			{
+				pNear = pTarget;
+				break;
+			}
+		}
+		
+		if (pNear)
+		{
+			vec2 p = pNear->m_Pos;
+			GameServer()->m_World.DestroyEntity(pNear);
+			
+			CTurret *pTurret = new CTurret(&GameServer()->m_World, p, GetPlayer()->GetTeam(), m_ActiveCustomWeapon);
+			pTurret->m_OwnerPlayer = GetPlayer()->GetCID();
+			pTurret->SetAngle(-Direction);
+			pTurret->m_Ammo = m_aWeapon[m_ActiveCustomWeapon].m_Ammo;
+		}
+		else
+		{
+			// check for turrets
+			CTurret *pTurret = NULL;
+			CTurret *apTurrets[16];
+			
+			Num = GameServer()->m_World.FindEntities(m_Pos, 32, (CEntity**)apTurrets, 16, CGameWorld::ENTTYPE_BUILDING);
+			
+			for (int i = 0; i < Num; ++i)
+			{
+				CTurret *pTarget = apTurrets[i];
+				
+				if (pTarget->m_Type == BUILDING_TURRET && distance(pTarget->m_Pos, m_Pos) < CheckRange)
+				{
+					pTurret = pTarget;
+					break;
+				}
+			}
+			
+			if (pTurret &&
+				((GameServer()->m_pController->IsTeamplay() && pTurret->m_Team == GetPlayer()->GetTeam()) ||
+				(!GameServer()->m_pController->IsTeamplay() && pTurret->m_OwnerPlayer == GetPlayer()->GetCID())))
+			{
+				// drop the old weapon
+				float AmmoFill = float(pTurret->m_Ammo) / aCustomWeapon[pTurret->m_Weapon].m_MaxAmmo;
+				GameServer()->m_pController->DropPickup(pTurret->m_Pos+vec2(0, -40), POWERUP_WEAPON, vec2(0, -3), pTurret->m_Weapon, AmmoFill);
+
+				if (pTurret->m_Weapon == m_ActiveCustomWeapon && m_aWeapon[m_ActiveCustomWeapon].m_Ammo > 0)
+					GameServer()->AmmoFill(pTurret->m_Pos+vec2(0, -50), m_ActiveCustomWeapon);
+					
+				// put in the new one
+				pTurret->m_OwnerPlayer = GetPlayer()->GetCID();
+				pTurret->SetAngle(-Direction);
+				pTurret->m_Ammo = m_aWeapon[m_ActiveCustomWeapon].m_Ammo;
+				pTurret->m_Weapon = m_ActiveCustomWeapon;
+			}
+			else
+			{
+				// otherwise throw weapon away
+				float AmmoFill = float(m_aWeapon[m_ActiveCustomWeapon].m_Ammo) / aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo;
+				GameServer()->m_pController->DropPickup(m_Pos+vec2(0, -16), POWERUP_WEAPON, m_Core.m_Vel/2 + Direction*13, m_ActiveCustomWeapon, AmmoFill);
+				m_SkipPickups = 20;
+			}
+		}
+		
+		// remove the weapon from character
 		m_aWeapon[m_ActiveCustomWeapon].m_Got = false;
-		m_SkipPickups = 20;
-		
 		if (m_PrevWeapon >= 0 && m_PrevWeapon < NUM_CUSTOMWEAPONS)
 		{
 			if (m_aWeapon[m_PrevWeapon].m_Got)
@@ -249,7 +324,6 @@ void CCharacter::DropWeapon()
 		else
 			SetCustomWeapon(WEAPON_HAMMER);
 		
-		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
 	}
 }
 
@@ -323,7 +397,7 @@ void CCharacter::DoWeaponSwitch()
 	// switch Weapon
 	SetCustomWeapon(m_QueuedCustomWeapon);
 	m_ReloadTimer = 0;
-	m_aNextWeapon[aCustomWeapon[m_ActiveCustomWeapon].m_ParentWeapon] = m_ActiveCustomWeapon;
+	m_aNextWeapon[m_ActiveCustomWeapon] = m_ActiveCustomWeapon;
 }
 
 
@@ -345,7 +419,7 @@ void CCharacter::HandleWeaponSwitch()
 			m_aSelectedWeapon[i] = WEAPON_HAMMER;
 	}
 	
-	if (m_ActiveWeaponGroup < 0 || m_ActiveWeaponGroup > 1)
+	if (m_ActiveWeaponGroup < 0 || m_ActiveWeaponGroup > 3)
 		m_ActiveWeaponGroup = 0;
 	
 
@@ -356,7 +430,10 @@ void CCharacter::HandleWeaponSwitch()
 	if(m_LatestInput.m_WantedWeapon)
 		WantedGroup = m_Input.m_WantedWeapon-1;
 	
-	if(WantedGroup >= 0 && WantedGroup < 2)
+	if (WantedGroup == 2 && GetPlayer()->GetTeam() == TEAM_BLUE && GameServer()->m_pController->IsInfection())
+		WantedGroup = 1;
+	
+	if(WantedGroup >= 0 && WantedGroup < 3)
 		m_WeaponGroup = WantedGroup;
 	
 	m_ActiveWeaponGroup = WantedGroup;
@@ -371,7 +448,6 @@ void CCharacter::HandleWeaponSwitch()
 	int Next = CountInput(m_LatestPrevInput.m_NextWeapon, m_LatestInput.m_NextWeapon).m_Presses;
 	int Prev = CountInput(m_LatestPrevInput.m_PrevWeapon, m_LatestInput.m_PrevWeapon).m_Presses;
 
-	
 	if(Next < 128) // make sure we only try sane stuff
 	{
 		while(Next) // Next Weapon selection
@@ -392,12 +468,20 @@ void CCharacter::HandleWeaponSwitch()
 		}
 	}
 	
-	if (!m_aWeapon[WantedWeapon].m_Got)
-		WantedWeapon = WEAPON_HAMMER;
+	if (m_WeaponGroup < 2)
+	{
+		if (!m_aWeapon[WantedWeapon].m_Got)
+			WantedWeapon = WEAPON_HAMMER;
+		
+		m_aSelectedWeapon[m_WeaponGroup] = WantedWeapon;
+		m_QueuedCustomWeapon = m_aSelectedWeapon[m_WeaponGroup];
+	}
+	else
+	{
+		m_QueuedCustomWeapon = WEAPON_TOOL;
+		m_aSelectedWeapon[2] = WEAPON_TOOL;
+	}
 	
-	m_aSelectedWeapon[m_WeaponGroup] = WantedWeapon;
-	m_QueuedCustomWeapon = m_aSelectedWeapon[m_WeaponGroup];
-
 	DoWeaponSwitch();
 }
 
@@ -413,7 +497,7 @@ int CCharacter::GetWeapon(int ParentType)
 		return GetNextWeapon(ParentType);
 	}
 	
-	if (aCustomWeapon[m_aNextWeapon[ParentType]].m_ParentWeapon == ParentType)
+	if (m_aNextWeapon[ParentType] == ParentType)
 		return m_aNextWeapon[ParentType];
 		
 	else
@@ -429,7 +513,7 @@ int CCharacter::GetPrevWeapon(int ParentType)
 		if (--w < 0)
 			w = NUM_CUSTOMWEAPONS;
 			
-		if (aCustomWeapon[w].m_ParentWeapon == ParentType && m_aWeapon[w].m_Got && !m_aWeapon[w].m_Disabled)
+		if (w == ParentType && m_aWeapon[w].m_Got && !m_aWeapon[w].m_Disabled)
 		{
 			m_aNextWeapon[ParentType] = w;
 			return w;
@@ -448,7 +532,7 @@ int CCharacter::GetNextWeapon(int ParentType)
 		if (++w >= NUM_CUSTOMWEAPONS)
 			w = 0;
 			
-		if (aCustomWeapon[w].m_ParentWeapon == ParentType && m_aWeapon[w].m_Got && !m_aWeapon[w].m_Disabled)
+		if (w == ParentType && m_aWeapon[w].m_Got && !m_aWeapon[w].m_Disabled)
 		{
 			m_aNextWeapon[ParentType] = w;
 			return w;
@@ -463,7 +547,7 @@ int CCharacter::GetFirstWeapon(int ParentType)
 {
 	for (int i = 0; i < NUM_CUSTOMWEAPONS; i++)
 	{
-		if (aCustomWeapon[i].m_ParentWeapon == ParentType && m_aWeapon[i].m_Got && !m_aWeapon[i].m_Disabled)
+		if (i == ParentType && m_aWeapon[i].m_Got && !m_aWeapon[i].m_Disabled)
 		{
 			return i;
 		}
@@ -500,7 +584,7 @@ void CCharacter::ScanWeapons()
 
 void CCharacter::Chainsaw()
 {	
-	if (aCustomWeapon[m_ActiveCustomWeapon].m_ProjectileType == PROJTYPE_CHAINSAW && m_Chainsaw >= Server()->Tick())
+	if (m_ActiveCustomWeapon == WEAPON_CHAINSAW && m_Chainsaw >= Server()->Tick())
 	{
 		GetPlayer()->m_InterestPoints += 3;
 		
@@ -508,50 +592,10 @@ void CCharacter::Chainsaw()
 		vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
 		vec2 ProjStartPos = m_Core.m_Vel*2 +m_Pos+Direction*m_ProximityRadius*1.9f + vec2(0, -11);
 		
+		GameServer()->CreateChainsawHit(m_pPlayer->GetCID(), m_ActiveCustomWeapon, m_Pos, ProjStartPos, this);
+		
 		// test
 		//GameServer()->CreateBuildingHit(ProjStartPos);
-		
-		{
-		CCharacter *apEnts[MAX_CLIENTS];
-			int Num = GameServer()->m_World.FindEntities(ProjStartPos, m_ProximityRadius*0.5f, (CEntity**)apEnts,
-														MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
-
-			for (int i = 0; i < Num; ++i)
-			{
-				CCharacter *pTarget = apEnts[i];
-
-				if ((pTarget == this) || GameServer()->Collision()->IntersectLine(ProjStartPos, pTarget->m_Pos, NULL, NULL))
-					continue;
-
-				vec2 Dir;
-				if (length(pTarget->m_Pos - m_Pos) > 0.0f)
-					Dir = normalize(pTarget->m_Pos - m_Pos);
-
-				pTarget->TakeDamage(Dir*1.2f, aCustomWeapon[m_ActiveCustomWeapon].m_Damage,
-									m_pPlayer->GetCID(), aCustomWeapon[m_ActiveCustomWeapon].m_ParentWeapon, ProjStartPos, false);
-			}
-		}
-		
-		// monsters
-		{
-			CMonster *apEnts[MAX_CLIENTS];
-			int Num = GameServer()->m_World.FindEntities(ProjStartPos, m_ProximityRadius*0.5f, (CEntity**)apEnts,
-														MAX_CLIENTS, CGameWorld::ENTTYPE_MONSTER);
-
-			for (int i = 0; i < Num; ++i)
-			{
-				CMonster *pTarget = apEnts[i];
-
-				if (pTarget->m_Health <= 0)
-					continue;
-
-				vec2 Dir;
-				if (length(pTarget->m_Pos - m_Pos) > 0.0f)
-					Dir = normalize(pTarget->m_Pos - m_Pos);
-
-				pTarget->TakeDamage(Dir*1.2f, aCustomWeapon[m_ActiveCustomWeapon].m_Damage, m_pPlayer->GetCID(), vec2(0, 0));
-			}
-		}
 	}
 	else
 		m_Chainsaw = 0;
@@ -567,11 +611,6 @@ void CCharacter::FireWeapon()
 	DoWeaponSwitch();
 	
 	if(m_ReloadTimer > 0)
-		return;
-	
-	
-	// sword requires standing on ground before it can be reused
-	if ((aCustomWeapon[m_ActiveCustomWeapon].m_ProjectileType == PROJTYPE_SWORD || aCustomWeapon[m_ActiveCustomWeapon].m_ProjectileType == PROJTYPE_FLYHAMMER) && !m_SwordReady)
 		return;
 	
 	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
@@ -628,16 +667,19 @@ void CCharacter::FireWeapon()
 	
 	
 	// create the projectile
-	switch(aCustomWeapon[m_ActiveCustomWeapon].m_ProjectileType)
+	switch(m_ActiveCustomWeapon)
 	{
-		// todo: clean this
-		case PROJTYPE_CHAINSAW:
+		case WEAPON_CHAINSAW:
 		{
 			m_Chainsaw = Server()->Tick() + 500 * Server()->TickSpeed()/1000;
 			break;
 		}
+		
+		case WEAPON_TOOL:
+			GameServer()->Repair(m_Pos + vec2((Direction.x < 0 ? -30 : 20), -20));
+			break;
 			
-		case PROJTYPE_HAMMER:
+		case WEAPON_HAMMER:
 		{
 			GetPlayer()->m_InterestPoints += 10;
 			
@@ -673,7 +715,7 @@ void CCharacter::FireWeapon()
 						Dir = vec2(0.f, 0.f);
 
 					pTarget->TakeDamage(Dir * 10.0f * aCustomWeapon[m_ActiveCustomWeapon].m_Knockback, Damage,
-						m_pPlayer->GetCID(), aCustomWeapon[m_ActiveCustomWeapon].m_ParentWeapon, vec2(0, 0), false);
+						m_pPlayer->GetCID(), m_ActiveCustomWeapon, vec2(0, 0), false);
 				}
 			}
 			
@@ -705,319 +747,51 @@ void CCharacter::FireWeapon()
 				}
 			}
 
+			// building collision
+			{
+				CBuilding *apEnts[MAX_CLIENTS];
+				int Num = GameServer()->m_World.FindEntities(ProjStartPos, m_ProximityRadius*2.5f, (CEntity**)apEnts,
+																MAX_CLIENTS, CGameWorld::ENTTYPE_BUILDING);
 
+				for (int i = 0; i < Num; ++i)
+				{
+					CBuilding *pTarget = apEnts[i];
+
+					pTarget->TakeDamage(aCustomWeapon[m_ActiveCustomWeapon].m_Damage, m_pPlayer->GetCID(), m_ActiveCustomWeapon);
+					GameServer()->CreateBuildingHit((ProjStartPos+pTarget->m_Pos)/2);
+				}
+			}
+			
+			
 		} break;
 		
-		case PROJTYPE_BULLET:
+		case WEAPON_GUN:
+		case WEAPON_RIFLE:
+		case WEAPON_SHOTGUN:
+		case WEAPON_GRENADE:
+		case WEAPON_FLAMER:
+		case WEAPON_ELECTRIC:
 		{
 			GetPlayer()->m_InterestPoints += 10;	
 			
-			float a = GetAngle(Direction);
-			a += (frandom()-frandom())*aCustomWeapon[m_ActiveCustomWeapon].m_BulletSpread;
-			
-			CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_GUN,
-				m_pPlayer->GetCID(),
-				ProjStartPos,
-				vec2(cosf(a), sinf(a)),
-				(int)(Server()->TickSpeed()*aCustomWeapon[m_ActiveCustomWeapon].m_BulletLife),
-				Damage, 0, aCustomWeapon[m_ActiveCustomWeapon].m_Knockback, -1, aCustomWeapon[m_ActiveCustomWeapon].m_ParentWeapon, aCustomWeapon[m_ActiveCustomWeapon].m_Extra1);
-
-			// pack the Projectile and send it to the client Directly
-			CNetObj_Projectile p;
-			pProj->FillInfo(&p);
-
-			CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-			Msg.AddInt(1);
-			for(unsigned i = 0; i < sizeof(CNetObj_Projectile)/sizeof(int); i++)
-				Msg.AddInt(((int *)&p)[i]);
-
-			Server()->SendMsg(&Msg, 0, m_pPlayer->GetCID());
+			GameServer()->CreateProjectile(m_pPlayer->GetCID(), m_ActiveCustomWeapon, ProjStartPos, Direction);
 		} break;
 
-		case PROJTYPE_ELECTRIC:
-		{
-			GetPlayer()->m_InterestPoints += 15;
-			
-			float a = GetAngle(Direction);
-			a += (frandom()-frandom())*aCustomWeapon[m_ActiveCustomWeapon].m_BulletSpread;
-			
-			CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_ELECTRIC,
-				m_pPlayer->GetCID(),
-				ProjStartPos,
-				Direction,
-				(int)(Server()->TickSpeed()*aCustomWeapon[m_ActiveCustomWeapon].m_BulletLife),
-				Damage, EXPLOSION_ELECTRIC, 0, SOUND_LASER_FIRE, aCustomWeapon[m_ActiveCustomWeapon].m_ParentWeapon, aCustomWeapon[m_ActiveCustomWeapon].m_Extra1);
-				
-			// pack the Projectile and send it to the client Directly
-			CNetObj_Projectile p;
-			pProj->FillInfo(&p);
-
-			CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-			Msg.AddInt(1);
-			for(unsigned i = 0; i < sizeof(CNetObj_Projectile)/sizeof(int); i++)
-				Msg.AddInt(((int *)&p)[i]);
-
-			Server()->SendMsg(&Msg, 0, m_pPlayer->GetCID());
-		} break;
-
-		case PROJTYPE_PELLET:
-		{
-			GetPlayer()->m_InterestPoints += 30;
-			
-			// int ShotSpread = 2;
-
-			// CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-			// Msg.AddInt(ShotSpread*2+1);
-
-			int ShotSpread = aCustomWeapon[m_ActiveCustomWeapon].m_ShotSpread / 2;
-			
-			CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-			Msg.AddInt(aCustomWeapon[m_ActiveCustomWeapon].m_ShotSpread);
-				
-			if (aCustomWeapon[m_ActiveCustomWeapon].m_ShotSpread%2)
-			{
-				for(int i = -ShotSpread; i <= ShotSpread; ++i)
-				{
-					float Spreading[] = {-0.185f, -0.070f, 0, 0.070f, 0.185f};
-					float a = GetAngle(Direction);
-					a += Spreading[i+2];
-					a += (frandom()-frandom())*aCustomWeapon[m_ActiveCustomWeapon].m_BulletSpread;
-					float v = 1-(absolute(i)/(float)ShotSpread);
-					float Speed = mix((float)GameServer()->Tuning()->m_ShotgunSpeeddiff, 1.0f, v);
-					CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_SHOTGUN,
-						m_pPlayer->GetCID(),
-						ProjStartPos,
-						vec2(cosf(a), sinf(a))*Speed,
-						//(int)(Server()->TickSpeed()*GameServer()->Tuning()->m_ShotgunLifetime), // 0.2f
-						(int)(Server()->TickSpeed()*aCustomWeapon[m_ActiveCustomWeapon].m_BulletLife),
-						Damage, 0, aCustomWeapon[m_ActiveCustomWeapon].m_Knockback, -1, aCustomWeapon[m_ActiveCustomWeapon].m_ParentWeapon);
-					
-					// pack the Projectile and send it to the client Directly
-					CNetObj_Projectile p;
-					pProj->FillInfo(&p);
-
-					for(unsigned i = 0; i < sizeof(CNetObj_Projectile)/sizeof(int); i++)
-						Msg.AddInt(((int *)&p)[i]);
-				}
-			}
-			else
-			{
-				for(int i = -ShotSpread; i <= ShotSpread; ++i)
-				{
-					float Spreading[] = {-0.185f, -0.130f, -0.050f, 0.050f, 0.130f, 0.185f};
-					float a = GetAngle(Direction);
-					a += Spreading[i+3];
-					a += (frandom()-frandom())*aCustomWeapon[m_ActiveCustomWeapon].m_BulletSpread;
-					float v = 1-(absolute(i)/(float)ShotSpread);
-					float Speed = mix((float)GameServer()->Tuning()->m_ShotgunSpeeddiff, 1.0f, v);
-					CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_SHOTGUN,
-						m_pPlayer->GetCID(),
-						ProjStartPos,
-						vec2(cosf(a), sinf(a))*Speed,
-						(int)(Server()->TickSpeed()*aCustomWeapon[m_ActiveCustomWeapon].m_BulletLife),
-						Damage, 0, aCustomWeapon[m_ActiveCustomWeapon].m_Knockback, -1, aCustomWeapon[m_ActiveCustomWeapon].m_ParentWeapon);
-					
-					// pack the Projectile and send it to the client Directly
-					CNetObj_Projectile p;
-					pProj->FillInfo(&p);
-
-					for(unsigned i = 0; i < sizeof(CNetObj_Projectile)/sizeof(int); i++)
-						Msg.AddInt(((int *)&p)[i]);
-				}
-			}
-
-			Server()->SendMsg(&Msg, 0,m_pPlayer->GetCID());
-		} break;
-
-		case PROJTYPE_GRENADE:
-		{
-			GetPlayer()->m_InterestPoints += 30;
-			
-			CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_GRENADE,
-				m_pPlayer->GetCID(),
-				ProjStartPos,
-				Direction,
-				(int)(Server()->TickSpeed()*aCustomWeapon[m_ActiveCustomWeapon].m_BulletLife),
-				Damage, EXPLOSION_EXPLOSION, 0, SOUND_GRENADE_EXPLODE, aCustomWeapon[m_ActiveCustomWeapon].m_ParentWeapon, aCustomWeapon[m_ActiveCustomWeapon].m_Extra1);
-
-			// pack the Projectile and send it to the client Directly
-			CNetObj_Projectile p;
-			pProj->FillInfo(&p);
-
-			CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-			Msg.AddInt(1);
-			for(unsigned i = 0; i < sizeof(CNetObj_Projectile)/sizeof(int); i++)
-				Msg.AddInt(((int *)&p)[i]);
-			Server()->SendMsg(&Msg, 0, m_pPlayer->GetCID());
-		} break;
-		
-		case PROJTYPE_FLAME:
-		{
-			GetPlayer()->m_InterestPoints += 30;
-			
-			// x3 for flame shotgun / flamer
-			for (int i=0; i<3; i++)
-			{
-				CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_FLAMER,
-					m_pPlayer->GetCID(),
-					ProjStartPos,
-					Direction+RandomDir()*0.15f,
-					(int)(Server()->TickSpeed()*aCustomWeapon[m_ActiveCustomWeapon].m_BulletLife),
-					Damage, EXPLOSION_FLAME, 0, SOUND_GRENADE_EXPLODE, aCustomWeapon[m_ActiveCustomWeapon].m_ParentWeapon, aCustomWeapon[m_ActiveCustomWeapon].m_Extra1);
-
-				// pack the Projectile and send it to the client Directly
-				CNetObj_Projectile p;
-				pProj->FillInfo(&p);
-
-				CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-				Msg.AddInt(1);
-				for(unsigned i = 0; i < sizeof(CNetObj_Projectile)/sizeof(int); i++)
-					Msg.AddInt(((int *)&p)[i]);
-				Server()->SendMsg(&Msg, 0, m_pPlayer->GetCID());
-			}
-		} break;
-
-		case PROJTYPE_LASER:
+		case WEAPON_LASER:
 		{
 			GetPlayer()->m_InterestPoints += 40;
 			
 			float a = GetAngle(Direction);
 			a += (frandom()-frandom())*aCustomWeapon[m_ActiveCustomWeapon].m_BulletSpread;
 			
-			new CLaser(GameWorld(), ProjStartPos, vec2(cosf(a), sinf(a)), GameServer()->Tuning()->m_LaserReach, m_pPlayer->GetCID(), Damage, aCustomWeapon[m_ActiveCustomWeapon].m_Extra1);
-		} break;
-		
-		
-		case PROJTYPE_ELECTRO:
-		{
-			GetPlayer()->m_InterestPoints += 40;
-			vec2 Start = m_Pos;
-			
-			if (aCustomWeapon[m_ActiveCustomWeapon].m_ParentWeapon == WEAPON_GUN)
-				Start += Direction*30;
-			if (aCustomWeapon[m_ActiveCustomWeapon].m_ParentWeapon == WEAPON_RIFLE)
-				Start += Direction*50;
-			
-			float Reach = aCustomWeapon[m_ActiveCustomWeapon].m_BulletLife;
-			
-			
-			if (aCustomWeapon[m_ActiveCustomWeapon].m_ShotSpread == 1)
-			{
-				float a = GetAngle(Direction);
-				
-				vec2 To = m_Pos + vec2(cosf(a), sinf(a))*Reach;
-				GameServer()->Collision()->IntersectLine(Start, To, 0x0, &To);
-				
-				// character collision
-				vec2 At;
-				CCharacter *pHit = GameServer()->m_World.IntersectCharacter(Start, To, 70.0f, At, this);
-				if(pHit)
-				{
-					To = pHit->m_Pos;
-					pHit->ElectroShock();
-					pHit->TakeDamage(Direction, Damage, GetPlayer()->GetCID(), WEAPON_RIFLE, At);
-				}
-			
-					int A = distance(Start, To) / 100;
-					
-					if (A > 4)
-						A = 4;
-					
-					if (A < 2)
-						A = 2;
-			
-				new CElectro(GameWorld(), Start, To, vec2(0, 0), A);
-			}
-			else
-			{
-				for (int i = -1; i < 2; i += 2)
-				{
-					
-					float a = GetAngle(Direction);
-					a += (i + frandom()-frandom()) / 10.0f;
-					//a += i / 10.0f;
-					vec2 To = m_Pos + vec2(cosf(a), sinf(a))*Reach;
-					
-					GameServer()->Collision()->IntersectLine(Start, To, 0x0, &To);
-					
-					// character collision
-					vec2 At;
-					CCharacter *pHit = GameServer()->m_World.IntersectCharacter(Start, To, 70.0f, At, this);
-					if(pHit)
-					{
-						To = pHit->m_Pos;
-						pHit->ElectroShock();
-						pHit->TakeDamage(Direction, Damage, GetPlayer()->GetCID(), WEAPON_RIFLE, At);
-					}
-			
-					int A = distance(Start, To) / 100;
-					
-					if (A > 4)
-						A = 4;
-					
-					if (A < 2)
-						A = 2;
-			
-					new CElectro(GameWorld(), Start, To, vec2(cosf(a+i*1.2f), sinf(a+i*1.2f))*40, A);
-				}
-			}
-			break;
-		}
-			
-			
-		case PROJTYPE_LIGHTNING:
-		{
-			GetPlayer()->m_InterestPoints += 10;
-		
-			int Desc = 1;
-			
-			if (aCustomWeapon[m_ActiveCustomWeapon].m_Extra1 == ELECTRIC)
-				Desc++;
-		
-			int ShotSpread = aCustomWeapon[m_ActiveCustomWeapon].m_ShotSpread / 2;
-
-			if (ShotSpread == 1)
-			{
-				float a = GetAngle(Direction);
-				a += (frandom()-frandom())*aCustomWeapon[m_ActiveCustomWeapon].m_BulletSpread;
-
-				new CLightning(GameWorld(), m_Pos, vec2(cosf(a), sinf(a)), 200, 100, m_pPlayer->GetCID(), Damage, Desc);
-			}
-			else
-			{
-			// for lightning shotgun, might not work 100% right
-				if (aCustomWeapon[m_ActiveCustomWeapon].m_ShotSpread%2)
-				{
-					for(int i = -ShotSpread; i <= ShotSpread; ++i)
-					{
-						float Spreading[] = {-0.185f, -0.070f, 0, 0.070f, 0.185f};
-						float a = GetAngle(Direction);
-						a += Spreading[i+2];
-						a += (frandom()-frandom())*aCustomWeapon[m_ActiveCustomWeapon].m_BulletSpread;
-
-						new CLightning(GameWorld(), m_Pos, vec2(cosf(a), sinf(a)), 200, 100, m_pPlayer->GetCID(), Damage, Desc);
-					}
-				}
-				else
-				{
-					for(int i = -ShotSpread; i <= ShotSpread; ++i)
-					{
-						float Spreading[] = {-0.185f, -0.130f, -0.050f, 0.050f, 0.130f, 0.185f};
-						float a = GetAngle(Direction);
-						a += Spreading[i+3];
-						a += (frandom()-frandom())*aCustomWeapon[m_ActiveCustomWeapon].m_BulletSpread;
-						
-						new CLightning(GameWorld(), m_Pos, vec2(cosf(a), sinf(a)), 200, 100, m_pPlayer->GetCID(), Damage, Desc);
-					}
-				}
-			}
+			new CLaser(GameWorld(), ProjStartPos, vec2(cosf(a), sinf(a)), GameServer()->Tuning()->m_LaserReach, m_pPlayer->GetCID(), Damage);
 		} break;
 	};
-	
 	
 
 	m_AttackTick = Server()->Tick();
 	
+	// infinite ammo for the dead in infection
 	if (!(GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE))
 	{
 		if(m_aWeapon[m_ActiveCustomWeapon].m_Ammo > 0)
@@ -1030,7 +804,6 @@ void CCharacter::FireWeapon()
 		m_ReloadTimer = aCustomWeapon[m_ActiveCustomWeapon].m_BulletReloadTime * Server()->TickSpeed() / 1000;
 	}
 	*/
-	
 }
 
 
@@ -1280,6 +1053,16 @@ bool CCharacter::Invisible()
 }
 
 
+void CCharacter::UseKit(int Kit)
+{
+	if (m_Kits > 0)
+	{
+		if (GameServer()->AddBuilding(Kit, m_Pos))
+			m_Kits--;
+	}
+}
+	
+	
 void CCharacter::SelectItem(int Item)
 {
 	if (m_aItem[Item] <= 0)
@@ -1451,10 +1234,7 @@ void CCharacter::Tick()
 	// monster damage
 	if (m_Core.m_MonsterDamage)
 		TakeDamage(normalize(m_Core.m_Vel), 10, -1, DEATHTYPE_MONSTER, vec2(0, 0));
-	
-	if (IsGrounded())
-		m_SwordReady = true;
-	
+
 	
 	if (m_CryTimer > 0)
 		m_CryTimer--;
@@ -1639,6 +1419,20 @@ bool CCharacter::AddMine()
 	}
 	
 	return true;
+}
+
+bool CCharacter::AddKit()
+{
+	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
+		return false;
+	
+	if (m_Kits < 9)
+	{
+		m_Kits++;
+		return true;
+	}
+	
+	return false;
 }
 
 
@@ -2085,7 +1879,7 @@ void CCharacter::Snap(int SnappingClient)
 	pCharacter->m_Health = 0;
 	pCharacter->m_Armor = 0;
 
-	pCharacter->m_Weapon = aCustomWeapon[m_ActiveCustomWeapon].m_ParentWeapon;
+	pCharacter->m_Weapon = m_ActiveCustomWeapon;
 	
 	pCharacter->m_WeaponGroup1 = m_aSelectedWeapon[0];
 	pCharacter->m_WeaponGroup2 = m_aSelectedWeapon[1];
@@ -2119,9 +1913,9 @@ void CCharacter::Snap(int SnappingClient)
 	}
 
 	// fake AI chatter flag
-	if (GetPlayer()->m_pAI && GetPlayer()->m_pAI->m_ChatterStartTick < Server()->Tick() && GetPlayer()->m_pAI->m_ChatterEndTick > Server()->Tick())
-		pCharacter->m_PlayerFlags = PLAYERFLAG_CHATTING;
-	else
+	//if (GetPlayer()->m_pAI && GetPlayer()->m_pAI->m_ChatterStartTick < Server()->Tick() && GetPlayer()->m_pAI->m_ChatterEndTick > Server()->Tick())
+	//	pCharacter->m_PlayerFlags = PLAYERFLAG_CHATTING;
+	//else
 		pCharacter->m_PlayerFlags = GetPlayer()->m_PlayerFlags;
 }
 

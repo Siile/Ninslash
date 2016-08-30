@@ -89,6 +89,15 @@ void CPlayer::SelectItem(int Item)
 		GetCharacter()->SelectItem(Item);
 }
 
+
+
+void CPlayer::UseKit(int Kit)
+{
+	if (GetCharacter() && Kit >= 0 && Kit < NUM_KITS)
+		GetCharacter()->UseKit(Kit);
+}
+
+
 void CPlayer::DropWeapon()
 {
 	if (GetCharacter())
@@ -283,6 +292,7 @@ void CPlayer::Snap(int SnappingClient)
 	
 	// snap weapons
 	pPlayerInfo->m_Weapons = 0;
+	pPlayerInfo->m_Kits = 0;
 	
 	if (GetCharacter())
 	{
@@ -293,6 +303,8 @@ void CPlayer::Snap(int SnappingClient)
 				pPlayerInfo->m_Weapons |= 1 << i;
 			}
 		}
+		
+		pPlayerInfo->m_Kits = GetCharacter()->m_Kits;
 		
 		pPlayerInfo->m_Item1 = GetCharacter()->m_aItem[0];
 		pPlayerInfo->m_Item2 = GetCharacter()->m_aItem[1];
@@ -386,9 +398,12 @@ void CPlayer::OnDirectInput(CNetObj_PlayerInput *NewInput)
 		m_PlayerFlags = NewInput->m_PlayerFlags;
  		return;
 	}
-
+	
 	m_PlayerFlags = NewInput->m_PlayerFlags;
 
+	if (m_pAI)
+		m_PlayerFlags = PLAYERFLAG_PLAYING;
+	
 	if(m_pCharacter)
 		m_pCharacter->OnDirectInput(NewInput);
 
@@ -487,6 +502,9 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 	GameServer()->m_pController->OnPlayerInfoChange(GameServer()->m_apPlayers[m_ClientID]);
+	
+	if (m_pAI)
+		SetRandomSkin();
 
 	if(Team == TEAM_SPECTATORS)
 	{

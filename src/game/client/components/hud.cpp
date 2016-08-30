@@ -1,5 +1,3 @@
-
-
 #include <engine/graphics.h>
 #include <engine/textrender.h>
 #include <engine/shared/config.h>
@@ -506,40 +504,37 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	if (pCharacter->m_SelectedGroup == 0)
 		Graphics()->SetColor(1, 1, 1, 1);
 	
-	//x += 16;
-	x += 32;
+	x += 16;
 	
-	// skip tool
 	if (pCharacter->m_WeaponGroup1 > 0)
 	{
 		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[pCharacter->m_WeaponGroup1].m_pSpriteBody);
 		RenderTools()->DrawSprite(x, y, g_pData->m_Weapons.m_aId[pCharacter->m_WeaponGroup1].m_VisualSize * Size);
-		
+	}
+	
+	x += 40;
+	if (pCharacter->m_WeaponGroup2 > 0)
+	{
 		Size = (pCharacter->m_SelectedGroup == 1) ? 0.4f : 0.3f;
 		Graphics()->SetColor(1, 1, 1, 0.5f);
 		if (pCharacter->m_SelectedGroup == 1)
 			Graphics()->SetColor(1, 1, 1, 1);
-	}
-	
-	//x += 32;
-	x += 48;
-	// skip tool
-	if (pCharacter->m_WeaponGroup2 > 0)
-	{
+		
 		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[pCharacter->m_WeaponGroup2].m_pSpriteBody);
 		RenderTools()->DrawSprite(x, y, g_pData->m_Weapons.m_aId[pCharacter->m_WeaponGroup2].m_VisualSize * Size);
-		
-		Size = (pCharacter->m_SelectedGroup == 2) ? 0.4f : 0.3f;
-		Graphics()->SetColor(1, 1, 1, 0.5f);
-		if (pCharacter->m_SelectedGroup == 2)
-			Graphics()->SetColor(1, 1, 1, 1);
 	}
 	
-	/*
-	x += 32;
+	x += 40;
+	
+	// tool
+	Size = (pCharacter->m_SelectedGroup == 2) ? 0.4f : 0.3f;
+	
+	Graphics()->SetColor(1, 1, 1, 0.5f);
+	if (pCharacter->m_SelectedGroup == 2)
+		Graphics()->SetColor(1, 1, 1, 1);
+		
 	RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[WEAPON_TOOL].m_pSpriteBody);
 	RenderTools()->DrawSprite(x, y, g_pData->m_Weapons.m_aId[WEAPON_TOOL].m_VisualSize * Size);
-	*/
 	
 	CustomStuff()->m_SelectedGroup = pCharacter->m_SelectedGroup+1;
 	
@@ -574,7 +569,7 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	Graphics()->QuadsEnd();
 	
 	// select last picked weapon quick event helper
-	if (CustomStuff()->m_WeaponpickTimer > 0.0f && !CustomStuff()->m_LastWeaponPicked)
+	if (CustomStuff()->m_WeaponpickTimer > 0.0f && !CustomStuff()->m_LastWeaponPicked && pCharacter->m_SelectedGroup < 2)
 	{
 		//const char *pLastWeaponKey = m_pClient->m_pBinds->GetKey("+lastweapon");
 		//char aBuf[32];

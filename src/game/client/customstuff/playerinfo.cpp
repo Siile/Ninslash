@@ -47,6 +47,9 @@ void CPlayerInfo::Reset()
 	m_LastJetpackSoundTick = 0;
 	m_LastChainsawSoundTick = 0;
 	
+	m_ToolAngleOffset = 0;
+	m_ToolAngleVel = 0;
+	
 	m_NextSplatter = 0;
 	for (int i = 0; i < 8; i++)
 	{
@@ -148,6 +151,10 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 	m_Weapon2RecoilVel *= 0.8f;
 
 	m_Weapon2Recoil += m_Weapon2RecoilVel;
+	
+	m_ToolAngleOffset += m_ToolAngleVel;
+	m_ToolAngleVel -= m_ToolAngleOffset / 8.0f;
+	m_ToolAngleVel *= 0.8f;
 }
 	
 	

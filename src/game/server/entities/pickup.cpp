@@ -147,13 +147,22 @@ void CPickup::Tick()
 					m_Flashing = false;
 				}
 				break;
+				
+			case POWERUP_KIT:
+				if(pChr->AddKit())
+				{
+					GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR);
+					RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
+					m_Life = 0;
+					m_Flashing = false;
+				}
+				break;
 
 			// todo: clean and remove parent weapon type
 			case POWERUP_WEAPON:
 				if(m_Subtype >= 0 && m_Subtype < NUM_CUSTOMWEAPONS)
 				{
-					int Parent = aCustomWeapon[m_Subtype].m_ParentWeapon;
-					
+					/*
 					if (Parent < 0 || Parent >= NUM_WEAPONS)
 					{
 						RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
@@ -161,6 +170,7 @@ void CPickup::Tick()
 						m_Flashing = false;
 						break;
 					}
+					*/
 					
 					float AmmoFill = 1.0f;
 					if (m_Dropable)
@@ -171,7 +181,7 @@ void CPickup::Tick()
 					
 					if (pChr->GiveCustomWeapon(m_Subtype, AmmoFill))
 					{
-						if(Parent == WEAPON_GRENADE)
+						if(m_Subtype == WEAPON_GRENADE)
 							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE);
 						else
 							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN);
@@ -194,7 +204,7 @@ void CPickup::Tick()
 					{
 						if (pChr->GiveAmmo(&m_Subtype, AmmoFill))
 						{
-							if(Parent == WEAPON_GRENADE)
+							if(m_Subtype == WEAPON_GRENADE)
 								GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE);
 							else
 								GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN);
@@ -266,10 +276,8 @@ void CPickup::Snap(int SnappingClient)
 	
 	if (m_Type == POWERUP_WEAPON && m_Subtype >= 0 && m_Subtype < NUM_CUSTOMWEAPONS)
 	{
-		if (aCustomWeapon[m_Subtype].m_ProjectileType == PROJTYPE_SWORD)
-			pP->m_Type = POWERUP_NINJA;
-		
-		pP->m_Subtype = aCustomWeapon[m_Subtype].m_ParentWeapon;
+		//pP->m_Subtype = aCustomWeapon[m_Subtype].m_ParentWeapon;
+		pP->m_Subtype = m_Subtype;
 	}
 	else
 		pP->m_Subtype = m_Subtype;

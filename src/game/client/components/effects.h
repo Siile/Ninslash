@@ -35,6 +35,8 @@ public:
 	void PowerupShine(vec2 Pos, vec2 Size);
 	void Light(vec2 Pos, float Size);
 	void Electrospark(vec2 Pos, float Size);
+	void Repair(vec2 Pos);
+	void AmmoFill(vec2 Pos, int Weapon);
 
 	void Update();
 };

@@ -16,7 +16,11 @@ public:
 	virtual void Snap(int SnappingClient);
 	virtual void Tick();
 
+	virtual vec2 GetFlagPos(int Team);
+	virtual int GetFlagState(int Team);
+	
 	virtual bool OnEntity(int Index, vec2 Pos);
+	void OnCharacterSpawn(class CCharacter *pChr, bool RequestAI = false);
 	virtual int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon);
 };
 

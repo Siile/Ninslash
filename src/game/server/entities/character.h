@@ -72,10 +72,8 @@ public:
 
 	bool UsingMeleeWeapon()
 	{
-		int t = aCustomWeapon[m_ActiveCustomWeapon].m_ProjectileType;
-		if (t == PROJTYPE_HAMMER ||
-			t == PROJTYPE_FLYHAMMER ||
-			t == PROJTYPE_SWORD)
+		if (m_ActiveCustomWeapon == WEAPON_HAMMER ||
+			m_ActiveCustomWeapon == WEAPON_TOOL)
 			return true;
 		
 		return false;
@@ -105,6 +103,7 @@ public:
 	bool IncreaseArmor(int Amount);
 	
 	bool AddMine();
+	bool AddKit();
 	
 	void SetHealth(int Health);
 
@@ -223,16 +222,27 @@ public:
 	
 	bool Invisible();
 	
+	bool IsSliding()
+	{
+		if (m_Core.m_Slide != 0)
+			return true;
+		
+		return false;
+	}
+	
 	
 	int m_ShieldHealth;
 	int m_ShieldRadius;
 	
 	void SelectItem(int Item);
+	void UseKit(int Kit);
 	void GiveBuff(int Item);
 	void GiveRandomBuff();
 	
 	int m_AttackTick;
 	int m_DamageTakenTick;
+	
+	int m_Kits;
 	
 private:
 	// player controlling this character
@@ -296,7 +306,6 @@ private:
 
 	int m_Health;
 	int m_Armor;
-
 	
 	// ninja
 	struct
@@ -307,8 +316,6 @@ private:
 		int m_OldVelAmount;
 	} m_Ninja;
 	
-	bool m_SwordReady;
-
 	// the player core for the physics
 	CCharacterCore m_Core;
 

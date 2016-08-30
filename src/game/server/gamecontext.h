@@ -139,7 +139,14 @@ public:
 	void CreateSound(vec2 Pos, int Sound, int Mask=-1);
 	void CreateSoundGlobal(int Sound, int Target=-1);
 
+	bool AddBuilding(int Kit, vec2 Pos);
+	
+	void CreateChainsawHit(int DamageOwner, int Weapon, vec2 PlayerPos, vec2 ProjPos, class CCharacter *OwnerChr = NULL, class CBuilding *OwnerBuilding = NULL);
+	void CreateProjectile(int DamageOwner, int Weapon, vec2 Pos, vec2 Direction, class CBuilding *OwnerBuilding = NULL);
 
+	void Repair(vec2 Pos);
+	void AmmoFill(vec2 Pos, int Weapon);
+	
 	enum
 	{
 		CHAT_ALL=-2,
@@ -211,10 +218,6 @@ public:
 	
 	bool IsBot(int ClientID);
 	bool IsHuman(int ClientID);
-	
-	class CArrow *m_pArrow;
-	
-	void GenerateArrows();
 	
 	int m_BroadcastLockTick;
 	

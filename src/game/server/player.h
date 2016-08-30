@@ -150,6 +150,7 @@ public:
 	// custom
 	void SelectWeapon(int Weapon, int Group);
 	void SelectItem(int Item);
+	void UseKit(int Kit);
 	void DropWeapon();
 	void SwitchGroup();
 	

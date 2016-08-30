@@ -1101,24 +1101,40 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 		int WeaponDir = Dir.x < 0 ? -1 : 1;
 		bool FlipY = false;
 
+		vec2 Size = vec2(96, 32);
+		float BladeLen = -28;
+		float Radius = 20.0f;
 		
-		if (PlayerInfo->m_MeleeState == MELEE_UP)
+		if (PlayerInfo->m_Weapon == WEAPON_TOOL)
 		{
-			WeaponAngle -= 140*RAD;
+			WeaponAngle = 0;
+			WeaponAngle -= 40*RAD;
+			WeaponAngle += PlayerInfo->m_ToolAngleOffset*RAD;
+			Size = vec2(64, 32) * 0.8f;
+			BladeLen = -12;
+			WeaponPos.y += 16;
+			Radius = 8.0f;
 		}
 		else
 		{
-			WeaponAngle += 140*RAD;
-			FlipY = true;
+			if (PlayerInfo->m_MeleeState == MELEE_UP)
+			{
+				WeaponAngle -= 140*RAD;
+			}
+			else
+			{
+				WeaponAngle += 140*RAD;
+				FlipY = true;
+			}
 		}
 		
+
 		
-		WeaponPos.x += sin(-WeaponAngle*WeaponDir+90*RAD)*20*WeaponDir;
-		WeaponPos.y += cos(-WeaponAngle*WeaponDir+90*RAD)*20*WeaponDir;
+		WeaponPos.x += sin(-WeaponAngle*WeaponDir+90*RAD)*Radius*WeaponDir;
+		WeaponPos.y += cos(-WeaponAngle*WeaponDir+90*RAD)*Radius*WeaponDir;
 		
 		
 		vec2 Offset = vec2(0, 0);
-		float BladeLen = -28;
 
 		Offset.x = sin(-WeaponAngle*WeaponDir-90*RAD)*BladeLen*WeaponDir;
 		Offset.y = cos(-WeaponAngle*WeaponDir-90*RAD)*BladeLen*WeaponDir;
@@ -1126,12 +1142,19 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 		// render sword
 		int Sprite = SPRITE_SWORD1 + int(PlayerInfo->m_MeleeAnimState);
 			
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_SWORD].m_Id);
+		if (PlayerInfo->m_Weapon == WEAPON_TOOL)
+		{
+			Sprite = SPRITE_WEAPON_TOOL_BODY;
+			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
+		}
+		else
+			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_SWORD].m_Id);
+		
 		Graphics()->QuadsBegin();
 		Graphics()->QuadsSetRotation(WeaponAngle*WeaponDir);
 		
 		SelectSprite(Sprite, (FlipY ? SPRITE_FLAG_FLIP_Y : 0) + (WeaponDir < 0 ? SPRITE_FLAG_FLIP_X : 0));
-		IGraphics::CQuadItem QuadItem(WeaponPos.x + Offset.x, WeaponPos.y + Offset.y, 96, 32);
+		IGraphics::CQuadItem QuadItem(WeaponPos.x + Offset.x, WeaponPos.y + Offset.y, Size.x, Size.y);
 		Graphics()->QuadsDraw(&QuadItem, 1);
 		Graphics()->QuadsEnd();
 		

@@ -17,8 +17,9 @@
 #include "gamemodes/base.h"
 #include "gamemodes/texasrun.h"
 
-#include <game/server/entities/arrow.h>
+#include <game/server/entities/projectile.h>
 #include <game/server/entities/building.h>
+#include <game/server/entities/turret.h>
 #include <game/server/entities/monster.h>
 
 #include <game/server/ai_protocol.h>
@@ -186,11 +187,258 @@ void CGameContext::CreateEffect(int FX, vec2 Pos)
 }
 
 
-void CGameContext::GenerateArrows()
+
+bool CGameContext::AddBuilding(int Kit, vec2 Pos)
 {
-	m_pArrow = new CArrow(&m_World);
+	float OffsetY = -(int(Pos.y)%32) + 12;
+	float CheckRange = 48.0f;
+	
+	// check validity
+	if (!Collision()->GetCollisionAt(Pos.x-24, Pos.y+24+OffsetY)&CCollision::COLFLAG_SOLID || 
+		!Collision()->GetCollisionAt(Pos.x+24, Pos.y+24+OffsetY)&CCollision::COLFLAG_SOLID)
+		return false;
+	
+	if (Kit == KIT_STAND)
+	{
+		// check if there's turret base near
+		CBuilding *pNear = NULL;
+		CBuilding *apEnts[16];
+		int Num = m_World.FindEntities(Pos, 32, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
+
+		for (int i = 0; i < Num; ++i)
+		{
+			CBuilding *pTarget = apEnts[i];
+			
+			if (pTarget->m_Type == BUILDING_BASE && distance(pTarget->m_Pos, Pos) < CheckRange)
+			{
+				pNear = pTarget;
+				break;
+			}
+		}
+		
+		if (pNear)
+		{
+			vec2 p = pNear->m_Pos;
+			m_World.DestroyEntity(pNear);
+			
+			new CBuilding(&m_World, p+vec2(0, -6), BUILDING_STAND, TEAM_NEUTRAL);
+			return true;
+		}
+		
+		//CBuilding *pBuilding = new CBuilding(&m_World, Pos+vec2(0, 0), BUILDING_STAND, TEAM_NEUTRAL);
+		//CTurret *pBuilding = new CTurret(&m_World, Pos+vec2(0, 0), 0, W_SHOTGUN + rand()%5);
+		//CTurret *pBuilding = new CTurret(&m_World, Pos+vec2(0, 0), 0, WEAPON_CHAINSAW);
+		
+	}
+	else
+	{
+		// these buildings can't be set too close to another building
+		bool Near = false;
+		
+		CBuilding *apEnts[16];
+		int Num = m_World.FindEntities(Pos, 32, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
+
+		for (int i = 0; i < Num; ++i)
+		{
+			CBuilding *pTarget = apEnts[i];
+			
+			if (distance(pTarget->m_Pos, Pos) < CheckRange)
+				Near = true;
+		}
+		
+		if (Near)
+			return false;
+		
+		if (Kit == KIT_BARREL)
+		{
+			CBuilding *pBuilding = new CBuilding(&m_World, Pos+vec2(0, -12+OffsetY), BUILDING_BARREL, TEAM_NEUTRAL);
+			return true;
+		}
+		
+		if (Kit == KIT_BASE)
+		{
+			CBuilding *pBuilding = new CBuilding(&m_World, Pos+vec2(0, OffsetY), BUILDING_BASE, TEAM_NEUTRAL);
+			return true;
+		}
+	}
+	
+	
+	return false;
 }
 
+
+
+
+void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, vec2 PlayerPos, vec2 ProjPos, CCharacter *OwnerChr, CBuilding *OwnerBuilding)
+{
+	int ProximityRadius = CCharacter::ms_PhysSize;
+	
+	{
+		CCharacter *apEnts[MAX_CLIENTS];
+		int Num = m_World.FindEntities(ProjPos, ProximityRadius*0.5f, (CEntity**)apEnts,
+														MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
+
+		for (int i = 0; i < Num; ++i)
+		{
+			CCharacter *pTarget = apEnts[i];
+
+			if ((pTarget == OwnerChr) || Collision()->IntersectLine(ProjPos, pTarget->m_Pos, NULL, NULL))
+				continue;
+
+			vec2 Dir;
+			if (length(pTarget->m_Pos - PlayerPos) > 0.0f)
+				Dir = normalize(pTarget->m_Pos - PlayerPos);
+
+			pTarget->TakeDamage(Dir*1.2f, aCustomWeapon[Weapon].m_Damage,
+									DamageOwner, Weapon, ProjPos, false);
+		}
+	}
+		
+	// monsters
+	{
+		CMonster *apEnts[MAX_CLIENTS];
+		int Num = m_World.FindEntities(ProjPos, ProximityRadius*0.5f, (CEntity**)apEnts,
+														MAX_CLIENTS, CGameWorld::ENTTYPE_MONSTER);
+
+		for (int i = 0; i < Num; ++i)
+		{
+			CMonster *pTarget = apEnts[i];
+
+			if (pTarget->m_Health <= 0)
+				continue;
+
+			vec2 Dir;
+			if (length(pTarget->m_Pos - PlayerPos) > 0.0f)
+				Dir = normalize(pTarget->m_Pos - PlayerPos);
+
+			pTarget->TakeDamage(Dir*1.2f, aCustomWeapon[Weapon].m_Damage, DamageOwner, vec2(0, 0));
+		}
+	}
+	
+	// buildings
+	{
+		CBuilding *apEnts[MAX_CLIENTS];
+		int Num = m_World.FindEntities(ProjPos, ProximityRadius*0.5f, (CEntity**)apEnts,
+														MAX_CLIENTS, CGameWorld::ENTTYPE_BUILDING);
+
+		for (int i = 0; i < Num; ++i)
+		{
+			CBuilding *pTarget = apEnts[i];
+			
+			pTarget->TakeDamage(aCustomWeapon[Weapon].m_Damage, DamageOwner, Weapon);
+			CreateBuildingHit((ProjPos+pTarget->m_Pos)/2);
+		}
+	}
+}
+
+void CGameContext::CreateProjectile(int DamageOwner, int Weapon, vec2 Pos, vec2 Direction, CBuilding *OwnerBuilding)
+{
+	int Explosion = 0;
+	int HitSound = -1;
+	
+	switch (Weapon)
+	{
+	case WEAPON_ELECTRIC:
+		Explosion = EXPLOSION_ELECTRIC;
+		HitSound = SOUND_LASER_FIRE;
+		break;
+		
+	case WEAPON_GRENADE:
+		Explosion = EXPLOSION_EXPLOSION;
+		HitSound = SOUND_GRENADE_EXPLODE;
+		break;
+		
+	case WEAPON_FLAMER:
+		Explosion = EXPLOSION_FLAME;
+		HitSound = SOUND_GRENADE_EXPLODE;
+		break;
+		
+		
+	default:;
+	};
+	
+	int ShotSpread = aCustomWeapon[Weapon].m_ShotSpread;
+
+	CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
+	Msg.AddInt(ShotSpread);
+
+	for (int i = 0; i < ShotSpread; i++)
+	{
+		float Angle = GetAngle(Direction);
+		
+		Angle -= (ShotSpread-1)/2.0f * pi/180 * 4;
+		Angle += i * pi/180 * 4;
+		Angle += (frandom()-frandom())*aCustomWeapon[Weapon].m_BulletSpread;
+
+		CProjectile *pProj = new CProjectile(&m_World,
+			Weapon,
+			DamageOwner,
+			Pos,
+			vec2(cosf(Angle), sinf(Angle)),
+			(int)(Server()->TickSpeed()*aCustomWeapon[Weapon].m_BulletLife),
+			aCustomWeapon[Weapon].m_Damage,
+			Explosion,
+			aCustomWeapon[Weapon].m_Knockback,
+			HitSound);
+			
+		pProj->m_OwnerBuilding = OwnerBuilding;
+
+		// pack the Projectile and send it to the client Directly
+		CNetObj_Projectile p;
+		pProj->FillInfo(&p);
+
+		for(unsigned i = 0; i < sizeof(CNetObj_Projectile)/sizeof(int); i++)
+			Msg.AddInt(((int *)&p)[i]);
+	}
+
+	if (DamageOwner >= 0 && DamageOwner < MAX_CLIENTS)
+		Server()->SendMsg(&Msg, 0, DamageOwner);
+}
+
+
+
+
+
+void CGameContext::AmmoFill(vec2 Pos, int Weapon)
+{
+	CNetEvent_AmmoFill *pEvent = (CNetEvent_AmmoFill *)m_Events.Create(NETEVENTTYPE_AMMOFILL, sizeof(CNetEvent_AmmoFill));
+	if(pEvent)
+	{
+		pEvent->m_X = (int)Pos.x;
+		pEvent->m_Y = (int)Pos.y;
+		pEvent->m_Weapon = Weapon;
+	}
+}
+
+
+void CGameContext::Repair(vec2 Pos)
+{
+	float CheckRange = 42.0f;
+	
+	// check if there's turret base near
+	CBuilding *apEnts[16];
+	int Num = m_World.FindEntities(Pos, 32, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
+
+	for (int i = 0; i < Num; ++i)
+	{
+		CBuilding *pTarget = apEnts[i];
+			
+		if (distance(pTarget->m_Pos, Pos) < CheckRange)
+		{
+			if (pTarget->Repair())
+			{
+				CNetEvent_Repair *pEvent = (CNetEvent_Repair *)m_Events.Create(NETEVENTTYPE_REPAIR, sizeof(CNetEvent_Repair));
+				if(pEvent)
+				{
+					pEvent->m_X = (int)(pTarget->m_Pos.x + Pos.x)/2;
+					pEvent->m_Y = (int)(pTarget->m_Pos.y + Pos.y)/2;
+				}
+			}
+			
+			CreateBuildingHit(Pos);
+		}
+	}
+}
 
 
 void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool Superdamage)
@@ -1667,10 +1915,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		else if (MsgID == NETMSGTYPE_CL_SELECTITEM && !m_World.m_Paused)
 		{
 			CNetMsg_Cl_SelectItem *pMsg = (CNetMsg_Cl_SelectItem *)pRawMsg;
-
-			// TODO: spam protection
-			
 			pPlayer->SelectItem(pMsg->m_Item);
+		}
+		else if (MsgID == NETMSGTYPE_CL_USEKIT && !m_World.m_Paused)
+		{
+			CNetMsg_Cl_UseKit *pMsg = (CNetMsg_Cl_UseKit *)pRawMsg;
+			pPlayer->UseKit(pMsg->m_Kit);
 		}
 		else if (MsgID == NETMSGTYPE_CL_KILL && !m_World.m_Paused)
 		{
@@ -2387,6 +2637,12 @@ void CGameContext::KickBots()
 
 void CGameContext::KickBot(int ClientID)
 {
+	if (ClientID < 0 || ClientID >= MAX_CLIENTS)
+		return;
+	
+	if (m_apPlayers[ClientID]->GetCharacter())
+		m_apPlayers[ClientID]->GetCharacter()->Die(ClientID, WEAPON_WORLD, true);
+	
 	if(IsBot(ClientID))
 		Server()->Kick(ClientID, "");
 }

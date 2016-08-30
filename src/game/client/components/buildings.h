@@ -12,6 +12,8 @@ class CBuildings : public CComponent
 	void RenderElectromine(const struct CNetObj_Building *pCurrent);
 	void RenderBarrel(const struct CNetObj_Building *pCurrent);
 	void RenderLazer(const struct CNetObj_Building *pCurrent);
+	void RenderBase(const struct CNetObj_Building *pCurrent);
+	void RenderStand(const struct CNetObj_Building *pCurrent);
 
 public:
 	virtual void OnReset();

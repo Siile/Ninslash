@@ -12,6 +12,11 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_BUILDING)
 {
 	m_SetTimer = 0;
+	m_Center = vec2(0, 0);
+	
+	m_Status = 0;
+	for (int i = 0; i < NUM_BSTATUS; i++)
+		m_aStatus[i] = 0;
 	
 	switch (Type)
 	{
@@ -33,8 +38,19 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		break;
 		
 	case BUILDING_LAZER:
-		m_ProximityRadius = BarrelPhysSize;
+		m_ProximityRadius = LazerPhysSize;
 		m_Life = 100;
+		break;
+	
+	case BUILDING_BASE:
+		m_ProximityRadius = BasePhysSize;
+		m_Life = 60;
+		break;
+		
+	case BUILDING_STAND:
+		m_ProximityRadius = StandPhysSize;
+		m_Life = 60;
+		m_Center = vec2(0, -10);
 		break;
 	
 	default:
@@ -45,7 +61,7 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 	m_Pos = Pos;
 	m_Team = Team;
 	m_Type = Type;
-	m_Center = vec2(0, 0);
+	m_MaxLife = m_Life;
 	
 	if (!GameServer()->m_pController->IsTeamplay())
 		m_Team = TEAM_NEUTRAL;
@@ -64,6 +80,31 @@ void CBuilding::Reset()
 {
 	//GameServer()->m_World.DestroyEntity(this);
 }
+
+
+bool CBuilding::Repair(int Amount)
+{
+	if (m_Life >= m_MaxLife)
+		return false;
+	
+	m_Life += Amount;
+	if (m_Life > m_MaxLife)
+		m_Life = m_MaxLife;
+	
+	true;
+}
+
+void CBuilding::UpdateStatus()
+{
+	m_Status = 0;
+	
+	for (int i = 0; i < NUM_BSTATUS; i++)
+	{
+		if (m_aStatus[i] > 0)
+			m_Status |= 1 << i;
+	}
+}
+
 
 
 void CBuilding::TakeDamage(int Damage, int Owner, int Weapon)
@@ -97,14 +138,12 @@ void CBuilding::Destroy()
 		GameServer()->CreateMineExplosion(m_Pos, m_DamageOwner, DEATHTYPE_LANDMINE, false);
 		GameServer()->m_World.DestroyEntity(this);
 	}
-	
-	if (m_Type == BUILDING_MINE2)
+	else if (m_Type == BUILDING_MINE2)
 	{
 		GameServer()->CreateElectromineExplosion(m_Pos, m_DamageOwner, DEATHTYPE_ELECTROMINE, false);
 		GameServer()->m_World.DestroyEntity(this);
 	}
-			
-	if (m_Type == BUILDING_BARREL)
+	else if (m_Type == BUILDING_BARREL)
 	{
 		//CSuperexplosion *S = new CSuperexplosion(&GameServer()->m_World, m_Pos, m_DamageOwner, WEAPON_HAMMER, 1);
 		//GameServer()->m_World.InsertEntity(S);
@@ -115,7 +154,8 @@ void CBuilding::Destroy()
 		GameServer()->CreateExplosion(m_Pos, m_DamageOwner, DEATHTYPE_BARREL, false, false);
 		GameServer()->m_World.DestroyEntity(this);
 	}
-	
+	else
+		GameServer()->m_World.DestroyEntity(this);
 }
 
 
@@ -153,7 +193,7 @@ void CBuilding::Tick()
 	if (m_SetTimer <= 0 && (m_Type == BUILDING_MINE1 || m_Type == BUILDING_MINE2))
 	{
 		CCharacter *pChr = GameServer()->m_World.ClosestCharacter(m_Pos, m_ProximityRadius*1.7f, 0);
-		if(pChr && pChr->IsAlive())// && (pChr->GetPlayer()->GetTeam() != m_Team || !GameServer()->m_pController->IsTeamplay()))
+		if(pChr && pChr->IsAlive() && !pChr->IsSliding())// && (pChr->GetPlayer()->GetTeam() != m_Team || !GameServer()->m_pController->IsTeamplay()))
 		{
 			if (pChr->GetPlayer()->GetTeam() != m_Team || !GameServer()->m_pController->IsTeamplay())
 			{
@@ -162,6 +202,8 @@ void CBuilding::Tick()
 			}
 		}
 	}
+	
+	UpdateStatus();
 }
 
 
@@ -182,6 +224,7 @@ void CBuilding::Snap(int SnappingClient)
 
 	pP->m_X = (int)m_Pos.x;
 	pP->m_Y = (int)m_Pos.y;
+	pP->m_Status = m_Status;
 	pP->m_Type = m_Type;
 	pP->m_Team = m_Team;
 }

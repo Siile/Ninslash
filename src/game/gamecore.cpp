@@ -85,6 +85,9 @@ void CCharacterCore::Reset()
 bool CCharacterCore::IsGrounded() {
 	float PhysSize = 28.0f;
 	
+	if (m_Sliding)
+		return true;
+	
 	for(int i = -PhysSize/2; i <= PhysSize/2; i++) {
 		if(m_pCollision->CheckPoint(m_Pos.x+i, m_Pos.y+PhysSize/2+5)) {
 			return true;

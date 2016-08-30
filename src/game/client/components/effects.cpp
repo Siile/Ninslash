@@ -159,6 +159,46 @@ void CEffects::PowerupShine(vec2 Pos, vec2 size)
 	m_pClient->m_pParticles->Add(CParticles::GROUP_GENERAL, &p);
 }
 
+void CEffects::Repair(vec2 Pos)
+{
+	if(!m_Add50hz)
+		return;
+
+	CParticle p;
+	p.SetDefault();
+	p.m_Spr = SPRITE_REPAIR;
+	p.m_Pos = Pos;
+	p.m_Vel = vec2((frandom()-frandom())*600, -1000);
+	p.m_LifeSpan = 1.5f;
+	p.m_StartSize = 32.0f;
+	p.m_EndSize = 48.0f;
+	p.m_Rot = 0;
+	p.m_Rotspeed = 0;
+	p.m_Gravity = -1600;
+	p.m_Friction = 0;
+	m_pClient->m_pParticles->Add(CParticles::GROUP_CRAFTING, &p);
+}
+
+void CEffects::AmmoFill(vec2 Pos, int Weapon)
+{
+	if(!m_Add50hz)
+		return;
+
+	CParticle p;
+	p.SetDefault();
+	p.m_Spr = Weapon;
+	p.m_Pos = Pos;
+	p.m_Vel = vec2((frandom()-frandom())*600, -1000);
+	p.m_LifeSpan = 1.5f;
+	p.m_StartSize = 32.0f;
+	p.m_EndSize = 48.0f;
+	p.m_Rot = 0;
+	p.m_Rotspeed = 0;
+	p.m_Gravity = -1600;
+	p.m_Friction = 0;
+	m_pClient->m_pParticles->Add(CParticles::GROUP_CRAFTING, &p);
+}
+
 void CEffects::Light(vec2 Pos, float Size)
 {
 	if(!m_Add50hz)

@@ -192,6 +192,7 @@ protected:
 	bool SeekRandomWaypoint();
 	
 	bool ShootAtClosestMonster();
+	bool ShootAtClosestBuilding();
 	bool ShootAtClosestEnemy();
 	int WeaponShootRange();
 	

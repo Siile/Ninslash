@@ -29,12 +29,12 @@ void CPicker::ConKeyEmote(IConsole::IResult *pResult, void *pUserData)
 		pSelf->m_Active = pResult->GetInteger(0) != 0;
 	
 	pSelf->m_PickerType = PICKER_EMOTICON;
+	pSelf->m_ItemSelected = -1;
 }
 
 void CPicker::ConKeyItemPicker(IConsole::IResult *pResult, void *pUserData)
 {
-	return;
-	
+	/*
 	CPicker *pSelf = (CPicker *)pUserData;
 	
 	//if (pSelf->CustomStuff()->m_SelectedGroup < 3)
@@ -44,6 +44,7 @@ void CPicker::ConKeyItemPicker(IConsole::IResult *pResult, void *pUserData)
 		
 		pSelf->m_PickerType = PICKER_ITEM;
 	//}
+	*/
 }
 
 void CPicker::ConKeyPicker(IConsole::IResult *pResult, void *pUserData)
@@ -56,6 +57,14 @@ void CPicker::ConKeyPicker(IConsole::IResult *pResult, void *pUserData)
 			pSelf->m_Active = pResult->GetInteger(0) != 0;
 		
 		pSelf->m_PickerType = PICKER_WEAPON;
+	}
+	else if (pSelf->CustomStuff()->m_SelectedGroup == 3)
+	{
+		if(!pSelf->m_pClient->m_Snap.m_SpecInfo.m_Active && pSelf->Client()->State() != IClient::STATE_DEMOPLAYBACK)
+			pSelf->m_Active = pResult->GetInteger(0) != 0;
+		
+		pSelf->m_PickerType = PICKER_TOOL;
+		pSelf->m_ItemSelected = -1;
 	}
 }
 
@@ -214,6 +223,8 @@ void CPicker::DrawWeapons()
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 	Graphics()->QuadsBegin();
 
+	bool Unselect = true;
+	
 	for (int i = 0; i < NUM_WEAPONS-1; i++)
 	{
 		int w = CustomStuff()->m_LocalWeapons;
@@ -231,10 +242,27 @@ void CPicker::DrawWeapons()
 		float NudgeX = 135.0f * cosf(Angle);
 		float NudgeY = 135.0f * sinf(Angle);
 		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[i+1].m_pSpriteBody);
-		RenderTools()->DrawSprite(Screen.w/2 + NudgeX, Screen.h/2 + NudgeY, g_pData->m_Weapons.m_aId[i+1].m_VisualSize * Size);
+		
+		vec2 Pos = vec2(Screen.w/2 + NudgeX, Screen.h/2 + NudgeY);
+		
+		RenderTools()->DrawSprite(Pos.x, Pos.y, g_pData->m_Weapons.m_aId[i+1].m_VisualSize * Size);
+		
+		if (distance(m_SelectorMouse+vec2(Screen.w/2, Screen.h/2), Pos) < 40 && 
+			length(m_SelectorMouse) > 100.0f)
+		{
+			if (m_Selected != i)
+				m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_PICK, 0);
+			
+			m_Selected = i;
+			Unselect = false;
+		}
 	}
 
 	Graphics()->QuadsEnd();
+	
+	
+	if (Unselect)
+		m_Selected = -1;
 	
 	// render mines
 	if (CustomStuff()->m_aLocalItems[PLAYERITEM_LANDMINE] + CustomStuff()->m_aLocalItems[PLAYERITEM_ELECTROMINE] > 0)
@@ -394,6 +422,110 @@ void CPicker::DrawItems()
 
 
 
+void CPicker::DrawKit()
+{
+	// reset mouse to active weapon
+	if (m_ResetMouse)
+	{
+		//m_SelectorMouse = vec2(0, 0);
+		m_ResetMouse = false;
+
+		m_Selected = -1;
+	}
+	
+	CUIRect Screen = *UI()->Screen();
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
+	Graphics()->QuadsBegin();
+
+	bool Unselect = true;
+	
+	for (int i = 0; i < NUM_KITS; i++)
+	{
+		float Angle = -pi/2.0f + 2*pi*i/NUM_KITS;
+		if (Angle > pi)
+			Angle -= 2*pi;
+
+		bool Selected = m_Selected == i;
+
+		float Size = Selected ? 1.2f : 1.0f;
+
+		float NudgeX = 135.0f * cosf(Angle);
+		float NudgeY = 135.0f * sinf(Angle);
+		RenderTools()->SelectSprite(SPRITE_KIT_BASE+i);
+		
+		vec2 Pos = vec2(Screen.w/2 + NudgeX, Screen.h/2 + NudgeY);
+		RenderTools()->DrawSprite(Pos.x, Pos.y, 70 * Size);
+		
+		if (distance(m_SelectorMouse+vec2(Screen.w/2, Screen.h/2), Pos) < 40 && 
+		length(m_SelectorMouse) > 100.0f)
+		{
+			if (m_Selected != i)
+				m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_PICK, 0);
+			
+			m_Selected = i;
+			Unselect = false;
+		}
+	}
+	Graphics()->QuadsEnd();
+	
+	if (Unselect)
+		m_Selected = -1;
+	
+	// render number of kits to mid
+	vec2 KitPos = vec2(0, 60);
+	
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
+	Graphics()->QuadsBegin();
+	Graphics()->SetColor(1, 1, 1, 0.5f);
+	RenderTools()->SelectSprite(SPRITE_PICKUP_KIT);
+	RenderTools()->DrawSprite(Screen.w/2+KitPos.x, Screen.h/2+KitPos.y, 64);
+	Graphics()->QuadsEnd();
+	
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMNUMBERS].m_Id);
+	Graphics()->QuadsBegin();
+	Graphics()->SetColor(1, 1, 1, 0.5f);
+	RenderTools()->SelectSprite(SPRITE_ITEMNUMBER_0+CustomStuff()->m_LocalKits);
+	RenderTools()->DrawSprite(Screen.w/2+KitPos.x+30, Screen.h/2+KitPos.y+25, 32);
+	Graphics()->QuadsEnd();
+	
+	/*
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMNUMBERS].m_Id);
+	Graphics()->QuadsBegin();
+	for (int i = 0; i < NUM_PLAYERITEMS; i++)
+	{
+		int a = CustomStuff()->m_aLocalItems[i];
+		if (a > 0)
+			Graphics()->SetColor(0, 1, 0, 0.75f);
+		else
+			Graphics()->SetColor(1, 0, 0, 0.75f);
+		
+		float Angle = -pi/2.0f + 2*pi*i/NUM_PLAYERITEMS;
+		if (Angle > pi)
+			Angle -= 2*pi;
+
+		bool Selected = m_Selected == i;
+
+		float Size = Selected ? 1.25f : 1.0f;
+
+		float NudgeX = 135.0f * cosf(Angle);
+		float NudgeY = 135.0f * sinf(Angle);
+		RenderTools()->SelectSprite(SPRITE_ITEMNUMBER_0+a);
+		RenderTools()->DrawSprite(Screen.w/2 + NudgeX + 24, Screen.h/2 + NudgeY + 16, 32 * Size);
+	}
+	Graphics()->QuadsEnd();
+	*/
+	
+	/*
+	if (m_Selected >= 0 && m_Selected < NUM_PLAYERITEMS)
+	{
+		float Size = 18;
+		TextRender()->Text(0, Screen.w/2-TextRender()->TextWidth(0,Size,aPlayerItemName[m_Selected], -1)/2, Screen.h/2-9, Size, aPlayerItemName[m_Selected], -1);
+	}
+	*/
+}
+
+
+
 void CPicker::OnRender()
 {
 	if (m_PickerType == PICKER_WEAPON && CustomStuff()->m_SelectedGroup > 2)
@@ -414,6 +546,8 @@ void CPicker::OnRender()
 					Emote(m_Selected);
 				if (m_PickerType == PICKER_ITEM)
 					Itempick(m_Selected);
+				if (m_PickerType == PICKER_TOOL)
+					UseKit(m_Selected);
 			}
 		}
 		m_WasActive = false;
@@ -432,7 +566,8 @@ void CPicker::OnRender()
 	if (length(m_SelectorMouse) > 170.0f)
 		m_SelectorMouse = normalize(m_SelectorMouse) * 170.0f;
 
-	float SelectedAngle = GetAngle(m_SelectorMouse) + 2*pi/24 +pi/2.0f;
+	//float SelectedAngle = GetAngle(m_SelectorMouse) + 2*pi/24 +pi/2.0f;
+	float SelectedAngle = GetAngle(m_SelectorMouse) + 3*pi/24 +pi/2.0f;
 	if (SelectedAngle < 0)
 		SelectedAngle += 2*pi;
 
@@ -440,6 +575,7 @@ void CPicker::OnRender()
 	{
 		if (m_PickerType == PICKER_EMOTICON)
 			m_Selected = (int)(SelectedAngle / (2*pi) * NUM_EMOTICONS);
+		/*
 		if (m_PickerType == PICKER_WEAPON)
 		{
 			m_ItemSelected = -1;
@@ -453,6 +589,7 @@ void CPicker::OnRender()
 				m_Selected = i;
 			}
 		}
+		*/
 		if (m_PickerType == PICKER_ITEM)
 		{
 			int i = (int)(SelectedAngle / (2*pi) * NUM_PLAYERITEMS);
@@ -462,6 +599,17 @@ void CPicker::OnRender()
 			
 			m_Selected = i;
 		}
+		/*
+		if (m_PickerType == PICKER_TOOL)
+		{
+			int i = (int)(SelectedAngle / (2*pi) * NUM_KITS);
+			
+			if (m_Selected != i)
+				m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_PICK, 0);
+			
+			m_Selected = i;
+		}
+		*/
 	}
 	// items in the middle
 	else if (m_PickerType == PICKER_WEAPON)
@@ -511,6 +659,9 @@ void CPicker::OnRender()
 		case PICKER_ITEM:
 			DrawItems();
 			break;
+		case PICKER_TOOL:
+			DrawKit();
+			break;
 	
 		default:
 			break;
@@ -522,6 +673,25 @@ void CPicker::OnRender()
 	IGraphics::CQuadItem QuadItem(m_SelectorMouse.x+Screen.w/2,m_SelectorMouse.y+Screen.h/2,24,24);
 	Graphics()->QuadsDrawTL(&QuadItem, 1);
 	Graphics()->QuadsEnd();
+}
+
+
+void CPicker::UseKit(int Kit)
+{
+	if (Kit < 0 || Kit >= NUM_KITS)
+		return;
+
+	if (CustomStuff()->m_LocalKits < 1)
+	{
+		m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_NEGATIVE, 0);
+		return;
+	}
+	
+	m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_POSITIVE, 0);
+
+	CNetMsg_Cl_UseKit Msg;
+	Msg.m_Kit = Kit;
+	Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
 }
 
 
@@ -580,8 +750,6 @@ void CPicker::Weaponpick(int Weapon)
 
 void CPicker::DropWeapon()
 {
-	//m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_POSITIVE, 0);
-	
 	if (CustomStuff()->m_WeaponDropTick > CustomStuff()->LocalTick() - 20)
 	{
 		CustomStuff()->m_WeaponDropTick = CustomStuff()->LocalTick();
@@ -610,6 +778,8 @@ void CPicker::SwitchGroup()
 	if (CustomStuff()->m_SelectedGroup == 1)
 		Console()->ExecuteLine("+weapon2");
 	else if (CustomStuff()->m_SelectedGroup == 2)
+		Console()->ExecuteLine("+weapon3");
+	else if (CustomStuff()->m_SelectedGroup == 3)
 		Console()->ExecuteLine("+weapon1");
 	
 	/*

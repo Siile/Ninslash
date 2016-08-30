@@ -10,10 +10,15 @@ CCustomStuff::CCustomStuff()
 
 void CCustomStuff::Reset()
 {
+	m_LocalPos = vec2(0, 0);
+	m_LocalWeapon = 0;
+	m_LocalColor = vec4(0, 0, 0, 0);
+	
 	m_WeaponDropTick = 0;
 	m_SwitchTick = 0;
 	m_SelectedWeapon = 0;
 	m_LocalWeapons = 0;
+	m_LocalKits = 0;
 	m_Picker = 0;
 	m_LastUpdate = time_get();
 	m_Tick = 0;

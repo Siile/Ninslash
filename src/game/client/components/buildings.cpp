@@ -1,4 +1,5 @@
 #include <engine/graphics.h>
+#include <engine/textrender.h>
 #include <engine/demo.h>
 #include <game/generated/protocol.h>
 #include <game/generated/client_data.h>
@@ -15,6 +16,7 @@
 #include <game/client/skelebank.h>
 
 #include "buildings.h"
+#include "binds.h"
 
 void CBuildings::OnReset()
 {
@@ -131,6 +133,51 @@ void CBuildings::RenderBarrel(const struct CNetObj_Building *pCurrent)
 	
 	Graphics()->QuadsEnd();
 }
+
+void CBuildings::RenderBase(const struct CNetObj_Building *pCurrent)
+{
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
+	Graphics()->QuadsBegin();
+	
+	RenderTools()->SelectSprite(SPRITE_KIT_BASE);
+	
+	Graphics()->SetColor(1, 1, 1, 1);
+	Graphics()->QuadsSetRotation(0);
+		
+	//RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y+8, 64*1.3f);
+	
+	float Scale = 0.8f;
+	IGraphics::CQuadItem QuadItem(pCurrent->m_X, pCurrent->m_Y+7.5f, 96*Scale, 32*Scale); // -5
+	Graphics()->QuadsDraw(&QuadItem, 1);
+	
+	Graphics()->QuadsEnd();
+}
+
+void CBuildings::RenderStand(const struct CNetObj_Building *pCurrent)
+{
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
+	Graphics()->QuadsBegin();
+	RenderTools()->SelectSprite(SPRITE_STAND);
+	
+	Graphics()->SetColor(1, 1, 1, 1);
+	Graphics()->QuadsSetRotation(0);
+		
+	//RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y-24, 96*1.3f);
+	
+	float Scale = 0.8f;
+	IGraphics::CQuadItem QuadItem(pCurrent->m_X, pCurrent->m_Y-25, 96*Scale, 128*Scale); // -37
+	Graphics()->QuadsDraw(&QuadItem, 1);
+	
+	Graphics()->QuadsEnd();
+	
+	if (distance(CustomStuff()->m_LocalPos, vec2(pCurrent->m_X, pCurrent->m_Y)) < 40 && 
+		CustomStuff()->m_LocalWeapon != WEAPON_TOOL && CustomStuff()->m_LocalWeapon != WEAPON_HAMMER && CustomStuff()->m_LocalWeapon != WEAPON_GUN)
+	{
+		TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
+		TextRender()->Text(0, pCurrent->m_X + 22, pCurrent->m_Y - 90, 32, m_pClient->m_pBinds->GetKey("+dropweapon"), -1);
+		TextRender()->TextColor(1, 1, 1, 1);
+	}
+}
 	
 void CBuildings::RenderLazer(const struct CNetObj_Building *pCurrent)
 {
@@ -146,70 +193,182 @@ void CBuildings::RenderLazer(const struct CNetObj_Building *pCurrent)
 	
 	Graphics()->QuadsEnd();
 }
+
+
+
 	
 void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 {
 	vec2 Pos = vec2(pCurrent->m_X, pCurrent->m_Y);
-
-	m_pClient->m_pEffects->Light(Pos, 256);
+	float Scale = 0.8f;
 	
-	RenderTools()->RenderBuilding(Pos+vec2(0, 16), RenderTools()->Skelebank()->m_lSkeletons[SKELETON_TURRET], RenderTools()->Skelebank()->m_lAtlases[ATLAS_TURRET], pCurrent->m_Team, pCurrent->m_Angle);
-
-	float Angle = (pCurrent->m_Angle+90) / (180/pi);
-	
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
+	// stand
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
 	Graphics()->QuadsBegin();
+	RenderTools()->SelectSprite(SPRITE_STAND);
+	
+	Graphics()->SetColor(1, 1, 1, 1);
+	Graphics()->QuadsSetRotation(0);
+		
+	//RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y-24-9, 96*1.3f);
+	
+	IGraphics::CQuadItem Stand(pCurrent->m_X, pCurrent->m_Y-25, 96*Scale, 128*Scale); // -37
+	Graphics()->QuadsDraw(&Stand, 1);
+	Graphics()->QuadsEnd();
+	
+	
+	// weapon
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
+	Graphics()->QuadsBegin();
+
+	int Weapon = pCurrent->m_Weapon;
+	float Angle = (pCurrent->m_Angle+90) / (180/pi);
+	vec2 p = Pos + vec2(cosf(Angle)*12, sinf(Angle)*12-40-9); //+ vec2(cosf(Angle)*90, sinf(Angle)*90-71);
+	vec2 Dir = GetDirection((int)(Angle*256));
+	
 	Graphics()->QuadsSetRotation(Angle);
 	
-	int iw = WEAPON_RIFLE;
-	float IntraTick = Client()->IntraGameTick();
+	int iw = clamp(Weapon, 0, NUM_WEAPONS-1);
+	RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[iw].m_pSpriteBody, Dir.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
 	
-	// check if we're firing stuff
-	if(g_pData->m_Weapons.m_aId[iw].m_NumSpriteMuzzles)//prev.attackticks)
+	/*
+	p = Dir * g_pData->m_Weapons.m_aId[iw].m_Offsetx;
+	p.y += g_pData->m_Weapons.m_aId[iw].m_Offsety;
+	*/
+
+	RenderTools()->DrawSprite(p.x, p.y, g_pData->m_Weapons.m_aId[iw].m_VisualSize);
+	Graphics()->QuadsEnd();
+	
+	// fastener
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
+	Graphics()->QuadsBegin();
+	RenderTools()->SelectSprite(SPRITE_TURRET_FASTENER, Dir.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
+	Graphics()->SetColor(1, 1, 1, 1);
+	
+	if (m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_TEAMS && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_INFECTION))
 	{
-		vec2 p = Pos + vec2(cosf(Angle)*90, sinf(Angle)*90-71);
-		vec2 Dir = GetDirection((int)(Angle*256));
+		if (pCurrent->m_Team == TEAM_RED)
+			Graphics()->SetColor(1, 0.8f, 0.0f, 1);
+		if (pCurrent->m_Team == TEAM_BLUE)
+			Graphics()->SetColor(0.3f, 0.5f, 1, 1);
+	}
+	else if (!(m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_TEAMS))
+	{
+		vec4 c = CustomStuff()->m_LocalColor;
+		if (pCurrent->m_Team == TEAM_BLUE)
+			Graphics()->SetColor(c.r, c.g, c.g, 1);
+	}
+
+	
+	Graphics()->QuadsSetRotation(Angle);
 		
-		float Alpha = 0.0f;
-		int Phase1Tick = (Client()->GameTick() - pCurrent->m_AttackTick);
-		if (Phase1Tick < (g_pData->m_Weapons.m_aId[iw].m_Muzzleduration + 3))
+	RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y-40-9, 64*1.3f);
+	Graphics()->QuadsEnd();
+	
+	
+	if (iw == WEAPON_RIFLE || iw == WEAPON_SHOTGUN)
+	{
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
+		Graphics()->QuadsBegin();
+		Graphics()->QuadsSetRotation(Angle);
+		Graphics()->SetColor(1, 1, 1, 1);
+	
+		// muzzle
+		float IntraTick = Client()->IntraGameTick();
+		
+		// check if we're firing stuff
+		if(g_pData->m_Weapons.m_aId[iw].m_NumSpriteMuzzles)//prev.attackticks)
 		{
-			float t = ((((float)Phase1Tick) + IntraTick)/(float)g_pData->m_Weapons.m_aId[iw].m_Muzzleduration);
-			Alpha = mix(2.0f, 0.0f, min(1.0f,max(0.0f,t)));
-		}
+			vec2 p = Pos + vec2(cosf(Angle)*80, sinf(Angle)*80-49);
+			vec2 Dir = GetDirection((int)(Angle*256));
+			
+			float Alpha = 0.0f;
+			int Phase1Tick = (Client()->GameTick() - pCurrent->m_AttackTick);
+			if (Phase1Tick < (g_pData->m_Weapons.m_aId[iw].m_Muzzleduration + 3))
+			{
+				float t = ((((float)Phase1Tick) + IntraTick)/(float)g_pData->m_Weapons.m_aId[iw].m_Muzzleduration);
+				Alpha = mix(2.0f, 0.0f, min(1.0f,max(0.0f,t)));
+			}
 
-		int IteX = rand() % g_pData->m_Weapons.m_aId[iw].m_NumSpriteMuzzles;
-		static int s_LastIteX = IteX;
-		if(Client()->State() == IClient::STATE_DEMOPLAYBACK)
-		{
-			const IDemoPlayer::CInfo *pInfo = DemoPlayer()->BaseInfo();
-			if(pInfo->m_Paused)
-				IteX = s_LastIteX;
+			int IteX = rand() % g_pData->m_Weapons.m_aId[iw].m_NumSpriteMuzzles;
+			static int s_LastIteX = IteX;
+			if(Client()->State() == IClient::STATE_DEMOPLAYBACK)
+			{
+				const IDemoPlayer::CInfo *pInfo = DemoPlayer()->BaseInfo();
+				if(pInfo->m_Paused)
+					IteX = s_LastIteX;
+				else
+					s_LastIteX = IteX;
+			}
 			else
-				s_LastIteX = IteX;
-		}
-		else
-		{
-			if(m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED)
-				IteX = s_LastIteX;
-			else
-				s_LastIteX = IteX;
-		}
-		if (Alpha > 0.0f && g_pData->m_Weapons.m_aId[iw].m_aSpriteMuzzles[IteX])
-		{
-			float OffsetY = -g_pData->m_Weapons.m_aId[iw].m_Muzzleoffsety;
-			RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[iw].m_aSpriteMuzzles[IteX], Dir.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
-			if(Dir.x < 0)
-				OffsetY = -OffsetY;
+			{
+				if(m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED)
+					IteX = s_LastIteX;
+				else
+					s_LastIteX = IteX;
+			}
+			if (Alpha > 0.0f && g_pData->m_Weapons.m_aId[iw].m_aSpriteMuzzles[IteX])
+			{
+				float OffsetY = -g_pData->m_Weapons.m_aId[iw].m_Muzzleoffsety;
+				RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[iw].m_aSpriteMuzzles[IteX], Dir.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
+				if(Dir.x < 0)
+					OffsetY = -OffsetY;
 
-			vec2 DirY(-Dir.y,Dir.x);
-			vec2 MuzzlePos = p + DirY * OffsetY;
+				vec2 DirY(-Dir.y,Dir.x);
+				vec2 MuzzlePos = p + DirY * OffsetY;
 
-			RenderTools()->DrawSprite(MuzzlePos.x, MuzzlePos.y, g_pData->m_Weapons.m_aId[iw].m_VisualSize);
+				RenderTools()->DrawSprite(MuzzlePos.x, MuzzlePos.y, g_pData->m_Weapons.m_aId[iw].m_VisualSize);
+			}
 		}
+		
+		Graphics()->QuadsEnd();
 	}
 	
-	Graphics()->QuadsEnd();
+	// no ammo & low health status
+	int s = pCurrent->m_Status;
+	bool Repair = s & (1<<BSTATUS_REPAIR);
+	
+	s = pCurrent->m_Status;
+	bool NoAmmo = s & (1<<BSTATUS_NOPE);
+	
+	if (Repair && (CustomStuff()->LocalTick()/12+(pCurrent->m_X/8 + pCurrent->m_Y/32))%8 < 4)
+	{
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
+		Graphics()->QuadsBegin();
+		RenderTools()->SelectSprite(SPRITE_STATUS_REPAIR);
+		Graphics()->SetColor(1, 1, 1, 1);
+		
+		Graphics()->QuadsSetRotation(0);
+		
+		RenderTools()->DrawSprite(pCurrent->m_X - (NoAmmo ? 24 : 0), pCurrent->m_Y-102, 52);
+		Graphics()->QuadsEnd();
+	}
+	
+	s = pCurrent->m_Status;
+	if (NoAmmo && (CustomStuff()->LocalTick()/12+(pCurrent->m_X/8 + pCurrent->m_Y/32))%8 >= 4)
+	{
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
+		Graphics()->QuadsBegin();
+		RenderTools()->SelectSprite(SPRITE_STATUS_NOPE);
+		Graphics()->SetColor(1, 1, 1, 1);
+		
+		Graphics()->QuadsSetRotation(0);
+			
+		RenderTools()->DrawSprite(pCurrent->m_X + (Repair ? 24 : 0), pCurrent->m_Y-102, 52);
+		Graphics()->QuadsEnd();
+		
+		
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_PICKUPS].m_Id);
+		Graphics()->QuadsBegin();
+		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[iw].m_pSpritePickup);
+		
+		Graphics()->QuadsSetRotation(0);
+			
+		//RenderTools()->DrawSprite(pCurrent->m_X + (Repair ? 24 : 0), pCurrent->m_Y-102, 52);
+		IGraphics::CQuadItem Ammo(pCurrent->m_X + (Repair ? 24 : 0), pCurrent->m_Y-102, 18, 36); // -37
+		Graphics()->QuadsDraw(&Ammo, 1);
+		Graphics()->QuadsEnd();
+	}
 }
 
 
@@ -253,6 +412,14 @@ void CBuildings::OnRender()
 				
 			case BUILDING_LAZER:
 				RenderLazer(pBuilding);
+				break;
+				
+			case BUILDING_BASE:
+				RenderBase(pBuilding);
+				break;
+				
+			case BUILDING_STAND:
+				RenderStand(pBuilding);
 				break;
 				
 			default:;

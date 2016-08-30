@@ -34,8 +34,6 @@ struct CWeapon
 {
 	char m_Name[64];
 	int m_Sprite;
-	int m_ParentWeapon;
-	int m_ProjectileType;
 	int m_Sound;
 	int m_Cost;
 	int m_Damage;
@@ -48,17 +46,12 @@ struct CWeapon
 	int m_BulletReloadTime;
 	float m_Knockback;
 	float m_SelfKnockback;
-	int m_Extra1;
 
 
 	CWeapon(const char *Name,
-			//int Sprite,
-			int ParentWeapon,
-			int ProjectileType,
 			int Sound,
 			int Cost,
 			int Damage,
-			int Extra1,
 			bool FullAuto,
 			float BulletSpread,
 			int ShotSpread,
@@ -70,13 +63,9 @@ struct CWeapon
 			float SelfKnockback)
 	{
 	    str_copy(m_Name, Name, sizeof(m_Name));
-		//m_Sprite = Sprite;
-		m_ParentWeapon = ParentWeapon;
-		m_ProjectileType = ProjectileType;
 		m_Sound = Sound;
 		m_Cost = Cost;
 		m_Damage = Damage;
-		m_Extra1 = Extra1;
 		m_FullAuto = FullAuto;
 		m_BulletSpread = BulletSpread;
 		m_ShotSpread = ShotSpread;
@@ -121,66 +110,45 @@ const int BotAttackRange[NUM_CUSTOMWEAPONS] =
 	600, // W_FLAMER,
 };
 
-
-enum ProjectileTypes
+const int TurretAttackRange[NUM_CUSTOMWEAPONS] =
 {
-	PROJTYPE_NONE,
-	PROJTYPE_HAMMER,
-	PROJTYPE_CHAINSAW,
-	PROJTYPE_FLYHAMMER,
-	PROJTYPE_SWORD,
-	PROJTYPE_BULLET,
-	PROJTYPE_PELLET,
-	PROJTYPE_LASER,
-	PROJTYPE_FLAME,
-	PROJTYPE_LIGHTNING,
-	PROJTYPE_ELECTRO,
-	PROJTYPE_ELECTRIC,
-	PROJTYPE_GRENADE,
-	PROJTYPE_MINE
+	0, // W_TOOL,
+	0, // W_HAMMER,
+	180, // W_CHAINSAW,
+	750, // W_PISTOL,
+	440, // W_SHOTGUN,
+	650, // W_GRENADELAUNCHER,
+	780, // W_RIFLE,
+	780, // W_ELECTRIC,
+	740, // W_LASER,
+	600, // W_FLAMER,
 };
 
-enum WeaponExtraFeature
-{
-	NO_EXTRA1,
-	EXPLOSIVE,
-	MEGAROCKETS,
-	DOOMROCKETS,
-	SLEEPEFFECT,
-	ELECTRIC,
-	SMOKE,
-	NUM_EXTRA_FEATURES
-};
+
 
 
 const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 {	
 	CWeapon(
 		"Tool",
-		WEAPON_TOOL,
-		PROJTYPE_HAMMER,
 		SOUND_TOOL_FIRE,
 		0, // cost
 		5, // damage
-		0, // extra1
 		true, // autofire
 		0, // bullet spread
 		1, // shot spread
 		0, // powerup size
 		0, // max ammo
 		0, // bullet life
-		180, // bullet reload time
-		0.7f, // knockback
+		220, // bullet reload time
+		0.0f, // knockback
 		0.0f // self knockback
 		),
 	CWeapon(
 		"Hammer",
-		WEAPON_HAMMER,
-		PROJTYPE_HAMMER,
 		SOUND_HAMMER_FIRE,
 		0, // cost
 		20, // damage
-		0, // extra1
 		true, // autofire
 		0, // bullet spread
 		1, // shot spread
@@ -193,12 +161,9 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		),
 	CWeapon(
 		"Chainsaw",
-		WEAPON_CHAINSAW,
-		PROJTYPE_CHAINSAW,
 		SOUND_CHAINSAW_FIRE,
 		0, // cost
 		12, // damage
-		0, // extra1
 		true, // autofire
 		0, // bullet spread
 		1, // shot spread
@@ -211,12 +176,9 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		),
 	CWeapon(
 		"Pistol",
-		WEAPON_GUN,
-		PROJTYPE_BULLET,
 		SOUND_GUN_FIRE,
 		0, // cost
 		11, // damage
-		0, // extra1
 		true, // autofire
 		0.04f, // bullet spread
 		1, // shot spread
@@ -229,14 +191,11 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		),
 	CWeapon(
 		"Shotgun",
-		WEAPON_SHOTGUN,
-		PROJTYPE_PELLET,
 		SOUND_SHOTGUN_FIRE,
 		75, // cost
 		7, // damage
-		0, // extra1
 		true, // autofire
-		0.04f, // bullet spread
+		0.06f, // bullet spread
 		6, // shot spread
 		4, // powerup size
 		10, // max ammo
@@ -247,12 +206,9 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		),
 	CWeapon(
 		"Grenade launcher",
-		WEAPON_GRENADE,
-		PROJTYPE_GRENADE,
 		SOUND_GRENADE_FIRE,
 		100, // cost
 		12, // damage
-		0, // extra1
 		true, // autofire
 		0, // bullet spread
 		1, // shot spread
@@ -265,12 +221,9 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		),
 	CWeapon(
 		"Assault rifle",
-		WEAPON_RIFLE,
-		PROJTYPE_BULLET,
 		SOUND_RIFLE_FIRE,
 		100, // cost
 		13, // damage
-		0, // extra1
 		true, // autofire
 		0.08f, // bullet spread
 		1, // shot spread
@@ -283,12 +236,9 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		),
 	CWeapon(
 		"Electro launcher",
-		WEAPON_ELECTRIC,
-		PROJTYPE_ELECTRIC,
 		SOUND_ELECTRO_FIRE,
 		100, // cost
 		10, // damage
-		0, // extra1
 		true, // autofire
 		0, // bullet spread
 		1, // shot spread
@@ -301,12 +251,9 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		),
 	CWeapon(
 		"Laser rifle",
-		WEAPON_LASER,
-		PROJTYPE_LASER,
 		SOUND_LASER_FIRE,
 		90, // cost
 		35, // damage
-		0, // extra1
 		true, // autofire
 		0, // bullet spread
 		1, // shot spread
@@ -319,15 +266,12 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		),
 	CWeapon(
 		"Flame thrower",
-		WEAPON_FLAMER,
-		PROJTYPE_FLAME,
 		SOUND_GRENADE_FIRE,
 		90, // cost
 		6, // damage
-		0, // extra1
 		true, // autofire
-		0, // bullet spread
-		1, // shot spread
+		0.1f, // bullet spread
+		3, // shot spread
 		4, // powerup size
 		10, // max ammo
 		0.7f, // bullet life

@@ -3,6 +3,7 @@
 #include "ai.h"
 #include "entities/character.h"
 #include "entities/monster.h"
+#include "entities/building.h"
 #include "entities/staticlaser.h"
 #include "entities/flag.h"
 #include "entities/bomb.h"
@@ -637,7 +638,11 @@ bool CAI::MoveTowardsWaypoint(int Dist)
 				m_Jump = 1;
 				m_Move = -1;
 				
-				if (Player()->GetCharacter()->GetCore().m_JetpackPower > 40)
+				int Treshold = 40;
+				if (Player()->GetCharacter()->IsGrounded())
+					Treshold += 30;
+				
+				if (Player()->GetCharacter()->GetCore().m_JetpackPower > Treshold)
 				{
 					m_Hook = 1;
 					m_Direction = vec2(-1, -0.75f);
@@ -650,7 +655,11 @@ bool CAI::MoveTowardsWaypoint(int Dist)
 				m_Jump = 1;
 				m_Move = 1;
 				
-				if (Player()->GetCharacter()->GetCore().m_JetpackPower > 40)
+				int Treshold = 40;
+				if (Player()->GetCharacter()->IsGrounded())
+					Treshold += 30;
+				
+				if (Player()->GetCharacter()->GetCore().m_JetpackPower > Treshold)
 				{
 					m_Hook = 1;
 					m_Direction = vec2(1, -0.75f);
@@ -1061,6 +1070,68 @@ bool CAI::ShootAtClosestMonster()
 	if (pClosestMonster && ClosestDistance < WeaponShootRange()*1.2f)
 	{
 		vec2 AttackDirection = vec2(MonsterDir.x+ClosestDistance*(frandom()*0.3f-frandom()*0.3f), MonsterDir.y+ClosestDistance*(frandom()*0.3f-frandom()*0.3f));
+
+		m_Direction = AttackDirection;
+		m_Hook = 0;
+		
+		// shooting part
+		if (m_AttackTimer++ > max(0, 20-m_PowerLevel*2))
+		{
+			if (ClosestDistance < WeaponShootRange() && abs(atan2(m_Direction.x, m_Direction.y) - atan2(AttackDirection.x, AttackDirection.y)) < PI / 4.0f)
+			{
+				m_Attack = 1;
+				if (frandom()*30 < 2 && !Player()->GetCharacter()->UsingMeleeWeapon())
+					m_DontMoveTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed()*(1+frandom());
+			}
+		}
+		
+		return true;
+	}
+	
+	return false;
+}
+
+
+bool CAI::ShootAtClosestBuilding()
+{
+	CBuilding *pClosestBuilding = NULL;
+	int ClosestDistance = 0;
+	
+	vec2 BuildingDir;
+	
+	CBuilding *apEnts[16];
+	int Num = GameServer()->m_World.FindEntities(m_LastPos, WeaponShootRange()*1.5f, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
+
+	for (int i = 0; i < Num; ++i)
+	{
+		CBuilding *pBuilding = apEnts[i];
+
+		if (pBuilding->m_Type != BUILDING_TURRET && pBuilding->m_Type != BUILDING_MINE1 && pBuilding->m_Type != BUILDING_MINE2)
+			continue;
+		
+		if (GameServer()->m_pController->IsTeamplay() && pBuilding->m_Team == Player()->GetTeam())
+			continue;
+		
+		vec2 Dir;
+		if (length(pBuilding->m_Pos - m_LastPos) > 0.0f)
+			Dir = normalize(pBuilding->m_Pos - m_LastPos);
+
+		int Distance = distance(pBuilding->m_Pos, m_LastPos);
+		if (Distance < 800 && 
+			!GameServer()->Collision()->FastIntersectLine(pBuilding->m_Pos + vec2(0, -30), m_LastPos))
+		{
+			if (!pClosestBuilding || Distance < ClosestDistance)
+			{
+				pClosestBuilding = pBuilding;
+				ClosestDistance = Distance;
+				BuildingDir = (pBuilding->m_Pos+vec2(0, -30)) - m_LastPos;
+			}
+		}
+	}
+	
+	if (pClosestBuilding && ClosestDistance < WeaponShootRange()*1.2f)
+	{
+		vec2 AttackDirection = vec2(BuildingDir.x+ClosestDistance*(frandom()*0.3f-frandom()*0.3f), BuildingDir.y+ClosestDistance*(frandom()*0.3f-frandom()*0.3f));
 
 		m_Direction = AttackDirection;
 		m_Hook = 0;
