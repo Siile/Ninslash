@@ -517,6 +517,14 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		new CBuilding(&GameServer()->m_World, Pos+vec2(0, -10), BUILDING_STAND, TEAM_NEUTRAL);
 		return true;
 	}
+	else if (Index == ENTITY_FLAMETRAP_RIGHT || Index == ENTITY_FLAMETRAP_LEFT)
+	{
+		CBuilding *pFlametrap = new CBuilding(&GameServer()->m_World, Pos, BUILDING_FLAMETRAP, TEAM_NEUTRAL);
+		
+		if (Index == ENTITY_FLAMETRAP_LEFT)
+			pFlametrap->m_Mirror = true;
+		return true;
+	}
 	else if (Index == ENTITY_MONSTER1)
 	{
 		CMonster *pMonster = new CMonster(&GameServer()->m_World, Pos+vec2(0, 16));

@@ -44,6 +44,10 @@ public:
 	float m_MonsterDamageIntensity[MAX_MONSTERS];
 	float m_MonsterDamageType[MAX_MONSTERS];
 	
+	int m_FlametrapState[64];
+	int m_FlametrapSoundTick[64];
+	int m_FlametrapLastSound[64];
+	
 	float m_SawbladeAngle;
 	float m_MonsterAnim;
 	

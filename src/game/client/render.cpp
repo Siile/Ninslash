@@ -497,6 +497,9 @@ void CRenderTools::DrawUIRect(const CUIRect *r, vec4 Color, int Corners, float R
 
 void CRenderTools::RenderFullScreenLayer()
 {
+	if (!g_Config.m_GfxMultiBuffering)
+		return;
+	
 	Graphics()->MapScreen(0,0,Graphics()->ScreenWidth(),Graphics()->ScreenHeight());
 	
 	// render blood splatter to tiles

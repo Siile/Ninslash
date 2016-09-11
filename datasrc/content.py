@@ -299,6 +299,7 @@ image_bloodfx = Image("bloodfx", "fx/bloodfx.png")
 image_playerspawn = Image("playerspawn", "fx/playerspawn.png")
 image_monsterspawn = Image("monsterspawn", "fx/monsterspawn.png")
 image_heal = Image("heal", "fx/heal.png")
+image_flame = Image("flame", "fx/flame.png")
 
 image_texasmask = Image("texasmask", "texasmask.png")
 
@@ -345,6 +346,7 @@ container.images.Add(image_bloodfx)
 container.images.Add(image_playerspawn)
 container.images.Add(image_monsterspawn)
 container.images.Add(image_heal)
+container.images.Add(image_flame)
 container.images.Add(image_texasmask)
 
 container.pickups.Add(Pickup("health"))
@@ -366,7 +368,7 @@ set_pickups = SpriteSet("pickups", image_pickups, 8, 2)
 set_deathtypes = SpriteSet("deathtypes", image_deathtypes, 8, 4)
 set_items = SpriteSet("items", image_items, 8, 1)
 set_itemnumbers = SpriteSet("itemnumbers", image_itemnumbers, 8, 2)
-set_buildings = SpriteSet("buildings", image_buildings, 8, 8)
+set_buildings = SpriteSet("buildings", image_buildings, 16, 8)
 set_tee = SpriteSet("tee", image_null, 8, 4)
 set_browseicons = SpriteSet("browseicons", image_browseicons, 4, 1)
 set_emoticons = SpriteSet("emoticons", image_emoticons, 4, 4)
@@ -391,6 +393,7 @@ set_bloodfx = SpriteSet("bloodfx", image_bloodfx, 8, 1)
 set_playerspawn = SpriteSet("playerspawn", image_playerspawn, 16, 1)
 set_monsterspawn = SpriteSet("monsterspawn", image_monsterspawn, 16, 1)
 set_heal = SpriteSet("heal", image_heal, 8, 2)
+set_flame = SpriteSet("flame", image_flame, 4, 4)
 
 container.spritesets.Add(set_particles)
 container.spritesets.Add(set_gore)
@@ -430,6 +433,7 @@ container.spritesets.Add(set_bloodfx)
 container.spritesets.Add(set_playerspawn)
 container.spritesets.Add(set_monsterspawn)
 container.spritesets.Add(set_heal)
+container.spritesets.Add(set_flame)
 
 
 container.sprites.Add(Sprite("shield1", set_shield, 0,0,1,1))
@@ -466,6 +470,16 @@ for i in range(1, 5):
 	
 for i in range(1, 5):
 	container.sprites.Add(Sprite("sword"+str(i), set_sword, i-1, 0, 1, 1))
+	
+
+for i in range(1, 5):
+	container.sprites.Add(Sprite("flame"+str(i), set_flame, i-1, 0, 1, 1))
+for i in range(1, 5):
+	container.sprites.Add(Sprite("flame"+str(i+4), set_flame, i-1, 1, 1, 1))
+for i in range(1, 5):
+	container.sprites.Add(Sprite("flame"+str(i+8), set_flame, i-1, 2, 1, 1))
+for i in range(1, 5):
+	container.sprites.Add(Sprite("flame"+str(i+12), set_flame, i-1, 3, 1, 1))
 	
 # 8 + 4
 
@@ -671,6 +685,7 @@ container.sprites.Add(Sprite("mine2", set_buildings, 0,1,2,1))
 container.sprites.Add(Sprite("sawblade", set_buildings, 4,0,2,2))
 container.sprites.Add(Sprite("lazer", set_buildings, 2,0,2,1))
 container.sprites.Add(Sprite("powerupper", set_buildings, 2,1,2,1))
+container.sprites.Add(Sprite("flametrap", set_buildings, 8, 0,2, 2))
 
 container.sprites.Add(Sprite("stand", set_buildings, 1, 4, 3, 4))
 container.sprites.Add(Sprite("turret_fastener", set_buildings, 4, 6, 2, 2))

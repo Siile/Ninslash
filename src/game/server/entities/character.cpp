@@ -590,7 +590,8 @@ void CCharacter::Chainsaw()
 		
 		// massacre
 		vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
-		vec2 ProjStartPos = m_Core.m_Vel*2 +m_Pos+Direction*m_ProximityRadius*1.9f + vec2(0, -11);
+		//vec2 ProjStartPos = m_Core.m_Vel*2 +m_Pos+Direction*m_ProximityRadius*1.9f + vec2(0, -11);
+		vec2 ProjStartPos = m_Pos+Direction*m_ProximityRadius*1.9f + vec2(0, -11);
 		
 		GameServer()->CreateChainsawHit(m_pPlayer->GetCID(), m_ActiveCustomWeapon, m_Pos, ProjStartPos, this);
 		
@@ -686,7 +687,8 @@ void CCharacter::FireWeapon()
 			// reset objects Hit
 			m_NumObjectsHit = 0;
 
-			vec2 ProjStartPos = m_Core.m_Vel*3 +m_Pos+Direction*m_ProximityRadius*2.5f + vec2(0, -20);
+			//vec2 ProjStartPos = m_Core.m_Vel*3 +m_Pos+Direction*m_ProximityRadius*2.5f + vec2(0, -20);
+			vec2 ProjStartPos = m_Pos+Direction*m_ProximityRadius*2.5f + vec2(0, -20);
 			
 			// for testing the center pos
 			//GameServer()->CreateEffect(FX_ELECTROHIT, ProjStartPos);

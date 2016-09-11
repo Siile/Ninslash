@@ -183,18 +183,31 @@ void CCommandProcessorFragment_OpenGL::SetState(const CCommandBuffer::SState &St
 	
 	
 	// render target (screen or texture)
-	if (State.m_RenderTarget == CCommandBuffer::RENDERTARGET_SCREEN)
+	if (m_MultiBuffering)
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		if (State.m_RenderTarget == CCommandBuffer::RENDERTARGET_SCREEN)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+		if (State.m_RenderTarget == CCommandBuffer::RENDERTARGET_TEXTURE)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, textureBuffer[State.m_RenderBuffer]);
+		}
 	}
-	if (State.m_RenderTarget == CCommandBuffer::RENDERTARGET_TEXTURE)
+	else
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, textureBuffer[State.m_RenderBuffer]);
+		/*
+		if (State.m_RenderTarget == CCommandBuffer::RENDERTARGET_SCREEN || 
+			State.m_RenderTarget == CCommandBuffer::RENDERTARGET_TEXTURE)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+		*/
 	}
 	
 	
 	// screen texture buffer
-	if(State.m_Texture == -2)
+	if(State.m_Texture == -2 && m_MultiBuffering)
 	{
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, renderedTexture[State.m_BufferTexture]);
@@ -233,6 +246,7 @@ void CCommandProcessorFragment_OpenGL::SetState(const CCommandBuffer::SState &St
 
 void CCommandProcessorFragment_OpenGL::Cmd_Init(const SCommand_Init *pCommand)
 {
+	m_MultiBuffering = false;
 	m_pTextureMemoryUsage = pCommand->m_pTextureMemoryUsage;
 }
 
@@ -332,6 +346,7 @@ void CCommandProcessorFragment_OpenGL::Cmd_CreateTextureBuffer(const CCommandBuf
 {
 	dbg_msg("render", "creating texture buffers");
 	glewInit();
+	dbg_msg("render", "glew ready");
 	
 	int Width = pCommand->m_Width;
 	int Height = pCommand->m_Height;
@@ -378,6 +393,8 @@ void CCommandProcessorFragment_OpenGL::Cmd_CreateTextureBuffer(const CCommandBuf
 	dbg_msg("render", "texture buffers created (%d, %d)", Width, Height);
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	
+	m_MultiBuffering = true;
 }
 
 
@@ -434,6 +451,9 @@ void CCommandProcessorFragment_OpenGL::Cmd_Clear(const CCommandBuffer::SCommand_
 
 void CCommandProcessorFragment_OpenGL::Cmd_ClearBufferTexture(const CCommandBuffer::SCommand_ClearBufferTexture *pCommand)
 {
+	if (!m_MultiBuffering)
+		return;
+	
 	for (int i = 0; i < NUM_RENDERBUFFERS; i++)
 	{
 		if (i == RENDERBUFFER_LIGHT)

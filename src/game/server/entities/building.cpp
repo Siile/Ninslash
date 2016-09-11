@@ -52,6 +52,11 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		m_Life = 60;
 		m_Center = vec2(0, -10);
 		break;
+		
+	case BUILDING_FLAMETRAP:
+		m_ProximityRadius = FlametrapPhysSize;
+		m_Life = 80;
+		break;
 	
 	default:
 		m_ProximityRadius = BuildingPhysSize;
@@ -73,6 +78,8 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 	else
 		m_DamageOwner = NEUTRAL_BASE;
 	
+	m_TriggerTimer = 0;
+	
 	GameWorld()->InsertEntity(this);
 }
 
@@ -91,11 +98,14 @@ bool CBuilding::Repair(int Amount)
 	if (m_Life > m_MaxLife)
 		m_Life = m_MaxLife;
 	
-	true;
+	return true;
 }
 
 void CBuilding::UpdateStatus()
 {
+	if (m_Mirror)
+		m_aStatus[BSTATUS_MIRROR] = 1;
+	
 	m_Status = 0;
 	
 	for (int i = 0; i < NUM_BSTATUS; i++)
@@ -127,6 +137,9 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon)
 		*/
 		//Destroy();
 		//GameServer()->m_World.DestroyEntity(this);
+		
+		if (m_Type == BUILDING_BARREL)
+			m_DamageOwner = Owner;
 	}
 }
 
@@ -154,6 +167,12 @@ void CBuilding::Destroy()
 		GameServer()->CreateExplosion(m_Pos, m_DamageOwner, DEATHTYPE_BARREL, false, false);
 		GameServer()->m_World.DestroyEntity(this);
 	}
+	else if (m_Type == BUILDING_FLAMETRAP)
+	{
+		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
+		GameServer()->CreateExplosion(m_Pos, m_DamageOwner, DEATHTYPE_FLAMETRAP, false, false);
+		GameServer()->m_World.DestroyEntity(this);
+	}
 	else
 		GameServer()->m_World.DestroyEntity(this);
 }
@@ -175,6 +194,44 @@ void CBuilding::Tick()
 
 	if (m_SetTimer > 0)
 		m_SetTimer--;
+	
+	if (m_Type == BUILDING_FLAMETRAP)
+	{
+		// on / off
+		if (m_TriggerTimer < GameServer()->Server()->Tick() - GameServer()->Server()->TickSpeed() * 3.0f)
+			m_TriggerTimer = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed() * 2.0f;
+		
+		// if on
+		if (m_TriggerTimer > GameServer()->Server()->Tick())
+		{
+			m_aStatus[BSTATUS_FIRE] = 1;
+			
+			// small delay before settings players to aflame
+			if (m_TriggerTimer > GameServer()->Server()->Tick() && m_TriggerTimer < GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed() * 1.7f)
+			{
+				{
+					CCharacter *pChr = GameServer()->m_World.ClosestCharacter(m_Pos + vec2((m_Mirror ? -50 : 50), -4), m_ProximityRadius, 0);
+				
+					if(pChr && pChr->IsAlive())
+					{
+						pChr->TakeDamage(vec2(0, 0), 2, NEUTRAL_BASE, DEATHTYPE_FLAMETRAP, vec2(0, 0), DAMAGETYPE_FLAME);
+						pChr->SetAflame(2.5f, NEUTRAL_BASE, DEATHTYPE_FLAMETRAP);
+					}
+				}
+				{
+					CCharacter *pChr = GameServer()->m_World.ClosestCharacter(m_Pos + vec2((m_Mirror ? -102 : 102), -4), m_ProximityRadius*1.3f, 0);
+				
+					if(pChr && pChr->IsAlive())
+					{
+						pChr->TakeDamage(vec2(0, 0), 2, NEUTRAL_BASE, DEATHTYPE_FLAMETRAP, vec2(0, 0), DAMAGETYPE_FLAME);
+						pChr->SetAflame(2.5f, NEUTRAL_BASE, DEATHTYPE_FLAMETRAP);
+					}
+				}
+			}
+		}
+		else
+			m_aStatus[BSTATUS_FIRE] = 0;
+	}
 
 	
 	// destruction

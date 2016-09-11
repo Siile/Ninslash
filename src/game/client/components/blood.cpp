@@ -1,6 +1,7 @@
 #include <base/math.h>
 #include <engine/graphics.h>
 #include <engine/demo.h>
+#include <engine/shared/config.h>
 
 #include <game/generated/client_data.h>
 #include <game/client/render.h>
@@ -96,7 +97,7 @@ void CBlood::Bounce(vec2 Pos, vec2 Dir)
 	b.m_Color = vec4(c, c, c, 1.0f);
 	m_pClient->m_pBlood->Add(GROUP_BLOOD, &b);
 	
-	if (frandom()*10 < 2)
+	if (g_Config.m_GfxMultiBuffering && frandom()*10 < 2)
 		m_pClient->m_pEffects->Splatter(b.m_Pos + Dir*frandom()*16.0f, b.m_Rot, b.m_StartSize * 2);
 }
 

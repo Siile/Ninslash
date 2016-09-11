@@ -585,9 +585,15 @@ bool CAI::MoveTowardsWaypoint(int Dist)
 			case MOVE_LEFT:
 			{
 				m_Move = -1;
+				m_Down = 0;
 				
-				if (Player()->GetCharacter()->IsGrounded() && GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y))
-					m_Jump = 1;
+				if (Player()->GetCharacter()->IsGrounded() )
+				{
+					if (GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y))
+						m_Jump = 1;
+					else if (GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y - 64))
+						m_Down = 1;
+				}	
 				
 				if (!OnWall)
 				{
@@ -602,17 +608,21 @@ bool CAI::MoveTowardsWaypoint(int Dist)
 				
 				if (Player()->GetCharacter()->IsGrounded() && m_EnemyInLine && abs(Player()->GetCharacter()->GetCore().m_Vel.x) > 9)
 					m_Down = 1;
-				else
-					m_Down = 0;
 			}
 			break;
 				
 			case MOVE_RIGHT:
 			{
 				m_Move = 1;
+				m_Down = 0;
 				
-				if (Player()->GetCharacter()->IsGrounded() && GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y))
-					m_Jump = 1;
+				if (Player()->GetCharacter()->IsGrounded() )
+				{
+					if (GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y))
+						m_Jump = 1;
+					else if (GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y - 64))
+						m_Down = 1;
+				}	
 				
 				if (!OnWall)
 				{
@@ -627,8 +637,6 @@ bool CAI::MoveTowardsWaypoint(int Dist)
 				
 				if (Player()->GetCharacter()->IsGrounded() && m_EnemyInLine && abs(Player()->GetCharacter()->GetCore().m_Vel.x) > 9)
 					m_Down = 1;
-				else
-					m_Down = 0;
 			}
 			break;
 				

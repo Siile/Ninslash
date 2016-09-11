@@ -265,6 +265,7 @@ public:
 	class CItems *m_pItems;
 	class CMonsters *m_pMonsters;
 	class CBuildings *m_pBuildings;
+	class CBuildings2 *m_pBuildings2;
 	class CMapLayers *m_pMapLayersBackGround;
 	class CMapLayers *m_pMapLayersForeGround;
 };

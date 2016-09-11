@@ -196,10 +196,13 @@ void CMapLayers::OnRender()
 			}
 
 			// render some tile layers to texture for splatter
-			if (!RenderBufferPassed && PassedGameLayer && Render)
-				Graphics()->RenderToTexture(RENDERBUFFER_TILES);
-			else
-				Graphics()->RenderToScreen();
+			if (g_Config.m_GfxMultiBuffering)
+			{
+				if (!RenderBufferPassed && PassedGameLayer && Render)
+					Graphics()->RenderToTexture(RENDERBUFFER_TILES);
+				else
+					Graphics()->RenderToScreen();
+			}
 			
 			
 			if(Render && pLayer->m_Type == LAYERTYPE_TILES && Input()->KeyPressed(KEY_LCTRL) && Input()->KeyPressed(KEY_LSHIFT) && Input()->KeyDown(KEY_KP_0))

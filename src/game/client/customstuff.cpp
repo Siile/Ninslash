@@ -41,6 +41,13 @@ void CCustomStuff::Reset()
 	for (int i = 0; i < NUM_PLAYERITEMS; i++)
 		m_aLocalItems[i] = 0;
 	
+	for (int i = 0; i < 64; i++)
+	{
+		m_FlametrapState[i] = 0;
+		m_FlametrapSoundTick[i] = 0;
+		m_FlametrapLastSound[i] = 0;
+	}
+	
 	m_WeaponpickTimer = 0;
 	m_WeaponpickWeapon = 0;
 	
@@ -78,6 +85,17 @@ void CCustomStuff::Tick(bool Paused)
 		for (int i = 0; i < MAX_MONSTERS; i++)
 			if (m_MonsterDamageIntensity[i] > 0.0f)
 				m_MonsterDamageIntensity[i] -= 0.05f;
+			
+		for (int i = 0; i < 64; i++)
+		{
+			if (m_FlametrapState[i] > 0)
+			{
+				m_FlametrapState[i]++;
+				
+				if (m_FlametrapState[i] > 13*6)
+					m_FlametrapState[i] = 0;
+			}
+		}
 	}
 	
 	// Camera

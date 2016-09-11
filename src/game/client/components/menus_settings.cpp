@@ -1154,8 +1154,12 @@ void CMenus::RenderSettingsCustom(CUIRect MainView)
 	}
 
 	MainView.HSplitTop(20.0f, &Button, &MainView);
-	if(DoButton_CheckBox(&g_Config.m_GoreWallSplatter, Localize("Enable wall splatter"), g_Config.m_GoreWallSplatter, &Button))
-		g_Config.m_GoreWallSplatter ^= 1;
+	if(DoButton_CheckBox(&g_Config.m_GfxMultiBuffering, Localize("Enable ground blood (requires restart, might cause issues)"), g_Config.m_GfxMultiBuffering, &Button))
+		g_Config.m_GfxMultiBuffering ^= 1;
+	
+	//MainView.HSplitTop(20.0f, &Button, &MainView);
+	//if(DoButton_CheckBox(&g_Config.m_GoreWallSplatter, Localize("Enable wall splatter"), g_Config.m_GoreWallSplatter, &Button))
+	//	g_Config.m_GoreWallSplatter ^= 1;
 
 	MainView.HSplitTop(20.0f, &Button, &MainView);
 	if(DoButton_CheckBox(&g_Config.m_GoreAimLine, Localize("Enable aim line"), g_Config.m_GoreAimLine, &Button))

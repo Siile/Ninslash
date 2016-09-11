@@ -578,12 +578,18 @@ void CGraphics_Threaded::TextureSet(int TextureID, int BufferTexture)
 
 void CGraphics_Threaded::RenderToScreen()
 {
+	if (!g_Config.m_GfxMultiBuffering)
+		return;
+	
 	m_State.m_RenderTarget = CCommandBuffer::RENDERTARGET_SCREEN;
 	//m_State.m_Texture = -1;
 }
 
 void CGraphics_Threaded::RenderToTexture(int RenderBuffer)
 {
+	if (!g_Config.m_GfxMultiBuffering)
+		return;
+	
 	m_State.m_RenderTarget = CCommandBuffer::RENDERTARGET_TEXTURE;
 	m_State.m_RenderBuffer = RenderBuffer;
 }

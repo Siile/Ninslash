@@ -1,6 +1,7 @@
 #include <base/math.h>
 #include <engine/graphics.h>
 #include <engine/demo.h>
+#include <engine/shared/config.h>
 
 #include <game/generated/client_data.h>
 #include <game/client/render.h>
@@ -133,6 +134,9 @@ void CSplatter::OnRender()
 
 void CSplatter::RenderGroup(int Group)
 {
+	if (!g_Config.m_GfxMultiBuffering)
+		return;
+	
 	Graphics()->RenderToTexture(RENDERBUFFER_SPLATTER);
 	Graphics()->BlendNormal();
 	//gfx_blend_additive();

@@ -12,6 +12,7 @@ const int LazerPhysSize = 10;
 const int PowerupperPhysSize = 10;
 const int BasePhysSize = 10;
 const int StandPhysSize = 20;
+const int FlametrapPhysSize = 20;
 
 class CBuilding : public CEntity
 {
@@ -35,6 +36,8 @@ public:
 	
 	vec2 m_Center;
 	
+	bool m_Mirror;
+	
 	int m_DamageOwner;
 	int m_DeathTimer;
 	
@@ -43,6 +46,8 @@ public:
 	
 protected:
 	void UpdateStatus();
+	
+	int m_TriggerTimer;
 	
 private:
 	int m_SetTimer;

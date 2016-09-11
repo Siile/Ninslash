@@ -88,8 +88,8 @@ public:
 			return 0;
 		
 		//return P->m_G + frandom()*500;
-		return P->m_G + 100;
-		//return P->m_G + (m_Pos.y > P->m_Pos.y - 40 ? 100 : 130);
+		//return P->m_G + 100;
+		return P->m_G + (m_Pos.y > P->m_Pos.y - 40 ? 100 : 130);
 	}
 	
 	void ComputeScores(vec2 TargetPos)

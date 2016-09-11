@@ -41,6 +41,7 @@
 #include "components/hud.h"
 #include "components/items.h"
 #include "components/buildings.h"
+#include "components/buildings2.h"
 #include "components/monsters.h"
 #include "components/killmessages.h"
 #include "components/mapimages.h"
@@ -97,6 +98,7 @@ static CPlayers gs_Players;
 static CNamePlates gs_NamePlates;
 static CItems gs_Items;
 static CBuildings gs_Buildings;
+static CBuildings2 gs_Buildings2;
 static CMapImages gs_MapImages;
 
 static CMapLayers gs_MapLayersBackGround(CMapLayers::TYPE_BACKGROUND);
@@ -152,6 +154,7 @@ void CGameClient::OnConsoleInit()
 	m_pScoreboard = &::gs_Scoreboard;
 	m_pItems = &::gs_Items;
 	m_pBuildings = &::gs_Buildings;
+	m_pBuildings2 = &::gs_Buildings2;
 	m_pMonsters = &::gs_Monsters;
 	m_pMapLayersBackGround = &::gs_MapLayersBackGround;
 	m_pMapLayersForeGround = &::gs_MapLayersForeGround;
@@ -187,6 +190,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&gs_Monsters);
 	m_All.Add(&m_pParticles->m_RenderMonsterSpawn);
 	m_All.Add(&gs_Players);
+	m_All.Add(m_pBuildings2);
 	m_All.Add(&m_pBlood->m_RenderBlood);
 	m_All.Add(&m_pSplatter->m_RenderSplatter);
 	m_All.Add(&gs_MapLayersForeGround);
@@ -276,8 +280,12 @@ void CGameClient::OnInit()
 {
 	m_pGraphics = Kernel()->RequestInterface<IGraphics>();
 	Graphics()->LoadShaders();
-	Graphics()->CreateTextureBuffer(Graphics()->ScreenWidth(),Graphics()->ScreenHeight());
-	Graphics()->ClearBufferTexture();
+	
+	if (g_Config.m_GfxMultiBuffering)
+	{
+		Graphics()->CreateTextureBuffer(Graphics()->ScreenWidth(),Graphics()->ScreenHeight());
+		Graphics()->ClearBufferTexture();
+	}
 
 	// propagate pointers
 	m_UI.SetGraphics(Graphics(), TextRender());
@@ -731,9 +739,9 @@ void CGameClient::ProcessEvents()
 				}
 			}
 			
-			
-				
-			if (g_Config.m_GoreWallSplatter)
+			// moved to blood particles
+			/*
+			if (g_Config.m_GoreWallSplatter && g_Config.m_GfxMultiBuffering)
 			{
 				int WallSplatter = 0;
 				if (BloodAmount > 0)
@@ -759,6 +767,7 @@ void CGameClient::ProcessEvents()
 					}
 				}
 			}
+			*/
 		}
 		else if(Item.m_Type == NETEVENTTYPE_EXPLOSION)
 		{

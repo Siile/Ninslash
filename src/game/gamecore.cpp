@@ -428,19 +428,22 @@ void CCharacterCore::Tick(bool UseInput)
 			{
 				if(Grounded)
 				{
-					// lazy timer for jump animations
-					if (m_Slide > 0)
-						m_JumpTimer = -6;
-					else
-						m_JumpTimer = 6;
-					
-					m_TriggeredEvents |= COREEVENT_GROUND_JUMP;
-					if(slope == 0) 
-						m_Vel.y = -JumpPower;
-					else {
-						m_Vel.y = -JumpPower*invsqrt2;
+					if (!m_pCollision->CheckPoint(m_Pos.x, m_Pos.y-64))
+					{
+						// lazy timer for jump animations
+						if (m_Slide > 0)
+							m_JumpTimer = -6;
+						else
+							m_JumpTimer = 6;
+						
+						m_TriggeredEvents |= COREEVENT_GROUND_JUMP;
+						if(slope == 0) 
+							m_Vel.y = -JumpPower;
+						else {
+							m_Vel.y = -JumpPower*invsqrt2;
+						}
+						m_Jumped |= 1;
 					}
-					m_Jumped |= 1;
 				}
 				// launch jetpack
 				else if(!(m_Jumped&2) && m_JetpackPower > 0)
@@ -713,7 +716,17 @@ void CCharacterCore::Slide()
 		vec2 TargetDirection = normalize(vec2(m_Input.m_TargetX, m_Input.m_TargetY));
 		if ((m_Vel.x < -7.0f && TargetDirection.x < 0) ||
 			(m_Vel.x > 7.0f && TargetDirection.x > 0))
-		m_Slide++;
+			m_Slide++;
+		else
+		if ((TargetDirection.x > 0 && !m_pCollision->CheckPoint(m_Pos.x+(PhysSize+32), m_Pos.y+PhysSize/2) && m_pCollision->CheckPoint(m_Pos.x+(PhysSize+32), m_Pos.y-64)) ||
+			(TargetDirection.x < 0 && !m_pCollision->CheckPoint(m_Pos.x-(PhysSize+32), m_Pos.y+PhysSize/2) && m_pCollision->CheckPoint(m_Pos.x-(PhysSize+32), m_Pos.y-64)))
+		{
+			m_Slide++;
+			if (TargetDirection.x > 0 && abs(m_Vel.x) < 4.0f)
+				m_Vel.x = 4;
+			else if (TargetDirection.x < 0 && abs(m_Vel.x) < 4.0f)
+				m_Vel.x = -4;
+		}
 		
 		//m_Vel.x *= 1.1f;
 	}
@@ -745,7 +758,9 @@ void CCharacterCore::Slide()
 					m_Anim = 3;
 				}
 				else
+				{
 					m_Slide = -4;
+				}
 			}
 			else
 				m_Slide = -4;
@@ -766,6 +781,27 @@ void CCharacterCore::Slide()
 			}
 		}
 	}
+	
+	// force slide when in tunnel
+	if ((m_Slide != 0 || m_Roll != 0) && 
+		((m_pCollision->CheckPoint(m_Pos.x+PhysSize, m_Pos.y-64) && !m_pCollision->CheckPoint(m_Pos.x+PhysSize, m_Pos.y+PhysSize/2)) || 
+		(m_pCollision->CheckPoint(m_Pos.x-PhysSize, m_Pos.y-64) && !m_pCollision->CheckPoint(m_Pos.x-PhysSize, m_Pos.y+PhysSize/2))))
+	{
+		if (abs(m_Vel.x) < 5.0f)
+			m_Vel.x /= 0.98f;
+			
+		if (m_Vel.x < 0)
+		{
+			m_LockDirection = -2;
+			m_Anim = -3;
+		}
+		else
+		{
+			m_LockDirection = 2;
+			m_Anim = 3;
+		}
+		m_Slide = 5;
+	}
 }
 	
 	
@@ -785,9 +821,19 @@ void CCharacterCore::Move()
 	float VelY = m_Vel.y;
 	
 	vec2 NewPos = m_Pos;
-	NewPos.y -= 18;
-	m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(28.0f, 64.0f), 0, !m_Sliding);
-	NewPos.y += 18;
+	
+	if (m_Slide == 0 && m_Roll == 0)
+	{
+		NewPos.y -= 18;
+		m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(28.0f, 64.0f), 0, !m_Sliding);
+		NewPos.y += 18;
+	}
+	else
+	{
+		NewPos.y -= 10;
+		m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(28.0f, 48.0f), 0, !m_Sliding);
+		NewPos.y += 10;
+	}
 	
 	if (VelY > 20.0f && abs(m_Vel.y) < 2.0f)
 		Roll();

@@ -750,7 +750,7 @@ void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, bool
 				if(l)
 					ForceDir = normalize(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
-				float Dmg = 20 * l;
+				float Dmg = 22 * l;
 							
 				if((int)Dmg && Dmg > 0.0f)
 				{
