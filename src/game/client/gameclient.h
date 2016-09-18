@@ -187,7 +187,6 @@ public:
 		char m_aEyeName[64];
 		int m_TopperID;
 		int m_EyeID;
-		int m_SkinColor;
 		int m_Team;
 		int m_Emoticon;
 		int m_EmoticonStart;

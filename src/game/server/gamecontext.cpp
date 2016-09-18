@@ -2158,8 +2158,6 @@ void CGameContext::ConShuffleTeams(IConsole::IResult *pResult, void *pUserData)
 	if(!pSelf->m_pController->IsTeamplay() || pSelf->m_pController->IsInfection())
 		return;
 
-	int CounterRed = 0;
-	int CounterBlue = 0;
 	int PlayerTeam = 0;
 	for(int i = 0; i < MAX_CLIENTS; ++i)
 		if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->GetTeam() != TEAM_SPECTATORS)
@@ -2744,7 +2742,6 @@ int CGameContext::CountHumansAlive()
 
 int CGameContext::DistanceToHuman(vec2 Pos)
 {
-	bool Valid = true;
 	int MinDist = 10000;
 		
 	for (int i = 0; i < MAX_CLIENTS; i++)

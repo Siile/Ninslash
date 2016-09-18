@@ -14,7 +14,12 @@
 CPlayerInfo::CPlayerInfo()
 {
 	m_pAnimation = new CSkeletonAnimation();
-	m_SkinColor = 0.85f + frandom()*0.15f;
+	m_Pos = vec2(0, 0);
+	m_Weapon = 0;
+	m_AirJumpAnimLoaded = true;
+	m_FlipFeet = false;
+	m_WeaponRecoilLoaded = false;
+	
 	Reset();
 }
 
@@ -36,6 +41,7 @@ CPlayerInfo *CPlayerInfo::GetIdle()
 void CPlayerInfo::Reset()
 {
 	m_UpdateTimer = 0;
+	m_LastUpdate = 0;
 	m_InUse = false;
 	
 	m_Shield = false;
@@ -57,8 +63,6 @@ void CPlayerInfo::Reset()
 	}
 	
 	// reset bounciness
-	m_FeetOffset = vec2(0, 0);
-	m_FeetOffsetVel = vec2(0, 0);
 	
 	m_WeaponRecoil = vec2(0, 0);
 	m_WeaponRecoilVel = vec2(0, 0);

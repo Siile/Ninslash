@@ -48,6 +48,8 @@ void CBuildings2::RenderFlametrap(const struct CNetObj_Building *pCurrent)
 	int i = pCurrent->m_X/4 + pCurrent->m_Y/16;
 	i = i%64;
 	
+	i = clamp(i, 0, 63);
+	
 	int s = pCurrent->m_Status;
 	if (s & (1<<BSTATUS_FIRE))
 	{

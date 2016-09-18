@@ -502,15 +502,18 @@ void CRenderTools::RenderFullScreenLayer()
 	
 	Graphics()->MapScreen(0,0,Graphics()->ScreenWidth(),Graphics()->ScreenHeight());
 	
+	
+	
 	// render blood splatter to tiles
 	Graphics()->RenderToTexture(RENDERBUFFER_TILES);
+	Graphics()->ShaderBegin(SHADER_BLOOD);
 	Graphics()->TextureSet(-2, RENDERBUFFER_SPLATTER);
 	
 	Graphics()->BlendBuffer();
 
 	Graphics()->QuadsBegin();
 	Graphics()->QuadsSetRotation(0);
-	Graphics()->SetColor(255, 255, 255, 1.0f);
+	Graphics()->SetColor(0.6f, 0.0f, 0.0f, 0.8f);
 	
 	{
 		IGraphics::CQuadItem QuadItem(Graphics()->ScreenWidth() / 2, Graphics()->ScreenHeight() / 2, Graphics()->ScreenWidth(), -Graphics()->ScreenHeight());
@@ -518,11 +521,29 @@ void CRenderTools::RenderFullScreenLayer()
 	}
 	
 	Graphics()->QuadsEnd();
+	Graphics()->ShaderEnd();
 	
 	// render all to screen
 	Graphics()->RenderToScreen();
-		
 	Graphics()->BlendNormal();
+		
+	// blood
+	Graphics()->ShaderBegin(SHADER_BLOOD);
+	Graphics()->TextureSet(-2, RENDERBUFFER_BLOOD);
+
+	Graphics()->QuadsBegin();
+	Graphics()->QuadsSetRotation(0);
+	Graphics()->SetColor(1.0f, 0, 0, 0.8f);
+	
+	{
+		IGraphics::CQuadItem QuadItem(Graphics()->ScreenWidth() / 2, Graphics()->ScreenHeight() / 2, Graphics()->ScreenWidth(), -Graphics()->ScreenHeight());
+		Graphics()->QuadsDraw(&QuadItem, 1);
+	}
+	
+	Graphics()->QuadsEnd();
+	Graphics()->ShaderEnd();
+	
+	// bloody tiles
 	Graphics()->TextureSet(-2, RENDERBUFFER_TILES);
 
 	Graphics()->QuadsBegin();
@@ -751,13 +772,13 @@ void CRenderTools::RenderPortrait(CTeeRenderInfo *pInfo, vec2 Pos, int EyeType)
 			// evaluate animations
 			if(pAnimation)
 			{
-				CSpineSlotTimeline *pSlotTimeline = 0x0;
+				//CSpineSlotTimeline *pSlotTimeline = 0x0;
 
 				// find timelines
 				{
 					auto SlotTimelineIter = pAnimation->m_lSlotTimeline.find(pSlot->m_Name);
-					if(SlotTimelineIter != pAnimation->m_lSlotTimeline.end())
-						pSlotTimeline = &SlotTimelineIter->second;	
+					//if(SlotTimelineIter != pAnimation->m_lSlotTimeline.end())
+					//	pSlotTimeline = &SlotTimelineIter->second;	
 				}
 			}
 
@@ -1057,8 +1078,6 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 	if (!PlayerInfo)
 		return;
 	
-	vec2 FeetOffset = PlayerInfo->m_FeetOffset;
-
 	PlayerInfo->Animation()->m_ColorBody = pInfo->m_ColorBody;
 	PlayerInfo->Animation()->m_ColorFeet = pInfo->m_ColorFeet;
 
@@ -1228,14 +1247,14 @@ void CRenderTools::RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, CSkeleto
 			// evaluate animations
 			if(pAnimation)
 			{
-				CSpineSlotTimeline *pSlotTimeline = 0x0;
+				//CSpineSlotTimeline *pSlotTimeline = 0x0;
 				
 
 				// find timelines
 				{
 					auto SlotTimelineIter = pAnimation->m_lSlotTimeline.find(pSlot->m_Name);
-					if(SlotTimelineIter != pAnimation->m_lSlotTimeline.end())
-						pSlotTimeline = &SlotTimelineIter->second;	
+					//if(SlotTimelineIter != pAnimation->m_lSlotTimeline.end())
+					//	pSlotTimeline = &SlotTimelineIter->second;	
 				}
 			}
 
@@ -1555,14 +1574,13 @@ void CRenderTools::RenderBuilding(vec2 Position, CAnimSkeletonInfo *pSkeleton, C
 			// evaluate animations
 			if(pAnimation)
 			{
-				CSpineSlotTimeline *pSlotTimeline = 0x0;
-				
+				//CSpineSlotTimeline *pSlotTimeline = 0x0;
 
 				// find timelines
 				{
 					auto SlotTimelineIter = pAnimation->m_lSlotTimeline.find(pSlot->m_Name);
-					if(SlotTimelineIter != pAnimation->m_lSlotTimeline.end())
-						pSlotTimeline = &SlotTimelineIter->second;	
+					//if(SlotTimelineIter != pAnimation->m_lSlotTimeline.end())
+					//	pSlotTimeline = &SlotTimelineIter->second;	
 				}
 			}
 

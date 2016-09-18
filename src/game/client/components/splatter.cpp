@@ -82,7 +82,7 @@ void CSplatter::Update(float TimePassed)
 			m_aSplatter[i].m_Life += TimePassed * (m_aSplatter[i].m_Life / m_aSplatter[i].m_LifeSpan) * 3.0f;
 				
 			
-			m_aSplatter[i].m_Pos.y += TimePassed*2.0f;
+			m_aSplatter[i].m_Pos.y += TimePassed*3.0f;
 				
 			// check blood death
 			if(m_aSplatter[i].m_Life > m_aSplatter[i].m_LifeSpan)
@@ -138,15 +138,17 @@ void CSplatter::RenderGroup(int Group)
 		return;
 	
 	Graphics()->RenderToTexture(RENDERBUFFER_SPLATTER);
-	Graphics()->BlendNormal();
+	//Graphics()->BlendNormal();
+	Graphics()->BlendAdditive();
 	//gfx_blend_additive();
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_SPLATTER].m_Id);
+	//Graphics()->TextureSet(g_pData->m_aImages[IMAGE_SPLATTER].m_Id);
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_LIGHTS].m_Id);
 	Graphics()->QuadsBegin();
 
 	int i = m_aFirstPart[Group];
 	while(i != -1)
 	{
-		RenderTools()->SelectSprite(m_aSplatter[i].m_Spr);
+		//RenderTools()->SelectSprite(m_aSplatter[i].m_Spr);
 		float a = m_aSplatter[i].m_Life / m_aSplatter[i].m_LifeSpan;
 		vec2 p = m_aSplatter[i].m_Pos;
 		float Size = m_aSplatter[i].m_Size;
@@ -155,13 +157,15 @@ void CSplatter::RenderGroup(int Group)
 		
 		//Graphics()->SetColor(m_aSplatter[i].m_Color.r, m_aSplatter[i].m_Color.g, m_aSplatter[i].m_Color.b, 1.0f - a);
 		
-		
+		/*
 		Graphics()->SetColor(
 			max(m_aSplatter[i].m_Color.r-a*0.9f, 0.15f),
 			0,
 			0,
 			1.0f - a); //0.8f-a*0.8f); // pow(a, 0.75f) *
+			*/
 			
+		Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f-a);
 
 		IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
 		Graphics()->QuadsDraw(&QuadItem, 1);

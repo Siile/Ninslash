@@ -6,7 +6,7 @@
 #include <base/vmath.h>
 
 #define MAX_PICKUPS 1024
-#define MAX_DROPPABLES 50
+#define MAX_DROPPABLES 40
 
 /*
 	Class: Game Controller

@@ -614,8 +614,6 @@ void CPicker::OnRender()
 	// items in the middle
 	else if (m_PickerType == PICKER_WEAPON)
 	{
-		CUIRect Screen = *UI()->Screen();
-		
 		m_Selected = -1;
 			
 		if (distance(m_SelectorMouse, vec2(-32, 0)) < 32 && CustomStuff()->m_aLocalItems[PLAYERITEM_LANDMINE] > 0)

@@ -81,13 +81,23 @@ void CEffects::Blood(vec2 Pos, vec2 Dir)
 		b.m_Gravity = 1400.0f + frandom()*300;
 	}
 	
+	if (g_Config.m_GfxMultiBuffering)
+	{
+		b.m_Spr = SPRITE_BLOOD02;
+		b.m_Rotspeed = 0.0f;
+		b.m_StartSize *= 0.75f;
+		b.m_EndSize = 0.0f;
+		b.m_LifeSpan = 8.0f;
+		b.m_StartSize = 32.0f + frandom()*32;
+	}
 	
-	b.m_Vel = Dir * ((frandom()+0.10f)*1200.0f);
+	b.m_Vel = Dir * ((frandom()+0.50f)*1200.0f);
 
 	b.m_Rot = GetAngle(b.m_Vel);
 	
 	//b.m_Gravity = 1600.0f;
 	b.m_Friction = 0.85f+frandom()*0.075f;
+	b.m_Friction *= 0.95f;
 	float c = frandom()*0.3f + 0.7f;
 	b.m_Color = vec4(c, c, c, 1.0f);
 	m_pClient->m_pBlood->Add(CBlood::GROUP_BLOOD, &b);

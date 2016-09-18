@@ -126,9 +126,6 @@ void CGameClient::OnConsoleInit()
 	m_pServerBrowser = Kernel()->RequestInterface<IServerBrowser>();
 	m_pEditor = Kernel()->RequestInterface<IEditor>();
 	m_pFriends = Kernel()->RequestInterface<IFriends>();
-
-	m_pCustomStuff = new CCustomStuff();
-	m_pSkelebank = new CSkelebank(RenderTools());
 	
 	// setup pointers
 	m_pBinds = &::gs_Binds;
@@ -260,6 +257,8 @@ void CGameClient::OnConsoleInit()
 	for(int i = 0; i < m_All.m_Num; i++)
 		m_All.m_paComponents[i]->m_pClient = this;
 
+	m_pCustomStuff = new CCustomStuff();
+	
 	// let all the other components register their console commands
 	for(int i = 0; i < m_All.m_Num; i++)
 		m_All.m_paComponents[i]->OnConsoleInit();
@@ -272,6 +271,9 @@ void CGameClient::OnConsoleInit()
 	Console()->Chain("player_color_body", ConchainSpecialInfoupdate, this);
 	Console()->Chain("player_color_feet", ConchainSpecialInfoupdate, this);
 
+
+	m_pSkelebank = new CSkelebank(RenderTools());
+	
 	//
 	m_SuppressEvents = false;
 }
@@ -305,7 +307,7 @@ void CGameClient::OnInit()
 	// load default font
 	static CFont *pDefaultFont = 0;
 	char aFilename[512];
-	IOHANDLE File = Storage()->OpenFile("fonts/DejaVuSans.ttf", IOFLAG_READ, IStorage::TYPE_ALL, aFilename, sizeof(aFilename));
+	IOHANDLE File = Storage()->OpenFile("fonts/Future n0t Found Regular.ttf", IOFLAG_READ, IStorage::TYPE_ALL, aFilename, sizeof(aFilename));
 	if(File)
 	{
 		io_close(File);
@@ -313,19 +315,23 @@ void CGameClient::OnInit()
 		TextRender()->SetDefaultFont(pDefaultFont);
 	}
 	if(!pDefaultFont)
-		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "failed to load font. filename='fonts/DejaVuSans.ttf'");
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "failed to load font. filename='fonts/Future n0t Found Regular.ttf'");
 
 	// init all components
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "init all components");
+	
 	for(int i = m_All.m_Num-1; i >= 0; --i)
 		m_All.m_paComponents[i]->OnInit();
 
 	// setup load amount// load textures
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "load textures");
 	for(int i = 0; i < g_pData->m_NumImages; i++)
 	{
 		g_pData->m_aImages[i].m_Id = Graphics()->LoadTexture(g_pData->m_aImages[i].m_pFilename, IStorage::TYPE_ALL, CImageInfo::FORMAT_AUTO, 0);
 		g_GameClient.m_pMenus->RenderLoading();
 	}
 
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "reset components");
 	for(int i = 0; i < m_All.m_Num; i++)
 		m_All.m_paComponents[i]->OnReset();
 
@@ -713,10 +719,7 @@ void CGameClient::ProcessEvents()
 			
 			
 			for (int i = 0; i < BloodAmount; i++)
-			{
-				float Angle = ev->m_Angle;
-					g_GameClient.m_pEffects->Blood(vec2(ev->m_X, ev->m_Y), RandomDir()*0.6f - GetDirection(ev->m_Angle)*1.5f);
-			}
+				g_GameClient.m_pEffects->Blood(vec2(ev->m_X, ev->m_Y), RandomDir()*0.6f - GetDirection(ev->m_Angle)*1.6f);
 			
 
 			int TeeSplatter = 0;

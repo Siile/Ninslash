@@ -511,7 +511,7 @@ int CCharacter::GetPrevWeapon(int ParentType)
 	for (int i = 0; i < NUM_CUSTOMWEAPONS+1; i++)
 	{
 		if (--w < 0)
-			w = NUM_CUSTOMWEAPONS;
+			w = NUM_CUSTOMWEAPONS-1;
 			
 		if (w == ParentType && m_aWeapon[w].m_Got && !m_aWeapon[w].m_Disabled)
 		{

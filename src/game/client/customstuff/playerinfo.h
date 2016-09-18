@@ -50,8 +50,6 @@ public:
 	
 	void Reset();
 	
-	float m_SkinColor;
-	
 	int m_Weapon;
 	
 	int m_MeleeState;
@@ -80,9 +78,6 @@ public:
 	vec2 Pos(){ return m_Pos; }
 	
 	bool m_FlipFeet;
-	
-	vec2 m_FeetOffset;
-	vec2 m_FeetOffsetVel;
 	
 	vec2 m_WeaponRecoil, m_WeaponRecoilVel;
 	vec2 m_Weapon2Recoil, m_Weapon2RecoilVel;

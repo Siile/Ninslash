@@ -242,7 +242,7 @@ bool CTurret::FindTarget()
 		if (!pCharacter)
 			continue;
 		
-		if (!pCharacter->IsAlive() || pCharacter->GetPlayer()->GetCID() == m_OwnerPlayer && !GameServer()->m_pController->IsTeamplay())
+		if ((!pCharacter->IsAlive() || pCharacter->GetPlayer()->GetCID() == m_OwnerPlayer) && !GameServer()->m_pController->IsTeamplay())
 			continue;
 			
 		int Distance = distance(pCharacter->m_Pos, TurretPos);

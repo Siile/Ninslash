@@ -5,6 +5,9 @@
 CCustomStuff::CCustomStuff()
 {
 	Reset();
+	m_CameraTargetCenter = vec2(0, 0);
+	m_CameraCenter = vec2(0, 0);
+	m_SelectedGroup = 0;
 }
 
 

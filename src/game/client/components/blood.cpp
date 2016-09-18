@@ -87,18 +87,25 @@ void CBlood::Bounce(vec2 Pos, vec2 Dir)
 	b.m_StartSize = (30.0f + frandom()*24) / 1.75f;
 	b.m_EndSize = 16.0f / 1.75f;
 	b.m_Gravity = 1400.0f + frandom()*300;
+
+	if (g_Config.m_GfxMultiBuffering)
+	{
+		b.m_Rotspeed = 0.0f;
+		b.m_StartSize *= 1.5f;
+		b.m_EndSize = 0.0f;
+		b.m_LifeSpan = 4.0f;
+	}
 	
-	
-	b.m_Vel = Dir * ((frandom()+0.05f)*700.0f);
+	b.m_Vel = Dir * ((frandom()+0.15f)*700.0f);
 	b.m_Rot = GetAngle(b.m_Vel);
 	
-	b.m_Friction = 0.85f+frandom()*0.075f;
+	b.m_Friction = 0.7f+frandom()*0.075f;
 	float c = frandom()*0.3f + 0.7f;
 	b.m_Color = vec4(c, c, c, 1.0f);
 	m_pClient->m_pBlood->Add(GROUP_BLOOD, &b);
 	
-	if (g_Config.m_GfxMultiBuffering && frandom()*10 < 2)
-		m_pClient->m_pEffects->Splatter(b.m_Pos + Dir*frandom()*16.0f, b.m_Rot, b.m_StartSize * 2);
+	if (g_Config.m_GfxMultiBuffering && frandom()*10 < 4)
+		m_pClient->m_pEffects->Splatter(b.m_Pos + Dir*frandom()*32.0f - Dir*frandom()*16.0f, b.m_Rot, b.m_StartSize * 2);
 }
 
 
@@ -135,6 +142,9 @@ void CBlood::Update(float TimePassed)
 			
 			vec2 OldVel = Vel;
 			
+			Collision()->MovePoint(&m_aBlood[i].m_Pos, &Vel, 0.2f+0.5f*frandom(), NULL);
+			
+			/*
 			if (m_aBlood[i].m_Spr >= SPRITE_BONE01)
 				Collision()->MovePoint(&m_aBlood[i].m_Pos, &Vel, 0.5f+0.5f*frandom(), NULL);
 			else
@@ -142,6 +152,7 @@ void CBlood::Update(float TimePassed)
 				Collision()->MovePoint(&m_aBlood[i].m_Pos, &Vel, 0.6f+0.6f*frandom(), NULL);
 			else
 				Collision()->MovePoint(&m_aBlood[i].m_Pos, &Vel, 0.1f+0.8f*frandom(), NULL);
+			*/
 			
 			// break big blood splats into smaller ones
 			if (m_aBlood[i].m_Spr != SPRITE_BLOOD01 && m_aBlood[i].m_Spr < SPRITE_BONE01)
@@ -170,6 +181,11 @@ void CBlood::Update(float TimePassed)
 				{
 					m_aBlood[i].m_Rot += TimePassed * m_aBlood[i].m_Rotspeed;
 				}
+			}
+			else
+			{
+				//if (OldVel.y < 0 && Vel.y > 0)
+				//	m_aBlood[i].m_Rot = 0;				
 			}
 				
 			// check blood death
@@ -222,32 +238,67 @@ void CBlood::OnRender()
 
 void CBlood::RenderGroup(int Group)
 {
-	Graphics()->BlendNormal();
-	//gfx_blend_additive();
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GORE].m_Id);
-	Graphics()->QuadsBegin();
-
-	int i = m_aFirstPart[Group];
-	while(i != -1)
+	if (g_Config.m_GfxMultiBuffering)
 	{
-		RenderTools()->SelectSprite(m_aBlood[i].m_Spr);
-		float a = m_aBlood[i].m_Life / m_aBlood[i].m_LifeSpan;
-		vec2 p = m_aBlood[i].m_Pos;
-		float Size = mix(m_aBlood[i].m_StartSize, m_aBlood[i].m_EndSize, a);
+		Graphics()->RenderToTexture(RENDERBUFFER_BLOOD);
+	
+		//Graphics()->ShaderBegin(SHADER_BLOOD);
+		Graphics()->BlendAdditive();
+		
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_LIGHTS].m_Id);
+		
+		Graphics()->QuadsBegin();
 
-		Graphics()->QuadsSetRotation(m_aBlood[i].m_Rot);
+		int i = m_aFirstPart[Group];
+		while(i != -1)
+		{
+			float a = m_aBlood[i].m_Life / m_aBlood[i].m_LifeSpan;
+			vec2 p = m_aBlood[i].m_Pos;
+			float Size = mix(m_aBlood[i].m_StartSize, m_aBlood[i].m_EndSize, a);
 
-		Graphics()->SetColor(
-			m_aBlood[i].m_Color.r,
-			m_aBlood[i].m_Color.g,
-			m_aBlood[i].m_Color.b,
-			1.2f-a); // pow(a, 0.75f) *
+			Graphics()->QuadsSetRotation(m_aBlood[i].m_Rot);
 
-		IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size / 2.0f);
-		Graphics()->QuadsDraw(&QuadItem, 1);
+			Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-		i = m_aBlood[i].m_NextPart;
+			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size*0.7f);
+			Graphics()->QuadsDraw(&QuadItem, 1);
+
+			i = m_aBlood[i].m_NextPart;
+		}
+		Graphics()->QuadsEnd();
+		
+		Graphics()->BlendNormal();
+	
+		//Graphics()->ShaderEnd();
 	}
-	Graphics()->QuadsEnd();
-	Graphics()->BlendNormal();
+	else
+	{
+		Graphics()->BlendNormal();
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GORE].m_Id);
+		
+		Graphics()->QuadsBegin();
+
+		int i = m_aFirstPart[Group];
+		while(i != -1)
+		{
+			RenderTools()->SelectSprite(m_aBlood[i].m_Spr);
+			float a = m_aBlood[i].m_Life / m_aBlood[i].m_LifeSpan;
+			vec2 p = m_aBlood[i].m_Pos;
+			float Size = mix(m_aBlood[i].m_StartSize, m_aBlood[i].m_EndSize, a);
+
+			Graphics()->QuadsSetRotation(m_aBlood[i].m_Rot);
+			
+			Graphics()->SetColor(
+				m_aBlood[i].m_Color.r,
+				m_aBlood[i].m_Color.g,
+				m_aBlood[i].m_Color.b,
+				1.2f-a);
+
+			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size / 2.0f);
+			Graphics()->QuadsDraw(&QuadItem, 1);
+
+			i = m_aBlood[i].m_NextPart;
+		}
+		Graphics()->QuadsEnd();
+	}
 }

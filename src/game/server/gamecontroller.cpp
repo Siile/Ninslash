@@ -484,32 +484,32 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 	// buildings
 	if (Index == ENTITY_SAWBLADE)
 	{
-		CBuilding *pSawblade = new CBuilding(&GameServer()->m_World, Pos, BUILDING_SAWBLADE, TEAM_NEUTRAL);
+		new CBuilding(&GameServer()->m_World, Pos, BUILDING_SAWBLADE, TEAM_NEUTRAL);
 		return true;
 	}
 	else if (Index == ENTITY_MINE1)
 	{
-		CBuilding *pSawblade = new CBuilding(&GameServer()->m_World, Pos+vec2(0,6), BUILDING_MINE1, TEAM_NEUTRAL);
+		new CBuilding(&GameServer()->m_World, Pos+vec2(0,6), BUILDING_MINE1, TEAM_NEUTRAL);
 		return true;
 	}
 	else if (Index == ENTITY_MINE2)
 	{
-		CBuilding *pSawblade = new CBuilding(&GameServer()->m_World, Pos+vec2(0,6), BUILDING_MINE2, TEAM_NEUTRAL);
+		new CBuilding(&GameServer()->m_World, Pos+vec2(0,6), BUILDING_MINE2, TEAM_NEUTRAL);
 		return true;
 	}
 	else if (Index == ENTITY_BARREL)
 	{
-		CBuilding *pSawblade = new CBuilding(&GameServer()->m_World, Pos+vec2(0,-12), BUILDING_BARREL, TEAM_NEUTRAL);
+		new CBuilding(&GameServer()->m_World, Pos+vec2(0,-12), BUILDING_BARREL, TEAM_NEUTRAL);
 		return true;
 	}
 	else if (Index == ENTITY_LAZER)
 	{
-		CDeathray *pLazer = new CDeathray(&GameServer()->m_World, Pos+vec2(0, -20));
+		new CDeathray(&GameServer()->m_World, Pos+vec2(0, -20));
 		return true;
 	}
 	else if (Index == ENTITY_POWERUPPER)
 	{
-		CPowerupper *pLazer = new CPowerupper(&GameServer()->m_World, Pos+vec2(0, 12));
+		new CPowerupper(&GameServer()->m_World, Pos+vec2(0, 12));
 		return true;
 	}
 	else if (Index == ENTITY_STAND)
@@ -527,7 +527,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 	}
 	else if (Index == ENTITY_MONSTER1)
 	{
-		CMonster *pMonster = new CMonster(&GameServer()->m_World, Pos+vec2(0, 16));
+		new CMonster(&GameServer()->m_World, Pos+vec2(0, 16));
 		return true;
 	}
 	
@@ -779,8 +779,6 @@ void IGameController::OnPlayerInfoChange(class CPlayer *pP)
 {
 	const int aTeamColors[2] = {2555648, 8912640};
 	const int aTeamFeetColors[2] = {65280, 10354432};
-	
-	const int aInfectedColor = 0;
 	
 	if(IsTeamplay())
 	{
