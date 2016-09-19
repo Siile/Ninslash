@@ -137,7 +137,7 @@ public:
 public:
 
 	CAnimSkeletonInfo() {}
-	~CAnimSkeletonInfo();
+	virtual ~CAnimSkeletonInfo();
 
 	void UpdateBones(float Time = 0.0f, CSpineAnimation *pAnimation = 0x0, class CSkeletonAnimation *pAnimData = 0x0, int WeaponAngle = 0);
 	void UpdateBones(float Time1, float Time2, CSpineAnimation *pAnimation1, CSpineAnimation *pAnimation2, float Mix);
@@ -201,14 +201,14 @@ public:
 	void DrawRoundRectExt(float x, float y, float w, float h, float r, int Corners);
 
 	void DrawUIRect(const CUIRect *pRect, vec4 Color, int Corners, float Rounding);
-	
+
 	// larger rendering methods
 	void RenderTilemapGenerateSkip(class CLayers *pLayers);
 
 	// object render methods (gc_render_obj.cpp)
 	//void RenderTee(class CAnimState *pAnim, CTeeRenderInfo *pInfo, int Emote, vec2 Dir, vec2 Pos);
-	
-	
+
+
 	// for selection menu
 	void RenderTopper(CTeeRenderInfo *pInfo, vec2 Pos);
 	void RenderEye(CTeeRenderInfo *pInfo, vec2 Pos);
@@ -216,16 +216,16 @@ public:
 
 	void RenderShield(vec2 Pos, vec2 Size, float State);
 	void RenderHeal(vec2 Pos, vec2 Size, float State);
-	
+
 	// render player with custom info (teesplatter, bounciness etc...)
 	void RenderPlayer(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, int WeaponNum, int Emote, vec2 Dir, vec2 Pos);
-	
-	
+
+
 	void RenderStaticPlayer(CTeeRenderInfo *pInfo, vec2 Pos);
 	void RenderPortrait(CTeeRenderInfo *pInfo, vec2 Position, int EyeType);
 
 	void RenderMonster(vec2 Pos, float Time, int Dir, int Status);
-	
+
 	// skeleton render methods
 	void RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, class CSkeletonAnimation *AnimData, float Rotation, CAnimSkeletonInfo *pSkeleton, CTextureAtlas *pAtlas, class CPlayerInfo *PlayerInfo = NULL);
 	void RenderBuilding(vec2 Position, CAnimSkeletonInfo *pSkeleton, CTextureAtlas *pAtlas, int Team, int WeaponAngle = 0);
@@ -233,7 +233,7 @@ public:
 	template<typename TKeyframe>
 	static void RenderEvalSkeletonAnim(TKeyframe *pKeyFrame, int NumKeyframes, float Time, typename TKeyframe::KeyframeReturnType *pResult);
 
-	
+
 	// map render methods (gc_render_map.cpp)
 	static void RenderEvalEnvelope(CEnvPoint *pPoints, int NumPoints, int Channels, float Time, float *pResult);
 	void RenderQuads(CQuad *pQuads, int NumQuads, int Flags, ENVELOPE_EVAL pfnEval, void *pUser);
@@ -245,7 +245,7 @@ public:
 
 	vec3 GetColorV3(int v);
 
-	
+
 	void RenderFullScreenLayer();
 };
 
