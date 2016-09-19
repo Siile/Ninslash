@@ -1,6 +1,8 @@
 #ifndef ENGINE_SHARED_ECON_H
 #define ENGINE_SHARED_ECON_H
 
+#include <engine/console.h>
+
 #include "network.h"
 
 

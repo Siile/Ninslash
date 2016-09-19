@@ -1859,48 +1859,8 @@ void CServer::AddZombie()
 	m_aClients[ClientID].m_State = CClient::STATE_INGAME;
 	m_aClients[ClientID].m_Bot = true;
 
-	
-	// generate a cool name for the bot
-	char aName1[128];
-	char aName2[128];
-	
-	switch (rand() % 7)
-	{
-		case 0: str_format(aName1, sizeof(aName1), "i"); break;
-		case 1: str_format(aName1, sizeof(aName1), "a"); break;
-		case 2: str_format(aName1, sizeof(aName1), "u"); break;
-		case 3: str_format(aName1, sizeof(aName1), "o"); break;
-		case 4: str_format(aName1, sizeof(aName1), "q"); break;
-		case 5: str_format(aName1, sizeof(aName1), "e"); break;
-		case 6: str_format(aName1, sizeof(aName1), "y"); break;
-	}
-	
-	switch (rand() % 16)
-	{
-		case 0: str_format(aName2, sizeof(aName2), "w"); break;
-		case 1: str_format(aName2, sizeof(aName2), "t"); break;
-		case 2: str_format(aName2, sizeof(aName2), "i"); break;
-		case 3: str_format(aName2, sizeof(aName2), "o"); break;
-		case 4: str_format(aName2, sizeof(aName2), "p"); break;
-		case 5: str_format(aName2, sizeof(aName2), "a"); break;
-		case 6: str_format(aName2, sizeof(aName2), "f"); break;
-		case 7: str_format(aName2, sizeof(aName2), "g"); break;
-		case 8: str_format(aName2, sizeof(aName2), "j"); break;
-		case 9: str_format(aName2, sizeof(aName2), "l"); break;
-		case 10: str_format(aName2, sizeof(aName2), "x"); break;
-		case 11: str_format(aName2, sizeof(aName2), "c"); break;
-		case 12: str_format(aName2, sizeof(aName2), "v"); break;
-		case 13: str_format(aName2, sizeof(aName2), "b"); break;
-		case 14: str_format(aName2, sizeof(aName2), "n"); break;
-		case 15: str_format(aName2, sizeof(aName2), "m"); break;
-	}
-	
-	
-	char aName[128];
-	str_format(aName, sizeof(aName), "%s%s", aName1, aName2);
-	
 	SetBotDefault(ClientID);
-	SetClientName(ClientID, aName);
+	SetClientName(ClientID, m_botnames[rand() % m_botnames.size()]);
 	SetClientClan(ClientID, "ai");
 }
 
