@@ -80,7 +80,7 @@ void dbg_assert_imp(const char *filename, int line, int test, const char *msg)
 
 void dbg_break()
 {
-	*((volatile unsigned*)0) = 0x0;
+	abort();
 }
 
 void dbg_msg(const char *sys, const char *fmt, ...)
