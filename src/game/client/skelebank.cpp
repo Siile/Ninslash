@@ -11,26 +11,26 @@ CSkelebank::CSkelebank(CRenderTools *pRenderTools)
 void CSkelebank::Init(IStorage *pStorage)
 {
 	m_pStorage = pStorage;
-	
+
 	AddSkeleton("data/anim/body1.json", IStorage::STORAGETYPE_CLIENT);
 	AddAtlas("data/anim/body1.atlas", IStorage::STORAGETYPE_CLIENT);
-	
+
 	AddSkeleton("data/anim/body2.json", IStorage::STORAGETYPE_CLIENT);
 	AddAtlas("data/anim/body2.atlas", IStorage::STORAGETYPE_CLIENT);
-	
+
 	AddSkeleton("data/anim/body3.json", IStorage::STORAGETYPE_CLIENT);
 	AddAtlas("data/anim/body3.atlas", IStorage::STORAGETYPE_CLIENT);
-	
+
 	AddSkeleton("data/anim/turret.json", IStorage::STORAGETYPE_CLIENT);
 	AddAtlas("data/anim/turret.atlas", IStorage::STORAGETYPE_CLIENT);
-	
+
 	AddSkeleton("data/anim/monster1.json", IStorage::STORAGETYPE_CLIENT);
 	AddAtlas("data/anim/monster1.atlas", IStorage::STORAGETYPE_CLIENT);
 }
 
 CSkelebank::~CSkelebank()
 {
-	
+
 }
 
 void CSkelebank::AddSkeleton(const char *pFilename, int StorageType)
@@ -43,24 +43,24 @@ void CSkelebank::AddSkeleton(const char *pFilename, int StorageType)
 		if(!str_comp(m_lSkeletons[i]->m_aName, aBuf))
 			return;
 	}
-	
+
 	// load spine data
 	array<CSpineBone> lBones;
 	array<CSpineSlot> lSlots;
 	SkinMap mSkins;
 	std::map<string, CSpineAnimation> mAnimations;
-	
+
 	if(!m_SpineReader.LoadFromFile(Storage(), pFilename, StorageType, &lBones, &lSlots, &mSkins, &mAnimations))
 	{
-		dbg_msg("spinebank", "Unable to load spine skeleton: %s", pFilename);
-		return;
+		dbg_msg("spinebank", "FATAL: Unable to load spine skeleton: '%s', game will exit.", pFilename);
+		dbg_break(); // game will crash without having the skeletons, so just exit it right away to avoid confusion
 	}
-	
+
 	CSkelebankSkeleton *pSkeletonInfo = new CSkelebankSkeleton();
 	RenderTools()->LoadSkeletonFromSpine(pSkeletonInfo, lBones, lSlots, mSkins, mAnimations);
 	pSkeletonInfo->m_External = 1; // external by default;
 	str_copy(pSkeletonInfo->m_aName, aBuf, sizeof(pSkeletonInfo->m_aName));
-	
+
 	// load file content, uhm double-work actually
 	IOHANDLE File = Storage()->OpenFile(pFilename, IOFLAG_READ, StorageType);
 	if(!File)
@@ -72,7 +72,7 @@ void CSkelebank::AddSkeleton(const char *pFilename, int StorageType)
 	io_read(File, pSkeletonInfo->m_pJsonData, DataSize);
 	pSkeletonInfo->m_pJsonData[DataSize] = '\0';
 	io_close(File);
-	
+
 	//
 	m_lSkeletons.add(pSkeletonInfo);
 }
