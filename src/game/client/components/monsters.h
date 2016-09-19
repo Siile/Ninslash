@@ -1,5 +1,5 @@
 #ifndef GAME_CLIENT_COMPONENTS_MONSTERS_H
-#define GAME_CLIENT_COMPONENTS_MONSTER_H
+#define GAME_CLIENT_COMPONENTS_MONSTERS_H
 #include <base/system.h>
 #include <game/client/component.h>
 

@@ -151,7 +151,7 @@ function build(settings)
 		settings.cc.flags:Add("/wd4503") -- warning C4503: decorated name length exceeded, name was truncated
 		settings.cc.flags:Add("/EHsc") -- warnings of std containers
 	else
-		settings.cc.flags:Add("-Wall", "-fno-exceptions")
+		settings.cc.flags:Add("-Wall", "-fno-exceptions", "-Werror=format")
 		if family == "windows" then
 			-- disable visibility attribute support for gcc on windows
 			settings.cc.defines:Add("NO_VIZ")

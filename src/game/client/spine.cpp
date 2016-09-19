@@ -173,7 +173,7 @@ bool CSpineReader::Load(const char *pData,
 							else if(str_comp("skinnedmesh", rAttachment["type"]) == 0)
 								Type = SPINE_ATTACHMENT_SKINNED_MESH;
 							else
-								dbg_msg("spine", "Unsupported attachment type: %s", rAttachment["type"]);
+								dbg_msg("spine", "Unsupported attachment type: %s", (const char *) rAttachment["type"]);
 						}
 
 						Attachment.m_Type = Type;
@@ -211,7 +211,7 @@ bool CSpineReader::Load(const char *pData,
 								else if(str_comp("random", rAttachment["mode"]) == 0)
 									SeqMode = SPINE_SEQUENCE_MODE_RANDOM;
 								else
-									dbg_msg("spine", "Unsupported attachment region sequence mode: %s", rAttachment["mode"]);
+									dbg_msg("spine", "Unsupported attachment region sequence mode: %s", (const char *) rAttachment["mode"]);
 							}
 
 							Attachment.m_RegionSeq.m_Mode = SeqMode;
@@ -342,7 +342,7 @@ bool CSpineReader::Load(const char *pData,
 								else if(str_comp("linear", rTranslation["curve"]) == 0)
 									TranslationKeyframe.m_Curve.m_Type = SPINE_CURVE_LINEAR;
 								else
-									dbg_msg("spine", "Unsupported keyframe type: %s", rTranslation["curve"]);
+									dbg_msg("spine", "Unsupported keyframe type: %s", (const char *) rTranslation["curve"]);
 							}
 							else if(rTranslation["curve"].type == json_array)
 							{
@@ -377,7 +377,7 @@ bool CSpineReader::Load(const char *pData,
 								else if(str_comp("linear", rRotation["curve"]) == 0)
 									RotationKeyframe.m_Curve.m_Type = SPINE_CURVE_LINEAR;
 								else
-									dbg_msg("spine", "Unsupported keyframe type: %s", rRotation["curve"]);
+									dbg_msg("spine", "Unsupported keyframe type: %s", (const char *) rRotation["curve"]);
 							}
 							else if(rRotation["curve"].type == json_array)
 							{
@@ -414,7 +414,7 @@ bool CSpineReader::Load(const char *pData,
 								else if(str_comp("linear", rScale["curve"]) == 0)
 									ScaleKeyframe.m_Curve.m_Type = SPINE_CURVE_LINEAR;
 								else
-									dbg_msg("spine", "Unsupported keyframe type: %s", rScale["curve"]);
+									dbg_msg("spine", "Unsupported keyframe type: %s", (const char *) rScale["curve"]);
 							}
 							else if(rScale["curve"].type == json_array)
 							{
@@ -589,7 +589,7 @@ bool CSpineReader::LoadAtlas(const char *pAtlasData, CSpineAtlas *pAtlas)
 				int FilterMag = ParsePageFilter(aFilters[1].cstr());
 				if(FilterMin == -1 || FilterMag == -1)
 				{
-					dbg_msg("spine", "Unsupported atlas filter: %s, %s", FilterMin, FilterMag);
+					dbg_msg("spine", "Unsupported atlas filter: %d, %d", FilterMin, FilterMag);
 					Error = true;
 					break;
 				}
