@@ -1,6 +1,3 @@
-
-
-
 #include <base/math.h>
 #include <base/system.h>
 
@@ -1860,7 +1857,6 @@ void CServer::AddZombie()
 	m_aClients[ClientID].m_Bot = true;
 
 	SetBotDefault(ClientID);
-	SetClientName(ClientID, m_botnames[rand() % m_botnames.size()]);
 	SetClientClan(ClientID, "ai");
 }
 

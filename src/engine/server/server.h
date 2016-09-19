@@ -1,5 +1,3 @@
-
-
 #ifndef ENGINE_SERVER_SERVER_H
 #define ENGINE_SERVER_SERVER_H
 
@@ -174,8 +172,6 @@ public:
 	CDemoRecorder m_DemoRecorder;
 	CRegister m_Register;
 	CMapChecker m_MapChecker;
-
-	static std::vector<const char *> m_botnames;
 
 	CServer();
 

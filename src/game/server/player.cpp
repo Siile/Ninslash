@@ -6,6 +6,7 @@
 #include "player.h"
 
 #include <game/weapons.h>
+#include <game/server/botnames.h>
 #include "gamemodes/texasrun.h"
 
 
@@ -570,6 +571,12 @@ void CPlayer::SetRandomSkin()
 	m_TeeInfos.m_ColorSkin = rand()*(0xFFFFFF/RAND_MAX);
 	m_TeeInfos.m_ColorBody = rand()*(0xFFFFFF/RAND_MAX);
 	m_TeeInfos.m_ColorFeet = rand()*(0xFFFFFF/RAND_MAX);
+	
+	// generate random name
+	char aBotName[128];
+	str_format(aBotName, sizeof(aBotName), "%s%s", aBotName1[rand()%(sizeof(aBotName1)/sizeof(aBotName1[0]))], aBotName2[rand()%(sizeof(aBotName2)/sizeof(aBotName2[0]))]);
+	
+	GameServer()->Server()->SetClientName(GetCID(), aBotName);
 }
 
 
