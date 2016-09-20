@@ -34,7 +34,7 @@ public:
 	void PlayerDeath(vec2 Pos, int ClientID);
 	void PowerupShine(vec2 Pos, vec2 Size);
 	void Light(vec2 Pos, float Size);
-	void Electrospark(vec2 Pos, float Size);
+	void Electrospark(vec2 Pos, float Size, vec2 Vel = vec2(0, 0));
 	void Repair(vec2 Pos);
 	void AmmoFill(vec2 Pos, int Weapon);
 

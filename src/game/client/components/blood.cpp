@@ -104,8 +104,8 @@ void CBlood::Bounce(vec2 Pos, vec2 Dir)
 	b.m_Color = vec4(c, c, c, 1.0f);
 	m_pClient->m_pBlood->Add(GROUP_BLOOD, &b);
 	
-	if (g_Config.m_GfxMultiBuffering && frandom()*10 < 4)
-		m_pClient->m_pEffects->Splatter(b.m_Pos + Dir*frandom()*32.0f - Dir*frandom()*16.0f, b.m_Rot, b.m_StartSize * 2);
+	if (g_Config.m_GfxMultiBuffering && frandom()*10 < 3)
+		m_pClient->m_pEffects->Splatter(b.m_Pos + Dir*frandom()*48.0f - Dir*frandom()*16.0f, b.m_Rot, b.m_StartSize * 2);
 }
 
 
@@ -165,6 +165,35 @@ void CBlood::Update(float TimePassed)
 					m_aBlood[i].m_EndSize /= 1.75f;
 					
 					Bounce(m_aBlood[i].m_Pos, RandomDir());
+				}
+			}
+
+			// stick to walls and ceiling
+			vec2 P = m_aBlood[i].m_Pos;
+			
+			// not too close the floor
+			if (!Collision()->IsTileSolid(P.x, P.y+16))
+			{
+				if (Collision()->IsTileSolid(P.x-16, P.y))
+				{
+					float Dist = abs(P.x-int((P.x-16)/32)*32.0f);
+					
+					Vel.x -= Dist*0.1f;
+				}
+				else
+				if (Collision()->IsTileSolid(P.x+16, P.y))
+				{
+					float Dist = abs(P.x-int((P.x+16)/32)*32.0f);
+					
+					Vel.x += Dist*0.1f;
+				}
+				else
+				if (Collision()->IsTileSolid(P.x, P.y-16))
+				{
+					float Dist = abs(P.y-int((P.y-16)/32)*32.0f);
+					
+					Vel.y -= Dist*0.005f;
+					Vel.x *= 0.99f;
 				}
 			}
 			

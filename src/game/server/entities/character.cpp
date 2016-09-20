@@ -153,6 +153,9 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 	GiveStartWeapon();
 	
+	if (g_Config.m_SvRandomBuff)
+		GiveRandomBuff();
+	
 	return true;
 }
 

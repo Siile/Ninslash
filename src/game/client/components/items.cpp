@@ -155,7 +155,8 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	}
 	else if(pCurrent->m_Type == WEAPON_ELECTRIC)
 	{
-		m_pClient->m_pEffects->BulletTrail(Pos);
+		//m_pClient->m_pEffects->BulletTrail(Pos);
+		m_pClient->m_pEffects->Electrospark(Pos, 16, Vel * 100.0f);
 		
 		static float s_Time = 0.0f;
 		static float s_LastLocalTime = Client()->LocalTime();

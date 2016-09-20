@@ -575,8 +575,27 @@ void CPlayer::SetRandomSkin()
 	// generate random name
 	char aBotName[128];
 	str_format(aBotName, sizeof(aBotName), "%s%s", aBotName1[rand()%(sizeof(aBotName1)/sizeof(aBotName1[0]))], aBotName2[rand()%(sizeof(aBotName2)/sizeof(aBotName2[0]))]);
-	
 	GameServer()->Server()->SetClientName(GetCID(), aBotName);
+}
+
+
+void CPlayer::SetCustomSkin(int Type)
+{
+	if (Type == 1)
+	{
+		str_copy(m_TeeInfos.m_TopperName, "meganin", 64);
+		str_copy(m_TeeInfos.m_EyeName, "birdy", 64);
+		m_TeeInfos.m_Body = 0;
+		m_TeeInfos.m_ColorTopper = 10419968;
+		m_TeeInfos.m_ColorSkin = 10747862;
+		m_TeeInfos.m_ColorBody = 9174784;
+		m_TeeInfos.m_ColorFeet = 10354432;
+		
+		char aBotName[128];
+		str_format(aBotName, sizeof(aBotName), "%s%s-T1", aBotName1[rand()%(sizeof(aBotName1)/sizeof(aBotName1[0]))], aBotName2[rand()%(sizeof(aBotName2)/sizeof(aBotName2[0]))]);
+		GameServer()->Server()->SetClientName(GetCID(), aBotName);
+	}
+	
 }
 
 

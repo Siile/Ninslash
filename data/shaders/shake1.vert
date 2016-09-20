@@ -1,3 +1,5 @@
+#version 120
+
 uniform float rnd;
 uniform float intensity;
 

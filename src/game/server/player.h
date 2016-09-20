@@ -169,6 +169,7 @@ public:
 	bool m_Welcomed;
 	
 	void SetRandomSkin();
+	void SetCustomSkin(int Type);
 
 	
 private:

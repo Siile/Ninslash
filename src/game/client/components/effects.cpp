@@ -97,7 +97,7 @@ void CEffects::Blood(vec2 Pos, vec2 Dir)
 	
 	//b.m_Gravity = 1600.0f;
 	b.m_Friction = 0.85f+frandom()*0.075f;
-	b.m_Friction *= 0.95f;
+	//b.m_Friction *= 0.95f;
 	float c = frandom()*0.3f + 0.7f;
 	b.m_Color = vec4(c, c, c, 1.0f);
 	m_pClient->m_pBlood->Add(CBlood::GROUP_BLOOD, &b);
@@ -407,7 +407,7 @@ void CEffects::Lazer(vec2 Pos, int Height)
 }
 
 
-void CEffects::Electrospark(vec2 Pos, float Size)
+void CEffects::Electrospark(vec2 Pos, float Size, vec2 Vel)
 {
 	CParticle p;
 	p.SetDefault();
@@ -415,6 +415,10 @@ void CEffects::Electrospark(vec2 Pos, float Size)
 	if (frandom() < 0.5f)
 		p.m_Spr = SPRITE_SPARK2_1;
 	p.m_Frames = 3;
+	p.m_Vel = Vel;
+	p.m_Gravity = 0;
+	p.m_Friction = 0.8f;
+	
 	p.m_Pos = Pos;
 	p.m_LifeSpan = 0.2f;
 	p.m_StartSize = Size;

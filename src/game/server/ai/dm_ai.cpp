@@ -20,8 +20,16 @@ void CAIdm::OnCharacterSpawn(CCharacter *pChr)
 {
 	CAI::OnCharacterSpawn(pChr);
 	
+	m_PowerLevel = 4;
+	
 	m_WaypointDir = vec2(0, 0);
 	Player()->SetRandomSkin();
+	
+	if (rand()%5 == 1)
+	{
+		Player()->SetCustomSkin(1);
+		m_PowerLevel = 12;
+	}
 	
 	//pChr->GiveRandomWeapon();
 }
@@ -31,7 +39,6 @@ void CAIdm::DoBehavior()
 {
 	// power level
 	//m_PowerLevel = 20 - GameServer()->m_pController->CountPlayers()*1.5f;
-	m_PowerLevel = 6;
 	
 	// reset jump and attack
 	/*

@@ -18,6 +18,9 @@ const char *aBotName1[] = {
 	"Conditio",
 	"Concurre",
 	"Cygwi",
+	"Termi",
+	"Destro",
+	"Proto",
 };
 
 const char *aBotName2[] = {
@@ -25,6 +28,8 @@ const char *aBotName2[] = {
 	"las",
 	"bra",
 	"-314",
+	"-609",
+	"-01",
 	"box",
 	"ram",
 	"bers",
@@ -38,6 +43,8 @@ const char *aBotName2[] = {
 	"ning",
 	"trix",
 	"x",
+	"nator",
+	"yer",
 };
 
 

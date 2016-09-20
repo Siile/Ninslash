@@ -715,11 +715,11 @@ void CGameClient::ProcessEvents()
 			*/
 			
 			// 0 - 200
-			int BloodAmount = g_Config.m_GoreBlood / 5.0f;
+			int BloodAmount = g_Config.m_GoreBlood / 4.0f;
 			
 			
 			for (int i = 0; i < BloodAmount; i++)
-				g_GameClient.m_pEffects->Blood(vec2(ev->m_X, ev->m_Y), RandomDir()*0.6f - GetDirection(ev->m_Angle)*1.6f);
+				g_GameClient.m_pEffects->Blood(vec2(ev->m_X, ev->m_Y), RandomDir()*0.3f - GetDirection(ev->m_Angle)*2.0f);
 			
 
 			int TeeSplatter = 0;
@@ -741,36 +741,6 @@ void CGameClient::ProcessEvents()
 					}
 				}
 			}
-			
-			// moved to blood particles
-			/*
-			if (g_Config.m_GoreWallSplatter && g_Config.m_GfxMultiBuffering)
-			{
-				int WallSplatter = 0;
-				if (BloodAmount > 0)
-					WallSplatter = 1 + BloodAmount/30;
-				
-				
-				for (int i = 0; i < WallSplatter; i++)
-				{
-					vec2 p = vec2(ev->m_X, ev->m_Y);
-					vec2 v =  RandomDir()*(16.0f+frandom()*8.0f);
-					float a = GetAngle(v);
-					
-					for (int l = 0; l < 4; l++)
-					{
-						p += v;
-						if (Collision()->GetCollisionAt(p.x, p.y)&CCollision::COLFLAG_SOLID)
-						{
-							p += v * frandom()*2;
-						
-							//g_GameClient.m_pEffects->Splatter(p, a);
-							break;
-						}
-					}
-				}
-			}
-			*/
 		}
 		else if(Item.m_Type == NETEVENTTYPE_EXPLOSION)
 		{
