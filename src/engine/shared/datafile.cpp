@@ -559,7 +559,7 @@ int CDataFileWriter::Finish()
 	for(int i = 0; i < m_NumItems; i++)
 	{
 		if(DEBUG)
-			dbg_msg("datafile", "item=%d size=%d (%lu)", i, m_pItems[i].m_Size, m_pItems[i].m_Size+sizeof(CDatafileItem));
+			dbg_msg("datafile", "item=%d size=%d (%d)", i, m_pItems[i].m_Size, int(m_pItems[i].m_Size+sizeof(CDatafileItem)));
 		ItemSize += m_pItems[i].m_Size + sizeof(CDatafileItem);
 	}
 
