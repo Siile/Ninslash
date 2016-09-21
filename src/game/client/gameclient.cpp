@@ -281,13 +281,6 @@ void CGameClient::OnConsoleInit()
 void CGameClient::OnInit()
 {
 	m_pGraphics = Kernel()->RequestInterface<IGraphics>();
-	Graphics()->LoadShaders();
-	
-	if (g_Config.m_GfxMultiBuffering)
-	{
-		Graphics()->CreateTextureBuffer(Graphics()->ScreenWidth(),Graphics()->ScreenHeight());
-		Graphics()->ClearBufferTexture();
-	}
 
 	// propagate pointers
 	m_UI.SetGraphics(Graphics(), TextRender());
@@ -318,8 +311,7 @@ void CGameClient::OnInit()
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "failed to load font. filename='fonts/Future n0t Found Regular.ttf'");
 
 	// init all components
-	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "init all components");
-	
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "init all components");	
 	for(int i = m_All.m_Num-1; i >= 0; --i)
 		m_All.m_paComponents[i]->OnInit();
 
@@ -344,6 +336,14 @@ void CGameClient::OnInit()
 	
 	Skelebank()->Init(Storage());
 	RenderTools()->m_pSkelebank = Skelebank();
+	
+	Graphics()->LoadShaders();
+	
+	if (g_Config.m_GfxMultiBuffering)
+	{
+		Graphics()->CreateTextureBuffer(Graphics()->ScreenWidth(),Graphics()->ScreenHeight());
+		Graphics()->ClearBufferTexture();
+	}
 }
 
 void CGameClient::DispatchInput()
