@@ -92,6 +92,7 @@ public:
 		CMD_LOADSHADERS,
 		CMD_SHADERBEGIN,
 		CMD_SHADEREND,
+		CMD_CAMERATOSHADERS,
 	};
 
 	enum
@@ -255,6 +256,16 @@ public:
 		SCommand_ShaderEnd() : SCommand(CMD_SHADEREND) {}
 	};
 
+	struct SCommand_CameraToShaders : public SCommand
+	{
+		SCommand_CameraToShaders() : SCommand(CMD_CAMERATOSHADERS) {}
+
+		int m_ScreenWidth;
+		int m_ScreenHeight;
+		int m_CameraX;
+		int m_CameraY;
+	};
+	
 	struct SCommand_Texture_Create : public SCommand
 	{
 		SCommand_Texture_Create() : SCommand(CMD_TEXTURE_CREATE) {}
@@ -457,6 +468,8 @@ public:
 	virtual void LoadShaders();
 	virtual void ShaderBegin(int Shader, float Intensity = 1.0f);
 	virtual void ShaderEnd();
+	
+	virtual void CameraToShaders(int ScreenWidth, int ScreenHeight, int CameraX, int CameraY);
 	
 	virtual int UnloadTexture(int Index);
 	virtual int LoadTextureRaw(int Width, int Height, int Format, const void *pData, int StoreFormat, int Flags);

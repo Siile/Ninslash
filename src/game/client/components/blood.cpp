@@ -6,6 +6,7 @@
 #include <game/generated/client_data.h>
 #include <game/client/render.h>
 #include <game/client/gameclient.h>
+#include <game/client/customstuff.h>
 #include <game/gamecore.h>
 #include "blood.h"
 
@@ -17,6 +18,8 @@ CBlood::CBlood()
 {
 	OnReset();
 	m_RenderBlood.m_pParts = this;
+	m_RenderAcid.m_pParts = this;
+	m_RenderAcidLayer.m_pParts = this;
 }
 
 
@@ -75,7 +78,7 @@ void CBlood::Add(int Group, CBlooddrop *pPart)
 }
 
 
-void CBlood::Bounce(vec2 Pos, vec2 Dir)
+void CBlood::Bounce(vec2 Pos, vec2 Dir, int Group)
 {
 	CBlooddrop b;
 	b.SetDefault();
@@ -91,8 +94,9 @@ void CBlood::Bounce(vec2 Pos, vec2 Dir)
 	if (g_Config.m_GfxMultiBuffering)
 	{
 		b.m_Rotspeed = 0.0f;
-		b.m_StartSize *= 1.5f;
-		b.m_EndSize = 0.0f;
+		//b.m_StartSize *= 1.5f;
+		b.m_StartSize = 48.0f;
+		b.m_EndSize = 4.0f;
 		b.m_LifeSpan = 4.0f;
 	}
 	
@@ -102,9 +106,9 @@ void CBlood::Bounce(vec2 Pos, vec2 Dir)
 	b.m_Friction = 0.7f+frandom()*0.075f;
 	float c = frandom()*0.3f + 0.7f;
 	b.m_Color = vec4(c, c, c, 1.0f);
-	m_pClient->m_pBlood->Add(GROUP_BLOOD, &b);
+	m_pClient->m_pBlood->Add(Group, &b);
 	
-	if (g_Config.m_GfxMultiBuffering && frandom()*10 < 3)
+	if (g_Config.m_GfxMultiBuffering && frandom()*10 < 3 && Group == GROUP_BLOOD)
 		m_pClient->m_pEffects->Splatter(b.m_Pos + Dir*frandom()*48.0f - Dir*frandom()*16.0f, b.m_Rot, b.m_StartSize * 2);
 }
 
@@ -134,15 +138,29 @@ void CBlood::Update(float TimePassed)
 			//m_aBlood[i].vel += flow_get(m_aBlood[i].pos)*time_passed * m_aBlood[i].flow_affected;
 			m_aBlood[i].m_Vel.y += m_aBlood[i].m_Gravity*TimePassed;
 
+			
+			// ugly way to force tiles to blood
+			int OnForceTile = Collision()->IsForceTile(m_aBlood[i].m_Pos.x, m_aBlood[i].m_Pos.y+4);
+			
+
 			for(int f = 0; f < FrictionCount; f++) // apply friction
 				m_aBlood[i].m_Vel *= m_aBlood[i].m_Friction;
-
+			
+			if (OnForceTile != 0)
+				//m_aBlood[i].m_Vel.x = (m_aBlood[i].m_Vel.x + OnForceTile*400) / 2.0f;
+				m_aBlood[i].m_Vel.x = OnForceTile*250;
+				
 			// move the point
 			vec2 Vel = m_aBlood[i].m_Vel*TimePassed;
 			
 			vec2 OldVel = Vel;
+			//Vel.x += OnForceTile*1;
 			
-			Collision()->MovePoint(&m_aBlood[i].m_Pos, &Vel, 0.2f+0.5f*frandom(), NULL);
+			if (OnForceTile != 0)
+				Collision()->MovePoint(&m_aBlood[i].m_Pos, &Vel, 0.99f, NULL);
+			else
+				Collision()->MovePoint(&m_aBlood[i].m_Pos, &Vel, 0.2f+0.5f*frandom(), NULL);
+			//Collision()->MovePoint(&m_aBlood[i].m_Pos, &Vel, 0.8f, NULL);
 			
 			/*
 			if (m_aBlood[i].m_Spr >= SPRITE_BONE01)
@@ -164,7 +182,7 @@ void CBlood::Update(float TimePassed)
 					m_aBlood[i].m_StartSize /= 1.75f;
 					m_aBlood[i].m_EndSize /= 1.75f;
 					
-					Bounce(m_aBlood[i].m_Pos, RandomDir());
+					Bounce(m_aBlood[i].m_Pos, RandomDir(), g);
 				}
 			}
 
@@ -196,6 +214,7 @@ void CBlood::Update(float TimePassed)
 					Vel.x *= 0.99f;
 				}
 			}
+
 			
 			m_aBlood[i].m_Vel = Vel* (1.0f/TimePassed);
 
@@ -267,15 +286,54 @@ void CBlood::OnRender()
 
 void CBlood::RenderGroup(int Group)
 {
+	// render acid layer to screen
+	if (Group == GROUP_ACIDLAYER)
+	{
+		if (!g_Config.m_GfxMultiBuffering)
+			return;
+
+		CUIRect Screen;
+		Graphics()->GetScreen(&Screen.x, &Screen.y, &Screen.w, &Screen.h);
+		
+		Graphics()->MapScreen(0,0,Graphics()->ScreenWidth(),Graphics()->ScreenHeight());
+		
+		Graphics()->RenderToScreen();
+		Graphics()->BlendNormal();
+			
+		// blood
+		Graphics()->ShaderBegin(SHADER_ACID, CustomStuff()->m_SawbladeAngle*0.1f);
+		Graphics()->TextureSet(-2, RENDERBUFFER_ACID);
+
+		Graphics()->QuadsBegin();
+		Graphics()->QuadsSetRotation(0);
+		Graphics()->SetColor(0.0f, 1.0f, 0, 0.8f);
+		
+		{
+			IGraphics::CQuadItem QuadItem(Graphics()->ScreenWidth() / 2, Graphics()->ScreenHeight() / 2, Graphics()->ScreenWidth(), -Graphics()->ScreenHeight());
+			Graphics()->QuadsDraw(&QuadItem, 1);
+		}
+		
+		Graphics()->QuadsEnd();
+		Graphics()->ShaderEnd();
+		
+
+		// reset the screen like it was before
+		Graphics()->MapScreen(Screen.x, Screen.y, Screen.w, Screen.h);
+		
+		return;
+	}
+	
+	
+	// render particles to texture buffers
 	if (g_Config.m_GfxMultiBuffering)
 	{
-		Graphics()->RenderToTexture(RENDERBUFFER_BLOOD);
+		if (Group == GROUP_BLOOD)
+			Graphics()->RenderToTexture(RENDERBUFFER_BLOOD);
+		else if (Group == GROUP_ACID)
+			Graphics()->RenderToTexture(RENDERBUFFER_ACID);
 	
-		//Graphics()->ShaderBegin(SHADER_BLOOD);
 		Graphics()->BlendAdditive();
-		
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_LIGHTS].m_Id);
-		
 		Graphics()->QuadsBegin();
 
 		int i = m_aFirstPart[Group];
@@ -294,13 +352,13 @@ void CBlood::RenderGroup(int Group)
 
 			i = m_aBlood[i].m_NextPart;
 		}
-		Graphics()->QuadsEnd();
 		
+		Graphics()->QuadsEnd();
 		Graphics()->BlendNormal();
-	
-		//Graphics()->ShaderEnd();
 	}
-	else
+	
+	// ...or render particles to screen
+	else if (Group == GROUP_BLOOD)
 	{
 		Graphics()->BlendNormal();
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GORE].m_Id);

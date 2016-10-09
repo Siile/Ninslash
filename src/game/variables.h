@@ -90,6 +90,8 @@ MACRO_CONFIG_INT(SvVoteKickBantime, sv_vote_kick_bantime, 5, 0, 1440, CFGFLAG_SE
 
 //
 
+MACRO_CONFIG_INT(SvNull, sv_null, 0, 0, 100, CFGFLAG_SERVER, "does nothing")
+
 MACRO_CONFIG_INT(SvDebugMessages, sv_debugmessages, 0, 0, 1, CFGFLAG_SERVER, "Enable debug messages for crash fixing")
 
 MACRO_CONFIG_INT(SvRandomWeapons, sv_randomweapons, 0, 0, 1, CFGFLAG_SERVER, "Enable random weapons")

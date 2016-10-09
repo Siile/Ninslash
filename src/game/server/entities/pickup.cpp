@@ -13,6 +13,8 @@ CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType, int Ammo)
 	m_Subtype = SubType;
 	m_ProximityRadius = PickupPhysSize;
 
+	m_ResetableDropable = false;
+	
 	Reset();
 
 	GameWorld()->InsertEntity(this);
@@ -40,16 +42,34 @@ void CPickup::Reset()
 
 void CPickup::Tick()
 {
-	
+	if (!m_Dropable && GameServer()->Collision()->IsForceTile(m_Pos.x, m_Pos.y+24) != 0)
+	{
+		m_ResetableDropable = true;
+		m_SpawnPos = m_Pos;
+		m_Life = 280;
+		m_Flashing = false;
+		m_FlashTimer = 0;
+		m_Dropable = true;
+		m_Treasure = false;
+		m_SpawnTick = -1;
+		m_Ammo = 1.0f;
+	}
 	
 	// wait for respawn
 	//if(m_SpawnTick > 0) - 12.5.
-	if(m_SpawnTick > 0 && !m_Dropable && !m_Flashing)
+	if(m_SpawnTick > 0 && (!m_Dropable || m_ResetableDropable) && !m_Flashing)
 	{
 		if(Server()->Tick() > m_SpawnTick && !m_SkipAutoRespawn)
 		{
 			// respawn
 			m_SpawnTick = -1;
+			
+			if (m_ResetableDropable)
+			{
+				m_Pos = m_SpawnPos;
+				m_Dropable = false;
+			}
+			
 
 			if(m_Type == POWERUP_WEAPON)
 				GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SPAWN);
@@ -61,17 +81,23 @@ void CPickup::Tick()
 	// item drops from enemies
 	if (m_Dropable && !m_Treasure)
 	{
+		if (m_Life < 100)
+			m_Flashing = true;
+		
 		if (m_Life > 0)
 			m_Life--;
 		else
 		{
-			m_SpawnTick = 999;
+			if (m_ResetableDropable)
+			{
+				m_Flashing = false;
+				m_Dropable = false;
+				m_SpawnTick = Server()->Tick() + Server()->TickSpeed() * (4.0f+frandom()*6);
+			}
+			else
+				m_SpawnTick = 999;
 			return;
 		}
-
-			
-		if (m_Life < 100)
-			m_Flashing = true;
 	}
 	
 	// a small visual effect before pickup disappears
@@ -101,10 +127,19 @@ void CPickup::Tick()
 		if(GameServer()->Collision()->CheckPoint(m_Pos.x-12, m_Pos.y+12+5))
 			Grounded = true;
 		
+		int OnForceTile = GameServer()->Collision()->IsForceTile(m_Pos.x-12, m_Pos.y+12+5);
+		if (OnForceTile == 0)
+			OnForceTile = GameServer()->Collision()->IsForceTile(m_Pos.x+12, m_Pos.y+12+5);
+		
 		if (Grounded)
-			m_Vel.x *= 0.8f;
+			m_Vel.x = (m_Vel.x + OnForceTile) * 0.8f;
+			//m_Vel.x *= 0.8f;
 		else
 			m_Vel.x *= 0.99f;
+		
+		
+		//if (OnForceTile == -1)
+		//	m_Vel.x -= 0.3f;
 		
 		GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(24.0f, 24.0f), 0.4f);
 	}
@@ -246,6 +281,10 @@ void CPickup::Tick()
 
 		if(RespawnTime >= 0)
 		{
+			// force 10 sec on factory boxes
+			if (m_ResetableDropable)
+				m_SpawnTick = Server()->Tick() + Server()->TickSpeed() * (4.0f+frandom()*6);
+			
 			char aBuf[256];
 			str_format(aBuf, sizeof(aBuf), "pickup player='%d:%s' item=%d/%d",
 				pChr->GetPlayer()->GetCID(), Server()->ClientName(pChr->GetPlayer()->GetCID()), m_Type, m_Subtype);

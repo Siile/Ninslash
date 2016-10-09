@@ -87,6 +87,8 @@ int CGameControllerCTF::OnCharacterDeath(class CCharacter *pVictim, class CPlaye
 	IGameController::OnCharacterDeath(pVictim, pKiller, WeaponID);
 	int HadFlag = 0;
 
+	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "ctf", "OnCharacterDeath");
+	
 	// drop flags
 	for(int i = 0; i < 2; i++)
 	{

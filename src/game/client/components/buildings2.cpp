@@ -72,6 +72,10 @@ void CBuildings2::RenderFlametrap(const struct CNetObj_Building *pCurrent)
 				CustomStuff()->m_FlametrapLastSound[i] = 0;
 				m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_JETPACK2, 1.0f, vec2(pCurrent->m_X, pCurrent->m_Y));
 			}
+			
+			// new sound
+			//CustomStuff()->m_FlametrapSoundTick[i] = Client()->GameTick() + 2000 * Client()->GameTickSpeed()/1000;
+			//m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_FIRETRAP, 1.0f, vec2(pCurrent->m_X, pCurrent->m_Y));
 		}
 	}
 	

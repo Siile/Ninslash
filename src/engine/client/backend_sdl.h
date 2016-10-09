@@ -104,6 +104,11 @@ class CCommandProcessorFragment_OpenGL
 
 	bool m_MultiBuffering;
 	
+	int m_ScreenWidth;
+	int m_ScreenHeight;
+	int m_CameraX;
+	int m_CameraY;
+	
 	class CShader
 	{
 		struct CUniformLocation
@@ -150,6 +155,7 @@ private:
 	void Cmd_LoadShaders(const CCommandBuffer::SCommand_LoadShaders *pCommand);
 	void Cmd_ShaderBegin(const CCommandBuffer::SCommand_ShaderBegin *pCommand);
 	void Cmd_ShaderEnd(const CCommandBuffer::SCommand_ShaderEnd *pCommand);
+	void Cmd_CameraToShaders(const CCommandBuffer::SCommand_CameraToShaders *pCommand);
 	void Cmd_Clear(const CCommandBuffer::SCommand_Clear *pCommand);
 	void Cmd_ClearBufferTexture(const CCommandBuffer::SCommand_ClearBufferTexture *pCommand);
 	void Cmd_Render(const CCommandBuffer::SCommand_Render *pCommand);

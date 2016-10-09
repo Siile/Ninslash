@@ -256,6 +256,9 @@ container.sounds.Add(SoundSet("item_fuel", ["audio/item_fuel.wv"]))
 container.sounds.Add(SoundSet("electromine", ["audio/electromine.wv"]))
 container.sounds.Add(SoundSet("negative", ["audio/negative.wv"]))
 
+container.sounds.Add(SoundSet("build_turret", ["audio/build_turret.wv"]))
+container.sounds.Add(SoundSet("firetrap", ["audio/firetrap.wv"]))
+
 container.sounds.Add(SoundSet("menu", ["audio/music_menu.wv"]))
 
 
@@ -300,6 +303,7 @@ image_playerspawn = Image("playerspawn", "fx/playerspawn.png")
 image_monsterspawn = Image("monsterspawn", "fx/monsterspawn.png")
 image_heal = Image("heal", "fx/heal.png")
 image_flame = Image("flame", "fx/flame.png")
+image_cbelt = Image("cbelt", "cbelt.png")
 
 image_texasmask = Image("texasmask", "texasmask.png")
 
@@ -347,6 +351,7 @@ container.images.Add(image_playerspawn)
 container.images.Add(image_monsterspawn)
 container.images.Add(image_heal)
 container.images.Add(image_flame)
+container.images.Add(image_cbelt)
 container.images.Add(image_texasmask)
 
 container.pickups.Add(Pickup("health"))

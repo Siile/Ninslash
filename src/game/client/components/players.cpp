@@ -173,7 +173,21 @@ void CPlayers::RenderPlayer(
 			m_pClient->m_pEffects->AirJump(Position);
 	}
 
-	bool Stationary = Player.m_VelX <= 1 && Player.m_VelX >= -1;
+	// Player.IsOnForceTile()
+	
+	int ForceState = Collision()->IsForceTile(Player.m_X-8, Player.m_Y+18);
+	if (ForceState == 0)
+		ForceState = Collision()->IsForceTile(Player.m_X+8, Player.m_Y+18);
+	
+	ForceState *= 1024.0f;
+	
+	/*
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf), "Vel.x = %d", int(Player.m_VelX));
+	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", aBuf);
+	*/
+	
+	bool Stationary = Player.m_VelX <= 1 + ForceState && Player.m_VelX >= -1 + ForceState;
 	bool InAir = !Collision()->CheckPoint(Player.m_X, Player.m_Y+16);
 	bool WantOtherDir = (Player.m_Direction == -1 && Vel.x > 0) || (Player.m_Direction == 1 && Vel.x < 0);
 
@@ -190,6 +204,9 @@ void CPlayers::RenderPlayer(
 			CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_FlipFeet = false;
 		}
 	}
+	
+	
+	m_pClient->AddFluidForce(Position+vec2(0, -12), Vel*2);
 	
 	
 	float AnimSpeed = abs(Vel.x) / 300.0f;
@@ -286,6 +303,8 @@ void CPlayers::RenderPlayer(
 				pCustomPlayerInfo->m_MeleeState = MELEE_DOWN;
 				m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), false);
 				pCustomPlayerInfo->m_Weapon2Recoil += Direction * 15;
+				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
+				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*95, vec2(frandom()-frandom(), frandom()-frandom())*30);
 			}
 			else
 			{
@@ -293,6 +312,8 @@ void CPlayers::RenderPlayer(
 				pCustomPlayerInfo->m_MeleeState = MELEE_UP;
 				m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), true);
 				pCustomPlayerInfo->m_Weapon2Recoil += Direction * 15;
+				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
+				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*95, vec2(frandom()-frandom(), frandom()-frandom())*30);
 			}
 		}
 	}
@@ -451,6 +472,9 @@ void CPlayers::RenderPlayer(
 					{
 						CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilVel -= Direction * 1.0f;
 						pCustomPlayerInfo->m_LastChainsawSoundTick = Client()->GameTick() + 500 * Client()->GameTickSpeed()/1000;
+						
+						
+						m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
 					}
 					else
 						CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilVel -= Direction * 14.0f;

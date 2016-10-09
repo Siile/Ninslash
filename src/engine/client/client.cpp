@@ -1878,8 +1878,8 @@ void CClient::Run()
 					GameClient()->OnActivateEditor();
         			m_MouseModes = Input()->GetMouseModes();
     			    Input()->SetMouseModes(0);
-    			    m_ShowCursor = Input()->ShowCursor(-1);
-    			    Input()->ShowCursor(1);
+    			    m_ShowCursor = Input()->ShowCursor(0);
+    			    Input()->ShowCursor(0);
 					m_EditorActive = true;
 				}
 			}

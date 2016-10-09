@@ -195,7 +195,8 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos)
 	
 	// check validity
 	if (!Collision()->GetCollisionAt(Pos.x-24, Pos.y+24+OffsetY)&CCollision::COLFLAG_SOLID || 
-		!Collision()->GetCollisionAt(Pos.x+24, Pos.y+24+OffsetY)&CCollision::COLFLAG_SOLID)
+		!Collision()->GetCollisionAt(Pos.x+24, Pos.y+24+OffsetY)&CCollision::COLFLAG_SOLID ||
+		Collision()->IsForceTile(Pos.x, Pos.y+24+OffsetY) != 0)
 		return false;
 	
 	if (Kit == KIT_STAND)

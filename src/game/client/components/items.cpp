@@ -111,6 +111,10 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	vec2 Vel = Pos-PrevPos;
 	//vec2 pos = mix(vec2(prev->x, prev->y), vec2(current->x, current->y), Client()->IntraGameTick());
 
+	
+	// add force to fluids
+	m_pClient->AddFluidForce(Pos, Vel*5);
+	
 
 	// add particle for this projectile
 	if(pCurrent->m_Type == WEAPON_FLAMER)
@@ -222,6 +226,10 @@ void CItems::RenderPickup(const CNetObj_Pickup *pPrev, const CNetObj_Pickup *pCu
 	float Size = 64.0f;
 	
 	bool SkipOffset = false;
+	
+	
+	vec2 Vel = vec2(pCurrent->m_X, pCurrent->m_Y) - vec2(pPrev->m_X, pPrev->m_Y);
+	m_pClient->AddFluidForce(Pos, Vel);
 	
 	if (pCurrent->m_Type == POWERUP_WEAPON)
 	{

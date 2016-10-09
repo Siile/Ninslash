@@ -18,7 +18,6 @@ enum MeleeState
 class CPlayerInfo
 {
 private:
-	vec2 m_Pos;
 	
 	// if > 5, !InUse
 	int m_UpdateTimer;
@@ -28,6 +27,9 @@ private:
 	
 public:
 	CPlayerInfo();
+	
+	vec2 m_Pos;
+	vec2 m_Vel;
 	
 	CSkeletonAnimation *Animation() { return m_pAnimation; }
 	

@@ -91,6 +91,10 @@ void CLaser::DoBounce()
 {
 	m_EvalTick = Server()->Tick();
 
+	
+	if (GameServer()->Collision()->GetCollisionAt(m_Pos.x, m_Pos.y) == CCollision::COLFLAG_DAMAGEFLUID)
+		m_Energy = -1;
+	
 	if(m_Energy < 0)
 	{
 		/*

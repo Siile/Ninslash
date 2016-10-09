@@ -114,6 +114,8 @@ public:
 	int m_DemoSpecID;
 
 	vec2 m_LocalCharacterPos;
+	
+	void AddFluidForce(vec2 Pos, vec2 Vel);
 
 	// predicted players
 	CCharacterCore m_PredictedPrevChar;
@@ -246,6 +248,8 @@ public:
 	class CBlood *m_pBlood;
 	class CSplatter *m_pSplatter;
 	class CSpark *m_pSpark;
+	class CFluid *m_pFluid;
+	class CCBelt *m_pCBelt;
 	class CLight *m_pLight;
 	class CMenus *m_pMenus;
 	class CSkins *m_pSkins;

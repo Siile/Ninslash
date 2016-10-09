@@ -1,5 +1,3 @@
-
-
 #ifndef GAME_CLIENT_COMPONENTS_ITEMS_H
 #define GAME_CLIENT_COMPONENTS_ITEMS_H
 #include <base/system.h>

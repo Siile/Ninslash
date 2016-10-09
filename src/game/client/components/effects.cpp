@@ -85,8 +85,9 @@ void CEffects::Blood(vec2 Pos, vec2 Dir)
 	{
 		b.m_Spr = SPRITE_BLOOD02;
 		b.m_Rotspeed = 0.0f;
-		b.m_StartSize *= 0.75f;
-		b.m_EndSize = 0.0f;
+		//b.m_StartSize *= 0.75f;
+		b.m_StartSize = 64.0f;
+		b.m_EndSize = 4.0f;
 		b.m_LifeSpan = 8.0f;
 		b.m_StartSize = 32.0f + frandom()*32;
 	}
@@ -101,6 +102,54 @@ void CEffects::Blood(vec2 Pos, vec2 Dir)
 	float c = frandom()*0.3f + 0.7f;
 	b.m_Color = vec4(c, c, c, 1.0f);
 	m_pClient->m_pBlood->Add(CBlood::GROUP_BLOOD, &b);
+}
+
+void CEffects::Acid(vec2 Pos, vec2 Dir)
+{
+	CBlooddrop b;
+	b.SetDefault();
+	b.m_Pos = Pos;
+	
+	// bones
+	if (frandom()*100 < 2)
+	{
+		b.m_Spr = SPRITE_BONE01 + (rand()%2);
+		b.m_LifeSpan = 8.0f + frandom()*8.0f;
+		b.m_Rotspeed = frandom()*12.0f - frandom()*12.0f;
+		
+		b.m_StartSize = 24.0f + frandom()*24;
+		b.m_EndSize = b.m_StartSize;
+		b.m_Gravity = 1600.0f;
+	}
+	else
+	// blood
+	{
+		b.m_Spr = SPRITE_BLOOD01 + (rand()%6);
+		b.m_LifeSpan = 6.0f + frandom()*6.0f;
+		b.m_Rotspeed = 0.0f;
+		b.m_StartSize = 32.0f + frandom()*32;
+		b.m_EndSize = 24.0f;
+		b.m_Gravity = 1400.0f + frandom()*300;
+	}
+	
+	if (g_Config.m_GfxMultiBuffering)
+	{
+		b.m_Spr = SPRITE_BLOOD02;
+		b.m_Rotspeed = 0.0f;
+		b.m_StartSize *= 0.75f;
+		b.m_EndSize = 0.0f;
+		b.m_LifeSpan = 8.0f;
+		b.m_StartSize = 32.0f + frandom()*32;
+	}
+	
+	b.m_Vel = Dir * ((frandom()+0.50f)*1200.0f);
+
+	b.m_Rot = GetAngle(b.m_Vel);
+
+	b.m_Friction = 0.85f+frandom()*0.075f;
+	float c = frandom()*0.3f + 0.7f;
+	b.m_Color = vec4(c, c, c, 1.0f);
+	m_pClient->m_pBlood->Add(CBlood::GROUP_ACID, &b);
 }
 
 

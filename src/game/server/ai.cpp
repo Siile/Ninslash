@@ -724,6 +724,80 @@ bool CAI::MoveTowardsWaypoint(int Dist)
 		};
 	}
 	
+	// teach some basic moves to override shitty waypoint logic
+	float Vel = Player()->GetCharacter()->GetCore().m_Vel.x;
+	
+	// abuse the bug / use the feature that lets the character keep sliding if coming from tunnel, don't fix it
+	if (Player()->GetCharacter()->GetCore().m_Slide > 0)
+	{
+		if (!Player()->GetCharacter()->GetCore().IsGrounded())
+		{
+			if (Vel < -3)
+			{
+				m_Move = -1;
+				m_Hook = 1;
+				m_Direction = vec2(-50.0f, -100.0f);
+			}
+			else
+			if (Vel > 3)
+			{
+				m_Move = 1;
+				m_Hook = 1;
+				m_Direction = vec2(50.0f, -100.0f);
+			}
+		}
+		else
+		{
+			// save some fuel for the possible flight
+			if (Player()->GetCharacter()->GetCore().m_JetpackPower < 60)
+				m_Hook = 0;
+			
+			m_Move = Vel < 0.0f ? -1 : 1;
+		}
+	}
+	
+	
+	// avoid acid pools
+	if (GameServer()->Collision()->GetCollisionAt(m_Pos.x, m_Pos.y + 32) == CCollision::COLFLAG_DAMAGEFLUID ||
+		GameServer()->Collision()->GetCollisionAt(m_Pos.x, m_Pos.y + 64) == CCollision::COLFLAG_DAMAGEFLUID)
+	{
+		m_Jump = 1;
+		
+		if (Vel < -2.0f)
+			m_Move = -1;
+		if (Vel > 2.0f)
+			m_Move = 1;
+	}
+	
+	
+	vec2 Pos = Player()->GetCharacter()->GetCore().m_Pos;
+	
+	// avoid sawblades
+	for (int x = 1; x < 6; x++)
+	{
+		for (int y = 0; y < 2; y++)
+		{
+			if ((m_Move == -1 && GameServer()->Collision()->IsSawblade(Pos + vec2(-x, y-1)*32.0f)) ||
+				(m_Move == 1 && GameServer()->Collision()->IsSawblade(Pos + vec2(x, y-1)*32.0f)))
+			{
+				m_Move *= -1;
+				
+				// load fuel
+				if (Player()->GetCharacter()->GetCore().IsGrounded())
+				{
+					if (Player()->GetCharacter()->GetCore().m_JetpackPower < 50)
+					{
+						m_Jump = 0;
+						m_Hook = 0;
+					}
+					
+					if (Player()->GetCharacter()->GetCore().m_JetpackPower > 60)
+						m_Jump = 1;
+				}
+			}
+		}
+	}
+	
 	
 	// movement logic
 	if (distance(m_LastPos, m_WaypointPos) < 40)

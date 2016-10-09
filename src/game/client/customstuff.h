@@ -37,6 +37,14 @@ public:
 	int m_Picker;
 	int m_LocalTeam;
 	
+	float m_CameraShake;
+	
+	void SetScreenshake(float Amount)
+	{
+		if (m_CameraShake < Amount)
+			m_CameraShake = Amount;
+	}
+	
 	vec2 m_LocalPos;
 	int m_LocalWeapon;
 	vec4 m_LocalColor;

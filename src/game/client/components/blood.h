@@ -57,6 +57,8 @@ public:
 	enum
 	{
 		GROUP_BLOOD=0,
+		GROUP_ACID,
+		GROUP_ACIDLAYER,
 		NUM_GROUPS
 	};
 
@@ -74,7 +76,7 @@ private:
 		MAX_BLOOD=1024*8,
 	};
 
-	void Bounce(vec2 Pos, vec2 Dir);
+	void Bounce(vec2 Pos, vec2 Dir, int Group);
 	
 	CBlooddrop m_aBlood[MAX_BLOOD];
 	int m_FirstFree;
@@ -92,5 +94,7 @@ private:
 	};
 
 	CRenderGroup<GROUP_BLOOD> m_RenderBlood;
+	CRenderGroup<GROUP_ACID> m_RenderAcid;
+	CRenderGroup<GROUP_ACIDLAYER> m_RenderAcidLayer;
 };
 #endif

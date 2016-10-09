@@ -21,7 +21,7 @@ public:
 	
 	void Respawn()
 	{
-		if (!m_Dropable)
+		if (!m_Dropable || m_ResetableDropable)
 		{
 			m_SpawnTick = -1;
 			m_Flashing = false;
@@ -82,6 +82,9 @@ public:
 private:
 	int m_Type;
 	int m_Subtype;
+	
+	vec2 m_SpawnPos;
+	bool m_ResetableDropable;
 };
 
 #endif

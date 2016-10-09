@@ -70,6 +70,15 @@ void CCollision::Init(class CLayers *pLayers)
 		case TILE_ROOFSLOPE_RIGHT:
 			m_pTiles[i].m_Index |= COLFLAG_ROOFSLOPE_RIGHT;
 			break;
+		case TILE_DAMAGEFLUID:
+			m_pTiles[i].m_Index = COLFLAG_DAMAGEFLUID;
+			break;
+		case TILE_MOVELEFT:
+			m_pTiles[i].m_Index = COLFLAG_MOVELEFT;
+			break;
+		case TILE_MOVERIGHT:
+			m_pTiles[i].m_Index = COLFLAG_MOVERIGHT;
+			break;
 		default:
 			m_pTiles[i].m_Index = 0;
 		}
@@ -504,7 +513,37 @@ int CCollision::GetTile(int x, int y)
 	if (m_pTiles[Ny*m_Width+Nx].m_Index == ENTITY_SAWBLADE + ENTITY_OFFSET)
 		return COLFLAG_SOLID;
 	
+	if (m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_MOVELEFT || m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_MOVERIGHT)
+		return COLFLAG_SOLID;
+	
 	return m_pTiles[Ny*m_Width+Nx].m_Index > 128 ? 0 : m_pTiles[Ny*m_Width+Nx].m_Index;
+}
+
+
+int CCollision::ForceState(int x, int y)
+{
+	int Nx = clamp(x/32, 0, m_Width-1);
+	int Ny = clamp(y/32, 0, m_Height-1);
+
+	if (m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_MOVELEFT)
+		return -1;
+	
+	if (m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_MOVERIGHT)
+		return 1;
+	
+	return 0;
+}
+
+
+bool CCollision::IsSawblade(float x, float y)
+{
+	int Nx = clamp(round_to_int(x)/32, 0, m_Width-1);
+	int Ny = clamp(round_to_int(y)/32, 0, m_Height-1);
+	
+	if (m_pTiles[Ny*m_Width+Nx].m_Index == ENTITY_SAWBLADE + ENTITY_OFFSET)
+		return true;
+	
+	return false;
 }
 
 

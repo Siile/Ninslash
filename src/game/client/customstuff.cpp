@@ -13,6 +13,8 @@ CCustomStuff::CCustomStuff()
 
 void CCustomStuff::Reset()
 {
+	m_CameraShake = 0.0f;
+	
 	m_LocalPos = vec2(0, 0);
 	m_LocalWeapon = 0;
 	m_LocalColor = vec4(0, 0, 0, 0);
@@ -99,12 +101,25 @@ void CCustomStuff::Tick(bool Paused)
 					m_FlametrapState[i] = 0;
 			}
 		}
+		
+		/*
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (m_aPlayerInfo[i].m_InUse)
+			{
+				m_pClient->AddFluidForce(m_aPlayerInfo[i].m_Pos, m_aPlayerInfo[i].m_Vel);
+			}
+		}
+		*/
 	}
 	
 	// Camera
 	
 	m_CameraCenter.x += (m_CameraTargetCenter.x-m_CameraCenter.x) / 24.0f;
 	m_CameraCenter.y += (m_CameraTargetCenter.y-m_CameraCenter.y) / 24.0f;
+	
+	if (m_CameraShake > 0.0f)
+		m_CameraShake -= 0.2f;
 }
 
 

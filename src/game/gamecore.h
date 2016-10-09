@@ -197,6 +197,7 @@ public:
 	vec2 m_Vel;
 	
 	bool m_MonsterDamage;
+	bool m_FluidDamage;
 	bool m_HandJetpack;
 
 	int m_Jumped;
@@ -231,6 +232,8 @@ public:
 	void Move();
 	
 	bool IsGrounded();
+	int IsOnForceTile();
+	bool IsInFluid();
 	int SlopeState();
 
 	void Read(const CNetObj_CharacterCore *pObjCore);

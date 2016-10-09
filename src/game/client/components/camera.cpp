@@ -23,6 +23,9 @@ void CCamera::OnRender()
 	//vec2 center;
 	m_Zoom = 1.0f;
 
+	// pass necessary data to shaders
+	Graphics()->CameraToShaders(g_Config.m_GfxScreenWidth, g_Config.m_GfxScreenHeight, m_Center.x, m_Center.y);
+	
 	// update camera center
 	if(m_pClient->m_Snap.m_SpecInfo.m_Active && !m_pClient->m_Snap.m_SpecInfo.m_UsePosition)
 	{
@@ -109,6 +112,11 @@ void CCamera::OnRender()
 			}
 			else
 				m_Center = m_Center2;
+			
+			if (CustomStuff()->m_CameraShake > 0.0f)
+			{
+				m_Center += vec2(frandom()-frandom(), frandom()-frandom())*CustomStuff()->m_CameraShake;
+			}
 		}
 	}
 

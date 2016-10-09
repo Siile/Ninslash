@@ -40,6 +40,8 @@
 #include "components/flow.h"
 #include "components/hud.h"
 #include "components/items.h"
+#include "components/fluid.h"
+#include "components/cbelt.h"
 #include "components/buildings.h"
 #include "components/buildings2.h"
 #include "components/monsters.h"
@@ -77,6 +79,8 @@ static CParticles gs_Particles;
 static CBlood gs_Blood;
 static CSplatter gs_Splatter;
 static CSpark gs_Spark;
+static CFluid gs_Fluid;
+static CCBelt gs_CBelt;
 static CLight gs_Light;
 static CMenus gs_Menus;
 static CSkins gs_Skins;
@@ -134,6 +138,8 @@ void CGameClient::OnConsoleInit()
 	m_pBlood = &::gs_Blood;
 	m_pSplatter = &::gs_Splatter;
 	m_pSpark = &::gs_Spark;
+	m_pFluid = &::gs_Fluid;
+	m_pCBelt = &::gs_CBelt;
 	m_pLight = &::gs_Light;
 	m_pMenus = &::gs_Menus;
 	m_pSkins = &::gs_Skins;
@@ -189,8 +195,10 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&gs_Players);
 	m_All.Add(m_pBuildings2);
 	m_All.Add(&m_pBlood->m_RenderBlood);
+	m_All.Add(&m_pBlood->m_RenderAcid);
 	m_All.Add(&m_pSplatter->m_RenderSplatter);
 	m_All.Add(&gs_MapLayersForeGround);
+	m_All.Add(m_pCBelt);
 	m_All.Add(&m_pParticles->m_RenderSparks);
 	m_All.Add(&m_pParticles->m_RenderDeath);
 	m_All.Add(&m_pParticles->m_RenderHitEffects);
@@ -203,6 +211,8 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderBloodFX);
 	m_All.Add(&m_pParticles->m_RenderLazer);
 	m_All.Add(&m_pSpark->m_RenderSpark);
+	m_All.Add(m_pFluid);
+	m_All.Add(&m_pBlood->m_RenderAcidLayer);
 	m_All.Add(&gs_NamePlates);
 	m_All.Add(&m_pParticles->m_RenderGeneral);
 	m_All.Add(m_pDamageind);
@@ -278,6 +288,13 @@ void CGameClient::OnConsoleInit()
 	m_SuppressEvents = false;
 }
 
+void CGameClient::AddFluidForce(vec2 Pos, vec2 Vel)
+{
+	m_pFluid->AddForce(Pos, Vel);
+}
+
+
+
 void CGameClient::OnInit()
 {
 	m_pGraphics = Kernel()->RequestInterface<IGraphics>();
@@ -300,7 +317,7 @@ void CGameClient::OnInit()
 	// load default font
 	static CFont *pDefaultFont = 0;
 	char aFilename[512];
-	IOHANDLE File = Storage()->OpenFile("fonts/Future n0t Found Regular.ttf", IOFLAG_READ, IStorage::TYPE_ALL, aFilename, sizeof(aFilename));
+	IOHANDLE File = Storage()->OpenFile("fonts/DejaVuSans.ttf", IOFLAG_READ, IStorage::TYPE_ALL, aFilename, sizeof(aFilename));
 	if(File)
 	{
 		io_close(File);
@@ -308,7 +325,7 @@ void CGameClient::OnInit()
 		TextRender()->SetDefaultFont(pDefaultFont);
 	}
 	if(!pDefaultFont)
-		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "failed to load font. filename='fonts/Future n0t Found Regular.ttf'");
+		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "failed to load font. filename='fonts/DejaVuSans.ttf'");
 
 	// init all components
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "init all components");	
@@ -401,6 +418,9 @@ void CGameClient::OnConnected()
 	CServerInfo CurrentServerInfo;
 	Client()->GetServerInfo(&CurrentServerInfo);
 
+	m_pFluid->Generate();
+	m_pCBelt->Generate();
+	
 	m_ServerMode = SERVERMODE_PURE;
 	m_LastSendInfo = 0;
 
@@ -663,7 +683,6 @@ void CGameClient::OnShutdown() {}
 void CGameClient::OnEnterGame()
 {
 	CustomStuff()->Reset();
-	Collision()->GenerateWaypoints();
 }
 
 void CGameClient::OnGameOver()
@@ -746,6 +765,14 @@ void CGameClient::ProcessEvents()
 		{
 			CNetEvent_Explosion *ev = (CNetEvent_Explosion *)pData;
 			g_GameClient.m_pEffects->Explosion(vec2(ev->m_X, ev->m_Y));
+			
+			// add camera shake
+			float d = distance(CustomStuff()->m_LocalPos, vec2(ev->m_X, ev->m_Y));
+			
+			if (d < 80)
+				CustomStuff()->SetScreenshake(10.0f);
+			else if (d < 140)
+				CustomStuff()->SetScreenshake(6.0f);
 		}
 		else if(Item.m_Type == NETEVENTTYPE_REPAIR)
 		{

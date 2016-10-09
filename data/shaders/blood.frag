@@ -3,6 +3,8 @@
 uniform sampler2D texture;
 uniform float rnd;
 uniform float intensity;
+uniform int screenwidth;
+uniform int screenheight;
 
 void main (void)
 {
@@ -11,9 +13,10 @@ void main (void)
 	
 	float r = 0.7f;
 	
-	float Step = 0.5f / 1600;
+	float StepX = 2.0f / screenwidth;
+	float StepY = 2.0f / screenheight;
 	
-	float SumRed = (texture2D(texture, gl_TexCoord[0].st + vec2(-Step, -Step)).r + texture2D(texture, gl_TexCoord[0].st + vec2(+Step, +Step)).r) / 2.0f;
+	float SumRed = (texture2D(texture, gl_TexCoord[0].st + vec2(-StepX, -StepY)).r + texture2D(texture, gl_TexCoord[0].st + vec2(+StepX, +StepY)).r) / 2.0f;
 	
 	r = SumRed * 0.7f;
 	
@@ -24,8 +27,8 @@ void main (void)
 	
 	if (a < 0.7f)
 		a = 0.0f;
-	//else
-	//	a = 1.0f;
+	else
+		a = 1.0f;
 	
 	vec4 color = vec4(r * gl_Color.r, 0, 0, a * gl_Color.w);
 	gl_FragColor = color;

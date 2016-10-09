@@ -141,6 +141,12 @@ void CProjectile::Tick()
 
 		GameServer()->m_World.DestroyEntity(this);
 	}
+	
+	// fluid kills the projectile
+	if (GameServer()->Collision()->GetCollisionAt(PrevPos.x, PrevPos.y) == CCollision::COLFLAG_DAMAGEFLUID)
+	{
+		GameServer()->m_World.DestroyEntity(this);
+	}
 }
 
 void CProjectile::TickPaused()

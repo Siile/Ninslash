@@ -94,7 +94,7 @@ MACRO_CONFIG_INT(GfxAsyncRender, gfx_asyncrender, 0, 0, 1, CFGFLAG_SAVE|CFGFLAG_
 
 MACRO_CONFIG_INT(GfxThreaded, gfx_threaded, 0, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Use the threaded graphics backend")
 
-MACRO_CONFIG_INT(GfxMultiBuffering, gfx_multibuffering, 0, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Use multiple screen buffers (might cause issues)")
+MACRO_CONFIG_INT(GfxMultiBuffering, gfx_multibuffering, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Use multiple screen buffers (might cause issues)")
 
 MACRO_CONFIG_INT(InpMousesens, inp_mousesens, 100, 5, 100000, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Mouse sensitivity")
 MACRO_CONFIG_INT(InpHWCursor, inp_hw_cursor, 0, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Use a hardware cursor")

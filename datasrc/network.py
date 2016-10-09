@@ -11,7 +11,7 @@ Powerups = ["HEALTH", "ARMOR", "WEAPON", "MINE", "KIT"]
 
 Statuses = ["EMPTY", "SPAWNING", "AFLAME", "SLOWED", "ELECTRIC", "DEATHRAY", "SHIELD", "RAGE", "INVISIBILITY", "HEAL", "FUEL"]
 
-Damagetypes = ["NORMAL", "FLAME", "ELECTRIC"]
+Damagetypes = ["NORMAL", "FLAME", "ELECTRIC", "FLUID"]
 
 Monsterstatus = ["IDLE", "HURT", "ELECTRIC"]
 

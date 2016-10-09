@@ -248,6 +248,11 @@ void CCommandProcessorFragment_OpenGL::Cmd_Init(const SCommand_Init *pCommand)
 {
 	m_MultiBuffering = false;
 	m_pTextureMemoryUsage = pCommand->m_pTextureMemoryUsage;
+	
+	m_ScreenWidth = 640;
+	m_ScreenHeight = 480;
+	m_CameraX = 0;
+	m_CameraY = 0;
 }
 
 void CCommandProcessorFragment_OpenGL::Cmd_Texture_Update(const CCommandBuffer::SCommand_Texture_Update *pCommand)
@@ -409,10 +414,20 @@ void CCommandProcessorFragment_OpenGL::Cmd_LoadShaders(const CCommandBuffer::SCo
 	m_aShader[SHADER_RAGE] = LoadShader("data/shaders/basic.vert", "data/shaders/rage.frag");
 	m_aShader[SHADER_FUEL] = LoadShader("data/shaders/basic.vert", "data/shaders/fuel.frag");
 	m_aShader[SHADER_BLOOD] = LoadShader("data/shaders/basic.vert", "data/shaders/blood.frag");
+	m_aShader[SHADER_ACID] = LoadShader("data/shaders/basic.vert", "data/shaders/acid.frag");
 }
 
 
 
+void CCommandProcessorFragment_OpenGL::Cmd_CameraToShaders(const CCommandBuffer::SCommand_CameraToShaders *pCommand)
+{
+	m_ScreenWidth = pCommand->m_ScreenWidth;
+	m_ScreenHeight = pCommand->m_ScreenHeight;
+	m_CameraX = pCommand->m_CameraX;
+	m_CameraY = pCommand->m_CameraY;
+}
+	
+	
 void CCommandProcessorFragment_OpenGL::Cmd_ShaderBegin(const CCommandBuffer::SCommand_ShaderBegin *pCommand)
 {
 	CShader *pShader = &(m_aShader[pCommand->m_Shader]);
@@ -425,6 +440,22 @@ void CCommandProcessorFragment_OpenGL::Cmd_ShaderBegin(const CCommandBuffer::SCo
 	location = pShader->getUniformLocation("intensity");
 	if (location >= 0)
 		glUniform1fARB(location, GLfloat(pCommand->m_Intensity));
+	
+	location = pShader->getUniformLocation("screenwidth");
+	if (location >= 0)
+		glUniform1iARB(location, GLint(m_ScreenWidth));
+	
+	location = pShader->getUniformLocation("screenheight");
+	if (location >= 0)
+		glUniform1iARB(location, GLint(m_ScreenHeight));
+	
+	location = pShader->getUniformLocation("camerax");
+	if (location >= 0)
+		glUniform1iARB(location, GLint(m_CameraX));
+	
+	location = pShader->getUniformLocation("cameray");
+	if (location >= 0)
+		glUniform1iARB(location, GLint(m_CameraY));
 }
 
 
@@ -564,6 +595,7 @@ bool CCommandProcessorFragment_OpenGL::RunCommand(const CCommandBuffer::SCommand
 	case CCommandBuffer::CMD_LOADSHADERS: Cmd_LoadShaders(static_cast<const CCommandBuffer::SCommand_LoadShaders *>(pBaseCommand)); break;
 	case CCommandBuffer::CMD_SHADERBEGIN: Cmd_ShaderBegin(static_cast<const CCommandBuffer::SCommand_ShaderBegin *>(pBaseCommand)); break;
 	case CCommandBuffer::CMD_SHADEREND: Cmd_ShaderEnd(static_cast<const CCommandBuffer::SCommand_ShaderEnd *>(pBaseCommand)); break;
+	case CCommandBuffer::CMD_CAMERATOSHADERS: Cmd_CameraToShaders(static_cast<const CCommandBuffer::SCommand_CameraToShaders *>(pBaseCommand)); break;
 	default: return false;
 	}
 

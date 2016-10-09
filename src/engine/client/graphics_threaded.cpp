@@ -399,6 +399,17 @@ void CGraphics_Threaded::ShaderBegin(int Shader, float Intensity)
 }
 
 
+void CGraphics_Threaded::CameraToShaders(int ScreenWidth, int ScreenHeight, int CameraX, int CameraY)
+{
+	CCommandBuffer::SCommand_CameraToShaders Cmd;
+	Cmd.m_ScreenWidth = ScreenWidth;
+	Cmd.m_ScreenHeight = ScreenHeight;
+	Cmd.m_CameraX = CameraX;
+	Cmd.m_CameraY = CameraY;
+	m_pCommandBuffer->AddCommand(Cmd);
+}
+
+
 void CGraphics_Threaded::ShaderEnd()
 {
 	CCommandBuffer::SCommand_ShaderEnd Cmd;

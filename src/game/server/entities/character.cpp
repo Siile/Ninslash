@@ -269,6 +269,9 @@ void CCharacter::DropWeapon()
 			pTurret->m_OwnerPlayer = GetPlayer()->GetCID();
 			pTurret->SetAngle(-Direction);
 			pTurret->m_Ammo = m_aWeapon[m_ActiveCustomWeapon].m_Ammo;
+			
+			// sound
+			GameServer()->CreateSound(m_Pos, SOUND_BUILD_TURRET);
 		}
 		else
 		{
@@ -305,12 +308,15 @@ void CCharacter::DropWeapon()
 				pTurret->SetAngle(-Direction);
 				pTurret->m_Ammo = m_aWeapon[m_ActiveCustomWeapon].m_Ammo;
 				pTurret->m_Weapon = m_ActiveCustomWeapon;
+				
+				// sound
+				GameServer()->CreateSound(m_Pos, SOUND_BUILD_TURRET);
 			}
 			else
 			{
 				// otherwise throw weapon away
 				float AmmoFill = float(m_aWeapon[m_ActiveCustomWeapon].m_Ammo) / aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo;
-				GameServer()->m_pController->DropPickup(m_Pos+vec2(0, -16), POWERUP_WEAPON, m_Core.m_Vel/2 + Direction*13, m_ActiveCustomWeapon, AmmoFill);
+				GameServer()->m_pController->DropPickup(m_Pos+vec2(0, -16), POWERUP_WEAPON, m_Core.m_Vel/1.7f + Direction*8 + vec2(0, -3), m_ActiveCustomWeapon, AmmoFill);
 				m_SkipPickups = 20;
 			}
 		}
@@ -1239,6 +1245,9 @@ void CCharacter::Tick()
 	// monster damage
 	if (m_Core.m_MonsterDamage)
 		TakeDamage(normalize(m_Core.m_Vel), 10, -1, DEATHTYPE_MONSTER, vec2(0, 0));
+	
+	if (m_Core.m_FluidDamage)
+		TakeDamage(normalize(m_Core.m_Vel), 2, -1, WEAPON_WORLD, vec2(0, 0), DAMAGETYPE_FLUID);
 
 	
 	if (m_CryTimer > 0)
@@ -1534,10 +1543,10 @@ void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage)
 	if (Killer == NEUTRAL_BASE)
 		Killer = GetPlayer()->GetCID();
 	
+	int ModeSpecial = GameServer()->m_pController->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
+	
 	if (!SkipKillMessage && Killer >= 0)
 	{
-		int ModeSpecial = GameServer()->m_pController->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
-
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "kill killer='%d:%s' victim='%d:%s' weapon=%d special=%d",
 			Killer, Server()->ClientName(Killer),

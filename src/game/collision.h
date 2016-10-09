@@ -17,6 +17,7 @@ class CCollision
 	class CLayers *m_pLayers;
 
 	int SolidState(int x, int y, bool IncludeDeath = false);
+	int ForceState(int x, int y);
 	
 	int GetTile(int x, int y);
 	
@@ -47,7 +48,11 @@ public:
 		COLFLAG_RAMP_RIGHT=16,
 		COLFLAG_ROOFSLOPE_LEFT=32,
 		COLFLAG_ROOFSLOPE_RIGHT=64,
-		COLFLAG_FLUID=128,
+		COLFLAG_DAMAGEFLUID=128,
+		
+		// 256 = out of range for unsigned char, ugly!
+		COLFLAG_MOVELEFT=129,
+		COLFLAG_MOVERIGHT=130,
 	};
 	
 	enum
@@ -85,6 +90,13 @@ public:
 	CCollision();
 	void Init(class CLayers *pLayers);
 	//bool CheckPoint(float x, float y, bool IncludeDeath = false) { return IsTileSolid(round_to_int(x), round_to_int(y), IncludeDeath); }
+	
+	// -1=left, 0=nope, 1=right
+	int IsForceTile(float x, float y){ return ForceState(round_to_int(x), round_to_int(y)); }
+	int IsForceTile(vec2 Pos){ return IsForceTile(Pos.x, Pos.y); }
+	
+	bool IsSawblade(float x, float y);
+	bool IsSawblade(vec2 Pos){ return IsSawblade(Pos.x, Pos.y); }
 	
 	int CheckPoint(float x, float y, bool IncludeDeath = false) { return SolidState(round_to_int(x), round_to_int(y), IncludeDeath); }
 	bool CheckPoint(vec2 Pos) { return CheckPoint(Pos.x, Pos.y); }

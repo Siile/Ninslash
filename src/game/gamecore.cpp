@@ -82,7 +82,8 @@ void CCharacterCore::Reset()
 }
 
 
-bool CCharacterCore::IsGrounded() {
+bool CCharacterCore::IsGrounded()
+{
 	float PhysSize = 28.0f;
 	
 	if (m_Sliding)
@@ -97,9 +98,36 @@ bool CCharacterCore::IsGrounded() {
 	return false;
 }
 
+int CCharacterCore::IsOnForceTile()
+{
+	float PhysSize = 28.0f;
+	
+	if (m_Sliding)
+		return true;
+	
+	for(int i = -PhysSize/2; i <= PhysSize/2; i++) {
+		if(m_pCollision->IsForceTile(m_Pos.x+i, m_Pos.y+PhysSize/2+5) != 0) {
+			return m_pCollision->IsForceTile(m_Pos.x+i, m_Pos.y+PhysSize/2+5);
+		}
+	}
+	
+	return false;
+}
+
+bool CCharacterCore::IsInFluid()
+{
+	int C = m_pCollision->GetCollisionAt(m_Pos.x, m_Pos.y);
+	
+	if (C == CCollision::COLFLAG_DAMAGEFLUID)
+		return true;
+	
+	return false;
+}
 
 
-int CCharacterCore::SlopeState() {
+
+int CCharacterCore::SlopeState()
+{
 	float PhysSize = 28.0f;
 	
 	int tmp = 0;
@@ -164,6 +192,7 @@ int CCharacterCore::SlopeState() {
 void CCharacterCore::Tick(bool UseInput)
 {
 	m_MonsterDamage = false;
+	m_FluidDamage = false;
 	m_HandJetpack = false;
 	
 	int s = m_Status;
@@ -234,9 +263,12 @@ void CCharacterCore::Tick(bool UseInput)
 	if (Grounded)
 	{
 		LoadJetpack = true;
+		
+		if (m_Wallrun < -10 || m_Wallrun > 10)
+			m_Wallrun = 0;
 	}
 
-	
+	int ForceTileStatus = IsOnForceTile() * 4;
 	
 	// handle input
 	if(UseInput)
@@ -469,9 +501,9 @@ void CCharacterCore::Tick(bool UseInput)
 		}
 
 		
-		if(m_Input.m_Hook && m_JetpackPower > 0)
+		if(m_Input.m_Hook && m_JetpackPower > 0 && !IsInFluid())
 		{
-			if ((TargetDirection.x > 0 && m_Vel.x < HandJetpackControlSpeed) || (TargetDirection.x < 0 && m_Vel.x > -HandJetpackControlSpeed))
+			if ((TargetDirection.x > 0 && m_Vel.x < HandJetpackControlSpeed + ForceTileStatus) || (TargetDirection.x < 0 && m_Vel.x > -HandJetpackControlSpeed + ForceTileStatus))
 				m_Vel.x += TargetDirection.x*1.2f;
 				
 			if ((TargetDirection.y > 0 && m_Vel.y < HandJetpackControlSpeed) || (TargetDirection.y < 0 && m_Vel.y > -HandJetpackControlSpeed))
@@ -517,14 +549,14 @@ void CCharacterCore::Tick(bool UseInput)
 			if (slope > 0)
 				m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, -Accel*0.5f);
 			else
-				m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, -Accel);
+				m_Vel.x = SaturatedAdd(-MaxSpeed+ForceTileStatus, MaxSpeed+ForceTileStatus, m_Vel.x, -Accel);
 		}
 		if(m_Direction > 0) // && (!m_Sliding || !Grounded))
 		{
 			if (slope < 0)
 				m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, Accel*0.5f);
 			else
-				m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, Accel);
+				m_Vel.x = SaturatedAdd(-MaxSpeed+ForceTileStatus, MaxSpeed+ForceTileStatus, m_Vel.x, Accel);
 		}
 	}
 	
@@ -543,10 +575,15 @@ void CCharacterCore::Tick(bool UseInput)
 			m_Vel.x *= Friction;// /invsqrt2;
 			m_Vel.y *= Friction;// /invsqrt2;
 		} else {
-			m_Vel.x *= Friction;
+			//m_Vel.x *= Friction;
+			m_Vel.x = (m_Vel.x + ForceTileStatus) * Friction;
 		}
 	}
 	
+	if (IsOnForceTile() == -1)
+	{
+	//	m_Vel.x -= 0.3f;
+	}
 	
 	/*
 	// add the speed modification according to players wanted direction
@@ -684,6 +721,15 @@ void CCharacterCore::Tick(bool UseInput)
 	s = m_Status;
 	if (s & (1<<STATUS_FUEL))
 		m_JetpackPower = 100;
+	
+	// fluid collision
+	if (IsInFluid())
+	{
+		m_Vel *= 0.9f;
+		m_Jetpack = 0;
+		m_HandJetpack = 0;
+		m_FluidDamage = true;
+	}
 }
 
 
