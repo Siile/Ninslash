@@ -1543,10 +1543,10 @@ void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage)
 	if (Killer == NEUTRAL_BASE)
 		Killer = GetPlayer()->GetCID();
 	
-	int ModeSpecial = GameServer()->m_pController->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
-	
 	if (!SkipKillMessage && Killer >= 0)
 	{
+		int ModeSpecial = GameServer()->m_pController->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
+		
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "kill killer='%d:%s' victim='%d:%s' weapon=%d special=%d",
 			Killer, Server()->ClientName(Killer),
@@ -1564,6 +1564,8 @@ void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage)
 			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
 		}
 	}
+	else
+		GameServer()->m_pController->OnCharacterDeath(this, NULL, Weapon);
 	
 	// a nice sound
 	GameServer()->CreateSound(m_Pos, SOUND_PLAYER_DIE);

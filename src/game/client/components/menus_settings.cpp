@@ -940,15 +940,17 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 		CheckSettings = true;
 	}
 	
+	/*
 	MainView.HSplitTop(20.0f, &Button, &MainView);
 	if(DoButton_CheckBox(&g_Config.m_GfxThreaded, Localize("Threaded rendering"), g_Config.m_GfxThreaded, &Button))
 	{
 		g_Config.m_GfxThreaded ^= 1;
 		CheckSettings = true;
 	}
+	*/
 
 	MainView.HSplitTop(20.0f, &Button, &MainView);
-	if(g_Config.m_GfxThreaded)
+	//if(g_Config.m_GfxThreaded)
 	{
 		Button.VSplitLeft(20.0f, 0, &Button);
 		if(DoButton_CheckBox(&g_Config.m_GfxAsyncRender, Localize("Handle rendering async from updates"), g_Config.m_GfxAsyncRender, &Button))
