@@ -40,7 +40,7 @@ class string_base : private ALLOCATOR
 public:
 	string_base() { reset(); }
 	string_base(const char *other_str) { copy(other_str, str_length(other_str)); }
-	string_base(const char *other_str, int length) { copy(other_str, length); }
+	string_base(const char *other_str, int length) { copy(other_str, length); str[length] = 0; }
 	string_base(const string_base &other) { reset(); copy(other); }
 	~string_base() { free(); }
 
