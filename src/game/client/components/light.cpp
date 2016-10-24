@@ -105,7 +105,7 @@ void CLight::RenderGroup(int Group)
 
 	Graphics()->QuadsBegin();
 	Graphics()->QuadsSetRotation(0);
-	Graphics()->SetColor(255, 255, 255, 1.0f);
+	Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
 	
 	{
 		IGraphics::CQuadItem QuadItem(Graphics()->ScreenWidth() / 2, Graphics()->ScreenHeight() / 2, Graphics()->ScreenWidth(), -Graphics()->ScreenHeight());
