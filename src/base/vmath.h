@@ -16,7 +16,7 @@ public:
 	union { T y,v; };
 
 	vector2_base() {}
-	vector2_base(float nx, float ny)
+	vector2_base(T nx, T ny)
 	{
 		x = nx;
 		y = ny;
