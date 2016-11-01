@@ -33,7 +33,6 @@ class CRegister
 	int m_RegisterCount;
 
 	CMasterserverInfo m_aMasterserverInfo[IMasterServer::MAX_MASTERSERVERS];
-	int m_RegisterRegisteredServer;
 
 	void RegisterNewState(int State);
 	void RegisterSendFwcheckresponse(NETADDR *pAddr);
