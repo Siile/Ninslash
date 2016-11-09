@@ -105,6 +105,8 @@ void CAItexas::DoBehavior()
 	
 	RandomlyStopShooting();
 	
+	Build();
+	
 	// next reaction in
 	m_ReactionTime = 1 + frandom()*2;
 	
