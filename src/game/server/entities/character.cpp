@@ -16,6 +16,7 @@
 #include "monster.h"
 
 #include <game/weapons.h>
+#include <game/buildables.h>
 
 inline vec2 RandomDir() { return normalize(vec2(frandom()-0.5f, frandom()-0.5f)); }
 
@@ -64,7 +65,8 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	m_PainSoundTimer = 0;
 	m_Silent = false;
 	m_WeaponGroup = 0; // primary weapon
-	m_aSelectedWeapon[0] = WEAPON_GUN;
+	//m_aSelectedWeapon[0] = WEAPON_GUN;
+	m_aSelectedWeapon[0] = WEAPON_HAMMER;
 	m_aSelectedWeapon[1] = WEAPON_HAMMER;
 	m_aSelectedWeapon[2] = WEAPON_TOOL;
 	m_ActiveWeaponGroup = 0;
@@ -235,7 +237,7 @@ void CCharacter::DropWeapon()
 		return;
 	
 	// check if using dropable weapon
-	if (m_ActiveCustomWeapon != W_HAMMER && m_ActiveCustomWeapon != W_TOOL && m_ActiveCustomWeapon != W_PISTOL && m_aWeapon[m_ActiveCustomWeapon].m_Got)
+	if (m_ActiveCustomWeapon != W_HAMMER && m_ActiveCustomWeapon != W_TOOL && m_aWeapon[m_ActiveCustomWeapon].m_Got)
 	{
 		vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
 		
@@ -436,6 +438,7 @@ void CCharacter::HandleWeaponSwitch()
 	
 
 	// weapon group selection
+	/*
 	if(m_LatestInput.m_WantedWeapon)
 		WantedGroup = m_Input.m_WantedWeapon-1;
 	
@@ -447,6 +450,7 @@ void CCharacter::HandleWeaponSwitch()
 	
 	m_ActiveWeaponGroup = WantedGroup;
 	
+	*/
 	
 	int WantedWeapon = m_aSelectedWeapon[m_WeaponGroup];
 	
@@ -462,7 +466,7 @@ void CCharacter::HandleWeaponSwitch()
 		while(Next) // Next Weapon selection
 		{
 			WantedWeapon = (WantedWeapon+1)%NUM_CUSTOMWEAPONS;
-			if(m_aWeapon[WantedWeapon].m_Got && !m_aWeapon[WantedWeapon].m_Disabled)
+			if(WantedWeapon != WEAPON_TOOL && m_aWeapon[WantedWeapon].m_Got && !m_aWeapon[WantedWeapon].m_Disabled)
 				Next--;
 		}
 	}
@@ -472,11 +476,26 @@ void CCharacter::HandleWeaponSwitch()
 		while(Prev) // Prev Weapon selection
 		{
 			WantedWeapon = (WantedWeapon-1)<0?NUM_CUSTOMWEAPONS-1:WantedWeapon-1;
-			if(m_aWeapon[WantedWeapon].m_Got && !m_aWeapon[WantedWeapon].m_Disabled)
+			if(WantedWeapon != WEAPON_TOOL && m_aWeapon[WantedWeapon].m_Got && !m_aWeapon[WantedWeapon].m_Disabled)
 				Prev--;
 		}
 	}
 	
+	if (!m_aWeapon[WantedWeapon].m_Got)
+		WantedWeapon = WEAPON_HAMMER;
+
+
+	// Direct Weapon selection
+	if(m_LatestInput.m_WantedWeapon)
+		WantedWeapon = m_Input.m_WantedWeapon-1;
+
+	if (m_aWeapon[WantedWeapon].m_Got)
+	{
+		m_aSelectedWeapon[m_WeaponGroup] = WantedWeapon;
+		m_QueuedCustomWeapon = m_aSelectedWeapon[m_WeaponGroup];
+	}
+		
+	/*
 	if (m_WeaponGroup < 2)
 	{
 		if (!m_aWeapon[WantedWeapon].m_Got)
@@ -490,6 +509,7 @@ void CCharacter::HandleWeaponSwitch()
 		m_QueuedCustomWeapon = WEAPON_TOOL;
 		m_aSelectedWeapon[2] = WEAPON_TOOL;
 	}
+	*/
 	
 	DoWeaponSwitch();
 }
@@ -776,7 +796,7 @@ void CCharacter::FireWeapon()
 			
 		} break;
 		
-		case WEAPON_GUN:
+		//case WEAPON_GUN:
 		case WEAPON_RIFLE:
 		case WEAPON_SHOTGUN:
 		case WEAPON_GRENADE:
@@ -859,7 +879,7 @@ void CCharacter::AutoWeaponChange()
 	// -1 because smoke grenade shouldn't be included
 	int w = rand()%(NUM_CUSTOMWEAPONS);
 	
-	if (m_aWeapon[w].m_Got && !m_aWeapon[w].m_Disabled)
+	if (m_aWeapon[w].m_Got && !m_aWeapon[w].m_Disabled && w != W_TOOL)
 	{
 		if (m_aWeapon[w].m_Ammo > 0 || aCustomWeapon[w].m_MaxAmmo == 0)
 		{
@@ -884,9 +904,10 @@ void CCharacter::GiveStartWeapon()
 		return;
 	}
 	
+	GiveCustomWeapon(W_TOOL);
 	GiveCustomWeapon(W_HAMMER);
-	GiveCustomWeapon(W_PISTOL);
-	SetCustomWeapon(W_PISTOL);
+	//GiveCustomWeapon(W_PISTOL);
+	//SetCustomWeapon(W_PISTOL);
 	
 	if (g_Config.m_SvRandomWeapons)
 	{
@@ -904,7 +925,7 @@ void CCharacter::GiveRandomWeapon(int WeaponLevel)
 		return;
 	
 	int w = 0;
-	while (w == W_TOOL || w == W_HAMMER || w == W_PISTOL)
+	while (w == W_TOOL || w == W_HAMMER)
 		w = rand()%(NUM_CUSTOMWEAPONS);
 	
 	GiveCustomWeapon(w);
@@ -1064,12 +1085,18 @@ bool CCharacter::Invisible()
 }
 
 
-void CCharacter::UseKit(int Kit)
+void CCharacter::UseKit(int Kit, vec2 Pos)
 {
-	if (m_Kits > 0)
+	if (Kit < 0 || Kit >= NUM_BUILDABLES)
+		return;
+	
+	if (m_Kits >= BuildableCost[Kit])
 	{
-		if (GameServer()->AddBuilding(Kit, m_Pos))
-			m_Kits--;
+		if (GameServer()->AddBuilding(Kit, Pos))
+		{
+			m_Kits -= BuildableCost[Kit];
+			GameServer()->CreateSound(Pos, SOUND_BUILD);
+		}
 	}
 }
 	
@@ -1230,7 +1257,7 @@ void CCharacter::Tick()
 	
 	m_Core.m_Input = m_Input;
 
-	float RecoilCap = 15.0f;
+	float RecoilCap = 18.0f;
 	if ((m_Core.m_Vel.x < RecoilCap && m_Recoil.x > 0) || (m_Core.m_Vel.x > -RecoilCap && m_Recoil.x < 0))
 		m_Core.m_Vel.x += m_Recoil.x*0.7f;
 	
@@ -1241,6 +1268,14 @@ void CCharacter::Tick()
 	m_Recoil *= 0.5f;
 	
 	m_Core.Tick(true);
+	
+	// anti head stuck
+	if(GameServer()->Collision()->CheckPoint(m_Pos.x, m_Pos.y-m_ProximityRadius/3.f-42) && (!m_Core.IsGrounded() && m_Core.m_Slide == 0))
+	{
+		m_Pos.y += 1.0f;
+		m_Core.m_Pos.y += 1.0f;
+		m_Core.m_Vel.y = 0.0f;
+	}
 	
 	// monster damage
 	if (m_Core.m_MonsterDamage)
@@ -1529,13 +1564,13 @@ bool CCharacter::IncreaseArmor(int Amount)
 
 
 
-void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage)
+void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage, bool IsTurret)
 {
 	//if (Weapon < 0)
 	//	Weapon = 0;
 	// we got to wait 0.5 secs before respawning
 	//m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()/2;
-	m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()*3;
+	m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()*1;
 	
 	if (Killer == m_pPlayer->GetCID() && (Weapon == WEAPON_HAMMER || Weapon == WEAPON_GAME))
 		SkipKillMessage = true;
@@ -1561,6 +1596,7 @@ void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage)
 			Msg.m_Victim = m_pPlayer->GetCID();
 			Msg.m_Weapon = Weapon;
 			Msg.m_ModeSpecial = ModeSpecial;
+			Msg.m_IsTurret = IsTurret ? 1 : 0;
 			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
 		}
 	}
@@ -1635,7 +1671,7 @@ void CCharacter::SetAflame(float Duration, int From, int Weapon)
 }
 
 
-bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos, int Type)
+bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos, int Type, bool IsTurret)
 {
 	// skip everything while spawning
 	if (m_aStatus[STATUS_SPAWNING] > 0.0f)
@@ -1728,7 +1764,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos,
 	// check for death
 	if(m_HiddenHealth <= 0)
 	{
-		Die(From, Weapon);
+		Die(From, Weapon, false, IsTurret);
 
 		// set attacker's face to happy (taunt!)
 		if (From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
@@ -1747,9 +1783,9 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos,
 
 	if (m_PainSoundTimer <= 0 && !m_Silent)
 	{
-		if (Dmg > 10 || frandom()*10 < 3)
-			GameServer()->CreateSound(m_Pos, SOUND_PLAYER_PAIN_LONG);
-		else
+		//if (Dmg > 10 || frandom()*10 < 3)
+		//	GameServer()->CreateSound(m_Pos, SOUND_PLAYER_PAIN_LONG);
+		//else
 			GameServer()->CreateSound(m_Pos, SOUND_PLAYER_PAIN_SHORT);
 		m_PainSoundTimer = 2;
 	}

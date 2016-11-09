@@ -660,25 +660,42 @@ typedef struct
 
 static CKeyInfo gs_aKeys[] =
 {
+	// movement
 	{ "Move left", "+left", 0},		// Localize - these strings are localized within CLocConstString
 	{ "Move right", "+right", 0 },
 	{ "Slide / down", "+down", 0 },
 	{ "Jump", "+jump", 0 },
 	{ "Fire", "+fire", 0 },
 	{ "Turbo", "+turbo", 0 },
-	{ "Primary weapon", "+weapon1", 0 },
-	{ "Secondary weapon", "+weapon2", 0 },
+	{ "Build", "+build", 0 },
+	
+	// weapons
+	//{ "Tool", "+weapon1", 0 },
+	{ "Sword", "+weapon2", 0 },
+	{ "Shotgun", "+weapon3", 0 },
+	{ "Assault rifle", "+weapon4", 0 },
+	{ "Laser", "+weapon5", 0 },
+	{ "Electro launcher", "+weapon6", 0 },
+	{ "Grenade launcher", "+weapon7", 0 },
+	{ "Flame launcher", "+weapon8", 0 },
+	{ "Chainsaw", "+weapon9", 0 },
 	{ "Weapon picker", "+picker", 0 },
-	{ "Select picked weapon", "+lastweapon", 0 },
-	{ "Switch weapon", "+switch", 0 },
-	//{ "Rifle", "+weapon5", 0 },
+	//{ "Select picked weapon", "+lastweapon", 0 },
+	//{ "Switch weapon", "+switch", 0 },
 	{ "Next weapon", "+nextweapon", 0 },
 	{ "Prev. weapon", "+prevweapon", 0 },
+	{ "Drop weapon", "+dropweapon", 0 },
+	
+	// voting
 	{ "Vote yes", "vote yes", 0 },
 	{ "Vote no", "vote no", 0 },
+	
+	// chat
 	{ "Chat", "chat all", 0 },
 	{ "Team chat", "chat team", 0 },
 	{ "Show chat", "+show_chat", 0 },
+	
+	// misc
 	//{ "Item picker", "+itempicker", 0 },
 	{ "Emoticon", "+emote", 0 },
 	{ "Spectator mode", "+spectate", 0 },
@@ -688,7 +705,6 @@ static CKeyInfo gs_aKeys[] =
 	{ "Remote console", "toggle_remote_console", 0 },
 	{ "Screenshot", "screenshot", 0 },
 	{ "Scoreboard", "+scoreboard", 0 },
-	{ "Drop weapon", "+dropweapon", 0 },
 };
 
 /*	This is for scripts/update_localization.py to work, don't remove!
@@ -745,51 +761,156 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 				break;
 			}
 	}
+	
+	
+	//MainView.HSplitTop(10.0f, 0, &MainView);
+	
+
+	// color select
+	static int s_ControlMenu = 0;
+	
+	CUIRect Tab1, Tab2;
+
+	
+	MainView.HSplitTop(25.0f, 0, &Tab1);
+	Tab1.HSplitTop(25.0f, &Tab1, 0);
+	
+	Tab2 = Tab1;
+	
+	{
+		CUIRect Button;
+		//TabRect.VSplitMid(&Button, &TabRect);
+		Tab1.VSplitMid(&Tab1, &Button);
+		Tab1.VSplitLeft(200.0f, &Tab1, &Button);
+		
+		static int s_MovementButton=0;
+		if(DoButton_MenuTab(&s_MovementButton, Localize("Movement & Weapons"), s_ControlMenu == 0, &Button, CUI::CORNER_L))
+			s_ControlMenu = 0;
+	}
+
+	
+	{
+		CUIRect Button;
+		Tab2.VSplitMid(&Button, &Tab2);
+		Tab2.VSplitRight(200.0f, &Button, &Tab2);
+		
+		static int s_ChatButton=0;
+		if(DoButton_MenuTab(&s_ChatButton, Localize("Chat & Misc."), s_ControlMenu == 1, &Button, CUI::CORNER_R))
+			s_ControlMenu = 1;
+	}
+	
+	
 
 	CUIRect MovementSettings, WeaponSettings, VotingSettings, ChatSettings, MiscSettings, ResetButton;
-	MainView.VSplitMid(&MovementSettings, &VotingSettings);
-
-	// movement settings
+	
+	MainView.HSplitBottom(50.0f, &MainView, &ResetButton);
+	
+	
+	// movement & weapons
+	if (s_ControlMenu == 0)
 	{
-		MovementSettings.VMargin(5.0f, &MovementSettings);
-		MovementSettings.HSplitTop(MainView.h/3+60.0f, &MovementSettings, &WeaponSettings);
-		RenderTools()->DrawUIRect(&MovementSettings, vec4(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
-		MovementSettings.Margin(10.0f, &MovementSettings);
-
-		TextRender()->Text(0, MovementSettings.x, MovementSettings.y, 14.0f*UI()->Scale(), Localize("Movement"), -1);
-
-		MovementSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &MovementSettings);
-
+		MainView.HSplitTop(80.0f, 0, &MovementSettings);
+		MainView.HSplitTop(80.0f, 0, &WeaponSettings);
+		
+		MovementSettings.VSplitMid(&MovementSettings, 0);
+		WeaponSettings.VSplitMid(0, &WeaponSettings);
+		
+		// movement settings
 		{
-			CUIRect Button, Label;
-			MovementSettings.HSplitTop(20.0f, &Button, &MovementSettings);
-			Button.VSplitLeft(135.0f, &Label, &Button);
-			UI()->DoLabel(&Label, Localize("Mouse sens."), 14.0f*UI()->Scale(), -1);
-			Button.HMargin(2.0f, &Button);
-			g_Config.m_InpMousesens = (int)(DoScrollbarH(&g_Config.m_InpMousesens, &Button, (g_Config.m_InpMousesens-5)/500.0f)*500.0f)+5;
-			//*key.key = ui_do_key_reader(key.key, &Button, *key.key);
-			MovementSettings.HSplitTop(20.0f, 0, &MovementSettings);
+			MovementSettings.VMargin(5.0f, &MovementSettings);
+			//MovementSettings.HSplitTop(MainView.h/3+60.0f, &MovementSettings, &WeaponSettings);
+			RenderTools()->DrawUIRect(&MovementSettings, vec4(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
+			MovementSettings.Margin(10.0f, &MovementSettings);
+
+			TextRender()->Text(0, MovementSettings.x, MovementSettings.y, 14.0f*UI()->Scale(), Localize("Movement"), -1);
+
+			MovementSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &MovementSettings);
+
+			{
+				CUIRect Button, Label;
+				MovementSettings.HSplitTop(20.0f, &Button, &MovementSettings);
+				Button.VSplitLeft(135.0f, &Label, &Button);
+				UI()->DoLabel(&Label, Localize("Mouse sens."), 14.0f*UI()->Scale(), -1);
+				Button.HMargin(2.0f, &Button);
+				g_Config.m_InpMousesens = (int)(DoScrollbarH(&g_Config.m_InpMousesens, &Button, (g_Config.m_InpMousesens-5)/500.0f)*500.0f)+5;
+				//*key.key = ui_do_key_reader(key.key, &Button, *key.key);
+				MovementSettings.HSplitTop(20.0f, 0, &MovementSettings);
+			}
+
+			UiDoGetButtons(0, 7, MovementSettings);
+
 		}
 
-		UiDoGetButtons(0, 5, MovementSettings);
+		// weapon settings
+		{
+			WeaponSettings.VMargin(5.0f, &WeaponSettings);
+			
+			RenderTools()->DrawUIRect(&WeaponSettings, vec4(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
+			WeaponSettings.Margin(10.0f, &WeaponSettings);
 
+			TextRender()->Text(0, WeaponSettings.x, WeaponSettings.y, 14.0f*UI()->Scale(), Localize("Weapon"), -1);
+
+			WeaponSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &WeaponSettings);
+			UiDoGetButtons(7, 19, WeaponSettings);
+		}
 	}
-
-	// weapon settings
+	else
+	
+	// chat & misc
+	if (s_ControlMenu == 1)
 	{
-		WeaponSettings.HSplitTop(10.0f, 0, &WeaponSettings);
-		WeaponSettings.HSplitTop(MainView.h/3+50.0f, &WeaponSettings, &ResetButton);
-		RenderTools()->DrawUIRect(&WeaponSettings, vec4(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
-		WeaponSettings.Margin(10.0f, &WeaponSettings);
+		MainView.HSplitTop(80.0f, 0, &VotingSettings);
+		MainView.HSplitTop(80.0f, 0, &MiscSettings);
+		
+		VotingSettings.VSplitMid(&VotingSettings, 0);
+		MiscSettings.VSplitMid(0, &MiscSettings);
+		
+		// voting settings
+		{
+			VotingSettings.VMargin(5.0f, &VotingSettings);
+			VotingSettings.HSplitTop(MainView.h/3-50.0f, &VotingSettings, &ChatSettings);
+			RenderTools()->DrawUIRect(&VotingSettings, vec4(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
+			VotingSettings.Margin(10.0f, &VotingSettings);
 
-		TextRender()->Text(0, WeaponSettings.x, WeaponSettings.y, 14.0f*UI()->Scale(), Localize("Weapon"), -1);
+			TextRender()->Text(0, VotingSettings.x, VotingSettings.y, 14.0f*UI()->Scale(), Localize("Voting"), -1);
 
-		WeaponSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &WeaponSettings);
-		UiDoGetButtons(5, 12, WeaponSettings);
+			VotingSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &VotingSettings);
+			UiDoGetButtons(19, 21, VotingSettings);
+		}
+
+		// chat settings
+		{
+			ChatSettings.HSplitTop(10.0f, 0, &ChatSettings);
+			ChatSettings.HSplitTop(MainView.h/3, &ChatSettings, 0);
+			RenderTools()->DrawUIRect(&ChatSettings, vec4(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
+			ChatSettings.Margin(10.0f, &ChatSettings);
+
+			TextRender()->Text(0, ChatSettings.x, ChatSettings.y, 14.0f*UI()->Scale(), Localize("Chat"), -1);
+
+			ChatSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &ChatSettings);
+			UiDoGetButtons(21, 24, ChatSettings);
+		}
+
+		// misc settings
+		{
+			MiscSettings.VMargin(5.0f, &MiscSettings);
+			//MiscSettings.HSplitTop(10.0f, 0, &MiscSettings);
+			RenderTools()->DrawUIRect(&MiscSettings, vec4(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
+			MiscSettings.Margin(10.0f, &MiscSettings);
+
+			TextRender()->Text(0, MiscSettings.x, MiscSettings.y, 14.0f*UI()->Scale(), Localize("Miscellaneous"), -1);
+
+			MiscSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &MiscSettings);
+			UiDoGetButtons(24, 32, MiscSettings);
+		}
 	}
+	
 
-	// defaults
+	// reset to defaults
 	{
+		ResetButton.VSplitLeft(250.0f, 0, &ResetButton);
+		ResetButton.VSplitRight(250.0f, &ResetButton, 0);
+		
 		ResetButton.HSplitTop(10.0f, 0, &ResetButton);
 		RenderTools()->DrawUIRect(&ResetButton, vec4(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
 		ResetButton.HMargin(10.0f, &ResetButton);
@@ -799,45 +920,6 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 		if(DoButton_Menu((void*)&s_DefaultButton, Localize("Reset to defaults"), 0, &ResetButton))
 			m_pClient->m_pBinds->SetDefaults();
 	}
-
-	// voting settings
-	{
-		VotingSettings.VMargin(5.0f, &VotingSettings);
-		VotingSettings.HSplitTop(MainView.h/3-75.0f, &VotingSettings, &ChatSettings);
-		RenderTools()->DrawUIRect(&VotingSettings, vec4(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
-		VotingSettings.Margin(10.0f, &VotingSettings);
-
-		TextRender()->Text(0, VotingSettings.x, VotingSettings.y, 14.0f*UI()->Scale(), Localize("Voting"), -1);
-
-		VotingSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &VotingSettings);
-		UiDoGetButtons(12, 14, VotingSettings);
-	}
-
-	// chat settings
-	{
-		ChatSettings.HSplitTop(10.0f, 0, &ChatSettings);
-		ChatSettings.HSplitTop(MainView.h/3-45.0f, &ChatSettings, &MiscSettings);
-		RenderTools()->DrawUIRect(&ChatSettings, vec4(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
-		ChatSettings.Margin(10.0f, &ChatSettings);
-
-		TextRender()->Text(0, ChatSettings.x, ChatSettings.y, 14.0f*UI()->Scale(), Localize("Chat"), -1);
-
-		ChatSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &ChatSettings);
-		UiDoGetButtons(14, 17, ChatSettings);
-	}
-
-	// misc settings
-	{
-		MiscSettings.HSplitTop(10.0f, 0, &MiscSettings);
-		RenderTools()->DrawUIRect(&MiscSettings, vec4(1,1,1,0.25f), CUI::CORNER_ALL, 10.0f);
-		MiscSettings.Margin(10.0f, &MiscSettings);
-
-		TextRender()->Text(0, MiscSettings.x, MiscSettings.y, 14.0f*UI()->Scale(), Localize("Miscellaneous"), -1);
-
-		MiscSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &MiscSettings);
-		UiDoGetButtons(17, 26, MiscSettings);
-	}
-
 }
 
 void CMenus::RenderSettingsGraphics(CUIRect MainView)

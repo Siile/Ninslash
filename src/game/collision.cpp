@@ -24,7 +24,8 @@ CCollision::CCollision()
 	m_Width = 0;
 	m_Height = 0;
 	m_pLayers = 0;
-	
+
+	m_PathLen = 0;
 	m_pPath = 0;
 	m_pCenterWaypoint = 0;
 	
@@ -182,9 +183,20 @@ void CCollision::GenerateWaypoints()
 	{
 		for(int y = 2; y < m_Height-2; y++)
 		{
-			if (m_pTiles[y*m_Width+x].m_Index && m_pTiles[y*m_Width+x].m_Index < 128)
+			if (m_pTiles[y*m_Width+x].m_Index && m_pTiles[y*m_Width+x].m_Index < 130)
 				continue;
 
+			if (IsSawblade(x*32, y*32) || 
+				IsSawblade((x-1)*32, (y-1)*32) ||
+				IsSawblade((x+0)*32, (y-1)*32) ||
+				IsSawblade((x+1)*32, (y-1)*32) ||
+				IsSawblade((x-1)*32, (y-0)*32) ||
+				IsSawblade((x+0)*32, (y-0)*32) ||
+				IsSawblade((x+1)*32, (y-0)*32) ||
+				IsSawblade((x-1)*32, (y+1)*32) ||
+				IsSawblade((x+0)*32, (y+1)*32) ||
+				IsSawblade((x+1)*32, (y+1)*32))
+				continue;
 			
 			// find all outer corners
 			if ((IsTileSolid((x-1)*32, (y-1)*32) && !IsTileSolid((x-1)*32, (y-0)*32) && !IsTileSolid((x-0)*32, (y-1)*32)) ||
@@ -231,6 +243,11 @@ void CCollision::GenerateWaypoints()
 				if (GetTile((x+1)*32, y*32) >= COLFLAG_RAMP_LEFT) Slopes++;
 				if (GetTile(x*32, (y+1)*32) >= COLFLAG_RAMP_LEFT) Slopes++;
 				if (GetTile(x*32, (y+1)*32) >= COLFLAG_RAMP_LEFT) Slopes++;
+				
+				// too tight spots to go
+				if ((IsTileSolid((x)*32, (y-1)*32) && IsTileSolid((x)*32, (y+1)*32)) ||
+					(IsTileSolid((x-1)*32, (y)*32) && IsTileSolid((x+1)*32, (y)*32)))
+					Found = false;
 				
 				if (Found && Slopes < 2)
 					AddWaypoint(vec2(x, y));
@@ -421,7 +438,7 @@ CWaypoint *CCollision::GetClosestWaypoint(vec2 Pos)
 			
 			if (d < Dist && d < 800)
 			{
-				if (!FastIntersectLine(m_apWaypoint[i]->m_Pos, Pos))
+				if (!FastIntersectLine(m_apWaypoint[i]->m_Pos, Pos) || Dist == 9000)
 				{
 					W = m_apWaypoint[i];
 					Dist = d;
@@ -458,51 +475,6 @@ void CCollision::AddWeight(vec2 Pos, int Weight)
 	if (Wp)
 		Wp->AddWeight(Weight);
 }
-
-
-
-bool CCollision::FindWaypointPath(vec2 TargetPos)
-{
-
-	
-	CWaypoint *Target = GetClosestWaypoint(TargetPos);
-	
-	
-	if (Target && m_pCenterWaypoint)
-	{
-		if (m_pPath)
-			delete m_pPath;
-		
-		m_pPath = Target->FindPathToCenter();
-		
-		// for displaying the chosen waypoints
-		for (int w = 0; w < 99; w++)
-			m_aPath[w] = vec2(0, 0);
-		
-		if (m_pPath)
-		{
-			CWaypointPath *Wp = m_pPath;
-			
-			int p = 0;
-			for (int w = 0; w < 10; w++)
-			{
-				m_aPath[p++] = vec2(Wp->m_Pos.x, Wp->m_Pos.y);
-				
-				if (Wp->m_pNext)
-					Wp = Wp->m_pNext;
-				else
-					break;
-			}
-			
-			return true;
-		}
-	}
-	
-	return false;
-}
-
-
-
 
 
 int CCollision::GetTile(int x, int y)

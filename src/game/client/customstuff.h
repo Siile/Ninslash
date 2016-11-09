@@ -37,6 +37,10 @@ public:
 	int m_Picker;
 	int m_LocalTeam;
 	
+	vec2 m_BuildPos;
+	bool m_BuildPosValid;
+	bool m_FlipBuilding;
+	
 	float m_CameraShake;
 	
 	void SetScreenshake(float Amount)
@@ -45,9 +49,12 @@ public:
 			m_CameraShake = Amount;
 	}
 	
+	bool m_LocalAlive;
 	vec2 m_LocalPos;
 	int m_LocalWeapon;
 	vec4 m_LocalColor;
+	
+	bool m_BuildMode;
 	
 	float m_MonsterDamageIntensity[MAX_MONSTERS];
 	float m_MonsterDamageType[MAX_MONSTERS];
@@ -71,6 +78,9 @@ public:
 	float m_WeaponpickTimer;
 	int m_WeaponpickWeapon;
 	bool m_LastWeaponPicked;
+	
+	float m_WeaponSignalTimer;
+	int m_WeaponSignal;
 	
 	int m_SelectedWeapon;
 

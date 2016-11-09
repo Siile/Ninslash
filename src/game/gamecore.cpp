@@ -79,6 +79,9 @@ void CCharacterCore::Reset()
 	m_Status = 0;
 	m_Status |= 1 << STATUS_SPAWNING;
 	m_TriggeredEvents = 0;
+	
+	m_Action = 0;
+	m_ActionState = 0;
 }
 
 
@@ -220,8 +223,6 @@ void CCharacterCore::Tick(bool UseInput)
 
 	vec2 TargetDirection = normalize(vec2(m_Input.m_TargetX, m_Input.m_TargetY));
 
-	m_Vel.y += m_pWorld->m_Tuning.m_Gravity;
-
 	float MaxSpeed = Grounded ? m_pWorld->m_Tuning.m_GroundControlSpeed : m_pWorld->m_Tuning.m_AirControlSpeed;
 	float Accel = Grounded ? m_pWorld->m_Tuning.m_GroundControlAccel : m_pWorld->m_Tuning.m_AirControlAccel;
 	float Friction = Grounded ? m_pWorld->m_Tuning.m_GroundFriction : m_pWorld->m_Tuning.m_AirFriction;
@@ -243,18 +244,73 @@ void CCharacterCore::Tick(bool UseInput)
 	
 	m_OnWall = false;
 	
+	// rage
 	s = m_Status;
 	if (s & (1<<STATUS_RAGE))
 	{
 		Friction /= 1.4f;
 		MaxSpeed *= 1.4f;
 		Accel *= 1.4f;
-		JumpPower *= 1.3f;
-		AirJumpPower *= 1.3f;
+		JumpPower *= 1.1f;
+		AirJumpPower *= 1.1f;
 		WallrunPower *= 1.3f;
 		HandJetpackControlSpeed *= 1.3f;
 	}
+	
+	
+	
+	
+	// gravity & jump physics
+	if (m_Action == COREACTION_JUMP)
+	{
+		// sharper jump upwards
+		if (m_ActionState++ > 2)
+			m_Vel.y += m_pWorld->m_Tuning.m_Gravity;
+	}
+	else if (m_Action == COREACTION_WALLJUMP)
+	{
+		int Dir = m_ActionState > 0 ? 1 : -1;
+		int State = abs(m_ActionState);
 		
+		if (State < 3)
+		{
+			m_Vel.y = 0.0f;
+		}
+		else if (State == 3)
+		{
+			m_Vel.y = -AirJumpPower;
+			m_Vel.x = 10.0f * Dir;
+			m_LockDirection = 2 * Dir;
+		}
+		else if (State < 6)
+		{
+			// no gravity
+		}
+		else
+		{
+			m_Vel.y += m_pWorld->m_Tuning.m_Gravity;
+		}
+		
+		m_ActionState += Dir;
+	}
+	else
+	{
+		m_Vel.y += m_pWorld->m_Tuning.m_Gravity;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	m_Anim = 0;
 	
 	bool LoadJetpack = false;
@@ -330,22 +386,28 @@ void CCharacterCore::Tick(bool UseInput)
 						m_pCollision->CheckPoint(m_Pos.x-(PhysSize+6), m_Pos.y-PhysSize/2))
 					{
 						//m_TriggeredEvents |= COREEVENT_AIR_JUMP;
-						m_Vel.y = -AirJumpPower;
-						m_Vel.x = 10.0f;
+						//if (!m_pCollision->CheckPoint(m_Pos.x, m_Pos.y-PhysSize/2-16))
+						//	m_Vel.y = -AirJumpPower;
+						//m_Vel.x = 10.0f;
+						//m_LockDirection = 4;
 						m_Jumped |= 1;
-						m_LockDirection = 4;
 						m_Wallrun = 11;
+						
+						SetAction(COREACTION_WALLJUMP, 1);
 					}
 						
 					if (m_pCollision->CheckPoint(m_Pos.x+(PhysSize+6), m_Pos.y+PhysSize/2) &&
 						m_pCollision->CheckPoint(m_Pos.x+(PhysSize+6), m_Pos.y-PhysSize/2))
 					{
 						//m_TriggeredEvents |= COREEVENT_AIR_JUMP;
-						m_Vel.y = -AirJumpPower;
-						m_Vel.x = -10.0f;
+						//if (!m_pCollision->CheckPoint(m_Pos.x, m_Pos.y-PhysSize/2-16))
+						//	m_Vel.y = -AirJumpPower;
+						//m_Vel.x = -10.0f;
+						//m_LockDirection = -4;
 						m_Jumped |= 1;
-						m_LockDirection = -4;
 						m_Wallrun = -11;
+						
+						SetAction(COREACTION_WALLJUMP, -1);
 					}
 				}
 			}
@@ -377,7 +439,7 @@ void CCharacterCore::Tick(bool UseInput)
 						m_Vel.y = -(AirJumpPower+3.0f);
 						m_Vel.x = 10.0f+2.0f;
 						m_Jumped |= 1;
-						m_LockDirection = 4;
+						m_LockDirection = 2;
 						m_Wallrun = 11;
 					}
 				}
@@ -405,7 +467,7 @@ void CCharacterCore::Tick(bool UseInput)
 						m_Vel.y = -(AirJumpPower+3.0f);
 						m_Vel.x = -(10.0f+2.0f);
 						m_Jumped |= 1;
-						m_LockDirection = -4;
+						m_LockDirection = -2;
 						m_Wallrun = -11;
 					}
 				}
@@ -443,8 +505,8 @@ void CCharacterCore::Tick(bool UseInput)
 				//if (--m_JetpackPower <= 0)
 				//	m_Jetpack = 0;
 				
-				if (m_Vel.y > -10.0f)
-					m_Vel.y -= 1.2f;
+				if (m_Vel.y > -11.0f)
+					m_Vel.y -= m_pWorld->m_Tuning.m_Gravity*2.2f;
 				
 				if (m_Direction == 1 && m_Vel.x < 14.0f)
 					m_Vel.x += 0.5f;
@@ -456,7 +518,7 @@ void CCharacterCore::Tick(bool UseInput)
 			}
 			
 			
-			if(!(m_Jumped&1)) // && m_LockDirection == 0)
+			if(!(m_Jumped&1) && !m_Roll) // && m_LockDirection == 0)
 			{
 				if(Grounded)
 				{
@@ -469,9 +531,16 @@ void CCharacterCore::Tick(bool UseInput)
 							m_JumpTimer = 6;
 						
 						m_TriggeredEvents |= COREEVENT_GROUND_JUMP;
-						if(slope == 0) 
+						if(slope == 0)
+						{
+							m_Action = COREACTION_JUMP;
+							m_ActionState = 0;
 							m_Vel.y = -JumpPower;
-						else {
+						}
+						else
+						{
+							m_Action = COREACTION_JUMP;
+							m_ActionState = 0;
 							m_Vel.y = -JumpPower*invsqrt2;
 						}
 						m_Jumped |= 1;
@@ -504,10 +573,10 @@ void CCharacterCore::Tick(bool UseInput)
 		if(m_Input.m_Hook && m_JetpackPower > 0 && !IsInFluid())
 		{
 			if ((TargetDirection.x > 0 && m_Vel.x < HandJetpackControlSpeed + ForceTileStatus) || (TargetDirection.x < 0 && m_Vel.x > -HandJetpackControlSpeed + ForceTileStatus))
-				m_Vel.x += TargetDirection.x*1.2f;
+				m_Vel.x += TargetDirection.x*1.4f;
 				
 			if ((TargetDirection.y > 0 && m_Vel.y < HandJetpackControlSpeed) || (TargetDirection.y < 0 && m_Vel.y > -HandJetpackControlSpeed))
-				m_Vel.y += TargetDirection.y*1.2f;
+				m_Vel.y += TargetDirection.y*1.4f;
 				
 			m_JetpackPower -= 2;
 			m_HandJetpack = true;
@@ -605,7 +674,7 @@ void CCharacterCore::Tick(bool UseInput)
 	
 	if (LoadJetpack)
 	{
-		m_JetpackPower += 2;
+		m_JetpackPower += 3;
 		
 		if (m_JetpackPower > 100)
 			m_JetpackPower = 100;
@@ -708,6 +777,20 @@ void CCharacterCore::Tick(bool UseInput)
 		}
 	}
 
+	// fix to slope bug (standing near wall)
+	if (IsGrounded() && !m_Sliding && abs(m_Vel.y) < 1.5f && abs(m_Vel.x) < 0.2f)
+	{
+		if (!m_pCollision->IsTileSolid(m_Pos.x-PhysSize, m_Pos.y+PhysSize*0.7) || !m_pCollision->IsTileSolid(m_Pos.x+PhysSize, m_Pos.y+PhysSize*0.7))
+		{
+			if (m_pCollision->IsTileSolid(m_Pos.x-PhysSize*1.2f, m_Pos.y))
+				m_Pos.x += 2.0f;
+			
+			if (m_pCollision->IsTileSolid(m_Pos.x+PhysSize*1.2f, m_Pos.y))
+				m_Pos.x -= 2.0f;
+		}
+	}
+	
+	
 	// clamp the velocity to something sane
 	if(length(m_Vel) > 6000)
 		m_Vel = normalize(m_Vel) * 6000;
@@ -740,12 +823,12 @@ void CCharacterCore::Roll()
 	if (m_Roll > 0)
 		return;
 	
-	if (m_Vel.x < -2.0f && !m_pCollision->CheckPoint(m_Pos.x-(PhysSize+32), m_Pos.y+PhysSize/2))
+	if (m_Vel.x < -2.5f && !m_pCollision->CheckPoint(m_Pos.x-(PhysSize+32), m_Pos.y+PhysSize/2))
 	{
 		m_Roll++;
 		m_LockDirection = -8;
 	}
-	else if (m_Vel.x > 2.0f && !m_pCollision->CheckPoint(m_Pos.x+(PhysSize+32), m_Pos.y+PhysSize/2))
+	else if (m_Vel.x > 2.5f && !m_pCollision->CheckPoint(m_Pos.x+(PhysSize+32), m_Pos.y+PhysSize/2))
 	{
 		m_Roll++;
 		m_LockDirection = 8;
@@ -866,9 +949,10 @@ void CCharacterCore::Move()
 
 	float VelY = m_Vel.y;
 	
+	
 	vec2 NewPos = m_Pos;
 	
-	if (m_Slide == 0 && m_Roll == 0)
+	if (m_Slide == 0 && m_Roll == 0 || m_Wallrun != 0)
 	{
 		NewPos.y -= 18;
 		m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(28.0f, 64.0f), 0, !m_Sliding);
@@ -881,7 +965,7 @@ void CCharacterCore::Move()
 		NewPos.y += 10;
 	}
 	
-	if (VelY > 20.0f && abs(m_Vel.y) < 2.0f)
+	if (VelY > 20.0f && abs(m_Vel.y) < 2.0f) // && m_Input.m_Down)
 		Roll();
 	
 	m_Vel.x = m_Vel.x*(1.0f/RampValue);
@@ -980,6 +1064,8 @@ void CCharacterCore::Write(CNetObj_CharacterCore *pObjCore)
 	pObjCore->m_Status = m_Status;
 	pObjCore->m_LockDirection = m_LockDirection;
 	pObjCore->m_Slope = SlopeState();
+	pObjCore->m_Action = m_Action;
+	pObjCore->m_ActionState = m_ActionState;
 }
 
 void CCharacterCore::Read(const CNetObj_CharacterCore *pObjCore)
@@ -1003,6 +1089,8 @@ void CCharacterCore::Read(const CNetObj_CharacterCore *pObjCore)
 	m_Slide = pObjCore->m_Slide;
 	m_Status = pObjCore->m_Status;
 	m_LockDirection = pObjCore->m_LockDirection;
+	m_Action = pObjCore->m_Action;
+	m_ActionState = pObjCore->m_ActionState;
 }
 
 void CCharacterCore::Quantize()

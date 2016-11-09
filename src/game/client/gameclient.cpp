@@ -185,7 +185,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderTriangles);
 	m_All.Add(&m_pParticles->m_RenderTrail);
 	m_All.Add(&m_pParticles->m_RenderColorTrail);
-	m_All.Add(&m_pParticles->m_RenderLazerload);
+	m_All.Add(&m_pParticles->m_RenderLazerload); // works
 	m_All.Add(m_pBuildings);
 	m_All.Add(&m_pParticles->m_RenderCrafting);
 	m_All.Add(m_pItems);
@@ -1401,4 +1401,59 @@ void CGameClient::ConchainSpecialInfoupdate(IConsole::IResult *pResult, void *pU
 IGameClient *CreateGameClient()
 {
 	return &g_GameClient;
+}
+
+
+bool CGameClient::IsLocalUndead()
+{
+	if (m_Snap.m_pGameDataObj)
+	{
+		int Flags = m_Snap.m_pGameInfoObj->m_GameFlags;
+	
+		if (Flags & GAMEFLAG_INFECTION && CustomStuff()->m_LocalTeam == TEAM_BLUE)
+			return true;
+	}
+	
+	return false;
+}
+
+bool CGameClient::BuildingNear(vec2 Pos, float Range)
+{
+	if(Client()->State() < IClient::STATE_ONLINE)
+		return true;
+
+	int Num = Client()->SnapNumItems(IClient::SNAP_CURRENT);
+	for(int i = 0; i < Num; i++)
+	{
+		IClient::CSnapItem Item;
+		const void *pData = Client()->SnapGetItem(IClient::SNAP_CURRENT, i, &Item);
+
+		
+		if (Item.m_Type == NETOBJTYPE_BUILDING)
+		{
+			const struct CNetObj_Building *pBuilding = (const CNetObj_Building *)pData;
+			vec2 Pos2 = vec2(pBuilding->m_X, pBuilding->m_Y);
+			
+			if (distance(Pos2, Pos) < Range)
+				return true;
+		}
+		else if (Item.m_Type == NETOBJTYPE_TURRET)
+		{
+			const struct CNetObj_Turret *pBuilding = (const CNetObj_Turret *)pData;
+			vec2 Pos2 = vec2(pBuilding->m_X, pBuilding->m_Y);
+			
+			if (distance(Pos2, Pos) < Range)
+				return true;
+		}
+		else if (Item.m_Type == NETOBJTYPE_POWERUPPER)
+		{
+			const struct CNetObj_Powerupper *pBuilding = (const CNetObj_Powerupper *)pData;
+			vec2 Pos2 = vec2(pBuilding->m_X, pBuilding->m_Y);
+			
+			if (distance(Pos2, Pos) < Range)
+				return true;
+		}
+	}
+	
+	return false;
 }

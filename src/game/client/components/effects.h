@@ -20,6 +20,7 @@ public:
 	void SpriteSheet(int FX, vec2 Pos);
 	void Lazer(vec2 Pos, int Height);
 	void Explosion(vec2 Pos);
+	void ChainsawSmoke(vec2 Pos);
 	void FlameExplosion(vec2 Pos);
 	void HammerHit(vec2 Pos);
 	void SwordHit(vec2 Pos, float Angle, bool Flip);

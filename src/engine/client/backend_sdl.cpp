@@ -415,6 +415,7 @@ void CCommandProcessorFragment_OpenGL::Cmd_LoadShaders(const CCommandBuffer::SCo
 	m_aShader[SHADER_FUEL] = LoadShader("data/shaders/basic.vert", "data/shaders/fuel.frag");
 	m_aShader[SHADER_BLOOD] = LoadShader("data/shaders/basic.vert", "data/shaders/blood.frag");
 	m_aShader[SHADER_ACID] = LoadShader("data/shaders/basic.vert", "data/shaders/acid.frag");
+	m_aShader[SHADER_GRAYSCALE] = LoadShader("data/shaders/basic.vert", "data/shaders/grayscale.frag");
 }
 
 

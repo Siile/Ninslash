@@ -125,11 +125,11 @@ public:
 	// helper functions
 	void CreateBuildingHit(vec2 Pos);
 	void CreateDamageInd(vec2 Pos, float AngleMod, int Amount);
-	void CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool Superdamage = false);
+	void CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool IsTurret = false);
 	void CreateElectromineExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage);
 	void CreateMineExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage);
-	void CreateFlameExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool Superdamage = false);
-	void CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool Superdamage = false);
+	void CreateFlameExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool IsTurret = false);
+	void CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool IsTurret = false);
 	void SendEffect(int ClientID, int EffectID);
 	void CreateHammerHit(vec2 Pos);
 	void CreateEffect(int FX, vec2 Pos);

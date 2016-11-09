@@ -15,9 +15,11 @@ void CCustomStuff::Reset()
 {
 	m_CameraShake = 0.0f;
 	
+	m_BuildMode = false;
 	m_LocalPos = vec2(0, 0);
-	m_LocalWeapon = 0;
+	m_LocalWeapon = 1;
 	m_LocalColor = vec4(0, 0, 0, 0);
+	m_LocalAlive = false;
 	
 	m_WeaponDropTick = 0;
 	m_SwitchTick = 0;
@@ -56,7 +58,14 @@ void CCustomStuff::Reset()
 	m_WeaponpickTimer = 0;
 	m_WeaponpickWeapon = 0;
 	
+	m_WeaponSignalTimer = 0;
+	m_WeaponSignal = -1;
+	
 	m_LastWeaponPicked = true;
+	
+	m_BuildPos = vec2(0, 0);
+	m_BuildPosValid = false;
+	m_FlipBuilding = false;
 }
 
 
@@ -77,6 +86,9 @@ void CCustomStuff::Tick(bool Paused)
 		if (m_LastWeaponPicked)
 			m_WeaponpickTimer -= 0.0035f;
 	}
+	
+	if (m_WeaponSignalTimer > 0.0f)
+		m_WeaponSignalTimer -= 0.035f;
 	
 	m_MonsterAnim += 0.006f;
 	//if (m_MonsterAnim >= 1.0f)
@@ -120,6 +132,10 @@ void CCustomStuff::Tick(bool Paused)
 	
 	if (m_CameraShake > 0.0f)
 		m_CameraShake -= 0.2f;
+	
+	// building
+	if (m_LocalTeam == TEAM_SPECTATORS)
+		m_BuildMode = false;
 }
 
 

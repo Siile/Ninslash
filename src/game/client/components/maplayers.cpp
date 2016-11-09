@@ -132,7 +132,7 @@ void CMapLayers::OnRender()
 	
 	bool RenderBufferPassed = false;
 	bool RenderBufferRendered = false;
-
+	
 	for(int g = 0; g < m_pLayers->NumGroups(); g++)
 	{
 		Graphics()->RenderToScreen();
@@ -145,8 +145,7 @@ void CMapLayers::OnRender()
 			// render tile buffer
 			RenderTools()->RenderFullScreenLayer();
 		}
-		
-
+			
 		if(!g_Config.m_GfxNoclip && pGroup->m_Version >= 2 && pGroup->m_UseClipping)
 		{
 			// set clipping
@@ -163,7 +162,7 @@ void CMapLayers::OnRender()
 		}
 
 		MapScreenToGroup(Center.x, Center.y, pGroup);
-
+	
 		for(int l = 0; l < pGroup->m_NumLayers; l++)
 		{
 			CMapItemLayer *pLayer = m_pLayers->GetLayer(pGroup->m_StartLayer+l);
@@ -173,20 +172,20 @@ void CMapLayers::OnRender()
 			if(pLayer == (CMapItemLayer*)m_pLayers->GameLayer())
 			{
 				IsGameLayer = true;
-				PassedGameLayer = 1;
+				PassedGameLayer = true;
 			}
-			
 			
 			// skip rendering if detail layers if not wanted
 			if(pLayer->m_Flags&LAYERFLAG_DETAIL && !g_Config.m_GfxHighDetail && !IsGameLayer)
 				continue;
-
+			
 			if(m_Type == -1)
 				Render = true;
 			else if(m_Type == 0)
 			{
 				if(PassedGameLayer)
 					return;
+				
 				Render = true;
 			}
 			else
@@ -194,7 +193,8 @@ void CMapLayers::OnRender()
 				if(PassedGameLayer && !IsGameLayer)
 					Render = true;
 			}
-
+			
+		
 			// render some tile layers to texture for splatter
 			if (g_Config.m_GfxMultiBuffering)
 			{
@@ -203,7 +203,6 @@ void CMapLayers::OnRender()
 				else
 					Graphics()->RenderToScreen();
 			}
-			
 			
 			if(Render && pLayer->m_Type == LAYERTYPE_TILES && Input()->KeyPressed(KEY_LCTRL) && Input()->KeyPressed(KEY_LSHIFT) && Input()->KeyDown(KEY_KP_0))
 			{
@@ -225,7 +224,7 @@ void CMapLayers::OnRender()
 					io_close(File);
 				}
 			}
-
+			
 			if(Render && !IsGameLayer)
 			{
 				//layershot_begin();
@@ -243,6 +242,7 @@ void CMapLayers::OnRender()
 					vec4 Color = vec4(pTMap->m_Color.r/255.0f, pTMap->m_Color.g/255.0f, pTMap->m_Color.b/255.0f, pTMap->m_Color.a/255.0f);
 					RenderTools()->RenderTilemap(pTiles, pTMap->m_Width, pTMap->m_Height, 32.0f, Color, TILERENDERFLAG_EXTEND|LAYERRENDERFLAG_OPAQUE,
 													EnvelopeEval, this, pTMap->m_ColorEnv, pTMap->m_ColorEnvOffset);
+														
 					Graphics()->BlendNormal();
 					RenderTools()->RenderTilemap(pTiles, pTMap->m_Width, pTMap->m_Height, 32.0f, Color, TILERENDERFLAG_EXTEND|LAYERRENDERFLAG_TRANSPARENT,
 													EnvelopeEval, this, pTMap->m_ColorEnv, pTMap->m_ColorEnvOffset);
@@ -256,7 +256,7 @@ void CMapLayers::OnRender()
 						Graphics()->TextureSet(m_pClient->m_pMapimages->Get(pQLayer->m_Image));
 
 					CQuad *pQuads = (CQuad *)m_pLayers->Map()->GetDataSwapped(pQLayer->m_Data);
-
+					
 					Graphics()->BlendNone();
 					RenderTools()->RenderQuads(pQuads, pQLayer->m_NumQuads, LAYERRENDERFLAG_OPAQUE, EnvelopeEval, this);
 					Graphics()->BlendNormal();
@@ -266,6 +266,7 @@ void CMapLayers::OnRender()
 				//layershot_end();
 			}
 		}
+		
 		if(!g_Config.m_GfxNoclip)
 			Graphics()->ClipDisable();
 	}
@@ -289,5 +290,6 @@ void CMapLayers::OnRender()
 	
 	//Graphics()->RenderToScreen();
 	//RenderTools()->RenderFullScreenLayer();
+	
 }
 

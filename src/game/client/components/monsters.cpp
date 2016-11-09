@@ -1,5 +1,6 @@
 #include <engine/graphics.h>
 #include <engine/demo.h>
+#include <engine/shared/config.h>
 #include <game/generated/protocol.h>
 #include <game/generated/client_data.h>
 

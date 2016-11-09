@@ -4,6 +4,7 @@
 #include <engine/demo.h>
 #include <game/generated/protocol.h>
 #include <game/generated/client_data.h>
+#include <engine/shared/config.h>
 
 #include <game/gamecore.h> // get_angle
 #include <game/client/gameclient.h>
@@ -212,6 +213,7 @@ void CBuildings::RenderFlametrap(const struct CNetObj_Building *pCurrent)
 
 void CBuildings::RenderBase(const struct CNetObj_Building *pCurrent)
 {
+	/*
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
 	Graphics()->QuadsBegin();
 	
@@ -227,6 +229,7 @@ void CBuildings::RenderBase(const struct CNetObj_Building *pCurrent)
 	Graphics()->QuadsDraw(&QuadItem, 1);
 	
 	Graphics()->QuadsEnd();
+	*/
 }
 
 void CBuildings::RenderStand(const struct CNetObj_Building *pCurrent)
@@ -246,8 +249,18 @@ void CBuildings::RenderStand(const struct CNetObj_Building *pCurrent)
 	
 	Graphics()->QuadsEnd();
 	
+	// skip tip if local player is undead
+	if (m_pClient->m_Snap.m_pGameDataObj)
+	{
+		int Flags = m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags;
+	
+		if (Flags & GAMEFLAG_INFECTION && CustomStuff()->m_LocalTeam == TEAM_BLUE)
+			return;
+	}
+	
+	// render drop weapon tip for local player
 	if (distance(CustomStuff()->m_LocalPos, vec2(pCurrent->m_X, pCurrent->m_Y)) < 40 && 
-		CustomStuff()->m_LocalWeapon != WEAPON_TOOL && CustomStuff()->m_LocalWeapon != WEAPON_HAMMER && CustomStuff()->m_LocalWeapon != WEAPON_GUN)
+		CustomStuff()->m_LocalWeapon != WEAPON_TOOL && CustomStuff()->m_LocalWeapon != WEAPON_HAMMER)
 	{
 		TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
 		TextRender()->Text(0, pCurrent->m_X + 22, pCurrent->m_Y - 90, 32, m_pClient->m_pBinds->GetKey("+dropweapon"), -1);
@@ -292,7 +305,6 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 	Graphics()->QuadsDraw(&Stand, 1);
 	Graphics()->QuadsEnd();
 	
-	
 	// weapon
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 	Graphics()->QuadsBegin();
@@ -312,7 +324,20 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 	p.y += g_pData->m_Weapons.m_aId[iw].m_Offsety;
 	*/
 
-	RenderTools()->DrawSprite(p.x, p.y, g_pData->m_Weapons.m_aId[iw].m_VisualSize);
+	vec2 Offset = vec2(0, 0);
+	
+	// chainsaw effects
+	if (iw == WEAPON_CHAINSAW)
+	{
+		if (pCurrent->m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)
+		{
+			Offset = vec2(frandom()-frandom(), frandom()-frandom()) * 2.0f;
+			m_pClient->m_pEffects->ChainsawSmoke(vec2(pCurrent->m_X, pCurrent->m_Y-50));
+		}
+	}	
+
+	
+	RenderTools()->DrawSprite(p.x+Offset.x, p.y+Offset.y, g_pData->m_Weapons.m_aId[iw].m_VisualSize);
 	Graphics()->QuadsEnd();
 	
 	// fastener
@@ -321,27 +346,34 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 	RenderTools()->SelectSprite(SPRITE_TURRET_FASTENER, Dir.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
 	Graphics()->SetColor(1, 1, 1, 1);
 	
-	if (m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_TEAMS && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_INFECTION))
+	
+	if (m_pClient->m_Snap.m_pGameDataObj)
 	{
-		if (pCurrent->m_Team == TEAM_RED)
-			Graphics()->SetColor(1, 0.8f, 0.0f, 1);
-		if (pCurrent->m_Team == TEAM_BLUE)
-			Graphics()->SetColor(0.3f, 0.5f, 1, 1);
+		int Flags = m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags;
+		int Team = pCurrent->m_Team;
+	
+		if ((Flags & GAMEFLAG_TEAMS) && !(Flags & GAMEFLAG_INFECTION))
+		{
+			if (Team == TEAM_RED)
+				Graphics()->SetColor(1.0f, 0.8f, 0.0f, 1.0f);
+			else if (Team == TEAM_BLUE)
+				Graphics()->SetColor(0.3f, 0.5f, 1.0f, 1.0f);
+		}
 	}
-	else if (!(m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags & GAMEFLAG_TEAMS))
+	// local player's turret
+	else if (pCurrent->m_Team == TEAM_BLUE)
 	{
 		vec4 c = CustomStuff()->m_LocalColor;
-		if (pCurrent->m_Team == TEAM_BLUE)
-			Graphics()->SetColor(c.r, c.g, c.g, 1);
+		Graphics()->SetColor(c.r, c.g, c.b, 1);
 	}
-
 	
 	Graphics()->QuadsSetRotation(Angle);
 		
-	RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y-40-9, 64*1.3f);
+	RenderTools()->DrawSprite(pCurrent->m_X+Offset.x, pCurrent->m_Y-40-9+Offset.y, 64*1.3f);
 	Graphics()->QuadsEnd();
+
 	
-	
+		
 	if (iw == WEAPON_RIFLE || iw == WEAPON_SHOTGUN)
 	{
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
@@ -453,7 +485,7 @@ void CBuildings::OnRender()
 {
 	if(Client()->State() < IClient::STATE_ONLINE)
 		return;
-
+	
 	int Num = Client()->SnapNumItems(IClient::SNAP_CURRENT);
 	for(int i = 0; i < Num; i++)
 	{

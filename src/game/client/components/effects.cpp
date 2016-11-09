@@ -81,6 +81,8 @@ void CEffects::Blood(vec2 Pos, vec2 Dir)
 		b.m_Gravity = 1400.0f + frandom()*300;
 	}
 	
+	b.m_Friction = 0.85f+frandom()*0.075f;
+	
 	if (g_Config.m_GfxMultiBuffering)
 	{
 		b.m_Spr = SPRITE_BLOOD02;
@@ -90,6 +92,7 @@ void CEffects::Blood(vec2 Pos, vec2 Dir)
 		b.m_EndSize = 4.0f;
 		b.m_LifeSpan = 8.0f;
 		b.m_StartSize = 32.0f + frandom()*32;
+		//b.m_Friction = 0.95f;
 	}
 	
 	b.m_Vel = Dir * ((frandom()+0.50f)*1200.0f);
@@ -97,7 +100,6 @@ void CEffects::Blood(vec2 Pos, vec2 Dir)
 	b.m_Rot = GetAngle(b.m_Vel);
 	
 	//b.m_Gravity = 1600.0f;
-	b.m_Friction = 0.85f+frandom()*0.075f;
 	//b.m_Friction *= 0.95f;
 	float c = frandom()*0.3f + 0.7f;
 	b.m_Color = vec4(c, c, c, 1.0f);
@@ -530,9 +532,9 @@ void CEffects::SpriteSheet(int FX, vec2 Pos)
 			p.m_Spr = SPRITE_ELECTRIC1;
 			p.m_Frames = 8;
 			p.m_Pos = Pos;
-			p.m_LifeSpan = 0.25f;
-			p.m_StartSize = 80;
-			p.m_EndSize = 80;
+			p.m_LifeSpan = 0.20f;
+			p.m_StartSize = 150;
+			p.m_EndSize = 150;
 			p.m_Rot = frandom()*pi*2;
 			m_pClient->m_pParticles->Add(CParticles::GROUP_ELECTRIC, &p);
 		}
@@ -716,6 +718,23 @@ void CEffects::Explosion(vec2 Pos)
 }
 
 
+void CEffects::ChainsawSmoke(vec2 Pos)
+{
+		CParticle p;
+		p.SetDefault();
+		p.m_Spr = SPRITE_PART_SMOKE;
+		p.m_Pos = Pos;
+		p.m_Vel = vec2((frandom()-frandom()) * 0.5f, -1.0f) * ((1.0f + frandom()*0.2f) * 350.0f);
+		p.m_LifeSpan = 0.2f + frandom()*0.2f;
+		p.m_StartSize = 14.0f + frandom()*4;
+		p.m_EndSize = 0;
+		p.m_Gravity = frandom()*-700.0f;
+		p.m_Friction = 0.4f;
+		p.m_Color = mix(vec4(0.75f,0.75f,0.75f,0.3f), vec4(0.5f,0.5f,0.5f,0.3f), frandom());
+		m_pClient->m_pParticles->Add(CParticles::GROUP_GENERAL, &p);
+}
+
+	
 void CEffects::FlameExplosion(vec2 Pos)
 {
 	// add the smoke and flame

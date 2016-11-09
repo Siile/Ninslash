@@ -74,7 +74,6 @@ public:
 	
 	void SetWaypointCenter(vec2 Position);
 	void AddWeight(vec2 Pos, int Weight);
-	bool FindWaypointPath(vec2 TargetPos);
 	
 	vec2 GetRandomWaypointPos();
 	
@@ -86,6 +85,7 @@ public:
 
 	// for testing
 	vec2 m_aPath[99];
+	int m_PathLen;
 	
 	CCollision();
 	void Init(class CLayers *pLayers);

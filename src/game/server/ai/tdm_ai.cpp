@@ -32,7 +32,7 @@ void CAItdm::DoBehavior()
 {
 	// power level
 	//m_PowerLevel = 20 - GameServer()->m_pController->CountPlayers(Player()->GetTeam())*1.5f;
-	m_PowerLevel = 6;
+	m_PowerLevel = 8;
 	
 	// reset jump and attack
 	if (Player()->GetCharacter()->GetCore().m_JetpackPower < 10 || Player()->GetCharacter()->GetCore().m_Jetpack == 0)
@@ -94,25 +94,16 @@ void CAItdm::DoBehavior()
 
 	if (UpdateWaypoint())
 	{
-		MoveTowardsWaypoint(20);
-		//HookMove();
-		//AirJump();
-		
-		// jump if waypoint is above us
-		//if (abs(m_WaypointPos.x - m_Pos.x) < 60 && m_WaypointPos.y < m_Pos.y - 100 && frandom()*20 < 4)
-		//	m_Jump = 1;
-		
-		//WallRun();
+		MoveTowardsWaypoint();
 	}
 	else
 	{
-		m_Hook = 0;
+		m_WaypointPos = m_TargetPos;
+		MoveTowardsWaypoint(true);
 	}
 	
-	
-	//DoJumping();
-	//Unstuck();
 
+	Build();
 	RandomlyStopShooting();
 	
 	// next reaction in

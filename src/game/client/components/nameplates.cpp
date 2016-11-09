@@ -30,7 +30,7 @@ void CNamePlates::RenderNameplate(
 	
 	float v = pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY];
 	
-	if ((CustomStuff()->m_LocalTeam == pPlayerInfo->m_Team && m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_TEAMS) ||
+	if ((CustomStuff()->m_LocalTeam == pPlayerInfo->m_Team && m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_TEAMS) ||
 		CustomStuff()->m_LocalTeam == TEAM_SPECTATORS)
 		v = 0.0f;
 	

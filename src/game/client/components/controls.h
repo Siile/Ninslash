@@ -15,6 +15,22 @@ public:
 	CNetObj_PlayerInput m_LastData;
 	int m_InputDirectionLeft;
 	int m_InputDirectionRight;
+	
+	// weapon change from picker
+	int m_PickedWeapon;
+	
+	// signal wanted weapon you don't have to hud
+	int m_SignalWeapon;
+	
+	// input
+	int m_Build;
+	bool m_BuildReleased;
+	
+	bool m_BuildMode;
+	int m_SelectedBuilding;
+	
+	// switch back to shooting
+	int m_LastWeapon;
 
 	CControls();
 

@@ -53,7 +53,9 @@ bool CCollision::AStar(vec2 Start, vec2 End)
     StartWP->m_Opened = true;
 
 	
-	while (n == 0 || (CurrentWP != EndWP && n < 200))
+	// while (n == 0 || (CurrentWP != EndWP && n < 400))
+
+	while (n < 2000)
     {
         // Look for the smallest F value in the openList and make it the current point
         for (i = openList.begin(); i != openList.end(); ++ i)
@@ -92,7 +94,7 @@ bool CCollision::AStar(vec2 Start, vec2 End)
 			// If it's already in the openList
 			if (ChildWP->m_Opened)
 			{
-				// If it has a wroste g score than the one that pass through the current point
+				// If it has a worse g score than the one that pass through the current point
 				// then its path is improved when it's parent is the current point
 				if (ChildWP->m_G > ChildWP->GetGScore(CurrentWP, EndWP->m_Pos))
 				{
@@ -156,11 +158,11 @@ bool CCollision::AStar(vec2 Start, vec2 End)
 	if (m_pPath)
 	{
 		CWaypointPath *Wp = m_pPath;
-			
-		int p = 0;
-		for (int w = 0; w < 10; w++)
+
+		for (int w = 0; w < 80; w++)
 		{
-			m_aPath[p++] = vec2(Wp->m_Pos.x, Wp->m_Pos.y);
+			m_PathLen = w;
+			m_aPath[w] = vec2(Wp->m_Pos.x, Wp->m_Pos.y);
 				
 			if (Wp->m_pNext)
 				Wp = Wp->m_pNext;

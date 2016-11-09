@@ -327,6 +327,6 @@ void CGameControllerCTF::Tick()
 		}
 	}
 	
-	//AutoBalance();
-	//GameServer()->UpdateAI();
+	AutoBalance();
+	GameServer()->UpdateAI();
 }

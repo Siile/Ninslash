@@ -55,7 +55,7 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		
 	case BUILDING_FLAMETRAP:
 		m_ProximityRadius = FlametrapPhysSize;
-		m_Life = 80;
+		m_Life = 60;
 		break;
 	
 	default:

@@ -8,6 +8,8 @@ class CBuildings2 : public CComponent
 {
 	void RenderSawblade(const struct CNetObj_Building *pCurrent);
 	void RenderFlametrap(const struct CNetObj_Building *pCurrent);
+	
+	void RenderBuildMode();
 
 public:
 	virtual void OnReset();

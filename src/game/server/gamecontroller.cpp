@@ -391,7 +391,6 @@ void IGameController::AutoBalance()
 			
 			return;
 		}
-		
 
 		// not enough players
 		if ((Red+RedBots) < g_Config.m_SvPreferredTeamSize || (Blue+BlueBots) < g_Config.m_SvPreferredTeamSize)
@@ -825,7 +824,7 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 	{
 		for (int i = 0; i < 2; i++)
 		{
-			if (pVictim->m_Kits > 0 && frandom()*10 < 6)
+			if (pVictim->m_Kits > 0 && frandom()*10 < 4)
 			{
 				pVictim->m_Kits--;
 				DropPickup(pVictim->m_Pos, POWERUP_KIT, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
@@ -1018,7 +1017,7 @@ void IGameController::Tick()
 	if(m_GameOverTick != -1)
 	{
 		// game over.. wait for restart
-		if(Server()->Tick() > m_GameOverTick+Server()->TickSpeed()*10)
+		if(Server()->Tick() > m_GameOverTick+Server()->TickSpeed()*5)
 		{
 			GameServer()->KickBots();
 			CycleMap();

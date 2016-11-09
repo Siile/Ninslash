@@ -100,8 +100,9 @@ void CBinds::SetDefaults()
 	Bind(KEY_MOUSE_1, "+fire");
 	Bind(KEY_MOUSE_2, "+turbo");
 	Bind(KEY_E, "+picker");
-	Bind(KEY_Q, "+lastweapon");
-	Bind(KEY_MOUSE_3, "+switch");
+	Bind(KEY_Q, "+build");
+	//Bind(KEY_Q, "+lastweapon");
+	//Bind(KEY_MOUSE_3, "+switch");
 	Bind(KEY_F, "+dropweapon");
 	Bind(KEY_LSHIFT, "+emote");
 	//Bind(KEY_E, "+itempicker");
@@ -124,11 +125,15 @@ void CBinds::SetDefaults()
 	
 	Bind(KEY_GAMEPAD_BUTTON_BACK, "+gamepadscoreboard");
 	
-	Bind(KEY_1, "+weapon1");
-	Bind(KEY_2, "+weapon2");
-	Bind(KEY_3, "+weapon3");
-	Bind(KEY_4, "+weapon4");
-	Bind(KEY_5, "+weapon5");
+	//Bind(KEY_1, "+weapon1");
+	Bind(KEY_1, "+weapon2");
+	Bind(KEY_2, "+weapon3");
+	Bind(KEY_3, "+weapon4");
+	Bind(KEY_4, "+weapon5");
+	Bind(KEY_5, "+weapon6");
+	Bind(KEY_6, "+weapon7");
+	Bind(KEY_7, "+weapon8");
+	Bind(KEY_8, "+weapon9");
 
 	Bind(KEY_MOUSE_WHEEL_UP, "+prevweapon");
 	Bind(KEY_MOUSE_WHEEL_DOWN, "+nextweapon");

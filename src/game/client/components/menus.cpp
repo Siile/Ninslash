@@ -564,6 +564,7 @@ int CMenus::RenderMenubar(CUIRect r)
 			NewPage = PAGE_FAVORITES;
 		}
 
+		/*
 		Box.VSplitLeft(4.0f*5, 0, &Box);
 		Box.VSplitLeft(100.0f, &Button, &Box);
 		static int s_DemosButton=0;
@@ -572,6 +573,7 @@ int CMenus::RenderMenubar(CUIRect r)
 			DemolistPopulate();
 			NewPage = PAGE_DEMOS;
 		}
+		*/
 	}
 	else
 	{
@@ -1585,6 +1587,7 @@ void CMenus::RenderBackground()
 	Graphics()->QuadsEnd();
 
 	// render the tiles
+	/*
 	Graphics()->TextureSet(-1);
 	Graphics()->QuadsBegin();
 		float Size = 15.0f;
@@ -1597,15 +1600,17 @@ void CMenus::RenderBackground()
 				Graphics()->QuadsDrawTL(&QuadItem, 1);
 			}
 	Graphics()->QuadsEnd();
+	*/
 
-	// render border fade
+	// render background image
 	Graphics()->TextureSet(gs_TextureBlob);
 	Graphics()->QuadsBegin();
-		Graphics()->SetColor(0,0,0,0.5f);
-		QuadItem = IGraphics::CQuadItem(-100, -100, sw+200, sh+200);
+		Graphics()->SetColor(0.2f, 0.2f, 0.2f, 0.5f);
+		//QuadItem = IGraphics::CQuadItem(-100, -100, sw+200, sh+200);
+		QuadItem = IGraphics::CQuadItem(100, 100, sw-200, sh-200);
 		Graphics()->QuadsDrawTL(&QuadItem, 1);
 	Graphics()->QuadsEnd();
-
+	
 	// restore screen
 	{CUIRect Screen = *UI()->Screen();
 	Graphics()->MapScreen(Screen.x, Screen.y, Screen.w, Screen.h);}

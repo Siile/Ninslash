@@ -70,6 +70,11 @@ public:
 	float m_HeadTilt;
 	float m_HeadTiltCorrect;
 	
+	bool m_FeetPhysics;
+	vec2 m_FeetDir;
+	float m_FeetAngle;
+	
+	vec2 m_HeadOffset;
 	
 	// for roll animation
 	bool m_FlipBody;

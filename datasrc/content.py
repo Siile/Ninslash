@@ -89,18 +89,13 @@ class Weapon_Hammer(Struct):
 		Struct.__init__(self, "CDataWeaponspecHammer")
 		self.base = Pointer(WeaponSpec, WeaponSpec())
 
-class Weapon_Chainsaw(Struct):
-	def __init__(self):
-		Struct.__init__(self, "CDataWeaponspecChainsaw")
-		self.base = Pointer(WeaponSpec, WeaponSpec())
-
-class Weapon_Gun(Struct):
-	def __init__(self):
-		Struct.__init__(self, "CDataWeaponspecGun")
-		self.base = Pointer(WeaponSpec, WeaponSpec())
-		self.curvature = Float(1.25)
-		self.speed = Float(2200)
-		self.lifetime = Float(2.0)
+#class Weapon_Gun(Struct):
+#	def __init__(self):
+#		Struct.__init__(self, "CDataWeaponspecGun")
+#		self.base = Pointer(WeaponSpec, WeaponSpec())
+#		self.curvature = Float(1.25)
+#		self.speed = Float(2200)
+#		self.lifetime = Float(2.0)
 
 class Weapon_Shotgun(Struct):
 	def __init__(self):
@@ -111,23 +106,9 @@ class Weapon_Shotgun(Struct):
 		self.speeddiff = Float(0.8)
 		self.lifetime = Float(0.25)
 
-class Weapon_Grenade(Struct):
-	def __init__(self):
-		Struct.__init__(self, "CDataWeaponspecGrenade")
-		self.base = Pointer(WeaponSpec, WeaponSpec())
-		self.curvature = Float(7.0)
-		self.speed = Float(1000)
-		self.lifetime = Float(2.0)
-
 class Weapon_Rifle(Struct):
 	def __init__(self):
 		Struct.__init__(self, "CDataWeaponspecRifle")
-		self.base = Pointer(WeaponSpec, WeaponSpec())
-		self.reach = Float(800.0)
-		
-class Weapon_Electric(Struct):
-	def __init__(self):
-		Struct.__init__(self, "CDataWeaponspecElectric")
 		self.base = Pointer(WeaponSpec, WeaponSpec())
 		self.reach = Float(800.0)
 
@@ -139,12 +120,31 @@ class Weapon_Laser(Struct):
 		self.bounce_delay = Int(150)
 		self.bounce_num = Int(1)
 		self.bounce_cost = Float(0)
+		
+class Weapon_Electric(Struct):
+	def __init__(self):
+		Struct.__init__(self, "CDataWeaponspecElectric")
+		self.base = Pointer(WeaponSpec, WeaponSpec())
+		self.reach = Float(800.0)
+		
+class Weapon_Grenade(Struct):
+	def __init__(self):
+		Struct.__init__(self, "CDataWeaponspecGrenade")
+		self.base = Pointer(WeaponSpec, WeaponSpec())
+		self.curvature = Float(7.0)
+		self.speed = Float(1000)
+		self.lifetime = Float(2.0)
 
 class Weapon_Flamer(Struct):
 	def __init__(self):
 		Struct.__init__(self, "CDataWeaponspecFlamer")
 		self.base = Pointer(WeaponSpec, WeaponSpec())
 		self.reach = Float(800.0)
+
+class Weapon_Chainsaw(Struct):
+	def __init__(self):
+		Struct.__init__(self, "CDataWeaponspecChainsaw")
+		self.base = Pointer(WeaponSpec, WeaponSpec())
 
 		
 
@@ -153,14 +153,14 @@ class Weapons(Struct):
 		Struct.__init__(self, "CDataWeaponspecs")
 		self.tool = Weapon_Tool()
 		self.hammer = Weapon_Hammer()
-		self.chainsaw = Weapon_Chainsaw()
-		self.gun = Weapon_Gun()
+		#self.gun = Weapon_Gun()
 		self.shotgun = Weapon_Shotgun()
-		self.grenade = Weapon_Grenade()
 		self.rifle = Weapon_Rifle()
-		self.electric = Weapon_Electric()
 		self.laser = Weapon_Laser()
+		self.electric = Weapon_Electric()
+		self.grenade = Weapon_Grenade()
 		self.flamer = Weapon_Flamer()
+		self.chainsaw = Weapon_Chainsaw()
 		self.id = Array(WeaponSpec())
 
 class DataContainer(Struct):
@@ -258,6 +258,8 @@ container.sounds.Add(SoundSet("negative", ["audio/negative.wv"]))
 
 container.sounds.Add(SoundSet("build_turret", ["audio/build_turret.wv"]))
 container.sounds.Add(SoundSet("firetrap", ["audio/firetrap.wv"]))
+
+container.sounds.Add(SoundSet("build", FileList("audio/build-%02d.wv", 2)))
 
 container.sounds.Add(SoundSet("menu", ["audio/music_menu.wv"]))
 
@@ -625,13 +627,13 @@ container.sprites.Add(Sprite("weapon_chainsaw_pickup", set_pickups, 6,0,1,1))
 container.sprites.Add(Sprite("weapon_chainsaw_cursor", set_game, 0,0,2,2))
 container.sprites.Add(Sprite("weapon_chainsaw_proj", set_game, 0,0,0,0))
 
-container.sprites.Add(Sprite("weapon_gun_body", set_weapons, 4,0,4,2))
-container.sprites.Add(Sprite("weapon_gun_pickup", set_pickups, 0,0,1,1))
-container.sprites.Add(Sprite("weapon_gun_cursor", set_game, 0,4,2,2))
-container.sprites.Add(Sprite("weapon_gun_proj", set_game, 6,4,2,2))
-container.sprites.Add(Sprite("weapon_gun_muzzle1", set_game, 8,4,3,2))
-container.sprites.Add(Sprite("weapon_gun_muzzle2", set_game, 12,4,3,2))
-container.sprites.Add(Sprite("weapon_gun_muzzle3", set_game, 16,4,3,2))
+#container.sprites.Add(Sprite("weapon_gun_body", set_weapons, 4,0,4,2))
+#container.sprites.Add(Sprite("weapon_gun_pickup", set_pickups, 0,0,1,1))
+#container.sprites.Add(Sprite("weapon_gun_cursor", set_game, 0,4,2,2))
+#container.sprites.Add(Sprite("weapon_gun_proj", set_game, 6,4,2,2))
+#container.sprites.Add(Sprite("weapon_gun_muzzle1", set_game, 8,4,3,2))
+#container.sprites.Add(Sprite("weapon_gun_muzzle2", set_game, 12,4,3,2))
+#container.sprites.Add(Sprite("weapon_gun_muzzle3", set_game, 16,4,3,2))
 
 container.sprites.Add(Sprite("weapon_shotgun_body", set_weapons, 0,5,8,2))
 container.sprites.Add(Sprite("weapon_shotgun_pickup", set_pickups, 1,0,1,1))
@@ -695,9 +697,9 @@ container.sprites.Add(Sprite("flametrap", set_buildings, 8, 0,2, 2))
 container.sprites.Add(Sprite("stand", set_buildings, 1, 4, 3, 4))
 container.sprites.Add(Sprite("turret_fastener", set_buildings, 4, 6, 2, 2))
 
-container.sprites.Add(Sprite("kit_base", set_buildings, 4, 4, 3, 1))
-container.sprites.Add(Sprite("kit_stand", set_buildings, 0, 4, 1, 4))
 container.sprites.Add(Sprite("kit_barrel", set_buildings, 3, 2, 1, 2))
+container.sprites.Add(Sprite("kit_turret", set_buildings, 1, 4, 3, 4))
+container.sprites.Add(Sprite("kit_flametrap", set_buildings, 8, 0,2, 2))
 
 container.sprites.Add(Sprite("status_repair", set_buildings, 6, 0, 1, 1))
 container.sprites.Add(Sprite("status_nope", set_buildings, 7, 0, 1, 1))
@@ -803,25 +805,17 @@ weapon.offsety.Set(-20)
 container.weapons.hammer.base.Set(weapon)
 container.weapons.id.Add(weapon)
 
-weapon = WeaponSpec(container, "chainsaw")
-weapon.firedelay.Set(125)
-weapon.damage.Set(3)
-weapon.visual_size.Set(96)
-weapon.offsetx.Set(25)
-weapon.offsety.Set(-2)
-container.weapons.chainsaw.base.Set(weapon)
-container.weapons.id.Add(weapon)
 
-weapon = WeaponSpec(container, "gun")
-weapon.firedelay.Set(125)
-weapon.ammoregentime.Set(500)
-weapon.visual_size.Set(64)
-weapon.offsetx.Set(32)
-weapon.offsety.Set(4)
-weapon.muzzleoffsetx.Set(50)
-weapon.muzzleoffsety.Set(6)
-container.weapons.gun.base.Set(weapon)
-container.weapons.id.Add(weapon)
+#weapon = WeaponSpec(container, "gun")
+#weapon.firedelay.Set(125)
+#weapon.ammoregentime.Set(500)
+#weapon.visual_size.Set(64)
+#weapon.offsetx.Set(32)
+#weapon.offsety.Set(4)
+#weapon.muzzleoffsetx.Set(50)
+#weapon.muzzleoffsety.Set(6)
+#container.weapons.gun.base.Set(weapon)
+#container.weapons.id.Add(weapon)
 
 weapon = WeaponSpec(container, "shotgun")
 weapon.firedelay.Set(500)
@@ -831,14 +825,6 @@ weapon.offsety.Set(-2)
 weapon.muzzleoffsetx.Set(70)
 weapon.muzzleoffsety.Set(6)
 container.weapons.shotgun.base.Set(weapon)
-container.weapons.id.Add(weapon)
-
-weapon = WeaponSpec(container, "grenade")
-weapon.firedelay.Set(500) # TODO: fix this
-weapon.visual_size.Set(96)
-weapon.offsetx.Set(24)
-weapon.offsety.Set(-2)
-container.weapons.grenade.base.Set(weapon)
 container.weapons.id.Add(weapon)
 
 weapon = WeaponSpec(container, "rifle")
@@ -852,6 +838,15 @@ weapon.muzzleoffsety.Set(6)
 container.weapons.rifle.base.Set(weapon)
 container.weapons.id.Add(weapon)
 
+weapon = WeaponSpec(container, "laser")
+weapon.firedelay.Set(800)
+weapon.visual_size.Set(92)
+weapon.damage.Set(5)
+weapon.offsetx.Set(24)
+weapon.offsety.Set(-2)
+container.weapons.laser.base.Set(weapon)
+container.weapons.id.Add(weapon)
+
 weapon = WeaponSpec(container, "electric")
 weapon.firedelay.Set(180)
 weapon.visual_size.Set(92)
@@ -863,13 +858,12 @@ weapon.muzzleoffsety.Set(6)
 container.weapons.electric.base.Set(weapon)
 container.weapons.id.Add(weapon)
 
-weapon = WeaponSpec(container, "laser")
-weapon.firedelay.Set(800)
-weapon.visual_size.Set(92)
-weapon.damage.Set(5)
+weapon = WeaponSpec(container, "grenade")
+weapon.firedelay.Set(500) # TODO: fix this
+weapon.visual_size.Set(96)
 weapon.offsetx.Set(24)
 weapon.offsety.Set(-2)
-container.weapons.laser.base.Set(weapon)
+container.weapons.grenade.base.Set(weapon)
 container.weapons.id.Add(weapon)
 
 weapon = WeaponSpec(container, "flamer")
@@ -879,4 +873,13 @@ weapon.damage.Set(5)
 weapon.offsetx.Set(30)
 weapon.offsety.Set(-2)
 container.weapons.flamer.base.Set(weapon)
+container.weapons.id.Add(weapon)
+
+weapon = WeaponSpec(container, "chainsaw")
+weapon.firedelay.Set(125)
+weapon.damage.Set(3)
+weapon.visual_size.Set(96)
+weapon.offsetx.Set(25)
+weapon.offsety.Set(-2)
+container.weapons.chainsaw.base.Set(weapon)
 container.weapons.id.Add(weapon)

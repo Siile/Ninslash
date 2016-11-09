@@ -16,7 +16,6 @@ CGameControllerTexasRun::CGameControllerTexasRun(class CGameContext *pGameServer
 {
 	m_pGameType = "INF";
 	m_GameFlags = GAMEFLAG_TEAMS|GAMEFLAG_INFECTION;
-	g_Config.m_SvWarmup = 10;
 	m_GameState = TEXAS_STARTING;
 	m_EndTick = 0;
 	m_GameStateLockTick = 0;
@@ -106,6 +105,8 @@ void CGameControllerTexasRun::SelectStartingDead()
 	if (pPlayer->GetTeam() != TEAM_SPECTATORS)
 	{
 		pPlayer->SetTeam(TEAM_BLUE, false);
+		
+		GameServer()->SendBroadcast("KILL!", pPlayer->GetCID());
 	}
 }
 
@@ -131,7 +132,21 @@ void CGameControllerTexasRun::Tick()
 	{
 		// set random player to blue team
 		if (CountPlayers(TEAM_BLUE) == 0)
+		{
+			switch (rand()%3)
+			{
+				case 0:
+					GameServer()->SendBroadcast("Run", -1); break;
+				case 1:
+					GameServer()->SendBroadcast("Hide", -1); break;
+				case 2:
+					GameServer()->SendBroadcast("Escape", -1); break;
+				default:
+					GameServer()->SendBroadcast("Run", -1); break;
+			};
+			
 			SelectStartingDead();
+		}
 	}
 	
 	if (m_GameState == TEXAS_FIRSTDEATH)

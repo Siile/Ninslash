@@ -163,9 +163,9 @@ protected:
 	int m_HookTimer;
 	int m_HookReleaseTimer;
 	
-	bool MoveTowardsPlayer(int Dist = 0);
-	bool MoveTowardsTarget(int Dist = 0);
-	bool MoveTowardsWaypoint(int Dist = 0);
+	bool MoveTowardsWaypoint(bool Freestyle = false);
+	
+	void Build();
 	
 	void Unstuck();
 	void HeadToMovingDirection();

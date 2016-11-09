@@ -2,6 +2,8 @@
 
 #include <engine/graphics.h>
 #include <engine/demo.h>
+#include <engine/shared/config.h>
+
 #include <game/generated/protocol.h>
 #include <game/generated/client_data.h>
 
@@ -67,7 +69,7 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 		Curvature = m_pClient->m_Tuning.m_ShotgunCurvature;
 		Speed = m_pClient->m_Tuning.m_ShotgunSpeed;
 	}
-	else if(pCurrent->m_Type == WEAPON_GUN || pCurrent->m_Type == WEAPON_RIFLE)
+	else if(pCurrent->m_Type == WEAPON_RIFLE)
 	{
 		Curvature = m_pClient->m_Tuning.m_GunCurvature;
 		Speed = m_pClient->m_Tuning.m_GunSpeed;
@@ -186,7 +188,7 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	else
 	{
 		if(pCurrent->m_Type == WEAPON_SHOTGUN && Ct > 0.01f) m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.6f, 0.6f, 0.3f, 0.75f));
-		if(pCurrent->m_Type == WEAPON_GUN || pCurrent->m_Type == WEAPON_RIFLE) m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(1.0f, 1.0f, 0.5f, 0.65f));
+		if(pCurrent->m_Type == WEAPON_RIFLE) m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(1.0f, 1.0f, 0.5f, 0.65f));
 		
 		if (Collision()->GetCollisionAt(PredictPos.x, PredictPos.y)&1 ||  // solid
 			Collision()->GetCollisionAt(PredictPos.x, PredictPos.y)&4)    // nohook

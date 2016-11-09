@@ -70,6 +70,10 @@ void CPlayerInfo::Reset()
 	m_Weapon2Recoil = vec2(0, 0);
 	m_Weapon2RecoilVel = vec2(0, 0);
 	
+	m_FeetPos = vec2(0, 0);
+	m_FeetRecoil = vec2(0, 0);
+	m_FeetRecoilVel = vec2(0, 0);
+	
 	m_BodyTilt = 0;
 	
 	m_EffectState = frandom();
@@ -159,6 +163,21 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 	m_ToolAngleOffset += m_ToolAngleVel;
 	m_ToolAngleVel -= m_ToolAngleOffset / 8.0f;
 	m_ToolAngleVel *= 0.8f;
+	
+	
+	// inair feet physics
+	m_FeetRecoilVel -= m_FeetRecoil / 14.0f;
+	m_FeetRecoilVel *= 0.95f;
+	
+	m_FeetRecoil += m_FeetRecoilVel;
+	
+	m_FeetRecoilVel += (PlayerVel-PrevVel)/1200.0f;
+	
+	//Animation()->m_FeetDir = vec2(m_FeetRecoil.y, m_FeetRecoil.x);
+	Animation()->m_FeetDir = m_FeetRecoil;
+	Animation()->m_FeetAngle = 0.0f;
+	
+	Animation()->m_HeadOffset = vec2(m_FeetRecoil.y, m_FeetRecoil.x) * 0.6f;
 }
 	
 	

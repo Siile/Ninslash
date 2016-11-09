@@ -99,7 +99,7 @@ void CPlayers::RenderPlayer(
 	CNetObj_Character Player;
 	Prev = *pPrevChar;
 	Player = *pPlayerChar;
-
+	
 	vec2 WeaponOffset = vec2(0, -11);
 	
 	CNetObj_PlayerInfo pInfo = *pPlayerInfo;
@@ -352,6 +352,7 @@ void CPlayers::RenderPlayer(
 	// store some data to customstuff for easy access
 	if (pInfo.m_Local)
 	{
+		CustomStuff()->m_LocalAlive = true;
 		CustomStuff()->m_LocalColor = RenderInfo.m_ColorBody;
 		CustomStuff()->m_LocalWeapon = Player.m_Weapon;
 		CustomStuff()->m_LocalPos = Position;
@@ -466,9 +467,10 @@ void CPlayers::RenderPlayer(
 				if (CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilLoaded)
 				{
 					CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilLoaded = false;
-					if (Player.m_Weapon == WEAPON_GUN)
-						CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilVel -= Direction * 10.0f;
-					else if (Player.m_Weapon == WEAPON_CHAINSAW)
+					//if (Player.m_Weapon == WEAPON_GUN)
+					//	CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilVel -= Direction * 10.0f;
+					//else 
+					if (Player.m_Weapon == WEAPON_CHAINSAW)
 					{
 						CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilVel -= Direction * 1.0f;
 						pCustomPlayerInfo->m_LastChainsawSoundTick = Client()->GameTick() + 500 * Client()->GameTickSpeed()/1000;
@@ -477,7 +479,7 @@ void CPlayers::RenderPlayer(
 						m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
 					}
 					else
-						CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilVel -= Direction * 14.0f;
+						CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilVel -= Direction * 12.0f;
 						
 					/*
 					if (Player.m_Weapon == WEAPON_GUN || Player.m_Weapon == WEAPON_SHOTGUN)
@@ -499,6 +501,18 @@ void CPlayers::RenderPlayer(
 			if (!Paused && Player.m_Weapon == WEAPON_CHAINSAW && Player.m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)
 			{
 				p = p + vec2(frandom()-frandom(), frandom()-frandom()) * 4.0f;
+				
+				// smoke
+				m_pClient->m_pEffects->ChainsawSmoke(p);
+					
+				// sparks to walls
+				vec2 To = p + Dir * 32;
+				
+				if (Collision()->IntersectLine(p, To, 0x0, &To))
+				{
+					m_pClient->m_pEffects->Spark(To);
+					m_pClient->m_pEffects->Spark(To);
+				}
 			}
 			
 			p.y += g_pData->m_Weapons.m_aId[iw].m_Offsety;
@@ -515,7 +529,7 @@ void CPlayers::RenderPlayer(
 		Graphics()->ShaderEnd();
 		
 		// muzzle
-		if (Player.m_Weapon == WEAPON_GUN || Player.m_Weapon == WEAPON_RIFLE || Player.m_Weapon == WEAPON_SHOTGUN)
+		if (Player.m_Weapon == WEAPON_RIFLE || Player.m_Weapon == WEAPON_SHOTGUN)
 		{
 			// check if we're firing stuff
 			if(g_pData->m_Weapons.m_aId[iw].m_NumSpriteMuzzles)//prev.attackticks)
@@ -578,7 +592,7 @@ void CPlayers::RenderPlayer(
 		
 		switch (Player.m_Weapon)
 		{
-			case WEAPON_GUN: RenderHand(&RenderInfo, p, Direction, -3*pi/4, vec2(-15, 4)); break;
+			//case WEAPON_GUN: RenderHand(&RenderInfo, p, Direction, -3*pi/4, vec2(-15, 4)); break;
 			case WEAPON_SHOTGUN: RenderHand(&RenderInfo, p, Direction, -pi/2, vec2(-8, 4)); break;
 			case WEAPON_GRENADE: RenderHand(&RenderInfo, p, Direction, -pi/2, vec2(-8, 7)); break;
 			case WEAPON_RIFLE: RenderHand(&RenderInfo, p, Direction, -pi/2, vec2(-8, 7)); break;
@@ -1045,6 +1059,8 @@ void CPlayers::OnRender()
 		*/
 	}
 
+	CustomStuff()->m_LocalAlive = false;
+		
 	// render other players in two passes, first pass we render the other, second pass we render our self
 	for(int p = 0; p < 4; p++)
 	{

@@ -7,7 +7,7 @@
 #include "monster.h"
 #include "superexplosion.h"
 
-CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Damage)
+CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Damage, CBuilding *OwnerBuilding)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
 	m_Damage = Damage;
@@ -15,7 +15,7 @@ CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEner
 	m_Owner = Owner;
 	m_Energy = StartEnergy;
 	m_Dir = Direction;
-	m_OwnerBuilding = NULL;
+	m_OwnerBuilding = OwnerBuilding;
 	
 	//if (StartEnergy > 200)
 	//	m_Bounces = 2;
@@ -42,7 +42,7 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 	//vec2 Dir = normalize(m_Pos-From) * 0.1f;
 	
 	//pHit->TakeDamage(Dir, m_Damage, m_Owner, WEAPON_RIFLE);
-	pHit->TakeDamage(normalize(To-From)*0.1f, m_Damage, m_Owner, WEAPON_LASER, At);
+	pHit->TakeDamage(normalize(To-From)*0.1f, m_Damage, m_Owner, WEAPON_LASER, At, DAMAGETYPE_NORMAL, m_OwnerBuilding ? true : false);
 
 	
 	return true;

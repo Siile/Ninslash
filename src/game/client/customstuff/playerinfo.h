@@ -68,9 +68,6 @@ public:
 	// called from CCustomStuff
 	void Tick();
 	
-	void SetTerroristHat();
-	void SetCounterterroristHat();
-	
 	// called from CPlayers
 	void UpdatePhysics(vec2 PlayerVel, vec2 PrevVel);
 	void PhysicsTick(vec2 PlayerVel, vec2 PrevVel);
@@ -80,6 +77,9 @@ public:
 	vec2 Pos(){ return m_Pos; }
 	
 	bool m_FlipFeet;
+	
+	vec2 m_FeetPos;
+	vec2 m_FeetRecoil, m_FeetRecoilVel;
 	
 	vec2 m_WeaponRecoil, m_WeaponRecoilVel;
 	vec2 m_Weapon2Recoil, m_Weapon2RecoilVel;

@@ -24,6 +24,12 @@ void CSkeletonAnimation::Reset()
 	m_ColorBody = vec4(1, 1, 1, 1);
 	m_ColorTopper = vec4(1, 1, 1, 1);
 	m_ColorSkin = vec4(1, 1, 1, 1);
+	
+	m_FeetPhysics = false;
+	m_FeetDir = vec2(0, 0);
+	m_FeetAngle = 0.0f;
+	
+	m_HeadOffset = vec2(0, 0);
 }
 	
 void CSkeletonAnimation::SetAnimation(int Anim, float Speed)

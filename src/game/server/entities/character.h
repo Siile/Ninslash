@@ -79,8 +79,8 @@ public:
 		return false;
 	}
 	
-	void Die(int Killer, int Weapon, bool SkipKillMessage = false);
-	bool TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos, int Type = DAMAGETYPE_NORMAL);
+	void Die(int Killer, int Weapon, bool SkipKillMessage = false, bool IsTurret = false);
+	bool TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos, int Type = DAMAGETYPE_NORMAL, bool IsTurret = false);
 	void SetAflame(float Duration, int From, int Weapon);
 	void TakeDeathtileDamage();
 	void TakeSawbladeDamage(vec2 SawbladePos);
@@ -235,7 +235,7 @@ public:
 	int m_ShieldRadius;
 	
 	void SelectItem(int Item);
-	void UseKit(int Kit);
+	void UseKit(int Kit, vec2 Pos);
 	void GiveBuff(int Item);
 	void GiveRandomBuff();
 	

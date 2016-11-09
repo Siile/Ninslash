@@ -15,6 +15,8 @@ Damagetypes = ["NORMAL", "FLAME", "ELECTRIC", "FLUID"]
 
 Monsterstatus = ["IDLE", "HURT", "ELECTRIC"]
 
+CoreAction = ["IDLE", "JUMP", "WALLJUMP", "ROLL", "SLIDE"]
+
 RawHeader = '''
 
 #include <engine/message.h>
@@ -46,9 +48,9 @@ enum
 	BUILDING_STAND,
 	BUILDING_FLAMETRAP,
 	
-	KIT_BASE=0,
-	KIT_STAND,
-	KIT_BARREL,
+	KIT_BARREL=0,
+	KIT_TURRET,
+	KIT_FLAMETRAP,
 	NUM_KITS,
 	
 	BSTATUS_REPAIR=1,
@@ -119,7 +121,8 @@ Enums = [
 	Enum("EMOTICON", Emoticons),
 	Enum("STATUS", Statuses),
 	Enum("DAMAGETYPE", Damagetypes),
-	Enum("MONSTERSTATUS", Monsterstatus)
+	Enum("MONSTERSTATUS", Monsterstatus),
+	Enum("COREACTION", CoreAction)
 ]
 
 Flags = [
@@ -253,6 +256,9 @@ Objects = [
 		NetIntAny("m_Status"),
 		NetIntAny("m_DamageTick"),
 		
+		
+		NetIntRange("m_Action", 0, 64),
+		NetIntAny("m_ActionState"),
 		
 		
 		NetIntRange("m_Jumped", 0, 3),
@@ -398,6 +404,7 @@ Messages = [
 		NetIntRange("m_Killer", 0, 'MAX_CLIENTS-1'),
 		NetIntRange("m_Victim", 0, 'MAX_CLIENTS-1'),
 		NetIntRange("m_Weapon", -3, 'NUM_DEATHTYPES-1'),
+		NetIntRange("m_IsTurret", 0, 1),
 		NetIntAny("m_ModeSpecial"),
 	]),
 

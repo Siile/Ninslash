@@ -92,10 +92,10 @@ void CPlayer::SelectItem(int Item)
 
 
 
-void CPlayer::UseKit(int Kit)
+void CPlayer::UseKit(int Kit, vec2 Pos)
 {
 	if (GetCharacter() && Kit >= 0 && Kit < NUM_KITS)
-		GetCharacter()->UseKit(Kit);
+		GetCharacter()->UseKit(Kit, Pos);
 }
 
 

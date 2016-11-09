@@ -212,6 +212,7 @@ int CServerBan::BanExt(T *pBanPool, const typename T::CDataType *pData, int Seco
 			char aBuf[256];
 			MakeBanInfo(pBanPool->Find(&Data, &NetHash), aBuf, sizeof(aBuf), MSGTYPE_PLAYER);
 			Server()->m_NetServer.Drop(i, aBuf);
+			Server()->m_aClients[i].m_Bot = false;
 		}
 	}
 
@@ -420,6 +421,7 @@ void CServer::KickBots()
 	{
 		if (m_aClients[i].m_State != CClient::STATE_EMPTY && m_NetServer.m_SlotTakenByBot[i])
 		{
+			m_aClients[i].m_Bot = false;
 			m_NetServer.m_SlotTakenByBot[i] = false;
 			m_NetServer.Drop(i, "");
 		}
@@ -720,6 +722,7 @@ void CServer::DoSnapshot()
 int CServer::NewClientCallback(int ClientID, void *pUser)
 {
 	CServer *pThis = (CServer *)pUser;
+	pThis->m_aClients[ClientID].m_Bot = false;
 	pThis->m_aClients[ClientID].m_State = CClient::STATE_AUTH;
 	pThis->m_aClients[ClientID].m_aName[0] = 0;
 	pThis->m_aClients[ClientID].m_aClan[0] = 0;
@@ -855,6 +858,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 					char aReason[256];
 					str_format(aReason, sizeof(aReason), "Wrong version. Server is running '%s' and client '%s'", GameServer()->NetVersion(), pVersion);
 					m_NetServer.Drop(ClientID, aReason);
+					m_aClients[ClientID].m_Bot = false;
 					return;
 				}
 
@@ -863,6 +867,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 				{
 					// wrong password
 					m_NetServer.Drop(ClientID, "Wrong password");
+					m_aClients[ClientID].m_Bot = false;
 					return;
 				}
 

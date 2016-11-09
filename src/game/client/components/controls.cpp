@@ -34,6 +34,15 @@ void CControls::OnReset()
 
 	m_InputDirectionLeft = 0;
 	m_InputDirectionRight = 0;
+	
+	m_PickedWeapon = -1;
+	m_SignalWeapon = -1;
+	
+	m_Build = 0;
+	m_BuildReleased = true;
+	m_BuildMode = false;
+	m_LastWeapon = 1;
+	m_SelectedBuilding = -1;
 }
 
 void CControls::OnRelease()
@@ -63,6 +72,7 @@ struct CInputSet
 {
 	CControls *m_pControls;
 	int *m_pVariable;
+	int *m_pVariable2; // for building
 	int m_Value;
 };
 
@@ -70,7 +80,10 @@ static void ConKeyInputSet(IConsole::IResult *pResult, void *pUserData)
 {
 	CInputSet *pSet = (CInputSet *)pUserData;
 	if(pResult->GetInteger(0))
+	{
 		*pSet->m_pVariable = pSet->m_Value;
+		*pSet->m_pVariable2 = pSet->m_Value-1; // ugly!
+	}
 }
 
 static void ConKeyInputNextPrevWeapon(IConsole::IResult *pResult, void *pUserData)
@@ -89,6 +102,7 @@ void CControls::OnConsoleInit()
 	Console()->Register("+jump", "", CFGFLAG_CLIENT, ConKeyInputState, &m_InputData.m_Jump, "Jump");
 	Console()->Register("+turbo", "", CFGFLAG_CLIENT, ConKeyInputState, &m_InputData.m_Hook, "Turbo");
 	Console()->Register("+fire", "", CFGFLAG_CLIENT, ConKeyInputCounter, &m_InputData.m_Fire, "Fire");
+	Console()->Register("+build", "", CFGFLAG_CLIENT, ConKeyInputCounter, &m_Build, "Build");
 
 	// gamepad
 	Console()->Register("+gamepadleft", "", CFGFLAG_CLIENT, ConKeyInputState, &m_InputDirectionLeft, "Move left");
@@ -98,12 +112,32 @@ void CControls::OnConsoleInit()
 	//Console()->Register("+gamepadpicker", "", CFGFLAG_CLIENT, ConKeyInputState, &m_InputData.m_Hook, "Weapon picker");
 	Console()->Register("+gamepadfire", "", CFGFLAG_CLIENT, ConKeyInputCounter, &m_InputData.m_Fire, "Fire");
 
+	/*
 	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, 1}; Console()->Register("+weapon1", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to primary weapon"); }
 	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, 2}; Console()->Register("+weapon2", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to secondary weapon"); }
 	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, 3}; Console()->Register("+weapon3", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to tool"); }
+	*/
+	
 
-	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, 1}; Console()->Register("+gamepadweapon1", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to primary weapon"); }
-	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, 2}; Console()->Register("+gamepadweapon2", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to secondary weapon"); }
+	// can't pick tool except with build key
+	//{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 1}; Console()->Register("+weapon1", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon1"); }
+	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 2}; Console()->Register("+weapon2", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon2"); }
+	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 3}; Console()->Register("+weapon3", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon3"); }
+	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 4}; Console()->Register("+weapon4", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon4"); }
+	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 5}; Console()->Register("+weapon5", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon5"); }
+	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 6}; Console()->Register("+weapon6", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon6"); }
+	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 7}; Console()->Register("+weapon7", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon7"); }
+	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 8}; Console()->Register("+weapon8", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon8"); }
+	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 9}; Console()->Register("+weapon9", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon9"); }
+
+	/*
+	{ static CInputSet s_Set = {this, &m_SelectedBuilding, 1}; Console()->Register("+weapon1", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Build1"); }
+	{ static CInputSet s_Set = {this, &m_SelectedBuilding, 2}; Console()->Register("+weapon2", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Build2"); }
+	{ static CInputSet s_Set = {this, &m_SelectedBuilding, 3}; Console()->Register("+weapon3", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Build3"); }
+	*/
+	
+	//{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, 1}; Console()->Register("+gamepadweapon1", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to primary weapon"); }
+	//{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, 2}; Console()->Register("+gamepadweapon2", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to secondary weapon"); }
 
 	{ static CInputSet s_Set = {this, &m_InputData.m_NextWeapon, 0}; Console()->Register("+nextweapon", "", CFGFLAG_CLIENT, ConKeyInputNextPrevWeapon, (void *)&s_Set, "Switch to next weapon"); }
 	{ static CInputSet s_Set = {this, &m_InputData.m_PrevWeapon, 0}; Console()->Register("+prevweapon", "", CFGFLAG_CLIENT, ConKeyInputNextPrevWeapon, (void *)&s_Set, "Switch to previous weapon"); }
@@ -131,12 +165,45 @@ void CControls::OnMessage(int Msg, void *pRawMsg)
 			
 		if(g_Config.m_ClAutoswitchWeapons)
 		{
+			/* old way using weapon groups
 			char aBuf[32];
 			str_format(aBuf, sizeof(aBuf), "weaponpick %d", pMsg->m_Weapon-1);
 			Console()->ExecuteLine(aBuf);
+			*/
+
+			// not working yet
+			m_InputData.m_WantedWeapon = pMsg->m_Weapon+1;
 		}
 	}
 }
+
+
+//input count
+struct CInputCount
+{
+	int m_Presses;
+	int m_Releases;
+};
+
+CInputCount CountInput(int Prev, int Cur)
+{
+	CInputCount c = {0, 0};
+	Prev &= INPUT_STATE_MASK;
+	Cur &= INPUT_STATE_MASK;
+	int i = Prev;
+
+	while(i != Cur)
+	{
+		i = (i+1)&INPUT_STATE_MASK;
+		if(i&1)
+			c.m_Presses++;
+		else
+			c.m_Releases++;
+	}
+
+	return c;
+}
+
 
 int CControls::SnapInput(int *pData)
 {
@@ -203,6 +270,61 @@ int CControls::SnapInput(int *pData)
 			m_InputData.m_TargetY = (int)(cosf(t*3)*100.0f);
 		}
 
+		// get wanted weapon from picker
+		if (m_PickedWeapon >= 0 && !m_BuildMode)
+			m_InputData.m_WantedWeapon = m_PickedWeapon;
+		
+		m_PickedWeapon = -1;
+		
+		// can't want a weapon you don't have to prevent weapon change on picking wanted weapon
+		int w = CustomStuff()->m_LocalWeapons;
+		if (!m_BuildMode && !(w & (1<<(m_InputData.m_WantedWeapon-1))) && m_InputData.m_WantedWeapon > 0)
+		{
+			m_SignalWeapon = m_InputData.m_WantedWeapon-1;
+			m_InputData.m_WantedWeapon = CustomStuff()->m_LocalWeapon+1;
+		}
+		
+		if (m_Build == 0)
+			m_BuildReleased = true;
+		
+		if (m_BuildReleased && m_Build)
+		{
+			m_BuildMode = !m_BuildMode;
+			m_BuildReleased = false;
+			
+			m_SelectedBuilding = -1;
+			
+			if (!m_BuildMode)
+				m_InputData.m_WantedWeapon = m_LastWeapon;
+			else
+				m_LastWeapon = CustomStuff()->m_LocalWeapon+1;
+		}
+		
+		if (m_BuildMode)
+		{
+			//if (m_InputData.m_WantedWeapon > 1)
+			//	m_SelectedBuilding = m_InputData.m_WantedWeapon;
+			
+			m_InputData.m_WantedWeapon = 1;
+			m_InputData.m_NextWeapon = 0;
+			m_InputData.m_PrevWeapon = 0;
+		}
+		
+		// place buildings
+		if (m_InputData.m_Fire&1)
+		{
+			if (m_BuildMode && m_SelectedBuilding >= 0 && CustomStuff()->m_BuildPosValid &&
+				CountInput(m_InputData.m_Fire, m_LastData.m_Fire).m_Presses)
+			{
+				CNetMsg_Cl_UseKit Msg;
+				Msg.m_Kit = m_SelectedBuilding-1;
+				Msg.m_X = CustomStuff()->m_BuildPos.x;
+				Msg.m_Y = CustomStuff()->m_BuildPos.y+18;
+				Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+			}
+		}
+		
+		
 		// check if we need to send input
 		if(m_InputData.m_Direction != m_LastData.m_Direction) Send = true;
 		else if(m_InputData.m_Jump != m_LastData.m_Jump) Send = true;
@@ -215,8 +337,10 @@ int CControls::SnapInput(int *pData)
 		// send at at least 10hz
 		if(time_get() > LastSendTime + time_freq()/25)
 			Send = true;
+		
+		m_Build = 0;
 	}
-
+	
 	// copy and return size
 	m_LastData = m_InputData;
 

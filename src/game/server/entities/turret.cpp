@@ -9,8 +9,8 @@ CTurret::CTurret(CGameWorld *pGameWorld, vec2 Pos, int Team, int Weapon)
 : CBuilding(pGameWorld, Pos, BUILDING_TURRET, Team)
 {
 	m_ProximityRadius = TurretPhysSize;
-	m_Life = 70;
-	m_MaxLife = 70;
+	m_Life = 80;
+	m_MaxLife = 80;
 	m_Angle = 0;
 	m_TargetTimer = 0;
 	m_TargetIndex = -1;
@@ -125,7 +125,7 @@ void CTurret::Tick()
 		vec2 Dir = vec2(cosf(Angle), sinf(Angle));
 		
 		vec2 TurretPos = m_Pos+vec2(0, -54);
-		GameServer()->CreateChainsawHit(Owner, m_Weapon, TurretPos, TurretPos+Dir*40, NULL, this);
+		GameServer()->CreateChainsawHit(m_OwnerPlayer, m_Weapon, TurretPos, TurretPos+Dir*40, NULL, this);
 	}
 	
 	UpdateStatus();
@@ -155,15 +155,14 @@ void CTurret::Fire()
 		
 		if (m_Weapon == WEAPON_LASER)
 		{
-			CLaser *pLaser = new CLaser(GameWorld(), TurretPos+Dir*40, Dir, GameServer()->Tuning()->m_LaserReach, Owner, aCustomWeapon[m_Weapon].m_Damage);
-			pLaser->m_OwnerBuilding = this;
+			CLaser *pLaser = new CLaser(GameWorld(), TurretPos+Dir*40, Dir, GameServer()->Tuning()->m_LaserReach, m_OwnerPlayer, aCustomWeapon[m_Weapon].m_Damage, this);
 		}
 		else if (m_Weapon == WEAPON_CHAINSAW)
 		{
 			m_Chainsaw = Server()->Tick() + 500 * Server()->TickSpeed()/1000;
 		}
 		else
-			GameServer()->CreateProjectile(Owner, m_Weapon, TurretPos+Dir*40, Dir, this);
+			GameServer()->CreateProjectile(m_OwnerPlayer, m_Weapon, TurretPos+Dir*40, Dir, this);
 		
 		/*
 		CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_RIFLE,
@@ -209,7 +208,7 @@ bool CTurret::Target()
 
 		int iw = clamp(m_Weapon, 0, NUM_WEAPONS-1);
 		int Distance = distance(pCharacter->m_Pos, TurretPos);
-		if (Distance < TurretAttackRange[iw] && !GameServer()->Collision()->FastIntersectLine(pCharacter->m_Pos, TurretPos))
+		if (Distance < aCustomWeapon[iw].m_AiAttackRange && !GameServer()->Collision()->FastIntersectLine(pCharacter->m_Pos, TurretPos))
 		{
 			m_Target = TurretPos - ((pCharacter->m_Pos+vec2(0, -64)) + pCharacter->GetCore().m_Vel * 2.0f);
 			return true;

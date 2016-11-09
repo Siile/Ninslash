@@ -140,7 +140,6 @@ public:
 	virtual ~CAnimSkeletonInfo();
 
 	void UpdateBones(float Time = 0.0f, CSpineAnimation *pAnimation = 0x0, class CSkeletonAnimation *pAnimData = 0x0, int WeaponAngle = 0);
-	void UpdateBones(float Time1, float Time2, CSpineAnimation *pAnimation1, CSpineAnimation *pAnimation2, float Mix);
 };
 
 // texture atlas

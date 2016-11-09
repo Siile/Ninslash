@@ -86,6 +86,11 @@ void CAnimSkeletonInfo::UpdateBones(float Time, CSpineAnimation *pAnimation, CSk
 			
 			if (pAnimData)
 			{
+				if (pAnimData->m_Anim != PANIM_IDLE && (strcmp(pBone->m_Name, "ffoot") == 0 || strcmp(pBone->m_Name, "bfoot") == 0))
+				{
+					Position += pAnimData->m_FeetDir;
+				}
+				
 				if (strcmp(pBone->m_Name, "body") == 0)
 				{
 					Rotation += pAnimData->m_BodyTilt;
@@ -93,6 +98,7 @@ void CAnimSkeletonInfo::UpdateBones(float Time, CSpineAnimation *pAnimation, CSk
 				
 				if (strcmp(pBone->m_Name, "head") == 0)
 				{
+					Position += pAnimData->m_HeadOffset;
 					Rotation += pAnimData->m_HeadTilt + pAnimData->m_HeadTiltCorrect;
 				}
 			}
@@ -108,75 +114,7 @@ void CAnimSkeletonInfo::UpdateBones(float Time, CSpineAnimation *pAnimation, CSk
 	}
 }
 
-void CAnimSkeletonInfo::UpdateBones(float Time1, float Time2, CSpineAnimation *pAnimation1, CSpineAnimation *pAnimation2, float Mix)
-{
-	// we assume, that the bones are ordered by their place in the skeleton hierarchy, important!
-	for(int i = 0; i < m_lBones.size(); i++)
-	{
-		CAnimBone *pBone = m_lBones[i];
 
-		vec2 Position = vec2(0.0f, 0.0f);
-		vec2 Scale = vec2(1.0f, 1.0f);
-		float Rotation = 0.0f;
-		
-		vec2 Position1 = vec2(0.0f, 0.0f);
-		vec2 Scale1 = vec2(1.0f, 1.0f);
-		float Rotation1 = 0.0f;
-		
-		vec2 Position2 = vec2(0.0f, 0.0f);
-		vec2 Scale2 = vec2(1.0f, 1.0f);
-		float Rotation2 = 0.0f;
-
-		// animation 1
-		CSpineBoneTimeline *pBoneTimeline = 0x0;
-		{
-			auto BoneTimelineIter = pAnimation1->m_lBoneTimeline.find(pBone->m_Name);
-			if(BoneTimelineIter != pAnimation1->m_lBoneTimeline.end())
-				pBoneTimeline = &BoneTimelineIter->second;
-		}
-
-		if(pBoneTimeline)
-		{
-			CRenderTools::RenderEvalSkeletonAnim<CSpineBoneKeyframeTranslate>(pBoneTimeline->m_lTranslations.base_ptr(), pBoneTimeline->m_lTranslations.size(), Time1, (float *)&Position1);
-			CRenderTools::RenderEvalSkeletonAnim<CSpineBoneKeyframeScale>(pBoneTimeline->m_lScales.base_ptr(), pBoneTimeline->m_lScales.size(), Time1, (float *)&Scale1);
-			CRenderTools::RenderEvalSkeletonAnim<CSpineBoneKeyframeRotate>(pBoneTimeline->m_lRotations.base_ptr(), pBoneTimeline->m_lRotations.size(), Time1, (float *)&Rotation1);
-		}
-
-		Position1.y *= -1.0f;
-		Rotation1 = (360.0f - Rotation1)*pi/180.0f;
-		
-		
-		// animation 2
-		pBoneTimeline = 0x0;
-		{
-			auto BoneTimelineIter = pAnimation2->m_lBoneTimeline.find(pBone->m_Name);
-			if(BoneTimelineIter != pAnimation2->m_lBoneTimeline.end())
-				pBoneTimeline = &BoneTimelineIter->second;
-		}
-
-		if(pBoneTimeline)
-		{
-			CRenderTools::RenderEvalSkeletonAnim<CSpineBoneKeyframeTranslate>(pBoneTimeline->m_lTranslations.base_ptr(), pBoneTimeline->m_lTranslations.size(), Time2, (float *)&Position2);
-			CRenderTools::RenderEvalSkeletonAnim<CSpineBoneKeyframeScale>(pBoneTimeline->m_lScales.base_ptr(), pBoneTimeline->m_lScales.size(), Time2, (float *)&Scale2);
-			CRenderTools::RenderEvalSkeletonAnim<CSpineBoneKeyframeRotate>(pBoneTimeline->m_lRotations.base_ptr(), pBoneTimeline->m_lRotations.size(), Time2, (float *)&Rotation2);
-		}
-		
-		Position2.y *= -1.0f;
-		Rotation2 = (360.0f - Rotation2)*pi/180.0f;
-		
-		Position += Position1*Mix + Position2*(1.0f-Mix);
-		Scale += Scale1*Mix + Scale2*(1.0f-Mix);
-		Rotation += Rotation1*Mix + Rotation2*(1.0f-Mix);
-		
-		Position += pBone->m_Position;
-		Scale *= pBone->m_Scale; // TODO: ?
-		Rotation += pBone->m_Rotation;
-
-		pBone->m_Transform = CalcTransformationMatrix(Position, Scale, Rotation);
-		if(pBone->m_pParent != 0x0)
-			pBone->m_Transform = pBone->m_pParent->m_Transform * pBone->m_Transform;
-	}
-}
 
 void CRenderTools::LoadSkeletonFromSpine(CAnimSkeletonInfo *pSkeleton,
 		const array<CSpineBone> &lBones,

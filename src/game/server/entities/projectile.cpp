@@ -63,7 +63,7 @@ vec2 CProjectile::GetPos(float Time)
 			break;
 
 		case WEAPON_RIFLE:
-		case WEAPON_GUN:
+		//case WEAPON_GUN:
 			Curvature = GameServer()->Tuning()->m_GunCurvature;
 			Speed = GameServer()->Tuning()->m_GunSpeed;
 			break;
@@ -107,22 +107,22 @@ void CProjectile::Tick()
 
 		if(m_Explosive == EXPLOSION_FLAME)
 		{		
-			GameServer()->CreateFlameExplosion(CurPos, m_Owner, m_Weapon, false);
+			GameServer()->CreateFlameExplosion(CurPos, m_Owner, m_Weapon, false, m_OwnerBuilding ? true : false);
 		}
 		
 		else if(m_Explosive == EXPLOSION_ELECTRIC)
 		{		
-			GameServer()->CreateElectricExplosion(CurPos, m_Owner, m_Weapon, false);
+			GameServer()->CreateElectricExplosion(CurPos, m_Owner, m_Weapon, false, m_OwnerBuilding ? true : false);
 		}
 	
 		else if(m_Explosive == EXPLOSION_EXPLOSION)
 		{
-			GameServer()->CreateExplosion(CurPos, m_Owner, m_Weapon, false);
+			GameServer()->CreateExplosion(CurPos, m_Owner, m_Weapon, false, m_OwnerBuilding ? true : false);
 		}
 
 		else if(TargetChr)
 		{
-			TargetChr->TakeDamage(m_Direction * max(0.001f, m_Force), m_Damage, m_Owner, m_Weapon, CurPos);
+			TargetChr->TakeDamage(m_Direction * max(0.001f, m_Force), m_Damage, m_Owner, m_Weapon, CurPos, DAMAGETYPE_NORMAL, m_OwnerBuilding ? true : false);
 		}
 		
 		else if(TargetBuilding)

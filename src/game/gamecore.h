@@ -192,6 +192,12 @@ class CCharacterCore
 	void Roll();
 	void Slide();
 	
+	void SetAction(int Action, int State = 0)
+	{
+		m_Action = Action;
+		m_ActionState = State;
+	}
+	
 public:
 	vec2 m_Pos;
 	vec2 m_Vel;
@@ -217,6 +223,9 @@ public:
 	int m_Slide;
 	
 	int m_DamageTick;
+			
+	int m_Action;
+	int m_ActionState;
 	
 	int m_Status;
 	

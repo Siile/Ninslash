@@ -282,12 +282,6 @@ bool CAI::UpdateWaypoint()
 		
 		m_WayFound = false;
 		
-		// old inefficient path finding
-		// prepare waypoints for path finding
-		//GameServer()->Collision()->SetWaypointCenter(m_Pos);		
-		//if (GameServer()->Collision()->FindWaypointPath(m_TargetPos))
-			
-		
 		if (GameServer()->Collision()->AStar(m_Pos, m_TargetPos))
 		{	
 			if (m_pPath)
@@ -309,9 +303,6 @@ bool CAI::UpdateWaypoint()
 			m_WaypointPos = m_pPath->m_Pos;
 			m_WaypointDir = m_WaypointPos - m_Pos;
 			
-			//char aBuf[128]; str_format(aBuf, sizeof(aBuf), "Path found, lenght: %d", m_pPath->Length());
-			//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "path", aBuf);
-			
 			vec2 LastPos = m_Pos;
 			CWaypointPath *Next = m_pPath;
 			
@@ -319,13 +310,21 @@ bool CAI::UpdateWaypoint()
 			m_WayPointUpdateTick = GameServer()->Server()->Tick();
 		}
 		
-		
-		if (GameServer()->m_ShowWaypoints)
+		if (m_WayFound)
 		{
-			for (int i = 0; i < 10; i++)
-				new CStaticlaser(&GameServer()->m_World, GameServer()->Collision()->m_aPath[i], GameServer()->Collision()->m_aPath[i+1], 10);
+			if (distance(GameServer()->Collision()->m_aPath[GameServer()->Collision()->m_PathLen], m_TargetPos) > distance(m_Pos, m_TargetPos))
+			{
+				m_WayFound = false;
+				m_WaypointPos = m_TargetPos;
+			}
 			
-			new CStaticlaser(&GameServer()->m_World, m_Pos, m_WaypointPos, 20);
+			if (GameServer()->m_ShowWaypoints)
+			{
+				for (int i = 0; i < 10; i++)
+					new CStaticlaser(&GameServer()->m_World, GameServer()->Collision()->m_aPath[i], GameServer()->Collision()->m_aPath[i+1], 10);
+				
+				new CStaticlaser(&GameServer()->m_World, m_Pos, m_WaypointPos, 20);
+			}
 		}
 	}
 	
@@ -345,46 +344,18 @@ bool CAI::UpdateWaypoint()
 		//if (GameServer()->m_ShowWaypoints)
 		//	new CStaticlaser(&GameServer()->m_World, m_Pos, m_WaypointPos, 10);
 	}
-	
-	
-	// left or right
-	if (abs(m_WaypointDir.y)*2 < abs(m_WaypointDir.x))
-	{
-		if (Player()->GetCharacter()->IsGrounded() && abs(m_WaypointDir.x) > 128)
-		{
-			int Dir = m_WaypointDir.x < 0 ? -1 : 1;
-			
-			// simple pits
-			if (!GameServer()->Collision()->IsTileSolid(m_Pos.x + Dir * 32, m_Pos.y + 16) ||
-				!GameServer()->Collision()->IsTileSolid(m_Pos.x + Dir * 64, m_Pos.y + 16))
-			{
-				if (GameServer()->Collision()->IsTileSolid(m_Pos.x + Dir * 128, m_Pos.y + 16) ||
-					GameServer()->Collision()->IsTileSolid(m_Pos.x + Dir * 196, m_Pos.y + 16))
-					m_Jump = 1;
-			}
-				
-		}
-	}
 
 	
 	// check target
-	if (distance(m_Pos, m_TargetPos) < 800)
-	{
-		if (!GameServer()->Collision()->FastIntersectLine(m_Pos, m_TargetPos))
-		{
-			m_WaypointPos = m_TargetPos;
-			m_WaypointDir = m_WaypointPos - m_Pos;
-		}
-	}
 	
-	if (!m_WayFound && !m_pVisible)
+	if (distance(m_Pos, m_TargetPos) < 600 && !GameServer()->Collision()->FastIntersectLine(m_Pos, m_TargetPos))
 	{
-		return false;
-		//m_WaypointPos = m_TargetPos;
-		//m_WaypointDir = m_WaypointPos - m_Pos;
+		m_WaypointPos = m_TargetPos;
+		m_WaypointDir = m_WaypointPos - m_Pos;
+		return true;
 	}
-	
-	return true;
+
+	return m_WayFound;
 }
 
 
@@ -516,44 +487,8 @@ bool CAI::SeekBomb()
 }
 
 
-bool CAI::MoveTowardsPlayer(int Dist)
-{
-	if (abs(m_LastPos.x - m_PlayerPos.x) < Dist)
-	{
-		m_Move = 0;
-		return true;
-	}
-		
-	if (m_LastPos.x < m_PlayerPos.x)
-		m_Move = 1;
-		
-	if (m_LastPos.x > m_PlayerPos.x)
-		m_Move = -1;
-		
-	return false;
-}
 
-
-bool CAI::MoveTowardsTarget(int Dist)
-{
-
-	if (abs(m_LastPos.x - m_TargetPos.x) < Dist)
-	{
-		m_Move = 0;
-		return true;
-	}
-		
-	if (m_LastPos.x < m_TargetPos.x)
-		m_Move = 1;
-		
-	if (m_LastPos.x > m_TargetPos.x)
-		m_Move = -1;
-		
-	return false;
-}
-
-
-bool CAI::MoveTowardsWaypoint(int Dist)
+bool CAI::MoveTowardsWaypoint(bool Freestyle)
 {
 	m_Jump = 0;
 	m_Hook = 0;
@@ -722,6 +657,25 @@ bool CAI::MoveTowardsWaypoint(int Dist)
 			default:
 				;
 		};
+		
+		
+		if (Freestyle)
+		{
+			if ((m_MoveType == MOVE_LEFT || m_MoveType == MOVE_UPLEFT) &&
+				GameServer()->Collision()->IsTileSolid(m_Pos.x - 24, m_Pos.y-14))
+			{
+				m_Move = 1;
+				if (OnWall)
+					m_Jump = 1;
+			}
+			if ((m_MoveType == MOVE_RIGHT || m_MoveType == MOVE_UPRIGHT) &&
+				GameServer()->Collision()->IsTileSolid(m_Pos.x + 24, m_Pos.y-14))
+			{
+				m_Move = -1;
+				if (OnWall)
+					m_Jump = 1;
+			}
+		}
 	}
 	
 	// teach some basic moves to override shitty waypoint logic
@@ -798,6 +752,22 @@ bool CAI::MoveTowardsWaypoint(int Dist)
 		}
 	}
 	
+	if (Freestyle)
+	{
+		if (m_Move < 0 && (m_MoveType == MOVE_RIGHT || m_MoveType == MOVE_UPRIGHT))
+			m_MoveType = MOVE_LEFT;
+		if (m_Move > 0 && (m_MoveType == MOVE_LEFT || m_MoveType == MOVE_UPLEFT))
+			m_MoveType = MOVE_RIGHT;
+		
+		if (m_MoveType == MOVE_IDLE)
+		{
+			if (m_Pos.x > m_TargetPos.x)
+				m_MoveType = MOVE_LEFT;
+			else
+				m_MoveType = MOVE_RIGHT;
+		}
+		return true;
+	}
 	
 	// movement logic
 	if (distance(m_LastPos, m_WaypointPos) < 40)
@@ -829,25 +799,30 @@ bool CAI::MoveTowardsWaypoint(int Dist)
 		else
 			m_MoveType = MOVE_IDLE;
 	}
-	
-	
-	
-	/*
-	if (distance(m_LastPos, m_WaypointPos) < Dist)
-	{
-		m_Move = 0;
-		return true;
-	}
-		
-	if (m_LastPos.x < m_WaypointPos.x)
-		m_Move = 1;
-		
-	if (m_LastPos.x > m_WaypointPos.x)
-		m_Move = -1;
-	*/
 		
 	return false;
 }
+
+
+
+void CAI::Build()
+{
+	CBuilding *apEnts[3];
+	int Num = GameServer()->m_World.FindEntities(m_Pos, 20, (CEntity**)apEnts, 3, CGameWorld::ENTTYPE_BUILDING);
+	for (int i = 0; i < Num; ++i)
+	{
+		CBuilding *pBuilding = apEnts[i];
+
+		// found it
+		if (pBuilding->m_Type == BUILDING_STAND || (pBuilding->m_Type == BUILDING_TURRET && pBuilding->m_aStatus[BSTATUS_NOPE] == 1))
+		{
+			Player()->GetCharacter()->DropWeapon();
+			break;
+		}
+	}
+}
+
+
 
 
 void CAI::ReceiveDamage(int CID, int Dmg)
@@ -924,7 +899,7 @@ int CAI::WeaponShootRange()
 	int Range = 40;
 		
 	if (Weapon >= 0 && Weapon < NUM_CUSTOMWEAPONS)
-		Range = BotAttackRange[Weapon];
+		Range = aCustomWeapon[Weapon].m_AiAttackRange;
 	
 	return Range;
 }

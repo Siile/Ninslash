@@ -5,6 +5,7 @@
 #include <game/generated/protocol.h>
 #include <game/generated/client_data.h>
 
+#include <game/buildables.h>
 #include <game/gamecore.h> // get_angle
 #include <game/client/gameclient.h>
 #include <game/client/ui.h>
@@ -12,6 +13,7 @@
 
 #include <game/client/customstuff.h>
 
+#include <game/client/components/controls.h>
 #include <game/client/components/flow.h>
 #include <game/client/components/effects.h>
 #include <game/client/components/sounds.h>
@@ -120,6 +122,142 @@ void CBuildings2::RenderFlametrap(const struct CNetObj_Building *pCurrent)
 }
 
 
+// todo: separate from buildings2.cpp
+void CBuildings2::RenderBuildMode()
+{
+	if (m_pClient->m_Snap.m_pGameDataObj)
+	{
+		int Flags = m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags;
+	
+		if (Flags & GAMEFLAG_INFECTION && CustomStuff()->m_LocalTeam == TEAM_BLUE)
+			m_pClient->m_pControls->m_BuildMode = false;
+	}
+
+	if (!m_pClient->m_pControls->m_BuildMode || !CustomStuff()->m_LocalAlive)
+		return;
+	
+	int Selected = m_pClient->m_pControls->m_SelectedBuilding-1;
+
+	int SnapRange = 128;
+	
+	if (Selected >= 0 && Selected < 3)
+	{
+		int Cost = BuildableCost[Selected];
+
+		//if (Cost <= CustomStuff()->m_LocalKits)
+		{
+			// render selected building
+			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
+			
+			Graphics()->ShaderBegin(SHADER_GRAYSCALE, 0.0f);
+			Graphics()->QuadsBegin();
+
+			bool Valid = false;
+			
+			// snap pos
+			vec2 Pos = m_pClient->m_pControls->m_TargetPos;
+			
+			if (!Collision()->IsTileSolid(Pos.x, Pos.y))
+				Valid = true;
+			
+			// snap y down
+			if (Valid && Selected != 2)
+			{
+				vec2 To = Pos+vec2(0, SnapRange);
+				if (Collision()->IntersectLine(Pos, To, 0x0, &To))
+				{
+					Pos = To;
+					Pos.y += BuildableOffset[Selected];
+				}
+				else
+					Valid = false;
+				
+				if (!Collision()->IsTileSolid(To.x - 22, To.y+2) || !Collision()->IsTileSolid(To.x + 22, To.y+2))
+					Valid = false;
+
+				if (Collision()->IsTileSolid(To.x , To.y-64))
+					Valid = false;
+				
+				if (Collision()->IsForceTile(To.x, To.y+16))
+					Valid = false;
+			}
+			
+			// snap x
+			if (Valid && Selected == 2)
+			{
+				vec2 To = Pos+vec2(SnapRange, 0);
+				if (Collision()->IntersectLine(Pos, To, 0x0, &To))
+				{
+					Pos = To;
+					CustomStuff()->m_FlipBuilding = true;
+					Pos.x -= BuildableOffset[Selected];
+				}
+				else
+					Valid = false;
+				
+				if (!Valid)
+				{
+					To = Pos+vec2(-SnapRange, 0);
+					if (Collision()->IntersectLine(Pos, To, 0x0, &To))
+					{
+						Pos = To;
+						Pos.x += BuildableOffset[Selected];
+						Valid = true;
+						CustomStuff()->m_FlipBuilding = false;
+					}
+				}
+				
+				int cx = CustomStuff()->m_FlipBuilding ? 16 : -16;
+				
+				if (!Collision()->IsTileSolid(To.x+cx, To.y-26) || !Collision()->IsTileSolid(To.x+cx, To.y+26))
+					Valid = false;
+				
+				if (Collision()->IsTileSolid(To.x-cx, To.y-26) || Collision()->IsTileSolid(To.x-cx, To.y+26))
+					Valid = false;
+			}
+			
+			
+			// final sanity checks
+			if (Selected != 2 && Valid)
+			{
+				// ground on both sides
+				if (Collision()->IsTileSolid(Pos.x - 12, Pos.y) || Collision()->IsTileSolid(Pos.x + 12, Pos.y))
+					Valid = false;
+			}
+			
+			// not too close to other buildings
+			if (m_pClient->BuildingNear(Pos, 48))
+				Valid = false;
+		
+			// check for kits
+			if (Cost > CustomStuff()->m_LocalKits)
+				Valid = false;
+		
+			// color
+			if (Valid)
+			{
+				CustomStuff()->m_BuildPos = Pos;
+				CustomStuff()->m_BuildPosValid = true;
+				Graphics()->SetColor(0.0f, 1.0f, 0.0f, 0.75f);
+			}
+			else
+			{
+				CustomStuff()->m_BuildPosValid = false;
+				Graphics()->SetColor(1.0f, 0.0f, 0.0f, 0.75f);
+			}
+		
+			RenderTools()->SelectSprite(SPRITE_KIT_BARREL+Selected,
+										(Selected == 2 && CustomStuff()->m_FlipBuilding) ? SPRITE_FLAG_FLIP_X : 0);
+										
+			RenderTools()->DrawSprite(Pos.x, Pos.y, BuildableSize[Selected]);
+
+			Graphics()->QuadsEnd();
+			Graphics()->ShaderEnd();
+		}
+	}
+}
+
+
 void CBuildings2::OnRender()
 {
 	if(Client()->State() < IClient::STATE_ONLINE)
@@ -149,6 +287,8 @@ void CBuildings2::OnRender()
 			};
 		}
 	}
+	
+	RenderBuildMode();
 }
 
 

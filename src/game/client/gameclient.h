@@ -115,6 +115,11 @@ public:
 
 	vec2 m_LocalCharacterPos;
 	
+	// for building checks
+	bool BuildingNear(vec2 Pos, float Range);
+	
+	bool IsLocalUndead();
+	
 	void AddFluidForce(vec2 Pos, vec2 Vel);
 
 	// predicted players

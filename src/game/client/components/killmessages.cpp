@@ -34,6 +34,7 @@ void CKillMessages::OnMessage(int MsgType, void *pRawMsg)
 		Kill.m_Weapon = pMsg->m_Weapon;
 		Kill.m_ModeSpecial = pMsg->m_ModeSpecial;
 		Kill.m_Tick = Client()->GameTick();
+		Kill.m_IsTurret = pMsg->m_IsTurret;
 
 		if (Kill.m_Weapon < 0)
 			Kill.m_Weapon = DEATHTYPE_EMPTY;
@@ -106,6 +107,15 @@ void CKillMessages::OnRender()
 			//RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[m_aKillmsgs[r].m_Weapon].m_pSpriteBody);
 			RenderTools()->SelectSprite(SPRITE_DEATHTYPE1 + m_aKillmsgs[r].m_Weapon);
 			//RenderTools()->DrawSprite(x, y+28, 64);
+			IGraphics::CQuadItem QuadItem(x, y+28, 96, 96/2);
+			Graphics()->QuadsDraw(&QuadItem, 1);
+			Graphics()->QuadsEnd();
+		}
+		if (m_aKillmsgs[r].m_IsTurret)
+		{
+			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_DEATHTYPES].m_Id);
+			Graphics()->QuadsBegin();
+			RenderTools()->SelectSprite(SPRITE_DEATHTYPE19);
 			IGraphics::CQuadItem QuadItem(x, y+28, 96, 96/2);
 			Graphics()->QuadsDraw(&QuadItem, 1);
 			Graphics()->QuadsEnd();

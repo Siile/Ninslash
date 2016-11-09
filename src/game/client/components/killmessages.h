@@ -21,6 +21,7 @@ public:
 		CTeeRenderInfo m_KillerRenderInfo;
 		int m_ModeSpecial; // for CTF, if the guy is carrying a flag for example
 		int m_Tick;
+		bool m_IsTurret;
 	};
 
 	enum

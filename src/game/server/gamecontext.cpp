@@ -25,6 +25,8 @@
 #include <game/server/ai_protocol.h>
 #include <game/server/ai.h>
 
+#include <game/buildables.h>
+
 
 
 const int ExplosionDmg = 40;
@@ -190,15 +192,59 @@ void CGameContext::CreateEffect(int FX, vec2 Pos)
 
 bool CGameContext::AddBuilding(int Kit, vec2 Pos)
 {
-	float OffsetY = -(int(Pos.y)%32) + 12;
-	float CheckRange = 48.0f;
+	//float OffsetY = -(int(Pos.y)%32) + 12;
+	float CheckRange = 40.0f;
 	
-	// check validity
-	if (!Collision()->GetCollisionAt(Pos.x-24, Pos.y+24+OffsetY)&CCollision::COLFLAG_SOLID || 
-		!Collision()->GetCollisionAt(Pos.x+24, Pos.y+24+OffsetY)&CCollision::COLFLAG_SOLID ||
-		Collision()->IsForceTile(Pos.x, Pos.y+24+OffsetY) != 0)
+
+	// check sanity
+	/*
+	if (!Collision()->GetCollisionAt(Pos.x-24, Pos.y+24)&CCollision::COLFLAG_SOLID || 
+		!Collision()->GetCollisionAt(Pos.x+24, Pos.y+24)&CCollision::COLFLAG_SOLID ||
+		Collision()->IsForceTile(Pos.x, Pos.y+24) != 0)
 		return false;
+		*/
 	
+	// check for close by buildings
+	CBuilding *apEnts[16];
+	int Num = m_World.FindEntities(Pos, 32, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
+
+	for (int i = 0; i < Num; ++i)
+	{
+		CBuilding *pTarget = apEnts[i];
+		
+		if (distance(pTarget->m_Pos, Pos) < CheckRange)
+			return false;
+	}
+	
+
+	if (Kit == BUILDABLE_BARREL)
+	{
+		new CBuilding(&m_World, Pos, BUILDING_BARREL, TEAM_NEUTRAL);
+		return true;
+	}
+
+	if (Kit == BUILDABLE_TURRET)
+	{
+			new CBuilding(&m_World, Pos+vec2(0, 8), BUILDING_STAND, TEAM_NEUTRAL);
+			return true;
+	}
+	
+	if (Kit == BUILDABLE_FLAMETRAP)
+	{
+			CBuilding *pFlametrap = new CBuilding(&m_World, Pos+vec2(0, -18), BUILDING_FLAMETRAP, TEAM_NEUTRAL);
+			
+			if (Collision()->IsTileSolid(Pos.x+32, Pos.y))
+			{
+				pFlametrap->m_Mirror = true;
+				pFlametrap->m_Pos.x += 13;
+			}
+			else
+				pFlametrap->m_Pos.x -= 12;
+		
+			return true;
+	}
+	
+	/*
 	if (Kit == KIT_STAND)
 	{
 		// check if there's turret base near
@@ -262,6 +308,7 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos)
 			return true;
 		}
 	}
+	*/
 	
 	
 	return false;
@@ -291,7 +338,7 @@ void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, vec2 PlayerPos
 				Dir = normalize(pTarget->m_Pos - PlayerPos);
 
 			pTarget->TakeDamage(Dir*1.2f, aCustomWeapon[Weapon].m_Damage,
-									DamageOwner, Weapon, ProjPos, false);
+									DamageOwner, Weapon, ProjPos, DAMAGETYPE_NORMAL, OwnerBuilding ? true : false);
 		}
 	}
 		
@@ -442,7 +489,7 @@ void CGameContext::Repair(vec2 Pos)
 }
 
 
-void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool Superdamage)
+void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool IsTurret)
 {
 	// create the event
 	CNetEvent_Explosion *pEvent = (CNetEvent_Explosion *)m_Events.Create(NETEVENTTYPE_EXPLOSION, sizeof(CNetEvent_Explosion));
@@ -468,12 +515,9 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 				ForceDir = normalize(Diff);
 			l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
 			float Dmg = ExplosionDmg * l;
-			
-			if (Superdamage)
-				Dmg *= 5;
 						
 			if((int)Dmg && Dmg > 0.0f)
-				apEnts[i]->TakeDamage(ForceDir*Dmg*0.3f, (int)Dmg, Owner, Weapon, vec2(0, 0));
+				apEnts[i]->TakeDamage(ForceDir*Dmg*0.3f, (int)Dmg, Owner, Weapon, vec2(0, 0), DAMAGETYPE_NORMAL, IsTurret);
 		}
 		
 		// buildings
@@ -487,9 +531,6 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 				float l = length(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
 				float Dmg = ExplosionDmg * l;
-				
-				if (Superdamage)
-					Dmg *= 5;
 							
 				if((int)Dmg && Dmg > 0.0f)
 					apBuildings[i]->TakeDamage((int)Dmg, Owner, Weapon);
@@ -514,9 +555,6 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 				
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
 				float Dmg = ExplosionDmg * l;
-				
-				if (Superdamage)
-					Dmg *= 5;
 							
 				if((int)Dmg && Dmg > 0.0f)
 					apMonsters[i]->TakeDamage(ForceDir*Dmg*0.3f, (int)Dmg, Owner, vec2(0, 0));
@@ -634,7 +672,7 @@ void CGameContext::CreateElectromineExplosion(vec2 Pos, int Owner, int Weapon, b
 }
 
 
-void CGameContext::CreateFlameExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool Superdamage)
+void CGameContext::CreateFlameExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool IsTurret)
 {
 	// create the event
 	CNetEvent_FlameExplosion *pEvent = (CNetEvent_FlameExplosion *)m_Events.Create(NETEVENTTYPE_FLAMEEXPLOSION, sizeof(CNetEvent_FlameExplosion));
@@ -665,7 +703,7 @@ void CGameContext::CreateFlameExplosion(vec2 Pos, int Owner, int Weapon, bool No
 
 				if((int)Dmg && Dmg > 0.0f)
 				{
-					apEnts[i]->TakeDamage(ForceDir*Dmg*0.9f, (int)Dmg, Owner, Weapon, vec2(0, 0), DAMAGETYPE_FLAME);
+					apEnts[i]->TakeDamage(ForceDir*Dmg*0.9f, (int)Dmg, Owner, Weapon, vec2(0, 0), DAMAGETYPE_FLAME, IsTurret);
 					apEnts[i]->SetAflame(0.65f+Dmg*0.4f, Owner, Weapon);
 				}
 			}
@@ -682,9 +720,6 @@ void CGameContext::CreateFlameExplosion(vec2 Pos, int Owner, int Weapon, bool No
 				float l = length(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
 				float Dmg = 14 * l;
-				
-				if (Superdamage)
-					Dmg *= 5;
 							
 				if((int)Dmg && Dmg > 0.0f)
 					apBuildings[i]->TakeDamage((int)Dmg, Owner, Weapon);
@@ -729,15 +764,15 @@ void CGameContext::SendEffect(int ClientID, int EffectID)
 	}
 }
 
-void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool Superdamage)
+void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool IsTurret)
 {
 	// create the event
 	CreateEffect(FX_ELECTRIC, Pos);
 	
 	if (!NoDamage)
 	{
-		float Radius = 60.0f;
-		float InnerRadius = 30.0f;
+		float Radius = 100.0f;
+		float InnerRadius = 50.0f;
 		
 		// deal damage
 		{
@@ -751,12 +786,12 @@ void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, bool
 				if(l)
 					ForceDir = normalize(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
-				float Dmg = 22 * l;
+				float Dmg = 24 * l;
 							
 				if((int)Dmg && Dmg > 0.0f)
 				{
 					CreateEffect(FX_ELECTROHIT, (Pos+apEnts[i]->m_Pos)/2.0f);
-					apEnts[i]->TakeDamage(ForceDir*0.1f, (int)Dmg, Owner, Weapon, vec2(0, 0), DAMAGETYPE_ELECTRIC);
+					apEnts[i]->TakeDamage(ForceDir*0.1f, (int)Dmg, Owner, Weapon, vec2(0, 0), DAMAGETYPE_ELECTRIC, IsTurret);
 					//apEnts[i]->SetAflame(0.5f+Dmg*0.5f, Owner, Weapon);
 				}
 			}
@@ -774,9 +809,6 @@ void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, bool
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
 				float Dmg = 28 * l;
 				
-				if (Superdamage)
-					Dmg *= 5;
-							
 				if((int)Dmg && Dmg > 0.0f)
 					apBuildings[i]->TakeDamage((int)Dmg, Owner, Weapon);
 			}
@@ -798,7 +830,7 @@ void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, bool
 				if(l)
 					ForceDir = normalize(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
-				float Dmg = 24 * l;
+				float Dmg = 25 * l;
 							
 				if((int)Dmg && Dmg > 0.0f)
 				{
@@ -1921,7 +1953,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		else if (MsgID == NETMSGTYPE_CL_USEKIT && !m_World.m_Paused)
 		{
 			CNetMsg_Cl_UseKit *pMsg = (CNetMsg_Cl_UseKit *)pRawMsg;
-			pPlayer->UseKit(pMsg->m_Kit);
+			pPlayer->UseKit(pMsg->m_Kit, vec2(pMsg->m_X, pMsg->m_Y));
 		}
 		else if (MsgID == NETMSGTYPE_CL_KILL && !m_World.m_Paused)
 		{

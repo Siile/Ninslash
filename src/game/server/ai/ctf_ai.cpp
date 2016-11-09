@@ -30,7 +30,7 @@ void CAIctf::OnCharacterSpawn(CCharacter *pChr)
 void CAIctf::DoBehavior()
 {
 	// power level
-	m_PowerLevel = 20 - GameServer()->m_pController->CountPlayers(Player()->GetTeam())*1.5f;
+	m_PowerLevel = 14;
 	
 	// reset jump and attack
 	if (Player()->GetCharacter()->GetCore().m_JetpackPower < 10 || Player()->GetCharacter()->GetCore().m_Jetpack == 0)
@@ -58,9 +58,6 @@ void CAIctf::DoBehavior()
 	}
 
 	
-	
-	int f = 1000+m_EnemiesInSight*100;
-
 	bool SeekEnemy = false;
 	
 	int EnemyTeam = TEAM_RED;
@@ -68,33 +65,38 @@ void CAIctf::DoBehavior()
 		EnemyTeam = TEAM_BLUE;
 	
 	
-	if (GameServer()->m_pController->GetFlagState(Player()->GetTeam()) != FLAG_ATSTAND || 
-		GameServer()->m_pController->GetFlagState(EnemyTeam) == Player()->GetCID())
-	{
+	// carrying flag
+	if (GameServer()->m_pController->GetFlagState(EnemyTeam) == Player()->GetCID())
 		m_TargetPos = GameServer()->m_pController->GetFlagPos(Player()->GetTeam());
-	}
-	
-	/*if (GameServer()->m_pController->GetFlagState(Player()->GetTeam()) != FLAG_ATSTAND)
-	{
-		m_TargetPos = GameServer()->m_pController->GetFlagPos(Player()->GetTeam());
-	}*/
 	else
 	{
-		m_TargetPos = GameServer()->m_pController->GetFlagPos(EnemyTeam);
+		// easy access
+		vec2 TeamFlagPos = GameServer()->m_pController->GetFlagPos(Player()->GetTeam());
+		vec2 EnemyFlagPos = GameServer()->m_pController->GetFlagPos(EnemyTeam);
+			
+		if (GameServer()->m_pController->GetFlagState(Player()->GetTeam()) != FLAG_ATSTAND)
+		{
+			// check distance to flags, choose closer
+			if (distance(TeamFlagPos, m_Pos) < distance(EnemyFlagPos, m_Pos)*1.2f)
+				m_TargetPos = TeamFlagPos;
+			else
+				m_TargetPos = EnemyFlagPos;
+			
+			if (GameServer()->m_pController->GetFlagState(EnemyTeam) >= 0)
+			{
+				m_TargetPos = TeamFlagPos;
+			}
+		}
+		else
+		{
+			m_TargetPos = GameServer()->m_pController->GetFlagPos(EnemyTeam);
+			
+			if (GameServer()->m_pController->GetFlagState(EnemyTeam) != FLAG_ATSTAND && distance(TeamFlagPos, m_Pos) < 500)
+				SeekEnemy = true;
+		}
 	}
 	
-	
-	/*if (SeekClosestFriend())
-	{
-		m_TargetPos = m_PlayerPos;
-		
-		if (m_PlayerDistance < f)
-			SeekEnemy = true;
-	}
-	else*/
-		SeekEnemy = true;
-	
-	/*
+
 	if (SeekEnemy)
 	{
 		if (SeekClosestEnemy())
@@ -107,33 +109,20 @@ void CAIctf::DoBehavior()
 					SeekRandomWaypoint();
 			}
 		}
-		else
-			SeekRandomWaypoint();
 	}
-	*/
 	
 
 	if (UpdateWaypoint())
 	{
-		MoveTowardsWaypoint(20);
-		//HookMove();
-		//AirJump();
-		
-		// jump if waypoint is above us
-		//if (abs(m_WaypointPos.x - m_Pos.x) < 60 && m_WaypointPos.y < m_Pos.y - 100 && frandom()*20 < 4)
-		//	m_Jump = 1;
-		
-		//WallRun();
+		MoveTowardsWaypoint();
 	}
 	else
 	{
-		m_Hook = 0;
+		m_WaypointPos = m_TargetPos;
+		MoveTowardsWaypoint(true);
 	}
 	
-	
-	//DoJumping();
-	//Unstuck();
-
+	Build();
 	RandomlyStopShooting();
 	
 	// next reaction in

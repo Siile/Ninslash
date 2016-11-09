@@ -91,17 +91,12 @@ void CAIdm::DoBehavior()
 	
 	if (UpdateWaypoint())
 	{
-		MoveTowardsWaypoint(20);
-		//HookMove();
-		//AirJump();
-		
-		// jump if waypoint is above us
-		//if (abs(m_WaypointPos.x - m_Pos.x) < 60 && m_WaypointPos.y < m_Pos.y - 100 && frandom()*20 < 4)
-		//	m_Jump = 1;
+		MoveTowardsWaypoint();
 	}
 	else
 	{
-		m_Hook = 0;
+		m_WaypointPos = m_TargetPos;
+		MoveTowardsWaypoint(true);
 	}
 	
 	
