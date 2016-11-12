@@ -906,6 +906,7 @@ void CCharacter::GiveStartWeapon()
 	
 	GiveCustomWeapon(W_TOOL);
 	GiveCustomWeapon(W_HAMMER);
+	SetCustomWeapon(W_HAMMER);
 	//GiveCustomWeapon(W_PISTOL);
 	//SetCustomWeapon(W_PISTOL);
 	

@@ -697,25 +697,25 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
 		TextRender()->Text(0, x+9, y+1, 8, m_pClient->m_pBinds->GetKey("+build"), -1);
 		TextRender()->TextColor(1, 1, 1, 1);
-	}
 	
-	x = 180;
-	y = 16;
-		
-	// number of contruction kits
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
-	Graphics()->QuadsBegin();
-	Graphics()->SetColor(1, 1, 1, 1.0f);
-	RenderTools()->SelectSprite(SPRITE_PICKUP_KIT);
-	RenderTools()->DrawSprite(x, y, 20);
-	Graphics()->QuadsEnd();
-		
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMNUMBERS].m_Id);
-	Graphics()->QuadsBegin();
-	Graphics()->SetColor(1, 1, 1, 1.0f);
-	RenderTools()->SelectSprite(SPRITE_ITEMNUMBER_0 + clamp(CustomStuff()->m_LocalKits ,0, 9));
-	RenderTools()->DrawSprite(x+10, y+8, 14);
-	Graphics()->QuadsEnd();
+		x = 180;
+		y = 16;
+			
+		// number of contruction kits
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
+		Graphics()->QuadsBegin();
+		Graphics()->SetColor(1, 1, 1, 1.0f);
+		RenderTools()->SelectSprite(SPRITE_PICKUP_KIT);
+		RenderTools()->DrawSprite(x, y, 20);
+		Graphics()->QuadsEnd();
+			
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMNUMBERS].m_Id);
+		Graphics()->QuadsBegin();
+		Graphics()->SetColor(1, 1, 1, 1.0f);
+		RenderTools()->SelectSprite(SPRITE_ITEMNUMBER_0 + clamp(CustomStuff()->m_LocalKits ,0, 9));
+		RenderTools()->DrawSprite(x+10, y+8, 14);
+		Graphics()->QuadsEnd();
+	}
 }
 
 void CHud::RenderSpectatorHud()
