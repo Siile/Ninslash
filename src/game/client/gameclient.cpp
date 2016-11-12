@@ -1406,7 +1406,7 @@ IGameClient *CreateGameClient()
 
 bool CGameClient::IsLocalUndead()
 {
-	if (m_Snap.m_pGameDataObj)
+	if (m_Snap.m_pGameInfoObj)
 	{
 		int Flags = m_Snap.m_pGameInfoObj->m_GameFlags;
 	

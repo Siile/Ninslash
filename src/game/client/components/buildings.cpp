@@ -250,7 +250,7 @@ void CBuildings::RenderStand(const struct CNetObj_Building *pCurrent)
 	Graphics()->QuadsEnd();
 	
 	// skip tip if local player is undead
-	if (m_pClient->m_Snap.m_pGameDataObj)
+	if (m_pClient->m_Snap.m_pGameInfoObj)
 	{
 		int Flags = m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags;
 	
@@ -347,7 +347,7 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 	Graphics()->SetColor(1, 1, 1, 1);
 	
 	
-	if (m_pClient->m_Snap.m_pGameDataObj)
+	if (m_pClient->m_Snap.m_pGameInfoObj)
 	{
 		int Flags = m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags;
 		int Team = pCurrent->m_Team;

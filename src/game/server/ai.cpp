@@ -820,6 +820,9 @@ void CAI::Build()
 			break;
 		}
 	}
+	
+	//if (frandom()*20 < 2 && Player()->GetCharacter()->IsGrounded() && Player()->GetCharacter()->m_Kits > 1)
+	//	Player()->UseKit(KIT_TURRET, Player()->GetCharacter()->m_Pos);
 }
 
 

@@ -20,6 +20,7 @@ void CCustomStuff::Reset()
 	m_LocalWeapon = 1;
 	m_LocalColor = vec4(0, 0, 0, 0);
 	m_LocalAlive = false;
+	m_LatestWeapon = 1;
 	
 	m_WeaponDropTick = 0;
 	m_SwitchTick = 0;
