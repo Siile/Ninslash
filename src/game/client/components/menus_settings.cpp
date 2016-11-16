@@ -680,7 +680,7 @@ static CKeyInfo gs_aKeys[] =
 	{ "Flame launcher", "+weapon8", 0 },
 	{ "Chainsaw", "+weapon9", 0 },
 	{ "Weapon picker", "+picker", 0 },
-	//{ "Select picked weapon", "+lastweapon", 0 },
+	{ "Select picked weapon", "+lastweapon", 0 },
 	//{ "Switch weapon", "+switch", 0 },
 	{ "Next weapon", "+nextweapon", 0 },
 	{ "Prev. weapon", "+prevweapon", 0 },
@@ -851,7 +851,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, WeaponSettings.x, WeaponSettings.y, 14.0f*UI()->Scale(), Localize("Weapon"), -1);
 
 			WeaponSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &WeaponSettings);
-			UiDoGetButtons(7, 19, WeaponSettings);
+			UiDoGetButtons(7, 20, WeaponSettings);
 		}
 	}
 	else
@@ -875,7 +875,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, VotingSettings.x, VotingSettings.y, 14.0f*UI()->Scale(), Localize("Voting"), -1);
 
 			VotingSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &VotingSettings);
-			UiDoGetButtons(19, 21, VotingSettings);
+			UiDoGetButtons(20, 22, VotingSettings);
 		}
 
 		// chat settings
@@ -888,7 +888,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, ChatSettings.x, ChatSettings.y, 14.0f*UI()->Scale(), Localize("Chat"), -1);
 
 			ChatSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &ChatSettings);
-			UiDoGetButtons(21, 24, ChatSettings);
+			UiDoGetButtons(22, 25, ChatSettings);
 		}
 
 		// misc settings
@@ -901,7 +901,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, MiscSettings.x, MiscSettings.y, 14.0f*UI()->Scale(), Localize("Miscellaneous"), -1);
 
 			MiscSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &MiscSettings);
-			UiDoGetButtons(24, 32, MiscSettings);
+			UiDoGetButtons(25, 33, MiscSettings);
 		}
 	}
 	

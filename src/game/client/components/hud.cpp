@@ -18,6 +18,8 @@
 #include "voting.h"
 #include "binds.h"
 
+#define RAD 0.017453292519943295769236907684886f
+
 CHud::CHud()
 {
 	// won't work if zero
@@ -396,7 +398,7 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 
 	//mapscreen_to_group(gacenter_x, center_y, layers_game_group());
 
-	float x = 16;
+	float x = 30; // 16
 	float y = 5;
 
 	
@@ -423,71 +425,156 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		Graphics()->QuadsEnd();
 	}
 
-	IGraphics::CQuadItem Array[10];
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
 	
+	// new health bar
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HP].m_Id);
 	Graphics()->QuadsBegin();
-	int h = 0;
+	
+	vec2 HpSize = vec2(120, 12);
+	
+	{ // hp fill
+		float f = min(pCharacter->m_Health, 10) / 10.0f;
+		Graphics()->SetColor(1, 0, 0, 1);
+		Graphics()->QuadsSetSubsetFree(0, 0.5f, 1*f, 0.5f, 0, 1, 1*f, 1);
 
-	// render health
-	RenderTools()->SelectSprite(SPRITE_HEALTH_FULL);
-	for(; h < min(pCharacter->m_Health, 10); h++)
-		Array[h] = IGraphics::CQuadItem(x+h*12,y,10,10);
-	Graphics()->QuadsDrawTL(Array, h);
+		IGraphics::CFreeformItem FreeFormItem(
+			x, y,
+			x+f*HpSize.x, y,
+			x, y+HpSize.y,
+			x+f*HpSize.x, y+HpSize.y);
 
-	int i = 0;
-	RenderTools()->SelectSprite(SPRITE_HEALTH_EMPTY);
-	for(; h < 10; h++)
-		Array[i++] = IGraphics::CQuadItem(x+h*12,y,10,10);
-	Graphics()->QuadsDrawTL(Array, i);
+		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+	}
+	
+	{ // hp frame
+		Graphics()->SetColor(1, 1, 1, 1);
+		Graphics()->QuadsSetSubsetFree(0, 0, 1, 0, 0, 0.5f, 1, 0.5f); // nice way to pick a sprite
 
-	// render armor meter
-	/*
-	h = 0;
-	RenderTools()->SelectSprite(SPRITE_ARMOR_FULL);
-	for(; h < min(pCharacter->m_Armor, 10); h++)
-		Array[h] = IGraphics::CQuadItem(x+h*12,y+12,10,10);
-	Graphics()->QuadsDrawTL(Array, h);
+		IGraphics::CFreeformItem FreeFormItem(
+			x, y,
+			x+HpSize.x, y,
+			x, y+HpSize.y,
+			x+HpSize.x, y+HpSize.y);
 
-	i = 0;
-	RenderTools()->SelectSprite(SPRITE_ARMOR_EMPTY);
-	for(; h < 10; h++)
-		Array[i++] = IGraphics::CQuadItem(x+h*12,y+12,10,10);
-	Graphics()->QuadsDrawTL(Array, i);
-	*/
+		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+	}
+	
 	Graphics()->QuadsEnd();
 	
-	// render jetpack meter
-	Graphics()->TextureSet(-1);
-
-	int a = pCharacter->m_JetpackPower;
-	float m = 100.0f;
 	
+	// new jetpack meter
+	x = -1;
+	y = -1;
+	
+	vec2 FrameSize = vec2(32, 32);
+	int Fuel = pCharacter->m_JetpackPower;
+	
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_CIRCULAR].m_Id);
 	Graphics()->QuadsBegin();
-	{ // max
-		Graphics()->SetColor(0.3f, 0.3f, 0.3f, 0.7f);
-		IGraphics::CQuadItem QuadItem(9, y + 21 - m/10.0f, 10, m/5.0f+1);
-		Graphics()->QuadsDraw(&QuadItem, 1);
+	// fuel
+	if (Fuel >= 50)
+	{
+		float a = (100-Fuel)*3.6f * RAD / 2;
+		float f = 1-abs(cos(a));
+	
+		vec2 p0 = vec2(f, f*0.5f); // f*0.5f
+		vec2 p1 = vec2(1, p0.y);
+		vec2 p2 = vec2(0, 0.5f);
+		vec2 p3 = vec2(1, 0.5f);
+		
+		Graphics()->SetColor(1, Fuel*0.01f, 0, 1);
+		Graphics()->QuadsSetSubsetFree(	p0.x, p0.y,
+										p1.x, p1.y,
+										p2.x, p2.y,
+										p3.x, p3.y);
+		{
+		IGraphics::CFreeformItem FreeFormItem(
+			x+FrameSize.x/2+FrameSize.x/2*f, y+FrameSize.y/2*f,
+			x+FrameSize.x, y+FrameSize.y/2*f,
+			x+FrameSize.x/2, y+FrameSize.y/2,
+			x+FrameSize.x, y+FrameSize.y/2);
+
+		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+		}
+		
+		// full lower
+		Graphics()->QuadsSetSubsetFree(0, 0.5f, 1, 0.5f, 0, 1, 1, 1);
+
+		{
+		IGraphics::CFreeformItem FreeFormItem(
+			x+FrameSize.x/2, y+FrameSize.y/2,
+			x+FrameSize.x, y+FrameSize.y/2,
+			x+FrameSize.x/2, y+FrameSize.y,
+			x+FrameSize.x, y+FrameSize.y);
+			
+		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+		}
 	}
-	{ //reserve
-		Graphics()->SetColor(0.0f, 0.7f, 0.0f, 0.7f);
-		IGraphics::CQuadItem QuadItem(9, y + 21 - a/10.0f, 9, a/5.0f);
-		Graphics()->QuadsDraw(&QuadItem, 1);
+	else if (Fuel > 0)
+	{
+		// only lower part
+		float a = Fuel*3.6f * RAD / 2;
+		float f = abs(cos(a));
+	
+		vec2 p0 = vec2(0, 0.5f);
+		vec2 p1 = vec2(1-f, 0.5f + f*0.5f);
+		vec2 p2 = vec2(0, 1);
+		vec2 p3 = vec2(p1.x, 1);
+		
+		Graphics()->SetColor(1, Fuel*0.01f, 0, 1);
+		Graphics()->QuadsSetSubsetFree(	p0.x, p0.y,
+										p1.x, p1.y,
+										p2.x, p2.y,
+										p3.x, p3.y);
+										
+		{
+		IGraphics::CFreeformItem FreeFormItem(
+			x+FrameSize.x/2, y+FrameSize.y/2,
+			x+FrameSize.x-FrameSize.x/2*f, y+FrameSize.y/2+FrameSize.y/2*f,
+			x+FrameSize.x/2, y+FrameSize.y,
+			x+FrameSize.x-FrameSize.x/2*f, y+FrameSize.y);
+
+		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+		}
 	}
 	Graphics()->QuadsEnd();
 	
+	
+
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FUEL].m_Id);
+	Graphics()->QuadsBegin();
+	{ // frame
+		Graphics()->SetColor(1, 1, 1, 1);
+		Graphics()->QuadsSetSubsetFree(0, 0, 1, 0, 0, 1, 1, 1);
+
+		IGraphics::CFreeformItem FreeFormItem(
+			x, y,
+			x+FrameSize.x, y,
+			x, y+FrameSize.y,
+			x+FrameSize.x, y+FrameSize.y);
+
+		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+	}
+	Graphics()->QuadsEnd();
+
+	
+
+	x = 30; // 16
+	y = 5;
+	
+
 	
 	// buildings
 	if (m_pClient->m_pControls->m_BuildMode)
 	{
 		float Size = 0.2f;
-		y += 18;
+		y += 20;
 		x += 12;
 		
 		for (int i = 0; i < NUM_KITS; i++)
 		{
 			if (i != 0)
-				x += 120*Size;
+				x += 180*Size;
 			
 			int Cost = BuildableCost[i];
 			
@@ -521,27 +608,26 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 			}
 			
 			// draw cost
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMNUMBERS].m_Id);
-			Graphics()->QuadsBegin();
+			char aBuf[8];
+			str_format(aBuf, sizeof(aBuf), "%d", Cost);
 			
 			if (Cost > CustomStuff()->m_LocalKits)
-				Graphics()->SetColor(1, 0, 0, 1);
+				TextRender()->TextColor(1, 0, 0, 1);
 			else
-				Graphics()->SetColor(0, 1, 0, 1);
+				TextRender()->TextColor(0, 1, 0, 1);
 			
-			RenderTools()->SelectSprite(SPRITE_ITEMNUMBER_0+Cost);
-			RenderTools()->DrawSprite(x+9, y+9, 12);
-			Graphics()->QuadsEnd();
+			TextRender()->Text(0, x+6, y+2, 6, aBuf, -1);
+			TextRender()->TextColor(1, 1, 1, 1);
 			
 			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 			Graphics()->QuadsBegin();
 			Graphics()->SetColor(1, 1, 1, 1.0f);
 			RenderTools()->SelectSprite(SPRITE_PICKUP_KIT);
-			RenderTools()->DrawSprite(x+16, y+10, 8);
+			RenderTools()->DrawSprite(x+14, y+6.5f, 8);
 			Graphics()->QuadsEnd();
 		}
 		
-		x = 150;
+		x = 164;
 		y = 16;
 		
 		// back to weapon helper
@@ -560,7 +646,7 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		TextRender()->Text(0, x+9, y+1, 8, m_pClient->m_pBinds->GetKey("+build"), -1);
 		TextRender()->TextColor(1, 1, 1, 1);
 		
-		x = 180;
+		x = 194;
 		y = 16;
 		
 		// number of contruction kits
@@ -571,18 +657,17 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		RenderTools()->DrawSprite(x, y, 20);
 		Graphics()->QuadsEnd();
 		
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMNUMBERS].m_Id);
-		Graphics()->QuadsBegin();
-		Graphics()->SetColor(1, 1, 1, 1.0f);
-		RenderTools()->SelectSprite(SPRITE_ITEMNUMBER_0 + clamp(CustomStuff()->m_LocalKits ,0, 9));
-		RenderTools()->DrawSprite(x+10, y+8, 14);
-		Graphics()->QuadsEnd();
-		
+		char aBuf[8];
+		str_format(aBuf, sizeof(aBuf), "%d", clamp(CustomStuff()->m_LocalKits ,0, 9));
+		TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
+		TextRender()->Text(0, x+7, y+2, 8, aBuf, -1);
+		TextRender()->TextColor(1, 1, 1, 1);
+
 		return;
 	}
 	
 	
-	y += 32;
+	y += 31;
 	
 	
 	// weapons
@@ -679,7 +764,7 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		x += 40*Size;
 	}
 
-	x = 150; y = 16;
+	x = 164; y = 16;
 	
 	// tool / build helper
 	if (!m_pClient->IsLocalUndead())
@@ -696,9 +781,8 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 
 		TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
 		TextRender()->Text(0, x+9, y+1, 8, m_pClient->m_pBinds->GetKey("+build"), -1);
-		TextRender()->TextColor(1, 1, 1, 1);
 	
-		x = 180;
+		x = 194;
 		y = 16;
 			
 		// number of contruction kits
@@ -708,13 +792,13 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		RenderTools()->SelectSprite(SPRITE_PICKUP_KIT);
 		RenderTools()->DrawSprite(x, y, 20);
 		Graphics()->QuadsEnd();
-			
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMNUMBERS].m_Id);
-		Graphics()->QuadsBegin();
-		Graphics()->SetColor(1, 1, 1, 1.0f);
-		RenderTools()->SelectSprite(SPRITE_ITEMNUMBER_0 + clamp(CustomStuff()->m_LocalKits ,0, 9));
-		RenderTools()->DrawSprite(x+10, y+8, 14);
-		Graphics()->QuadsEnd();
+
+
+		char aBuf[8];
+		str_format(aBuf, sizeof(aBuf), "%d", clamp(CustomStuff()->m_LocalKits ,0, 9));
+		TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
+		TextRender()->Text(0, x+7, y+2, 8, aBuf, -1);
+		TextRender()->TextColor(1, 1, 1, 1);
 	}
 }
 

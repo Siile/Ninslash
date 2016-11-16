@@ -8,7 +8,6 @@ class CPicker : public CComponent
 	void DrawCircle(float x, float y, float r, int Segments);
 	void DrawEmoticons();
 	void DrawWeapons();
-	void DrawItems();
 	void DrawKit();
 
 	bool m_WasActive;

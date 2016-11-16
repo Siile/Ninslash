@@ -274,7 +274,6 @@ image_flag = Image("flag", "flag.png")
 image_weapons = Image("weapons", "weapons.png")
 image_deathtypes = Image("deathtypes", "deathtypes.png")
 image_items = Image("items", "items.png")
-image_itemnumbers = Image("itemnumbers", "itemnumbers.png")
 image_sword = Image("sword", "sword.png")
 image_hand = Image("hand", "hand.png")
 image_bodies = Image("bodies", "bodies.png")
@@ -307,6 +306,10 @@ image_heal = Image("heal", "fx/heal.png")
 image_flame = Image("flame", "fx/flame.png")
 image_cbelt = Image("cbelt", "cbelt.png")
 
+image_hp = Image("hp", "gui/hp.png")
+image_fuel = Image("fuel", "gui/fuel.png")
+image_circular = Image("circular", "gui/circular.png")
+
 image_texasmask = Image("texasmask", "texasmask.png")
 
 container.images.Add(image_null)
@@ -315,7 +318,6 @@ container.images.Add(image_flag)
 container.images.Add(image_weapons)
 container.images.Add(image_sword)
 container.images.Add(image_items)
-container.images.Add(image_itemnumbers)
 container.images.Add(image_hand)
 container.images.Add(image_bodies)
 container.images.Add(image_pickups)
@@ -355,6 +357,9 @@ container.images.Add(image_heal)
 container.images.Add(image_flame)
 container.images.Add(image_cbelt)
 container.images.Add(image_texasmask)
+container.images.Add(image_hp)
+container.images.Add(image_fuel)
+container.images.Add(image_circular)
 
 container.pickups.Add(Pickup("health"))
 container.pickups.Add(Pickup("armor"))
@@ -374,7 +379,6 @@ set_bodies = SpriteSet("bodies", image_bodies, 4, 1)
 set_pickups = SpriteSet("pickups", image_pickups, 8, 2)
 set_deathtypes = SpriteSet("deathtypes", image_deathtypes, 8, 4)
 set_items = SpriteSet("items", image_items, 8, 1)
-set_itemnumbers = SpriteSet("itemnumbers", image_itemnumbers, 8, 2)
 set_buildings = SpriteSet("buildings", image_buildings, 16, 8)
 set_tee = SpriteSet("tee", image_null, 8, 4)
 set_browseicons = SpriteSet("browseicons", image_browseicons, 4, 1)
@@ -402,6 +406,8 @@ set_monsterspawn = SpriteSet("monsterspawn", image_monsterspawn, 16, 1)
 set_heal = SpriteSet("heal", image_heal, 8, 2)
 set_flame = SpriteSet("flame", image_flame, 4, 4)
 
+set_hud = SpriteSet("hud", image_hp, 1, 2)
+
 container.spritesets.Add(set_particles)
 container.spritesets.Add(set_gore)
 container.spritesets.Add(set_splatter)
@@ -409,7 +415,6 @@ container.spritesets.Add(set_game)
 container.spritesets.Add(set_flag)
 container.spritesets.Add(set_weapons)
 container.spritesets.Add(set_items)
-container.spritesets.Add(set_itemnumbers)
 container.spritesets.Add(set_sword)
 container.spritesets.Add(set_hand)
 container.spritesets.Add(set_bodies)
@@ -441,6 +446,7 @@ container.spritesets.Add(set_playerspawn)
 container.spritesets.Add(set_monsterspawn)
 container.spritesets.Add(set_heal)
 container.spritesets.Add(set_flame)
+container.spritesets.Add(set_hud)
 
 
 container.sprites.Add(Sprite("shield1", set_shield, 0,0,1,1))
@@ -528,12 +534,6 @@ for i in range(1, 9):
 	
 for i in range(1, 9):
 	container.sprites.Add(Sprite("item"+str(i), set_items, i-1,0,1,1))
-
-for i in range(1, 9):
-	container.sprites.Add(Sprite("itemnumber_"+str(i-1), set_itemnumbers, i-1, 0, 1, 1))
-
-container.sprites.Add(Sprite("itemnumber_8", set_itemnumbers, 0, 1, 1, 1))
-container.sprites.Add(Sprite("itemnumber_9", set_itemnumbers, 1, 1, 1, 1))
 	
 # 11
 for i in range(1, 12):
@@ -550,6 +550,10 @@ for y in range(1, 4):
 	for x in range(1, 5):
 		container.sprites.Add(Sprite("smoke1_"+str((y-1)*4 + x-1), set_smoke1, x-1, y-1, 1, 1))
 
+		
+
+container.sprites.Add(Sprite("hp_frame", set_hud, 0,0,1,1))
+container.sprites.Add(Sprite("hp_fill", set_hud, 0,1,1,1))
 	
 container.sprites.Add(Sprite("hand", set_hand, 0,0,1,1))
 

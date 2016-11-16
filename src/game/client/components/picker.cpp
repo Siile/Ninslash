@@ -34,21 +34,6 @@ void CPicker::ConKeyEmote(IConsole::IResult *pResult, void *pUserData)
 	pSelf->m_ItemSelected = -1;
 }
 
-void CPicker::ConKeyItemPicker(IConsole::IResult *pResult, void *pUserData)
-{
-	/*
-	CPicker *pSelf = (CPicker *)pUserData;
-	
-	//if (pSelf->CustomStuff()->m_SelectedGroup < 3)
-	//{
-		if(!pSelf->m_pClient->m_Snap.m_SpecInfo.m_Active && pSelf->Client()->State() != IClient::STATE_DEMOPLAYBACK)
-			pSelf->m_Active = pResult->GetInteger(0) != 0;
-		
-		pSelf->m_PickerType = PICKER_ITEM;
-	//}
-	*/
-}
-
 void CPicker::ConKeyPicker(IConsole::IResult *pResult, void *pUserData)
 {
 	CPicker *pSelf = (CPicker *)pUserData;
@@ -108,7 +93,7 @@ void CPicker::OnConsoleInit()
 	
 	Console()->Register("+switch", "", CFGFLAG_CLIENT, ConSwitchGroup, this, "Switch between weapon groups");
 	Console()->Register("+dropweapon", "", CFGFLAG_CLIENT, ConDropWeapon, this, "Drop weapon");
-	//Console()->Register("+lastweapon", "", CFGFLAG_CLIENT, ConLastWeaponpick, this, "Select last picked weapon");
+	Console()->Register("+lastweapon", "", CFGFLAG_CLIENT, ConLastWeaponpick, this, "Select last picked weapon");
 	Console()->Register("+picker", "", CFGFLAG_CLIENT, ConKeyPicker, this, "Open weapon selector");
 	Console()->Register("+gamepadpicker", "", CFGFLAG_CLIENT, ConKeyPicker, this, "Open weapon selector");
 	Console()->Register("weaponpick", "i", CFGFLAG_CLIENT, ConWeaponpick, this, "Use weapon");
@@ -211,7 +196,7 @@ void CPicker::DrawWeapons()
 	// reset mouse to active weapon
 	if (m_ResetMouse)
 	{
-		float Angle = -pi/2.0f + 2*pi*(CustomStuff()->m_SelectedWeapon-1)/(NUM_WEAPONS-2);
+		float Angle = -pi/2.0f + 2*pi*(CustomStuff()->m_SelectedWeapon-1)/(NUM_WEAPONS-1);
 		if (Angle > pi)
 			Angle -= 2*pi;
 		
@@ -227,13 +212,13 @@ void CPicker::DrawWeapons()
 
 	bool Unselect = true;
 	
-	for (int i = 1; i < NUM_WEAPONS-1; i++)
+	for (int i = 0; i < NUM_WEAPONS-1; i++)
 	{
 		int w = CustomStuff()->m_LocalWeapons;
 		if (!(w & (1<<(i+1))))
 			continue;
 		
-		float Angle = -pi/2.0f + 2*pi*i/(NUM_WEAPONS-2);
+		float Angle = -pi/2.0f + 2*pi*i/(NUM_WEAPONS-1);
 		if (Angle > pi)
 			Angle -= 2*pi;
 
@@ -292,13 +277,11 @@ void CPicker::DrawWeapons()
 			RenderTools()->DrawSprite(Screen.w/2 - 32, Screen.h/2, 64 * Size);
 			Graphics()->QuadsEnd();
 			
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMNUMBERS].m_Id);
-			Graphics()->QuadsBegin();
-			Graphics()->SetColor(0.7f, .7f, 0.7f, 1.0f);
-			RenderTools()->SelectSprite(SPRITE_ITEMNUMBER_0+CustomStuff()->m_aLocalItems[PLAYERITEM_LANDMINE]);
-			RenderTools()->DrawSprite(Screen.w/2 - 32+20, Screen.h/2+20, 26 * Size);
-			Graphics()->QuadsEnd();
-			
+			char aBuf[8];
+			str_format(aBuf, sizeof(aBuf), "%d", clamp(CustomStuff()->m_aLocalItems[PLAYERITEM_LANDMINE] ,0, 9));
+			TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
+			TextRender()->Text(0, Screen.w/2 - 32+20, Screen.h/2+12, 16*Size, aBuf, -1);
+			TextRender()->TextColor(1, 1, 1, 1);
 		}
 		if (CustomStuff()->m_aLocalItems[PLAYERITEM_ELECTROMINE] > 0)
 		{
@@ -323,104 +306,15 @@ void CPicker::DrawWeapons()
 			RenderTools()->DrawSprite(Screen.w/2 + 32, Screen.h/2, 64 * Size);
 			Graphics()->QuadsEnd();
 			
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMNUMBERS].m_Id);
-			Graphics()->QuadsBegin();
-			Graphics()->SetColor(0.7f, .7f, 0.7f, 1.0f);
-			RenderTools()->SelectSprite(SPRITE_ITEMNUMBER_0+CustomStuff()->m_aLocalItems[PLAYERITEM_ELECTROMINE]);
-			RenderTools()->DrawSprite(Screen.w/2 + 32+20, Screen.h/2+20, 26 * Size);
-			Graphics()->QuadsEnd();
+			char aBuf[8];
+			str_format(aBuf, sizeof(aBuf), "%d", clamp(CustomStuff()->m_aLocalItems[PLAYERITEM_ELECTROMINE] ,0, 9));
+			TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
+			TextRender()->Text(0, Screen.w/2 + 32+20, Screen.h/2+12, 16*Size, aBuf, -1);
+			TextRender()->TextColor(1, 1, 1, 1);
 		}
 	}
-	
-	/*
-	if (m_Selected >= 0 && m_Selected < NUM_PLAYERITEMS)
-	{
-		float Size = 18;
-		char aBuf[64];
-		str_format(aBuf, sizeof(aBuf), "(%d, %d)", int(m_SelectorMouse.x), int(m_SelectorMouse.y));
-		TextRender()->Text(0, Screen.w/2-TextRender()->TextWidth(0, Size, aBuf, -1)/2, Screen.h/2-9, Size, aBuf, -1);
-	}
-	*/
 }
 
-
-
-void CPicker::DrawItems()
-{
-	// reset mouse to active weapon
-	if (m_ResetMouse)
-	{
-		//m_SelectorMouse = vec2(0, 0);
-		m_ResetMouse = false;
-
-		m_Selected = -1;
-	}
-	
-	CUIRect Screen = *UI()->Screen();
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMS].m_Id);
-	Graphics()->QuadsBegin();
-
-	for (int i = 0; i < NUM_PLAYERITEMS; i++)
-	{
-		/*
-		int w = CustomStuff()->m_LocalWeapons;
-		if (!(w & (1<<(i+1))))
-			continue;
-		*/
-		
-		float Angle = -pi/2.0f + 2*pi*i/NUM_PLAYERITEMS;
-		if (Angle > pi)
-			Angle -= 2*pi;
-
-		bool Selected = m_Selected == i;
-
-		float Size = Selected ? 1.25f : 1.0f;
-
-		float NudgeX = 135.0f * cosf(Angle);
-		float NudgeY = 135.0f * sinf(Angle);
-		RenderTools()->SelectSprite(SPRITE_ITEM1+i);
-		RenderTools()->DrawSprite(Screen.w/2 + NudgeX, Screen.h/2 + NudgeY, 52 * Size);
-	}
-	Graphics()->QuadsEnd();
-	
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMNUMBERS].m_Id);
-	Graphics()->QuadsBegin();
-	for (int i = 0; i < NUM_PLAYERITEMS; i++)
-	{
-		/*
-		int w = CustomStuff()->m_LocalWeapons;
-		if (!(w & (1<<(i+1))))
-			continue;
-		*/
-		int a = CustomStuff()->m_aLocalItems[i];
-		if (a > 0)
-			Graphics()->SetColor(0, 1, 0, 0.75f);
-		else
-			Graphics()->SetColor(1, 0, 0, 0.75f);
-		
-		float Angle = -pi/2.0f + 2*pi*i/NUM_PLAYERITEMS;
-		if (Angle > pi)
-			Angle -= 2*pi;
-
-		bool Selected = m_Selected == i;
-
-		float Size = Selected ? 1.25f : 1.0f;
-
-		float NudgeX = 135.0f * cosf(Angle);
-		float NudgeY = 135.0f * sinf(Angle);
-		RenderTools()->SelectSprite(SPRITE_ITEMNUMBER_0+a);
-		RenderTools()->DrawSprite(Screen.w/2 + NudgeX + 24, Screen.h/2 + NudgeY + 16, 32 * Size);
-	}
-	Graphics()->QuadsEnd();
-	
-	/*
-	if (m_Selected >= 0 && m_Selected < NUM_PLAYERITEMS)
-	{
-		float Size = 18;
-		TextRender()->Text(0, Screen.w/2-TextRender()->TextWidth(0,Size,aPlayerItemName[m_Selected], -1)/2, Screen.h/2-9, Size, aPlayerItemName[m_Selected], -1);
-	}
-	*/
-}
 
 
 
@@ -484,12 +378,11 @@ void CPicker::DrawKit()
 	RenderTools()->DrawSprite(Screen.w/2+KitPos.x, Screen.h/2+KitPos.y, 64);
 	Graphics()->QuadsEnd();
 	
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMNUMBERS].m_Id);
-	Graphics()->QuadsBegin();
-	Graphics()->SetColor(1, 1, 1, 0.5f);
-	RenderTools()->SelectSprite(SPRITE_ITEMNUMBER_0+CustomStuff()->m_LocalKits);
-	RenderTools()->DrawSprite(Screen.w/2+KitPos.x+30, Screen.h/2+KitPos.y+25, 32);
-	Graphics()->QuadsEnd();
+	char aBuf[128];
+	str_format(aBuf, sizeof(aBuf), "%d", clamp(CustomStuff()->m_LocalKits ,0, 9));
+	TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
+	TextRender()->Text(0, Screen.w/2+KitPos.x+25, Screen.h/2+KitPos.y+10, 16, aBuf, -1);
+	TextRender()->TextColor(1, 1, 1, 1);
 }
 
 
@@ -512,8 +405,6 @@ void CPicker::OnRender()
 					Weaponpick(m_Selected);
 				if (m_PickerType == PICKER_EMOTICON)
 					Emote(m_Selected);
-				if (m_PickerType == PICKER_ITEM)
-					Itempick(m_Selected);
 				if (m_PickerType == PICKER_TOOL)
 					m_pClient->m_pControls->m_SelectedBuilding = m_Selected+1;
 			}
@@ -543,42 +434,8 @@ void CPicker::OnRender()
 	{
 		if (m_PickerType == PICKER_EMOTICON)
 			m_Selected = (int)(SelectedAngle / (2*pi) * NUM_EMOTICONS);
-		/*
-		if (m_PickerType == PICKER_WEAPON)
-		{
-			m_ItemSelected = -1;
-			
-			int i = (int)(SelectedAngle / (2*pi) * (NUM_WEAPONS-1));
-			int w = CustomStuff()->m_LocalWeapons;
-			if (w & (1<<(i+1)))
-			{
-				if (m_Selected != i)
-					m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_PICK, 0);
-				m_Selected = i;
-			}
-		}
-		*/
-		if (m_PickerType == PICKER_ITEM)
-		{
-			int i = (int)(SelectedAngle / (2*pi) * NUM_PLAYERITEMS);
-			
-			if (m_Selected != i)
-				m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_PICK, 0);
-			
-			m_Selected = i;
-		}
-		/*
-		if (m_PickerType == PICKER_TOOL)
-		{
-			int i = (int)(SelectedAngle / (2*pi) * NUM_KITS);
-			
-			if (m_Selected != i)
-				m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_PICK, 0);
-			
-			m_Selected = i;
-		}
-		*/
 	}
+	
 	// items in the middle
 	else if (m_PickerType == PICKER_WEAPON)
 	{
@@ -621,9 +478,6 @@ void CPicker::OnRender()
 			break;
 		case PICKER_WEAPON:
 			DrawWeapons();
-			break;
-		case PICKER_ITEM:
-			DrawItems();
 			break;
 		case PICKER_TOOL:
 			DrawKit();
