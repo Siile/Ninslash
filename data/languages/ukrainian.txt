@@ -20,7 +20,7 @@ All
 == Всі
 
 Alpha
-== Прозор..
+== Прозор.
 
 Always show name plates
 == Завжди показувати ніки гравців
@@ -68,7 +68,7 @@ Console
 == Консоль
 
 Controls
-== Управління
+== Керування
 
 Current
 == Поточний
@@ -470,7 +470,7 @@ Warmup
 == Розминка
 
 Weapon
-== зброя
+== Зброя
 
 Welcome to Teeworlds
 == Ласкаво просимо в Teeworlds!
@@ -487,172 +487,172 @@ Your skin
 ##### needs translation #####
 
 %d Bytes
-== 
+== %d Байт
 
 %i minute left
-== 
+== залишилась %i хвилина
 
 %i minutes left
-== 
+== залишилось %i хвилин
 
 %i second left
-== 
+== залишилась %i секунда
 
 %i seconds left
-== 
+== залишилось %i секунд
 
 %s wins!
-== 
+== %s перемогли!
 
 -Page %d-
-== 
+== -Сторінка %d-
 
 Add
-== 
+== Додати
 
 Add Friend
-== 
+== Додати Друга
 
 Are you sure that you want to remove the player from your friends list?
-== 
+== Чи впевнені ви що хочете видалити гравця з вашого списку друзів?
 
 Automatically record demos
-== 
+== Автоматично записувати демо
 
 Automatically take game over screenshot
-== 
+== Автоматично робити скріншот у кинці гри
 
 Change settings
-== 
+== Змінити налаштування
 
 Clan
-== 
+== Клан
 
 Client
-== 
+== Кліент
 
 Count players only
-== 
+== Рахувати лише гравців
 
 Country
-== 
+== Країна
 
 Crc:
 == 
 
 Created:
-== 
+== Створив:
 
 Delete demo
-== 
+== Видалити демо
 
 Demo details
-== 
+== Інформація
 
 Demofile: %s
-== 
+== Демо файл: %s
 
 Free-View
-== 
+== Вільний-Перегляд
 
 Friends
-== 
+== Друзі
 
 Game paused
-== 
+== Гра зупинена
 
 Kick player
 == 
 
 Length:
-== 
+== Тривалість:
 
 Map:
-== 
+== Карта:
 
 Max Screenshots
-== 
+== Макс. Скріншотів
 
 Max demos
-== 
+== Макс. Демо
 
 Move player to spectators
 == 
 
 Name plates size
-== 
+== Розмір імен
 
 Netversion:
 == 
 
 New name:
-== 
+== Нове ім'я:
 
 Parent Folder
-== 
+== Батьківська тека
 
 Play background music
-== 
+== Програвати фонову музику
 
 Player country:
-== 
+== Країна гравця:
 
 Player options
-== 
+== Налаштування гравця
 
 Quit anyway?
-== 
+== Всеодно вийти?
 
 REC %3d:%02d
 == 
 
 Remove
-== 
+== Видалити
 
 Remove friend
-== 
+== Видалити друга
 
 Rename
-== 
+== Перейменувати
 
 Rename demo
-== 
+== Перейменутвати демо
 
 Respawn
-== 
+== Респаун
 
 Server address:
-== 
+== Адреса серверу:
 
 Server filter
-== 
+== Фільтр серверів
 
 Show friends only
-== 
+== Відображати лише друзів
 
 Show ingame HUD
-== 
+== Відображати ігровий HUD
 
 Show only chat messages from friends
-== 
+== Показувати лише повидомлення друзів
 
 Size:
-== 
+== Розмір:
 
 Sound error
-== 
+== Звук помилки
 
 Spectate next
-== 
+== Спост. за наст.
 
 Spectate previous
-== 
+== Спост. за поп.
 
 Spectator mode
-== 
+== Спостерігати
 
 Strict gametype filter
-== 
+== Суворий фільтр режимів
 
 The audio device couldn't be initialised.
 == 
@@ -664,16 +664,16 @@ Type:
 == 
 
 Unable to delete the demo
-== 
+== Неможливо видалити запис
 
 Unable to rename the demo
-== 
+== Неможливо перейменувати запис
 
 Use team colors for name plates
-== 
+== Використовувати кольори для імен
 
 Version:
-== 
+== Версія:
 
 Vote command:
 == 
@@ -684,5 +684,79 @@ Vote description:
 no limit
 == 
 
-##### old translations #####
+##### ninslash translations #####
 
+Movement & Weapons
+== Переміщення та зброя
+
+Slide / down
+== Ковзати / вниз
+
+Turbo
+== Прискорення
+
+Build
+== Будувати
+
+Sword
+== Меч
+
+Assault rifle
+== Штурм. гвинтівка
+
+Laser
+== Лазер
+
+Electro launcher
+== Електро гармата
+
+Grenade launcher
+== Гранатомет
+
+Flame launcher
+== Вогнемет
+
+Chainsaw
+== Бензопила
+
+Weapon picker
+== Вибір зброї
+
+Drop weapon
+== Викинути зброю
+
+Chat & Misc.
+== Чат та інше
+
+Customize
+== Скін
+
+Change color of
+== Змінити колір
+
+Skin
+== Шкіра
+
+Hair / hat
+== Голова
+
+Change skin of
+== Змінити скін
+
+Eyes
+== Очі
+
+Custom
+== Інше
+
+Blood amount
+== Кількість крові
+
+Enable ground blood (requires restart, might cause issues)
+== Кров на землі (потребує перезапуску)
+
+Enable aim line
+== Лазерний приціл
+
+Camera drag
+== Пересування камери
