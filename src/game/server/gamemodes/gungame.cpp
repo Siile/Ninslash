@@ -109,14 +109,18 @@ void CGameControllerGunGame::AdvanceWeapon(class CPlayer *pWhom)
 	{
 		str_format(aBuf, sizeof(aBuf), "%s reached the final stage and is about to win!", Server()->ClientName(pWhom->GetCID()));
 		GameServer()->SendChatTarget(-1, aBuf);
+		GameServer()->CreateSoundGlobal(SOUND_CTF_GRAB_EN);
 	}
 	else if(Wep == -1) // won
 	{
 		str_format(aBuf, sizeof(aBuf), "%s did the knife kill and won the game!", Server()->ClientName(pWhom->GetCID()));
 		GameServer()->SendChatTarget(-1, aBuf);
+		GameServer()->CreateSoundGlobal(SOUND_CTF_CAPTURE);
 		EndRound();
 		return;
 	}
+	else
+		GameServer()->CreateSoundGlobal(SOUND_CTF_GRAB_PL, pWhom->GetCID());
 
 	UpdateWeapon(pWhom->GetCharacter());
 }
@@ -125,6 +129,7 @@ void CGameControllerGunGame::RemoveWeapon(class CPlayer *pWhom)
 {
 	pWhom->m_Score = max(0, pWhom->m_Score-1);
 	UpdateWeapon(pWhom->GetCharacter());
+	GameServer()->CreateSoundGlobal(SOUND_CTF_DROP, pWhom->GetCID());
 }
 
 void CGameControllerGunGame::UpdateWeapon(class CCharacter *pWhom)
