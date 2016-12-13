@@ -3,6 +3,7 @@
 #include <engine/config.h>
 #include <game/server/gamecontext.h>
 #include <game/server/ai/dm_ai.h>
+#include <engine/shared/config.h>
 #include "gungame.h"
 
 static const int GG_WEAPON_ORDER[] = {
@@ -54,7 +55,6 @@ void CGameControllerGunGame::OnCharacterSpawn(class CCharacter *pChr, bool Reque
 	else
 		SendBroadcastInfo(pChr->GetPlayer());
 
-	pChr->GetPlayer()->m_Score = 0;
 	UpdateWeapon(pChr);
 }
 
@@ -62,7 +62,7 @@ int CGameControllerGunGame::OnCharacterDeath(class CCharacter *pVictim, class CP
 {
 	// -- no weapon drops since this gamemode wouldn't make sense otherwise --
 
-	pVictim->GetPlayer()->m_Score = 0;
+	RemoveWeapon(pVictim->GetPlayer());
 	SendBroadcastInfo(pVictim->GetPlayer());
 
 	if(pKiller && (pKiller->GetTeam() != pVictim->GetPlayer()->GetTeam() || !IsTeamplay()))
@@ -77,8 +77,7 @@ int CGameControllerGunGame::OnCharacterDeath(class CCharacter *pVictim, class CP
 
 	if(pKiller == pVictim->GetPlayer())
 	{
-		if (!(IsInfection() && pVictim->GetPlayer()->GetTeam() == TEAM_BLUE))
-			pVictim->GetPlayer()->m_Score = 0; // suicide, reset weapon
+		// do nothing
 	}
 	else
 	{
@@ -89,30 +88,31 @@ int CGameControllerGunGame::OnCharacterDeath(class CCharacter *pVictim, class CP
 		else
 		{
 			AdvanceWeapon(pKiller); // normal kill, advance by 1 weapon
-			pKiller->GetCharacter()->RefillHealth(); // and refill his health points
+			if(pKiller->GetCharacter()) // (yes, this can indeed happen!)
+				pKiller->GetCharacter()->RefillHealth(); // and refill his health points
 		}
 	}
 
 	if(Weapon == WEAPON_SELF)
 		pVictim->GetPlayer()->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()*3;
 
-	SendBroadcastInfo(pKiller);
 	return 0;
 }
 
 void CGameControllerGunGame::AdvanceWeapon(class CPlayer *pWhom)
 {
-	char aBuf[128];
+	pWhom->m_Score++;
 
-	int Next = NextWeapon(++(pWhom->m_Score));
-	if(Next == LastWeapon())
+	char aBuf[128];
+	int Wep = GetWeaponID(pWhom->m_Score);
+	if(Wep == LastWeapon())
 	{
 		str_format(aBuf, sizeof(aBuf), "%s reached the final stage and is about to win!", Server()->ClientName(pWhom->GetCID()));
 		GameServer()->SendChatTarget(-1, aBuf);
 	}
-	else if(Next == -1) // won
+	else if(Wep == -1) // won
 	{
-		str_format(aBuf, sizeof(aBuf), "%s did the hammer kill and won the game!", Server()->ClientName(pWhom->GetCID()));
+		str_format(aBuf, sizeof(aBuf), "%s did the knife kill and won the game!", Server()->ClientName(pWhom->GetCID()));
 		GameServer()->SendChatTarget(-1, aBuf);
 		EndRound();
 		return;
@@ -123,14 +123,7 @@ void CGameControllerGunGame::AdvanceWeapon(class CPlayer *pWhom)
 
 void CGameControllerGunGame::RemoveWeapon(class CPlayer *pWhom)
 {
-	char aBuf[128];
-
 	pWhom->m_Score = max(0, pWhom->m_Score-1);
-
-	// send the player his info
-	str_format(aBuf, sizeof(aBuf), "Weapon %i/%i", pWhom->m_Score, GG_NUM_USED_WEAPONS);
-	GameServer()->SendBroadcast(aBuf, pWhom->GetCID(), true);
-
 	UpdateWeapon(pWhom->GetCharacter());
 }
 
@@ -150,21 +143,14 @@ void CGameControllerGunGame::UpdateWeapon(class CCharacter *pWhom)
 	// ...and give him the correct one
 	pWhom->GiveCustomWeapon(GG_WEAPON_ORDER[pWhom->GetPlayer()->m_Score]);
 	pWhom->SetCustomWeapon(GG_WEAPON_ORDER[pWhom->GetPlayer()->m_Score]);
-
+	SendBroadcastInfo(pWhom->GetPlayer());
 }
 
-int CGameControllerGunGame::NextWeapon(int current)
+int CGameControllerGunGame::GetWeaponID(int index)
 {
-	if(current+1 >= GG_NUM_USED_WEAPONS)
+	if(index >= GG_NUM_USED_WEAPONS)
 		return -1;
-	return GG_WEAPON_ORDER[current+1];
-}
-
-int CGameControllerGunGame::PrevWeapon(int current)
-{
-	if(current <= 0)
-		return GG_WEAPON_ORDER[0];
-	return GG_WEAPON_ORDER[current-1];
+	return GG_WEAPON_ORDER[index];
 }
 
 const int CGameControllerGunGame::LastWeapon() const
@@ -182,8 +168,47 @@ void CGameControllerGunGame::SendBroadcastInfo(CPlayer *pWhom)
 {
 	// send the player his info
 	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "Weapon %i/%i", pWhom->m_Score, GG_NUM_USED_WEAPONS);
+	str_format(aBuf, sizeof(aBuf), "Weapon %i/%i", pWhom->m_Score+1, GG_NUM_USED_WEAPONS);
 	if(pWhom->m_Score == GG_NUM_USED_WEAPONS-1)
 		str_append(aBuf, " - Final Stage!", sizeof(aBuf));
 	GameServer()->SendBroadcast(aBuf, pWhom->GetCID(), true);
+}
+
+void CGameControllerGunGame::Snap(int SnappingClient)
+{
+	CNetObj_GameInfo *pGameInfoObj = (CNetObj_GameInfo *)Server()->SnapNewItem(NETOBJTYPE_GAMEINFO, 0, sizeof(CNetObj_GameInfo));
+	if(!pGameInfoObj)
+		return;
+
+	if (m_ResetTime)
+	{
+		m_ResetTime = false;
+		if (m_RoundTimeLimit > 0)
+			m_RoundStartTick = Server()->Tick() - Server()->TickSpeed()*(60-m_RoundTimeLimit%60);
+		else
+			m_RoundStartTick = Server()->Tick();
+	}
+
+	pGameInfoObj->m_GameFlags = m_GameFlags;
+	pGameInfoObj->m_GameStateFlags = 0;
+	if(m_GameOverTick != -1)
+		pGameInfoObj->m_GameStateFlags |= GAMESTATEFLAG_GAMEOVER;
+	if(m_SuddenDeath)
+		pGameInfoObj->m_GameStateFlags |= GAMESTATEFLAG_SUDDENDEATH;
+	if(GameServer()->m_World.m_Paused)
+		pGameInfoObj->m_GameStateFlags |= GAMESTATEFLAG_PAUSED;
+	pGameInfoObj->m_RoundStartTick = m_RoundStartTick;
+	pGameInfoObj->m_WarmupTimer = m_Warmup;
+
+	pGameInfoObj->m_ScoreLimit = GG_NUM_USED_WEAPONS;
+
+	if (m_RoundTimeLimit > 0)
+		pGameInfoObj->m_TimeLimit = m_RoundTimeLimit/60+1;
+	else
+		pGameInfoObj->m_TimeLimit = 0;
+
+	m_TimeLimit = pGameInfoObj->m_TimeLimit;
+
+	pGameInfoObj->m_RoundNum = (str_length(g_Config.m_SvMaprotation) && g_Config.m_SvRoundsPerMap) ? g_Config.m_SvRoundsPerMap : 0;
+	pGameInfoObj->m_RoundCurrent = m_RoundCount+1;
 }

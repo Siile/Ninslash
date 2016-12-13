@@ -15,6 +15,7 @@ public:
 
 
 	virtual void Tick();
+	virtual void Snap(int SnappingClient);
 	virtual int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon);
 	virtual void OnCharacterSpawn(class CCharacter *pChr, bool RequestAI);
 
@@ -26,8 +27,7 @@ private:
 	void RemoveWeapon(class CPlayer *pWhom);
 	void UpdateWeapon(class CCharacter *pWhom);
 
-	int NextWeapon(int current);
-	int PrevWeapon(int current);
+	int GetWeaponID(int index);
 	const int LastWeapon() const;
 };
 

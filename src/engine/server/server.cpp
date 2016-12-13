@@ -330,12 +330,12 @@ void CServer::SetBotDefault(int ClientID)
 {
 	if(ClientID < 0 || ClientID >= MAX_CLIENTS || m_aClients[ClientID].m_State < CClient::STATE_READY)
 		return;
-	
+
 	m_aClients[ClientID].m_Latency = 0;
 }
-	
-	
-	
+
+
+
 void CServer::SetClientName(int ClientID, const char *pName)
 {
 	if(ClientID < 0 || ClientID >= MAX_CLIENTS || m_aClients[ClientID].m_State < CClient::STATE_READY)
@@ -394,7 +394,7 @@ void CServer::Kick(int ClientID, const char *pReason)
 {
 	m_NetServer.m_SlotTakenByBot[ClientID] = false;
 	m_aClients[ClientID].m_Bot = false;
-	
+
 	if(ClientID < 0 || ClientID >= MAX_CLIENTS || m_aClients[ClientID].m_State == CClient::STATE_EMPTY)
 	{
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "invalid client id to kick");
@@ -568,15 +568,16 @@ int CServer::SendMsgEx(CMsgPacker *pMsg, int Flags, int ClientID, bool System)
 		if(ClientID == -1)
 		{
 			// broadcast
-			int i;
-			for(i = 0; i < MAX_CLIENTS; i++)
+			for(int i = 0; i < MAX_CLIENTS; i++)
+			{
 				if(m_aClients[i].m_State == CClient::STATE_INGAME && !m_aClients[i].m_Bot)
 				{
 					Packet.m_ClientID = i;
 					m_NetServer.Send(&Packet);
 				}
+			}
 		}
-		else
+		else if(!m_aClients[ClientID].m_Bot)
 		{
 			// potential fatal error crash bug
 			if (!m_aClients[ClientID].m_Bot)
@@ -873,7 +874,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 
 				m_aClients[ClientID].m_State = CClient::STATE_CONNECTING;
 				//m_aClients[ClientID].m_Bot = false;
-				
+
 				SendMap(ClientID);
 			}
 		}
@@ -1195,7 +1196,7 @@ enum InputList
 	INPUT_SHOOT = 4,
 	INPUT_JUMP = 3,
 	INPUT_HOOK = 5
-	
+
 	//1 & 2 vectors for weapon direction
 };
 */
@@ -1221,7 +1222,7 @@ void CServer::UpdateAIInput()
 				// update input data
 				GameServer()->AIUpdateInput(i, pInput->m_aData);
 
-				
+
 				mem_copy(m_aClients[i].m_LatestInput.m_aData, pInput->m_aData, MAX_INPUT_SIZE*sizeof(int));
 
 				m_aClients[i].m_CurrentInput++;
@@ -1281,7 +1282,7 @@ char *CServer::GetMapName()
 int CServer::LoadMap(const char *pMapName)
 {
 	KickBots();
-	
+
 	//DATAFILE *df;
 	char aBuf[512];
 	str_format(aBuf, sizeof(aBuf), "maps/%s.map", pMapName);
@@ -1411,17 +1412,17 @@ int CServer::Run()
 					// new map loaded
 					GameServer()->OnShutdown();
 
-					
-					
+
+
 					for(int c = 0; c < MAX_CLIENTS; c++)
 					{
 						m_NetServer.m_SlotTakenByBot[c] = false;
-						
+
 						if(m_aClients[c].m_State <= CClient::STATE_AUTH)
 							continue;
 
 						SendMap(c);
-						
+
 						m_aClients[c].Reset();
 						m_aClients[c].m_State = CClient::STATE_CONNECTING;
 					}
@@ -1476,7 +1477,7 @@ int CServer::Run()
 			// master server stuff
 			m_Register.RegisterUpdate(m_NetServer.NetType());
 
-			
+
 			UpdateAIInput();
 			PumpNetwork();
 
@@ -1842,19 +1843,19 @@ void CServer::AddZombie()
 			break;
 		}
 	}
-	
+
 	if (ClientID == -1)
 		return;
-	
+
 	//char aBuf[256];
 	//str_format(aBuf, sizeof(aBuf), "zombie client id: %d", ClientID);
 	//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "server", aBuf);
-	
+
 	// fake reserve a slot
 	m_NetServer.m_SlotTakenByBot[ClientID] = true;
-	
+
 	m_aClients[ClientID].Reset();
-	
+
 	m_aClients[ClientID].m_State = CClient::STATE_CONNECTING;
 	GameServer()->OnClientConnected(ClientID, true);
 	//GameServer()->OnClientEnter(i);

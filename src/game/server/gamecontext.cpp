@@ -935,9 +935,6 @@ bool CGameContext::IsHuman(int ClientID)
 
 void CGameContext::SendChatTarget(int To, const char *pText)
 {
-	// skip sending to bots
-	if (IsBot(To))
-		return;
 	CNetMsg_Sv_Chat Msg;
 	Msg.m_Team = 0;
 	Msg.m_ClientID = -1;
