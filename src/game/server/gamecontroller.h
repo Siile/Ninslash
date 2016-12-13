@@ -21,21 +21,21 @@ class IGameController
 	class CGameContext *m_pGameServer;
 	class IServer *m_pServer;
 
-	
-	
+
+
 	// store pickup pointers
 	class CPickup *m_apPickup[MAX_PICKUPS];
 	int m_PickupCount;
 	bool m_DroppablesCreated;
-	
+
 	// for item drops
 	int m_PickupDropCount;
-	
+
 	void CreateDroppables();
-	
+
 protected:
 	void AutoBalance();
-	
+
 	void RespawnPickups();
 	void FlashPickups();
 	void ClearPickups();
@@ -43,8 +43,8 @@ protected:
 	// CSTT & CSBB
 	int m_Round;
 	int m_GameState;
-	
-	
+
+
 	//
 	CGameContext *GameServer() const { return m_pGameServer; }
 	IServer *Server() const { return m_pServer; }
@@ -88,7 +88,7 @@ protected:
 	int m_GameFlags;
 	int m_UnbalancedTick;
 	bool m_ForceBalanced;
-	
+
 	int m_TimeLimit;
 
 public:
@@ -97,21 +97,22 @@ public:
 	int GetRound(){ return m_Round; }
 
 	virtual int GetDefendingTeam();
-	
+
 	void SetPickup(vec2 Pos, int PickupType, int PickupSubtype, int Amount = 1);
-	void DropPickup(vec2 Pos, int PickupType, vec2 Force, int PickupSubtype, float Ammo = -1.0f);
-	
+
+	virtual void DropPickup(vec2 Pos, int PickupType, vec2 Force, int PickupSubtype, float Ammo = -1.0f);
+
 	int GetTimeLeft();
-	
+
 	virtual void NextGameState(int NextGameState = -1, float InHowManySeconds = 0.0f);
-	
+
 	int GetRandomWeapon(int WeaponLevel);
-	
+
 	//
 	const char *m_pGameType;
 
 	int CountPlayers(int Team = -1);
-	
+
 	bool IsTeamplay() const;
 	bool IsInfection() const;
 	bool IsGameOver() const { return m_GameOverTick != -1; }
@@ -120,7 +121,7 @@ public:
 	virtual ~IGameController();
 
 	virtual void DoWincheck();
-	
+
 	/*
 	virtual class CCharacter *GetHead();
 	virtual void SetHead(class CCharacter *Boss);
@@ -128,7 +129,7 @@ public:
 
 	void DoWarmup(int Seconds);
 
-	void StartRound();
+	virtual void StartRound();
 	void EndRound();
 	void ChangeMap(const char *pToMap);
 
@@ -168,7 +169,7 @@ public:
 			chr - The CCharacter that was spawned.
 	*/
 	virtual void OnCharacterSpawn(class CCharacter *pChr, bool RequestAI = false);
-	
+
 
 	/*
 		Function: on_CCharacter_death
@@ -181,11 +182,11 @@ public:
 				weapon when switching team or player suicides.
 	*/
 	virtual int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon);
-	
+
 	// for ctf ai
 	virtual vec2 GetFlagPos(int Team);
 	virtual int GetFlagState(int Team);
-	
+
 	virtual bool CanCharacterSpawn(int ClientID);
 
 	virtual class CBomb *GetBomb();
@@ -193,9 +194,9 @@ public:
 	virtual class CFlag *GetRandomBase(int NotThisTeam = -1);
 	virtual class CFlag *GetUndefendedBase(int Team = -1);
 	virtual int Defenders(class CFlag *Base);
-	
+
 	virtual int CountBases(int Team = -1);
-	
+
 	virtual void OnPlayerInfoChange(class CPlayer *pP);
 
 	//
