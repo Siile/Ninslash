@@ -87,11 +87,14 @@ int CGameControllerGunGame::OnCharacterDeath(class CCharacter *pVictim, class CP
 			RemoveWeapon(pKiller); // teamkill, remove 1 weapon
 		}
 		else
+		{
 			AdvanceWeapon(pKiller); // normal kill, advance by 1 weapon
+			pKiller->GetCharacter()->RefillHealth(); // and refill his health points
+		}
 	}
 
 	if(Weapon == WEAPON_SELF)
-		pVictim->GetPlayer()->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()*3.0f;
+		pVictim->GetPlayer()->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()*3;
 
 	SendBroadcastInfo(pKiller);
 	return 0;

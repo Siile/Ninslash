@@ -1432,6 +1432,11 @@ void CCharacter::SetHealth(int Health)
 	m_HiddenHealth = Health;
 }
 
+void CCharacter::RefillHealth()
+{
+	m_HiddenHealth = m_MaxHealth;
+}
+
 bool CCharacter::IncreaseHealth(int Amount)
 {
 	if(m_HiddenHealth >= m_MaxHealth)
