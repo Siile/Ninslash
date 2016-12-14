@@ -130,7 +130,8 @@ public:
 	void DoWarmup(int Seconds);
 
 	virtual void StartRound();
-	void EndRound();
+
+	virtual void EndRound();
 	void ChangeMap(const char *pToMap);
 
 	bool IsFriendlyFire(int ClientID1, int ClientID2);

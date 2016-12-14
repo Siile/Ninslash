@@ -20,6 +20,7 @@ public:
 	virtual void OnCharacterSpawn(class CCharacter *pChr, bool RequestAI);
 
 	virtual void DoWincheck();
+	virtual void EndRound();
 
 private:
 	void SendBroadcastInfo(class CPlayer *pWhom);

@@ -3,6 +3,7 @@
 #include <engine/shared/config.h>
 #include <game/server/gamecontext.h>
 #include <game/server/ai/dm_ai.h>
+#include <game/server/player.h>
 #include "gungame.h"
 
 static const int GG_WEAPON_ORDER[] = {
@@ -74,6 +75,7 @@ int CGameControllerGunGame::OnCharacterDeath(class CCharacter *pVictim, class CP
 
 	// disadvance the victims weapon stage by one
 	RemoveWeapon(pVictim->GetPlayer());
+	pVictim->GetPlayer()->m_Statistics.m_Deaths++;
 
 	// do scoring
 	if(!pKiller || Weapon == WEAPON_GAME)
@@ -98,6 +100,7 @@ int CGameControllerGunGame::OnCharacterDeath(class CCharacter *pVictim, class CP
 			AdvanceWeapon(pKiller); // normal kill, advance the weapon stage...
 			if(pKiller->GetCharacter()) // (a dead killer? - yes, this can indeed happen!)
 				pKiller->GetCharacter()->RefillHealth(); // ...and refill the health points
+			pKiller->m_Statistics.m_Kills++;
 		}
 	}
 
@@ -121,6 +124,7 @@ void CGameControllerGunGame::AdvanceWeapon(class CPlayer *pWhom)
 	{
 		str_format(aBuf, sizeof(aBuf), "%s did the knife kill and won the game!", Server()->ClientName(pWhom->GetCID()));
 		GameServer()->SendChatTarget(-1, aBuf);
+		GameServer()->SendChatTarget(-1, "-------------------------------------");
 		GameServer()->CreateSoundGlobal(SOUND_CTF_CAPTURE);
 		EndRound();
 		return;
@@ -221,4 +225,52 @@ void CGameControllerGunGame::Snap(int SnappingClient)
 
 	pGameInfoObj->m_RoundNum = (str_length(g_Config.m_SvMaprotation) && g_Config.m_SvRoundsPerMap) ? g_Config.m_SvRoundsPerMap : 0;
 	pGameInfoObj->m_RoundCurrent = m_RoundCount+1;
+}
+
+void CGameControllerGunGame::EndRound()
+{
+	IGameController::EndRound();
+
+	// collect some stats if we got a winner
+	bool GotWinner = false;
+	for(int i = 0; i < MAX_CLIENTS; i++)
+		if(GameServer()->m_apPlayers[i])
+			if((GotWinner = GameServer()->m_apPlayers[i]->m_Score >= GG_NUM_USED_WEAPONS))
+				break;
+	if(!GotWinner)
+		return;
+	else
+		dbg_msg("game", "round ended without a winner");
+
+	char aBuf[256];
+
+	// most best K/D
+	int pv = 0;
+	for(int i = 0; i < MAX_CLIENTS; i++)
+		if(GameServer()->m_apPlayers[i])
+			if((float)GameServer()->m_apPlayers[i]->m_Statistics.m_Kills/(float)GameServer()->m_apPlayers[i]->m_Statistics.m_Deaths >
+					(float)GameServer()->m_apPlayers[i]->m_Statistics.m_Kills/(float)GameServer()->m_apPlayers[i]->m_Statistics.m_Deaths)
+				pv = i;
+	str_format(aBuf, sizeof(aBuf), "Highest K/D ratio: %s (%.2f)", Server()->ClientName(pv), (float)GameServer()->m_apPlayers[pv]->m_Statistics.m_Kills/(float)GameServer()->m_apPlayers[pv]->m_Statistics.m_Deaths);
+	GameServer()->SendChatTarget(-1, aBuf);
+
+	// most kills
+	pv = 0;
+	for(int i = 0; i < MAX_CLIENTS; i++)
+		if(GameServer()->m_apPlayers[i])
+			if(GameServer()->m_apPlayers[i]->m_Statistics.m_Kills > GameServer()->m_apPlayers[pv]->m_Statistics.m_Kills)
+				pv = i;
+	str_format(aBuf, sizeof(aBuf), "Most Kills: %s (%i)", Server()->ClientName(pv), GameServer()->m_apPlayers[pv]->m_Statistics.m_Kills);
+	GameServer()->SendChatTarget(-1, aBuf);
+
+	// most deaths
+	pv = 0;
+	for(int i = 0; i < MAX_CLIENTS; i++)
+		if(GameServer()->m_apPlayers[i])
+			if(GameServer()->m_apPlayers[i]->m_Statistics.m_Deaths > GameServer()->m_apPlayers[pv]->m_Statistics.m_Deaths)
+				pv = i;
+	str_format(aBuf, sizeof(aBuf), "Most Deaths: %s (%i)", Server()->ClientName(pv), GameServer()->m_apPlayers[pv]->m_Statistics.m_Deaths);
+	GameServer()->SendChatTarget(-1, aBuf);
+
+	GameServer()->SendChatTarget(-1, "-------------------------------------");
 }
