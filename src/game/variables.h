@@ -129,6 +129,7 @@ MACRO_CONFIG_INT(SvKillMoney, sv_killmoney, 20, 0, 1000, CFGFLAG_SERVER, "Kill m
 
 
 MACRO_CONFIG_INT(SvBroadcastLock, sv_broadcastlock, 3, 0, 5, CFGFLAG_SERVER, "Broadcast lock time (seconds)")
+MACRO_CONFIG_INT(SvTurretsDisabled, sv_disable_turrets, 0, 0, 1, CFGFLAG_SERVER, "Don't load turret stands on the map")
 
 
 

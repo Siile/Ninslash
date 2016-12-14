@@ -322,3 +322,8 @@ void CGameControllerGunGame::EndRound()
 
 	GameServer()->SendChatTarget(-1, "-------------------------------------");
 }
+
+bool CGameControllerGunGame::CanSeePickup(int CID, int Type, int Subtype)
+{
+	return Type == POWERUP_WEAPON && GetWeaponID(GameServer()->m_apPlayers[CID]->m_Score) == Subtype;
+}

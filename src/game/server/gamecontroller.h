@@ -189,6 +189,8 @@ public:
 	virtual int GetFlagState(int Team);
 
 	virtual bool CanCharacterSpawn(int ClientID);
+	virtual bool CanSeePickup(int CID, int Type, int Subtype); // for gungame
+
 
 	virtual class CBomb *GetBomb();
 	virtual class CFlag *GetClosestBase(vec2 Pos, int Team = -1);
@@ -210,7 +212,7 @@ public:
 	virtual int GetAutoTeam(int NotThisID);
 	virtual bool CanJoinTeam(int Team, int NotThisID);
 	bool CheckTeamBalance();
-	bool CanChangeTeam(CPlayer *pPplayer, int JoinTeam);
+	bool CanChangeTeam(class CPlayer *pPlayer, int JoinTeam);
 	int ClampTeam(int Team);
 
 	virtual void PostReset();

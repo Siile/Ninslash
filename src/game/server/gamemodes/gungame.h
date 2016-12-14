@@ -12,7 +12,7 @@ public:
 	CGameControllerGunGame(class CGameContext *pGameServer);
 
 	void DropPickup(vec2 Pos, int PickupType, vec2 Force, int PickupSubtype, float Ammo = -1.0f);
-
+	virtual bool CanSeePickup(int CID, int Type, int Subtype);
 
 	virtual void Tick();
 	virtual void Snap(int SnappingClient);
