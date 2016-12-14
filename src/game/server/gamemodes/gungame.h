@@ -24,12 +24,15 @@ public:
 
 private:
 	void SendBroadcastInfo(class CPlayer *pWhom);
-	void AdvanceWeapon(class CPlayer *pWhom);
-	void RemoveWeapon(class CPlayer *pWhom);
-	void UpdateWeapon(class CCharacter *pWhom);
+	bool IncreaseScore(class CPlayer *pWhom);
+	bool DecreaseScore(class CPlayer *pWhom);
+	void UpdateWeapon(class CCharacter *pWhom); // returns true if the weapon has changed
 
-	const int GetWeaponID(int index) const;
-	const int LastWeapon() const;
+	inline const int GetStage(class CPlayer *pWhom) const;
+	inline const int GetStage(int Score) const;
+	inline const int GetWeaponID(int Score) const;
+	inline const int LastWeapon() const;
+	inline const int WinningScore() const;
 };
 
 #endif

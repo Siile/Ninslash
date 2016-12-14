@@ -26,38 +26,38 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	m_SpectatorID = SPEC_FREEVIEW;
 	m_LastActionTick = Server()->Tick();
 	m_TeamChangeTick = Server()->Tick();
-	
+
 	m_Spectate = false;
-	
+
 	m_Score = 0;
-	
+
 	m_DeathTick = 0;
 	m_ActionTimer = 0;
-	
+
 	m_InterestPoints = 0;
 	m_BroadcastingCaptureStatus = false;
-	
+
 	m_EnableEmoticonGrenades = true;
 	m_EnableWeaponInfo = 2;
 	m_EnableAutoSpectating = true;
-	
+
 	m_IsBot = false;
 	m_pAI = NULL;
 	m_ToBeKicked = false;
-	
+
 	//m_WantedTeam = m_Team;
 	//m_Team = TEAM_SPECTATORS;
-	
+
 	/*
 	if(str_comp(g_Config.m_SvGametype, "cstt") == 0)
 		m_ForceToSpectators = true;
 	else
 		m_ForceToSpectators = false;
 	*/
-	
+
 	m_ForceToSpectators = false;
 
-	
+
 	// warm welcome awaits
 	m_Welcomed = false;
 }
@@ -74,7 +74,7 @@ CPlayer::~CPlayer()
 void CPlayer::NewRound()
 {
 	m_Score = 0;
-	
+
 	m_InterestPoints = 0;
 }
 
@@ -104,14 +104,14 @@ void CPlayer::DropWeapon()
 	if (GetCharacter())
 		GetCharacter()->DropWeapon();
 }
-	
+
 void CPlayer::SwitchGroup()
 {
 	if (GetCharacter())
 		GetCharacter()->SwitchGroup();
 }
-	
-	
+
+
 void CPlayer::Tick()
 {
 #ifdef CONF_DEBUG
@@ -121,10 +121,10 @@ void CPlayer::Tick()
 		return;
 
 	Server()->SetClientScore(m_ClientID, m_Score);
-	
+
 	//if (m_Team != TEAM_SPECTATORS)
 	//	m_WantedTeam = m_Team;
-	
+
 	// do latency stuff
 	{
 		IServer::CClientInfo Info;
@@ -148,7 +148,7 @@ void CPlayer::Tick()
 
 	//if (m_ForceToSpectators)
 	//	ForceToSpectators();
-	
+
 	/*
 	if(!m_pCharacter && m_DieTick+Server()->TickSpeed()*1 <= Server()->Tick())
 	{
@@ -157,13 +157,13 @@ void CPlayer::Tick()
 	else
 		m_Spectate = false;
 	*/
-	
-	
+
+
 	if (m_IsBot)
 		m_InterestPoints /= 1.025f;
 	else
-		m_InterestPoints /= 1.02f;
-	
+		m_InterestPoints /= 1.020f;
+
 	/*
 	if (m_InterestPoints > 0)
 		m_InterestPoints--;
@@ -173,14 +173,14 @@ void CPlayer::Tick()
 		//	m_InterestPoints = int(frandom()*10);
 	}
 	*/
-	
 
-	
+
+
 	if(!GameServer()->m_World.m_Paused)
 	{
 		if(!m_pCharacter && m_Team == TEAM_SPECTATORS && m_SpectatorID == SPEC_FREEVIEW)
 			m_ViewPos -= vec2(clamp(m_ViewPos.x-m_LatestActivity.m_TargetX, -500.0f, 500.0f), clamp(m_ViewPos.y-m_LatestActivity.m_TargetY, -400.0f, 400.0f));
-		
+
 		//if(!m_pCharacter && m_DieTick+Server()->TickSpeed()*3 <= Server()->Tick())
 		if(!m_pCharacter)
 			m_Spawning = true;
@@ -208,11 +208,16 @@ void CPlayer::Tick()
 				else if (GameServer()->m_pController->GetRoundState() < TEXAS_STARTED)
 					SetTeam(TEAM_RED);
 			}
-			
+
 			if (m_RespawnTick <= Server()->Tick())
 				TryRespawn();
 		}
 
+		if(g_Config.m_SvBroadcastLock && m_BroadcastLockTick && m_aBroadcast[0] != '\0')
+		{
+			if(Server()->Tick() > m_BroadcastLockTick + Server()->TickSpeed() * g_Config.m_SvBroadcastLock)
+				GameServer()->SendBroadcast(m_aBroadcast, GetCID(), true);
+		}
 	}
 	else
 	{
@@ -274,7 +279,7 @@ void CPlayer::Snap(int SnappingClient)
 	pPlayerInfo->m_ClientID = m_ClientID;
 	pPlayerInfo->m_Score = m_Score;
 	pPlayerInfo->m_Team = m_Team;
-	
+
 	/*
 	if (pPlayerInfo->m_Team != TEAM_SPECTATORS)
 	{
@@ -289,12 +294,12 @@ void CPlayer::Snap(int SnappingClient)
 		}
 	}
 	*/
-	
-	
+
+
 	// snap weapons
 	pPlayerInfo->m_Weapons = 0;
 	pPlayerInfo->m_Kits = 0;
-	
+
 	if (GetCharacter())
 	{
 		for (int i = 0; i < NUM_WEAPONS; i++)
@@ -304,9 +309,9 @@ void CPlayer::Snap(int SnappingClient)
 				pPlayerInfo->m_Weapons |= 1 << i;
 			}
 		}
-		
+
 		pPlayerInfo->m_Kits = GetCharacter()->m_Kits;
-		
+
 		pPlayerInfo->m_Item1 = GetCharacter()->m_aItem[0];
 		pPlayerInfo->m_Item2 = GetCharacter()->m_aItem[1];
 		pPlayerInfo->m_Item3 = GetCharacter()->m_aItem[2];
@@ -314,8 +319,8 @@ void CPlayer::Snap(int SnappingClient)
 		pPlayerInfo->m_Item5 = GetCharacter()->m_aItem[4];
 		pPlayerInfo->m_Item6 = GetCharacter()->m_aItem[5];
 	}
-	
-	
+
+
 
 	if(m_ClientID == SnappingClient)
 		pPlayerInfo->m_Local = 1;
@@ -330,7 +335,7 @@ void CPlayer::Snap(int SnappingClient)
 		pSpectatorInfo->m_X = m_ViewPos.x;
 		pSpectatorInfo->m_Y = m_ViewPos.y;
 	}
-	
+
 	/*
 	if(m_ClientID == SnappingClient && pPlayerInfo->m_Team == TEAM_SPECTATORS)
 	{
@@ -359,7 +364,7 @@ void CPlayer::OnDisconnect(const char *pReason)
 	if(Server()->ClientIngame(m_ClientID))
 	{
 		char aBuf[512];
-		
+
 		if (!m_IsBot)
 		{
 			if(pReason && *pReason)
@@ -399,12 +404,12 @@ void CPlayer::OnDirectInput(CNetObj_PlayerInput *NewInput)
 		m_PlayerFlags = NewInput->m_PlayerFlags;
  		return;
 	}
-	
+
 	m_PlayerFlags = NewInput->m_PlayerFlags;
 
 	if (m_pAI)
 		m_PlayerFlags = PLAYERFLAG_PLAYING;
-	
+
 	if(m_pCharacter)
 		m_pCharacter->OnDirectInput(NewInput);
 
@@ -455,8 +460,8 @@ void CPlayer::ForceToSpectators()
 	m_TeamChangeTick = Server()->Tick();
 	*/
 }
-	
-	
+
+
 void CPlayer::JoinTeam()
 {
 	/*
@@ -467,10 +472,10 @@ void CPlayer::JoinTeam()
 	}
 	*/
 }
-	
 
-	
-	
+
+
+
 void CPlayer::SetTeam(int Team, bool DoChatMsg)
 {
 	// clamp the team
@@ -479,7 +484,7 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 		return;
 
 	char aBuf[512];
-	
+
 	/* skip this
 	if(DoChatMsg)
 	{
@@ -498,12 +503,12 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 	// we got to wait 0.5 secs before respawning
 	if (!(GameServer()->m_pController->IsInfection() && Team == TEAM_BLUE))
 		m_RespawnTick = Server()->Tick();
-	
+
 	str_format(aBuf, sizeof(aBuf), "team_join player='%d:%s' m_Team=%d", m_ClientID, Server()->ClientName(m_ClientID), m_Team);
 	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 	GameServer()->m_pController->OnPlayerInfoChange(GameServer()->m_apPlayers[m_ClientID]);
-	
+
 	if (m_pAI)
 		SetRandomSkin();
 
@@ -528,7 +533,7 @@ void CPlayer::TryRespawn()
 
 	if(!GameServer()->m_pController->CanSpawn(m_Team, &SpawnPos, m_IsBot))
 		return;
-	
+
 	m_Spawning = false;
 	m_pCharacter = new(m_ClientID) CCharacter(&GameServer()->m_World);
 	m_pCharacter->Spawn(this, SpawnPos);
@@ -540,7 +545,7 @@ void CPlayer::SetRandomSkin()
 {
 	switch (rand()%15)
 	{
-	case 0: str_copy(m_TeeInfos.m_TopperName, "tigerboy", 64); break;	
+	case 0: str_copy(m_TeeInfos.m_TopperName, "tigerboy", 64); break;
 	case 1: str_copy(m_TeeInfos.m_TopperName, "emo", 64); break;
 	case 2: str_copy(m_TeeInfos.m_TopperName, "emo2", 64); break;
 	case 3: str_copy(m_TeeInfos.m_TopperName, "dr", 64); break;
@@ -555,23 +560,23 @@ void CPlayer::SetRandomSkin()
 	case 12: str_copy(m_TeeInfos.m_TopperName, "afro", 64); break;
 	case 13: str_copy(m_TeeInfos.m_TopperName, "long", 64); break;
 	default: str_copy(m_TeeInfos.m_TopperName, "default", 64);
-	};	
-	
+	};
+
 	switch (rand()%5)
 	{
-	case 0: str_copy(m_TeeInfos.m_EyeName, "halfhollow", 64); break;	
+	case 0: str_copy(m_TeeInfos.m_EyeName, "halfhollow", 64); break;
 	case 1: str_copy(m_TeeInfos.m_EyeName, "single", 64); break;
 	case 2: str_copy(m_TeeInfos.m_EyeName, "birdy", 64); break;
 	case 3: str_copy(m_TeeInfos.m_EyeName, "lid", 64); break;
 	default: str_copy(m_TeeInfos.m_EyeName, "default", 64);
 	};
-	
+
 	m_TeeInfos.m_Body = rand()%NUM_BODIES;
 	m_TeeInfos.m_ColorTopper = rand()*(0xFFFFFF/RAND_MAX);
 	m_TeeInfos.m_ColorSkin = rand()*(0xFFFFFF/RAND_MAX);
 	m_TeeInfos.m_ColorBody = rand()*(0xFFFFFF/RAND_MAX);
 	m_TeeInfos.m_ColorFeet = rand()*(0xFFFFFF/RAND_MAX);
-	
+
 	// generate random name
 	char aBotName[128];
 	str_format(aBotName, sizeof(aBotName), "%s%s", aBotName1[rand()%(sizeof(aBotName1)/sizeof(aBotName1[0]))], aBotName2[rand()%(sizeof(aBotName2)/sizeof(aBotName2[0]))]);
@@ -590,12 +595,12 @@ void CPlayer::SetCustomSkin(int Type)
 		m_TeeInfos.m_ColorSkin = 10747862;
 		m_TeeInfos.m_ColorBody = 9174784;
 		m_TeeInfos.m_ColorFeet = 10354432;
-		
+
 		char aBotName[128];
 		str_format(aBotName, sizeof(aBotName), "%s%s-T1", aBotName1[rand()%(sizeof(aBotName1)/sizeof(aBotName1[0]))], aBotName2[rand()%(sizeof(aBotName2)/sizeof(aBotName2[0]))]);
 		GameServer()->Server()->SetClientName(GetCID(), aBotName);
 	}
-	
+
 }
 
 
@@ -604,7 +609,7 @@ void CPlayer::AITick()
 	if (m_pAI)
 		m_pAI->Tick();
 }
-	
+
 
 bool CPlayer::AIInputChanged()
 {

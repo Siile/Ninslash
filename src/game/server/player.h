@@ -152,6 +152,9 @@ public:
 	bool AIInputChanged();
 
 	bool m_ToBeKicked;
+	char m_aBroadcast[256];
+	int m_BroadcastLockTick;
+
 
 	// custom
 	void SelectWeapon(int Weapon, int Group);
