@@ -27,7 +27,7 @@ private:
 	void RemoveWeapon(class CPlayer *pWhom);
 	void UpdateWeapon(class CCharacter *pWhom);
 
-	int GetWeaponID(int index);
+	const int GetWeaponID(int index) const;
 	const int LastWeapon() const;
 };
 
