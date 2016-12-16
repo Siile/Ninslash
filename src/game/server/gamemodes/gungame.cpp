@@ -327,3 +327,8 @@ bool CGameControllerGunGame::CanSeePickup(int CID, int Type, int Subtype)
 {
 	return Type == POWERUP_WEAPON && GetWeaponID(GameServer()->m_apPlayers[CID]->m_Score) == Subtype;
 }
+
+bool CGameControllerGunGame::CanDropWeapon(class CCharacter *pCharacter)
+{
+	return false;
+}

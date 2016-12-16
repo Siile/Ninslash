@@ -806,7 +806,6 @@ void IGameController::OnPlayerInfoChange(class CPlayer *pP)
 
 int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
 {
-
 	// weapon drops
 	if (g_Config.m_SvWeaponDrops)
 	{
@@ -1341,4 +1340,9 @@ int IGameController::ClampTeam(int Team)
 bool IGameController::CanSeePickup(int CID, int Type, int Subtype)
 {
 	return true;
+}
+
+bool IGameController::CanDropWeapon(CCharacter *pCharacter)
+{
+	return pCharacter != NULL;
 }

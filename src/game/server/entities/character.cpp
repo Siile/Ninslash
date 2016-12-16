@@ -233,7 +233,8 @@ void CCharacter::SwitchGroup()
 
 void CCharacter::DropWeapon()
 {
-	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
+	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE ||
+			!GameServer()->m_pController->CanDropWeapon(this))
 		return;
 
 	// check if using dropable weapon

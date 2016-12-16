@@ -190,6 +190,7 @@ public:
 
 	virtual bool CanCharacterSpawn(int ClientID);
 	virtual bool CanSeePickup(int CID, int Type, int Subtype); // for gungame
+	virtual bool CanDropWeapon(class CCharacter *pCharacter);
 
 
 	virtual class CBomb *GetBomb();
