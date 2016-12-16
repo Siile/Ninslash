@@ -631,6 +631,13 @@ void IGameController::ResetGame()
 	GameServer()->m_World.m_ResetRequested = true;
 }
 
+int IGameController::GetLockedWeapon(CCharacter *pCharacter)
+{
+	if(IsInfection() && pCharacter->GetPlayer()->GetTeam() == TEAM_BLUE)
+		return WEAPON_CHAINSAW;
+	return -1;
+}
+
 const char *IGameController::GetTeamName(int Team)
 {
 	if(IsTeamplay())

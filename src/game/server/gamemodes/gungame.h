@@ -14,6 +14,7 @@ public:
 	void DropPickup(vec2 Pos, int PickupType, vec2 Force, int PickupSubtype, float Ammo = -1.0f);
 	virtual bool CanSeePickup(int CID, int Type, int Subtype);
 	virtual bool CanDropWeapon(class CCharacter *pCharacter);
+	virtual int GetLockedWeapon(class CCharacter *pCharacter);
 
 	virtual void Tick();
 	virtual void Snap(int SnappingClient);

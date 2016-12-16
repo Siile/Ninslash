@@ -894,13 +894,14 @@ void CCharacter::AutoWeaponChange()
 
 void CCharacter::GiveStartWeapon()
 {
-	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
+	int LockedWeapon = GameServer()->m_pController->GetLockedWeapon(this);
+	if (LockedWeapon != -1)
 	{
-		GiveCustomWeapon(WEAPON_CHAINSAW);
-		SetCustomWeapon(WEAPON_CHAINSAW);
+		GiveCustomWeapon(LockedWeapon);
+		SetCustomWeapon(LockedWeapon);
 
-		m_aSelectedWeapon[0] = WEAPON_CHAINSAW;
-		m_aSelectedWeapon[1] = WEAPON_CHAINSAW;
+		m_aSelectedWeapon[0] = LockedWeapon;
+		m_aSelectedWeapon[1] = LockedWeapon;
 
 		return;
 	}

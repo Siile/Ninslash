@@ -52,11 +52,11 @@ void CGameControllerGunGame::Tick()
 	GameServer()->UpdateAI();
 
 	// not so fancy... but makes sure the players have only the weapons they may
-	for(int i = 0; i < MAX_CLIENTS; i++)
+/*	for(int i = 0; i < MAX_CLIENTS; i++)
 		if(GameServer()->m_apPlayers[i])
 			if(GameServer()->m_apPlayers[i]->GetCharacter())
 				if(GameServer()->m_apPlayers[i]->GetCharacter()->m_ActiveCustomWeapon != GetWeaponID(GameServer()->m_apPlayers[i]->m_Score))
-					UpdateWeapon(GameServer()->m_apPlayers[i]->GetCharacter());
+					UpdateWeapon(GameServer()->m_apPlayers[i]->GetCharacter());*/
 }
 
 void CGameControllerGunGame::OnCharacterSpawn(class CCharacter *pChr, bool RequestAI)
@@ -66,8 +66,6 @@ void CGameControllerGunGame::OnCharacterSpawn(class CCharacter *pChr, bool Reque
 	// init AI
 	if(RequestAI)
 		pChr->GetPlayer()->m_pAI = new CAIdm(GameServer(), pChr->GetPlayer());
-
-	UpdateWeapon(pChr);
 }
 
 int CGameControllerGunGame::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
@@ -76,10 +74,6 @@ int CGameControllerGunGame::OnCharacterDeath(class CCharacter *pVictim, class CP
 	 * -- no weapon drops since this gamemode wouldn't make sense otherwise --
 	 */
 
-
-	// make the killer more interesting for autospec
-	if(pKiller && (pKiller->GetTeam() != pVictim->GetPlayer()->GetTeam() || !IsTeamplay()))
-		pKiller->m_InterestPoints += 60;
 
 	// disadvance the victims weapon stage by one
 	DecreaseScore(pVictim->GetPlayer());
@@ -110,6 +104,7 @@ int CGameControllerGunGame::OnCharacterDeath(class CCharacter *pVictim, class CP
 				if(pKiller->GetCharacter()) // (a dead killer? - yes, this can indeed happen!)
 					pKiller->GetCharacter()->RefillHealth(); // ...and refill the health points
 			pKiller->m_Statistics.m_Kills++;
+			pKiller->m_InterestPoints += 60;
 		}
 	}
 
@@ -191,7 +186,7 @@ const int CGameControllerGunGame::GetStage(class CPlayer *pWhom) const
 const int CGameControllerGunGame::GetStage(int Score) const
 {
 	if(g_Config.m_SvScorelimit > 1)
-		return (int)((float)Score/(float)g_Config.m_SvScorelimit); //(int)floorf((float)Score/(float)g_Config.m_SvScorelimit);
+		return (int)((float)Score/(float)g_Config.m_SvScorelimit);
 	return Score;
 }
 
@@ -330,5 +325,19 @@ bool CGameControllerGunGame::CanSeePickup(int CID, int Type, int Subtype)
 
 bool CGameControllerGunGame::CanDropWeapon(class CCharacter *pCharacter)
 {
+	// in gungame you cannot drop your weapon
 	return false;
+}
+
+int CGameControllerGunGame::GetLockedWeapon(class CCharacter *pCharacter)
+{
+	int super = IGameController::GetLockedWeapon(pCharacter);
+	if(super == -1)
+	{
+		int own = GetWeaponID(pCharacter->GetPlayer()->m_Score);
+		if(own == -1)
+			return LastWeapon();
+		return own;
+	}
+	return super;
 }
