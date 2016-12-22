@@ -10,7 +10,7 @@
 #include "gamecontext.h"
 #include <game/version.h>
 #include <game/collision.h>
-#include <game/gamecore.h> 
+#include <game/gamecore.h>
 #include "gamemodes/dm.h"
 #include "gamemodes/tdm.h"
 #include "gamemodes/ctf.h"
@@ -26,7 +26,7 @@
 #include <game/server/ai.h>
 
 #include <game/buildables.h>
-
+#include <game/server/gamemodes/gungame.h>
 
 
 const int ExplosionDmg = 40;
@@ -48,17 +48,17 @@ void CGameContext::Construct(int Resetting)
 		m_apPlayers[i] = 0;
 
 	m_BroadcastLockTick = 0;
-	
+
 	m_pController = 0;
 	m_VoteCloseTime = 0;
 	m_pVoteOptionFirst = 0;
 	m_pVoteOptionLast = 0;
 	m_NumVoteOptions = 0;
 	m_LockTeams = 0;
-	
+
 	m_aMostInterestingPlayer[0] = -1;
 	m_aMostInterestingPlayer[1] = -1;
-	
+
 	m_ShowWaypoints = false;
 	m_FreezeCharacters = false;
 
@@ -129,7 +129,7 @@ void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount)
 	int a = Amount / 4;
 	if (a == 0)
 		a = 1;
-	
+
 	for(int i = 0; i < a; i++)
 	{
 		CNetEvent_DamageInd *pEvent = (CNetEvent_DamageInd *)m_Events.Create(NETEVENTTYPE_DAMAGEIND, sizeof(CNetEvent_DamageInd));
@@ -160,9 +160,9 @@ int CGameContext::CreateDeathray(vec2 Pos)
 	vec2 To = Pos + vec2(0, 1200);
 
 	Collision()->IntersectLine(Pos, To, 0x0, &To);
-	
+
 	int Height = To.y - Pos.y + 14;
-	
+
 	// create the event
 	CNetEvent_Lazer *pEvent = (CNetEvent_Lazer *)m_Events.Create(NETEVENTTYPE_LAZER, sizeof(CNetEvent_Lazer));
 	if(pEvent)
@@ -171,7 +171,7 @@ int CGameContext::CreateDeathray(vec2 Pos)
 		pEvent->m_Y = (int)Pos.y;
 		pEvent->m_Height = Height;
 	}
-	
+
 	return Height;
 }
 
@@ -194,16 +194,16 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos)
 {
 	//float OffsetY = -(int(Pos.y)%32) + 12;
 	float CheckRange = 40.0f;
-	
+
 
 	// check sanity
 	/*
-	if (!Collision()->GetCollisionAt(Pos.x-24, Pos.y+24)&CCollision::COLFLAG_SOLID || 
+	if (!Collision()->GetCollisionAt(Pos.x-24, Pos.y+24)&CCollision::COLFLAG_SOLID ||
 		!Collision()->GetCollisionAt(Pos.x+24, Pos.y+24)&CCollision::COLFLAG_SOLID ||
 		Collision()->IsForceTile(Pos.x, Pos.y+24) != 0)
 		return false;
 		*/
-	
+
 	// check for close by buildings
 	CBuilding *apEnts[16];
 	int Num = m_World.FindEntities(Pos, 32, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
@@ -211,11 +211,11 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos)
 	for (int i = 0; i < Num; ++i)
 	{
 		CBuilding *pTarget = apEnts[i];
-		
+
 		if (distance(pTarget->m_Pos, Pos) < CheckRange)
 			return false;
 	}
-	
+
 
 	if (Kit == BUILDABLE_BARREL)
 	{
@@ -228,11 +228,11 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos)
 			new CBuilding(&m_World, Pos+vec2(0, 8), BUILDING_STAND, TEAM_NEUTRAL);
 			return true;
 	}
-	
+
 	if (Kit == BUILDABLE_FLAMETRAP)
 	{
 			CBuilding *pFlametrap = new CBuilding(&m_World, Pos+vec2(0, -18), BUILDING_FLAMETRAP, TEAM_NEUTRAL);
-			
+
 			if (Collision()->IsTileSolid(Pos.x+32, Pos.y))
 			{
 				pFlametrap->m_Mirror = true;
@@ -240,10 +240,10 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos)
 			}
 			else
 				pFlametrap->m_Pos.x -= 12;
-		
+
 			return true;
 	}
-	
+
 	/*
 	if (Kit == KIT_STAND)
 	{
@@ -255,53 +255,53 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos)
 		for (int i = 0; i < Num; ++i)
 		{
 			CBuilding *pTarget = apEnts[i];
-			
+
 			if (pTarget->m_Type == BUILDING_BASE && distance(pTarget->m_Pos, Pos) < CheckRange)
 			{
 				pNear = pTarget;
 				break;
 			}
 		}
-		
+
 		if (pNear)
 		{
 			vec2 p = pNear->m_Pos;
 			m_World.DestroyEntity(pNear);
-			
+
 			new CBuilding(&m_World, p+vec2(0, -6), BUILDING_STAND, TEAM_NEUTRAL);
 			return true;
 		}
-		
+
 		//CBuilding *pBuilding = new CBuilding(&m_World, Pos+vec2(0, 0), BUILDING_STAND, TEAM_NEUTRAL);
 		//CTurret *pBuilding = new CTurret(&m_World, Pos+vec2(0, 0), 0, W_SHOTGUN + rand()%5);
 		//CTurret *pBuilding = new CTurret(&m_World, Pos+vec2(0, 0), 0, WEAPON_CHAINSAW);
-		
+
 	}
 	else
 	{
 		// these buildings can't be set too close to another building
 		bool Near = false;
-		
+
 		CBuilding *apEnts[16];
 		int Num = m_World.FindEntities(Pos, 32, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
 
 		for (int i = 0; i < Num; ++i)
 		{
 			CBuilding *pTarget = apEnts[i];
-			
+
 			if (distance(pTarget->m_Pos, Pos) < CheckRange)
 				Near = true;
 		}
-		
+
 		if (Near)
 			return false;
-		
+
 		if (Kit == KIT_BARREL)
 		{
 			CBuilding *pBuilding = new CBuilding(&m_World, Pos+vec2(0, -12+OffsetY), BUILDING_BARREL, TEAM_NEUTRAL);
 			return true;
 		}
-		
+
 		if (Kit == KIT_BASE)
 		{
 			CBuilding *pBuilding = new CBuilding(&m_World, Pos+vec2(0, OffsetY), BUILDING_BASE, TEAM_NEUTRAL);
@@ -309,8 +309,8 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos)
 		}
 	}
 	*/
-	
-	
+
+
 	return false;
 }
 
@@ -320,7 +320,7 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos)
 void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, vec2 PlayerPos, vec2 ProjPos, CCharacter *OwnerChr, CBuilding *OwnerBuilding)
 {
 	int ProximityRadius = CCharacter::ms_PhysSize;
-	
+
 	{
 		CCharacter *apEnts[MAX_CLIENTS];
 		int Num = m_World.FindEntities(ProjPos, ProximityRadius*0.5f, (CEntity**)apEnts,
@@ -341,7 +341,7 @@ void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, vec2 PlayerPos
 									DamageOwner, Weapon, ProjPos, DAMAGETYPE_NORMAL, OwnerBuilding ? true : false);
 		}
 	}
-		
+
 	// monsters
 	{
 		CMonster *apEnts[MAX_CLIENTS];
@@ -362,7 +362,7 @@ void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, vec2 PlayerPos
 			pTarget->TakeDamage(Dir*1.2f, aCustomWeapon[Weapon].m_Damage, DamageOwner, vec2(0, 0));
 		}
 	}
-	
+
 	// buildings
 	{
 		CBuilding *apEnts[MAX_CLIENTS];
@@ -372,7 +372,7 @@ void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, vec2 PlayerPos
 		for (int i = 0; i < Num; ++i)
 		{
 			CBuilding *pTarget = apEnts[i];
-			
+
 			pTarget->TakeDamage(aCustomWeapon[Weapon].m_Damage, DamageOwner, Weapon);
 			CreateBuildingHit((ProjPos+pTarget->m_Pos)/2);
 		}
@@ -383,28 +383,28 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, vec2 Pos, vec2 
 {
 	int Explosion = 0;
 	int HitSound = -1;
-	
+
 	switch (Weapon)
 	{
 	case WEAPON_ELECTRIC:
 		Explosion = EXPLOSION_ELECTRIC;
 		HitSound = SOUND_LASER_FIRE;
 		break;
-		
+
 	case WEAPON_GRENADE:
 		Explosion = EXPLOSION_EXPLOSION;
 		HitSound = SOUND_GRENADE_EXPLODE;
 		break;
-		
+
 	case WEAPON_FLAMER:
 		Explosion = EXPLOSION_FLAME;
 		HitSound = SOUND_GRENADE_EXPLODE;
 		break;
-		
-		
+
+
 	default:;
 	};
-	
+
 	int ShotSpread = aCustomWeapon[Weapon].m_ShotSpread;
 
 	CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
@@ -413,7 +413,7 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, vec2 Pos, vec2 
 	for (int i = 0; i < ShotSpread; i++)
 	{
 		float Angle = GetAngle(Direction);
-		
+
 		Angle -= (ShotSpread-1)/2.0f * pi/180 * 4;
 		Angle += i * pi/180 * 4;
 		Angle += (frandom()-frandom())*aCustomWeapon[Weapon].m_BulletSpread;
@@ -428,7 +428,7 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, vec2 Pos, vec2 
 			Explosion,
 			aCustomWeapon[Weapon].m_Knockback,
 			HitSound);
-			
+
 		pProj->m_OwnerBuilding = OwnerBuilding;
 
 		// pack the Projectile and send it to the client Directly
@@ -462,7 +462,7 @@ void CGameContext::AmmoFill(vec2 Pos, int Weapon)
 void CGameContext::Repair(vec2 Pos)
 {
 	float CheckRange = 42.0f;
-	
+
 	// check if there's turret base near
 	CBuilding *apEnts[16];
 	int Num = m_World.FindEntities(Pos, 32, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
@@ -470,7 +470,7 @@ void CGameContext::Repair(vec2 Pos)
 	for (int i = 0; i < Num; ++i)
 	{
 		CBuilding *pTarget = apEnts[i];
-			
+
 		if (distance(pTarget->m_Pos, Pos) < CheckRange)
 		{
 			if (pTarget->Repair())
@@ -482,7 +482,7 @@ void CGameContext::Repair(vec2 Pos)
 					pEvent->m_Y = (int)(pTarget->m_Pos.y + Pos.y)/2;
 				}
 			}
-			
+
 			CreateBuildingHit(Pos);
 		}
 	}
@@ -515,11 +515,11 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 				ForceDir = normalize(Diff);
 			l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
 			float Dmg = ExplosionDmg * l;
-						
+
 			if((int)Dmg && Dmg > 0.0f)
 				apEnts[i]->TakeDamage(ForceDir*Dmg*0.3f, (int)Dmg, Owner, Weapon, vec2(0, 0), DAMAGETYPE_NORMAL, IsTurret);
 		}
-		
+
 		// buildings
 		{
 			CBuilding *apBuildings[9];
@@ -531,12 +531,12 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 				float l = length(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
 				float Dmg = ExplosionDmg * l;
-							
+
 				if((int)Dmg && Dmg > 0.0f)
 					apBuildings[i]->TakeDamage((int)Dmg, Owner, Weapon);
 			}
-		}		
-		
+		}
+
 		// monsters
 		{
 			CMonster *apMonsters[9];
@@ -546,16 +546,16 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 			{
 				if (apMonsters[i]->m_Health <= 0)
 					continue;
-				
+
 				vec2 ForceDir(0,1);
 				vec2 Diff = apMonsters[i]->m_Pos - Pos;
 				float l = length(Diff);
 				if(l)
 					ForceDir = normalize(Diff);
-				
+
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
 				float Dmg = ExplosionDmg * l;
-							
+
 				if((int)Dmg && Dmg > 0.0f)
 					apMonsters[i]->TakeDamage(ForceDir*Dmg*0.3f, (int)Dmg, Owner, vec2(0, 0));
 			}
@@ -585,11 +585,11 @@ void CGameContext::CreateMineExplosion(vec2 Pos, int Owner, int Weapon, bool NoD
 				ForceDir = normalize(Diff);
 			l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
 			float Dmg = MineExplosionDmg * l;
-						
+
 			if((int)Dmg && Dmg > 0.0f)
 				apEnts[i]->TakeDamage(ForceDir*Dmg*0.2f, (int)Dmg, Owner, Weapon, vec2(0, 0));
 		}
-		
+
 		// buildings
 		{
 			CBuilding *apBuildings[9];
@@ -601,7 +601,7 @@ void CGameContext::CreateMineExplosion(vec2 Pos, int Owner, int Weapon, bool NoD
 				float l = length(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
 				float Dmg = MineExplosionDmg * l;
-							
+
 				if((int)Dmg && Dmg > 0.0f)
 					apBuildings[i]->TakeDamage((int)Dmg, Owner, Weapon);
 			}
@@ -614,12 +614,12 @@ void CGameContext::CreateElectromineExplosion(vec2 Pos, int Owner, int Weapon, b
 {
 	//CreateEffect(FX_ELECTRIC, Pos);
 	CreateEffect(FX_ELECTROMINE, Pos);
-	
+
 	if (!NoDamage)
 	{
 		float Radius = 80.0f;
 		float InnerRadius = 40.0f;
-		
+
 		// deal damage
 		{
 			CCharacter *apEnts[MAX_CLIENTS];
@@ -633,7 +633,7 @@ void CGameContext::CreateElectromineExplosion(vec2 Pos, int Owner, int Weapon, b
 					ForceDir = normalize(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
 				float Dmg = 20 * l;
-							
+
 				if((int)Dmg && Dmg > 0.0f)
 				{
 					CreateEffect(FX_ELECTROHIT, (Pos+apEnts[i]->m_Pos)/2.0f);
@@ -642,7 +642,7 @@ void CGameContext::CreateElectromineExplosion(vec2 Pos, int Owner, int Weapon, b
 				}
 			}
 		}
-		
+
 		// monsters
 		{
 			CMonster *apMonsters[9];
@@ -652,7 +652,7 @@ void CGameContext::CreateElectromineExplosion(vec2 Pos, int Owner, int Weapon, b
 			{
 				if (apMonsters[i]->m_Health <= 0)
 					continue;
-				
+
 				vec2 Diff = apMonsters[i]->m_Pos - Pos;
 				vec2 ForceDir(0,1);
 				float l = length(Diff);
@@ -660,7 +660,7 @@ void CGameContext::CreateElectromineExplosion(vec2 Pos, int Owner, int Weapon, b
 					ForceDir = normalize(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
 				float Dmg = 24 * l;
-							
+
 				if((int)Dmg && Dmg > 0.0f)
 				{
 					CreateEffect(FX_ELECTROHIT, (Pos+apMonsters[i]->m_Pos)/2.0f);
@@ -686,7 +686,7 @@ void CGameContext::CreateFlameExplosion(vec2 Pos, int Owner, int Weapon, bool No
 	{
 		float Radius = 70.0f;
 		float InnerRadius = 30.0f;
-			
+
 		// deal damage
 		{
 			CCharacter *apEnts[MAX_CLIENTS];
@@ -708,7 +708,7 @@ void CGameContext::CreateFlameExplosion(vec2 Pos, int Owner, int Weapon, bool No
 				}
 			}
 		}
-		
+
 		// buildings
 		{
 			CBuilding *apBuildings[9];
@@ -720,12 +720,12 @@ void CGameContext::CreateFlameExplosion(vec2 Pos, int Owner, int Weapon, bool No
 				float l = length(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
 				float Dmg = 14 * l;
-							
+
 				if((int)Dmg && Dmg > 0.0f)
 					apBuildings[i]->TakeDamage((int)Dmg, Owner, Weapon);
 			}
 		}
-		
+
 		// monsters
 		{
 			CMonster *apMonsters[9];
@@ -735,7 +735,7 @@ void CGameContext::CreateFlameExplosion(vec2 Pos, int Owner, int Weapon, bool No
 			{
 				if (apMonsters[i]->m_Health <= 0)
 					continue;
-				
+
 				vec2 Diff = apMonsters[i]->m_Pos - Pos;
 				vec2 ForceDir(0,1);
 				float l = length(Diff);
@@ -743,7 +743,7 @@ void CGameContext::CreateFlameExplosion(vec2 Pos, int Owner, int Weapon, bool No
 					ForceDir = normalize(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
 				float Dmg = 24 * l;
-							
+
 				if((int)Dmg && Dmg > 0.0f)
 				{
 					apMonsters[i]->TakeDamage(ForceDir*0.1f, (int)Dmg, Owner, vec2(0, 0));
@@ -768,12 +768,12 @@ void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, bool
 {
 	// create the event
 	CreateEffect(FX_ELECTRIC, Pos);
-	
+
 	if (!NoDamage)
 	{
 		float Radius = 100.0f;
 		float InnerRadius = 50.0f;
-		
+
 		// deal damage
 		{
 			CCharacter *apEnts[MAX_CLIENTS];
@@ -787,7 +787,7 @@ void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, bool
 					ForceDir = normalize(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
 				float Dmg = 24 * l;
-							
+
 				if((int)Dmg && Dmg > 0.0f)
 				{
 					CreateEffect(FX_ELECTROHIT, (Pos+apEnts[i]->m_Pos)/2.0f);
@@ -796,7 +796,7 @@ void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, bool
 				}
 			}
 		}
-		
+
 		// buildings
 		{
 			CBuilding *apBuildings[9];
@@ -808,12 +808,12 @@ void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, bool
 				float l = length(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
 				float Dmg = 28 * l;
-				
+
 				if((int)Dmg && Dmg > 0.0f)
 					apBuildings[i]->TakeDamage((int)Dmg, Owner, Weapon);
 			}
 		}
-		
+
 		// monsters
 		{
 			CMonster *apMonsters[9];
@@ -823,7 +823,7 @@ void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, bool
 			{
 				if (apMonsters[i]->m_Health <= 0)
 					continue;
-				
+
 				vec2 Diff = apMonsters[i]->m_Pos - Pos;
 				vec2 ForceDir(0,1);
 				float l = length(Diff);
@@ -831,7 +831,7 @@ void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, bool
 					ForceDir = normalize(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
 				float Dmg = 25 * l;
-							
+
 				if((int)Dmg && Dmg > 0.0f)
 				{
 					CreateEffect(FX_ELECTROHIT, (Pos+apMonsters[i]->m_Pos)/2.0f);
@@ -919,7 +919,7 @@ bool CGameContext::IsBot(int ClientID)
 {
 	if(m_apPlayers[ClientID] && m_apPlayers[ClientID]->m_IsBot)
 		return true;
-	
+
 	return false;
 }
 
@@ -927,7 +927,7 @@ bool CGameContext::IsHuman(int ClientID)
 {
 	if(m_apPlayers[ClientID] && !m_apPlayers[ClientID]->m_pAI)
 		return true;
-	
+
 	return false;
 }
 
@@ -935,9 +935,6 @@ bool CGameContext::IsHuman(int ClientID)
 
 void CGameContext::SendChatTarget(int To, const char *pText)
 {
-	// skip sending to bots
-	if (IsBot(To))
-		return;
 	CNetMsg_Sv_Chat Msg;
 	Msg.m_Team = 0;
 	Msg.m_ClientID = -1;
@@ -1003,8 +1000,16 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, bool Lock)
 	CNetMsg_Sv_Broadcast Msg;
 	Msg.m_pMessage = pText;
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
-	if (Lock)
-		m_BroadcastLockTick = Server()->Tick() + g_Config.m_SvBroadcastLock*Server()->TickSpeed();
+	if(ClientID < 0)
+	{
+		if(Lock)
+			m_BroadcastLockTick = Server()->Tick() + g_Config.m_SvBroadcastLock * Server()->TickSpeed();
+	}
+	else
+	{
+		str_copy(m_apPlayers[ClientID]->m_aBroadcast, Lock ? pText : "", sizeof(m_apPlayers[ClientID]->m_aBroadcast));
+		m_apPlayers[ClientID]->m_BroadcastLockTick = Lock ? Server()->Tick() : 0;
+	}
 }
 
 //
@@ -1013,7 +1018,7 @@ void CGameContext::StartVote(const char *pDesc, const char *pCommand, const char
 	// check if a vote is already running
 	if(m_VoteCloseTime)
 		return;
-	
+
 	// reset votes
 	m_VoteEnforce = VOTE_ENFORCE_UNKNOWN;
 	for(int i = 0; i < MAX_CLIENTS; i++)
@@ -1088,6 +1093,7 @@ void CGameContext::CheckPureTuning()
 	if(	str_comp(m_pController->m_pGameType, "DM")==0 ||
 		str_comp(m_pController->m_pGameType, "TDM")==0 ||
 		str_comp(m_pController->m_pGameType, "INF")==0 ||
+		str_comp(m_pController->m_pGameType, "GunGame")==0 ||
 		str_comp(m_pController->m_pGameType, "CTF")==0)
 	{
 		CTuningParams p;
@@ -1115,10 +1121,10 @@ void CGameContext::UpdateSpectators()
 {
 	// SKIP
 	return;
-	
-	
+
+
 	bool Found[2] = {false, false};
-		
+
 	// check validity
 	for (int i = 0; i < 2; i++)
 	{
@@ -1147,31 +1153,31 @@ void CGameContext::UpdateSpectators()
 			(!m_apPlayers[i] || !g_Config.m_SvSpectateOnlyHumans))
 		{
 			int Team = m_apPlayers[i]->GetTeam();
-			
+
 			// team is correct
 			if(Team == TEAM_RED || Team == TEAM_BLUE)
 			{
 				// most interesting player exists
-				
+
 				int Points = -1;
 				int Player = m_aMostInterestingPlayer[Team];
-				
+
 				if (Player >= 0)
 					if (m_apPlayers[Player] && m_apPlayers[Player]->GetCharacter())
 						Points = m_apPlayers[Player]->m_InterestPoints;
-					
-					
+
+
 				if (m_apPlayers[i]->m_InterestPoints > Points)
 				{
 					// works
 					//char aBuf[128]; str_format(aBuf, sizeof(aBuf), "i = %d, team = %d", i, Team);
 					//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "cstt", aBuf);
-					
+
 					m_aMostInterestingPlayer[Team] = i;
-					Found[Team] = true;				
+					Found[Team] = true;
 				}
-				
-				
+
+
 				/*
 				if (m_aMostInterestingPlayer[Team] >= 0)
 				{
@@ -1204,29 +1210,29 @@ void CGameContext::UpdateSpectators()
 				m_apPlayers[i]->m_LastSetSpectatorMode = Server()->Tick() - Server()->TickSpeed()*g_Config.m_SvSpectatorUpdateTime;
 			else
 			{
-				if (m_apPlayers[i]->m_LastSetSpectatorMode+Server()->TickSpeed()*g_Config.m_SvSpectatorUpdateTime < Server()->Tick())	
+				if (m_apPlayers[i]->m_LastSetSpectatorMode+Server()->TickSpeed()*g_Config.m_SvSpectatorUpdateTime < Server()->Tick())
 				{
 					int WantedPlayer = -1;
-					
+
 					/*
 					if (!m_pController->IsTeamplay())
 					{
 						if (m_apPlayers[i]->GetTeam() != TEAM_SPECTATORS)
 						{
-							
-							
-							
+
+
+
 						}
 					}
 					else*/
 					{
 						int Team = m_apPlayers[i]->GetTeam();
-							
+
 						// get the correct player
 						if (Team == TEAM_RED || Team == TEAM_BLUE)
 						{
 							WantedPlayer = m_aMostInterestingPlayer[Team];
-								
+
 							// update the view
 							if (WantedPlayer >= 0 && m_apPlayers[i]->m_SpectatorID != WantedPlayer && Found[Team])
 							{
@@ -1240,9 +1246,9 @@ void CGameContext::UpdateSpectators()
 			}
 		}
 	}
-	
-	
-	
+
+
+
 	/*
 			CNetMsg_Cl_SetSpectatorMode *pMsg = (CNetMsg_Cl_SetSpectatorMode *)pRawMsg;
 
@@ -1264,7 +1270,7 @@ void CGameContext::SwapTeams()
 {
 	if(!m_pController->IsTeamplay() || m_pController->IsInfection())
 		return;
-	
+
 	SendChat(-1, CGameContext::CHAT_ALL, "Teams were swapped");
 
 	for(int i = 0; i < MAX_CLIENTS; ++i)
@@ -1398,7 +1404,7 @@ bool CGameContext::AIInputUpdateNeeded(int ClientID)
 {
 	if(m_apPlayers[ClientID])
 		return m_apPlayers[ClientID]->AIInputChanged();
-		
+
 	return false;
 }
 
@@ -1421,7 +1427,7 @@ enum InputList
 	INPUT_JUMP = 3,
 	INPUT_HOOK = 5
 	INPUT_DOWN = 6
-	
+
 	//1 & 2 vectors for weapon direction
 };
 */
@@ -1478,7 +1484,7 @@ void CGameContext::OnClientConnected(int ClientID, bool AI)
 	//players[client_id].client_id = client_id;
 
 	m_apPlayers[ClientID]->m_IsBot = AI;
-	
+
 	(void)m_pController->CheckTeamBalance();
 
 #ifdef CONF_DEBUG
@@ -1544,7 +1550,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			CNetMsg_Cl_Say *pMsg = (CNetMsg_Cl_Say *)pRawMsg;
 			int Team = pMsg->m_Team ? pPlayer->GetTeam() : CGameContext::CHAT_ALL;
-			
+
 			// trim right and set maximum length to 128 utf8-characters
 			int Length = 0;
 			const char *p = pMsg->m_pMessage;
@@ -1579,27 +1585,27 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			bool SendToTeam = true;
 			bool SkipSending = false;
-			
+
 			pPlayer->m_LastChat = Server()->Tick();
 
-			
+
 			if ( strcmp(pMsg->m_pMessage, "/color") == 0 )
 			{
 				char aBuf[128]; str_format(aBuf, sizeof(aBuf), "Body: %d, feet: %d, skin: %d, topper: %d", m_apPlayers[ClientID]->m_TeeInfos.m_ColorBody, m_apPlayers[ClientID]->m_TeeInfos.m_ColorFeet, m_apPlayers[ClientID]->m_TeeInfos.m_ColorSkin, m_apPlayers[ClientID]->m_TeeInfos.m_ColorTopper);
 				SendChatTarget(ClientID, aBuf);
 				SkipSending = true;
 			}
-			
 
-			
+
+
 			if ( strcmp(pMsg->m_pMessage, "/showwaypoints") == 0 )
 			{
 				m_ShowWaypoints = !m_ShowWaypoints;
 				SkipSending = true;
 			}
-			
-			
-		
+
+
+
 			if (!SkipSending)
 			{
 				if (SendToTeam)
@@ -1645,7 +1651,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			if(str_comp_nocase(pMsg->m_Type, "option") == 0)
 			{
 				CVoteOptionServer *pOption = m_pVoteOptionFirst;
-				
+
 				while(pOption)
 				{
 					if(str_comp_nocase(pMsg->m_Value, pOption->m_aDescription) == 0)
@@ -1664,10 +1670,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					//str_format(aDesc, sizeof(aDesc), "%s", pOption->m_aDescription);
 					//str_format(aCmd, sizeof(aCmd), "%s", pOption->m_aCommand);
-						
+
 					str_format(aChatmsg, sizeof(aChatmsg), "'%s' isn't an option on this server", pMsg->m_Value);
 					SendChatTarget(ClientID, aChatmsg);
-					
+
 					return;
 				}
 			}
@@ -1749,7 +1755,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				str_format(aDesc, sizeof(aDesc), "move '%s' to spectators", Server()->ClientName(SpectateID));
 				str_format(aCmd, sizeof(aCmd), "set_team %d -1 %d", SpectateID, g_Config.m_SvVoteSpectateRejoindelay);
 			}
-			
+
 			// do nothing
 			if(str_comp(aCmd, "null") == 0)
 			{
@@ -1788,17 +1794,17 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			if(pPlayer->GetTeam() == pMsg->m_Team || (g_Config.m_SvSpamprotection && pPlayer->m_LastSetTeam && pPlayer->m_LastSetTeam+Server()->TickSpeed()*1 > Server()->Tick()))
 				return;
-			
-			
+
+
 			pPlayer->m_LastSetTeam = Server()->Tick();
 			if(pPlayer->GetTeam() == TEAM_SPECTATORS || pMsg->m_Team == TEAM_SPECTATORS)
 				m_VoteUpdate = true;
 			pPlayer->SetTeam(pMsg->m_Team);
 			pPlayer->m_TeamChangeTick = Server()->Tick();
-					
-			
+
+
 			//pPlayer->m_WantedTeam = pMsg->m_Team;
-			
+
 			/*
 			if(pMsg->m_Team != TEAM_SPECTATORS)
 			{
@@ -1811,8 +1817,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				pPlayer->m_WantedTeam = pMsg->m_Team;
 			}
 			*/
-			
-			
+
+
 			/* 1.4 way
 			pPlayer->m_LastSetTeam = Server()->Tick();
 			if(str_comp(g_Config.m_SvGametype, "cstt") == 0)
@@ -1826,7 +1832,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				pPlayer->SetWantedTeam(pMsg->m_Team);
 			}
 			*/
-			
+
 			/*
 			if(pMsg->m_Team != TEAM_SPECTATORS && m_LockTeams)
 			{
@@ -1846,7 +1852,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				SendBroadcast(aBuf, ClientID);
 				return;
 			}
-			
+
 
 			// Switch team on given client and kill/respawn him
 			if(m_pController->CanJoinTeam(pMsg->m_Team, ClientID))
@@ -1922,7 +1928,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return;
 
 			pPlayer->m_LastEmote = Server()->Tick();
-			
+
 			SendEmoticon(ClientID, pMsg->m_Emoticon);
 		}
 		else if (MsgID == NETMSGTYPE_CL_SELECTWEAPON && !m_World.m_Paused)
@@ -1930,19 +1936,19 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			CNetMsg_Cl_SelectWeapon *pMsg = (CNetMsg_Cl_SelectWeapon *)pRawMsg;
 
 			// TODO: spam protection
-			
+
 			pPlayer->SelectWeapon(pMsg->m_Weapon, pMsg->m_Group);
 		}
 		else if (MsgID == NETMSGTYPE_CL_DROPWEAPON && !m_World.m_Paused)
 		{
 			// TODO: spam protection
-			
+
 			pPlayer->DropWeapon();
 		}
 		else if (MsgID == NETMSGTYPE_CL_SWITCHGROUP && !m_World.m_Paused)
 		{
 			// TODO: spam protection
-			
+
 			pPlayer->SwitchGroup();
 		}
 		else if (MsgID == NETMSGTYPE_CL_SELECTITEM && !m_World.m_Paused)
@@ -2196,7 +2202,7 @@ void CGameContext::ConShuffleTeams(IConsole::IResult *pResult, void *pUserData)
 		if(pSelf->m_apPlayers[i] && pSelf->m_apPlayers[i]->GetTeam() != TEAM_SPECTATORS)
 			++PlayerTeam;
 	PlayerTeam = (PlayerTeam+1)/2;
-	
+
 	pSelf->SendChat(-1, CGameContext::CHAT_ALL, "Teams were shuffled");
 
 	/*
@@ -2209,7 +2215,7 @@ void CGameContext::ConShuffleTeams(IConsole::IResult *pResult, void *pUserData)
 			else if(CounterBlue == PlayerTeam)
 				pSelf->m_apPlayers[i]->SetTeam(TEAM_RED, false);
 			else
-			{	
+			{
 				if(rand() % 2)
 				{
 					pSelf->m_apPlayers[i]->SetTeam(TEAM_BLUE, false);
@@ -2543,6 +2549,8 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		m_pController = new CGameControllerTDM(this);
 	else if(str_comp(g_Config.m_SvGametype, "inf") == 0)
 		m_pController = new CGameControllerTexasRun(this);
+	else if(str_comp(g_Config.m_SvGametype, "gungame") == 0)
+		m_pController = new CGameControllerGunGame(this);
 	else if(str_comp(g_Config.m_SvGametype, "base") == 0)
 		m_pController = new CGameControllerBase(this);
 	else
@@ -2578,16 +2586,16 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 			}
 		}
 	}
-	
+
 
 	//game.world.insert_entity(game.Controller);
 
 	//SetupVotes(-1);
-	
+
 	/*
 	CNetMsg_Sv_VoteClearOptions VoteClearOptionsMsg;
 	Server()->SendPackMsg(&VoteClearOptionsMsg, MSGFLAG_VITAL, -1);
-	
+
 	m_pVoteOptionHeap->Reset();
 	m_pVoteOptionFirst = 0;
 	m_pVoteOptionLast = 0;
@@ -2670,10 +2678,10 @@ void CGameContext::KickBot(int ClientID)
 {
 	if (ClientID < 0 || ClientID >= MAX_CLIENTS)
 		return;
-	
+
 	if (m_apPlayers[ClientID]->GetCharacter())
 		m_apPlayers[ClientID]->GetCharacter()->Die(ClientID, WEAPON_WORLD, true);
-	
+
 	if(IsBot(ClientID))
 		Server()->Kick(ClientID, "");
 }
@@ -2704,7 +2712,7 @@ void CGameContext::AddBot()
 int CGameContext::CountBots(bool SkipSpecialTees)
 {
 	int n = 0;
-	
+
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (IsBot(i))
@@ -2718,27 +2726,27 @@ int CGameContext::CountBots(bool SkipSpecialTees)
 				n++;
 		}
 	}
-	
+
 	return n;
 }
 
 int CGameContext::CountHumans()
 {
 	int n = 0;
-	
+
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (IsHuman(i))
 			n++;
 	}
-	
+
 	return n;
 }
 
 int CGameContext::CountBotsAlive(bool SkipSpecialTees)
 {
 	int n = 0;
-	
+
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (IsBot(i) && m_apPlayers[i]->GetCharacter() && m_apPlayers[i]->GetCharacter()->IsAlive())
@@ -2752,20 +2760,20 @@ int CGameContext::CountBotsAlive(bool SkipSpecialTees)
 				n++;
 		}
 	}
-	
+
 	return n;
 }
 
 int CGameContext::CountHumansAlive()
 {
 	int n = 0;
-	
+
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (IsHuman(i) && m_apPlayers[i]->GetCharacter() && m_apPlayers[i]->GetCharacter()->IsAlive())
 			n++;
 	}
-	
+
 	return n;
 }
 
@@ -2776,16 +2784,16 @@ int CGameContext::CountHumansAlive()
 int CGameContext::DistanceToHuman(vec2 Pos)
 {
 	int MinDist = 10000;
-		
+
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if (m_apPlayers[i] && !m_apPlayers[i]->m_IsBot && m_apPlayers[i]->GetCharacter())
 		{
 			if (distance(Pos, m_apPlayers[i]->GetCharacter()->m_Pos) < MinDist)
 				MinDist = distance(Pos, m_apPlayers[i]->GetCharacter()->m_Pos);
-		}		
+		}
 	}
-	
+
 	return MinDist;
 }
 
@@ -2795,21 +2803,21 @@ vec2 CGameContext::GetNearHumanSpawnPos(bool AllowVision)
 	int n = 0;
 	vec2 ReturnPos = Collision()->GetRandomWaypointPos();
 	int Dist = 100000;
-	
-	
+
+
 	while (n++ < 50)
 	{
 		vec2 Pos = Collision()->GetRandomWaypointPos();
-		
+
 		bool Valid = true;
 		int MinDist = 10000;
-		
+
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
 			if (m_apPlayers[i] && !m_apPlayers[i]->m_IsBot && m_apPlayers[i]->GetCharacter())
 			{
 				vec2 PlayerPos = m_apPlayers[i]->GetCharacter()->m_Pos;
-				
+
 				if (!AllowVision && abs(Pos.x - PlayerPos.x) < 1200 && abs(Pos.x - PlayerPos.x) < 900)
 				{
 					Valid = false;
@@ -2817,19 +2825,19 @@ vec2 CGameContext::GetNearHumanSpawnPos(bool AllowVision)
 				}
 				else
 				{
-					
+
 					if (distance(Pos, PlayerPos) < MinDist)
 						MinDist = distance(Pos, PlayerPos);
 				}
 			}
-			
+
 		}
-		
+
 		if (Valid)
 		{
 			if (MinDist < 1800)
 				return Pos;
-			
+
 			if (MinDist < Dist)
 			{
 				Dist = MinDist;
@@ -2847,21 +2855,21 @@ vec2 CGameContext::GetFarHumanSpawnPos(bool AllowVision)
 	int n = 0;
 	vec2 ReturnPos = Collision()->GetRandomWaypointPos();
 	int Dist = 1;
-	
-	
+
+
 	while (n++ < 50)
 	{
 		vec2 Pos = Collision()->GetRandomWaypointPos();
-		
+
 		bool Valid = true;
 		int MaxDist = 1;
-		
+
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
 			if (m_apPlayers[i] && !m_apPlayers[i]->m_IsBot && m_apPlayers[i]->GetCharacter())
 			{
 				vec2 PlayerPos = m_apPlayers[i]->GetCharacter()->m_Pos;
-				
+
 				if (!AllowVision && abs(Pos.x - PlayerPos.x) < 1200 && abs(Pos.x - PlayerPos.x) < 900)
 				{
 					Valid = false;
@@ -2869,19 +2877,19 @@ vec2 CGameContext::GetFarHumanSpawnPos(bool AllowVision)
 				}
 				else
 				{
-					
+
 					if (distance(Pos, PlayerPos) > MaxDist)
 						MaxDist = distance(Pos, PlayerPos);
 				}
 			}
-			
+
 		}
-		
+
 		if (Valid)
 		{
 			if (MaxDist > 3000)
 				return Pos;
-			
+
 			if (MaxDist > Dist)
 			{
 				Dist = MaxDist;

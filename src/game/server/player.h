@@ -33,16 +33,16 @@ class CPlayer
 public:
 	CPlayer(CGameContext *pGameServer, int ClientID, int Team);
 	~CPlayer();
-	
+
 	void Init(int CID);
 
 	void NewRound();
-	
+
 	void TryRespawn();
 	void Respawn();
 	void SetTeam(int Team, bool DoChatMsg=true);
 	int GetTeam() const { return m_Team; };
-	
+
 	/*
 	int GetTeam()
 	{
@@ -51,7 +51,7 @@ public:
 		return m_WantedTeam;
 	};
 	*/
-	
+
 	int GetCID() const { return m_ClientID; };
 
 	void Tick();
@@ -64,12 +64,12 @@ public:
 
 	void KillCharacter(int Weapon = WEAPON_GAME);
 	CCharacter *GetCharacter();
-	
+
 	// bomb planting & defusing
 	int m_ActionTimer;
-	
+
 	int m_DeathTick;
-	
+
 	//---------------------------------------------------------
 	// this is used for snapping so we know how we can clip the view for the player
 	vec2 m_ViewPos;
@@ -84,7 +84,7 @@ public:
 	int m_SpectatorID;
 
 	bool m_IsReady;
-	
+
 	bool m_BroadcastingCaptureStatus;
 
 	//
@@ -111,10 +111,16 @@ public:
 		int m_ColorTopper;
 		int m_ColorSkin;
 	} m_TeeInfos;
-	
-	
+
+
+	struct
+	{
+		int m_Kills;
+		int m_Deaths;
+	} m_Statistics;
+
 	float m_InterestPoints;
-	
+
 	int m_RespawnTick;
 	int m_DieTick;
 	int m_Score;
@@ -138,40 +144,43 @@ public:
 		int m_Min;
 		int m_Max;
 	} m_Latency;
-	
+
 	CAI *m_pAI;
 	bool m_IsBot;
-	
+
 	void AITick();
 	bool AIInputChanged();
-	
+
 	bool m_ToBeKicked;
-	
+	char m_aBroadcast[256];
+	int m_BroadcastLockTick;
+
+
 	// custom
 	void SelectWeapon(int Weapon, int Group);
 	void SelectItem(int Item);
 	void UseKit(int Kit, vec2 Pos);
 	void DropWeapon();
 	void SwitchGroup();
-	
+
 	void JoinTeam();
-	
+
 	bool m_ForceToSpectators;
 
 	//int m_WantedTeam;
-	
+
 	// settings
 	int m_EnableWeaponInfo; // 0 = disabled, 1 = chat, 2 = broadcast
 	bool m_EnableAutoSpectating;
 	bool m_EnableEmoticonGrenades;
-	
+
 	// warm welcome
 	bool m_Welcomed;
-	
+
 	void SetRandomSkin();
 	void SetCustomSkin(int Type);
 
-	
+
 private:
 	bool m_Spectate;
 
@@ -183,7 +192,7 @@ private:
 
 	//
 	void ForceToSpectators();
-	
+
 	//
 	bool m_Spawning;
 	int m_ClientID;

@@ -14,12 +14,12 @@ CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType, int Ammo)
 	m_ProximityRadius = PickupPhysSize;
 
 	m_ResetableDropable = false;
-	
+
 	Reset();
 
 	GameWorld()->InsertEntity(this);
 	m_SkipAutoRespawn = false;
-	
+
 	m_Dropable = false;
 	m_Life = 0;
 	m_Vel = vec2(0, 0);
@@ -34,7 +34,7 @@ void CPickup::Reset()
 			m_SpawnTick = Server()->Tick() + Server()->TickSpeed() * g_pData->m_aPickups[m_Type].m_Spawndelay;
 		else
 			m_SpawnTick = -1;
-			
+
 		m_Flashing = false;
 		m_FlashTimer = 0;
 	}
@@ -54,7 +54,7 @@ void CPickup::Tick()
 		m_SpawnTick = -1;
 		m_Ammo = 1.0f;
 	}
-	
+
 	// wait for respawn
 	//if(m_SpawnTick > 0) - 12.5.
 	if(m_SpawnTick > 0 && (!m_Dropable || m_ResetableDropable) && !m_Flashing)
@@ -63,13 +63,13 @@ void CPickup::Tick()
 		{
 			// respawn
 			m_SpawnTick = -1;
-			
+
 			if (m_ResetableDropable)
 			{
 				m_Pos = m_SpawnPos;
 				m_Dropable = false;
 			}
-			
+
 
 			if(m_Type == POWERUP_WEAPON)
 				GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SPAWN);
@@ -77,13 +77,13 @@ void CPickup::Tick()
 		else
 			return;
 	}
-	
+
 	// item drops from enemies
 	if (m_Dropable && !m_Treasure)
 	{
 		if (m_Life < 100)
 			m_Flashing = true;
-		
+
 		if (m_Life > 0)
 			m_Life--;
 		else
@@ -99,52 +99,52 @@ void CPickup::Tick()
 			return;
 		}
 	}
-	
+
 	// a small visual effect before pickup disappears
 	if (m_Flashing)
 	{
 		m_FlashTimer--;
-		
+
 		if (m_FlashTimer <= 0)
 			m_FlashTimer = 20;
-			
+
 		if (m_FlashTimer > 10)
 			m_SpawnTick = 999;
 		else
 			m_SpawnTick = -1;
 	}
-	
-	
-	
+
+
+
 	// physics
 	if (m_Dropable && !m_Treasure)
 	{
 		m_Vel.y += 0.5f;
-		
+
 		bool Grounded = false;
 		if(GameServer()->Collision()->CheckPoint(m_Pos.x+12, m_Pos.y+12+5))
 			Grounded = true;
 		if(GameServer()->Collision()->CheckPoint(m_Pos.x-12, m_Pos.y+12+5))
 			Grounded = true;
-		
+
 		int OnForceTile = GameServer()->Collision()->IsForceTile(m_Pos.x-12, m_Pos.y+12+5);
 		if (OnForceTile == 0)
 			OnForceTile = GameServer()->Collision()->IsForceTile(m_Pos.x+12, m_Pos.y+12+5);
-		
+
 		if (Grounded)
 			m_Vel.x = (m_Vel.x + OnForceTile) * 0.8f;
 			//m_Vel.x *= 0.8f;
 		else
 			m_Vel.x *= 0.99f;
-		
-		
+
+
 		//if (OnForceTile == -1)
 		//	m_Vel.x -= 0.3f;
-		
+
 		GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(24.0f, 24.0f), 0.4f);
 	}
-	
-	
+
+
 	// Check if a player intersected us
 	CCharacter *pChr = GameServer()->m_World.ClosestCharacter(m_Pos, 20.0f, 0);
 	if(pChr && pChr->IsAlive() && pChr->m_SkipPickups <= 0 && (!g_Config.m_SvBotsSkipPickups || !pChr->GetPlayer()->m_IsBot)) // && !pChr->GetPlayer()->m_pAI)
@@ -172,7 +172,7 @@ void CPickup::Tick()
 					m_Flashing = false;
 				}
 				break;
-				
+
 			case POWERUP_MINE:
 				if(pChr->AddMine())
 				{
@@ -182,7 +182,7 @@ void CPickup::Tick()
 					m_Flashing = false;
 				}
 				break;
-				
+
 			case POWERUP_KIT:
 				if(pChr->AddKit())
 				{
@@ -206,31 +206,31 @@ void CPickup::Tick()
 						break;
 					}
 					*/
-					
+
 					float AmmoFill = 1.0f;
 					if (m_Dropable)
 						AmmoFill = 0.3f + frandom()*0.3f;
-					
+
 					if (m_Ammo >= 0.0f)
 						AmmoFill = m_Ammo;
-					
+
 					if (pChr->GiveCustomWeapon(m_Subtype, AmmoFill))
 					{
 						if(m_Subtype == WEAPON_GRENADE)
 							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE);
 						else
 							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN);
-						
+
 						if(pChr->GetPlayer())
 						{
 							//GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), Parent);
-							
+
 							GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), m_Subtype);
-							
+
 							//char aBuf[256]; str_format(aBuf, sizeof(aBuf), "Picked up %s", aCustomWeapon[m_Subtype].m_Name);
 							//GameServer()->SendChatTarget(pChr->GetPlayer()->GetCID(), aBuf);
 						}
-						
+
 						RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
 						m_Life = 0;
 						m_Flashing = false;
@@ -243,25 +243,25 @@ void CPickup::Tick()
 								GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE);
 							else
 								GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN);
-							
+
 							//char aBuf[256]; str_format(aBuf, sizeof(aBuf), "Picked up ammo for %s", aCustomWeapon[m_Subtype].m_Name);
 							//GameServer()->SendChatTarget(pChr->GetPlayer()->GetCID(), aBuf);
-							
+
 							if(pChr->GetPlayer())
 								GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), m_Subtype);
-							
+
 							RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
 							m_Life = 0;
 							m_Flashing = false;
 						}
 					}
-					
-					/*if(pChr->GiveWeapon(m_Subtype, 10)) // !pChr->m_WeaponPicked && 
+
+					/*if(pChr->GiveWeapon(m_Subtype, 10)) // !pChr->m_WeaponPicked &&
 					{
 						RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
 
 						//pChr->m_WeaponPicked = true;
-						
+
 						if(m_Subtype == WEAPON_GRENADE)
 							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE);
 						else if(m_Subtype == WEAPON_SHOTGUN)
@@ -284,7 +284,7 @@ void CPickup::Tick()
 			// force 10 sec on factory boxes
 			if (m_ResetableDropable)
 				m_SpawnTick = Server()->Tick() + Server()->TickSpeed() * (4.0f+frandom()*6);
-			
+
 			char aBuf[256];
 			str_format(aBuf, sizeof(aBuf), "pickup player='%d:%s' item=%d/%d",
 				pChr->GetPlayer()->GetCID(), Server()->ClientName(pChr->GetPlayer()->GetCID()), m_Type, m_Subtype);
@@ -302,7 +302,8 @@ void CPickup::TickPaused()
 
 void CPickup::Snap(int SnappingClient)
 {
-	if(m_SpawnTick != -1 || NetworkClipped(SnappingClient))
+	if(m_SpawnTick != -1 || NetworkClipped(SnappingClient) ||
+			(m_Type == POWERUP_WEAPON && !GameServer()->m_pController->CanSeePickup(SnappingClient, m_Type, m_Subtype))) // for gungame
 		return;
 
 	CNetObj_Pickup *pP = static_cast<CNetObj_Pickup *>(Server()->SnapNewItem(NETOBJTYPE_PICKUP, m_ID, sizeof(CNetObj_Pickup)));
@@ -312,7 +313,7 @@ void CPickup::Snap(int SnappingClient)
 	pP->m_X = (int)m_Pos.x;
 	pP->m_Y = (int)m_Pos.y;
 	pP->m_Type = m_Type;
-	
+
 	if (m_Type == POWERUP_WEAPON && m_Subtype >= 0 && m_Subtype < NUM_CUSTOMWEAPONS)
 	{
 		//pP->m_Subtype = aCustomWeapon[m_Subtype].m_ParentWeapon;

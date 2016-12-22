@@ -70,14 +70,14 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	m_aSelectedWeapon[1] = WEAPON_HAMMER;
 	m_aSelectedWeapon[2] = WEAPON_TOOL;
 	m_ActiveWeaponGroup = 0;
-	
+
 	for (int i = 0; i < NUM_STATUSS; i++)
 	{
 		m_aStatus[i] = 0;
 		m_aStatusFrom[i] = 0;
 		m_aStatusWeapon[i] = 0;
 	}
-	
+
 	m_LastStatusEffect = 0;
 	m_DeathrayTick = 0;
 }
@@ -92,23 +92,23 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 {
 	for (int i = 0; i < NUM_PLAYERITEMS; i++)
 		m_aItem[i] = 0;
-	
+
 	for (int i = 0; i < NUM_STATUSS; i++)
 		m_aStatus[i] = 0;
-	
+
 	m_aStatus[STATUS_SPAWNING] = 0.5f*Server()->TickSpeed();
-	
+
 	m_ShieldHealth = 0;
 	m_ShieldRadius = 0;
-	
+
 	m_Recoil = vec2(0, 0);
-	
+
 	m_SkipPickups = 0;
 	m_HealthStored = 0;
-	
+
 	m_CryTimer = 0;
 	m_CryState = 0;
-	
+
 	m_EmoteLockStop = 0;
 	m_DeathTileTimer = 0;
 	m_DelayedKill = false;
@@ -124,14 +124,14 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 	m_PainSoundTimer = 0;
 	m_Chainsaw = 0;
-	
+
 	m_pPlayer = pPlayer;
 	m_Pos = Pos;
 
 	m_SpawnPos = Pos;
-	
+
 	m_LatestHitVel = vec2(0, 0);
-	
+
 	m_Core.Reset();
 	m_Core.Init(&GameServer()->m_World.m_Core, GameServer()->Collision());
 	m_Core.m_Pos = m_Pos;
@@ -146,7 +146,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_Alive = true;
 
 	GameServer()->m_pController->OnCharacterSpawn(this, pPlayer->m_IsBot);
-	
+
 	if (pPlayer->m_pAI)
 	{
 		pPlayer->m_pAI->OnCharacterSpawn(this);
@@ -154,17 +154,17 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	}
 
 	GiveStartWeapon();
-	
+
 	if (g_Config.m_SvRandomBuff)
 		GiveRandomBuff();
-	
+
 	return true;
 }
 
 
 
 
-	
+
 bool CCharacter::SetLandmine()
 {
 	if(GameServer()->Collision()->GetCollisionAt(m_Pos.x-16, m_Pos.y+24)&CCollision::COLFLAG_SOLID && GameServer()->Collision()->GetCollisionAt(m_Pos.x+16, m_Pos.y+24)&CCollision::COLFLAG_SOLID)
@@ -202,10 +202,10 @@ void CCharacter::Teleport(vec2 Pos)
 	m_Core.m_Pos = m_Pos;
 
 	m_Core.Reset();
-	
+
 	m_Pos = Pos;
 	m_Core.m_Pos = m_Pos;
-	
+
 	if (GetPlayer()->m_pAI)
 		GetPlayer()->m_pAI->StandStill(15);
 }
@@ -224,26 +224,27 @@ void CCharacter::SwitchGroup()
 	m_ActiveWeaponGroup++;
 	if (m_ActiveWeaponGroup > 2)
 		m_ActiveWeaponGroup = 0;
-	
+
 	m_WeaponGroup = m_ActiveWeaponGroup;
-	
+
 	GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
 	*/
 }
 
 void CCharacter::DropWeapon()
 {
-	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
+	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE ||
+			!GameServer()->m_pController->CanDropWeapon(this))
 		return;
-	
+
 	// check if using dropable weapon
 	if (m_ActiveCustomWeapon != W_HAMMER && m_ActiveCustomWeapon != W_TOOL && m_aWeapon[m_ActiveCustomWeapon].m_Got)
 	{
 		vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
-		
+
 		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
-		
-		
+
+
 		// check if near upgradeable buildings
 		float CheckRange = 48.0f;
 		CBuilding *pNear = NULL;
@@ -254,24 +255,24 @@ void CCharacter::DropWeapon()
 		for (int i = 0; i < Num; ++i)
 		{
 			CBuilding *pTarget = apEnts[i];
-			
+
 			if (pTarget->m_Type == BUILDING_STAND && distance(pTarget->m_Pos, m_Pos) < CheckRange)
 			{
 				pNear = pTarget;
 				break;
 			}
 		}
-		
+
 		if (pNear)
 		{
 			vec2 p = pNear->m_Pos;
 			GameServer()->m_World.DestroyEntity(pNear);
-			
+
 			CTurret *pTurret = new CTurret(&GameServer()->m_World, p, GetPlayer()->GetTeam(), m_ActiveCustomWeapon);
 			pTurret->m_OwnerPlayer = GetPlayer()->GetCID();
 			pTurret->SetAngle(-Direction);
 			pTurret->m_Ammo = m_aWeapon[m_ActiveCustomWeapon].m_Ammo;
-			
+
 			// sound
 			GameServer()->CreateSound(m_Pos, SOUND_BUILD_TURRET);
 		}
@@ -280,20 +281,20 @@ void CCharacter::DropWeapon()
 			// check for turrets
 			CTurret *pTurret = NULL;
 			CTurret *apTurrets[16];
-			
+
 			Num = GameServer()->m_World.FindEntities(m_Pos, 32, (CEntity**)apTurrets, 16, CGameWorld::ENTTYPE_BUILDING);
-			
+
 			for (int i = 0; i < Num; ++i)
 			{
 				CTurret *pTarget = apTurrets[i];
-				
+
 				if (pTarget->m_Type == BUILDING_TURRET && distance(pTarget->m_Pos, m_Pos) < CheckRange)
 				{
 					pTurret = pTarget;
 					break;
 				}
 			}
-			
+
 			if (pTurret &&
 				((GameServer()->m_pController->IsTeamplay() && pTurret->m_Team == GetPlayer()->GetTeam()) ||
 				(!GameServer()->m_pController->IsTeamplay() && pTurret->m_OwnerPlayer == GetPlayer()->GetCID())))
@@ -304,13 +305,13 @@ void CCharacter::DropWeapon()
 
 				if (pTurret->m_Weapon == m_ActiveCustomWeapon && m_aWeapon[m_ActiveCustomWeapon].m_Ammo > 0)
 					GameServer()->AmmoFill(pTurret->m_Pos+vec2(0, -50), m_ActiveCustomWeapon);
-					
+
 				// put in the new one
 				pTurret->m_OwnerPlayer = GetPlayer()->GetCID();
 				pTurret->SetAngle(-Direction);
 				pTurret->m_Ammo = m_aWeapon[m_ActiveCustomWeapon].m_Ammo;
 				pTurret->m_Weapon = m_ActiveCustomWeapon;
-				
+
 				// sound
 				GameServer()->CreateSound(m_Pos, SOUND_BUILD_TURRET);
 			}
@@ -322,7 +323,7 @@ void CCharacter::DropWeapon()
 				m_SkipPickups = 20;
 			}
 		}
-		
+
 		// remove the weapon from character
 		m_aWeapon[m_ActiveCustomWeapon].m_Got = false;
 		if (m_PrevWeapon > 0 && m_PrevWeapon < NUM_CUSTOMWEAPONS)
@@ -334,7 +335,7 @@ void CCharacter::DropWeapon()
 		}
 		else
 			SetCustomWeapon(W_HAMMER);
-		
+
 	}
 }
 
@@ -345,19 +346,19 @@ void CCharacter::SetCustomWeapon(int CustomWeapon)
 {
 	if(CustomWeapon < 0 || CustomWeapon >= NUM_CUSTOMWEAPONS)
 		return;
-	
+
 	if(CustomWeapon == m_ActiveCustomWeapon)
 		return;
 
 	m_aSelectedWeapon[m_WeaponGroup] = CustomWeapon;
-	
+
 	m_LastWeapon = m_ActiveCustomWeapon;
 	m_QueuedCustomWeapon = -1;
-	
+
 	m_PrevWeapon = m_ActiveCustomWeapon;
 	m_ActiveCustomWeapon = CustomWeapon;
 	GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
-	
+
 
 
 	/*
@@ -367,7 +368,7 @@ void CCharacter::SetCustomWeapon(int CustomWeapon)
 		str_format(aBuf, sizeof(aBuf), "Using: %s", aCustomWeapon[CustomWeapon].m_Name);
 		GameServer()->SendChatTarget(GetPlayer()->GetCID(), aBuf);
 	}
-	
+
 	if (!m_IsBot && GetPlayer()->m_EnableWeaponInfo == 2 && GameServer()->m_BroadcastLockTick < Server()->Tick())
 	{
 		char aBuf[256];
@@ -378,21 +379,21 @@ void CCharacter::SetCustomWeapon(int CustomWeapon)
 }
 
 
-	
+
 bool CCharacter::IsGrounded()
 {
-	
+
 	if(GameServer()->Collision()->CheckPoint(m_Pos.x+m_ProximityRadius/2, m_Pos.y+m_ProximityRadius/2+5))
 		return true;
 	if(GameServer()->Collision()->CheckPoint(m_Pos.x-m_ProximityRadius/2, m_Pos.y+m_ProximityRadius/2+5))
 		return true;
-	
+
 	int c1 = GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/2, m_Pos.y+m_ProximityRadius/2+5);
 	int c2 = GameServer()->Collision()->GetCollisionAt(m_Pos.x-m_ProximityRadius/2, m_Pos.y+m_ProximityRadius/2+5);
-	
+
 	if (c1&CCollision::COLFLAG_SOLID || c2&CCollision::COLFLAG_SOLID)
 		return true;
-	
+
 	return false;
 }
 
@@ -429,34 +430,34 @@ void CCharacter::HandleWeaponSwitch()
 			!m_aWeapon[m_aSelectedWeapon[i]].m_Got)
 			m_aSelectedWeapon[i] = WEAPON_HAMMER;
 	}
-	
+
 	if (m_ActiveWeaponGroup < 0 || m_ActiveWeaponGroup > 3)
 		m_ActiveWeaponGroup = 0;
-	
+
 
 	int WantedGroup = m_WeaponGroup;
-	
+
 
 	// weapon group selection
 	/*
 	if(m_LatestInput.m_WantedWeapon)
 		WantedGroup = m_Input.m_WantedWeapon-1;
-	
+
 	if (WantedGroup == 2 && GetPlayer()->GetTeam() == TEAM_BLUE && GameServer()->m_pController->IsInfection())
 		WantedGroup = 1;
-	
+
 	if(WantedGroup >= 0 && WantedGroup < 3)
 		m_WeaponGroup = WantedGroup;
-	
+
 	m_ActiveWeaponGroup = WantedGroup;
-	
+
 	*/
-	
+
 	int WantedWeapon = m_aSelectedWeapon[m_WeaponGroup];
-	
+
 	//if(m_QueuedCustomWeapon != -1)
 	//	WantedWeapon = m_QueuedCustomWeapon;
-	
+
 	// mouse scroll
 	int Next = CountInput(m_LatestPrevInput.m_NextWeapon, m_LatestInput.m_NextWeapon).m_Presses;
 	int Prev = CountInput(m_LatestPrevInput.m_PrevWeapon, m_LatestInput.m_PrevWeapon).m_Presses;
@@ -480,7 +481,7 @@ void CCharacter::HandleWeaponSwitch()
 				Prev--;
 		}
 	}
-	
+
 	if (!m_aWeapon[WantedWeapon].m_Got)
 		WantedWeapon = WEAPON_HAMMER;
 
@@ -494,13 +495,13 @@ void CCharacter::HandleWeaponSwitch()
 		m_aSelectedWeapon[m_WeaponGroup] = WantedWeapon;
 		m_QueuedCustomWeapon = m_aSelectedWeapon[m_WeaponGroup];
 	}
-		
+
 	/*
 	if (m_WeaponGroup < 2)
 	{
 		if (!m_aWeapon[WantedWeapon].m_Got)
 			WantedWeapon = WEAPON_HAMMER;
-		
+
 		m_aSelectedWeapon[m_WeaponGroup] = WantedWeapon;
 		m_QueuedCustomWeapon = m_aSelectedWeapon[m_WeaponGroup];
 	}
@@ -510,7 +511,7 @@ void CCharacter::HandleWeaponSwitch()
 		m_aSelectedWeapon[2] = WEAPON_TOOL;
 	}
 	*/
-	
+
 	DoWeaponSwitch();
 }
 
@@ -525,10 +526,10 @@ int CCharacter::GetWeapon(int ParentType)
 		m_aNextWeapon[ParentType] = 0;
 		return GetNextWeapon(ParentType);
 	}
-	
+
 	if (m_aNextWeapon[ParentType] == ParentType)
 		return m_aNextWeapon[ParentType];
-		
+
 	else
 		return GetNextWeapon(ParentType);
 }
@@ -536,38 +537,38 @@ int CCharacter::GetWeapon(int ParentType)
 int CCharacter::GetPrevWeapon(int ParentType)
 {
 	int w = m_aNextWeapon[ParentType];
-	
+
 	for (int i = 0; i < NUM_CUSTOMWEAPONS+1; i++)
 	{
 		if (--w < 0)
 			w = NUM_CUSTOMWEAPONS-1;
-			
+
 		if (w == ParentType && m_aWeapon[w].m_Got && !m_aWeapon[w].m_Disabled)
 		{
 			m_aNextWeapon[ParentType] = w;
 			return w;
 		}
 	}
-	
+
 	return -1;
 }
 
 int CCharacter::GetNextWeapon(int ParentType)
 {
 	int w = m_aNextWeapon[ParentType];
-	
+
 	for (int i = 0; i < NUM_CUSTOMWEAPONS+1; i++)
 	{
 		if (++w >= NUM_CUSTOMWEAPONS)
 			w = 0;
-			
+
 		if (w == ParentType && m_aWeapon[w].m_Got && !m_aWeapon[w].m_Disabled)
 		{
 			m_aNextWeapon[ParentType] = w;
 			return w;
 		}
 	}
-	
+
 	return -1;
 }
 
@@ -581,7 +582,7 @@ int CCharacter::GetFirstWeapon(int ParentType)
 			return i;
 		}
 	}
-	
+
 	return -1;
 }
 
@@ -596,7 +597,7 @@ void CCharacter::ScanWeapons()
 			m_aNextWeapon[i] = GetFirstWeapon(i);
 			continue;
 		}
-		
+
 		if (m_aWeapon[m_aNextWeapon[i]].m_Got && !m_aWeapon[m_aNextWeapon[i]].m_Disabled)
 		{
 			continue;
@@ -612,18 +613,18 @@ void CCharacter::ScanWeapons()
 
 
 void CCharacter::Chainsaw()
-{	
+{
 	if (m_ActiveCustomWeapon == WEAPON_CHAINSAW && m_Chainsaw >= Server()->Tick())
 	{
 		GetPlayer()->m_InterestPoints += 3;
-		
+
 		// massacre
 		vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
 		//vec2 ProjStartPos = m_Core.m_Vel*2 +m_Pos+Direction*m_ProximityRadius*1.9f + vec2(0, -11);
 		vec2 ProjStartPos = m_Pos+Direction*m_ProximityRadius*1.9f + vec2(0, -11);
-		
+
 		GameServer()->CreateChainsawHit(m_pPlayer->GetCID(), m_ActiveCustomWeapon, m_Pos, ProjStartPos, this);
-		
+
 		// test
 		//GameServer()->CreateBuildingHit(ProjStartPos);
 	}
@@ -636,20 +637,20 @@ void CCharacter::FireWeapon()
 {
 	if (m_aStatus[STATUS_SPAWNING] > 0.0f)
 		return;
-	
+
 	Chainsaw();
 	DoWeaponSwitch();
-	
+
 	if(m_ReloadTimer > 0)
 		return;
-	
+
 	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
 
 	bool FullAuto = aCustomWeapon[m_ActiveCustomWeapon].m_FullAuto;
-	
+
 	if (m_IsBot)
 		FullAuto = true;
-	
+
 	//bool UseAmmo = true;
 	//if (aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo <= 0)
 	//		UseAmmo = false;
@@ -665,7 +666,7 @@ void CCharacter::FireWeapon()
 	if(!WillFire)
 		return;
 
-		
+
 	// check for ammo
 	if(m_aWeapon[m_ActiveCustomWeapon].m_Ammo <= 0 && aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo > 0)
 	{
@@ -679,7 +680,7 @@ void CCharacter::FireWeapon()
 
 		return;
 	}
-	
+
 	// weapon knockback to self
 	//m_Core.m_Vel -= Direction * aCustomWeapon[m_ActiveCustomWeapon].m_SelfKnockback;
 	m_Recoil -= Direction * aCustomWeapon[m_ActiveCustomWeapon].m_SelfKnockback;
@@ -689,13 +690,13 @@ void CCharacter::FireWeapon()
 	// play sound
 	if (aCustomWeapon[m_ActiveCustomWeapon].m_Sound >= 0)
 		GameServer()->CreateSound(m_Pos, aCustomWeapon[m_ActiveCustomWeapon].m_Sound);
-	
-	
+
+
 	int Damage = aCustomWeapon[m_ActiveCustomWeapon].m_Damage;
-	
+
 	m_ReloadTimer = aCustomWeapon[m_ActiveCustomWeapon].m_BulletReloadTime * Server()->TickSpeed() / 1000;
-	
-	
+
+
 	// create the projectile
 	switch(m_ActiveCustomWeapon)
 	{
@@ -704,24 +705,24 @@ void CCharacter::FireWeapon()
 			m_Chainsaw = Server()->Tick() + 500 * Server()->TickSpeed()/1000;
 			break;
 		}
-		
+
 		case WEAPON_TOOL:
 			GameServer()->Repair(m_Pos + vec2((Direction.x < 0 ? -30 : 20), -20));
 			break;
-			
+
 		case WEAPON_HAMMER:
 		{
 			GetPlayer()->m_InterestPoints += 10;
-			
+
 			// reset objects Hit
 			m_NumObjectsHit = 0;
 
 			//vec2 ProjStartPos = m_Core.m_Vel*3 +m_Pos+Direction*m_ProximityRadius*2.5f + vec2(0, -20);
 			vec2 ProjStartPos = m_Pos+Direction*m_ProximityRadius*2.5f + vec2(0, -20);
-			
+
 			// for testing the center pos
 			//GameServer()->CreateEffect(FX_ELECTROHIT, ProjStartPos);
-			
+
 			{
 				CCharacter *apEnts[MAX_CLIENTS];
 				int Num = GameServer()->m_World.FindEntities(ProjStartPos, m_ProximityRadius*2.5f, (CEntity**)apEnts,
@@ -733,12 +734,12 @@ void CCharacter::FireWeapon()
 
 					if (pTarget == this || pTarget->IgnoreCollision()) // || GameServer()->Collision()->IntersectLine(ProjStartPos, pTarget->m_Pos, NULL, NULL)
 						continue;
-					
+
 					if(length(pTarget->m_Pos-ProjStartPos) > 0.0f)
 						GameServer()->CreateEffect(FX_BLOOD1, pTarget->m_Pos-normalize(pTarget->m_Pos-ProjStartPos)*m_ProximityRadius*2.5f);
 					else
 						GameServer()->CreateEffect(FX_BLOOD1, ProjStartPos);
-						
+
 					vec2 Dir;
 					if (length(pTarget->m_Pos - m_Pos) > 0.0f)
 						Dir = normalize(pTarget->m_Pos - m_Pos);
@@ -749,7 +750,7 @@ void CCharacter::FireWeapon()
 						m_pPlayer->GetCID(), m_ActiveCustomWeapon, vec2(0, 0), false);
 				}
 			}
-			
+
 			// monster collision
 			{
 				CMonster *apEnts[MAX_CLIENTS];
@@ -762,12 +763,12 @@ void CCharacter::FireWeapon()
 
 					if (pTarget->m_Health <= 0)
 						continue;
-					
+
 					if(length(pTarget->m_Pos-ProjStartPos) > 0.0f)
 						GameServer()->CreateEffect(FX_BLOOD1, pTarget->m_Pos-normalize(pTarget->m_Pos-ProjStartPos)*m_ProximityRadius*2.5f);
 					else
 						GameServer()->CreateEffect(FX_BLOOD1, ProjStartPos);
-						
+
 					vec2 Dir;
 					if (length(pTarget->m_Pos - m_Pos) > 0.0f)
 						Dir = normalize(pTarget->m_Pos - m_Pos);
@@ -792,10 +793,10 @@ void CCharacter::FireWeapon()
 					GameServer()->CreateBuildingHit((ProjStartPos+pTarget->m_Pos)/2);
 				}
 			}
-			
-			
+
+
 		} break;
-		
+
 		//case WEAPON_GUN:
 		case WEAPON_RIFLE:
 		case WEAPON_SHOTGUN:
@@ -803,25 +804,25 @@ void CCharacter::FireWeapon()
 		case WEAPON_FLAMER:
 		case WEAPON_ELECTRIC:
 		{
-			GetPlayer()->m_InterestPoints += 10;	
-			
+			GetPlayer()->m_InterestPoints += 10;
+
 			GameServer()->CreateProjectile(m_pPlayer->GetCID(), m_ActiveCustomWeapon, ProjStartPos, Direction);
 		} break;
 
 		case WEAPON_LASER:
 		{
 			GetPlayer()->m_InterestPoints += 40;
-			
+
 			float a = GetAngle(Direction);
 			a += (frandom()-frandom())*aCustomWeapon[m_ActiveCustomWeapon].m_BulletSpread;
-			
+
 			new CLaser(GameWorld(), ProjStartPos, vec2(cosf(a), sinf(a)), GameServer()->Tuning()->m_LaserReach, m_pPlayer->GetCID(), Damage);
 		} break;
 	};
-	
+
 
 	m_AttackTick = Server()->Tick();
-	
+
 	// infinite ammo for the dead in infection
 	if (!(GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE))
 	{
@@ -838,19 +839,19 @@ void CCharacter::FireWeapon()
 }
 
 
-	
-	
+
+
 void CCharacter::HandleWeapons()
-{	
+{
 	ShowArmor();
 
-	
+
 	if(m_ReloadTimer > 0)
 	{
 		m_ReloadTimer--;
 		return;
 	}
-	
+
 	// fire Weapon, if wanted
 	FireWeapon();
 
@@ -875,10 +876,10 @@ void CCharacter::AutoWeaponChange()
 	//if (HasAmmo() && frandom()*100 > 4 && m_ActiveCustomWeapon != W_HAMMER && m_ActiveCustomWeapon != W_PISTOL && m_ActiveCustomWeapon != W_TOOL)
 	if (HasAmmo() && frandom()*100 > 4 && m_ActiveCustomWeapon != W_HAMMER)// && m_ActiveCustomWeapon != W_PISTOL && m_ActiveCustomWeapon != W_TOOL)
 		return;
-	
+
 	// -1 because smoke grenade shouldn't be included
 	int w = rand()%(NUM_CUSTOMWEAPONS);
-	
+
 	if (m_aWeapon[w].m_Got && !m_aWeapon[w].m_Disabled && w != W_TOOL)
 	{
 		if (m_aWeapon[w].m_Ammo > 0 || aCustomWeapon[w].m_MaxAmmo == 0)
@@ -893,28 +894,29 @@ void CCharacter::AutoWeaponChange()
 
 void CCharacter::GiveStartWeapon()
 {
-	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
+	int LockedWeapon = GameServer()->m_pController->GetLockedWeapon(this);
+	if (LockedWeapon != -1)
 	{
-		GiveCustomWeapon(WEAPON_CHAINSAW);
-		SetCustomWeapon(WEAPON_CHAINSAW);
-		
-		m_aSelectedWeapon[0] = WEAPON_CHAINSAW;
-		m_aSelectedWeapon[1] = WEAPON_CHAINSAW;
-		
+		GiveCustomWeapon(LockedWeapon);
+		SetCustomWeapon(LockedWeapon);
+
+		m_aSelectedWeapon[0] = LockedWeapon;
+		m_aSelectedWeapon[1] = LockedWeapon;
+
 		return;
 	}
-	
+
 	GiveCustomWeapon(W_TOOL);
 	GiveCustomWeapon(W_HAMMER);
 	SetCustomWeapon(W_HAMMER);
 	//GiveCustomWeapon(W_PISTOL);
 	//SetCustomWeapon(W_PISTOL);
-	
+
 	if (g_Config.m_SvRandomWeapons)
 	{
 		GiveRandomWeapon();
 	}
-	
+
 	//GiveAllWeapons();
 }
 
@@ -924,11 +926,11 @@ void CCharacter::GiveRandomWeapon(int WeaponLevel)
 {
 	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
 		return;
-	
+
 	int w = 0;
 	while (w == W_TOOL || w == W_HAMMER)
 		w = rand()%(NUM_CUSTOMWEAPONS);
-	
+
 	GiveCustomWeapon(w);
 	SetCustomWeapon(w);
 }
@@ -945,20 +947,20 @@ bool CCharacter::GiveAmmo(int *CustomWeapon, float AmmoFill)
 {
 	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
 		return false;
-	
+
 	if(m_aWeapon[*CustomWeapon].m_Got)
 	{
 		if (m_aWeapon[*CustomWeapon].m_Ammo < aCustomWeapon[*CustomWeapon].m_MaxAmmo)
 		{
 			m_aWeapon[*CustomWeapon].m_Ammo += aCustomWeapon[*CustomWeapon].m_MaxAmmo * AmmoFill;
-			
+
 			if (m_aWeapon[*CustomWeapon].m_Ammo > aCustomWeapon[*CustomWeapon].m_MaxAmmo)
 				m_aWeapon[*CustomWeapon].m_Ammo = aCustomWeapon[*CustomWeapon].m_MaxAmmo;
-			
+
 			return true;
 		}
 	}
-	
+
 	return false;
 }
 
@@ -967,20 +969,20 @@ bool CCharacter::GiveCustomWeapon(int CustomWeapon, float AmmoFill)
 {
 	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE && CustomWeapon != WEAPON_CHAINSAW)
 		return false;
-	
+
 	if(!m_aWeapon[CustomWeapon].m_Got && !m_aWeapon[CustomWeapon].m_Disabled)
-	{	
+	{
 		m_aWeapon[CustomWeapon].m_Got = true;
 		m_aWeapon[CustomWeapon].m_Disabled = false;
 		m_aWeapon[CustomWeapon].m_Ready = false;
 		m_aWeapon[CustomWeapon].m_Ammo = aCustomWeapon[CustomWeapon].m_MaxAmmo;
-		
+
 		//bool SkipAmmoFill = false;
-				
+
 		// ammo fill
 		m_aWeapon[CustomWeapon].m_Ammo = aCustomWeapon[CustomWeapon].m_MaxAmmo * AmmoFill;
-		
-		
+
+
 		ScanWeapons();
 
 		return true;
@@ -994,7 +996,7 @@ void CCharacter::SetEmote(int Emote, int Tick)
 {
 	//if (m_EmoteLockStop > Tick)
 	//	return;
-	
+
 	if (m_EmoteLockStop > Server()->Tick())
 		return;
 
@@ -1008,7 +1010,7 @@ void CCharacter::SetEmoteFor(int Emote, int Ticks, int LockEmote, bool UseTime)
 		return;
 
 	m_EmoteType = Emote;
-	
+
 	if (UseTime)
 	{
 		m_EmoteStop = Server()->Tick() + Ticks * Server()->TickSpeed() / 1000;
@@ -1072,16 +1074,16 @@ bool CCharacter::Invisible()
 {
 	if ((m_Core.m_Jetpack == 1 || m_Core.m_Input.m_Hook > 0) && m_Core.m_JetpackPower > 0)
 		return false;
-		
+
 	if (m_DamageTakenTick > Server()->Tick() - Server()->TickSpeed() * 1.0f)
 		return false;
-		
+
 	if (m_AttackTick > Server()->Tick() - Server()->TickSpeed() * 1.0f)
 		return false;
-	
+
 	if (m_aStatus[STATUS_INVISIBILITY] > 0 && m_aStatus[STATUS_SHIELD] <= 0)
 		return true;
-		
+
 	return false;
 }
 
@@ -1090,7 +1092,7 @@ void CCharacter::UseKit(int Kit, vec2 Pos)
 {
 	if (Kit < 0 || Kit >= NUM_BUILDABLES)
 		return;
-	
+
 	if (m_Kits >= BuildableCost[Kit])
 	{
 		if (GameServer()->AddBuilding(Kit, Pos))
@@ -1100,13 +1102,13 @@ void CCharacter::UseKit(int Kit, vec2 Pos)
 		}
 	}
 }
-	
-	
+
+
 void CCharacter::SelectItem(int Item)
 {
 	if (m_aItem[Item] <= 0)
 		return;
-	
+
 	if (Item == PLAYERITEM_HEAL && m_aStatus[STATUS_HEAL] <= 0)
 	{
 		m_aStatus[STATUS_HEAL] = Server()->TickSpeed() * 0.75f;
@@ -1118,19 +1120,19 @@ void CCharacter::SelectItem(int Item)
 		m_aStatus[STATUS_RAGE] = Server()->TickSpeed() * 20.0f;
 		m_aItem[Item]--;
 	}
-	
+
 	if (Item == PLAYERITEM_LANDMINE)
 	{
 		if (SetLandmine())
 			m_aItem[Item]--;
 	}
-	
+
 	if (Item == PLAYERITEM_ELECTROMINE)
 	{
 		if (SetElectromine())
 			m_aItem[Item]--;
 	}
-	
+
 	if (Item == PLAYERITEM_SHIELD && m_aStatus[STATUS_SHIELD] <= 0)
 	{
 		m_aStatus[STATUS_SHIELD] = Server()->TickSpeed() * 20.0f;
@@ -1138,7 +1140,7 @@ void CCharacter::SelectItem(int Item)
 		m_ShieldRadius = 16;
 		m_aItem[Item]--;
 	}
-	
+
 	if (Item == PLAYERITEM_INVISIBILITY && m_aStatus[STATUS_INVISIBILITY] <= 0)
 	{
 		m_aStatus[STATUS_INVISIBILITY] = Server()->TickSpeed() * 20.0f;
@@ -1150,24 +1152,24 @@ void CCharacter::GiveBuff(int Item)
 {
 	if (Item < 0)
 		return;
-	
+
 	if (Item == PLAYERITEM_HEAL)
 		m_aStatus[STATUS_HEAL] = Server()->TickSpeed() * 0.75f;
 
 	if (Item == PLAYERITEM_RAGE)
 		m_aStatus[STATUS_RAGE] = Server()->TickSpeed() * 20.0f;
-	
+
 	if (Item == PLAYERITEM_FUEL)
 		m_aStatus[STATUS_FUEL] = Server()->TickSpeed() * 20.0f;
-	
-	
+
+
 	if (Item == PLAYERITEM_SHIELD)
 	{
 		m_aStatus[STATUS_SHIELD] = Server()->TickSpeed() * 20.0f;
 		m_ShieldHealth = 100;
 		m_ShieldRadius = 16;
 	}
-	
+
 	if (Item == PLAYERITEM_INVISIBILITY)
 		m_aStatus[STATUS_INVISIBILITY] = Server()->TickSpeed() * 20.0f;
 }
@@ -1175,10 +1177,10 @@ void CCharacter::GiveBuff(int Item)
 void CCharacter::GiveRandomBuff()
 {
 	int Buff = -1;
-	
+
 	while (Buff < 0 || Buff == PLAYERITEM_LANDMINE || Buff == PLAYERITEM_ELECTROMINE || Buff == PLAYERITEM_HEAL || (Buff == PLAYERITEM_FUEL && g_Config.m_SvUnlimitedTurbo))
 		Buff = rand()%NUM_PLAYERITEMS;
-	
+
 	GiveBuff(Buff);
 }
 
@@ -1187,7 +1189,7 @@ void CCharacter::GiveRandomBuff()
 void CCharacter::UpdateCoreStatus()
 {
 	m_Core.m_Status = 0;
-	
+
 	// end shield effect when needed
 	if (m_ShieldHealth <= 0 || m_aStatus[STATUS_SHIELD] <= 0)
 	{
@@ -1195,12 +1197,12 @@ void CCharacter::UpdateCoreStatus()
 		m_aStatus[STATUS_SHIELD] = 0;
 		m_ShieldRadius = 0;
 	}
-	
+
 	if (m_aStatus[STATUS_HEAL] > 0)
 	{
 		IncreaseHealth(2);
 	}
-	
+
 	for (int i = 0; i < NUM_STATUSS; i++)
 	{
 		if (m_aStatus[i] > 0)
@@ -1209,19 +1211,19 @@ void CCharacter::UpdateCoreStatus()
 			m_aStatus[i]--;
 		}
 	}
-	
+
 	if (g_Config.m_SvUnlimitedTurbo)
 		m_Core.m_JetpackPower = 100;
-	
+
 	if(m_LastStatusEffect+Server()->TickSpeed()/3 <= Server()->Tick())
 	{
 		m_LastStatusEffect = Server()->Tick();
-		
+
 		 // flame damage
 		if (m_aStatus[STATUS_AFLAME] > 0)
 			TakeDamage(vec2(0, 0), 3, m_aStatusFrom[STATUS_AFLAME], m_aStatusWeapon[STATUS_AFLAME], vec2(0, 0), DAMAGETYPE_FLAME);
 	}
-	
+
 	// rolling stops flames faster
 	if (m_Core.m_Roll > 0 && m_aStatus[STATUS_AFLAME] > 0)
 		m_aStatus[STATUS_AFLAME]--;
@@ -1232,11 +1234,11 @@ void CCharacter::Tick()
 {
 	if (m_PainSoundTimer > 0)
 		m_PainSoundTimer--;
-	
+
 	if (m_SkipPickups > 0)
 		m_SkipPickups--;
-	
-	
+
+
 	/*
 	if(m_pPlayer->m_ForceBalanced)
 	{
@@ -1249,27 +1251,27 @@ void CCharacter::Tick()
 	*/
 
 	UpdateCoreStatus();
-	
+
 	if (m_aStatus[STATUS_SPAWNING] > 0.0f)
 		return;
-	
+
 	if (GameServer()->m_FreezeCharacters)
 		ResetInput();
-	
+
 	m_Core.m_Input = m_Input;
 
 	float RecoilCap = 18.0f;
 	if ((m_Core.m_Vel.x < RecoilCap && m_Recoil.x > 0) || (m_Core.m_Vel.x > -RecoilCap && m_Recoil.x < 0))
 		m_Core.m_Vel.x += m_Recoil.x*0.7f;
-	
+
 	if ((m_Core.m_Vel.y < RecoilCap && m_Recoil.y > 0) || (m_Core.m_Vel.y > -RecoilCap && m_Recoil.y < 0))
 		m_Core.m_Vel.y += m_Recoil.y*0.7f;
 	//m_Core.m_Vel += m_Recoil*0.7f;
-	
+
 	m_Recoil *= 0.5f;
-	
+
 	m_Core.Tick(true);
-	
+
 	// anti head stuck
 	if(GameServer()->Collision()->CheckPoint(m_Pos.x, m_Pos.y-m_ProximityRadius/3.f-42) && (!m_Core.IsGrounded() && m_Core.m_Slide == 0))
 	{
@@ -1277,15 +1279,15 @@ void CCharacter::Tick()
 		m_Core.m_Pos.y += 1.0f;
 		m_Core.m_Vel.y = 0.0f;
 	}
-	
+
 	// monster damage
 	if (m_Core.m_MonsterDamage)
 		TakeDamage(normalize(m_Core.m_Vel), 10, -1, DEATHTYPE_MONSTER, vec2(0, 0));
-	
+
 	if (m_Core.m_FluidDamage)
 		TakeDamage(normalize(m_Core.m_Vel), 2, -1, WEAPON_WORLD, vec2(0, 0), DAMAGETYPE_FLUID);
 
-	
+
 	if (m_CryTimer > 0)
 		m_CryTimer--;
 
@@ -1298,7 +1300,7 @@ void CCharacter::Tick()
 		m_DeathTileTimer = 10;
 		TakeDeathtileDamage();
 	}
-	
+
 	// handle insta death-tiles and leaving gamelayer
 	if(GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y-m_ProximityRadius/3.f-24)&CCollision::COLFLAG_INSTADEATH ||
 		GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y+m_ProximityRadius/3.f)&CCollision::COLFLAG_INSTADEATH ||
@@ -1308,12 +1310,12 @@ void CCharacter::Tick()
 	{
 		Die(m_pPlayer->GetCID(), DEATHTYPE_SPIKE);
 	}
-	
+
 	// delayed death ray
 	if (m_DeathrayTick > 0 && m_DeathrayTick <= Server()->Tick())
 		TakeDeathrayDamage();
-	
-	
+
+
 	if (m_DelayedKill)
 	{
 		Die(m_pPlayer->GetCID(), WEAPON_WORLD);
@@ -1322,16 +1324,16 @@ void CCharacter::Tick()
 
 	if (m_DeathTileTimer > 0)
 		m_DeathTileTimer--;
-	
+
 	// GameServer()->CreateDeath(m_Pos+vec2(frandom()*100, frandom()*100) - vec2(frandom()*100, frandom()*100), -1);
-	
+
 	// handle Weapons
 	if (!GameServer()->m_FreezeCharacters)
 		HandleWeapons();
 
 	// Previnput
 	m_PrevInput = m_Input;
-	
+
 	return;
 }
 
@@ -1432,14 +1434,19 @@ void CCharacter::SetHealth(int Health)
 	m_HiddenHealth = Health;
 }
 
+void CCharacter::RefillHealth()
+{
+	m_HiddenHealth = m_MaxHealth;
+}
+
 bool CCharacter::IncreaseHealth(int Amount)
 {
 	if(m_HiddenHealth >= m_MaxHealth)
 		return false;
 	m_HiddenHealth = clamp(m_HiddenHealth+Amount, 0, m_MaxHealth);
-	
+
 	//GetPlayer()->m_InterestPoints += 40;
-	
+
 	return true;
 }
 
@@ -1448,7 +1455,7 @@ bool CCharacter::AddMine()
 {
 	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
 		return false;
-	
+
 	if (frandom()*10 < 5)
 	{
 		if (m_aItem[PLAYERITEM_LANDMINE] < MAX_PLAYERITEMS)
@@ -1467,7 +1474,7 @@ bool CCharacter::AddMine()
 		else
 			return false;
 	}
-	
+
 	return true;
 }
 
@@ -1475,13 +1482,13 @@ bool CCharacter::AddKit()
 {
 	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
 		return false;
-	
+
 	if (m_Kits < 9)
 	{
 		m_Kits++;
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -1492,13 +1499,13 @@ bool CCharacter::AddClip(int Weapon)
 {
 	if (Weapon == -1)
 		Weapon = m_ActiveCustomWeapon;
-	
+
 	if (Weapon < 0 || Weapon >= NUM_CUSTOMWEAPONS)
 		return false;
-	
+
 	if (!m_aWeapon[Weapon].m_Got)
 		return false;
-	
+
 	if (aCustomWeapon[Weapon].m_PowerupSize <= 0 || aCustomWeapon[Weapon].m_MaxAmmo <= 0)
 		return false;
 
@@ -1508,7 +1515,7 @@ bool CCharacter::AddClip(int Weapon)
 		GetPlayer()->m_InterestPoints += 40;
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -1518,26 +1525,26 @@ bool CCharacter::IncreaseArmor(int Amount)
 {
 	if (AddClip())
 		return true;
-	
+
 	if (AddClip(m_PrevWeapon))
 		return true;
-	
+
 	for (int i = 0; i < NUM_CUSTOMWEAPONS; i++)
 	{
 		if (AddClip(i))
 			return true;
 	}
-	
+
 	return false;
-	
+
 		/*
 	if (m_PrevWeapon != Weapon)
 	{
 		if (AddClip(m_PrevWeapon))
 			return true;
-		
+
 	}
-	
+
 	for (int i = 0; i < NUM_CUSTOMWEAPONS; i++)
 	{
 		if (i == Weapon)
@@ -1547,7 +1554,7 @@ bool CCharacter::IncreaseArmor(int Amount)
 			return true;
 	}
 	*/
-	
+
 	/*
 	if (aCustomWeapon[m_ActiveCustomWeapon].m_PowerupSize <= 0 || aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo <= 0)
 		return false;
@@ -1558,7 +1565,7 @@ bool CCharacter::IncreaseArmor(int Amount)
 		GetPlayer()->m_InterestPoints += 40;
 		return true;
 	}
-	
+
 	return false;
 	*/
 }
@@ -1572,17 +1579,17 @@ void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage, bool IsTurret
 	// we got to wait 0.5 secs before respawning
 	//m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()/2;
 	m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()*1;
-	
+
 	if (Killer == m_pPlayer->GetCID() && (Weapon == WEAPON_HAMMER || Weapon == WEAPON_GAME))
 		SkipKillMessage = true;
-	
+
 	if (Killer == NEUTRAL_BASE)
 		Killer = GetPlayer()->GetCID();
-	
+
 	if (!SkipKillMessage && Killer >= 0)
 	{
 		int ModeSpecial = GameServer()->m_pController->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
-		
+
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "kill killer='%d:%s' victim='%d:%s' weapon=%d special=%d",
 			Killer, Server()->ClientName(Killer),
@@ -1603,7 +1610,7 @@ void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage, bool IsTurret
 	}
 	else
 		GameServer()->m_pController->OnCharacterDeath(this, NULL, Weapon);
-	
+
 	// a nice sound
 	GameServer()->CreateSound(m_Pos, SOUND_PLAYER_DIE);
 
@@ -1613,7 +1620,7 @@ void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage, bool IsTurret
 	m_Alive = false;
 	GameServer()->m_World.RemoveEntity(this);
 	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCID()] = 0;
-	
+
 	GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID());
 }
 
@@ -1640,7 +1647,7 @@ void CCharacter::Cry()
 			m_CryState = 0;
 		}
 	}
-	
+
 }
 #define RAD 0.017453292519943295769236907684886f
 
@@ -1649,7 +1656,7 @@ void CCharacter::Deathray()
 {
 	if (m_DeathrayTick > 0)
 		return;
-	
+
 	m_DeathrayTick = Server()->Tick() + Server()->TickSpeed() * 0.2f;
 	m_aStatus[STATUS_DEATHRAY] = 10.0f*Server()->TickSpeed();
 }
@@ -1659,10 +1666,10 @@ void CCharacter::SetAflame(float Duration, int From, int Weapon)
 {
 	if (IgnoreCollision())
 		return;
-	
+
 	if(GameServer()->m_pController->IsFriendlyFire(m_pPlayer->GetCID(), From) && !g_Config.m_SvTeamdamage)
 		return;
-	
+
 	if (m_aStatus[STATUS_AFLAME] < Duration*Server()->TickSpeed())
 	{
 		m_aStatusFrom[STATUS_AFLAME] = From;
@@ -1680,14 +1687,14 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos,
 
 	if (m_ShieldHealth <= 0)
 		m_Recoil += Force;
-	
+
 	// signal AI
 	if (Dmg > 0 && GetPlayer()->m_pAI && Weapon >= 0)
 		GetPlayer()->m_pAI->ReceiveDamage(From, Dmg);
-	
+
 	if(GameServer()->m_pController->IsFriendlyFire(m_pPlayer->GetCID(), From) && !g_Config.m_SvTeamdamage)
 		return false;
-		
+
 	// m_pPlayer only inflicts half damage on self
 	if (Type != DAMAGETYPE_FLAME)
 	{
@@ -1722,7 +1729,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos,
 			m_aStatus[STATUS_ELECTRIC] = 1.0f*Server()->TickSpeed();
 		}
 	}
-	
+
 	if(Dmg)
 	{
 		if (m_ShieldHealth > 0 && Type != DAMAGETYPE_FLAME)
@@ -1734,14 +1741,14 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos,
 		else
 		{
 			m_HiddenHealth -= Dmg;
-			
+
 			if (Type == DAMAGETYPE_NORMAL)
 				m_LatestHitVel = Force;
-			
+
 			m_Core.m_DamageTick = Server()->Tick();
 		}
 	}
-	
+
 	GetPlayer()->m_ActionTimer = 0;
 	GetPlayer()->m_InterestPoints += Dmg * 4;
 
@@ -1752,7 +1759,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos,
 	if(From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
 	{
 		GameServer()->m_apPlayers[From]->m_InterestPoints += Dmg * 5;
-		
+
 		int Mask = CmaskOne(From);
 		for(int i = 0; i < MAX_CLIENTS; i++)
 		{
@@ -1794,7 +1801,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos,
 	SetEmote(EMOTE_PAIN, Server()->Tick() + 500 * Server()->TickSpeed() / 1000);
 	//m_EmoteType = EMOTE_PAIN;
 	//m_EmoteStop = Server()->Tick() + 500 * Server()->TickSpeed() / 1000;
-	
+
 	return true;
 }
 
@@ -1807,18 +1814,18 @@ void CCharacter::TakeSawbladeDamage(vec2 SawbladePos)
 		m_ShieldHealth -= 5;
 		return;
 	}
-	
+
 	m_DamageTaken++;
-	
+
 	m_Core.m_DamageTick = Server()->Tick();
 
 	GameServer()->CreateDamageInd((m_Pos+SawbladePos) / 2.0f, GetAngle(normalize(vec2(frandom()-0.5f, frandom()-0.5f))), 3);
 
 	m_Core.m_Vel += normalize(m_Pos-SawbladePos)*2.0f;
-	
+
 	m_HiddenHealth -= 5;
 	m_DamageTakenTick = Server()->Tick();
-	
+
 	// check for death
 	if(m_HiddenHealth <= 0)
 	{
@@ -1845,14 +1852,14 @@ void CCharacter::TakeDeathrayDamage()
 void CCharacter::TakeDeathtileDamage()
 {
 	m_DamageTaken++;
-	
+
 	int top = GameServer()->Collision()->GetCollisionAt(m_Pos.x, m_Pos.y-32);
 	int bot = GameServer()->Collision()->GetCollisionAt(m_Pos.x, m_Pos.y+32);
 	int left = GameServer()->Collision()->GetCollisionAt(m_Pos.x-32, m_Pos.y);
 	int right = GameServer()->Collision()->GetCollisionAt(m_Pos.x+32, m_Pos.y);
-		
+
 	m_Core.m_Jumped = 0;
-		
+
 	if(!top && bot)
 		m_Core.m_Vel.y = -5.0f;
 	if(!bot && top)
@@ -1861,7 +1868,7 @@ void CCharacter::TakeDeathtileDamage()
 		m_Core.m_Vel.x = -5.0f;
 	if(!right && left)
 		m_Core.m_Vel.x = +5.0f;
-		
+
 	m_LatestHitVel = GetVel();
 
 
@@ -1879,8 +1886,8 @@ void CCharacter::TakeDeathtileDamage()
 	m_HiddenHealth -= 10;
 
 	m_DamageTakenTick = Server()->Tick();
-	
-	
+
+
 	// check for death
 	if(m_HiddenHealth <= 0)
 	{
@@ -1933,12 +1940,12 @@ void CCharacter::Snap(int SnappingClient)
 	pCharacter->m_Armor = 0;
 
 	pCharacter->m_Weapon = m_ActiveCustomWeapon;
-	
+
 	pCharacter->m_WeaponGroup1 = m_aSelectedWeapon[0];
 	pCharacter->m_WeaponGroup2 = m_aSelectedWeapon[1];
-	
+
 	pCharacter->m_SelectedGroup = m_ActiveWeaponGroup;
-	
+
 	pCharacter->m_AttackTick = m_AttackTick;
 
 	pCharacter->m_Direction = m_Input.m_Direction;
@@ -1951,7 +1958,7 @@ void CCharacter::Snap(int SnappingClient)
 			pCharacter->m_Health = 1;
 
 		pCharacter->m_Armor = m_Armor;
-			
+
 		if(m_aWeapon[m_ActiveCustomWeapon].m_Ammo > 0)
 		{
 			//pCharacter->m_AmmoCount = (m_aWeapon[m_ActiveCustomWeapon].m_Ammo * (10.0f / aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo));

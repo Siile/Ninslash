@@ -129,9 +129,9 @@ public:
 	virtual void LoadShaders() = 0;
 	virtual void ShaderBegin(int Shade, float Intensity = 1.0f) = 0;
 	virtual void ShaderEnd() = 0;
-	
+
 	virtual void CameraToShaders(int ScreenWidth, int ScreenHeight, int CameraX, int CameraY) = 0;
-	
+
 	virtual int LoadPNG(CImageInfo *pImg, const char *pFilename, int StorageType) = 0;
 	virtual int UnloadTexture(int Index) = 0;
 	virtual int LoadTextureRaw(int Width, int Height, int Format, const void *pData, int StoreFormat, int Flags) = 0;
@@ -139,7 +139,7 @@ public:
 	virtual int LoadTextureRawSub(int TextureID, int x, int y, int Width, int Height, int Format, const void *pData) = 0;
 	virtual void TextureSet(int TextureID, int BufferTexture = -1) = 0;
 	void TextureClear() { TextureSet(-1); }
-	
+
 	virtual void RenderToScreen() = 0;
 	virtual void RenderToTexture(int RenderBuffer) = 0;
 
@@ -180,7 +180,7 @@ public:
 
 	virtual void TrianglesBegin() = 0;
 	virtual void TrianglesEnd() = 0;
-	
+
 	struct CTriangleItem
 	{
 		float m_X0, m_Y0, m_X1, m_Y1, m_X2, m_Y2;
@@ -212,7 +212,7 @@ public:
 	virtual void InsertSignal(class semaphore *pSemaphore) = 0;
 	virtual bool IsIdle() = 0;
 	virtual void WaitForIdle() = 0;
-	
+
 protected:
 	inline CTextureHandle CreateTextureHandle(int Index)
 	{
