@@ -66,6 +66,9 @@ void CGameControllerGunGame::OnCharacterSpawn(class CCharacter *pChr, bool Reque
 	// init AI
 	if(RequestAI)
 		pChr->GetPlayer()->m_pAI = new CAIdm(GameServer(), pChr->GetPlayer());
+	else
+		SendBroadcastInfo(pChr->GetPlayer());
+
 }
 
 int CGameControllerGunGame::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
@@ -85,7 +88,8 @@ int CGameControllerGunGame::OnCharacterDeath(class CCharacter *pVictim, class CP
 
 	if(pKiller == pVictim->GetPlayer())
 	{
-		// suicide; doesn't need to be treated special
+		// suicide - get punished by losing 2 weapon stages!
+		DecreaseScore(pVictim->GetPlayer());
 	}
 	else
 	{
@@ -206,7 +210,7 @@ const int CGameControllerGunGame::LastWeapon() const
 const int CGameControllerGunGame::WinningScore() const
 {
 	if(g_Config.m_SvScorelimit > 1)
-		return GG_NUM_USED_WEAPONS*g_Config.m_SvScorelimit-1;
+		return GG_NUM_USED_WEAPONS*g_Config.m_SvScorelimit-(g_Config.m_SvScorelimit-1);
 	return GG_NUM_USED_WEAPONS;
 }
 
