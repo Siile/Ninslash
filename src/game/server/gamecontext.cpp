@@ -1093,6 +1093,7 @@ void CGameContext::CheckPureTuning()
 	if(	str_comp(m_pController->m_pGameType, "DM")==0 ||
 		str_comp(m_pController->m_pGameType, "TDM")==0 ||
 		str_comp(m_pController->m_pGameType, "INF")==0 ||
+		str_comp(m_pController->m_pGameType, "GunGame")==0 ||
 		str_comp(m_pController->m_pGameType, "CTF")==0)
 	{
 		CTuningParams p;

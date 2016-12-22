@@ -313,6 +313,7 @@ void CMenus::RenderServerbrowserServerList(CUIRect View)
 			else if(ID == COL_FLAG_PURE)
 			{
 				if(	str_comp(pItem->m_aGameType, "DM") == 0 ||
+					str_comp(pItem->m_aGameType, "GunGame") == 0 ||
 					str_comp(pItem->m_aGameType, "TDM") == 0 ||
 					str_comp(pItem->m_aGameType, "INF") == 0 ||
 					str_comp(pItem->m_aGameType, "CTF") == 0)
