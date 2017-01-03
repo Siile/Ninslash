@@ -124,7 +124,7 @@ public:
 
 	// helper functions
 	void CreateBuildingHit(vec2 Pos);
-	void CreateDamageInd(vec2 Pos, float AngleMod, int Amount);
+	void CreateDamageInd(vec2 Pos, float AngleMod, int Damage, int ClientID);
 	void CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool IsTurret = false);
 	void CreateElectromineExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage);
 	void CreateMineExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage);
@@ -161,6 +161,7 @@ public:
 	void SendEmoticon(int ClientID, int Emoticon);
 	void SendWeaponPickup(int ClientID, int Weapon);
 	void SendBroadcast(const char *pText, int ClientID, bool Lock = false);
+	void SendBuff(int Buff, int StartTick, int ClientID);
 
 
 	//

@@ -13,6 +13,9 @@ CCustomStuff::CCustomStuff()
 
 void CCustomStuff::Reset()
 {
+	m_Local.m_Buff = -1;
+	
+	m_DoorTimer = 0.0f;
 	m_CameraShake = 0.0f;
 	
 	m_BuildMode = false;
@@ -77,6 +80,9 @@ void CCustomStuff::Tick(bool Paused)
 {
 	m_Tick++;
 	
+	if (!m_LocalAlive)
+		m_Local.m_Buff = -1;
+
 	// Client side building animation
 	m_SawbladeAngle += 0.07f;
 	
@@ -88,9 +94,17 @@ void CCustomStuff::Tick(bool Paused)
 			m_WeaponpickTimer -= 0.0035f;
 	}
 	
+	
+	if (m_DoorTimer > 0.0f)
+		m_DoorTimer += 0.01f;
+	
+	if (m_DoorTimer > 1.0f)
+		m_DoorTimer = 0.0f;
+	
 	if (m_WeaponSignalTimer > 0.0f)
 		m_WeaponSignalTimer -= 0.035f;
 	
+	m_MonsterAnim += 0.006f;
 	m_MonsterAnim += 0.006f;
 	//if (m_MonsterAnim >= 1.0f)
 	//	m_MonsterAnim -= 1.0f;
@@ -136,7 +150,10 @@ void CCustomStuff::Tick(bool Paused)
 	
 	// building
 	if (m_LocalTeam == TEAM_SPECTATORS)
+	{
 		m_BuildMode = false;
+		m_Local.m_Buff = -1;
+	}
 }
 
 

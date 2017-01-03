@@ -20,6 +20,9 @@ CGameControllerCTF::CGameControllerCTF(class CGameContext *pGameServer)
 	m_apFlags[1] = 0;
 	m_pGameType = "CTF";
 	m_GameFlags = GAMEFLAG_TEAMS|GAMEFLAG_FLAGS;
+	
+	if (g_Config.m_SvEnableBuilding)
+		m_GameFlags |= GAMEFLAG_BUILD;
 }
 
 

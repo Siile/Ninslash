@@ -33,6 +33,8 @@ public:
 		return (m_Tick / Speed)%Range;
 	}
 
+	float m_DoorTimer;
+	
 	int m_Picker;
 	int m_LocalTeam;
 	
@@ -49,6 +51,20 @@ public:
 		if (m_CameraShake < Amount)
 			m_CameraShake = Amount;
 	}
+	
+	struct CLocal
+	{
+		int m_Buff;
+		int m_BuffStartTick;
+		
+		CLocal()
+		{
+			m_Buff = -1;
+			m_BuffStartTick = 0;
+		}
+	};
+	
+	CLocal m_Local;
 	
 	bool m_LocalAlive;
 	vec2 m_LocalPos;

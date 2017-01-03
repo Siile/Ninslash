@@ -20,6 +20,9 @@ CGameControllerDM::CGameControllerDM(class CGameContext *pGameServer)
 : IGameController(pGameServer)
 {
 	m_pGameType = "DM";
+	
+	if (g_Config.m_SvEnableBuilding)
+		m_GameFlags |= GAMEFLAG_BUILD;
 }
 
 void CGameControllerDM::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)

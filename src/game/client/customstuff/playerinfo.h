@@ -31,6 +31,8 @@ public:
 	vec2 m_Pos;
 	vec2 m_Vel;
 	
+	bool m_HideName;
+	
 	CSkeletonAnimation *Animation() { return m_pAnimation; }
 	
 	bool m_Shield;
@@ -90,6 +92,8 @@ public:
 	
 	void SetLocal();
 	bool m_Local;
+	
+	vec4 m_Color;
 	
 	bool m_InUse;
 

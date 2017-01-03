@@ -16,6 +16,9 @@ CGameControllerTDM::CGameControllerTDM(class CGameContext *pGameServer) : IGameC
 {
 	m_pGameType = "TDM";
 	m_GameFlags = GAMEFLAG_TEAMS;
+	
+	if (g_Config.m_SvEnableBuilding)
+		m_GameFlags |= GAMEFLAG_BUILD;
 }
 
 void CGameControllerTDM::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)

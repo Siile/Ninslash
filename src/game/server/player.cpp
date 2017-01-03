@@ -566,6 +566,17 @@ void CPlayer::SetRandomSkin()
 	default: str_copy(m_TeeInfos.m_EyeName, "default", 64);
 	};
 	
+	/*
+	str_copy(m_TeeInfos.m_TopperName, "none", 64);
+	str_copy(m_TeeInfos.m_EyeName, "x_robot", 64);
+	
+	m_TeeInfos.m_Body = 3;
+	m_TeeInfos.m_ColorSkin = 10747862;
+	m_TeeInfos.m_ColorBody = 0;
+	m_TeeInfos.m_ColorFeet = 0;
+	m_TeeInfos.m_ColorTopper = 0;
+	*/
+	
 	m_TeeInfos.m_Body = rand()%NUM_BODIES;
 	m_TeeInfos.m_ColorTopper = rand()*(0xFFFFFF/RAND_MAX);
 	m_TeeInfos.m_ColorSkin = rand()*(0xFFFFFF/RAND_MAX);
@@ -596,6 +607,31 @@ void CPlayer::SetCustomSkin(int Type)
 		GameServer()->Server()->SetClientName(GetCID(), aBotName);
 	}
 	
+	if (Type == 2)
+	{
+		str_copy(m_TeeInfos.m_TopperName, "none", 64);
+		str_copy(m_TeeInfos.m_EyeName, "x_robo1", 64);
+		m_TeeInfos.m_Body = 3;
+		m_TeeInfos.m_ColorTopper = 10747862;
+		m_TeeInfos.m_ColorSkin = 10747862;
+		m_TeeInfos.m_ColorBody = 10747862;
+		m_TeeInfos.m_ColorFeet = 10747862;
+		
+		GameServer()->Server()->SetClientName(GetCID(), "");
+	}
+	
+	if (Type == 3)
+	{
+		str_copy(m_TeeInfos.m_TopperName, "none", 64);
+		str_copy(m_TeeInfos.m_EyeName, "x_robo2", 64);
+		m_TeeInfos.m_Body = 4;
+		m_TeeInfos.m_ColorTopper = 10747862;
+		m_TeeInfos.m_ColorSkin = 10747862;
+		m_TeeInfos.m_ColorBody = 10747862;
+		m_TeeInfos.m_ColorFeet = 10747862;
+		
+		GameServer()->Server()->SetClientName(GetCID(), "");
+	}
 }
 
 

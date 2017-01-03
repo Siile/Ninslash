@@ -26,10 +26,13 @@ struct CParticle
 		
 		m_Height = 0;
 		m_Flip = false;
+		m_IgnoreCollision = false;
 	}
 
 	vec2 m_Pos;
 	vec2 m_Vel;
+	
+	bool m_IgnoreCollision;
 	
 	int m_Height; // lazer
 	bool m_Flip; // mine
@@ -87,10 +90,12 @@ public:
 		GROUP_LAZER,
 		GROUP_LAZERLOAD,
 		GROUP_SPARKS,
+		GROUP_TAKEOFF,
 		GROUP_BLOODFX,
 		GROUP_PLAYERSPAWN,
 		GROUP_MONSTERSPAWN,
 		GROUP_CRAFTING,
+		GROUP_DAMAGEIND,
 		NUM_GROUPS
 	};
 
@@ -140,9 +145,11 @@ private:
 	CRenderGroup<GROUP_LAZER> m_RenderLazer;
 	CRenderGroup<GROUP_LAZERLOAD> m_RenderLazerload;
 	CRenderGroup<GROUP_SPARKS> m_RenderSparks;
+	CRenderGroup<GROUP_TAKEOFF> m_RenderTakeoff;
 	CRenderGroup<GROUP_BLOODFX> m_RenderBloodFX;
 	CRenderGroup<GROUP_PLAYERSPAWN> m_RenderPlayerSpawn;
 	CRenderGroup<GROUP_MONSTERSPAWN> m_RenderMonsterSpawn;
 	CRenderGroup<GROUP_CRAFTING> m_RenderCrafting;
+	CRenderGroup<GROUP_DAMAGEIND> m_RenderDamageInd;
 };
 #endif

@@ -32,6 +32,7 @@ public:
 	void Splatter(vec2 Pos, float Angle, float Size = -1);
 	void Spark(vec2 Pos);
 	void DamageIndicator(vec2 Pos, vec2 Dir);
+	void DamageInd(vec2 Pos, vec2 Dir, int Damage, vec4 Color);
 	void PlayerSpawn(vec2 Pos);
 	void PlayerDeath(vec2 Pos, int ClientID);
 	void PowerupShine(vec2 Pos, vec2 Size);

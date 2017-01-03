@@ -195,6 +195,8 @@ container.sounds.Add(SoundSet("laser_fire", FileList("audio/wp_laser_fire-%02d.w
 container.sounds.Add(SoundSet("laser_bounce", FileList("audio/wp_rifle_bnce-%02d.wv", 3)))
 container.sounds.Add(SoundSet("weapon_switch", FileList("audio/wp_switch-%02d.wv", 3)))
 
+container.sounds.Add(SoundSet("walker_fire", FileList("audio/wp_walker-%02d.wv", 3)))
+
 container.sounds.Add(SoundSet("player_pain_short", FileList("audio/vo_teefault_pain_short-%02d.wv", 12)))
 container.sounds.Add(SoundSet("player_pain_long", FileList("audio/vo_teefault_pain_long-%02d.wv", 2)))
 
@@ -259,6 +261,10 @@ container.sounds.Add(SoundSet("negative", ["audio/negative.wv"]))
 container.sounds.Add(SoundSet("build_turret", ["audio/build_turret.wv"]))
 container.sounds.Add(SoundSet("firetrap", ["audio/firetrap.wv"]))
 
+container.sounds.Add(SoundSet("door1", ["audio/door1.wv"]))
+
+container.sounds.Add(SoundSet("walker_takeoff", ["audio/walker_takeoff.wv"]))
+
 container.sounds.Add(SoundSet("build", FileList("audio/build-%02d.wv", 2)))
 
 container.sounds.Add(SoundSet("menu", ["audio/music_menu.wv"]))
@@ -275,7 +281,7 @@ image_weapons = Image("weapons", "weapons.png")
 image_deathtypes = Image("deathtypes", "deathtypes.png")
 image_items = Image("items", "items.png")
 image_sword = Image("sword", "sword.png")
-image_hand = Image("hand", "hand.png")
+image_hands = Image("hands", "hands.png")
 image_bodies = Image("bodies", "bodies.png")
 image_pickups = Image("pickups", "pickups.png")
 image_buildings = Image("buildings", "buildings.png")
@@ -303,8 +309,10 @@ image_bloodfx = Image("bloodfx", "fx/bloodfx.png")
 image_playerspawn = Image("playerspawn", "fx/playerspawn.png")
 image_monsterspawn = Image("monsterspawn", "fx/monsterspawn.png")
 image_heal = Image("heal", "fx/heal.png")
+image_takeoff = Image("takeoff", "fx/takeoff.png")
 image_flame = Image("flame", "fx/flame.png")
 image_cbelt = Image("cbelt", "cbelt.png")
+image_muzzle = Image("muzzle", "muzzle.png")
 
 image_hp = Image("hp", "gui/hp.png")
 image_fuel = Image("fuel", "gui/fuel.png")
@@ -318,7 +326,7 @@ container.images.Add(image_flag)
 container.images.Add(image_weapons)
 container.images.Add(image_sword)
 container.images.Add(image_items)
-container.images.Add(image_hand)
+container.images.Add(image_hands)
 container.images.Add(image_bodies)
 container.images.Add(image_pickups)
 container.images.Add(image_deathtypes)
@@ -354,12 +362,14 @@ container.images.Add(image_bloodfx)
 container.images.Add(image_playerspawn)
 container.images.Add(image_monsterspawn)
 container.images.Add(image_heal)
+container.images.Add(image_takeoff)
 container.images.Add(image_flame)
 container.images.Add(image_cbelt)
 container.images.Add(image_texasmask)
 container.images.Add(image_hp)
 container.images.Add(image_fuel)
 container.images.Add(image_circular)
+container.images.Add(image_muzzle)
 
 container.pickups.Add(Pickup("health"))
 container.pickups.Add(Pickup("armor"))
@@ -374,7 +384,7 @@ set_game = SpriteSet("game", image_game, 32, 16)
 set_flag = SpriteSet("flag", image_flag, 8, 2)
 set_weapons = SpriteSet("weapons", image_weapons, 16, 16)
 set_sword = SpriteSet("sword", image_sword, 4, 1)
-set_hand = SpriteSet("hand", image_hand, 1, 1)
+set_hands = SpriteSet("hands", image_hands, 8, 1)
 set_bodies = SpriteSet("bodies", image_bodies, 4, 1)
 set_pickups = SpriteSet("pickups", image_pickups, 8, 2)
 set_deathtypes = SpriteSet("deathtypes", image_deathtypes, 8, 4)
@@ -404,7 +414,9 @@ set_bloodfx = SpriteSet("bloodfx", image_bloodfx, 8, 1)
 set_playerspawn = SpriteSet("playerspawn", image_playerspawn, 16, 1)
 set_monsterspawn = SpriteSet("monsterspawn", image_monsterspawn, 16, 1)
 set_heal = SpriteSet("heal", image_heal, 8, 2)
+set_takeoff = SpriteSet("takeoff", image_takeoff, 8, 1)
 set_flame = SpriteSet("flame", image_flame, 4, 4)
+set_muzzle = SpriteSet("muzzle", image_muzzle, 4, 1)
 
 set_hud = SpriteSet("hud", image_hp, 1, 2)
 
@@ -416,7 +428,7 @@ container.spritesets.Add(set_flag)
 container.spritesets.Add(set_weapons)
 container.spritesets.Add(set_items)
 container.spritesets.Add(set_sword)
-container.spritesets.Add(set_hand)
+container.spritesets.Add(set_hands)
 container.spritesets.Add(set_bodies)
 container.spritesets.Add(set_pickups)
 container.spritesets.Add(set_deathtypes)
@@ -445,8 +457,10 @@ container.spritesets.Add(set_bloodfx)
 container.spritesets.Add(set_playerspawn)
 container.spritesets.Add(set_monsterspawn)
 container.spritesets.Add(set_heal)
+container.spritesets.Add(set_takeoff)
 container.spritesets.Add(set_flame)
 container.spritesets.Add(set_hud)
+container.spritesets.Add(set_muzzle)
 
 
 container.sprites.Add(Sprite("shield1", set_shield, 0,0,1,1))
@@ -470,6 +484,9 @@ for i in range(1, 4):
 	
 for i in range(1, 4):
 	container.sprites.Add(Sprite("swordhit"+str(i), set_swordhit, i-1, 1, 1, 1))
+	
+for i in range(1, 4):
+	container.sprites.Add(Sprite("muzzle"+str(i), set_muzzle, i-1, 0, 1, 1))
 
 # 4 frames
 for i in range(1, 5):
@@ -528,12 +545,15 @@ for i in range(1, 9):
 	container.sprites.Add(Sprite("lazerload"+str(i), set_lazerload, i-1, 0, 1, 1))
 for i in range(1, 9):
 	container.sprites.Add(Sprite("bloodfx1_"+str(i), set_bloodfx, i-1, 0, 1, 1))
+for i in range(1, 9):
+	container.sprites.Add(Sprite("takeoff"+str(i), set_takeoff, i-1,0,1,1))
 	
 for i in range(1, 9):
 	container.sprites.Add(Sprite("death"+str(i), set_death, i-1, 0, 1, 1))
 	
 for i in range(1, 9):
 	container.sprites.Add(Sprite("item"+str(i), set_items, i-1,0,1,1))
+	
 	
 # 11
 for i in range(1, 12):
@@ -552,10 +572,12 @@ for y in range(1, 4):
 
 		
 
+for i in range(1, 6):
+	container.sprites.Add(Sprite("hand"+str(i), set_hands, i-1, 0, 1, 1))
+
+		
 container.sprites.Add(Sprite("hp_frame", set_hud, 0,0,1,1))
 container.sprites.Add(Sprite("hp_fill", set_hud, 0,1,1,1))
-	
-container.sprites.Add(Sprite("hand", set_hand, 0,0,1,1))
 
 container.sprites.Add(Sprite("part_slice", set_particles, 0,0,1,1))
 container.sprites.Add(Sprite("part_ball", set_particles, 1,0,1,1))
@@ -616,17 +638,19 @@ container.sprites.Add(Sprite("repair", set_pickups, 6,1,2,1))
 
 container.sprites.Add(Sprite("weapon_pickup", set_weapons, 8,12,4,4))
 
-container.sprites.Add(Sprite("weapon_tool_body", set_weapons, 0,0,4,2))
+container.sprites.Add(Sprite("walker_proj", set_game, 6,6,2,2))
+
+container.sprites.Add(Sprite("weapon_tool_body", set_weapons, 7,10,4,2))
 container.sprites.Add(Sprite("weapon_tool_pickup", set_pickups, 0,0,0,0))
 container.sprites.Add(Sprite("weapon_tool_cursor", set_game, 0,0,2,2))
 container.sprites.Add(Sprite("weapon_tool_proj", set_game, 0,0,0,0))
 
-container.sprites.Add(Sprite("weapon_hammer_body", set_weapons, 8,0,8,2))
+container.sprites.Add(Sprite("weapon_hammer_body", set_weapons, 8,6,8,2))
 container.sprites.Add(Sprite("weapon_hammer_pickup", set_pickups, 0,0,0,0))
 container.sprites.Add(Sprite("weapon_hammer_cursor", set_game, 0,0,2,2))
 container.sprites.Add(Sprite("weapon_hammer_proj", set_game, 0,0,0,0))
 
-container.sprites.Add(Sprite("weapon_chainsaw_body", set_weapons, 4,2,6,2))
+container.sprites.Add(Sprite("weapon_chainsaw_body", set_weapons, 7,8,6,2))
 container.sprites.Add(Sprite("weapon_chainsaw_pickup", set_pickups, 6,0,1,1))
 container.sprites.Add(Sprite("weapon_chainsaw_cursor", set_game, 0,0,2,2))
 container.sprites.Add(Sprite("weapon_chainsaw_proj", set_game, 0,0,0,0))
@@ -639,7 +663,7 @@ container.sprites.Add(Sprite("weapon_chainsaw_proj", set_game, 0,0,0,0))
 #container.sprites.Add(Sprite("weapon_gun_muzzle2", set_game, 12,4,3,2))
 #container.sprites.Add(Sprite("weapon_gun_muzzle3", set_game, 16,4,3,2))
 
-container.sprites.Add(Sprite("weapon_shotgun_body", set_weapons, 0,5,8,2))
+container.sprites.Add(Sprite("weapon_shotgun_body", set_weapons, 0,6,8,2))
 container.sprites.Add(Sprite("weapon_shotgun_pickup", set_pickups, 1,0,1,1))
 container.sprites.Add(Sprite("weapon_shotgun_cursor", set_game, 0,6,2,2))
 container.sprites.Add(Sprite("weapon_shotgun_proj", set_game, 10,6,2,2))
@@ -647,20 +671,25 @@ container.sprites.Add(Sprite("weapon_shotgun_muzzle1", set_game, 12,6,3,2))
 container.sprites.Add(Sprite("weapon_shotgun_muzzle2", set_game, 16,6,3,2))
 container.sprites.Add(Sprite("weapon_shotgun_muzzle3", set_game, 20,6,3,2))
 
-container.sprites.Add(Sprite("weapon_grenade_body", set_weapons, 0,7,7,2))
+container.sprites.Add(Sprite("weapon_grenade_body", set_weapons, 0,8,7,2))
 container.sprites.Add(Sprite("weapon_grenade_pickup", set_pickups, 4,0,1,1))
 container.sprites.Add(Sprite("weapon_grenade_cursor", set_game, 0,8,2,2))
 container.sprites.Add(Sprite("weapon_grenade_proj", set_game, 10,8,2,2))
 
-container.sprites.Add(Sprite("weapon_rifle_body", set_weapons, 0,9,7,3))
+#container.sprites.Add(Sprite("weapon_rifle_body", set_weapons, 0,10,7,3))
+#container.sprites.Add(Sprite("weapon_rifle_proj", set_game, 6,4,2,2))
+
+container.sprites.Add(Sprite("weapon_robo_sawblade", set_weapons, 14,4,2,2))
+
+container.sprites.Add(Sprite("weapon_rifle_body", set_weapons, 0,3,7,3))
 container.sprites.Add(Sprite("weapon_rifle_pickup", set_pickups, 2,0,1,1))
 container.sprites.Add(Sprite("weapon_rifle_cursor", set_game, 0,12,2,2))
-container.sprites.Add(Sprite("weapon_rifle_proj", set_game, 6,4,2,2))
+container.sprites.Add(Sprite("weapon_rifle_proj", set_game, 6,6,2,2))
 container.sprites.Add(Sprite("weapon_rifle_muzzle1", set_game, 8,4,3,2))
 container.sprites.Add(Sprite("weapon_rifle_muzzle2", set_game, 12,4,3,2))
 container.sprites.Add(Sprite("weapon_rifle_muzzle3", set_game, 16,4,3,2))
 
-container.sprites.Add(Sprite("weapon_electric_body", set_weapons, 8,8,7,3))
+container.sprites.Add(Sprite("weapon_electric_body", set_weapons, 0,0,7,3))
 container.sprites.Add(Sprite("weapon_electric_pickup", set_pickups, 0,1,1,1))
 container.sprites.Add(Sprite("weapon_electric_cursor", set_game, 0,12,2,2))
 container.sprites.Add(Sprite("weapon_electric_proj", set_game, 10,10,2,2))
@@ -668,12 +697,12 @@ container.sprites.Add(Sprite("weapon_electric_muzzle1", set_game, 8,4,3,2))
 container.sprites.Add(Sprite("weapon_electric_muzzle2", set_game, 12,4,3,2))
 container.sprites.Add(Sprite("weapon_electric_muzzle3", set_game, 16,4,3,2))
 
-container.sprites.Add(Sprite("weapon_laser_body", set_weapons, 0,12,7,3))
+container.sprites.Add(Sprite("weapon_laser_body", set_weapons, 0,13,7,3))
 container.sprites.Add(Sprite("weapon_laser_pickup", set_pickups, 3,0,1,1))
 container.sprites.Add(Sprite("weapon_laser_cursor", set_game, 0,12,2,2))
 container.sprites.Add(Sprite("weapon_laser_proj", set_game, 10,12,2,2))
 
-container.sprites.Add(Sprite("weapon_flamer_body", set_weapons, 8,5,8,3))
+container.sprites.Add(Sprite("weapon_flamer_body", set_weapons, 7,2,8,3))
 container.sprites.Add(Sprite("weapon_flamer_pickup", set_pickups, 5,0,1,1))
 container.sprites.Add(Sprite("weapon_flamer_cursor", set_game, 0,6,2,2))
 container.sprites.Add(Sprite("weapon_flamer_proj", set_game, 6,0,1,1))
@@ -681,7 +710,7 @@ container.sprites.Add(Sprite("weapon_flamer_proj", set_game, 6,0,1,1))
 container.sprites.Add(Sprite("hook_chain", set_game, 2,0,1,1))
 container.sprites.Add(Sprite("hook_head", set_game, 3,0,2,1))
 
-container.sprites.Add(Sprite("pickup_kit", set_weapons, 13,2,3,3))
+container.sprites.Add(Sprite("pickup_kit", set_weapons, 13,9,3,3))
 container.sprites.Add(Sprite("pickup_mine", set_weapons, 14,12,2,2))
 container.sprites.Add(Sprite("pickup_health", set_weapons, 12,14,2,2))
 container.sprites.Add(Sprite("pickup_armor", set_weapons, 14,14,2,2))
@@ -708,6 +737,9 @@ container.sprites.Add(Sprite("kit_flametrap", set_buildings, 8, 0,2, 2))
 container.sprites.Add(Sprite("status_repair", set_buildings, 6, 0, 1, 1))
 container.sprites.Add(Sprite("status_nope", set_buildings, 7, 0, 1, 1))
 
+container.sprites.Add(Sprite("switch", set_buildings, 		10,0,1, 2))
+container.sprites.Add(Sprite("switch_off", set_buildings, 	12,0,1,2))
+container.sprites.Add(Sprite("switch_on", set_buildings, 	11,0,1,2))
 
 
 

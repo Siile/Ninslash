@@ -93,7 +93,7 @@ public:
 	
 	class CBuilding *IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, int Team, class CEntity *pNotThis = 0);
 	
-	class CMonster *IntersectMonster(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos);
+	class CMonster *IntersectWalker(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos);
 
 	/*
 		Function: closest_CCharacter

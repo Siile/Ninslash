@@ -94,6 +94,55 @@ void CBuildings::RenderSawblade(const struct CNetObj_Building *pCurrent)
 	*/
 }
 
+
+void CBuildings::RenderDoor1(const struct CNetObj_Building *pCurrent)
+{
+	float Time = 0.0f;
+	
+	int Anim = pCurrent->m_Status & (1<<BSTATUS_ON) ? ANIM_OPENED : ANIM_CLOSED;
+	
+	if (Anim == ANIM_CLOSED && pCurrent->m_Status & (1<<BSTATUS_EVENT))
+	{
+		Anim = ANIM_OPEN;
+		if (CustomStuff()->m_DoorTimer == 0.0f)
+			CustomStuff()->m_DoorTimer = 0.01f;
+		
+		Time = CustomStuff()->m_DoorTimer * 0.5f;
+	}
+	
+	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y+16), ATLAS_DOOR1, aAnimList[Anim], Time, vec2(1.0f, 1.0f)*0.3f, 1, 0);
+}
+
+
+void CBuildings::RenderSwitch(const struct CNetObj_Building *pCurrent)
+{
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
+	Graphics()->QuadsBegin();
+	
+	RenderTools()->SelectSprite(SPRITE_SWITCH);
+	
+	Graphics()->SetColor(1, 1, 1, 1);
+	Graphics()->QuadsSetRotation(0);
+		
+	RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y-14, 96);
+	Graphics()->QuadsEnd();
+	
+	int s = pCurrent->m_Status;
+	
+	Graphics()->ShaderBegin(SHADER_ELECTRIC, frandom());
+	Graphics()->QuadsBegin();
+	
+	RenderTools()->SelectSprite(pCurrent->m_Status & (1<<BSTATUS_ON) ? SPRITE_SWITCH_ON : SPRITE_SWITCH_OFF);
+	
+	Graphics()->SetColor(1, 1, 1, 1);
+	Graphics()->QuadsSetRotation(0);
+		
+	RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y-14, 96);
+	Graphics()->QuadsEnd();
+	Graphics()->ShaderEnd();
+}
+
+
 void CBuildings::RenderMine(const struct CNetObj_Building *pCurrent)
 {
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
@@ -532,6 +581,14 @@ void CBuildings::OnRender()
 				
 			case BUILDING_STAND:
 				RenderStand(pBuilding);
+				break;
+				
+			case BUILDING_SWITCH:
+				RenderSwitch(pBuilding);
+				break;
+				
+			case BUILDING_DOOR1:
+				RenderDoor1(pBuilding);
 				break;
 				
 			default:;

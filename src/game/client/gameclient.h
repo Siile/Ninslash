@@ -119,8 +119,11 @@ public:
 	bool BuildingNear(vec2 Pos, float Range);
 	
 	bool IsLocalUndead();
+	bool BuildingEnabled();
 	
 	void AddFluidForce(vec2 Pos, vec2 Vel);
+	
+	vec4 GetPlayerColor(int ClientID);
 
 	// predicted players
 	CCharacterCore m_PredictedPrevChar;

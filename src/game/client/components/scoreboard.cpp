@@ -229,6 +229,9 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 		if(!pInfo || pInfo->m_Team != Team)
 			continue;
 
+		if (CustomStuff()->m_aPlayerInfo[i].m_HideName)
+			continue;
+		
 		// do not show bots in KF
 		/*
 		if (m_pClient->CustomStuff()->m_KF)

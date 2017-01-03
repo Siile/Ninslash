@@ -2,7 +2,7 @@ from datatypes import *
 
 Emotes = ["NORMAL", "PAIN", "HAPPY", "SURPRISE", "ANGRY", "BLINK"]
 PlayerFlags = ["PLAYING", "IN_MENU", "CHATTING", "SCOREBOARD"]
-GameFlags = ["TEAMS", "INFECTION", "FLAGS"]
+GameFlags = ["TEAMS", "INFECTION", "COOP", "BUILD", "FLAGS"]
 GameStateFlags = ["GAMEOVER", "SUDDENDEATH", "PAUSED"]
 
 Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY", "GHOST", "SUSHI", "SPLATTEE", "DEVILTEE", "ZOMG", "ZZZ", "WTF", "EYES", "QUESTION"]
@@ -47,6 +47,8 @@ enum
 	BUILDING_BASE,
 	BUILDING_STAND,
 	BUILDING_FLAMETRAP,
+	BUILDING_SWITCH,
+	BUILDING_DOOR1,
 	
 	KIT_BARREL=0,
 	KIT_TURRET,
@@ -57,6 +59,8 @@ enum
 	BSTATUS_NOPE,
 	BSTATUS_MIRROR,
 	BSTATUS_FIRE,
+	BSTATUS_ON,
+	BSTATUS_EVENT,
 	NUM_BSTATUS,
 	
 	FX_EXPLOSION1=1,
@@ -71,6 +75,7 @@ enum
 	FX_BLOOD1,
 	FX_MONSTERDEATH,
 	FX_MONSTERSPAWN,
+	FX_TAKEOFF,
 	NUMFX,
 	
 	EFFECT_ELECTRODAMAGE=1,
@@ -156,7 +161,7 @@ Objects = [
 		NetIntAny("m_VelX"),
 		NetIntAny("m_VelY"),
 
-		NetIntRange("m_Type", 0, 'NUM_WEAPONS-1'),
+		NetIntRange("m_Type", 0, 'NUM_WEAPONS'), #'NUM_WEAPONS-1'
 		NetTick("m_StartTick"),
 	]),
 
@@ -180,9 +185,12 @@ Objects = [
 	NetObject("Monster", [
 		NetIntAny("m_X"),
 		NetIntAny("m_Y"),
+		NetIntAny("m_Angle"),
+		NetIntRange("m_AttackTick", 0, 'max_int'),
 
 		#NetIntRange("m_Type", 0, 'max_int'),
 		NetIntRange("m_Status", 0, 16),
+		NetIntRange("m_Anim", 0, 8),
 		NetIntRange("m_Dir", -1, 1),
 	]),
 
@@ -239,6 +247,8 @@ Objects = [
 		NetIntAny("m_Y"),
 		NetIntAny("m_VelX"),
 		NetIntAny("m_VelY"),
+		
+		NetIntRange("m_Health", 0, 100),
 
 		NetIntAny("m_Angle"),
 		NetIntRange("m_Direction", -1, 1),
@@ -270,7 +280,6 @@ Objects = [
 
 	NetObject("Character:CharacterCore", [
 		NetIntRange("m_PlayerFlags", 0, 256),
-		NetIntRange("m_Health", 0, 10),
 		NetIntRange("m_Armor", 0, 10),
 		NetIntRange("m_AmmoCount", 0, 30),
 		NetIntRange("m_SelectedGroup", 0, 3),
@@ -375,6 +384,8 @@ Objects = [
 
 	NetEvent("DamageInd:Common", [
 		NetIntAny("m_Angle"),
+		NetIntAny("m_Damage"),
+		NetIntRange("m_ClientID", -1, 'MAX_CLIENTS-1'),
 	]),
 	
 	NetEvent("Effect:Common", [
@@ -457,6 +468,12 @@ Messages = [
 		NetIntRange("m_Pass", 0, 'MAX_CLIENTS'),
 		NetIntRange("m_Total", 0, 'MAX_CLIENTS'),
 	]),
+	
+	
+	NetMessage("Sv_Buff", [
+		NetIntRange("m_Buff", 0, 8),
+		NetIntAny("m_StartTick"),
+	]),
 
 	### Client messages
 	NetMessage("Cl_Say", [
@@ -507,7 +524,7 @@ Messages = [
 	
 	NetMessage("Cl_DropWeapon", []),
 	
-	NetMessage("Cl_SwitchGroup", []),
+	#NetMessage("Cl_SwitchGroup", []),
 	
 	NetMessage("Cl_SelectWeapon", [
 		NetIntRange("m_Weapon", 0, 99),

@@ -14,7 +14,12 @@ enum Skeletons
 	SKELETON_BODY1,
 	SKELETON_BODY2,
 	SKELETON_BODY3,
+	SKELETON_ROBO1,
+	SKELETON_ROBO2,
 	SKELETON_MONSTER1,
+	SKELETON_DRONE,
+	SKELETON_WALKER_BOTTOM,
+	SKELETON_DOOR1,
 	NUM_SKELETONS
 };
 
@@ -23,9 +28,33 @@ enum Atlases
 	ATLAS_BODY1,
 	ATLAS_BODY2,
 	ATLAS_BODY3,
+	ATLAS_ROBO1,
+	ATLAS_ROBO2,
 	ATLAS_MONSTER1,
+	ATLAS_DRONE,
+	ATLAS_WALKER_BOTTOM,
+	ATLAS_DOOR1,
 	NUM_ATLASES
 };
+
+enum AnimList
+{
+	ANIM_IDLE,
+	ANIM_OPEN,
+	ANIM_OPENED,
+	ANIM_CLOSED,
+	NUM_ANIMS
+};
+
+
+static const char *aAnimList[NUM_ANIMS] = 
+{
+	"idle",
+	"open",
+	"opened",
+	"closed"
+};
+
 
 
 class CSkelebankSkeleton : public CAnimSkeletonInfo

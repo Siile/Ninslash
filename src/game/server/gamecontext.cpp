@@ -14,6 +14,7 @@
 #include "gamemodes/dm.h"
 #include "gamemodes/tdm.h"
 #include "gamemodes/ctf.h"
+#include "gamemodes/run.h"
 #include "gamemodes/base.h"
 #include "gamemodes/texasrun.h"
 
@@ -124,21 +125,17 @@ void CGameContext::CreateBuildingHit(vec2 Pos)
 		pEvent->m_Y = (int)Pos.y;
 	}
 }
-void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Amount)
+void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Damage, int ClientID)
 {
-	int a = Amount / 4;
-	if (a == 0)
-		a = 1;
-	
-	for(int i = 0; i < a; i++)
+	CNetEvent_DamageInd *pEvent = (CNetEvent_DamageInd *)m_Events.Create(NETEVENTTYPE_DAMAGEIND, sizeof(CNetEvent_DamageInd));
+	if(pEvent)
 	{
-		CNetEvent_DamageInd *pEvent = (CNetEvent_DamageInd *)m_Events.Create(NETEVENTTYPE_DAMAGEIND, sizeof(CNetEvent_DamageInd));
-		if(pEvent)
-		{
-			pEvent->m_X = (int)Pos.x;
-			pEvent->m_Y = (int)Pos.y;
-			pEvent->m_Angle = (int)(Angle*256.0f + frandom()*200 - frandom()*200);
-		}
+		pEvent->m_X = (int)Pos.x;
+		pEvent->m_Y = (int)Pos.y;
+		pEvent->m_Angle = (int)(Angle*256.0f + frandom()*200 - frandom()*200);
+		//pEvent->m_Angle = (int)(Angle*256.0f);
+		pEvent->m_Damage = Damage;
+		pEvent->m_ClientID = ClientID;
 	}
 }
 
@@ -195,6 +192,8 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos)
 	//float OffsetY = -(int(Pos.y)%32) + 12;
 	float CheckRange = 40.0f;
 	
+	if (!g_Config.m_SvEnableBuilding)
+		return false;
 
 	// check sanity
 	/*
@@ -1005,6 +1004,14 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, bool Lock)
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 	if (Lock)
 		m_BroadcastLockTick = Server()->Tick() + g_Config.m_SvBroadcastLock*Server()->TickSpeed();
+}
+
+void CGameContext::SendBuff(int Buff, int StartTick, int ClientID)
+{
+	CNetMsg_Sv_Buff Msg;
+	Msg.m_Buff = Buff;
+	Msg.m_StartTick = StartTick;
+	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }
 
 //
@@ -1939,12 +1946,14 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			
 			pPlayer->DropWeapon();
 		}
+		/*
 		else if (MsgID == NETMSGTYPE_CL_SWITCHGROUP && !m_World.m_Paused)
 		{
 			// TODO: spam protection
 			
 			pPlayer->SwitchGroup();
 		}
+		*/
 		else if (MsgID == NETMSGTYPE_CL_SELECTITEM && !m_World.m_Paused)
 		{
 			CNetMsg_Cl_SelectItem *pMsg = (CNetMsg_Cl_SelectItem *)pRawMsg;
@@ -2545,6 +2554,8 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		m_pController = new CGameControllerTexasRun(this);
 	else if(str_comp(g_Config.m_SvGametype, "base") == 0)
 		m_pController = new CGameControllerBase(this);
+	else if(str_comp(g_Config.m_SvGametype, "run") == 0)
+		m_pController = new CGameControllerCoop(this);
 	else
 		m_pController = new CGameControllerDM(this);
 

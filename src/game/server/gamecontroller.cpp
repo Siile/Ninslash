@@ -74,6 +74,9 @@ void IGameController::NextGameState(int NextGameState, float InHowManySeconds)
 
 void IGameController::DropPickup(vec2 Pos, int PickupType, vec2 Force, int PickupSubtype, float Ammo)
 {
+	if (!g_Config.m_SvEnableBuilding && PickupType == POWERUP_KIT)
+		PickupType = POWERUP_HEALTH;
+	
 	for (int i = 0; i < m_PickupCount; i++)
 	{
 		if (m_apPickup[i] && m_apPickup[i]->m_Dropable && m_apPickup[i]->m_Life <= 0 && m_apPickup[i]->GetType() == PickupType)
@@ -140,11 +143,11 @@ int IGameController::GetRandomWeapon(int WeaponLevel)
 {
 	int w = 0;
 	if (WeaponLevel == -1)
-		w = rand()%(NUM_CUSTOMWEAPONS-1);
+		w = rand()%(NUM_WEAPONS-1);
 	else
 	{
 		int n = 0;
-		int w2 = rand()%(NUM_CUSTOMWEAPONS-1);
+		int w2 = rand()%(NUM_WEAPONS-1);
 		
 		if (n >= 50)
 			w = 0;
@@ -251,7 +254,7 @@ void IGameController::EvaluateSpawnType(CSpawnEval *pEval, int Type)
 	}
 }
 
-bool IGameController::CanSpawn(int Team, vec2 *pOutPos, int Bot)
+bool IGameController::CanSpawn(int Team, vec2 *pOutPos, bool IsBot)
 {
 	CSpawnEval Eval;
 
@@ -259,7 +262,7 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, int Bot)
 	if(Team == TEAM_SPECTATORS)
 		return false;
 
-	if(IsTeamplay() || Team != 9000)
+	if (IsTeamplay())
 	{
 		Eval.m_FriendlyTeam = Team;
 
@@ -272,11 +275,37 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, int Bot)
 				EvaluateSpawnType(&Eval, 1+((Team+1)&1));
 		}
 	}
+	else if (IsCoop())
+	{
+		if (IsBot)
+		{
+			//EvaluateSpawnType(&Eval, 1);
+			if (GetSpawnPos(1, pOutPos))
+				return true;
+			
+			return false;
+		}
+		else
+			EvaluateSpawnType(&Eval, 0);
+	}
 	else
 	{
+		// pick random spawn point in dm, from any of the different types
+		int i = rand()%3;
+		
+		for (int c = 0; c < 3; c++)
+		{
+			if (++i > 2)
+				i = 0;
+			
+			EvaluateSpawnType(&Eval, i);
+		}
+		
+		/*
 		EvaluateSpawnType(&Eval, 0);
 		EvaluateSpawnType(&Eval, 1);
 		EvaluateSpawnType(&Eval, 2);
+		*/
 	}
 
 	*pOutPos = Eval.m_Pos;
@@ -468,6 +497,22 @@ void IGameController::CreateDroppables()
 
 
 
+void IGameController::TriggerSwitch(vec2 Pos)
+{
+	float Radius = 1000;
+	
+	CBuilding *apEnts[99];
+	int Num = GameServer()->m_World.FindEntities(Pos, Radius, (CEntity**)apEnts,
+													99, CGameWorld::ENTTYPE_BUILDING);
+	for (int i = 0; i < Num; ++i)
+	{
+		CBuilding *pTarget = apEnts[i];
+		pTarget->Trigger();
+	}
+}
+
+
+
 bool IGameController::OnEntity(int Index, vec2 Pos)
 {
 	int Type = -1;
@@ -513,7 +558,18 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 	}
 	else if (Index == ENTITY_STAND)
 	{
-		new CBuilding(&GameServer()->m_World, Pos+vec2(0, -10), BUILDING_STAND, TEAM_NEUTRAL);
+		if (g_Config.m_SvEnableBuilding)
+			new CBuilding(&GameServer()->m_World, Pos+vec2(0, -10), BUILDING_STAND, TEAM_NEUTRAL);
+		return true;
+	}
+	else if (Index == ENTITY_SWITCH)
+	{
+		new CBuilding(&GameServer()->m_World, Pos+vec2(0, -10), BUILDING_SWITCH, TEAM_NEUTRAL);
+		return true;
+	}
+	else if (Index == ENTITY_DOOR1)
+	{
+		new CBuilding(&GameServer()->m_World, Pos, BUILDING_DOOR1, TEAM_NEUTRAL);
 		return true;
 	}
 	else if (Index == ENTITY_FLAMETRAP_RIGHT || Index == ENTITY_FLAMETRAP_LEFT)
@@ -546,7 +602,12 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		else if(Index == ENTITY_MINE_1)
 			Type = POWERUP_MINE;
 		else if(Index == ENTITY_KIT)
-			Type = POWERUP_KIT;
+		{
+			if (g_Config.m_SvEnableBuilding)
+				Type = POWERUP_KIT;
+			else
+				Type = POWERUP_ARMOR;
+		}
 		else if(Index == ENTITY_WEAPON_CHAINSAW)
 		{
 			Type = POWERUP_WEAPON;
@@ -610,6 +671,24 @@ int IGameController::CountPlayers(int Team)
 			if (pPlayer->GetTeam() == Team || Team == -1)
 				Num++;
 		}
+	}
+	
+	return Num;
+}
+
+
+int IGameController::CountBots()
+{
+	int Num = 0;
+		
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CPlayer *pPlayer = GameServer()->m_apPlayers[i];
+		if(!pPlayer)
+			continue;
+
+		if (pPlayer->m_IsBot)
+			Num++;
 	}
 	
 	return Num;
@@ -865,6 +944,12 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 }
 
 
+bool IGameController::GetSpawnPos(int Team, vec2 *pOutPos)
+{
+	//
+	return false;
+}
+
 void IGameController::OnCharacterSpawn(class CCharacter *pChr, bool RequestAI)
 {	
 	// default health
@@ -1085,6 +1170,11 @@ void IGameController::Tick()
 	DoWincheck();
 }
 
+
+bool IGameController::IsCoop() const
+{
+	return m_GameFlags&GAMEFLAG_COOP;
+}
 
 bool IGameController::IsTeamplay() const
 {

@@ -50,7 +50,7 @@ void CPlayers::RenderHand(CTeeRenderInfo *pInfo, vec2 CenterPos, vec2 Dir, float
 	HandPos += DirY * PostRotOffset.y;
 
 	//Graphics()->TextureSet(data->m_aImages[IMAGE_CHAR_DEFAULT].id);
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HAND].m_Id);
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HANDS].m_Id);
 	Graphics()->QuadsBegin();
 	Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, pInfo->m_ColorSkin.a);
 
@@ -60,7 +60,7 @@ void CPlayers::RenderHand(CTeeRenderInfo *pInfo, vec2 CenterPos, vec2 Dir, float
 		//bool OutLine = i == 0;
 
 		//RenderTools()->SelectSprite(OutLine?SPRITE_TEE_HAND_OUTLINE:SPRITE_TEE_HAND, 0, 0, 0);
-		RenderTools()->SelectSprite(SPRITE_HAND);
+		RenderTools()->SelectSprite(SPRITE_HAND1+pInfo->m_Body);
 		Graphics()->QuadsSetRotation(Angle);
 		IGraphics::CQuadItem QuadItem(HandPos.x, HandPos.y, 2*BaseSize, 2*BaseSize);
 		Graphics()->QuadsDraw(&QuadItem, 1);
@@ -86,6 +86,7 @@ inline float AngularApproach(float Src, float Dst, float Amount)
 		return Dst;
 	return n;
 }
+
 
 
 void CPlayers::RenderPlayer(
@@ -366,7 +367,8 @@ void CPlayers::RenderPlayer(
 		CustomStuff()->m_SelectedWeapon = Player.m_Weapon;
 	}
 	
-
+	CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_Color = RenderInfo.m_ColorBody;
+		
 	// draw aim line 
 	if (pPlayerInfo->m_Local && g_Config.m_GoreAimLine && pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING] < 0.9f)
 	{
@@ -515,8 +517,20 @@ void CPlayers::RenderPlayer(
 				}
 			}
 			
-			p.y += g_pData->m_Weapons.m_aId[iw].m_Offsety;
-			RenderTools()->DrawSprite(p.x, p.y, g_pData->m_Weapons.m_aId[iw].m_VisualSize);
+			// custom "chainsaw" for robos
+			/*
+			if (RenderInfo.m_Body == 3 && iw == WEAPON_CHAINSAW)
+			{
+				//p = Position;
+				RenderTools()->SelectSprite(SPRITE_WEAPON_ROBO_SAWBLADE, Direction.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
+				RenderTools()->DrawSprite(p.x, p.y, 48);
+			}
+			else
+				*/
+			{
+				p.y += g_pData->m_Weapons.m_aId[iw].m_Offsety;
+				RenderTools()->DrawSprite(p.x, p.y, g_pData->m_Weapons.m_aId[iw].m_VisualSize);
+			}
 		}
 		
 		Graphics()->QuadsEnd();
@@ -960,9 +974,36 @@ void CPlayers::RenderPlayer(
 	
 	// electric sparks
 	if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE] > 0.5f && Client()->GameTick()%5 == 1)
-	{
 		m_pClient->m_pEffects->Electrospark(Position+vec2((frandom()-frandom())*16.0f, -frandom()*48.0f), 30.0f);
+	
+	
+	// health bar
+	/*
+	{
+		vec2 HpSize = vec2(64, 12);
+		
+		float x = Position.x - HpSize.x / 2;
+		float y = Position.y - 72 - HpSize.y;
+		
+		Graphics()->TextureSet(g_pData->m_aImages[-1].m_Id);
+		Graphics()->QuadsBegin();
+	
+		float f = min(Player.m_Health, 100) / 100.0f;
+		Graphics()->SetColor(1, 0, 0, 1);
+		//Graphics()->QuadsSetSubsetFree(0, 0.5f, 1*f, 0.5f, 0, 1, 1*f, 1);
+
+		IGraphics::CFreeformItem FreeFormItem(
+			x, y,
+			x+f*HpSize.x, y,
+			x, y+HpSize.y,
+			x+f*HpSize.x, y+HpSize.y);
+
+		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+		
+		Graphics()->QuadsEnd();
 	}
+	*/
+	
 	
 	if(Player.m_PlayerFlags&PLAYERFLAG_CHATTING)
 	{
@@ -1025,6 +1066,29 @@ void CPlayers::OnRender()
 		m_aRenderInfo[i] = m_pClient->m_aClients[i].m_RenderInfo;
 		
 		vec3 TeamColor = GetColorV3(aTeamColors[TEAM_RED]);
+		
+		// robot body => robot eyes
+		if (m_aRenderInfo[i].m_Body == 3)
+		{
+			CustomStuff()->m_aPlayerInfo[i].m_HideName = true;
+			
+			int Skin = m_pClient->m_pSkins->FindEye("x_robo1");
+			
+			if(Skin != -1)
+				m_aRenderInfo[i].m_EyeTexture = m_pClient->m_pSkins->GetEye(Skin)->m_Texture;
+		}
+		else if (m_aRenderInfo[i].m_Body == 4)
+		{
+			CustomStuff()->m_aPlayerInfo[i].m_HideName = true;
+			
+			int Skin = m_pClient->m_pSkins->FindEye("x_robo2");
+			
+			if(Skin != -1)
+				m_aRenderInfo[i].m_EyeTexture = m_pClient->m_pSkins->GetEye(Skin)->m_Texture;
+		}
+		else
+			CustomStuff()->m_aPlayerInfo[i].m_HideName = false;
+		
 		
 		// change to custom team colors
 		/*

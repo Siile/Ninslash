@@ -5,7 +5,7 @@
 
 class CMonsters : public CComponent
 {
-	void RenderMonster(const CNetObj_Monster *pPrev, const CNetObj_Monster *pCurrent, int ItemID);
+	void RenderWalker(const CNetObj_Monster *pPrev, const CNetObj_Monster *pCurrent, int ItemID);
 	
 public:
 	virtual void OnReset();

@@ -55,7 +55,7 @@ bool CLaser::HitMonster(vec2 From, vec2 To)
 	if (!pOwnerChar)
 		return false;
 	
-	CMonster *pHit = GameServer()->m_World.IntersectMonster(m_Pos, To, 8.0f, At);
+	CMonster *pHit = GameServer()->m_World.IntersectWalker(m_Pos, To, 8.0f, At);
 	if(!pHit)
 		return false;
 	

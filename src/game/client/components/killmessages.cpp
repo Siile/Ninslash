@@ -68,6 +68,8 @@ void CKillMessages::OnRender()
 
 		// render victim name
 		x -= VictimNameW;
+		
+		if (m_aKillmsgs[r].m_VictimRenderInfo.m_Body < 3)
 		TextRender()->Text(0, x, y, FontSize, m_aKillmsgs[r].m_aVictimName, -1);
 
 		// render victim tee
@@ -152,7 +154,8 @@ void CKillMessages::OnRender()
 
 			// render killer name
 			x -= KillerNameW;
-			TextRender()->Text(0, x, y, FontSize, m_aKillmsgs[r].m_aKillerName, -1);
+			if (m_aKillmsgs[r].m_KillerRenderInfo.m_Body < 3)
+				TextRender()->Text(0, x, y, FontSize, m_aKillmsgs[r].m_aKillerName, -1);
 		}
 
 		//y += 46.0f;

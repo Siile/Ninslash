@@ -1,5 +1,6 @@
 #include <base/math.h>
 #include <engine/graphics.h>
+#include <engine/textrender.h>
 #include <engine/demo.h>
 #include <engine/shared/config.h>
 
@@ -29,10 +30,12 @@ CParticles::CParticles()
 	m_RenderLazer.m_pParts = this;
 	m_RenderLazerload.m_pParts = this;
 	m_RenderSparks.m_pParts = this;
+	m_RenderTakeoff.m_pParts = this;
 	m_RenderBloodFX.m_pParts = this;
 	m_RenderPlayerSpawn.m_pParts = this;
 	m_RenderMonsterSpawn.m_pParts = this;
 	m_RenderCrafting.m_pParts = this;
+	m_RenderDamageInd.m_pParts = this;
 }
 
 
@@ -119,7 +122,7 @@ void CParticles::Update(float TimePassed)
 
 			// move the point
 			vec2 Vel = m_aParticles[i].m_Vel*TimePassed;
-			Collision()->MovePoint(&m_aParticles[i].m_Pos, &Vel, 0.1f+0.9f*frandom(), NULL);
+			Collision()->MovePoint(&m_aParticles[i].m_Pos, &Vel, 0.1f+0.9f*frandom(), NULL, m_aParticles[i].m_IgnoreCollision);
 			m_aParticles[i].m_Vel = Vel* (1.0f/TimePassed);
 
 			m_aParticles[i].m_Life += TimePassed;
@@ -225,6 +228,30 @@ void CParticles::RenderGroup(int Group)
 		}
 		Graphics()->QuadsEnd();
 	}
+	else if (Group == GROUP_DAMAGEIND)
+	{
+			
+		int i = m_aFirstPart[Group];
+		while(i != -1)
+		{
+			float a = m_aParticles[i].m_Life / m_aParticles[i].m_LifeSpan;
+			vec2 p = m_aParticles[i].m_Pos;
+
+			float Size = mix(m_aParticles[i].m_StartSize, m_aParticles[i].m_EndSize*1.0f, a*2.0f);
+
+			char aBuf[8];
+			str_format(aBuf, sizeof(aBuf), "%d", m_aParticles[i].m_Spr);
+			
+			vec4 c = m_aParticles[i].m_Color;
+			
+			TextRender()->TextColor(c.r, c.g, c.b, 1-a);
+			TextRender()->Text(0, p.x, p.y, Size, aBuf, -1);
+			
+			i = m_aParticles[i].m_NextPart;
+		}
+		
+		TextRender()->TextColor(1, 1, 1, 1);
+	}
 	else if (Group == GROUP_DEATH)
 	{
 		Graphics()->BlendNormal();
@@ -247,6 +274,32 @@ void CParticles::RenderGroup(int Group)
 			i = m_aParticles[i].m_NextPart;
 		}
 		Graphics()->QuadsEnd();
+	}
+	else if (Group == GROUP_TAKEOFF)
+	{
+		Graphics()->BlendNormal();
+		
+		int i = m_aFirstPart[Group];
+		while(i != -1)
+		{
+			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_TAKEOFF].m_Id);
+			Graphics()->QuadsBegin();
+			
+			float a = m_aParticles[i].m_Life / m_aParticles[i].m_LifeSpan;
+			vec2 p = m_aParticles[i].m_Pos;
+
+			float Size = mix(m_aParticles[i].m_StartSize, m_aParticles[i].m_EndSize*1.0f, a);
+			RenderTools()->SelectSprite(m_aParticles[i].m_Spr + a*m_aParticles[i].m_Frames);
+			Graphics()->QuadsSetRotation(m_aParticles[i].m_Rot);
+			Graphics()->SetColor(m_aParticles[i].m_Color.r, m_aParticles[i].m_Color.g, m_aParticles[i].m_Color.b, 1);
+			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
+			Graphics()->QuadsDraw(&QuadItem, 1);
+
+			i = m_aParticles[i].m_NextPart;
+			Graphics()->QuadsEnd();
+			
+			RenderTools()->RenderWalker(p+vec2(0, 62), -1, a/3, 1, 0, 0);
+		}
 	}
 	else if (Group == GROUP_LAZERLOAD)
 	{

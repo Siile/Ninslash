@@ -21,8 +21,23 @@ void CSkelebank::Init(IStorage *pStorage)
 	AddSkeleton("data/anim/body3.json", IStorage::STORAGETYPE_CLIENT);
 	AddAtlas("data/anim/body3.atlas", IStorage::STORAGETYPE_CLIENT);
 
-	AddSkeleton("data/anim/monster1.json", IStorage::STORAGETYPE_CLIENT);
-	AddAtlas("data/anim/monster1.atlas", IStorage::STORAGETYPE_CLIENT);
+	AddSkeleton("data/anim/robo1.json", IStorage::STORAGETYPE_CLIENT);
+	AddAtlas("data/anim/robo1.atlas", IStorage::STORAGETYPE_CLIENT);
+
+	AddSkeleton("data/anim/robo2.json", IStorage::STORAGETYPE_CLIENT);
+	AddAtlas("data/anim/robo2.atlas", IStorage::STORAGETYPE_CLIENT);
+
+	AddSkeleton("data/anim/walker.json", IStorage::STORAGETYPE_CLIENT);
+	AddAtlas("data/anim/walker.atlas", IStorage::STORAGETYPE_CLIENT);
+	
+	AddSkeleton("data/anim/drone.json", IStorage::STORAGETYPE_CLIENT);
+	AddAtlas("data/anim/drone.atlas", IStorage::STORAGETYPE_CLIENT);
+	
+	AddSkeleton("data/anim/walker_bottom.json", IStorage::STORAGETYPE_CLIENT);
+	AddAtlas("data/anim/walker_bottom.atlas", IStorage::STORAGETYPE_CLIENT);
+	
+	AddSkeleton("data/anim/door1.json", IStorage::STORAGETYPE_CLIENT);
+	AddAtlas("data/anim/door1.atlas", IStorage::STORAGETYPE_CLIENT);
 }
 
 CSkelebank::~CSkelebank()

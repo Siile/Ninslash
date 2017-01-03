@@ -20,6 +20,9 @@ CPlayerInfo::CPlayerInfo()
 	m_FlipFeet = false;
 	m_WeaponRecoilLoaded = false;
 	
+	m_Color = vec4(1, 1, 1, 1);
+	m_HideName = false;
+	
 	Reset();
 }
 

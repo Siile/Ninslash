@@ -207,6 +207,8 @@ public:
 	bool m_HandJetpack;
 
 	int m_Jumped;
+	
+	int m_Health;
 
 	// for animation, not syncronized
 	int m_JumpTimer;

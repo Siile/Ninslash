@@ -46,13 +46,20 @@ int CGameWorld::FindEntities(vec2 Pos, float Radius, CEntity **ppEnts, int Max, 
 	if(Type < 0 || Type >= NUM_ENTTYPES)
 		return 0;
 
+	// todo: scalable
+
+	vec2 OPos = Pos;
+	
 	int Num = 0;
 	for(CEntity *pEnt = m_apFirstEntityTypes[Type];	pEnt; pEnt = pEnt->m_pNextTypeEntity)
 	{
+		if (Type == CGameWorld::ENTTYPE_MONSTER)
+			Pos = OPos + pEnt->m_Center;
+		
 		// circle body collision
 		if(distance(pEnt->m_Pos, Pos) < Radius+pEnt->m_ProximityRadius || 
 			// head collision if character
-			(Type == CGameWorld::ENTTYPE_CHARACTER && distance(pEnt->m_Pos + vec2(0, -25), Pos) < Radius+pEnt->m_ProximityRadius))
+			(Type == CGameWorld::ENTTYPE_CHARACTER && distance(pEnt->m_Pos + vec2(0, -27), Pos) < Radius+pEnt->m_ProximityRadius))
 		{
 			if(ppEnts)
 				ppEnts[Num] = pEnt;
@@ -204,7 +211,7 @@ CBuilding *CGameWorld::IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec
 	CBuilding *p = (CBuilding *)FindFirst(ENTTYPE_BUILDING);
 	for(; p; p = (CBuilding *)p->TypeNext())
  	{
-		if(p == pNotThis)
+		if(p == pNotThis || !p->m_Collision)
 			continue;
 		
 		if (Team == p->m_Team && p->m_Type != BUILDING_MINE1 && p->m_Type != BUILDING_MINE2)
@@ -228,7 +235,7 @@ CBuilding *CGameWorld::IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec
 }
 
 
-CMonster *CGameWorld::IntersectMonster(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos)
+CMonster *CGameWorld::IntersectWalker(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos)
 {
 	float ClosestLen = distance(Pos0, Pos1) * 100.0f;
 	CMonster *pClosest = 0;
@@ -240,7 +247,7 @@ CMonster *CGameWorld::IntersectMonster(vec2 Pos0, vec2 Pos1, float Radius, vec2 
 			continue;
 		
 		vec2 IntersectPos = closest_point_on_line(Pos0, Pos1, p->m_Pos);
-		float Len = distance(p->m_Pos + vec2(0, -16), IntersectPos);
+		float Len = distance(p->m_Pos + p->m_Center, IntersectPos);
 		if(Len < p->m_ProximityRadius+Radius)
 		{
 			Len = distance(Pos0, IntersectPos);

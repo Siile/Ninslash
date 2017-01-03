@@ -51,7 +51,6 @@ struct CWeapon
 
 	CWeapon(const char *Name,
 			int Sound,
-			int Cost,
 			int Damage,
 			bool FullAuto,
 			float BulletSpread,
@@ -66,7 +65,6 @@ struct CWeapon
 	{
 	    str_copy(m_Name, Name, sizeof(m_Name));
 		m_Sound = Sound;
-		m_Cost = Cost;
 		m_Damage = Damage;
 		m_FullAuto = FullAuto;
 		m_BulletSpread = BulletSpread;
@@ -92,6 +90,8 @@ enum CustomWeapons
 	W_GRENADELAUNCHER,
 	W_FLAMER,
 	W_CHAINSAW,
+	W_WALKER,
+	W_ROBOT1,
 	NUM_CUSTOMWEAPONS
 };
 
@@ -134,7 +134,6 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 	CWeapon(
 		"Tool",
 		SOUND_TOOL_FIRE,
-		0, // cost
 		5, // damage
 		true, // autofire
 		0, // bullet spread
@@ -150,7 +149,6 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 	CWeapon(
 		"Hammer",
 		SOUND_HAMMER_FIRE,
-		0, // cost
 		20, // damage
 		true, // autofire
 		0, // bullet spread
@@ -166,7 +164,6 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 	CWeapon(
 		"Shotgun",
 		SOUND_SHOTGUN_FIRE,
-		75, // cost
 		7, // damage
 		true, // autofire
 		0.06f, // bullet spread
@@ -179,10 +176,10 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		4.0f, // self knockback
 		440 // ai attack range
 		),
+		/*
 	CWeapon(
 		"Assault rifle",
 		SOUND_RIFLE_FIRE,
-		100, // cost
 		13, // damage
 		true, // autofire
 		0.08f, // bullet spread
@@ -195,10 +192,25 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		1.5f, // self knockback
 		780 // ai attack range
 		),
+		*/
+	CWeapon(
+		"Robot rifle",
+		SOUND_WALKER_FIRE,
+		5, // damage
+		true, // autofire
+		0.06f, // bullet spread
+		1, // shot spread
+		10, // powerup size
+		0, // max ammo
+		0.35f, // bullet life
+		120, // bullet reload time
+		3.5f, // bullet knockback
+		1.5f, // self knockback
+		780 // ai attack range
+		),
 	CWeapon(
 		"Laser rifle",
 		SOUND_LASER_FIRE,
-		90, // cost
 		35, // damage
 		true, // autofire
 		0, // bullet spread
@@ -214,7 +226,6 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 	CWeapon(
 		"Electro launcher",
 		SOUND_ELECTRO_FIRE,
-		100, // cost
 		10, // damage
 		true, // autofire
 		0, // bullet spread
@@ -230,7 +241,6 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 	CWeapon(
 		"Grenade launcher",
 		SOUND_GRENADE_FIRE,
-		100, // cost
 		12, // damage
 		true, // autofire
 		0, // bullet spread
@@ -246,7 +256,6 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 	CWeapon(
 		"Flame thrower",
 		SOUND_GRENADE_FIRE,
-		90, // cost
 		6, // damage
 		true, // autofire
 		0.1f, // bullet spread
@@ -262,7 +271,6 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 	CWeapon(
 		"Chainsaw",
 		SOUND_CHAINSAW_FIRE,
-		0, // cost
 		12, // damage
 		true, // autofire
 		0, // bullet spread
@@ -274,7 +282,37 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		0.2f, // knockback
 		0.0f, // self knockback
 		180 // ai attack range
-		)
+		),
+	CWeapon(
+		"Walker weapon",
+		SOUND_WALKER_FIRE,
+		3, // damage
+		true, // autofire
+		0.06f, // bullet spread
+		1, // shot spread
+		10, // powerup size
+		0, // max ammo
+		0.35f, // bullet life
+		120, // bullet reload time
+		3.5f, // bullet knockback
+		1.5f, // self knockback
+		780 // ai attack range
+		),
+	CWeapon(
+		"Robot1",
+		SOUND_WALKER_FIRE,
+		3, // damage
+		true, // autofire
+		0.06f, // bullet spread
+		1, // shot spread
+		10, // powerup size
+		0, // max ammo
+		0.35f, // bullet life
+		120, // bullet reload time
+		3.5f, // bullet knockback
+		1.5f, // self knockback
+		700 // ai attack range
+		),
 };
 
 

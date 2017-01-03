@@ -3,6 +3,7 @@
 
 #include <game/server/player.h>
 #include "character.h"
+#include "monster.h"
 
 #include "building.h"
 #include "projectile.h"
@@ -13,6 +14,7 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 {
 	m_SetTimer = 0;
 	m_Center = vec2(0, 0);
+	m_Collision = true;
 	
 	m_Status = 0;
 	for (int i = 0; i < NUM_BSTATUS; i++)
@@ -51,6 +53,19 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		m_ProximityRadius = StandPhysSize;
 		m_Life = 60;
 		m_Center = vec2(0, -10);
+		break;
+		
+	case BUILDING_SWITCH:
+		m_ProximityRadius = SwitchPhysSize;
+		m_Life = 9000;
+		m_Center = vec2(0, -34);
+		break;
+		
+	case BUILDING_DOOR1:
+		m_ProximityRadius = DoorPhysSize;
+		m_Life = 9000;
+		m_Center = vec2(0, -20);
+		m_Collision = false;
 		break;
 		
 	case BUILDING_FLAMETRAP:
@@ -117,6 +132,16 @@ void CBuilding::UpdateStatus()
 
 
 
+void CBuilding::Trigger()
+{
+	if (m_Type == BUILDING_DOOR1 && !m_aStatus[BSTATUS_EVENT])
+	{
+		m_aStatus[BSTATUS_EVENT] = 1;
+		m_TriggerTimer = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed() * 0.5f;
+		GameServer()->CreateSound(m_Pos, SOUND_DOOR1);
+	}
+}
+
 void CBuilding::TakeDamage(int Damage, int Owner, int Weapon)
 {
 	if (m_DeathTimer > 0 || m_Life <= 0)
@@ -124,6 +149,13 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon)
 	
 	if (m_Type == BUILDING_SAWBLADE || m_Type == BUILDING_LAZER || m_Type == BUILDING_POWERUPPER)
 		return;
+	
+	if (m_Type == BUILDING_SWITCH)
+	{
+		m_aStatus[BSTATUS_ON] = 1;
+		GameServer()->m_pController->TriggerSwitch(m_Pos);
+		return;
+	}
 	
 	// todo
 	m_Life -= Damage / 2;
@@ -180,11 +212,40 @@ void CBuilding::Destroy()
 
 void CBuilding::Tick()
 {
+	if (m_Type == BUILDING_DOOR1)
+	{
+		if (m_TriggerTimer > 0 && m_TriggerTimer < GameServer()->Server()->Tick())
+		{
+			m_aStatus[BSTATUS_ON] = 1;
+		}
+	}
+	
 	if (m_Type == BUILDING_SAWBLADE)
 	{
 		CCharacter *pChr = GameServer()->m_World.ClosestCharacter(m_Pos, m_ProximityRadius*1.4f, 0);
 		if(pChr && pChr->IsAlive())
 			pChr->TakeSawbladeDamage(m_Pos);
+		
+		// walker / drone collision
+		CMonster *apEnts[MAX_CLIENTS];
+		int Num = GameServer()->m_World.FindEntities(m_Pos, m_ProximityRadius*1.5f, (CEntity**)apEnts,
+													MAX_CLIENTS, CGameWorld::ENTTYPE_MONSTER);
+
+		for (int i = 0; i < Num; ++i)
+		{
+			CMonster *pTarget = apEnts[i];
+
+			if (pTarget->m_Health <= 0)
+				continue;
+
+			vec2 Dir;
+			if (length(pTarget->m_Pos - m_Pos) > 0.0f)
+				Dir = normalize(pTarget->m_Pos - m_Pos);
+			else
+				Dir = vec2(0.f, 0.f);
+
+			pTarget->TakeDamage(Dir * 10.0f, 5, -1, vec2(0, 0));
+		}
 	}
 	
 	 // effect testing on all buildings

@@ -223,12 +223,14 @@ public:
 	void RenderStaticPlayer(CTeeRenderInfo *pInfo, vec2 Pos);
 	void RenderPortrait(CTeeRenderInfo *pInfo, vec2 Position, int EyeType);
 
-	void RenderMonster(vec2 Pos, float Time, int Dir, int Status);
+	void RenderWalker(vec2 Pos, int Anim, float Time, int Dir, float Angle, int Status);
 
 	// skeleton render methods
 	void RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, class CSkeletonAnimation *AnimData, float Rotation, CAnimSkeletonInfo *pSkeleton, CTextureAtlas *pAtlas, class CPlayerInfo *PlayerInfo = NULL);
 	void RenderBuilding(vec2 Position, CAnimSkeletonInfo *pSkeleton, CTextureAtlas *pAtlas, int Team, int WeaponAngle = 0);
 
+	void RenderSkeleton(vec2 Pos, int Atlas, const char *Anim, float Time, vec2 Scale, int Dir, float Angle);
+	
 	template<typename TKeyframe>
 	static void RenderEvalSkeletonAnim(TKeyframe *pKeyFrame, int NumKeyframes, float Time, typename TKeyframe::KeyframeReturnType *pResult);
 

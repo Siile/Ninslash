@@ -63,9 +63,13 @@ vec2 CProjectile::GetPos(float Time)
 			break;
 
 		case WEAPON_RIFLE:
-		//case WEAPON_GUN:
-			Curvature = GameServer()->Tuning()->m_GunCurvature;
-			Speed = GameServer()->Tuning()->m_GunSpeed;
+			//Curvature = GameServer()->Tuning()->m_GunCurvature;
+			//Speed = GameServer()->Tuning()->m_GunSpeed;
+			//break;
+			
+		case W_WALKER:
+			Curvature = GameServer()->Tuning()->m_WalkerCurvature;
+			Speed = GameServer()->Tuning()->m_WalkerSpeed;
 			break;
 	}
 
@@ -96,7 +100,10 @@ void CProjectile::Tick()
 	if (m_OwnerBuilding == TargetBuilding)
 		TargetBuilding = NULL;
 	
-	CMonster *TargetMonster = GameServer()->m_World.IntersectMonster(PrevPos, CurPos, 6.0f, CurPos);
+	CMonster *TargetMonster = GameServer()->m_World.IntersectWalker(PrevPos, CurPos, 6.0f, CurPos);
+	
+	if (m_Owner == NEUTRAL_BASE)
+		TargetMonster = NULL;
 	
 	m_LifeSpan--;
 

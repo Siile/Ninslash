@@ -199,6 +199,29 @@ void CEffects::DamageIndicator(vec2 Pos, vec2 Dir)
 	m_pClient->m_pDamageind->Create(Pos, Dir);
 }
 
+void CEffects::DamageInd(vec2 Pos, vec2 Dir, int Damage, vec4 Color)
+{
+	if(!m_Add50hz)
+		return;
+
+	CParticle p;
+	p.SetDefault();
+	p.m_Spr = Damage;
+	p.m_Pos = Pos;
+	p.m_Vel = Dir * 50 * (1 + Damage*0.025f);
+	p.m_LifeSpan = 0.5f+Damage*0.025f;
+	p.m_StartSize = 16.0f+Damage*0.7f;
+	p.m_EndSize = 16.0f+Damage*0.5f;
+	p.m_Color = Color;
+	p.m_Rot = 0;
+	p.m_Rotspeed = 0;
+	p.m_Gravity = 0;
+	p.m_Friction = 0.9f;
+	p.m_FlowAffected = 0.0f;
+	p.m_IgnoreCollision = true;
+	m_pClient->m_pParticles->Add(CParticles::GROUP_DAMAGEIND, &p);
+}
+
 void CEffects::PowerupShine(vec2 Pos, vec2 size)
 {
 	if(!m_Add50hz)
@@ -553,6 +576,22 @@ void CEffects::SpriteSheet(int FX, vec2 Pos)
 			p.m_EndSize = 60;
 			p.m_Rot = 0;
 			m_pClient->m_pParticles->Add(CParticles::GROUP_LAZERLOAD, &p);
+		}
+		break;
+		
+	case FX_TAKEOFF:
+		m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_WALKER_TAKEOFF, 1.0f, Pos);
+		{
+			CParticle p;
+			p.SetDefault();
+			p.m_Spr = SPRITE_TAKEOFF1;
+			p.m_Frames = 8;
+			p.m_Pos = Pos;
+			p.m_LifeSpan = 0.4f;
+			p.m_StartSize = 70;
+			p.m_EndSize = 80;
+			p.m_Rot = 0;
+			m_pClient->m_pParticles->Add(CParticles::GROUP_TAKEOFF, &p);
 		}
 		break;
 		

@@ -19,6 +19,10 @@ CGameControllerTexasRun::CGameControllerTexasRun(class CGameContext *pGameServer
 	m_GameState = TEXAS_STARTING;
 	m_EndTick = 0;
 	m_GameStateLockTick = 0;
+	
+	
+	if (g_Config.m_SvEnableBuilding)
+		m_GameFlags |= GAMEFLAG_BUILD;
 }
 
 void CGameControllerTexasRun::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)

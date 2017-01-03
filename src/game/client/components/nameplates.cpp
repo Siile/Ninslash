@@ -38,7 +38,7 @@ void CNamePlates::RenderNameplate(
 	//	return;
 	
 	// render name plate
-	if(!pPlayerInfo->m_Local)
+	if(!pPlayerInfo->m_Local && !pCustomPlayerInfo->m_HideName)
 	{
 		float a = 1;
 		if(g_Config.m_ClNameplatesAlways == 0)

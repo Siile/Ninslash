@@ -901,7 +901,7 @@ int CAI::WeaponShootRange()
 	int Weapon = Player()->GetCharacter()->m_ActiveCustomWeapon;
 	int Range = 40;
 		
-	if (Weapon >= 0 && Weapon < NUM_CUSTOMWEAPONS)
+	if (Weapon >= 0 && Weapon < NUM_WEAPONS)
 		Range = aCustomWeapon[Weapon].m_AiAttackRange;
 	
 	return Range;
@@ -1027,6 +1027,9 @@ bool CAI::ShootAtClosestEnemy()
 			continue;
 		
 		if (!pCharacter->IsAlive() || pCharacter->Invisible())
+			continue;
+		
+		if (GameServer()->m_pController->IsCoop() && pCharacter->m_IsBot)
 			continue;
 			
 		int Distance = distance(pCharacter->m_Pos, m_LastPos);
@@ -1443,7 +1446,10 @@ bool CAI::SeekClosestEnemy()
 		
 		if (!pCharacter->IsAlive() || pCharacter->Invisible())
 			continue;
-			
+		
+		if (GameServer()->m_pController->IsCoop() && pCharacter->m_IsBot)
+			continue;
+		
 		int Distance = distance(pCharacter->m_Pos, m_LastPos);
 		if ((!pClosestCharacter || Distance < ClosestDistance))
 		{
@@ -1548,6 +1554,9 @@ bool CAI::SeekClosestEnemyInSight()
 			continue;
 		
 		if (!pCharacter->IsAlive() || pCharacter->Invisible())
+			continue;
+			
+		if (GameServer()->m_pController->IsCoop() && pCharacter->m_IsBot)
 			continue;
 			
 		int Distance = distance(pCharacter->m_Pos, m_LastPos);

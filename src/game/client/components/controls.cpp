@@ -287,7 +287,7 @@ int CControls::SnapInput(int *pData)
 		if (m_Build == 0)
 			m_BuildReleased = true;
 		
-		if (m_BuildReleased && m_Build)
+		if (m_BuildReleased && m_Build && m_pClient->BuildingEnabled())
 		{
 			m_BuildMode = !m_BuildMode;
 			m_BuildReleased = false;

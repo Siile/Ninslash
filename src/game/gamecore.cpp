@@ -79,6 +79,7 @@ void CCharacterCore::Reset()
 	m_Status = 0;
 	m_Status |= 1 << STATUS_SPAWNING;
 	m_TriggeredEvents = 0;
+	m_Health = 100;
 	
 	m_Action = 0;
 	m_ActionState = 0;
@@ -755,6 +756,7 @@ void CCharacterCore::Tick(bool UseInput)
 		}
 		
 		// monster collision
+		/*
 		if (m_Roll == 0 && m_Slide == 0)
 		{
 			for(int i = 0; i < MAX_MONSTERS; i++)
@@ -775,6 +777,7 @@ void CCharacterCore::Tick(bool UseInput)
 				}
 			}
 		}
+		*/
 	}
 
 	// fix to slope bug (standing near wall)
@@ -1045,6 +1048,7 @@ void CCharacterCore::Write(CNetObj_CharacterCore *pObjCore)
 	pObjCore->m_X = round_to_int(m_Pos.x);
 	pObjCore->m_Y = round_to_int(m_Pos.y);
 
+	pObjCore->m_Health = m_Health;
 	pObjCore->m_VelX = round_to_int(m_Vel.x*256.0f);
 	pObjCore->m_VelY = round_to_int(m_Vel.y*256.0f);
 	pObjCore->m_DamageTick = m_DamageTick;
@@ -1072,6 +1076,8 @@ void CCharacterCore::Read(const CNetObj_CharacterCore *pObjCore)
 {
 	m_Pos.x = pObjCore->m_X;
 	m_Pos.y = pObjCore->m_Y;
+	
+	m_Health = pObjCore->m_Health;
 	m_Vel.x = pObjCore->m_VelX/256.0f;
 	m_Vel.y = pObjCore->m_VelY/256.0f;
 	m_DamageTick = pObjCore->m_DamageTick;

@@ -84,6 +84,12 @@ void CAnimSkeletonInfo::UpdateBones(float Time, CSpineAnimation *pAnimation, CSk
 				Rotation = WeaponAngle*pi/180.0f;
 			}
 			
+			// walkers
+			if (strcmp(pBone->m_Name, "weapon0") == 0 || strcmp(pBone->m_Name, "weapon1") == 0 || strcmp(pBone->m_Name, "weapon2") == 0)
+			{
+				Rotation = WeaponAngle*pi/180.0f;
+			}
+			
 			if (pAnimData)
 			{
 				if (pAnimData->m_Anim != PANIM_IDLE && (strcmp(pBone->m_Name, "ffoot") == 0 || strcmp(pBone->m_Name, "bfoot") == 0))
@@ -665,8 +671,8 @@ void CRenderTools::RenderPortrait(CTeeRenderInfo *pInfo, vec2 Pos, int EyeType)
 	if (Atlas < 0)
 		Atlas = 0;
 	
-	if (Atlas > NUM_BODIES-1)
-		Atlas = NUM_BODIES-1;
+	if (Atlas > NUM_BODIES+1)
+		Atlas = NUM_BODIES+1;
 
 	
 	CSkeletonAnimation *AnimData = CPlayerInfo::GetIdle()->Animation();
@@ -774,7 +780,7 @@ void CRenderTools::RenderPortrait(CTeeRenderInfo *pInfo, vec2 Pos, int EyeType)
 						Graphics()->TextureSet(g_pData->m_aImages[IMAGE_TEXASMASK].m_Id);
 						SybsetType = 1;
 					}
-					else if (strcmp(pAttachment->m_Name, "eyes") == 0)
+					else if (strcmp(pAttachment->m_Name, "eyes") == 0 && pInfo->m_Body != 3)
 					{
 						Graphics()->TextureSet(pInfo->m_EyeTexture);
 						SybsetType = 2;
@@ -836,17 +842,16 @@ void CRenderTools::RenderPortrait(CTeeRenderInfo *pInfo, vec2 Pos, int EyeType)
 
 
 
-void CRenderTools::RenderMonster(vec2 Pos, float Time, int Dir, int Status)
+void CRenderTools::RenderSkeleton(vec2 Pos, int Atlas, const char *Anim, float Time, vec2 Scale, int Dir, float Angle)
 {
 	vec2 Position = Pos;
-	int Atlas = ATLAS_MONSTER1;
 
 	CAnimSkeletonInfo *pSkeleton = Skelebank()->m_lSkeletons[Atlas];
 	CTextureAtlas *pAtlas = Skelebank()->m_lAtlases[Atlas];
 		
 	dbg_assert(pSkeleton != 0x0, "missing skeleton information");
 	
-	vec2 Scale = vec2(1.0f, 1.0f) * 0.15f;
+	//vec2 Scale = vec2(1.0f, 1.0f) * 0.15f;
 	
 	if (Dir == 1)
 		Scale.x *= -1;
@@ -856,12 +861,12 @@ void CRenderTools::RenderMonster(vec2 Pos, float Time, int Dir, int Status)
 	CSpineAnimation *pAnimation = 0x0;
 	
 	{
-		auto AnimIter = pSkeleton->m_lAnimations.find("move");
+		auto AnimIter = pSkeleton->m_lAnimations.find(Anim);
 		if(AnimIter != pSkeleton->m_lAnimations.end())
 			pAnimation = &AnimIter->second;
 	}
 	
-	pSkeleton->UpdateBones(Time, pAnimation, NULL);
+	pSkeleton->UpdateBones(Time, pAnimation, NULL, Angle);
 	
 
 	if(pAtlas)
@@ -904,12 +909,146 @@ void CRenderTools::RenderMonster(vec2 Pos, float Time, int Dir, int Status)
 				{
 					CAnimAttachmentSprite *pAttachment = (CAnimAttachmentSprite *) pAttachmentBase;
 					
-					// skip
-					if (Status == MONSTERSTATUS_IDLE && strcmp(pAttachment->m_Name, "hurteye1") == 0)
+					CTextureAtlasSprite *pSprite = &pAtlas->m_lSprites[pAttachment->m_Name];
+					if(!pSprite)
 						continue;
+
+					CTextureAtlasPage *pPage = &pAtlas->m_lPages[pSprite->m_PageId];
+					if(!pPage)
+						continue;
+
+					mat33 AttachmentParent = CalcTransformationMatrix(pAttachment->m_Position, pAttachment->m_Scale, pAttachment->m_Rotation);
+
+					vec3 p0, p1, p2, p3;
+					p0 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(-pAttachment->m_Width/2.0f, -pAttachment->m_Height/2.0f, 1.0f);
+					p1 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(pAttachment->m_Width/2.0f, -pAttachment->m_Height/2.0f, 1.0f);
+					p2 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(-pAttachment->m_Width/2.0f, pAttachment->m_Height/2.0f, 1.0f);
+					p3 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(pAttachment->m_Width/2.0f, pAttachment->m_Height/2.0f, 1.0f);
+
+
+					Graphics()->TextureSet(pPage->m_TexId);
+					Graphics()->QuadsBegin();
 					
-					if (Status != MONSTERSTATUS_IDLE && strcmp(pAttachment->m_Name, "eye1") == 0)
-						continue;
+					
+					{
+						vec2 t0, t1, t2, t3;
+						t0 = vec2(pSprite->m_X / pPage->m_Width, pSprite->m_Y / pPage->m_Height);
+						t1 = vec2((pSprite->m_X + pSprite->m_Width) / pPage->m_Width, pSprite->m_Y / pPage->m_Height);
+						t2 = vec2(pSprite->m_X / pPage->m_Width, (pSprite->m_Y + pSprite->m_Height) / pPage->m_Height);
+						t3 = vec2((pSprite->m_X + pSprite->m_Width) / pPage->m_Width, (pSprite->m_Y + pSprite->m_Height) / pPage->m_Height);
+
+						if(pSprite->m_Rotate)
+							Graphics()->QuadsSetSubsetFree(t2.x, t2.y, t0.x, t0.y, t3.x, t3.y, t1.x, t1.y);
+						else
+							Graphics()->QuadsSetSubsetFree(t0.x, t0.y, t1.x, t1.y, t2.x, t2.y, t3.x, t3.y);
+					}
+
+					IGraphics::CFreeformItem FreeFormItem(
+							p0.x, p0.y,
+							p1.x, p1.y,
+							p2.x, p2.y,
+							p3.x, p3.y
+						);
+
+					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+					Graphics()->QuadsEnd();
+				} break;
+			}
+		}
+	}
+}
+
+
+
+
+
+void CRenderTools::RenderWalker(vec2 Pos, int Anim, float Time, int Dir, float Angle, int Status)
+{
+	vec2 Position = Pos;
+	int Atlas = ATLAS_MONSTER1;
+	
+	if (Anim > 2)
+		Atlas = ATLAS_DRONE;
+	
+	if (Anim < 0)
+		Atlas = ATLAS_WALKER_BOTTOM;
+
+	CAnimSkeletonInfo *pSkeleton = Skelebank()->m_lSkeletons[Atlas];
+	CTextureAtlas *pAtlas = Skelebank()->m_lAtlases[Atlas];
+		
+	dbg_assert(pSkeleton != 0x0, "missing skeleton information");
+	
+	vec2 Scale = vec2(1.0f, 1.0f) * 0.15f;
+	
+	if (Dir == 1)
+		Scale.x *= -1;
+	
+	mat33 TransformationWorld = CalcTransformationMatrix(Position, Scale, 0.0f);
+	
+	CSpineAnimation *pAnimation = 0x0;
+	
+	// ugly
+	if (Anim == 0 || Anim == 3)
+	{
+		auto AnimIter = pSkeleton->m_lAnimations.find("idle");
+		if(AnimIter != pSkeleton->m_lAnimations.end())
+			pAnimation = &AnimIter->second;
+	}
+	else if (Anim < 0)
+	{
+		auto AnimIter = pSkeleton->m_lAnimations.find("fall");
+		if(AnimIter != pSkeleton->m_lAnimations.end())
+			pAnimation = &AnimIter->second;
+	}
+	else if (Anim < 3)
+	{
+		auto AnimIter = pSkeleton->m_lAnimations.find("move");
+		if(AnimIter != pSkeleton->m_lAnimations.end())
+			pAnimation = &AnimIter->second;
+	}
+	
+	pSkeleton->UpdateBones(Time, pAnimation, NULL, Angle);
+	
+
+	if(pAtlas)
+	{
+		int NumSlots = pSkeleton->m_lSlots.size();
+		for(int i = 0; i < NumSlots; i++)
+		{
+			CAnimAttachmentSlot *pSlot = pSkeleton->m_lSlots[i];
+			CAnimBone *pBone = pSlot->m_pBone;
+
+			string Attachment = pSlot->m_AttachmentSetup; // default attachment
+
+			// evaluate animations
+			if(pAnimation)
+			{
+				CSpineSlotTimeline *pSlotTimeline = 0x0;
+
+				// find timelines
+				{
+					auto SlotTimelineIter = pAnimation->m_lSlotTimeline.find(pSlot->m_Name);
+					if(SlotTimelineIter != pAnimation->m_lSlotTimeline.end())
+						pSlotTimeline = &SlotTimelineIter->second;	
+				}
+			}
+
+			// find attachment
+			auto SlotIter = pSkeleton->m_lSkins["default"].find(pSlot->m_Name);
+			if (SlotIter == pSkeleton->m_lSkins["default"].end())
+				continue;
+
+			auto AttachmentIter = pSkeleton->m_lSkins["default"][pSlot->m_Name].find(Attachment);
+			if (AttachmentIter == pSkeleton->m_lSkins["default"][pSlot->m_Name].end())
+				continue;
+
+			CAnimAttachment *pAttachmentBase = pSkeleton->m_lSkins["default"][pSlot->m_Name][Attachment];
+
+			switch(pAttachmentBase->m_Type)
+			{
+			case ATTACHMENT_SPRITE:
+				{
+					CAnimAttachmentSprite *pAttachment = (CAnimAttachmentSprite *) pAttachmentBase;
 					
 					CTextureAtlasSprite *pSprite = &pAtlas->m_lSprites[pAttachment->m_Name];
 					if(!pSprite)
@@ -972,8 +1111,10 @@ void CRenderTools::RenderStaticPlayer(CTeeRenderInfo *pInfo, vec2 Pos)
 	if (Atlas < 0)
 		Atlas = 0;
 	
-	if (Atlas > NUM_BODIES-1)
-		Atlas = NUM_BODIES-1;
+	if (Atlas > NUM_BODIES+1)
+		Atlas = NUM_BODIES+1;
+
+
 	
 	RenderSkeleton(Position+vec2(0, 16), 
 		pInfo, 
@@ -987,7 +1128,7 @@ void CRenderTools::RenderStaticPlayer(CTeeRenderInfo *pInfo, vec2 Pos)
 	// render hand
 	float HandBaseSize = 10.0f;
 		
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HAND].m_Id);
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HANDS].m_Id);
 	Graphics()->QuadsBegin();
 	Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, 1);
 
@@ -999,7 +1140,7 @@ void CRenderTools::RenderStaticPlayer(CTeeRenderInfo *pInfo, vec2 Pos)
 		//bool OutLine = i == 0;
 
 		//SelectSprite(OutLine?SPRITE_TEE_HAND_OUTLINE:SPRITE_TEE_HAND);
-		SelectSprite(SPRITE_HAND);
+		SelectSprite(SPRITE_HAND1+pInfo->m_Body);
 		IGraphics::CQuadItem QuadItem(Pos.x-10, Pos.y, HandBaseSize*2, HandBaseSize*2);
 		Graphics()->QuadsDraw(&QuadItem, 1);
 	}
@@ -1043,8 +1184,8 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 	if (Atlas < 0)
 		Atlas = 0;
 	
-	if (Atlas > NUM_BODIES-1)
-		Atlas = NUM_BODIES-1;
+	if (Atlas > NUM_BODIES+1)
+		Atlas = NUM_BODIES+1;
 	
 	RenderSkeleton(Position+vec2(0, 16), pInfo, PlayerInfo->Animation(), 0, Skelebank()->m_lSkeletons[Atlas], Skelebank()->m_lAtlases[Atlas], PlayerInfo);
 	
@@ -1122,7 +1263,7 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 		// render hand
 		float HandBaseSize = 10.0f;		
 		
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HAND].m_Id);
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HANDS].m_Id);
 		Graphics()->QuadsBegin();
 		Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, pInfo->m_ColorSkin.a);
 
@@ -1134,7 +1275,7 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 			//bool OutLine = i == 0;
 
 			//SelectSprite(OutLine?SPRITE_TEE_HAND_OUTLINE:SPRITE_TEE_HAND, WeaponDir < 0 ? SPRITE_FLAG_FLIP_X : 0);
-			SelectSprite(SPRITE_HAND);
+			SelectSprite(SPRITE_HAND1+pInfo->m_Body);
 			IGraphics::CQuadItem QuadItem(WeaponPos.x, WeaponPos.y, 2*HandBaseSize, 2*HandBaseSize);
 			Graphics()->QuadsDraw(&QuadItem, 1);
 		}
@@ -1472,7 +1613,7 @@ void CRenderTools::RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, CSkeleto
 
 void CRenderTools::RenderBuilding(vec2 Position, CAnimSkeletonInfo *pSkeleton, CTextureAtlas *pAtlas, int Team, int WeaponAngle)
 {
-	vec4 TeamColor = vec4(0.3f, 0.3f, 0.3f, 1);
+	vec4 TeamColor = vec4(1.0f, 1.0f, 1.0f, 1);
 	
 	if (Team == TEAM_RED)
 		TeamColor = vec4(1.0f, 0.3f, 0.0f, 1);
@@ -1481,7 +1622,8 @@ void CRenderTools::RenderBuilding(vec2 Position, CAnimSkeletonInfo *pSkeleton, C
 	
 	dbg_assert(pSkeleton != 0x0, "missing skeleton information");
 	
-	vec2 Scale = vec2(0.5f, 0.5f);
+	//vec2 Scale = vec2(0.5f, 0.5f);
+	vec2 Scale = vec2(1.0f, 1.0f) * 0.15f;
 		
 	mat33 TransformationWorld = CalcTransformationMatrix(Position, Scale, 0.0f);
 

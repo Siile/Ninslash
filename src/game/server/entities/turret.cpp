@@ -24,6 +24,10 @@ CTurret::CTurret(CGameWorld *pGameWorld, vec2 Pos, int Team, int Weapon)
 	
 	m_Ammo = 0;
 	
+	// sanity check
+	if (m_Weapon < 0 || m_Weapon >= NUM_CUSTOMWEAPONS)
+		m_Weapon = 0;
+	
 	m_Center = vec2(0, -40);
 }
 
@@ -46,7 +50,7 @@ void CTurret::Tick()
 	else
 		m_aStatus[BSTATUS_REPAIR] = 0;
 	
-	if (m_Ammo <= 0)
+	if (m_Ammo <= 0 && aCustomWeapon[m_Weapon].m_MaxAmmo)
 		m_aStatus[BSTATUS_NOPE] = 1;
 	else
 		m_aStatus[BSTATUS_NOPE] = 0;
@@ -135,7 +139,7 @@ void CTurret::Tick()
 
 void CTurret::Fire()
 {
-	if (m_ReloadTimer-- < 0 && m_Ammo > 0)
+	if (m_ReloadTimer-- < 0 && (m_Ammo > 0 || !aCustomWeapon[m_Weapon].m_MaxAmmo))
 	{
 		m_ReloadTimer = aCustomWeapon[m_Weapon].m_BulletReloadTime * Server()->TickSpeed() / 1000;
 		m_Ammo--;

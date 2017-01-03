@@ -51,5 +51,14 @@ void CBroadcast::OnMessage(int MsgType, void *pRawMsg)
 		m_BroadcastRenderOffset = 150*Graphics()->ScreenAspect()-Cursor.m_X/2;
 		m_BroadcastTime = time_get()+time_freq()*10;
 	}
+	
+	// todo: move if fitting spot is found
+	if(MsgType == NETMSGTYPE_SV_BUFF)
+	{
+		CNetMsg_Sv_Buff *pMsg = (CNetMsg_Sv_Buff *)pRawMsg;
+		
+		CustomStuff()->m_Local.m_Buff = pMsg->m_Buff;
+		CustomStuff()->m_Local.m_BuffStartTick = pMsg->m_StartTick;
+	}
 }
 

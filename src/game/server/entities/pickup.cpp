@@ -195,7 +195,7 @@ void CPickup::Tick()
 
 			// todo: clean and remove parent weapon type
 			case POWERUP_WEAPON:
-				if(m_Subtype >= 0 && m_Subtype < NUM_CUSTOMWEAPONS)
+				if(m_Subtype >= 0 && m_Subtype < NUM_WEAPONS)
 				{
 					/*
 					if (Parent < 0 || Parent >= NUM_WEAPONS)
@@ -313,7 +313,7 @@ void CPickup::Snap(int SnappingClient)
 	pP->m_Y = (int)m_Pos.y;
 	pP->m_Type = m_Type;
 	
-	if (m_Type == POWERUP_WEAPON && m_Subtype >= 0 && m_Subtype < NUM_CUSTOMWEAPONS)
+	if (m_Type == POWERUP_WEAPON && m_Subtype >= 0 && m_Subtype < NUM_WEAPONS)
 	{
 		//pP->m_Subtype = aCustomWeapon[m_Subtype].m_ParentWeapon;
 		pP->m_Subtype = m_Subtype;

@@ -192,6 +192,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderPlayerSpawn);
 	m_All.Add(&gs_Monsters);
 	m_All.Add(&m_pParticles->m_RenderMonsterSpawn);
+	m_All.Add(&m_pParticles->m_RenderTakeoff);
 	m_All.Add(&gs_Players);
 	m_All.Add(m_pBuildings2);
 	m_All.Add(&m_pBlood->m_RenderBlood);
@@ -215,6 +216,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pBlood->m_RenderAcidLayer);
 	m_All.Add(&gs_NamePlates);
 	m_All.Add(&m_pParticles->m_RenderGeneral);
+	m_All.Add(&m_pParticles->m_RenderDamageInd);
 	m_All.Add(m_pDamageind);
 	m_All.Add(&m_pLight->m_RenderLight);
 	m_All.Add(&gs_Hud);
@@ -734,11 +736,16 @@ void CGameClient::ProcessEvents()
 			*/
 			
 			// 0 - 200
-			int BloodAmount = g_Config.m_GoreBlood / 4.0f;
+			int BloodAmount = ev->m_Damage * g_Config.m_GoreBlood / 20.0f;
 			
 			
-			for (int i = 0; i < BloodAmount; i++)
-				g_GameClient.m_pEffects->Blood(vec2(ev->m_X, ev->m_Y), RandomDir()*0.3f - GetDirection(ev->m_Angle)*2.0f);
+			if (BloodAmount > 0)
+			{
+				for (int i = 0; i < BloodAmount; i++)
+					g_GameClient.m_pEffects->Blood(vec2(ev->m_X, ev->m_Y), RandomDir()*0.3f - GetDirection(ev->m_Angle)*2.0f);
+			}
+			
+			g_GameClient.m_pEffects->DamageInd(vec2(ev->m_X, ev->m_Y), RandomDir()*0.3f - GetDirection(ev->m_Angle)*2.0f, abs(ev->m_Damage), GetPlayerColor(ev->m_ClientID));
 			
 
 			int TeeSplatter = 0;
@@ -1404,6 +1411,19 @@ IGameClient *CreateGameClient()
 }
 
 
+bool CGameClient::BuildingEnabled()
+{
+	if (m_Snap.m_pGameInfoObj)
+	{
+		int Flags = m_Snap.m_pGameInfoObj->m_GameFlags;
+	
+		if (Flags & GAMEFLAG_BUILD)
+			return true;
+	}
+	
+	return false;
+}
+
 bool CGameClient::IsLocalUndead()
 {
 	if (m_Snap.m_pGameInfoObj)
@@ -1415,6 +1435,14 @@ bool CGameClient::IsLocalUndead()
 	}
 	
 	return false;
+}
+
+vec4 CGameClient::GetPlayerColor(int ClientID)
+{
+	if (ClientID < 0 || ClientID >= MAX_CLIENTS)
+		return vec4(1, 1, 1, 1);
+	
+	return CustomStuff()->m_aPlayerInfo[ClientID].m_Color;
 }
 
 bool CGameClient::BuildingNear(vec2 Pos, float Range)

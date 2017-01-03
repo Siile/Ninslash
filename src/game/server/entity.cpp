@@ -20,6 +20,8 @@ CEntity::CEntity(CGameWorld *pGameWorld, int ObjType)
 
 	m_pPrevTypeEntity = 0;
 	m_pNextTypeEntity = 0;
+	
+	m_Center = vec2(0, 0);
 }
 
 CEntity::~CEntity()

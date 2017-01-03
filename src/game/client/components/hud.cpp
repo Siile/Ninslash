@@ -95,7 +95,7 @@ void CHud::RenderScoreHud()
 		float Whole = 300*Graphics()->ScreenAspect();
 		float StartY = 229.0f;
 
-		if(GameFlags&GAMEFLAG_TEAMS && !(GameFlags&GAMEFLAG_INFECTION) && m_pClient->m_Snap.m_pGameDataObj)
+		if (GameFlags&GAMEFLAG_TEAMS && !(GameFlags&GAMEFLAG_INFECTION) && m_pClient->m_Snap.m_pGameDataObj)
 		{
 			char aScoreTeam[2][32];
 			str_format(aScoreTeam[TEAM_RED], sizeof(aScoreTeam)/2, "%d", m_pClient->m_Snap.m_pGameDataObj->m_TeamscoreRed);
@@ -167,6 +167,7 @@ void CHud::RenderScoreHud()
 				StartY += 8.0f;
 			}
 		}
+		// dm, infection, co-op
 		else
 		{
 			int Local = -1;
@@ -177,10 +178,13 @@ void CHud::RenderScoreHud()
 			{
 				if(m_pClient->m_Snap.m_paInfoByScore[i]->m_Team != TEAM_SPECTATORS)
 				{
-					apPlayerInfo[t] = m_pClient->m_Snap.m_paInfoByScore[i];
-					if(apPlayerInfo[t]->m_ClientID == m_pClient->m_Snap.m_LocalClientID)
-						Local = t;
-					++t;
+					if (!CustomStuff()->m_aPlayerInfo[m_pClient->m_Snap.m_paInfoByScore[i]->m_ClientID].m_HideName)
+					{
+						apPlayerInfo[t] = m_pClient->m_Snap.m_paInfoByScore[i];
+						if(apPlayerInfo[t]->m_ClientID == m_pClient->m_Snap.m_LocalClientID)
+							Local = t;
+						++t;
+					}
 				}
 			}
 			// search local player info if not a spectator, nor within top2 scores
@@ -391,6 +395,60 @@ void CHud::RenderCursor()
 	Graphics()->QuadsEnd();
 }
 
+
+void CHud::DrawCircular(float x, float y, float r, int Segments, int FillAmount, int Max, bool Flip)
+{
+	float AOff = -pi/2;
+	if (Flip)
+		AOff = pi/2;
+	
+	IGraphics::CFreeformItem Array[32];
+	int NumItems = 0;
+	float FSegments = (float)Segments;
+	for(int i = 0; i < Segments; i+=2)
+	{
+		if ((i*Max)/FSegments < FillAmount)
+			continue;
+		
+		float a1 = i/FSegments * 1*pi +AOff;
+		float a2 = (i+1)/FSegments * 1*pi +AOff;
+		float a3 = (i+2)/FSegments * 1*pi +AOff;
+		float Ca1 = cosf(a1);
+		float Ca2 = cosf(a2);
+		float Ca3 = cosf(a3);
+		float Sa1 = sinf(a1);
+		float Sa2 = sinf(a2);
+		float Sa3 = sinf(a3);
+
+		if (!Flip)
+		{
+			Array[NumItems++] = IGraphics::CFreeformItem(
+				x, y,
+				x+Ca1*r, y+Sa1*r,
+				x+Ca3*r, y+Sa3*r,
+				x+Ca2*r, y+Sa2*r);
+		}
+		else
+		{
+			Array[NumItems++] = IGraphics::CFreeformItem(
+				x, y,
+				x+Ca1*r, y-Sa1*r,
+				x+Ca3*r, y-Sa3*r,
+				x+Ca2*r, y-Sa2*r);
+		}
+		
+		if(NumItems == 32)
+		{
+			m_pClient->Graphics()->QuadsDrawFreeform(Array, 32);
+			NumItems = 0;
+		}
+	}
+	if(NumItems)
+		m_pClient->Graphics()->QuadsDrawFreeform(Array, NumItems);
+}
+
+
+
 void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 {
 	if(!pCharacter)
@@ -398,7 +456,11 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 
 	//mapscreen_to_group(gacenter_x, center_y, layers_game_group());
 
-	float x = 30; // 16
+	
+	vec2 Area1Pos = vec2(0, 0);
+	vec2 Area2Pos = vec2(38, 5);
+	
+	float x = Area2Pos.x; // 16
 	float y = 5;
 
 	
@@ -433,7 +495,7 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	vec2 HpSize = vec2(120, 12);
 	
 	{ // hp fill
-		float f = min(pCharacter->m_Health, 10) / 10.0f;
+		float f = min(pCharacter->m_Health, 100) / 100.0f;
 		Graphics()->SetColor(1, 0, 0, 1);
 		Graphics()->QuadsSetSubsetFree(0, 0.5f, 1*f, 0.5f, 0, 1, 1*f, 1);
 
@@ -466,84 +528,43 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	x = -1;
 	y = -1;
 	
-	vec2 FrameSize = vec2(32, 32);
+	vec2 FrameSize = vec2(38, 38);
 	int Fuel = pCharacter->m_JetpackPower;
 	
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_CIRCULAR].m_Id);
+	
+	
+	// buff duration
+	x = -1;
+	y = -1;
+	
+	
+	int BuffTime = 100 - (Client()->GameTick() - CustomStuff()->m_Local.m_BuffStartTick)*5.0f / Client()->GameTickSpeed();
+	
+	if (CustomStuff()->m_Local.m_Buff < 0)
+		BuffTime = -1;
+	
+
+	
+	
+	Graphics()->TextureSet(-1);
 	Graphics()->QuadsBegin();
-	// fuel
-	if (Fuel >= 50)
-	{
-		float a = (100-Fuel)*3.6f * RAD / 2;
-		float f = 1-abs(cos(a));
+	Graphics()->SetColor(1, Fuel*0.01f, 0, 1);
+	DrawCircular(x+19, y+19, 12.5f, 64, 100-Fuel, 100);
 	
-		vec2 p0 = vec2(f, f*0.5f); // f*0.5f
-		vec2 p1 = vec2(1, p0.y);
-		vec2 p2 = vec2(0, 0.5f);
-		vec2 p3 = vec2(1, 0.5f);
-		
-		Graphics()->SetColor(1, Fuel*0.01f, 0, 1);
-		Graphics()->QuadsSetSubsetFree(	p0.x, p0.y,
-										p1.x, p1.y,
-										p2.x, p2.y,
-										p3.x, p3.y);
-		{
-		IGraphics::CFreeformItem FreeFormItem(
-			x+FrameSize.x/2+FrameSize.x/2*f, y+FrameSize.y/2*f,
-			x+FrameSize.x, y+FrameSize.y/2*f,
-			x+FrameSize.x/2, y+FrameSize.y/2,
-			x+FrameSize.x, y+FrameSize.y/2);
-
-		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
-		}
-		
-		// full lower
-		Graphics()->QuadsSetSubsetFree(0, 0.5f, 1, 0.5f, 0, 1, 1, 1);
-
-		{
-		IGraphics::CFreeformItem FreeFormItem(
-			x+FrameSize.x/2, y+FrameSize.y/2,
-			x+FrameSize.x, y+FrameSize.y/2,
-			x+FrameSize.x/2, y+FrameSize.y,
-			x+FrameSize.x, y+FrameSize.y);
-			
-		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
-		}
-	}
-	else if (Fuel > 0)
+	if (BuffTime < 0)
+		DrawCircular(x+19, y+19, 12.5f, 64, 100-Fuel, 100, true);
+	else
 	{
-		// only lower part
-		float a = Fuel*3.6f * RAD / 2;
-		float f = abs(cos(a));
-	
-		vec2 p0 = vec2(0, 0.5f);
-		vec2 p1 = vec2(1-f, 0.5f + f*0.5f);
-		vec2 p2 = vec2(0, 1);
-		vec2 p3 = vec2(p1.x, 1);
-		
-		Graphics()->SetColor(1, Fuel*0.01f, 0, 1);
-		Graphics()->QuadsSetSubsetFree(	p0.x, p0.y,
-										p1.x, p1.y,
-										p2.x, p2.y,
-										p3.x, p3.y);
-										
-		{
-		IGraphics::CFreeformItem FreeFormItem(
-			x+FrameSize.x/2, y+FrameSize.y/2,
-			x+FrameSize.x-FrameSize.x/2*f, y+FrameSize.y/2+FrameSize.y/2*f,
-			x+FrameSize.x/2, y+FrameSize.y,
-			x+FrameSize.x-FrameSize.x/2*f, y+FrameSize.y);
-
-		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
-		}
+		Graphics()->SetColor(0.15f, 0.5f+BuffTime*0.005f, 0.3f, 1);
+		DrawCircular(x+19, y+19, 12.5f, 64, 100-BuffTime, 100, true);
 	}
 	Graphics()->QuadsEnd();
 	
 	
-
+	// frame
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FUEL].m_Id);
 	Graphics()->QuadsBegin();
-	{ // frame
+	{
 		Graphics()->SetColor(1, 1, 1, 1);
 		Graphics()->QuadsSetSubsetFree(0, 0, 1, 0, 0, 1, 1, 1);
 
@@ -558,14 +579,37 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	Graphics()->QuadsEnd();
 
 	
+	if (BuffTime > 0)
+	{
+		x = Area1Pos.x+18.5f; // 16
+		y = Area1Pos.y+18.5f;
+		
+		// buff
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMS].m_Id);
+		Graphics()->QuadsBegin();
+		
+		Graphics()->SetColor(1, 1, 1, 1);
 
-	x = 30; // 16
-	y = 5;
+		RenderTools()->SelectSprite(SPRITE_ITEM1+CustomStuff()->m_Local.m_Buff);
+		RenderTools()->DrawSprite(x, y, 18);
+
+		Graphics()->QuadsEnd();
+		
+		/*
+		char aBuf[32];
+		str_format(aBuf, sizeof(aBuf), "%d", BuffTime);
+		TextRender()->TextColor(0, 1, 1, 1);
+		TextRender()->Text(0, x+6, y+2, 6, aBuf, -1);
+		*/
+	}
+
 	
+	x = Area2Pos.x; // 16
+	y = Area2Pos.y;
 
 	
 	// buildings
-	if (m_pClient->m_pControls->m_BuildMode)
+	if (m_pClient->m_pControls->m_BuildMode && m_pClient->BuildingEnabled())
 	{
 		float Size = 0.2f;
 		y += 20;
@@ -627,7 +671,7 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 			Graphics()->QuadsEnd();
 		}
 		
-		x = 164;
+		x = Area2Pos.x + 134;
 		y = 16;
 		
 		// back to weapon helper
@@ -646,7 +690,7 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		TextRender()->Text(0, x+9, y+1, 8, m_pClient->m_pBinds->GetKey("+build"), -1);
 		TextRender()->TextColor(1, 1, 1, 1);
 		
-		x = 194;
+		x = Area2Pos.x + 164;
 		y = 16;
 		
 		// number of contruction kits
@@ -764,10 +808,10 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		x += 40*Size;
 	}
 
-	x = 164; y = 16;
+	x = Area2Pos.x + 134; y = 16;
 	
 	// tool / build helper
-	if (!m_pClient->IsLocalUndead())
+	if (!m_pClient->IsLocalUndead() && m_pClient->BuildingEnabled())
 	{
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 		Graphics()->QuadsBegin();
@@ -782,7 +826,7 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
 		TextRender()->Text(0, x+9, y+1, 8, m_pClient->m_pBinds->GetKey("+build"), -1);
 	
-		x = 194;
+		x = Area2Pos.x + 164;
 		y = 16;
 			
 		// number of contruction kits

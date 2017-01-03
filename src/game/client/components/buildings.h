@@ -15,6 +15,8 @@ class CBuildings : public CComponent
 	void RenderBase(const struct CNetObj_Building *pCurrent);
 	void RenderStand(const struct CNetObj_Building *pCurrent);
 	void RenderFlametrap(const struct CNetObj_Building *pCurrent);
+	void RenderSwitch(const struct CNetObj_Building *pCurrent);
+	void RenderDoor1(const struct CNetObj_Building *pCurrent);
 
 public:
 	virtual void OnReset();

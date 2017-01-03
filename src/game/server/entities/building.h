@@ -13,6 +13,8 @@ const int PowerupperPhysSize = 10;
 const int BasePhysSize = 10;
 const int StandPhysSize = 20;
 const int FlametrapPhysSize = 20;
+const int SwitchPhysSize = 7;
+const int DoorPhysSize = 40;
 
 class CBuilding : public CEntity
 {
@@ -34,6 +36,8 @@ public:
 	int m_aStatus[NUM_BSTATUS];
 	int m_Status;
 	
+	bool m_Collision;
+	
 	vec2 m_Center;
 	
 	bool m_Mirror;
@@ -41,6 +45,7 @@ public:
 	int m_DamageOwner;
 	int m_DeathTimer;
 	
+	void Trigger();
 	void TakeDamage(int Damage, int Owner, int Weapon);
 	void Destroy();
 	

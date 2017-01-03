@@ -71,8 +71,16 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	}
 	else if(pCurrent->m_Type == WEAPON_RIFLE)
 	{
-		Curvature = m_pClient->m_Tuning.m_GunCurvature;
-		Speed = m_pClient->m_Tuning.m_GunSpeed;
+		//Curvature = m_pClient->m_Tuning.m_GunCurvature;
+		//Speed = m_pClient->m_Tuning.m_GunSpeed;
+		
+		Curvature = m_pClient->m_Tuning.m_WalkerCurvature;
+		Speed = m_pClient->m_Tuning.m_WalkerSpeed;
+	}
+	else if(pCurrent->m_Type == W_WALKER)
+	{
+		Curvature = m_pClient->m_Tuning.m_WalkerCurvature;
+		Speed = m_pClient->m_Tuning.m_WalkerSpeed;
 	}
 
 	static float s_LastGameTickTime = Client()->GameTickTime();
@@ -106,6 +114,8 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	{
 		RenderTools()->SelectSprite(SPRITE_FIREBALL1 + CustomStuff()->GetSpriteFrame(10, 3));
 	}
+	else if (pCurrent->m_Type == W_WALKER)
+		RenderTools()->SelectSprite(SPRITE_WALKER_PROJ);
 	else
 		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[clamp(pCurrent->m_Type, 0, NUM_WEAPONS-1)].m_pSpriteProj);
 	
@@ -188,7 +198,9 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	else
 	{
 		if(pCurrent->m_Type == WEAPON_SHOTGUN && Ct > 0.01f) m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.6f, 0.6f, 0.3f, 0.75f));
-		if(pCurrent->m_Type == WEAPON_RIFLE) m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(1.0f, 1.0f, 0.5f, 0.65f));
+		//if(pCurrent->m_Type == WEAPON_RIFLE) m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(1.0f, 1.0f, 0.5f, 0.65f));
+		if(pCurrent->m_Type == WEAPON_RIFLE) m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.2f, 0.2f, 1.0f, 0.75f));
+		if(pCurrent->m_Type == W_WALKER) m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.2f, 0.2f, 1.0f, 0.75f));
 		
 		if (Collision()->GetCollisionAt(PredictPos.x, PredictPos.y)&1 ||  // solid
 			Collision()->GetCollisionAt(PredictPos.x, PredictPos.y)&4)    // nohook

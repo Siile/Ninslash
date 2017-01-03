@@ -80,6 +80,8 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	
 	m_LastStatusEffect = 0;
 	m_DeathrayTick = 0;
+	
+	m_Type = CCharacter::PLAYER;
 }
 
 
@@ -150,7 +152,14 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	if (pPlayer->m_pAI)
 	{
 		pPlayer->m_pAI->OnCharacterSpawn(this);
+		pPlayer->m_IsBot = true;
 		m_IsBot = true;
+		
+		if (GameServer()->m_pController->IsCoop())
+		{
+			m_Type = CCharacter::ROBOT;
+			m_Silent = true;
+		}
 	}
 
 	GiveStartWeapon();
@@ -325,7 +334,7 @@ void CCharacter::DropWeapon()
 		
 		// remove the weapon from character
 		m_aWeapon[m_ActiveCustomWeapon].m_Got = false;
-		if (m_PrevWeapon > 0 && m_PrevWeapon < NUM_CUSTOMWEAPONS)
+		if (m_PrevWeapon > 0 && m_PrevWeapon < NUM_WEAPONS)
 		{
 			if (m_aWeapon[m_PrevWeapon].m_Got)
 				SetCustomWeapon(m_PrevWeapon);
@@ -343,7 +352,7 @@ void CCharacter::DropWeapon()
 
 void CCharacter::SetCustomWeapon(int CustomWeapon)
 {
-	if(CustomWeapon < 0 || CustomWeapon >= NUM_CUSTOMWEAPONS)
+	if(CustomWeapon < 0 || CustomWeapon >= NUM_WEAPONS)
 		return;
 	
 	if(CustomWeapon == m_ActiveCustomWeapon)
@@ -425,7 +434,7 @@ void CCharacter::HandleWeaponSwitch()
 	// check groups for changes (weapon drop)
 	for (int i = 0; i < 2; i++)
 	{
-		if (m_aSelectedWeapon[i] >= 0 && m_aSelectedWeapon[i] < NUM_CUSTOMWEAPONS &&
+		if (m_aSelectedWeapon[i] >= 0 && m_aSelectedWeapon[i] < NUM_WEAPONS &&
 			!m_aWeapon[m_aSelectedWeapon[i]].m_Got)
 			m_aSelectedWeapon[i] = WEAPON_HAMMER;
 	}
@@ -465,7 +474,7 @@ void CCharacter::HandleWeaponSwitch()
 	{
 		while(Next) // Next Weapon selection
 		{
-			WantedWeapon = (WantedWeapon+1)%NUM_CUSTOMWEAPONS;
+			WantedWeapon = (WantedWeapon+1)%NUM_WEAPONS;
 			if(WantedWeapon != WEAPON_TOOL && m_aWeapon[WantedWeapon].m_Got && !m_aWeapon[WantedWeapon].m_Disabled)
 				Next--;
 		}
@@ -475,7 +484,7 @@ void CCharacter::HandleWeaponSwitch()
 	{
 		while(Prev) // Prev Weapon selection
 		{
-			WantedWeapon = (WantedWeapon-1)<0?NUM_CUSTOMWEAPONS-1:WantedWeapon-1;
+			WantedWeapon = (WantedWeapon-1)<0?NUM_WEAPONS-1:WantedWeapon-1;
 			if(WantedWeapon != WEAPON_TOOL && m_aWeapon[WantedWeapon].m_Got && !m_aWeapon[WantedWeapon].m_Disabled)
 				Prev--;
 		}
@@ -520,7 +529,7 @@ void CCharacter::HandleWeaponSwitch()
 
 int CCharacter::GetWeapon(int ParentType)
 {
-	if (m_aNextWeapon[ParentType] < 0 || m_aNextWeapon[ParentType] > NUM_CUSTOMWEAPONS)
+	if (m_aNextWeapon[ParentType] < 0 || m_aNextWeapon[ParentType] > NUM_WEAPONS)
 	{
 		m_aNextWeapon[ParentType] = 0;
 		return GetNextWeapon(ParentType);
@@ -537,10 +546,10 @@ int CCharacter::GetPrevWeapon(int ParentType)
 {
 	int w = m_aNextWeapon[ParentType];
 	
-	for (int i = 0; i < NUM_CUSTOMWEAPONS+1; i++)
+	for (int i = 0; i < NUM_WEAPONS+1; i++)
 	{
 		if (--w < 0)
-			w = NUM_CUSTOMWEAPONS-1;
+			w = NUM_WEAPONS-1;
 			
 		if (w == ParentType && m_aWeapon[w].m_Got && !m_aWeapon[w].m_Disabled)
 		{
@@ -556,9 +565,9 @@ int CCharacter::GetNextWeapon(int ParentType)
 {
 	int w = m_aNextWeapon[ParentType];
 	
-	for (int i = 0; i < NUM_CUSTOMWEAPONS+1; i++)
+	for (int i = 0; i < NUM_WEAPONS+1; i++)
 	{
-		if (++w >= NUM_CUSTOMWEAPONS)
+		if (++w >= NUM_WEAPONS)
 			w = 0;
 			
 		if (w == ParentType && m_aWeapon[w].m_Got && !m_aWeapon[w].m_Disabled)
@@ -574,7 +583,7 @@ int CCharacter::GetNextWeapon(int ParentType)
 
 int CCharacter::GetFirstWeapon(int ParentType)
 {
-	for (int i = 0; i < NUM_CUSTOMWEAPONS; i++)
+	for (int i = 0; i < NUM_WEAPONS; i++)
 	{
 		if (i == ParentType && m_aWeapon[i].m_Got && !m_aWeapon[i].m_Disabled)
 		{
@@ -591,7 +600,7 @@ void CCharacter::ScanWeapons()
 	for (int i = 0; i < NUM_WEAPONS; i++)
 	{
 		int w = m_aNextWeapon[i];
-		if (w < 0 || w >= NUM_CUSTOMWEAPONS)
+		if (w < 0 || w >= NUM_WEAPONS)
 		{
 			m_aNextWeapon[i] = GetFirstWeapon(i);
 			continue;
@@ -687,8 +696,13 @@ void CCharacter::FireWeapon()
 	vec2 ProjStartPos = m_Pos+Direction*m_ProximityRadius*0.75f + vec2(0, -11);
 
 	// play sound
-	if (aCustomWeapon[m_ActiveCustomWeapon].m_Sound >= 0)
-		GameServer()->CreateSound(m_Pos, aCustomWeapon[m_ActiveCustomWeapon].m_Sound);
+	int Sound = m_ActiveCustomWeapon;
+	
+	if (m_ActiveCustomWeapon == WEAPON_RIFLE && m_Type == CCharacter::ROBOT)
+		Sound = W_WALKER;
+	
+	if (aCustomWeapon[Sound].m_Sound >= 0)
+		GameServer()->CreateSound(m_Pos, aCustomWeapon[Sound].m_Sound);
 	
 	
 	int Damage = aCustomWeapon[m_ActiveCustomWeapon].m_Damage;
@@ -788,6 +802,9 @@ void CCharacter::FireWeapon()
 				{
 					CBuilding *pTarget = apEnts[i];
 
+					if (!pTarget->m_Collision)
+						continue;
+					
 					pTarget->TakeDamage(aCustomWeapon[m_ActiveCustomWeapon].m_Damage, m_pPlayer->GetCID(), m_ActiveCustomWeapon);
 					GameServer()->CreateBuildingHit((ProjStartPos+pTarget->m_Pos)/2);
 				}
@@ -805,7 +822,10 @@ void CCharacter::FireWeapon()
 		{
 			GetPlayer()->m_InterestPoints += 10;	
 			
-			GameServer()->CreateProjectile(m_pPlayer->GetCID(), m_ActiveCustomWeapon, ProjStartPos, Direction);
+			if (m_ActiveCustomWeapon == WEAPON_RIFLE && m_Type == CCharacter::ROBOT)
+				GameServer()->CreateProjectile(m_pPlayer->GetCID(), W_WALKER, ProjStartPos, Direction);
+			else
+				GameServer()->CreateProjectile(m_pPlayer->GetCID(), m_ActiveCustomWeapon, ProjStartPos, Direction);
 		} break;
 
 		case WEAPON_LASER:
@@ -827,6 +847,9 @@ void CCharacter::FireWeapon()
 	{
 		if(m_aWeapon[m_ActiveCustomWeapon].m_Ammo > 0)
 			m_aWeapon[m_ActiveCustomWeapon].m_Ammo--;
+		
+		if (m_ActiveCustomWeapon == WEAPON_RIFLE && m_Type == CCharacter::ROBOT)
+			m_aWeapon[m_ActiveCustomWeapon].m_Ammo = 20;
 	}
 
 	/*
@@ -877,7 +900,7 @@ void CCharacter::AutoWeaponChange()
 		return;
 	
 	// -1 because smoke grenade shouldn't be included
-	int w = rand()%(NUM_CUSTOMWEAPONS);
+	int w = rand()%(NUM_WEAPONS);
 	
 	if (m_aWeapon[w].m_Got && !m_aWeapon[w].m_Disabled && w != W_TOOL)
 	{
@@ -893,6 +916,9 @@ void CCharacter::AutoWeaponChange()
 
 void CCharacter::GiveStartWeapon()
 {
+	if (GameServer()->m_pController->IsCoop() && m_IsBot)
+		return;
+
 	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
 	{
 		GiveCustomWeapon(WEAPON_CHAINSAW);
@@ -927,7 +953,7 @@ void CCharacter::GiveRandomWeapon(int WeaponLevel)
 	
 	int w = 0;
 	while (w == W_TOOL || w == W_HAMMER)
-		w = rand()%(NUM_CUSTOMWEAPONS);
+		w = rand()%(NUM_WEAPONS);
 	
 	GiveCustomWeapon(w);
 	SetCustomWeapon(w);
@@ -935,7 +961,7 @@ void CCharacter::GiveRandomWeapon(int WeaponLevel)
 
 void CCharacter::GiveAllWeapons()
 {
-	for (int w = 0; w < NUM_CUSTOMWEAPONS; w++)
+	for (int w = 0; w < NUM_WEAPONS; w++)
 		GiveCustomWeapon(w);
 }
 
@@ -1151,6 +1177,8 @@ void CCharacter::GiveBuff(int Item)
 	if (Item < 0)
 		return;
 	
+	GameServer()->SendBuff(Item, Server()->Tick(), GetPlayer()->GetCID());
+	
 	if (Item == PLAYERITEM_HEAL)
 		m_aStatus[STATUS_HEAL] = Server()->TickSpeed() * 0.75f;
 
@@ -1186,6 +1214,8 @@ void CCharacter::GiveRandomBuff()
 
 void CCharacter::UpdateCoreStatus()
 {
+	m_Core.m_Health = m_HiddenHealth;
+	
 	m_Core.m_Status = 0;
 	
 	// end shield effect when needed
@@ -1493,7 +1523,7 @@ bool CCharacter::AddClip(int Weapon)
 	if (Weapon == -1)
 		Weapon = m_ActiveCustomWeapon;
 	
-	if (Weapon < 0 || Weapon >= NUM_CUSTOMWEAPONS)
+	if (Weapon < 0 || Weapon >= NUM_WEAPONS)
 		return false;
 	
 	if (!m_aWeapon[Weapon].m_Got)
@@ -1522,45 +1552,13 @@ bool CCharacter::IncreaseArmor(int Amount)
 	if (AddClip(m_PrevWeapon))
 		return true;
 	
-	for (int i = 0; i < NUM_CUSTOMWEAPONS; i++)
+	for (int i = 0; i < NUM_WEAPONS; i++)
 	{
 		if (AddClip(i))
 			return true;
 	}
 	
 	return false;
-	
-		/*
-	if (m_PrevWeapon != Weapon)
-	{
-		if (AddClip(m_PrevWeapon))
-			return true;
-		
-	}
-	
-	for (int i = 0; i < NUM_CUSTOMWEAPONS; i++)
-	{
-		if (i == Weapon)
-			continue;
-
-		if (AddClip(i))
-			return true;
-	}
-	*/
-	
-	/*
-	if (aCustomWeapon[m_ActiveCustomWeapon].m_PowerupSize <= 0 || aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo <= 0)
-		return false;
-
-	if (m_aWeapon[m_ActiveCustomWeapon].m_Ammo <= aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo)
-	{
-		m_aWeapon[m_ActiveCustomWeapon].m_Ammo = min(m_aWeapon[m_ActiveCustomWeapon].m_Ammo+aCustomWeapon[m_ActiveCustomWeapon].m_PowerupSize, aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo);
-		GetPlayer()->m_InterestPoints += 40;
-		return true;
-	}
-	
-	return false;
-	*/
 }
 
 
@@ -1708,18 +1706,27 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos,
 		if (Type == DAMAGETYPE_NORMAL)
 		{
 			if(Server()->Tick() < m_DamageTakenTick+25)
-				GameServer()->CreateDamageInd(DmgPos, GetAngle(-Force), Dmg);
+				GameServer()->CreateDamageInd(DmgPos, GetAngle(-Force), Dmg * (m_Type == CCharacter::ROBOT ? -1 : 1), m_pPlayer->GetCID());
 			else
 			{
 				m_DamageTaken = 0;
-				GameServer()->CreateDamageInd(DmgPos, GetAngle(-Force), Dmg);
+				GameServer()->CreateDamageInd(DmgPos, GetAngle(-Force), Dmg * (m_Type == CCharacter::ROBOT ? -1 : 1), m_pPlayer->GetCID());
 			}
+			
+			if (m_Type == CCharacter::ROBOT)
+				GameServer()->CreateBuildingHit(DmgPos);
 		}
 		else
-		if (Type == DAMAGETYPE_ELECTRIC)
 		{
-			//GameServer()->SendEffect(m_pPlayer->GetCID(), EFFECT_ELECTRODAMAGE);
-			m_aStatus[STATUS_ELECTRIC] = 1.0f*Server()->TickSpeed();
+			if (Type == DAMAGETYPE_ELECTRIC)
+			{
+				//GameServer()->SendEffect(m_pPlayer->GetCID(), EFFECT_ELECTRODAMAGE);
+				m_aStatus[STATUS_ELECTRIC] = 1.0f*Server()->TickSpeed();
+			}
+		
+			// damage indicator but no blood
+			if (Type != DAMAGETYPE_FLAME)
+				GameServer()->CreateDamageInd(DmgPos, GetAngle(-Force), -Dmg, m_pPlayer->GetCID());
 		}
 	}
 	
@@ -1737,6 +1744,9 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos,
 			
 			if (Type == DAMAGETYPE_NORMAL)
 				m_LatestHitVel = Force;
+			
+			if (Type == DAMAGETYPE_FLAME)
+				GameServer()->CreateDamageInd(DmgPos, GetAngle(-Force), -Dmg, m_pPlayer->GetCID());
 			
 			m_Core.m_DamageTick = Server()->Tick();
 		}
@@ -1812,7 +1822,7 @@ void CCharacter::TakeSawbladeDamage(vec2 SawbladePos)
 	
 	m_Core.m_DamageTick = Server()->Tick();
 
-	GameServer()->CreateDamageInd((m_Pos+SawbladePos) / 2.0f, GetAngle(normalize(vec2(frandom()-0.5f, frandom()-0.5f))), 3);
+	GameServer()->CreateDamageInd((m_Pos+SawbladePos) / 2.0f, GetAngle(normalize(vec2(frandom()-0.5f, frandom()-0.5f))), 3, m_pPlayer->GetCID());
 
 	m_Core.m_Vel += normalize(m_Pos-SawbladePos)*2.0f;
 	
@@ -1869,11 +1879,11 @@ void CCharacter::TakeDeathtileDamage()
 	if(Server()->Tick() < m_DamageTakenTick+25)
 	{
 		// make sure that the damage indicators doesn't group together
-		GameServer()->CreateDamageInd(m_Pos, GetAngle(normalize(vec2(frandom()-0.5f, frandom()-0.5f))), 3);
+		GameServer()->CreateDamageInd(m_Pos, GetAngle(normalize(vec2(frandom()-0.5f, frandom()-0.5f))), 3, m_pPlayer->GetCID());
 	}
 	else
 	{
-		GameServer()->CreateDamageInd(m_Pos, GetAngle(normalize(vec2(frandom()-0.5f, frandom()-0.5f))), 3);
+		GameServer()->CreateDamageInd(m_Pos, GetAngle(normalize(vec2(frandom()-0.5f, frandom()-0.5f))), 3, m_pPlayer->GetCID());
 	}
 
 	m_HiddenHealth -= 10;
@@ -1942,13 +1952,11 @@ void CCharacter::Snap(int SnappingClient)
 	pCharacter->m_AttackTick = m_AttackTick;
 
 	pCharacter->m_Direction = m_Input.m_Direction;
+	pCharacter->m_Health = m_HiddenHealth;
 
 	if(m_pPlayer->GetCID() == SnappingClient || SnappingClient == -1 ||
 		(!g_Config.m_SvStrictSpectateMode && m_pPlayer->GetCID() == GameServer()->m_apPlayers[SnappingClient]->m_SpectatorID))
 	{
-		pCharacter->m_Health = int(float(m_HiddenHealth)/float(m_MaxHealth) * 10.0f);
-		if (pCharacter->m_Health < 1)
-			pCharacter->m_Health = 1;
 
 		pCharacter->m_Armor = m_Armor;
 			
