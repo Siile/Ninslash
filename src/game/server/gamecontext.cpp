@@ -17,6 +17,7 @@
 #include "gamemodes/run.h"
 #include "gamemodes/base.h"
 #include "gamemodes/texasrun.h"
+#include "gamemodes/gungame.h"
 
 #include <game/server/entities/projectile.h>
 #include <game/server/entities/building.h>
@@ -916,6 +917,9 @@ void CGameContext::CreateSoundGlobal(int Sound, int Target)
 
 bool CGameContext::IsBot(int ClientID)
 {
+	if (ClientID < 0 || ClientID >= MAX_CLIENTS)
+		return false;
+	
 	if(m_apPlayers[ClientID] && m_apPlayers[ClientID]->m_IsBot)
 		return true;
 	
@@ -924,6 +928,9 @@ bool CGameContext::IsBot(int ClientID)
 
 bool CGameContext::IsHuman(int ClientID)
 {
+	if (ClientID < 0 || ClientID >= MAX_CLIENTS)
+		return false;
+	
 	if(m_apPlayers[ClientID] && !m_apPlayers[ClientID]->m_pAI)
 		return true;
 	
@@ -937,6 +944,7 @@ void CGameContext::SendChatTarget(int To, const char *pText)
 	// skip sending to bots
 	if (IsBot(To))
 		return;
+	
 	CNetMsg_Sv_Chat Msg;
 	Msg.m_Team = 0;
 	Msg.m_ClientID = -1;
@@ -1002,8 +1010,16 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, bool Lock)
 	CNetMsg_Sv_Broadcast Msg;
 	Msg.m_pMessage = pText;
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
-	if (Lock)
-		m_BroadcastLockTick = Server()->Tick() + g_Config.m_SvBroadcastLock*Server()->TickSpeed();
+	if(ClientID < 0)
+	{
+		if(Lock)
+			m_BroadcastLockTick = Server()->Tick() + g_Config.m_SvBroadcastLock * Server()->TickSpeed();
+	}
+	else
+	{
+		str_copy(m_apPlayers[ClientID]->m_aBroadcast, Lock ? pText : "", sizeof(m_apPlayers[ClientID]->m_aBroadcast));
+		m_apPlayers[ClientID]->m_BroadcastLockTick = Lock ? Server()->Tick() : 0;
+	}
 }
 
 void CGameContext::SendBuff(int Buff, int StartTick, int ClientID)
@@ -1095,6 +1111,7 @@ void CGameContext::CheckPureTuning()
 	if(	str_comp(m_pController->m_pGameType, "DM")==0 ||
 		str_comp(m_pController->m_pGameType, "TDM")==0 ||
 		str_comp(m_pController->m_pGameType, "INF")==0 ||
+		str_comp(m_pController->m_pGameType, "GUN")==0 ||
 		str_comp(m_pController->m_pGameType, "CTF")==0)
 	{
 		CTuningParams p;
@@ -2550,6 +2567,8 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		m_pController = new CGameControllerCTF(this);
 	else if(str_comp(g_Config.m_SvGametype, "tdm") == 0)
 		m_pController = new CGameControllerTDM(this);
+	else if(str_comp(g_Config.m_SvGametype, "gun") == 0)
+		m_pController = new CGameControllerGunGame(this);
 	else if(str_comp(g_Config.m_SvGametype, "inf") == 0)
 		m_pController = new CGameControllerTexasRun(this);
 	else if(str_comp(g_Config.m_SvGametype, "base") == 0)

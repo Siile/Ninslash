@@ -1,0 +1,76 @@
+
+body1.png
+size: 256,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+body
+  rotate: false
+  xy: 132, 174
+  size: 69, 75
+  orig: 69, 75
+  offset: 0, 0
+  index: -1
+eyes
+  rotate: false
+  xy: 132, 140
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+foot
+  rotate: true
+  xy: 109, 66
+  size: 53, 30
+  orig: 53, 30
+  offset: 0, 0
+  index: -1
+hat
+  rotate: false
+  xy: 2, 121
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+mask
+  rotate: false
+  xy: 2, 121
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+head
+  rotate: false
+  xy: 2, 18
+  size: 105, 101
+  orig: 105, 101
+  offset: 0, 0
+  index: -1
+splatter1
+  rotate: true
+  xy: 109, 19
+  size: 45, 20
+  orig: 45, 20
+  offset: 0, 0
+  index: -1
+splatter2
+  rotate: true
+  xy: 203, 188
+  size: 61, 23
+  orig: 61, 23
+  offset: 0, 0
+  index: -1
+splatter3
+  rotate: true
+  xy: 228, 205
+  size: 44, 23
+  orig: 44, 23
+  offset: 0, 0
+  index: -1
+splatter4
+  rotate: false
+  xy: 2, 2
+  size: 39, 14
+  orig: 39, 14
+  offset: 0, 0
+  index: -1

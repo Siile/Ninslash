@@ -213,6 +213,11 @@ void CPlayer::Tick()
 				TryRespawn();
 		}
 
+		if(g_Config.m_SvBroadcastLock && m_BroadcastLockTick && m_aBroadcast[0] != '\0')
+		{
+			if(Server()->Tick() > m_BroadcastLockTick + Server()->TickSpeed() * g_Config.m_SvBroadcastLock)
+				GameServer()->SendBroadcast(m_aBroadcast, GetCID(), true);
+		}
 	}
 	else
 	{

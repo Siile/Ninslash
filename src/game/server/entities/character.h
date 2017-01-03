@@ -106,6 +106,7 @@ public:
 	bool AddKit();
 	
 	void SetHealth(int Health);
+	void RefillHealth();
 
 	void SetEmote(int Emote, int Tick);
 	void SetEmoteFor(int Emote, int Ticks, int LockEmote = 0, bool UseTime = true);

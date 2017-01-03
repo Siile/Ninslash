@@ -242,9 +242,10 @@ void CCharacter::SwitchGroup()
 
 void CCharacter::DropWeapon()
 {
-	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
+	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE ||
+		!GameServer()->m_pController->CanDropWeapon(this))
 		return;
-	
+		
 	// check if using dropable weapon
 	if (m_ActiveCustomWeapon != W_HAMMER && m_ActiveCustomWeapon != W_TOOL && m_aWeapon[m_ActiveCustomWeapon].m_Got)
 	{
@@ -919,6 +920,19 @@ void CCharacter::GiveStartWeapon()
 	if (GameServer()->m_pController->IsCoop() && m_IsBot)
 		return;
 
+	int LockedWeapon = GameServer()->m_pController->GetLockedWeapon(this);
+	if (LockedWeapon != -1)
+	{
+		GiveCustomWeapon(LockedWeapon);
+		SetCustomWeapon(LockedWeapon);
+
+		m_aSelectedWeapon[0] = LockedWeapon;
+		m_aSelectedWeapon[1] = LockedWeapon;
+
+		return;
+	}
+	
+	/*
 	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
 	{
 		GiveCustomWeapon(WEAPON_CHAINSAW);
@@ -929,6 +943,7 @@ void CCharacter::GiveStartWeapon()
 		
 		return;
 	}
+	*/
 	
 	GiveCustomWeapon(W_TOOL);
 	GiveCustomWeapon(W_HAMMER);
@@ -1460,6 +1475,11 @@ void CCharacter::SetHealth(int Health)
 {
 	m_MaxHealth = Health;
 	m_HiddenHealth = Health;
+}
+
+void CCharacter::RefillHealth()
+{
+	m_HiddenHealth = m_MaxHealth;
 }
 
 bool CCharacter::IncreaseHealth(int Amount)

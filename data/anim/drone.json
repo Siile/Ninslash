@@ -1,0 +1,186 @@
+{
+"skeleton": { "hash": "2mZh+I0+DW3t/7OqkKOYcQl0kyU", "spine": "3.5.32", "width": 782.45, "height": 368.54, "images": "" },
+"bones": [
+	{ "name": "root" },
+	{ "name": "body1", "parent": "root", "length": 299.44, "rotation": 80.74, "x": -18.13, "y": -144.78 },
+	{ "name": "weapon0", "parent": "body1", "length": 193.04, "rotation": -84.76, "x": 96.24, "y": -4.26 },
+	{ "name": "weapon1", "parent": "weapon0", "length": 150.26, "rotation": 4.73, "x": 41.27, "y": 32.82 },
+	{ "name": "weapon2", "parent": "weapon0", "length": 137.73, "rotation": 5.23, "x": 211.3, "y": 61.16 }
+],
+"slots": [
+	{ "name": "Drone-Engine-Back", "bone": "weapon0", "attachment": "Drone-Engine-Back" },
+	{ "name": "Drone-Engine-Deactivated", "bone": "weapon0", "attachment": "Drone-Engine-Active" },
+	{ "name": "Gun-Drone2", "bone": "weapon2", "attachment": "Gun-Drone" },
+	{ "name": "Drone-Body", "bone": "weapon0", "attachment": "Drone-Body" },
+	{ "name": "Gun-Drone", "bone": "weapon1", "attachment": "Gun-Drone" }
+],
+"skins": {
+	"default": {
+		"Drone-Body": {
+			"Drone-Body": { "x": 48.71, "y": 76.05, "width": 474, "height": 309 }
+		},
+		"Drone-Engine-Back": {
+			"Drone-Engine-Back": { "x": -107.77, "y": 150.17, "width": 188, "height": 213 }
+		},
+		"Drone-Engine-Deactivated": {
+			"Drone-Engine-Active": { "x": -255.78, "y": 103.72, "width": 222, "height": 213 }
+		},
+		"Gun-Drone": {
+			"Gun-Drone": { "x": 67.55, "y": 3.38, "rotation": 0.5, "width": 246, "height": 153 }
+		},
+		"Gun-Drone2": {
+			"Gun-Drone": { "x": 76.87, "y": 5.56, "width": 246, "height": 153 }
+		}
+	}
+},
+"animations": {
+	"idle": {
+		"bones": {
+			"body1": {
+				"rotate": [
+					{
+						"time": 0,
+						"angle": 0,
+						"curve": [ 0.25, 0, 0.75, 1 ]
+					},
+					{
+						"time": 0.5,
+						"angle": -2.7,
+						"curve": [ 0.25, 0, 0.75, 1 ]
+					},
+					{ "time": 1, "angle": 0 }
+				],
+				"translate": [
+					{
+						"time": 0,
+						"x": 0,
+						"y": 0,
+						"curve": [ 0.25, 0, 0.75, 1 ]
+					},
+					{
+						"time": 0.5,
+						"x": 0,
+						"y": -11.85,
+						"curve": [ 0.25, 0, 0.75, 1 ]
+					},
+					{ "time": 1, "x": 0, "y": 0 }
+				]
+			},
+			"weapon0": {
+				"rotate": [
+					{ "time": 0, "angle": 0, "curve": "stepped" },
+					{ "time": 1, "angle": 0 }
+				],
+				"translate": [
+					{ "time": 0, "x": 0, "y": 0, "curve": "stepped" },
+					{ "time": 1, "x": 0, "y": 0 }
+				]
+			},
+			"weapon1": {
+				"rotate": [
+					{
+						"time": 0,
+						"angle": 0,
+						"curve": [ 0.25, 0, 0.75, 1 ]
+					},
+					{
+						"time": 0.5,
+						"angle": 2.32,
+						"curve": [ 0.25, 0, 0.75, 1 ]
+					},
+					{ "time": 1, "angle": 0 }
+				],
+				"translate": [
+					{ "time": 0, "x": 0, "y": 0, "curve": "stepped" },
+					{ "time": 1, "x": 0, "y": 0 }
+				]
+			},
+			"weapon2": {
+				"rotate": [
+					{
+						"time": 0,
+						"angle": 0,
+						"curve": [ 0.25, 0, 0.75, 1 ]
+					},
+					{
+						"time": 0.5,
+						"angle": 2.32,
+						"curve": [ 0.25, 0, 0.75, 1 ]
+					},
+					{ "time": 1, "angle": 0 }
+				],
+				"translate": [
+					{ "time": 0, "x": 0, "y": 0, "curve": "stepped" },
+					{ "time": 1, "x": 0, "y": 0 }
+				]
+			}
+		}
+	},
+	"start": {
+		"bones": {
+			"body1": {
+				"rotate": [
+					{ "time": 0, "angle": 0 }
+				],
+				"translate": [
+					{ "time": 0, "x": 0, "y": 0 }
+				]
+			},
+			"weapon0": {
+				"rotate": [
+					{
+						"time": 0,
+						"angle": 0,
+						"curve": [ 0.304, 0, 0.838, 0.8 ]
+					},
+					{ "time": 0.1667, "angle": 263.34 },
+					{ "time": 0.3333, "angle": 176.05 },
+					{ "time": 0.5, "angle": 83.86 },
+					{
+						"time": 0.6667,
+						"angle": -15.06,
+						"curve": [ 0.396, 0, 0.549, 1.01 ]
+					},
+					{ "time": 0.9, "angle": 0, "curve": "stepped" },
+					{ "time": 1.6667, "angle": 0 }
+				],
+				"translate": [
+					{
+						"time": 0,
+						"x": 0,
+						"y": 0,
+						"curve": [ 0.304, 0, 0.838, 0.8 ]
+					},
+					{ "time": 0.1667, "x": 137.89, "y": 31.52 },
+					{ "time": 0.3333, "x": 191.59, "y": 16.19 },
+					{ "time": 0.5, "x": 121.71, "y": -35.47 },
+					{
+						"time": 0.6667,
+						"x": 17.22,
+						"y": 2.81,
+						"curve": [ 0.396, 0, 0.549, 1.01 ]
+					},
+					{ "time": 0.9, "x": 0, "y": 0, "curve": "stepped" },
+					{ "time": 1.6667, "x": 0, "y": 0 }
+				]
+			},
+			"weapon1": {
+				"rotate": [
+					{ "time": 0, "angle": 0 }
+				],
+				"translate": [
+					{ "time": 0, "x": 0, "y": 0 }
+				]
+			},
+			"weapon2": {
+				"rotate": [
+					{ "time": 0, "angle": 0 }
+				],
+				"translate": [
+					{ "time": 0, "x": 0, "y": 0 }
+				]
+			}
+		}
+	}
+}
+}

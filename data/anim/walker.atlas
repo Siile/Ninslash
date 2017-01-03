@@ -1,0 +1,104 @@
+
+walker.png
+size: 1024,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Drone-Body
+  rotate: false
+  xy: 2, 72
+  size: 237, 155
+  orig: 237, 155
+  offset: 0, 0
+  index: -1
+Drone-Engine-Back
+  rotate: true
+  xy: 617, 133
+  size: 94, 107
+  orig: 94, 107
+  offset: 0, 0
+  index: -1
+Drone-Engine-Deactivated
+  rotate: false
+  xy: 241, 120
+  size: 111, 107
+  orig: 111, 107
+  offset: 0, 0
+  index: -1
+Gun-Drone
+  rotate: false
+  xy: 492, 150
+  size: 123, 77
+  orig: 123, 77
+  offset: 0, 0
+  index: -1
+Turret-Back-Foot
+  rotate: true
+  xy: 354, 120
+  size: 37, 71
+  orig: 37, 71
+  offset: 0, 0
+  index: -1
+Turret-Back-LowerLeg
+  rotate: true
+  xy: 726, 176
+  size: 51, 96
+  orig: 51, 96
+  offset: 0, 0
+  index: -1
+Turret-Back-UpperLeg
+  rotate: true
+  xy: 241, 72
+  size: 46, 96
+  orig: 46, 96
+  offset: 0, 0
+  index: -1
+Turret-Front-Foot
+  rotate: true
+  xy: 339, 80
+  size: 38, 58
+  orig: 38, 58
+  offset: 0, 0
+  index: -1
+Turret-Front-LowerLeg
+  rotate: true
+  xy: 2, 2
+  size: 68, 136
+  orig: 68, 136
+  offset: 0, 0
+  index: -1
+Turret-Front-UpperLeg
+  rotate: true
+  xy: 236, 6
+  size: 64, 82
+  orig: 64, 82
+  offset: 0, 0
+  index: -1
+Turret-Hips
+  rotate: false
+  xy: 140, 6
+  size: 94, 64
+  orig: 94, 64
+  offset: 0, 0
+  index: -1
+Turret-Side-Foot
+  rotate: true
+  xy: 726, 136
+  size: 38, 58
+  orig: 38, 58
+  offset: 0, 0
+  index: -1
+Turret-Side-Leg-Top
+  rotate: true
+  xy: 824, 163
+  size: 64, 82
+  orig: 64, 82
+  offset: 0, 0
+  index: -1
+Turret-Side-LowerLeg
+  rotate: true
+  xy: 354, 159
+  size: 68, 136
+  orig: 68, 136
+  offset: 0, 0
+  index: -1

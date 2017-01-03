@@ -112,6 +112,12 @@ public:
 		int m_ColorSkin;
 	} m_TeeInfos;
 	
+	// gungame
+	struct
+	{
+		int m_Kills;
+		int m_Deaths;
+	} m_Statistics;
 	
 	float m_InterestPoints;
 	
@@ -146,6 +152,8 @@ public:
 	bool AIInputChanged();
 	
 	bool m_ToBeKicked;
+	char m_aBroadcast[256];
+	int m_BroadcastLockTick;
 	
 	// custom
 	void SelectWeapon(int Weapon, int Group);

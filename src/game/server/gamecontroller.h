@@ -196,6 +196,8 @@ public:
 	virtual int GetFlagState(int Team);
 	
 	virtual bool CanCharacterSpawn(int ClientID);
+	virtual bool CanSeePickup(int CID, int Type, int Subtype); // for gungame
+	virtual bool CanDropWeapon(class CCharacter *pCharacter);
 
 	virtual class CBomb *GetBomb();
 	virtual class CFlag *GetClosestBase(vec2 Pos, int Team = -1);
@@ -213,6 +215,8 @@ public:
 	/*
 
 	*/
+	virtual int GetLockedWeapon(class CCharacter *pCharacter);
+	
 	virtual const char *GetTeamName(int Team);
 	virtual int GetAutoTeam(int NotThisID);
 	virtual bool CanJoinTeam(int Team, int NotThisID);

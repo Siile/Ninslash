@@ -710,6 +710,13 @@ void IGameController::ResetGame()
 	GameServer()->m_World.m_ResetRequested = true;
 }
 
+int IGameController::GetLockedWeapon(CCharacter *pCharacter)
+{
+	if(IsInfection() && pCharacter->GetPlayer()->GetTeam() == TEAM_BLUE)
+		return WEAPON_CHAINSAW;
+	return -1;
+}
+
 const char *IGameController::GetTeamName(int Team)
 {
 	if(IsTeamplay())
@@ -1426,4 +1433,15 @@ int IGameController::ClampTeam(int Team)
 	if(IsTeamplay())
 		return Team&1;
 	return 0;
+}
+
+
+bool IGameController::CanSeePickup(int CID, int Type, int Subtype)
+{
+	return true;
+}
+
+bool IGameController::CanDropWeapon(CCharacter *pCharacter)
+{
+	return pCharacter != NULL;
 }
