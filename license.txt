@@ -1,26 +1,26 @@
-Teeworlds Copyright (C) 2007-2014 Magnus Auvinen
-Ninslash Copyright (C) 2016 Juho Syrj‰nen
+Teeworlds Copyright (c) 2007-2014 Magnus Auvinen
+Ninslash Copyright (c) 2016 Juho Syrj√§nen
 
 This software is provided 'as-is', without any express or implied
-warranty.  In no event will the authors be held liable for any damages
+warranty. In no event will the authors be held liable for any damages
 arising from the use of this software.
 
-You are free to:
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
 
-Share ó copy and redistribute the material in any medium or format
-Adapt ó remix, transform, and build upon the material
-
-Under the following terms:
-
-Attribution ó You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
-NonCommercial ó You may not use the material for commercial purposes.
-ShareAlike ó If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
-
+1. The origin of this software must not be misrepresented; you must not
+   claim that you wrote the original software. If you use this software
+   in a product, an acknowledgment in the product documentation would be
+   appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be
+   misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
 
 ------------------------------------------------------------------------
 
-All content under 'data' except the font (which has its own license) and all content under 'src' is
-released under CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/).
+All content under 'data' and 'datasrc' except the font (which has its own license) is
+released under CC-BY-SA 4.0 (http://creativecommons.org/licenses/by-sa/4.0/).
 
 ------------------------------------------------------------------------
 
