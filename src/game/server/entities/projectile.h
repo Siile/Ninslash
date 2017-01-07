@@ -25,6 +25,9 @@ public:
 	vec2 GetPos(float Time);
 	void FillInfo(CNetObj_Projectile *pProj);
 
+	bool Bounce(vec2 Pos);
+	int BounceTick;
+	
 	virtual void Reset();
 	virtual void Tick();
 	virtual void TickPaused();

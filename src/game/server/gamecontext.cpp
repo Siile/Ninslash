@@ -2573,7 +2573,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		m_pController = new CGameControllerTexasRun(this);
 	else if(str_comp(g_Config.m_SvGametype, "base") == 0)
 		m_pController = new CGameControllerBase(this);
-	else if(str_comp(g_Config.m_SvGametype, "run") == 0)
+	else if(str_comp(g_Config.m_SvGametype, "coop") == 0)
 		m_pController = new CGameControllerCoop(this);
 	else
 		m_pController = new CGameControllerDM(this);

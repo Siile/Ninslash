@@ -26,6 +26,7 @@ CProjectile::CProjectile(CGameWorld *pGameWorld, int Weapon, int Owner, vec2 Pos
 	m_ElectroTimer = 0;
 	
 	m_OwnerBuilding = NULL;
+	BounceTick = 0;
 	
 	GameWorld()->InsertEntity(this);
 }
@@ -77,6 +78,43 @@ vec2 CProjectile::GetPos(float Time)
 }
 
 
+bool CProjectile::Bounce(vec2 Pos)
+{
+	if (m_Weapon == WEAPON_ELECTRIC)
+	{
+		BounceTick = Server()->Tick();
+	
+		int top = GameServer()->Collision()->GetCollisionAt(Pos.x, Pos.y-8);
+		int bot = GameServer()->Collision()->GetCollisionAt(Pos.x, Pos.y+8);
+		int left = GameServer()->Collision()->GetCollisionAt(Pos.x-8, Pos.y);
+		int right = GameServer()->Collision()->GetCollisionAt(Pos.x+8, Pos.y);
+		
+		int c = (top > 0) + (bot > 0) + (left > 0) + (right > 0);
+		
+		if (c == 4)
+		{
+			m_Direction.y *= -1;
+			m_Direction.x *= -1;
+		}
+		else
+		{
+			if(!top && bot)
+				m_Direction.y *= -1;
+			if(!bot && top)
+				m_Direction.y *= -1;
+			if(!left && right)
+				m_Direction.x *= -1;
+			if(!right && left)
+				m_Direction.x *= -1;
+		}
+		
+		return true;
+	}
+	
+	return false;
+}
+
+
 void CProjectile::Tick()
 {
 	float Pt = (Server()->Tick()-m_StartTick-1)/(float)Server()->TickSpeed();
@@ -107,6 +145,14 @@ void CProjectile::Tick()
 	
 	m_LifeSpan--;
 
+	if (Collide && Bounce(CurPos))
+	{
+		m_StartTick = Server()->Tick()-1;
+		//m_Direction.y *= -1;
+		m_Pos = CurPos;
+		Collide = false;
+	}
+	
 	if(TargetMonster || TargetBuilding || TargetChr || Collide || m_LifeSpan < 0 || GameLayerClipped(CurPos))
 	{
 		if(m_LifeSpan >= 0 || m_Weapon == WEAPON_GRENADE || m_Weapon == WEAPON_FLAMER || m_Weapon == WEAPON_ELECTRIC)
