@@ -1147,7 +1147,20 @@ void CPlayers::OnRender()
 				// send weapon info to custom stuff
 				if (Local)
 				{
-					CustomStuff()->m_LocalWeapons = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapons;
+					// HACK: delay changing m_LocalWeapons for one frame, because pInfo is outdated compared to NETMSGTYPE_SV_WEAPONPICKUP data
+					// m_LocalWeapons will be almost always up to date, except when the server forces new weapon list to the player
+					static int LocalWeaponsChangeCounter = 0;
+					int NewWeapons = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapons;
+					if (CustomStuff()->m_LocalWeapons != NewWeapons)
+					{
+						LocalWeaponsChangeCounter++;
+						if (LocalWeaponsChangeCounter > 2)
+							CustomStuff()->m_LocalWeapons = NewWeapons;
+					}
+					else
+					{
+						LocalWeaponsChangeCounter = 0;
+					}
 					CustomStuff()->m_LocalKits = ((const CNetObj_PlayerInfo *)pInfo)->m_Kits;
 					CustomStuff()->m_aLocalItems[0] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item1;
 					CustomStuff()->m_aLocalItems[1] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item2;
