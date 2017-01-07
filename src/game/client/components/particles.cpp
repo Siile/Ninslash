@@ -46,6 +46,7 @@ void CParticles::OnReset()
 	{
 		m_aParticles[i].m_PrevPart = i-1;
 		m_aParticles[i].m_NextPart = i+1;
+		m_aParticles[i].m_Pos = vec2(0,0);
 	}
 
 	m_aParticles[0].m_PrevPart = 0;
