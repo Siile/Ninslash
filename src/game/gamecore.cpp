@@ -503,11 +503,8 @@ void CCharacterCore::Tick(bool UseInput)
 			// jetpack physics
 			if (m_Jetpack == 1 && m_JetpackPower > 0 && m_Wallrun == 0)
 			{
-				//if (--m_JetpackPower <= 0)
-				//	m_Jetpack = 0;
-				
 				if (m_Vel.y > -11.0f)
-					m_Vel.y -= m_pWorld->m_Tuning.m_Gravity*2.2f;
+					m_Vel.y -= m_pWorld->m_Tuning.m_Gravity * (m_Input.m_Hook ? 2.2f*invsqrt2 : 2.2f);
 				
 				if (m_Direction == 1 && m_Vel.x < 14.0f)
 					m_Vel.x += 0.5f;
@@ -570,16 +567,17 @@ void CCharacterCore::Tick(bool UseInput)
 			m_Jetpack = 0;
 		}
 
-		
-		if(m_Input.m_Hook && m_JetpackPower > 0 && !IsInFluid())
+		// Do not allow moving and using jetpack in different directions,
+		// however diagonal jetpack movement is allowed in any direction,
+		// it won't give a lot of speed boost when escaping anyway.
+		if(m_Input.m_Hook && m_JetpackPower > 0 && !IsInFluid() && (m_Jetpack ||
+			(TargetDirection.x > 0 && m_Direction >= 0) || (TargetDirection.x < 0 && m_Direction <= 0)))
 		{
-			if ((TargetDirection.x > 0 && m_Vel.x < HandJetpackControlSpeed + ForceTileStatus) || (TargetDirection.x < 0 && m_Vel.x > -HandJetpackControlSpeed + ForceTileStatus))
-				m_Vel.x += TargetDirection.x*1.4f;
-				
-			if ((TargetDirection.y > 0 && m_Vel.y < HandJetpackControlSpeed) || (TargetDirection.y < 0 && m_Vel.y > -HandJetpackControlSpeed))
-				m_Vel.y += TargetDirection.y*1.4f;
-				
-			m_JetpackPower -= 2;
+			float dir = (m_Direction != 0) ? m_Direction : sign(TargetDirection.x);
+			if ((dir > 0 && m_Vel.x < HandJetpackControlSpeed + ForceTileStatus) || (dir < 0 && m_Vel.x > -HandJetpackControlSpeed + ForceTileStatus))
+				m_Vel.x += m_pWorld->m_Tuning.m_Gravity * (m_Jetpack ? 2.2f*invsqrt2 : 2.2f) * dir;
+			if (m_Jetpack == 0) // Already decreased in the code above, if jetpack is active
+				m_JetpackPower -= 2;
 			m_HandJetpack = true;
 		}
 	}
