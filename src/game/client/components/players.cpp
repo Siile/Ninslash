@@ -629,10 +629,27 @@ void CPlayers::RenderPlayer(
 	RenderInfo.m_ColorSkin.a = 1.0f;
 	
 	// jetpack effects
-	if (Player.m_Jetpack == 1 && Player.m_JetpackPower > 0 && Player.m_Wallrun == 0)
+	if ((Player.m_Jetpack || Player.m_HandJetpack) && Player.m_JetpackPower > 0 && Player.m_Wallrun == 0)
 	{
-		m_pClient->m_pEffects->Triangle(Position + vec2(4, 8), vec2(Vel.x*-20, 600));
-		m_pClient->m_pEffects->Triangle(Position + vec2(-4, 8), vec2(Vel.x*-20, 600));
+		float dir = Player.m_Direction != 0 ? Player.m_Direction : sign(Direction.x);
+		if (Player.m_Jetpack && Player.m_HandJetpack)
+		{
+			// Diagonal
+			m_pClient->m_pEffects->Triangle(Position + vec2(4, 8), vec2(-dir*100, 500));
+			m_pClient->m_pEffects->Triangle(Position + vec2(-4, 8), vec2(-dir*100, 500));
+		}
+		else if (Player.m_HandJetpack)
+		{
+			// Side
+			m_pClient->m_pEffects->Triangle(Position + vec2(0, 0), vec2(-dir*600, 0));
+			m_pClient->m_pEffects->Triangle(Position + vec2(0, 4), vec2(-dir*600, 0));
+		}
+		else
+		{
+			// Up
+			m_pClient->m_pEffects->Triangle(Position + vec2(4, 8), vec2(Vel.x*-20, 600));
+			m_pClient->m_pEffects->Triangle(Position + vec2(-4, 8), vec2(Vel.x*-20, 600));
+		}
 		
 		if (pCustomPlayerInfo->m_LastJetpackSoundTick <= Client()->GameTick())
 		{
@@ -906,35 +923,6 @@ void CPlayers::RenderPlayer(
 	
 	RenderTools()->RenderPlayer(&CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID], &RenderInfo, Player.m_Weapon, Player.m_Emote, Direction, Position);
 	
-	
-
-	// iron man jetpack
-	if (Player.m_HandJetpack)
-	{
-		vec2 HandPos = Position - Direction*10 + vec2(0, -10);
-		
-		RenderHand(&RenderInfo, HandPos, Direction, -pi/2, vec2(-8, 7));
-		
-		m_pClient->m_pEffects->Triangle(HandPos+vec2(0, +6), -Direction*600);
-		m_pClient->m_pEffects->Triangle(HandPos+vec2(0, +6), -Direction*620);
-		
-		//m_pClient->m_pEffects->Triangle(Position + vec2(-4, 8), vec2(Vel.x*-20, 600));
-		
-		if (pCustomPlayerInfo->m_LastJetpackSoundTick <= Client()->GameTick())
-		{
-			pCustomPlayerInfo->m_LastJetpackSoundTick = Client()->GameTick() + 190 * Client()->GameTickSpeed()/1000;
-			if (pCustomPlayerInfo->m_LastJetpackSound == 0)
-			{
-				pCustomPlayerInfo->m_LastJetpackSound = 1;
-				m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_JETPACK1, 1.0f, Position);
-			}
-			else
-			{
-				pCustomPlayerInfo->m_LastJetpackSound = 0;
-				m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_JETPACK2, 1.0f, Position);
-			}
-		}
-	}
 	
 	Graphics()->ShaderEnd();
 	

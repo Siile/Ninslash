@@ -632,12 +632,6 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				}
 				else
 				{
-					if (Player()->GetCharacter()->GetCore().m_JetpackPower > 50)
-					{
-						m_Hook = 1;
-						m_Direction = vec2(-1, 0);
-					}
-					
 					m_Jump = 1;
 					
 					if (Player()->GetCharacter()->GetCore().m_OnWall)
