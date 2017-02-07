@@ -68,6 +68,14 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		m_Collision = false;
 		break;
 		
+	case BUILDING_JUMPPAD:
+		m_ProximityRadius = JumppadPhysSize;
+		m_Life = 9000;
+		Pos += vec2(48, 16);
+		m_Center = vec2(0, 0);
+		m_Collision = false;
+		break;
+		
 	case BUILDING_FLAMETRAP:
 		m_ProximityRadius = FlametrapPhysSize;
 		m_Life = 60;
@@ -101,6 +109,31 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 void CBuilding::Reset()
 {
 	//GameServer()->m_World.DestroyEntity(this);
+}
+
+
+bool CBuilding::Jumppad()
+{
+	CCharacter *apEnts[MAX_CLIENTS];
+	int Num = GameServer()->m_World.FindEntities(m_Pos, m_ProximityRadius*10.0f, (CEntity**)apEnts,
+														MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
+	bool ret = false;
+														
+	for (int i = 0; i < Num; ++i)
+	{
+		CCharacter *pTarget = apEnts[i];
+
+		if (abs(pTarget->m_Pos.x - m_Pos.x) < 64 && abs(pTarget->m_Pos.y - m_Pos.y) < 16)
+		{
+			pTarget->Jumppad();
+			m_aStatus[BSTATUS_ON] = 1;
+			m_TriggerTimer = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed() * 0.05f;
+			//GameServer()->CreateSound(m_Pos, SOUND_DOOR1);
+			ret = true;
+		}
+	}
+	
+	return ret;
 }
 
 
@@ -220,6 +253,18 @@ void CBuilding::Tick()
 		}
 	}
 	
+	if (m_Type == BUILDING_JUMPPAD)
+	{
+		//if (m_TriggerTimer < GameServer()->Server()->Tick())
+		{
+			Jumppad();
+			//if (!Jumppad())
+			//	m_aStatus[BSTATUS_ON] = 0;
+		}
+		if (m_TriggerTimer < GameServer()->Server()->Tick())
+			m_aStatus[BSTATUS_ON] = 0;
+	}
+	
 	if (m_Type == BUILDING_SAWBLADE)
 	{
 		CCharacter *pChr = GameServer()->m_World.ClosestCharacter(m_Pos, m_ProximityRadius*1.4f, 0);
@@ -276,7 +321,7 @@ void CBuilding::Tick()
 					if(pChr && pChr->IsAlive())
 					{
 						pChr->TakeDamage(vec2(0, 0), 2, NEUTRAL_BASE, DEATHTYPE_FLAMETRAP, vec2(0, 0), DAMAGETYPE_FLAME);
-						pChr->SetAflame(2.5f, NEUTRAL_BASE, DEATHTYPE_FLAMETRAP);
+						pChr->SetAflame(1.0f, NEUTRAL_BASE, DEATHTYPE_FLAMETRAP);
 					}
 				}
 				{
@@ -285,7 +330,7 @@ void CBuilding::Tick()
 					if(pChr && pChr->IsAlive())
 					{
 						pChr->TakeDamage(vec2(0, 0), 2, NEUTRAL_BASE, DEATHTYPE_FLAMETRAP, vec2(0, 0), DAMAGETYPE_FLAME);
-						pChr->SetAflame(2.5f, NEUTRAL_BASE, DEATHTYPE_FLAMETRAP);
+						pChr->SetAflame(1.0f, NEUTRAL_BASE, DEATHTYPE_FLAMETRAP);
 					}
 				}
 			}

@@ -11,6 +11,8 @@ struct CPool
 	float m_aSurfaceY[4*32];
 	float m_aSurfaceVel[4*32];
 	
+	float m_Wave;
+	
 	CPool()
 	{
 		Reset();
@@ -26,6 +28,7 @@ struct CPool
 		
 		m_Pos = vec2(0, 0);
 		m_Size = vec2(0, 0);
+		m_Wave = 0.0f;
 	}
 	
 	void UpdateTension()
@@ -34,12 +37,14 @@ struct CPool
 		float B = 0.95f;
 		float C = 0.02f;
 		
+		m_Wave += (frandom()-frandom())*0.75f;
+		
 		for (int i = 0; i <= m_Size.x/16; i++)
 		{
 			if (i >= 4*32)
 				break;
 			
-			m_aSurfaceVel[i] -= m_aSurfaceY[i] * C;
+			m_aSurfaceVel[i] -= (m_aSurfaceY[i]-sin(m_Wave+i*0.6f)+cos((m_Wave+i*0.6f)/7.0f)*6.0f*frandom()) * C;
 			m_aSurfaceVel[i] *= B;
 			
 			if (i > 0)

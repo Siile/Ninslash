@@ -255,17 +255,17 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		),
 	CWeapon(
 		"Flame thrower",
-		SOUND_GRENADE_FIRE,
-		6, // damage
+		SOUND_JETPACK1,
+		2, // damage
 		true, // autofire
-		0.1f, // bullet spread
-		3, // shot spread
-		4, // powerup size
-		10, // max ammo
-		0.7f, // bullet life
-		600, // bullet reload time
+		0, // bullet spread
+		1, // shot spread
+		7, // powerup size
+		20, // max ammo
+		0.0f, // bullet life
+		200, // bullet reload time
 		0.0f, // bullet knockback
-		2.0f, // self knockback
+		0.0f, // self knockback
 		600 // ai attack range
 		),
 	CWeapon(

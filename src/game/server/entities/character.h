@@ -64,6 +64,7 @@ public:
 	void HandleWeapons();
 	
 	void Deathray();
+	void Jumppad();
 
 	void OnPredictedInput(CNetObj_PlayerInput *pNewInput);
 	void OnDirectInput(CNetObj_PlayerInput *pNewInput);
@@ -271,8 +272,13 @@ private:
 	
 	vec2 m_Recoil;
 	
+	// nonprojectile weirdos
 	int m_Chainsaw;
 	void Chainsaw();
+	
+	int m_Flamethrower;
+	void Flamethrower();
+	
 	
 	CCharacter *m_LockedTo;
 	

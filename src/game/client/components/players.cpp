@@ -110,6 +110,8 @@ void CPlayers::RenderPlayer(
 	
 	bool NewTick = m_pClient->m_NewTick;
 
+	pCustomPlayerInfo->m_RenderInfo = RenderInfo;
+	
 	
 	// set size
 	RenderInfo.m_Size = 64.0f;
@@ -117,7 +119,6 @@ void CPlayers::RenderPlayer(
 	float IntraTick = Client()->IntraGameTick();
 
 	float Angle = mix((float)Prev.m_Angle, (float)Player.m_Angle, IntraTick)/256.0f;
-
 	
 	//float angle = 0;
 
@@ -141,6 +142,8 @@ void CPlayers::RenderPlayer(
 			Angle = mix((float)Prev.m_Angle, (float)Player.m_Angle, IntraTick) / 256.0f;
 		}
 	}
+	
+	pCustomPlayerInfo->m_Angle = Angle;
 
 	// use preditect players if needed
 	if(pInfo.m_Local && g_Config.m_ClPredict && Client()->State() != IClient::STATE_DEMOPLAYBACK)
@@ -208,6 +211,8 @@ void CPlayers::RenderPlayer(
 	
 	
 	m_pClient->AddFluidForce(Position+vec2(0, -12), Vel*2);
+
+	pCustomPlayerInfo->UpdatePhysics(vec2(Player.m_VelX, Player.m_VelY), vec2(Prev.m_VelX, Prev.m_VelY));
 	
 	
 	float AnimSpeed = abs(Vel.x) / 300.0f;
@@ -451,11 +456,9 @@ void CPlayers::RenderPlayer(
 		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[iw].m_pSpriteBody, Direction.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
 
 		vec2 Dir = Direction;
-		float Recoil = 0.0f;
 		vec2 p;
 
 		{
-			Recoil = 0;
 			static float s_LastIntraTick = IntraTick;
 			if(m_pClient->m_Snap.m_pGameInfoObj && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
 				s_LastIntraTick = IntraTick;
@@ -464,7 +467,6 @@ void CPlayers::RenderPlayer(
 			
 			if(a < 1)
 			{
-				Recoil = sinf(a*pi);
 
 				if (CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilLoaded)
 				{
@@ -480,7 +482,7 @@ void CPlayers::RenderPlayer(
 						
 						m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
 					}
-					else
+					else if (Player.m_Weapon != WEAPON_FLAMER)
 						CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilVel -= Direction * 12.0f;
 						
 					/*
@@ -588,6 +590,133 @@ void CPlayers::RenderPlayer(
 			}
 		}
 		Graphics()->QuadsEnd();
+		
+		
+		// flamethrower
+		if (Player.m_Weapon == WEAPON_FLAMER)
+		{
+			// roll the animation
+			if (Player.m_AttackTick > Client()->GameTick() - 220 * Client()->GameTickSpeed()/1000)
+			{
+				if (pCustomPlayerInfo->m_FlameState == 0)
+					pCustomPlayerInfo->m_FlameState++;
+				
+				if (pCustomPlayerInfo->m_FlameState > 9*5)
+					pCustomPlayerInfo->m_FlameState = 5*5;
+				
+				
+				CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilVel -= Direction * 0.8f;
+			}
+			else
+			{
+				if (pCustomPlayerInfo->m_FlameState > 0 && pCustomPlayerInfo->m_FlameState < 9*5)
+					pCustomPlayerInfo->m_FlameState = 9*5;
+			}
+			
+			// render the flame
+			if (pCustomPlayerInfo->m_FlameState > 0)
+			{
+				int f = pCustomPlayerInfo->m_FlameState / 5;
+				
+				Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FLAME].m_Id);
+				Graphics()->QuadsBegin();
+				
+				bool Flip = Dir.x < 0 ? true : false;
+				
+				Graphics()->SetColor(1, 1, 1, 1);
+				Graphics()->QuadsSetRotation(0);
+					
+				vec2 DirY(-Dir.y,Dir.x);
+				float OffsetY = -20 * (Dir.x < 0 ? -1 : 1);
+
+				
+				int Slices = 9;
+
+				
+				vec2 PrevPos = vec2(0, 0);
+				float PrevA = 0.0f;
+				
+				vec2 FPos = p + DirY * OffsetY;
+				FPos += vec2(cos(Angle), sin(Angle))*16.0f;
+				
+				vec2 StartPos = FPos;
+				
+				int Flames = 0;
+				
+				for (int i = 0; i <= Slices; i++)
+				{
+					float fa = pCustomPlayerInfo->m_aFlameAngle[i];
+					
+					float x1 = (i-1.0f) / float(Slices);
+					float x2 = (i+0.0f) / float(Slices);
+					if (i > 0)
+						RenderTools()->SelectSprite(SPRITE_FLAME1+f,  + (Flip ? SPRITE_FLAG_FLIP_Y : 0), 0, 0, x1, x2);
+					
+					FPos += vec2(cos(fa), sin(fa)) * (240.0f / Slices);
+					
+					if (PrevPos.x == 0.0f)
+					{
+						PrevPos = FPos;
+						PrevA = fa;
+						continue;
+					}
+				
+					float a1 = PrevA-pi/2.0f;
+					float a2 = fa-pi/2.0f;
+					float a3 = PrevA+pi/2.0f;
+					float a4 = fa+pi/2.0f;
+					
+					float s1 = 32.0f;
+					
+					vec2 p1 = PrevPos+vec2(cos(a1), sin(a1))*s1;
+					vec2 p2 = FPos+vec2(cos(a2), sin(a2))*s1;
+					vec2 p3 = PrevPos+vec2(cos(a3), sin(a3))*s1;
+					vec2 p4 = FPos+vec2(cos(a4), sin(a4))*s1;
+					
+					if (!Flames && Collision()->IntersectLine(StartPos, PrevPos, 0x0, 0x0))
+					{
+						Flames++;
+						m_pClient->m_pEffects->Flame(PrevPos + vec2(frandom()-frandom(), frandom()-frandom()) * 12.0f, vec2(frandom()-frandom(), frandom()-frandom()) * 200.0f, 0.5f, true);
+					}
+					
+					// prev
+					Collision()->IntersectLine(StartPos, p1, 0x0, &p1);
+					Collision()->IntersectLine(StartPos, p3, 0x0, &p3);
+					Collision()->IntersectLine(StartPos, p2, 0x0, &p2);
+					Collision()->IntersectLine(StartPos, p4, 0x0, &p4);
+					
+					IGraphics::CFreeformItem FreeFormItem(
+						p1.x, p1.y,
+						p2.x, p2.y,
+						p3.x, p3.y,
+						p4.x, p4.y);
+						
+					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+					
+					PrevPos = FPos;
+					PrevA = fa;
+				}
+				
+				
+				Graphics()->QuadsEnd();
+				
+				OffsetY = -0 * (Dir.x < 0 ? -1 : 1);
+				//FPos = p + Dir * 52 + DirY * OffsetY;
+				
+				if (Player.m_AttackTick > Client()->GameTick() - 240 * Client()->GameTickSpeed()/1000)
+				{
+					//m_pClient->m_pEffects->Flame(FPos, Dir * (900.0f+frandom()*500.0f), 0.5f);
+					
+					FPos = p + Dir * 60 + DirY * OffsetY;
+						
+					if (frandom()*10 < 4 && !Collision()->CheckPoint(FPos.x, FPos.y))
+					{
+						m_pClient->m_pEffects->SmokeTrail(FPos, Dir * (600.0f+frandom()*500.0f));
+					}
+				}
+			}
+		}
+		
 		
 		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DEATHRAY] > 0.0f)
 			Graphics()->ShaderBegin(SHADER_DEATHRAY);
@@ -802,6 +931,12 @@ void CPlayers::RenderPlayer(
 		AnimationSpeed = 0.025f;
 	}
 	
+	if (Player.m_Anim == 6)
+	{
+		WantedAnimation = PANIM_JUMPPAD;
+		AnimationSpeed = 0.025f;
+	}
+	
 
 	
 	
@@ -886,7 +1021,7 @@ void CPlayers::RenderPlayer(
 	
 	// custom stuff
 	pCustomPlayerInfo->Update(Position);
-	pCustomPlayerInfo->UpdatePhysics(vec2(Player.m_VelX, Player.m_VelY), vec2(Prev.m_VelX, Prev.m_VelY));
+	//pCustomPlayerInfo->UpdatePhysics(vec2(Player.m_VelX, Player.m_VelY), vec2(Prev.m_VelX, Prev.m_VelY));
 	
 	// set correct shader
 	if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DEATHRAY] > 0.0f)

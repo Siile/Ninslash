@@ -126,6 +126,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 	m_PainSoundTimer = 0;
 	m_Chainsaw = 0;
+	m_Flamethrower = 0;
 	
 	m_pPlayer = pPlayer;
 	m_Pos = Pos;
@@ -621,6 +622,19 @@ void CCharacter::ScanWeapons()
 
 
 
+void CCharacter::Jumppad()
+{
+	/*
+	m_Core.m_Vel.y = -9.0f;
+	m_Core.m_Action = COREACTION_JUMPPAD;
+	m_Core.m_ActionState = 0;
+	*/
+	
+	m_Core.Jumppad();
+}
+
+
+
 void CCharacter::Chainsaw()
 {	
 	if (m_ActiveCustomWeapon == WEAPON_CHAINSAW && m_Chainsaw >= Server()->Tick())
@@ -642,12 +656,41 @@ void CCharacter::Chainsaw()
 }
 
 
+void CCharacter::Flamethrower()
+{	
+	if (m_ActiveCustomWeapon == WEAPON_FLAMER && m_Flamethrower >= Server()->Tick())
+	{
+		GetPlayer()->m_InterestPoints += 3;
+		
+		vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
+		
+		vec2 OffsetY = vec2(0, -12);
+		
+		vec2 StartPos = m_Pos+Direction*m_ProximityRadius*3.0f + OffsetY;
+		
+		for (int i = 0; i < 4; i++)
+		{
+			vec2 To = StartPos+Direction*m_ProximityRadius*i*2.1f;
+			
+			GameServer()->Collision()->IntersectLine(StartPos, To, 0x0, &To);
+			GameServer()->CreateFlamethrowerHit(m_pPlayer->GetCID(), m_ActiveCustomWeapon, To, this);
+			
+			// to visualize hit points
+			//GameServer()->CreateFlameHit(To);
+		}
+	}
+	else
+		m_Flamethrower = 0;
+}
+
+
 void CCharacter::FireWeapon()
 {
 	if (m_aStatus[STATUS_SPAWNING] > 0.0f)
 		return;
 	
 	Chainsaw();
+	Flamethrower();
 	DoWeaponSwitch();
 	
 	if(m_ReloadTimer > 0)
@@ -715,10 +758,12 @@ void CCharacter::FireWeapon()
 	switch(m_ActiveCustomWeapon)
 	{
 		case WEAPON_CHAINSAW:
-		{
 			m_Chainsaw = Server()->Tick() + 500 * Server()->TickSpeed()/1000;
 			break;
-		}
+		
+		case WEAPON_FLAMER:
+			m_Flamethrower = Server()->Tick() + 400 * Server()->TickSpeed()/1000;
+			break;
 		
 		case WEAPON_TOOL:
 			GameServer()->Repair(m_Pos + vec2((Direction.x < 0 ? -30 : 20), -20));
@@ -818,7 +863,6 @@ void CCharacter::FireWeapon()
 		case WEAPON_RIFLE:
 		case WEAPON_SHOTGUN:
 		case WEAPON_GRENADE:
-		case WEAPON_FLAMER:
 		case WEAPON_ELECTRIC:
 		{
 			GetPlayer()->m_InterestPoints += 10;	

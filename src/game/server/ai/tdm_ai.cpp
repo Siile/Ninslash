@@ -61,7 +61,7 @@ void CAItdm::DoBehavior()
 
 	
 	
-	int f = 1000+m_EnemiesInSight*100;
+	int f = 800+m_EnemiesInSight*100;
 
 	bool SeekEnemy = false;
 	

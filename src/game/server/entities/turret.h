@@ -21,6 +21,8 @@ public:
 	int m_Weapon;
 	int m_Ammo;
 	
+	int m_Flamethrower;
+	
 	vec2 m_OriginalDirection;
 	int m_OwnerPlayer;
 	
@@ -30,6 +32,7 @@ private:
 	bool FindTarget();
 	bool Target();
 	void Fire();
+	void Flamethrower();
 	int m_TargetIndex;
 	
 	int m_ReloadTimer;

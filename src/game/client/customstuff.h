@@ -28,11 +28,68 @@ private:
 	vec2 m_CameraCenter;
 	
 public:
+
+	// client prediction for jump pads
+	enum Impact
+	{
+		IMPACT_OFF,
+		IMPACT_READY,
+		IMPACT_HIT,
+		MAX_IMPACTSTATES
+	};
+	
+	int m_Impact;
+	int m_aImpactState[MAX_IMPACTS];
+	int64 m_aImpactTick[MAX_IMPACTS];
+	vec4 m_aImpactPos[MAX_IMPACTS];
+
+	
+	void ClearImpacts()
+	{
+		m_Impact = 0;
+		
+		for (int i = 0; i < MAX_IMPACTS; i++)
+		{
+			m_aImpactState[i] = IMPACT_OFF;
+			m_aImpactPos[i] = vec4(0, 0, 0, 0);
+		}
+	}
+	
+	void AddImpact(vec4 Pos, int State)
+	{
+		if (m_Impact < MAX_IMPACTS)
+		{
+			m_aImpactState[m_Impact] = State;
+			m_aImpactPos[m_Impact] = Pos;
+			m_Impact++;
+		}
+	}
+	
+	bool Impact(vec2 Pos)
+	{
+		if (!m_Impact)
+			return false;
+		
+		for (int i = 0; i < m_Impact; i++)
+		{
+			if (m_aImpactState[i] == IMPACT_HIT &&
+				m_aImpactPos[i].x < Pos.x && m_aImpactPos[i].z > Pos.x &&
+				m_aImpactPos[i].y < Pos.y && m_aImpactPos[i].w > Pos.y)
+				return true;
+		}		
+		
+		return false;
+	}
+	
+	
 	int GetSpriteFrame(int Speed, int Range)
 	{
 		return (m_Tick / Speed)%Range;
 	}
-
+	
+	int m_aTurretFlame[512];
+	float m_aJumppad[512];
+	
 	float m_DoorTimer;
 	
 	int m_Picker;

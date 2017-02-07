@@ -21,6 +21,9 @@
 #include <game/client/components/splatter.h>
 #include <game/client/components/spark.h>
 
+#include <game/client/customstuff.h>
+#include <game/client/customstuff/playerinfo.h>
+
 inline vec2 RandomDir() { return normalize(vec2(frandom()-0.5f, frandom()-0.5f)); }
 
 CEffects::CEffects()
@@ -356,7 +359,7 @@ void CEffects::Triangle(vec2 Pos, vec2 Vel)
 	m_pClient->m_pParticles->Add(CParticles::GROUP_TRIANGLES, &p);
 }
 
-void CEffects::Flame(vec2 Pos, vec2 Vel, float Alpha)
+void CEffects::Flame(vec2 Pos, vec2 Vel, float Alpha, bool IgnoreCollision)
 {
 	if(!m_Add100hz)
 		return;
@@ -370,6 +373,7 @@ void CEffects::Flame(vec2 Pos, vec2 Vel, float Alpha)
 	p.m_Vel = Vel + RandomDir()*50.0f;
 	p.m_LifeSpan = 0.5f + frandom()*0.75f;
 	p.m_StartSize = 16.0f + frandom()*20;
+	p.m_IgnoreCollision = IgnoreCollision;
 	p.m_Rot = frandom()*600.0f;
 	p.m_EndSize = 0;
 	p.m_Friction = 0.7f;
@@ -462,6 +466,89 @@ void CEffects::PlayerDeath(vec2 Pos, int ClientID)
 	p.m_EndSize = 100;
 	p.m_Rot = frandom()*pi*2;
 	m_pClient->m_pParticles->Add(CParticles::GROUP_DEATH, &p);
+	
+	if (ClientID < 0 || ClientID >= MAX_CLIENTS)
+		return;
+	
+	// body
+	for (int i = 0; i < 7; i++)
+	{
+		CParticle p;
+		p.SetDefault();
+		p.m_Spr = SPRITE_MEAT1+2*rand()%6;
+		p.m_Pos = Pos + vec2(0, -14) + vec2(frandom()-frandom(), frandom()-frandom())*12;
+		p.m_Vel = RandomDir()*(frandom()+0.2f)*600.0f + vec2(0, -100);
+		p.m_LifeSpan = 3.0f+frandom();
+		p.m_StartSize = 18 + frandom()*18;
+		p.m_EndSize = p.m_StartSize;
+		p.m_Rot = frandom()*pi*2;
+		p.m_Rotspeed = p.m_Vel.x / 10;
+		p.m_Friction = 0.9f;
+		p.m_Chunk = true;
+		p.m_Gravity = 1200.0f + frandom()*400;
+		p.m_Color = CustomStuff()->m_aPlayerInfo[ClientID].m_RenderInfo.m_ColorBody;
+		m_pClient->m_pParticles->Add(CParticles::GROUP_MEAT, &p);
+	}
+	
+	// feet
+	for (int i = 0; i < 5; i++)
+	{
+		CParticle p;
+		p.SetDefault();
+		p.m_Spr = SPRITE_MEAT1+2*rand()%6;
+		p.m_Pos = Pos + vec2(0, +4) + vec2(frandom()-frandom(), frandom()-frandom())*12;
+		p.m_Vel = RandomDir()*(frandom()+0.2f)*400.0f;
+		p.m_LifeSpan = 3.0f+frandom();
+		p.m_StartSize = 12 + frandom()*12;
+		p.m_EndSize = p.m_StartSize;
+		p.m_Rot = frandom()*pi*2;
+		p.m_Rotspeed = p.m_Vel.x / 10;
+		p.m_Friction = 0.9f;
+		p.m_Chunk = true;
+		p.m_Gravity = 1200.0f + frandom()*400;
+		p.m_Color = CustomStuff()->m_aPlayerInfo[ClientID].m_RenderInfo.m_ColorFeet;
+		m_pClient->m_pParticles->Add(CParticles::GROUP_MEAT, &p);
+	}
+	
+	// skin (head)
+	for (int i = 0; i < 9; i++)
+	{
+		CParticle p;
+		p.SetDefault();
+		p.m_Spr = SPRITE_MEAT7+2*rand()%2;
+		p.m_Pos = Pos + vec2(0, -36) + vec2(frandom()-frandom(), frandom()-frandom())*12;
+		p.m_Vel = RandomDir()*(frandom()+0.2f)*700.0f + vec2(0, -100);
+		p.m_LifeSpan = 3.0f+frandom();
+		p.m_StartSize = 18 + frandom()*18;
+		p.m_EndSize = p.m_StartSize;
+		p.m_Rot = frandom()*pi*2;
+		p.m_Rotspeed = p.m_Vel.x / 10;
+		p.m_Friction = 0.9f;
+		p.m_Chunk = true;
+		p.m_Gravity = 1200.0f + frandom()*400;
+		p.m_Color = CustomStuff()->m_aPlayerInfo[ClientID].m_RenderInfo.m_ColorSkin;
+		m_pClient->m_pParticles->Add(CParticles::GROUP_MEAT, &p);
+	}
+	
+	// eye
+	{
+
+		CParticle p;
+		p.SetDefault();
+		p.m_Spr = SPRITE_MEAT6;
+		p.m_Pos = Pos + vec2(0, -36);
+		p.m_Vel = RandomDir()*(frandom()+0.2f)*700.0f;
+		p.m_LifeSpan = 3.0f+frandom();
+		p.m_StartSize = 20;
+		p.m_EndSize = 20;
+		p.m_Rot = frandom()*pi*2;
+		p.m_Rotspeed = p.m_Vel.x / 10;
+		p.m_Friction = 0.95f;
+		p.m_Chunk = true;
+		p.m_Gravity = 1200.0f + frandom()*400;
+		p.m_Color = vec4(1, 1, 1, 1);
+		m_pClient->m_pParticles->Add(CParticles::GROUP_MEAT, &p);
+	}
 }
 
 

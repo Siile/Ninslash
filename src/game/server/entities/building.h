@@ -15,6 +15,7 @@ const int StandPhysSize = 20;
 const int FlametrapPhysSize = 20;
 const int SwitchPhysSize = 7;
 const int DoorPhysSize = 40;
+const int JumppadPhysSize = 60;
 
 class CBuilding : public CEntity
 {
@@ -45,6 +46,7 @@ public:
 	int m_DamageOwner;
 	int m_DeathTimer;
 	
+	bool Jumppad();
 	void Trigger();
 	void TakeDamage(int Damage, int Owner, int Weapon);
 	void Destroy();

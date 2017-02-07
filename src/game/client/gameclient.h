@@ -154,6 +154,10 @@ public:
 		int m_MonsterCount;
 		vec2 m_aMonsterPos[MAX_MONSTERS];
 		
+		// jumppad positions
+		int m_ImpactCount;
+		vec4 m_aImpactPos[MAX_IMPACTS];
+		
 		// spectate data
 		struct CSpectateInfo
 		{

@@ -7,6 +7,7 @@
 #include <game/generated/client_data.h>
 #include <game/client/render.h>
 #include <game/client/gameclient.h>
+#include <game/client/customstuff.h>
 #include <game/gamecore.h>
 #include "particles.h"
 
@@ -36,6 +37,7 @@ CParticles::CParticles()
 	m_RenderMonsterSpawn.m_pParts = this;
 	m_RenderCrafting.m_pParts = this;
 	m_RenderDamageInd.m_pParts = this;
+	m_RenderMeat.m_pParts = this;
 }
 
 
@@ -118,17 +120,43 @@ void CParticles::Update(float TimePassed)
 			//m_aParticles[i].vel += flow_get(m_aParticles[i].pos)*time_passed * m_aParticles[i].flow_affected;
 			m_aParticles[i].m_Vel.y += m_aParticles[i].m_Gravity*TimePassed;
 
+			
 			for(int f = 0; f < FrictionCount; f++) // apply friction
 				m_aParticles[i].m_Vel *= m_aParticles[i].m_Friction;
 
+			
+			if (m_aParticles[i].m_Chunk)
+			{
+				int OnForceTile = Collision()->IsForceTile(m_aParticles[i].m_Pos.x, m_aParticles[i].m_Pos.y+4);
+				
+				if (OnForceTile != 0)
+				{
+					m_aParticles[i].m_Vel.x = OnForceTile*250;
+					m_aParticles[i].m_Pos.y -= 1.0f;
+				}
+				
+				if (CustomStuff()->Impact(m_aParticles[i].m_Pos))
+				{
+					m_aParticles[i].m_Pos.y -= 10.0f;
+					m_aParticles[i].m_Vel.y = -1000.0f-frandom()*400.0f;
+				}
+			}
+				
 			// move the point
 			vec2 Vel = m_aParticles[i].m_Vel*TimePassed;
-			Collision()->MovePoint(&m_aParticles[i].m_Pos, &Vel, 0.1f+0.9f*frandom(), NULL, m_aParticles[i].m_IgnoreCollision);
+			bool Collided = Collision()->MovePoint(&m_aParticles[i].m_Pos, &Vel, 0.1f+0.9f*frandom(), NULL, m_aParticles[i].m_IgnoreCollision);
 			m_aParticles[i].m_Vel = Vel* (1.0f/TimePassed);
 
 			m_aParticles[i].m_Life += TimePassed;
 			m_aParticles[i].m_Rot += TimePassed * m_aParticles[i].m_Rotspeed;
 
+			// meat chunks' rotation
+			if (m_aParticles[i].m_Chunk && Collided)
+			{
+				m_aParticles[i].m_Rotspeed += (m_aParticles[i].m_Vel.x / 40 - m_aParticles[i].m_Rotspeed) / 2.0f;
+				if (g_Config.m_GoreBlood > 0 && abs(m_aParticles[i].m_Vel.x) + abs(m_aParticles[i].m_Vel.y) > 340)
+					m_pClient->m_pEffects->Blood(m_aParticles[i].m_Pos, vec2(frandom()-frandom(), frandom()-frandom()) * 0.2f);
+			}
 			
 			if (g == GROUP_EXPLOSIONS)
 				m_pClient->m_pEffects->Light(m_aParticles[i].m_Pos, 384*(1.0f-m_aParticles[i].m_Life / m_aParticles[i].m_LifeSpan));
@@ -559,6 +587,34 @@ void CParticles::RenderGroup(int Group)
 			Graphics()->SetColor(m_aParticles[i].m_Color.r, m_aParticles[i].m_Color.g, m_aParticles[i].m_Color.b, 1);
 			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
 			Graphics()->QuadsDraw(&QuadItem, 1);
+
+			i = m_aParticles[i].m_NextPart;
+		}
+		Graphics()->QuadsEnd();
+	}
+	else if (Group == GROUP_MEAT)
+	{
+		Graphics()->BlendNormal();
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_MEAT].m_Id);
+		Graphics()->QuadsBegin();
+		
+		int i = m_aFirstPart[Group];
+		while(i != -1)
+		{
+			float a = m_aParticles[i].m_Life / m_aParticles[i].m_LifeSpan;
+			vec2 p = m_aParticles[i].m_Pos;
+
+			float Size = mix(m_aParticles[i].m_StartSize, m_aParticles[i].m_EndSize*1.0f, a);
+			RenderTools()->SelectSprite(m_aParticles[i].m_Spr);
+			Graphics()->QuadsSetRotation(m_aParticles[i].m_Rot);
+			Graphics()->SetColor(m_aParticles[i].m_Color.r, m_aParticles[i].m_Color.g, m_aParticles[i].m_Color.b, 1-a);
+			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
+			Graphics()->QuadsDraw(&QuadItem, 1);
+			
+			RenderTools()->SelectSprite(m_aParticles[i].m_Spr+1);
+			Graphics()->SetColor(1, 1, 1, 1-a);
+			IGraphics::CQuadItem QuadItem2(p.x, p.y, Size, Size);
+			Graphics()->QuadsDraw(&QuadItem2, 1);
 
 			i = m_aParticles[i].m_NextPart;
 		}

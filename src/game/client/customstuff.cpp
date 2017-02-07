@@ -49,6 +49,12 @@ void CCustomStuff::Reset()
 		m_MonsterDamageType[i] = 0;
 	}
 	
+	for (int i = 0; i < 512; i++)
+	{
+		m_aTurretFlame[i] = 0;
+		m_aJumppad[i] = 0;
+	}
+	
 	for (int i = 0; i < NUM_PLAYERITEMS; i++)
 		m_aLocalItems[i] = 0;
 	
@@ -58,6 +64,11 @@ void CCustomStuff::Reset()
 		m_FlametrapSoundTick[i] = 0;
 		m_FlametrapLastSound[i] = 0;
 	}
+
+	ClearImpacts();
+	
+	for (int i = 0; i < MAX_IMPACTS; i++)
+		m_aImpactTick[i] = 0;
 	
 	m_WeaponpickTimer = 0;
 	m_WeaponpickWeapon = 0;
@@ -129,15 +140,18 @@ void CCustomStuff::Tick(bool Paused)
 			}
 		}
 		
-		/*
-		for (int i = 0; i < MAX_CLIENTS; i++)
+		// turret flame frame animation
+		for (int i = 0; i < 512; i++)
 		{
-			if (m_aPlayerInfo[i].m_InUse)
+			if (m_aTurretFlame[i] > 0)
 			{
-				m_pClient->AddFluidForce(m_aPlayerInfo[i].m_Pos, m_aPlayerInfo[i].m_Vel);
+				if (++m_aTurretFlame[i] > 13*5)
+					m_aTurretFlame[i] = 0;
 			}
+			
+			if (m_aJumppad[i] > 0)
+				m_aJumppad[i] += 0.1f;
 		}
-		*/
 	}
 	
 	// Camera

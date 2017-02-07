@@ -15,7 +15,7 @@ Damagetypes = ["NORMAL", "FLAME", "ELECTRIC", "FLUID"]
 
 Monsterstatus = ["IDLE", "HURT", "ELECTRIC"]
 
-CoreAction = ["IDLE", "JUMP", "WALLJUMP", "ROLL", "SLIDE"]
+CoreAction = ["IDLE", "JUMP", "WALLJUMP", "ROLL", "SLIDE", "JUMPPAD"]
 
 RawHeader = '''
 
@@ -47,6 +47,7 @@ enum
 	BUILDING_BASE,
 	BUILDING_STAND,
 	BUILDING_FLAMETRAP,
+	BUILDING_JUMPPAD,
 	BUILDING_SWITCH,
 	BUILDING_DOOR1,
 	
@@ -353,6 +354,7 @@ Objects = [
 	NetEvent("Repair:Common", []),
 	
 	NetEvent("BuildingHit:Common", []),
+	NetEvent("FlameHit:Common", []),
 	NetEvent("Explosion:Common", []),
 	NetEvent("FlameExplosion:Common", []),
 	NetEvent("Spawn:Common", []),

@@ -99,6 +99,7 @@ void CAnimSkeletonInfo::UpdateBones(float Time, CSpineAnimation *pAnimation, CSk
 				
 				if (strcmp(pBone->m_Name, "body") == 0)
 				{
+					Position += vec2(pAnimData->m_HeadOffset.y, pAnimData->m_HeadOffset.x) * 0.5f;
 					Rotation += pAnimData->m_BodyTilt;
 				}
 				
@@ -309,7 +310,7 @@ bool CRenderTools::LoadAtlasFromSpine(CTextureAtlas *pAtlas, const CSpineAtlas &
 	
 	
 
-void CRenderTools::SelectSprite(CDataSprite *pSpr, int Flags, int sx, int sy)
+void CRenderTools::SelectSprite(CDataSprite *pSpr, int Flags, int sx, int sy, float ox1, float ox2)
 {
 	int x = pSpr->m_X+sx;
 	int y = pSpr->m_Y+sy;
@@ -328,6 +329,12 @@ void CRenderTools::SelectSprite(CDataSprite *pSpr, int Flags, int sx, int sy)
 	float y2 = (y+h)/(float)cy;
 	float Temp = 0;
 
+	if (ox1 > 0.0f || ox2 < 1.0f)
+	{
+		x1 += ox1/(float)cx;
+		x2 -= (1.0f-ox2)/(float)cx;
+	}
+	
 	if(Flags&SPRITE_FLAG_FLIP_Y)
 	{
 		Temp = y1;
@@ -342,14 +349,17 @@ void CRenderTools::SelectSprite(CDataSprite *pSpr, int Flags, int sx, int sy)
 		x2 = Temp;
 	}
 
-	Graphics()->QuadsSetSubset(x1, y1, x2, y2);
+	if (ox1 > 0.0f || ox2 < 1.0f)
+		Graphics()->QuadsSetSubset(x1, y1, x2, y2, true);
+	else
+		Graphics()->QuadsSetSubset(x1, y1, x2, y2);
 }
 
-void CRenderTools::SelectSprite(int Id, int Flags, int sx, int sy)
+void CRenderTools::SelectSprite(int Id, int Flags, int sx, int sy, float x1, float x2)
 {
 	if(Id < 0 || Id >= g_pData->m_NumSprites)
 		return;
-	SelectSprite(&g_pData->m_aSprites[Id], Flags, sx, sy);
+	SelectSprite(&g_pData->m_aSprites[Id], Flags, sx, sy, x1, x2);
 }
 
 void CRenderTools::DrawSprite(float x, float y, float Size)

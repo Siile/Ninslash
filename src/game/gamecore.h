@@ -158,8 +158,25 @@ public:
 		mem_zero(m_apCharacters, sizeof(m_apCharacters));
 		
 		ClearMonsters();
+		ClearImpacts();
 	}
 
+	void ClearImpacts()
+	{
+		m_Impact = 0;
+		
+		for (int i = 0; i < MAX_IMPACTS; i++)
+			m_aImpactPos[i] = vec4(0, 0, 0, 0);
+	}
+	
+	void AddImpact(vec4 Pos)
+	{
+		if (m_Impact < MAX_IMPACTS)
+			m_aImpactPos[m_Impact] = Pos;
+	
+		m_Impact++;
+	}
+	
 	void ClearMonsters()
 	{
 		m_Monster = 0;
@@ -181,6 +198,10 @@ public:
 
 	int m_Monster;
 	vec2 m_aMonsterPos[MAX_MONSTERS];
+	
+	// jumppad impact to gore
+	int m_Impact;
+	vec4 m_aImpactPos[MAX_IMPACTS];
 };
 
 
@@ -247,6 +268,8 @@ public:
 	bool IsInFluid();
 	int SlopeState();
 
+	void Jumppad();
+	
 	void Read(const CNetObj_CharacterCore *pObjCore);
 	void Write(CNetObj_CharacterCore *pObjCore);
 	void Quantize();

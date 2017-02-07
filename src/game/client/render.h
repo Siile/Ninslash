@@ -190,8 +190,8 @@ public:
 
 	bool LoadAtlasFromSpine(CTextureAtlas *pAtlas, const CSpineAtlas &rSpineAtlas);
 
-	void SelectSprite(struct CDataSprite *pSprite, int Flags=0, int sx=0, int sy=0);
-	void SelectSprite(int id, int Flags=0, int sx=0, int sy=0);
+	void SelectSprite(struct CDataSprite *pSprite, int Flags=0, int sx=0, int sy=0, float ox1=0.0f, float ox2=1.0f);
+	void SelectSprite(int id, int Flags=0, int sx=0, int sy=0, float x1=0.0f, float x2=1.0f);
 
 	void DrawSprite(float x, float y, float size);
 

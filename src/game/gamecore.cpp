@@ -258,7 +258,8 @@ void CCharacterCore::Tick(bool UseInput)
 		HandJetpackControlSpeed *= 1.3f;
 	}
 	
-	
+	if (m_Slide > 0)
+		HandJetpackControlSpeed *= 1.2f;
 	
 	
 	// gravity & jump physics
@@ -267,6 +268,14 @@ void CCharacterCore::Tick(bool UseInput)
 		// sharper jump upwards
 		if (m_ActionState++ > 2)
 			m_Vel.y += m_pWorld->m_Tuning.m_Gravity;
+	}
+	else if (m_Action == COREACTION_JUMPPAD)
+	{
+		// sharper jump upwards
+		if (m_ActionState++ > 8)
+			m_Vel.y += m_pWorld->m_Tuning.m_Gravity;
+		else if (m_ActionState < 6)
+			m_Vel.y -= 2.0f;
 	}
 	else if (m_Action == COREACTION_WALLJUMP)
 	{
@@ -363,7 +372,11 @@ void CCharacterCore::Tick(bool UseInput)
 				if (m_Direction < 0 && m_pCollision->CheckPoint(m_Pos.x-PhysSize, m_Pos.y+PhysSize/2) &&
 										m_pCollision->CheckPoint(m_Pos.x-PhysSize, m_Pos.y-PhysSize/2))
 				{
-					m_Vel.y *= 0.75f;
+					if (m_Input.m_Hook && m_JetpackPower > 0 && TargetDirection.y > 0)
+						m_Vel.y *= 0.97f;
+					else
+						m_Vel.y *= 0.7f;
+					
 					m_Anim = 1;
 					
 					LoadJetpack = true;
@@ -373,7 +386,11 @@ void CCharacterCore::Tick(bool UseInput)
 				if (m_Direction > 0 && m_pCollision->CheckPoint(m_Pos.x+PhysSize, m_Pos.y+PhysSize/2) &&
 										m_pCollision->CheckPoint(m_Pos.x+PhysSize, m_Pos.y-PhysSize/2))
 				{
-					m_Vel.y *= 0.75f;
+					if (m_Input.m_Hook && m_JetpackPower > 0 && TargetDirection.y > 0)
+						m_Vel.y *= 0.97f;
+					else
+						m_Vel.y *= 0.7f;
+					
 					m_Anim = -1;
 					
 					LoadJetpack = true;
@@ -579,6 +596,12 @@ void CCharacterCore::Tick(bool UseInput)
 			if ((TargetDirection.y > 0 && m_Vel.y < HandJetpackControlSpeed) || (TargetDirection.y < 0 && m_Vel.y > -HandJetpackControlSpeed))
 				m_Vel.y += TargetDirection.y*1.4f;
 				
+			if (TargetDirection.y > 0 && m_Vel.y < 0.0f && m_Wallrun != 0 && m_Wallrun <= 10 && m_Wallrun >= -10)
+			{
+				m_Wallrun = 0;
+				m_Vel.y = 0.0f;
+			}
+				
 			m_JetpackPower -= 2;
 			m_HandJetpack = true;
 		}
@@ -721,6 +744,9 @@ void CCharacterCore::Tick(bool UseInput)
 		m_Anim = -5;
 	}
 	
+	if (m_Action == COREACTION_JUMPPAD && m_ActionState < 28)
+		m_Anim = 6;
+	
 
 	if(m_pWorld)
 	{
@@ -778,6 +804,22 @@ void CCharacterCore::Tick(bool UseInput)
 			}
 		}
 		*/
+		
+		// jumppads
+		if (m_Action != COREACTION_JUMPPAD || (m_Action == COREACTION_JUMPPAD && m_ActionState > 12))
+		{
+			for(int i = 0; i < MAX_MONSTERS; i++)
+			{
+				vec4 ImpactPos = m_pWorld->m_aImpactPos[i];
+						
+				if(ImpactPos.x == 0)
+					continue;
+
+				//if (abs(m_Pos.x - ImpactPos.x) < 64 && abs(m_Pos.y - (ImpactPos.y - 16)) < 16)
+				if (m_Pos.x > ImpactPos.x && m_Pos.x < ImpactPos.z && m_Pos.y > ImpactPos.y && m_Pos.y < ImpactPos.w)
+					Jumppad();
+			}
+		}
 	}
 
 	// fix to slope bug (standing near wall)
@@ -816,6 +858,16 @@ void CCharacterCore::Tick(bool UseInput)
 		m_HandJetpack = 0;
 		m_FluidDamage = true;
 	}
+}
+
+
+
+
+void CCharacterCore::Jumppad()
+{
+	m_Vel.y = -9.0f;
+	m_Action = COREACTION_JUMPPAD;
+	m_ActionState = 0;
 }
 
 

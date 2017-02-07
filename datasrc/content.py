@@ -260,6 +260,7 @@ container.sounds.Add(SoundSet("negative", ["audio/negative.wv"]))
 
 container.sounds.Add(SoundSet("build_turret", ["audio/build_turret.wv"]))
 container.sounds.Add(SoundSet("firetrap", ["audio/firetrap.wv"]))
+container.sounds.Add(SoundSet("jumppad", ["audio/jumppad.wv"]))
 
 container.sounds.Add(SoundSet("door1", ["audio/door1.wv"]))
 
@@ -274,6 +275,7 @@ container.sounds.Add(SoundSet("menu", ["audio/music_menu.wv"]))
 image_null = Image("null", "")
 image_particles = Image("particles", "particles.png")
 image_gore = Image("gore", "gore.png")
+image_meat = Image("meat", "meat.png")
 image_splatter = Image("splatter", "splatter.png")
 image_game = Image("game", "game.png")
 image_flag = Image("flag", "flag.png")
@@ -333,6 +335,7 @@ container.images.Add(image_deathtypes)
 container.images.Add(image_buildings)
 container.images.Add(image_particles)
 container.images.Add(image_gore)
+container.images.Add(image_meat)
 container.images.Add(image_splatter)
 container.images.Add(Image("cursor", "gui_cursor.png"))
 container.images.Add(Image("banner", "gui_logo.png"))
@@ -379,6 +382,7 @@ container.pickups.Add(Pickup("kit"))
 
 set_particles = SpriteSet("particles", image_particles, 8, 8)
 set_gore = SpriteSet("gore", image_gore, 8, 2)
+set_meat = SpriteSet("meat", image_meat, 8, 2)
 set_splatter = SpriteSet("splatter", image_splatter, 4, 1)
 set_game = SpriteSet("game", image_game, 32, 16)
 set_flag = SpriteSet("flag", image_flag, 8, 2)
@@ -422,6 +426,7 @@ set_hud = SpriteSet("hud", image_hp, 1, 2)
 
 container.spritesets.Add(set_particles)
 container.spritesets.Add(set_gore)
+container.spritesets.Add(set_meat)
 container.spritesets.Add(set_splatter)
 container.spritesets.Add(set_game)
 container.spritesets.Add(set_flag)
@@ -554,6 +559,11 @@ for i in range(1, 9):
 for i in range(1, 9):
 	container.sprites.Add(Sprite("item"+str(i), set_items, i-1,0,1,1))
 	
+	
+for i in range(1, 9):
+	container.sprites.Add(Sprite("meat"+str(i), set_meat, i-1,0,1,1))
+	container.sprites.Add(Sprite("meat"+str(i)+"_2", set_meat, i-1,1,1,1))
+
 	
 # 11
 for i in range(1, 12):

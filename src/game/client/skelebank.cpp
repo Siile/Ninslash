@@ -38,6 +38,9 @@ void CSkelebank::Init(IStorage *pStorage)
 	
 	AddSkeleton("data/anim/door1.json", IStorage::STORAGETYPE_CLIENT);
 	AddAtlas("data/anim/door1.atlas", IStorage::STORAGETYPE_CLIENT);
+	
+	AddSkeleton("data/anim/jumppad.json", IStorage::STORAGETYPE_CLIENT);
+	AddAtlas("data/anim/jumppad.atlas", IStorage::STORAGETYPE_CLIENT);
 }
 
 CSkelebank::~CSkelebank()

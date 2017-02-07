@@ -28,7 +28,7 @@ public:
 	void Blood(vec2 Pos, vec2 Dir);
 	void Acid(vec2 Pos, vec2 Dir);
 	void Triangle(vec2 Pos, vec2 Vel);
-	void Flame(vec2 Pos, vec2 Vel, float Alpha = 1.0f);
+	void Flame(vec2 Pos, vec2 Vel, float Alpha = 1.0f, bool IgnoreCollision = false);
 	void Splatter(vec2 Pos, float Angle, float Size = -1);
 	void Spark(vec2 Pos);
 	void DamageIndicator(vec2 Pos, vec2 Dir);

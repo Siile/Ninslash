@@ -607,8 +607,10 @@ int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *p
 }
 
 // TODO: OPT: rewrite this smarter!
-void CCollision::MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, int *pBounces, bool IgnoreCollision)
+bool CCollision::MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, int *pBounces, bool IgnoreCollision)
 {
+	bool Bounced = false;
+	
 	if(pBounces)
 		*pBounces = 0;
 
@@ -623,6 +625,8 @@ void CCollision::MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, i
 			if(pBounces)
 				(*pBounces)++;
 			Affected++;
+			
+			Bounced = true;
 		}
 
 		if(CheckPoint(Pos.x, Pos.y + Vel.y))
@@ -631,6 +635,8 @@ void CCollision::MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, i
 			if(pBounces)
 				(*pBounces)++;
 			Affected++;
+			
+			Bounced = true;
 		}
 
 		if(Affected == 0)
@@ -643,6 +649,8 @@ void CCollision::MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, i
 	{
 		*pInoutPos = Pos + Vel;
 	}
+	
+	return Bounced;
 }
 
 int CCollision::TestBox(vec2 Pos, vec2 Size)

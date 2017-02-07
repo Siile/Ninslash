@@ -670,15 +670,23 @@ void CGraphics_Threaded::SetColor(float r, float g, float b, float a)
 	SetColorVertex(Array, 4);
 }
 
-void CGraphics_Threaded::QuadsSetSubset(float TlU, float TlV, float BrU, float BrV)
+void CGraphics_Threaded::QuadsSetSubset(float TlU, float TlV, float BrU, float BrV, bool FreeForm)
 {
 	dbg_assert(m_Drawing == DRAWING_QUADS, "called Graphics()->QuadsSetSubset without begin");
 
 	m_aTexture[0].u = TlU;	m_aTexture[1].u = BrU;
 	m_aTexture[0].v = TlV;	m_aTexture[1].v = TlV;
 
-	m_aTexture[3].u = TlU;	m_aTexture[2].u = BrU;
-	m_aTexture[3].v = BrV;	m_aTexture[2].v = BrV;
+	if (FreeForm)
+	{
+		m_aTexture[2].u = TlU;	m_aTexture[3].u = BrU;
+		m_aTexture[2].v = BrV;	m_aTexture[3].v = BrV;
+	}
+	else
+	{
+		m_aTexture[3].u = TlU;	m_aTexture[2].u = BrU;
+		m_aTexture[3].v = BrV;	m_aTexture[2].v = BrV;
+	}
 }
 
 void CGraphics_Threaded::QuadsSetSubsetFree(
@@ -745,6 +753,10 @@ void CGraphics_Threaded::QuadsDrawTL(const CQuadItem *pArray, int Num)
 
 void CGraphics_Threaded::QuadsDrawFreeform(const CFreeformItem *pArray, int Num)
 {
+
+	CCommandBuffer::SPoint Center;
+	Center.z = 0;
+	
 	dbg_assert(m_Drawing == DRAWING_QUADS, "called Graphics()->QuadsDrawFreeform without begin");
 
 	for(int i = 0; i < Num; ++i)
@@ -768,6 +780,16 @@ void CGraphics_Threaded::QuadsDrawFreeform(const CFreeformItem *pArray, int Num)
 		m_aVertices[m_NumVertices + 4*i + 3].m_Pos.y = pArray[i].m_Y2;
 		m_aVertices[m_NumVertices + 4*i + 3].m_Tex = m_aTexture[2];
 		m_aVertices[m_NumVertices + 4*i + 3].m_Color = m_aColor[2];
+		
+		/*
+		if(m_Rotation != 0)
+		{
+			Center.x = (pArray[i].m_X0+pArray[i].m_X1+pArray[i].m_X2+pArray[i].m_X3)/4.0f;
+			Center.y = (pArray[i].m_Y0+pArray[i].m_Y1+pArray[i].m_Y2+pArray[i].m_Y3)/4.0f;
+			
+			Rotate4(Center, &m_aVertices[m_NumVertices + 4*i]);
+		}
+		*/
 	}
 
 	AddVertices(4*Num);

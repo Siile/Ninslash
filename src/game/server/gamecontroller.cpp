@@ -318,6 +318,27 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, bool IsBot)
 	
 void IGameController::AutoBalance()
 {
+	// no bots
+	if (g_Config.m_SvPreferredTeamSize == 0)
+	{
+		int Bots = 0;
+		
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			CPlayer *pPlayer = GameServer()->m_apPlayers[i];
+			if(!pPlayer)
+				continue;
+			
+			if (pPlayer->m_IsBot)
+				Bots++;
+		}
+		
+		if (Bots > 0)
+			GameServer()->KickBots();
+		
+		return;
+	}
+	
 	if (!IsTeamplay() || IsInfection())
 	{
 		int Players = 0, Bots = 0, Spectators = 0;
@@ -570,6 +591,11 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 	else if (Index == ENTITY_DOOR1)
 	{
 		new CBuilding(&GameServer()->m_World, Pos, BUILDING_DOOR1, TEAM_NEUTRAL);
+		return true;
+	}
+	else if (Index == ENTITY_JUMPPAD)
+	{
+		new CBuilding(&GameServer()->m_World, Pos, BUILDING_JUMPPAD, TEAM_NEUTRAL);
 		return true;
 	}
 	else if (Index == ENTITY_FLAMETRAP_RIGHT || Index == ENTITY_FLAMETRAP_LEFT)

@@ -28,8 +28,16 @@ private:
 public:
 	CPlayerInfo();
 	
+	CTeeRenderInfo m_RenderInfo;
+	
 	vec2 m_Pos;
 	vec2 m_Vel;
+	
+	float m_Angle;
+	
+	float m_aFlameAngle[20];
+	
+	int m_FlameState;
 	
 	bool m_HideName;
 	

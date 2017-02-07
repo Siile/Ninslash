@@ -583,10 +583,11 @@ void CPlayer::SetRandomSkin()
 	*/
 	
 	m_TeeInfos.m_Body = rand()%NUM_BODIES;
-	m_TeeInfos.m_ColorTopper = rand()*(0xFFFFFF/RAND_MAX);
-	m_TeeInfos.m_ColorSkin = rand()*(0xFFFFFF/RAND_MAX);
-	m_TeeInfos.m_ColorBody = rand()*(0xFFFFFF/RAND_MAX);
-	m_TeeInfos.m_ColorFeet = rand()*(0xFFFFFF/RAND_MAX);
+	m_TeeInfos.m_ColorTopper = rand()%(0xFFFFFF/10)*1000;
+	m_TeeInfos.m_ColorSkin = rand()%(0xFFFFFF/10)*100;
+//	m_TeeInfos.m_ColorBody = rand()*(0xFFFFFF/RAND_MAX);
+	m_TeeInfos.m_ColorBody = rand()%(0xFFFFFF/10)*1000;
+	m_TeeInfos.m_ColorFeet = rand()%(0xFFFFFF/10)*1000;
 	
 	// generate random name
 	char aBotName[128];

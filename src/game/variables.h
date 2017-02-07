@@ -101,7 +101,7 @@ MACRO_CONFIG_INT(SvAbilities, sv_abilities, 0, 0, 1, CFGFLAG_SERVER, "Enable cla
 MACRO_CONFIG_INT(SvPickupDrops, sv_pickupdrops, 1, 0, 1, CFGFLAG_SERVER, "Pickup drops")
 MACRO_CONFIG_INT(SvVanillaPickups, sv_vanillapickups, 1, 0, 1, CFGFLAG_SERVER, "Enable vanilla's pickups")
 MACRO_CONFIG_INT(SvWeaponDrops, sv_weapondrops, 1, 0, 1, CFGFLAG_SERVER, "Enable weapon drops")
-MACRO_CONFIG_INT(SvPreferredTeamSize, sv_preferredteamsize, 5, 1, 16, CFGFLAG_SERVER, "Preferred team size")
+MACRO_CONFIG_INT(SvPreferredTeamSize, sv_preferredteamsize, 5, 0, 16, CFGFLAG_SERVER, "Preferred team size")
 MACRO_CONFIG_INT(SvUnlimitedTurbo, sv_unlimited_turbo, 0, 0, 1, CFGFLAG_SERVER, "Unlimited turbo")
 MACRO_CONFIG_INT(SvRandomBuff, sv_random_buff, 0, 0, 1, CFGFLAG_SERVER, "Spawn with a random buff")
 

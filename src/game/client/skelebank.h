@@ -20,6 +20,7 @@ enum Skeletons
 	SKELETON_DRONE,
 	SKELETON_WALKER_BOTTOM,
 	SKELETON_DOOR1,
+	SKELETON_JUMPPAD,
 	NUM_SKELETONS
 };
 
@@ -34,6 +35,7 @@ enum Atlases
 	ATLAS_DRONE,
 	ATLAS_WALKER_BOTTOM,
 	ATLAS_DOOR1,
+	ATLAS_JUMPPAD,
 	NUM_ATLASES
 };
 
@@ -43,6 +45,7 @@ enum AnimList
 	ANIM_OPEN,
 	ANIM_OPENED,
 	ANIM_CLOSED,
+	ANIM_TRIGGER,
 	NUM_ANIMS
 };
 
@@ -52,7 +55,8 @@ static const char *aAnimList[NUM_ANIMS] =
 	"idle",
 	"open",
 	"opened",
-	"closed"
+	"closed",
+	"trigger"
 };
 
 

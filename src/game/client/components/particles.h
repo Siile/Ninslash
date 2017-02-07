@@ -27,6 +27,7 @@ struct CParticle
 		m_Height = 0;
 		m_Flip = false;
 		m_IgnoreCollision = false;
+		m_Chunk = false;
 	}
 
 	vec2 m_Pos;
@@ -49,6 +50,7 @@ struct CParticle
 
 	float m_Rot;
 	float m_Rotspeed;
+	bool m_Chunk;
 
 	float m_Gravity;
 	float m_Friction;
@@ -96,6 +98,7 @@ public:
 		GROUP_MONSTERSPAWN,
 		GROUP_CRAFTING,
 		GROUP_DAMAGEIND,
+		GROUP_MEAT,
 		NUM_GROUPS
 	};
 
@@ -151,5 +154,6 @@ private:
 	CRenderGroup<GROUP_MONSTERSPAWN> m_RenderMonsterSpawn;
 	CRenderGroup<GROUP_CRAFTING> m_RenderCrafting;
 	CRenderGroup<GROUP_DAMAGEIND> m_RenderDamageInd;
+	CRenderGroup<GROUP_MEAT> m_RenderMeat;
 };
 #endif

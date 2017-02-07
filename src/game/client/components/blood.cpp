@@ -150,6 +150,12 @@ void CBlood::Update(float TimePassed)
 				//m_aBlood[i].m_Vel.x = (m_aBlood[i].m_Vel.x + OnForceTile*400) / 2.0f;
 				m_aBlood[i].m_Vel.x = OnForceTile*250;
 				
+			if (CustomStuff()->Impact(m_aBlood[i].m_Pos))
+			{
+				m_aBlood[i].m_Pos.y -= 10.0f;
+				m_aBlood[i].m_Vel.y = -1000.0f-frandom()*400.0f;
+			}
+				
 			// move the point
 			vec2 Vel = m_aBlood[i].m_Vel*TimePassed;
 			
@@ -205,6 +211,7 @@ void CBlood::Update(float TimePassed)
 					
 					Vel.x += Dist*0.1f;
 				}
+				/*
 				else
 				if (Collision()->IsTileSolid(P.x, P.y-16))
 				{
@@ -213,6 +220,7 @@ void CBlood::Update(float TimePassed)
 					Vel.y -= Dist*0.005f;
 					Vel.x *= 0.99f;
 				}
+				*/
 			}
 
 			

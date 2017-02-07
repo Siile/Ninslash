@@ -19,6 +19,8 @@ CTurret::CTurret(CGameWorld *pGameWorld, vec2 Pos, int Team, int Weapon)
 	m_Weapon = Weapon;
 	m_OriginalDirection = vec2(0, 10);
 	
+	m_Flamethrower = 0;
+	
 	m_OwnerPlayer = -1;
 	m_Chainsaw = 0;
 	
@@ -132,10 +134,37 @@ void CTurret::Tick()
 		GameServer()->CreateChainsawHit(m_OwnerPlayer, m_Weapon, TurretPos, TurretPos+Dir*40, NULL, this);
 	}
 	
+	Flamethrower();
+	
 	UpdateStatus();
 }
 
 
+void CTurret::Flamethrower()
+{
+	if (m_Weapon == WEAPON_FLAMER && m_Flamethrower >= Server()->Tick())
+	{
+		float Angle = (m_Angle + 90) / (180/pi);
+		vec2 Dir = vec2(cosf(Angle), sinf(Angle));
+		
+		vec2 OffsetY = vec2(0, -48);
+		
+		vec2 StartPos = m_Pos+Dir*28*3.0f + OffsetY;
+		
+		for (int i = 0; i < 4; i++)
+		{
+			vec2 To = StartPos+Dir*28*i*2.1f;
+			
+			GameServer()->Collision()->IntersectLine(StartPos, To, 0x0, &To);
+			GameServer()->CreateFlamethrowerHit(m_OwnerPlayer, m_Weapon, To, NULL, this);
+			
+			// to visualize hit points
+			//GameServer()->CreateFlameHit(To);
+		}
+	}
+	else
+		m_Flamethrower = 0;	
+}
 
 void CTurret::Fire()
 {
@@ -162,9 +191,9 @@ void CTurret::Fire()
 			CLaser *pLaser = new CLaser(GameWorld(), TurretPos+Dir*40, Dir, GameServer()->Tuning()->m_LaserReach, m_OwnerPlayer, aCustomWeapon[m_Weapon].m_Damage, this);
 		}
 		else if (m_Weapon == WEAPON_CHAINSAW)
-		{
 			m_Chainsaw = Server()->Tick() + 500 * Server()->TickSpeed()/1000;
-		}
+		else if (m_Weapon == WEAPON_FLAMER)
+			m_Flamethrower = Server()->Tick() + 400 * Server()->TickSpeed()/1000;
 		else
 			GameServer()->CreateProjectile(m_OwnerPlayer, m_Weapon, TurretPos+Dir*40, Dir, this);
 		

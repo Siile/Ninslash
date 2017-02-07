@@ -44,6 +44,51 @@ void CBuildings2::RenderSawblade(const struct CNetObj_Building *pCurrent)
 }
 
 
+void CBuildings2::RenderJumppad(const struct CNetObj_Building *pCurrent)
+{
+	float Time = 0.0f;
+	
+	int Anim = pCurrent->m_Status & (1<<BSTATUS_ON) ? ANIM_TRIGGER : ANIM_IDLE;
+	
+	
+	// todo: get a truly unique index
+	int i = (pCurrent->m_X/7 + pCurrent->m_Y/15)%512;
+	
+	float OffsetY = 0.0f;
+	
+	if (Anim == ANIM_TRIGGER && (CustomStuff()->m_aJumppad[i] < 0.01f || CustomStuff()->m_aJumppad[i] > 1.0f))
+	{
+		
+		//if (CustomStuff()->m_aImpactTick[i] < Client()->GameTick() + 20 * Client()->GameTickSpeed()/1000)
+		//	m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_JUMPPAD, 1.0f, vec2(pCurrent->m_X, pCurrent->m_Y));
+			
+		CustomStuff()->m_aImpactTick[i] = Client()->GameTick() + 1000 + Client()->GameTickSpeed();
+		
+		//if (CustomStuff()->m_aJumppad[i] < 0.01f)
+		{
+			CustomStuff()->m_aJumppad[i] = 0.01f;
+			CustomStuff()->AddImpact(vec4(pCurrent->m_X-64, pCurrent->m_Y+OffsetY-16, pCurrent->m_X+64, pCurrent->m_Y+OffsetY+16), CCustomStuff::IMPACT_HIT);
+			m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_JUMPPAD, 1.0f, vec2(pCurrent->m_X, pCurrent->m_Y));
+		}
+		//else
+		//	CustomStuff()->AddImpact(vec4(pCurrent->m_X-64, pCurrent->m_Y+OffsetY-16, pCurrent->m_X+64, pCurrent->m_Y+OffsetY+16), CCustomStuff::IMPACT_READY);
+	}
+	else
+	{
+	//	CustomStuff()->m_aJumppad[i] = 0.0f;
+		CustomStuff()->AddImpact(vec4(pCurrent->m_X-64, pCurrent->m_Y+OffsetY-16, pCurrent->m_X+64, pCurrent->m_Y+OffsetY+16), CCustomStuff::IMPACT_READY);
+	}
+	
+	if (CustomStuff()->m_aJumppad[i] < 3.7f)
+		Time = CustomStuff()->m_aJumppad[i] * 0.11f;
+	else
+		CustomStuff()->m_aJumppad[i] = 0.0f;
+		
+	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y), ATLAS_JUMPPAD, aAnimList[ANIM_TRIGGER], Time, vec2(1.0f, 1.0f)*0.54f, 1, 0);
+
+}
+
+
 void CBuildings2::RenderFlametrap(const struct CNetObj_Building *pCurrent)
 {
 	// render flame effect
@@ -263,6 +308,8 @@ void CBuildings2::OnRender()
 	if(Client()->State() < IClient::STATE_ONLINE)
 		return;
 
+	CustomStuff()->ClearImpacts();
+	
 	int Num = Client()->SnapNumItems(IClient::SNAP_CURRENT);
 	for(int i = 0; i < Num; i++)
 	{
@@ -281,6 +328,10 @@ void CBuildings2::OnRender()
 				
 			case BUILDING_FLAMETRAP:
 				RenderFlametrap(pBuilding);
+				break;
+				
+			case BUILDING_JUMPPAD:
+				RenderJumppad(pBuilding);
 				break;
 				
 			default:;

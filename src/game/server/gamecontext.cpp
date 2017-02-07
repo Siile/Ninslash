@@ -126,6 +126,17 @@ void CGameContext::CreateBuildingHit(vec2 Pos)
 		pEvent->m_Y = (int)Pos.y;
 	}
 }
+
+void CGameContext::CreateFlameHit(vec2 Pos)
+{
+	CNetEvent_FlameHit *pEvent = (CNetEvent_FlameHit *)m_Events.Create(NETEVENTTYPE_FLAMEHIT, sizeof(CNetEvent_FlameHit));
+	if(pEvent)
+	{
+		pEvent->m_X = (int)Pos.x;
+		pEvent->m_Y = (int)Pos.y;
+	}
+}
+
 void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Damage, int ClientID)
 {
 	CNetEvent_DamageInd *pEvent = (CNetEvent_DamageInd *)m_Events.Create(NETEVENTTYPE_DAMAGEIND, sizeof(CNetEvent_DamageInd));
@@ -375,6 +386,64 @@ void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, vec2 PlayerPos
 			
 			pTarget->TakeDamage(aCustomWeapon[Weapon].m_Damage, DamageOwner, Weapon);
 			CreateBuildingHit((ProjPos+pTarget->m_Pos)/2);
+		}
+	}
+}
+
+void CGameContext::CreateFlamethrowerHit(int DamageOwner, int Weapon, vec2 ProjPos, CCharacter *OwnerChr, CBuilding *OwnerBuilding)
+{
+	int ProximityRadius = CCharacter::ms_PhysSize;
+	
+	float dmg = OwnerBuilding ? 0.5f : 1.0f;
+	
+	{
+		CCharacter *apEnts[MAX_CLIENTS];
+		int Num = m_World.FindEntities(ProjPos, ProximityRadius*0.75f, (CEntity**)apEnts,
+														MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
+
+		for (int i = 0; i < Num; ++i)
+		{
+			CCharacter *pTarget = apEnts[i];
+
+			if ((pTarget == OwnerChr) || Collision()->IntersectLine(ProjPos, pTarget->m_Pos, NULL, NULL))
+				continue;
+
+			pTarget->TakeDamage(vec2(0, 0), aCustomWeapon[Weapon].m_Damage*dmg,
+									DamageOwner, Weapon, ProjPos, DAMAGETYPE_FLAME, OwnerBuilding ? true : false);
+									
+			pTarget->SetAflame(1.5f, DamageOwner, Weapon);
+		}
+	}
+		
+	// monsters
+	{
+		CMonster *apEnts[MAX_CLIENTS];
+		int Num = m_World.FindEntities(ProjPos, ProximityRadius*0.75f, (CEntity**)apEnts,
+														MAX_CLIENTS, CGameWorld::ENTTYPE_MONSTER);
+
+		for (int i = 0; i < Num; ++i)
+		{
+			CMonster *pTarget = apEnts[i];
+
+			if (pTarget->m_Health <= 0)
+				continue;
+
+			pTarget->TakeDamage(vec2(0, 0), aCustomWeapon[Weapon].m_Damage*dmg+1, DamageOwner, vec2(0, 0), DAMAGETYPE_FLAME);
+		}
+	}
+	
+	// buildings
+	{
+		CBuilding *apEnts[MAX_CLIENTS];
+		int Num = m_World.FindEntities(ProjPos, ProximityRadius*0.75f, (CEntity**)apEnts,
+														MAX_CLIENTS, CGameWorld::ENTTYPE_BUILDING);
+
+		for (int i = 0; i < Num; ++i)
+		{
+			CBuilding *pTarget = apEnts[i];
+			
+			pTarget->TakeDamage(aCustomWeapon[Weapon].m_Damage*dmg+1, DamageOwner, Weapon);
+			CreateFlameHit((ProjPos+pTarget->m_Pos)/2+vec2(frandom()-frandom(), frandom()-frandom())*8.0f);
 		}
 	}
 }
@@ -1309,6 +1378,7 @@ void CGameContext::OnTick()
 	// copy tuning
 	m_World.m_Core.m_Tuning = m_Tuning;
 	m_World.m_Core.ClearMonsters();
+	m_World.m_Core.ClearImpacts();
 	m_World.Tick();
 
 	//if(world.paused) // make sure that the game object always updates

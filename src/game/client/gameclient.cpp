@@ -195,6 +195,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderTakeoff);
 	m_All.Add(&gs_Players);
 	m_All.Add(m_pBuildings2);
+	m_All.Add(&m_pParticles->m_RenderMeat);
 	m_All.Add(&m_pBlood->m_RenderBlood);
 	m_All.Add(&m_pBlood->m_RenderAcid);
 	m_All.Add(&m_pSplatter->m_RenderSplatter);
@@ -725,6 +726,15 @@ void CGameClient::ProcessEvents()
 			
 			m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_METAL_HIT, 1.0f, vec2(ev->m_X, ev->m_Y));
 		}
+		
+		if(Item.m_Type == NETEVENTTYPE_FLAMEHIT)
+		{
+			CNetEvent_BuildingHit *ev = (CNetEvent_BuildingHit *)pData;
+			for (int i = 0; i < 2; i++)
+				g_GameClient.m_pEffects->Flame(vec2(ev->m_X, ev->m_Y), vec2(frandom()-frandom(), frandom()-frandom()), 0.7f);
+			
+			//m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_METAL_HIT, 1.0f, vec2(ev->m_X, ev->m_Y));
+		}
 			
 		if(Item.m_Type == NETEVENTTYPE_DAMAGEIND)
 		{
@@ -1051,6 +1061,21 @@ void CGameClient::OnNewSnapshot()
 				
 				m_Snap.m_MonsterCount++;
 			}
+			else if(Item.m_Type == NETOBJTYPE_BUILDING)
+			{
+				const CNetObj_Building *pBuilding = (const CNetObj_Building *)pData;
+				
+				if (pBuilding->m_Type == BUILDING_JUMPPAD)
+				{
+					if (m_Snap.m_ImpactCount < MAX_IMPACTS)
+					{
+						vec2 p = vec2(pBuilding->m_X, pBuilding->m_Y);
+						m_Snap.m_aImpactPos[m_Snap.m_ImpactCount] = vec4(p.x-64, p.y-8-16, p.x+64, p.y-8+16);
+					}
+					
+					m_Snap.m_ImpactCount++;
+				}
+			}
 		}
 	}
 
@@ -1188,6 +1213,15 @@ void CGameClient::OnPredict()
 			continue;
 
 		World.m_aMonsterPos[i] = m_Snap.m_aMonsterPos[i];
+	}
+	
+	// search for jumppads
+	for(int i = 0; i < MAX_IMPACTS; i++)
+	{
+		if(m_Snap.m_aImpactPos[i].x == 0)
+			continue;
+
+		World.m_aImpactPos[i] = m_Snap.m_aImpactPos[i];
 	}
 
 	// predict

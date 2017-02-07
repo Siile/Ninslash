@@ -43,6 +43,12 @@ CPlayerInfo *CPlayerInfo::GetIdle()
 
 void CPlayerInfo::Reset()
 {
+	m_Angle = 0;
+	
+	for (int i = 0; i < 20; i++)
+		m_aFlameAngle[i] = 0.0f;
+	
+	m_FlameState = 0;
 	m_UpdateTimer = 0;
 	m_LastUpdate = 0;
 	m_InUse = false;
@@ -127,7 +133,16 @@ void CPlayerInfo::AddSplatter()
 	m_aSplatter[m_NextSplatter] = 1.0f;
 }
 
-
+static float CurveAngle(float From, float To, float Amount)
+{
+	while (From - To > pi)
+		From -= 2*pi;
+	
+	while (To - From > pi)
+		To -= 2*pi;
+	
+	return From + (To-From) / Amount;
+}
 
 
 void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
@@ -145,6 +160,18 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 	
 	//float b = 1.5f - g_Config.m_GoreTeeBounciness / 100.0f;
 	
+	
+	// flame motion
+	m_aFlameAngle[0] = m_Angle;
+	
+	for (int i = 1; i < 20; i++)
+		m_aFlameAngle[i] = CurveAngle(m_aFlameAngle[i], m_aFlameAngle[i-1], 1.7f); //(1.0f + i*0.75f);
+		//m_aFlameAngle[i] += (m_aFlameAngle[i-1]-m_aFlameAngle[i]) / 1.5f; //(1.0f + i*0.75f);
+		//m_aFlameAngle[i] += (m_Angle-m_aFlameAngle[i]) / (1.0f + i*0.75f);
+	
+	
+	//for (int i = 1; i < 20; i++)
+	//	m_aFlameAngle[20-i] = m_aFlameAngle[19-i];
 	
 	// weapon recoil
  	m_WeaponRecoilVel.x -= m_WeaponRecoil.x / 6.0f;
@@ -258,6 +285,24 @@ void CPlayerInfo::Tick()
 		if (int(m_MeleeAnimState) > 3)
 			m_MeleeAnimState = 0.0f;
 	}
+	
+	// flamethrower frame animation
+	if (m_FlameState > 0)
+	{
+		if (++m_FlameState > 13*5)
+			m_FlameState = 0;
+	}
+	
+
+	
+	/*
+	for (int i = 1; i < 20; i++)
+	{
+		m_aFlameAngle[20-i] = m_aFlameAngle[19-i];
+	}
+	*/
+	
+	
 	
 	if (m_EffectIntensity[EFFECT_DEATHRAY] <= 0.0f)
 		m_pAnimation->Tick();
