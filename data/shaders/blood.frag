@@ -24,7 +24,6 @@ void main (void)
 	//r -= (1.0f-texture2D(texture, gl_TexCoord[0].st + vec2(-0.001f, -0.001f)).r)*0.4f;
 	
 	
-	
 	a = step(0.7f, a);
 	
 	vec4 color = vec4(r * gl_Color.r, 0, 0, a * gl_Color.w);
