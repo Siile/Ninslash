@@ -47,6 +47,8 @@ void CMonster::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type)
 	//if (m_aStatus[STATUS_SPAWNING] > 0.0f)
 	//	return false;
 	
+	if (g_Config.m_SvOneHitKill)
+		Dmg = 1000;
 
 	vec2 DmgPos = m_Pos + m_Center;
 	

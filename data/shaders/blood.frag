@@ -25,10 +25,7 @@ void main (void)
 	
 	
 	
-	if (a < 0.7f)
-		a = 0.0f;
-	else
-		a = 1.0f;
+	a = step(0.7f, a);
 	
 	vec4 color = vec4(r * gl_Color.r, 0, 0, a * gl_Color.w);
 	gl_FragColor = color;

@@ -113,8 +113,8 @@ int CGameControllerGunGame::OnCharacterDeath(CCharacter *pVictim, CPlayer *pKill
 		}
 	}
 
-	if(Weapon == WEAPON_SELF)
-		pVictim->GetPlayer()->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()*3;
+	//if(Weapon == WEAPON_SELF)
+	//	pVictim->GetPlayer()->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()*3;
 
 	return 0;
 }

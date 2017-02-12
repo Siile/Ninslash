@@ -189,6 +189,14 @@ void CGameControllerCTF::Snap(int SnappingClient)
 		pGameDataObj->m_FlagCarrierBlue = FLAG_MISSING;
 }
 
+
+void CGameControllerCTF::NewSurvivalRound()
+{
+	for(int i = 0; i < 2; i++)
+		m_apFlags[i]->Reset();
+}
+
+
 void CGameControllerCTF::Tick()
 {
 	IGameController::Tick();
@@ -246,6 +254,9 @@ void CGameControllerCTF::Tick()
 						m_apFlags[i]->Reset();
 
 					GameServer()->CreateSoundGlobal(SOUND_CTF_CAPTURE);
+					
+					if (g_Config.m_SvSurvivalMode)
+						ResetSurvivalRound();
 				}
 			}
 		}

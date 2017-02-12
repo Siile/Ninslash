@@ -15,6 +15,8 @@ public:
 	virtual bool CanBeMovedOnBalance(int ClientID);
 	virtual void Snap(int SnappingClient);
 	virtual void Tick();
+	
+	virtual void NewSurvivalRound();
 
 	virtual vec2 GetFlagPos(int Team);
 	virtual int GetFlagState(int Team);

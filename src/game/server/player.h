@@ -68,8 +68,6 @@ public:
 	// bomb planting & defusing
 	int m_ActionTimer;
 	
-	int m_DeathTick;
-	
 	//---------------------------------------------------------
 	// this is used for snapping so we know how we can clip the view for the player
 	vec2 m_ViewPos;

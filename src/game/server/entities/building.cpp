@@ -1,3 +1,5 @@
+#include <engine/shared/config.h>
+
 #include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
 
@@ -177,6 +179,12 @@ void CBuilding::Trigger()
 
 void CBuilding::TakeDamage(int Damage, int Owner, int Weapon)
 {
+	if (m_Life >= 5000)
+		return;
+	
+	if (g_Config.m_SvOneHitKill)
+		Damage = 1000;
+	
 	if (m_DeathTimer > 0 || m_Life <= 0)
 		return;
 	

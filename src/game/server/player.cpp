@@ -31,7 +31,6 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	
 	m_Score = 0;
 	
-	m_DeathTick = 0;
 	m_ActionTimer = 0;
 	
 	m_InterestPoints = 0;
@@ -181,6 +180,12 @@ void CPlayer::Tick()
 		if(!m_pCharacter && m_Team == TEAM_SPECTATORS && m_SpectatorID == SPEC_FREEVIEW)
 			m_ViewPos -= vec2(clamp(m_ViewPos.x-m_LatestActivity.m_TargetX, -500.0f, 500.0f), clamp(m_ViewPos.y-m_LatestActivity.m_TargetY, -400.0f, 400.0f));
 		
+		// dead in survival mode
+		if (m_Team != TEAM_SPECTATORS && g_Config.m_SvSurvivalMode && !m_pCharacter && m_DieTick < Server()->Tick() - Server()->TickSpeed()*1)
+			m_ViewPos -= vec2(clamp(m_ViewPos.x-m_LatestActivity.m_TargetX, -500.0f, 500.0f), clamp(m_ViewPos.y-m_LatestActivity.m_TargetY, -400.0f, 400.0f));
+
+			
+	
 		//if(!m_pCharacter && m_DieTick+Server()->TickSpeed()*3 <= Server()->Tick())
 		if(!m_pCharacter)
 			m_Spawning = true;
@@ -279,6 +284,11 @@ void CPlayer::Snap(int SnappingClient)
 	pPlayerInfo->m_ClientID = m_ClientID;
 	pPlayerInfo->m_Score = m_Score;
 	pPlayerInfo->m_Team = m_Team;
+	
+	if (SnappingClient == GetCID() && m_Team != TEAM_SPECTATORS && g_Config.m_SvSurvivalMode && !GetCharacter() && m_DieTick < Server()->Tick() - Server()->TickSpeed()*1)
+	{
+		pPlayerInfo->m_Team = TEAM_SPECTATORS;
+	}
 	
 	/*
 	if (pPlayerInfo->m_Team != TEAM_SPECTATORS)

@@ -20,10 +20,7 @@ void main (void)
 	
 	// get alpha
 	float a = texture2D(texture, gl_TexCoord[0].st).g;
-	if (a < 0.7f)
-		a = 0.0f;
-	else
-		a = 1.0f;
+	a = step(0.7f, a);
 	
 	
 	gl_FragColor = vec4(0, g * gl_Color.g, 0, a * gl_Color.w);

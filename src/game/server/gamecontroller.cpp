@@ -45,6 +45,10 @@ IGameController::IGameController(class CGameContext *pGameServer)
 	m_aNumSpawnPoints[1] = 0;
 	m_aNumSpawnPoints[2] = 0;
 	
+	m_SurvivalStatus = 0;
+	m_SurvivalStartTick = Server()->Tick();
+	m_SurvivalDeathTick = 0;
+	m_ClearBroadcastTick = 0;
 	
 	// custom
 	for (int i = 0; i < MAX_PICKUPS; i++)
@@ -62,13 +66,6 @@ IGameController::IGameController(class CGameContext *pGameServer)
 
 IGameController::~IGameController()
 {
-}
-
-
-
-void IGameController::NextGameState(int NextGameState, float InHowManySeconds)
-{
-	
 }
 
 
@@ -673,6 +670,12 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 
 	if(Type != -1)
 	{
+		if (g_Config.m_SvForceWeapon)
+		{
+			if (Type == POWERUP_WEAPON || Type == POWERUP_ARMOR)
+				return true;
+		}
+		
 		CPickup *pPickup = new CPickup(&GameServer()->m_World, Type, SubType);
 		pPickup->m_Pos = Pos;
 		return true;
@@ -700,6 +703,52 @@ int IGameController::CountPlayers(int Team)
 	}
 	
 	return Num;
+}
+
+
+int IGameController::CountPlayersAlive(int Team)
+{
+	int Num = 0;
+		
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CPlayer *pPlayer = GameServer()->m_apPlayers[i];
+		if(!pPlayer)
+			continue;
+
+		if (pPlayer->GetTeam() != TEAM_SPECTATORS)
+		{
+			if (pPlayer->GetTeam() == Team || Team == -1)
+			{
+				if (pPlayer->GetCharacter() && pPlayer->GetCharacter()->IsAlive())
+					Num++;
+			}
+		}
+	}
+	
+	return Num;
+}
+
+
+int IGameController::GetAliveCID(int Team)
+{
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CPlayer *pPlayer = GameServer()->m_apPlayers[i];
+		if(!pPlayer)
+			continue;
+
+		if (pPlayer->GetTeam() != TEAM_SPECTATORS)
+		{
+			if (pPlayer->GetTeam() == Team || Team == -1)
+			{
+				if (pPlayer->GetCharacter() && pPlayer->GetCharacter()->IsAlive())
+					return i;
+			}
+		}
+	}
+	
+	return -1;
 }
 
 
@@ -777,6 +826,7 @@ void IGameController::StartRound()
 {
 	ResetGame();
 
+	m_SurvivalStartTick = Server()->Tick();
 	m_RoundStartTick = Server()->Tick();
 	m_SuddenDeath = 0;
 	m_GameOverTick = -1;
@@ -918,6 +968,13 @@ void IGameController::OnPlayerInfoChange(class CPlayer *pP)
 
 int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
 {
+	if (g_Config.m_SvSurvivalMode && Weapon != WEAPON_GAME)
+	{
+		m_SurvivalStatus = SURVIVAL_NOCANDO;
+		
+		// wait a second before ending the round if it's going to end
+		m_SurvivalDeathTick = Server()->Tick() + Server()->TickSpeed()*1.0f;
+	}
 	
 	// weapon drops
 	if (g_Config.m_SvWeaponDrops)
@@ -954,25 +1011,25 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 		pKiller->m_InterestPoints += 60;
 	}
 	
-	// do scoreing
+	// give or take scores
 	if(!pKiller || Weapon == WEAPON_GAME)
 		return 0;
 	if(pKiller == pVictim->GetPlayer())
 	{
-		if (!(IsInfection() && pVictim->GetPlayer()->GetTeam() == TEAM_BLUE))
+		if (!(IsInfection() && pVictim->GetPlayer()->GetTeam() == TEAM_BLUE) && g_Config.m_SvSelfKillPenalty)
 			pVictim->GetPlayer()->m_Score--; // suicide
 	}
 	else
 	{
 		if(IsTeamplay() && pVictim->GetPlayer()->GetTeam() == pKiller->GetTeam())
 		{
-			pKiller->m_Score--; // teamkill
+			if (g_Config.m_SvSelfKillPenalty)
+				pKiller->m_Score--; // teamkill
 		}
 		else
 			pKiller->m_Score++; // normal kill
 	}
-	if(Weapon == WEAPON_SELF)
-		pVictim->GetPlayer()->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()*3.0f;
+	
 	return 0;
 }
 
@@ -1053,6 +1110,14 @@ CFlag *IGameController::GetRandomBase(int NotThisTeam)
 
 bool IGameController::CanCharacterSpawn(int ClientID)
 {
+	if (g_Config.m_SvSurvivalMode)
+	{
+		if (m_SurvivalStatus == SURVIVAL_CANJOIN)
+			return true;
+		
+		return false;
+	}
+	
 	return true;
 }
 
@@ -1120,6 +1185,38 @@ bool IGameController::CanBeMovedOnBalance(int ClientID)
 	return true;
 }
 
+void IGameController::NewSurvivalRound()
+{
+	
+}
+	
+	
+void IGameController::ResetSurvivalRound()
+{
+	KillEveryone();
+	NewSurvivalRound();
+	m_ClearBroadcastTick = Server()->Tick() + Server()->TickSpeed()*2;
+	m_SurvivalStartTick = Server()->Tick();
+	m_SurvivalStatus = 0;
+}
+
+void IGameController::KillEveryone()
+{
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CPlayer *pPlayer = GameServer()->m_apPlayers[i];
+		if(!pPlayer)
+			continue;
+
+		if (pPlayer->GetTeam() != TEAM_SPECTATORS)
+		{
+			if (pPlayer->GetCharacter() && pPlayer->GetCharacter()->IsAlive())
+				pPlayer->GetCharacter()->Die(-1, WEAPON_GAME);
+		}
+	}
+}
+
+
 void IGameController::Tick()
 {
 	// do warmup
@@ -1144,7 +1241,85 @@ void IGameController::Tick()
 			m_RoundCount++;
 		}
 	}
+	
+	// clear / interrupt broadcast
+	if (m_ClearBroadcastTick && m_ClearBroadcastTick < Server()->Tick())
+	{
+		m_ClearBroadcastTick = 0;
+		GameServer()->SendBroadcast("", -1);
+	}
 
+	
+	// survival mode
+	
+	// force survival mode off in some gamemodes
+	if (g_Config.m_SvSurvivalMode && (IsInfection() || IsCoop()))
+		g_Config.m_SvSurvivalMode = 0;
+	
+	// check for round time ending
+	if (g_Config.m_SvSurvivalMode && m_SurvivalStartTick < Server()->Tick() - Server()->TickSpeed() * g_Config.m_SvSurvivalTime)
+	{
+		
+		GameServer()->SendBroadcast("Draw", -1);
+		ResetSurvivalRound();
+	}
+	
+	// check for winning conditions
+	if (g_Config.m_SvSurvivalMode && m_SurvivalStatus == SURVIVAL_NOCANDO && m_SurvivalDeathTick < Server()->Tick())
+	{
+		// check if only the last player (or the team) alive
+		if (IsTeamplay())
+		{
+			// draw
+			if (!CountPlayersAlive(TEAM_BLUE) && !CountPlayersAlive(TEAM_RED))
+			{
+				GameServer()->SendBroadcast("Draw", -1);
+				ResetSurvivalRound();
+			}
+			// red team wins
+			else if (!CountPlayersAlive(TEAM_BLUE) && CountPlayersAlive(TEAM_RED))
+			{
+				GameServer()->SendBroadcast("Red team wins", -1);
+				m_aTeamscore[TEAM_RED] += g_Config.m_SvSurvivalReward;
+				ResetSurvivalRound();
+			}
+			// blue team wins
+			else if (CountPlayersAlive(TEAM_BLUE) && !CountPlayersAlive(TEAM_RED))
+			{
+				GameServer()->SendBroadcast("Blue team wins", -1);
+				m_aTeamscore[TEAM_BLUE] += g_Config.m_SvSurvivalReward;
+				ResetSurvivalRound();
+			}
+			
+		}
+		else
+		{
+			// no one wins
+			if (!CountPlayersAlive())
+			{
+				GameServer()->SendBroadcast("Draw", -1);
+				ResetSurvivalRound();
+			}
+				
+			// a winner!
+			if (CountPlayersAlive() == 1)
+			{
+				int Winner = GetAliveCID();
+				
+				if (Winner >= 0)
+				{
+					char aBuf[64];
+					str_format(aBuf, sizeof(aBuf), "%s survives", Server()->ClientName(Winner));
+					GameServer()->SendBroadcast(aBuf, -1);
+					
+					GameServer()->m_apPlayers[Winner]->m_Score += g_Config.m_SvSurvivalReward;
+				}
+				
+				ResetSurvivalRound();
+			}
+		}
+	}
+	
 	// game is Paused
 	if(GameServer()->m_World.m_Paused)
 		++m_RoundStartTick;
@@ -1225,6 +1400,7 @@ int IGameController::GetTimeLeft()
 		return 0;
 	
 	int Time = m_TimeLimit*60 - (Server()->Tick() - m_RoundStartTick)/Server()->TickSpeed();
+	
 	return Time;
 }
 
@@ -1257,12 +1433,20 @@ void IGameController::Snap(int SnappingClient)
 	pGameInfoObj->m_WarmupTimer = m_Warmup;
 
 	pGameInfoObj->m_ScoreLimit = g_Config.m_SvScorelimit;
-	//pGameInfoObj->m_TimeLimit = g_Config.m_SvTimelimit;
 	
-	if (m_RoundTimeLimit > 0)
-		pGameInfoObj->m_TimeLimit = m_RoundTimeLimit/60+1;
+	
+	if (g_Config.m_SvSurvivalMode && g_Config.m_SvSurvivalTime)
+	{
+		pGameInfoObj->m_TimeLimit = g_Config.m_SvSurvivalTime/60+1;
+		pGameInfoObj->m_RoundStartTick = m_SurvivalStartTick - Server()->TickSpeed()*(60-g_Config.m_SvSurvivalTime%60);
+	}
 	else
-		pGameInfoObj->m_TimeLimit = 0;
+	{		
+		if (m_RoundTimeLimit > 0)
+			pGameInfoObj->m_TimeLimit = m_RoundTimeLimit/60+1;
+		else
+			pGameInfoObj->m_TimeLimit = 0;
+	}
 	
 	m_TimeLimit = pGameInfoObj->m_TimeLimit;
 			

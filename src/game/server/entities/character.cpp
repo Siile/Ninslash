@@ -163,7 +163,15 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		}
 	}
 
-	GiveStartWeapon();
+	if (g_Config.m_SvForceWeapon)
+	{
+		GiveCustomWeapon(g_Config.m_SvForceWeapon);
+		SetCustomWeapon(g_Config.m_SvForceWeapon);
+	}
+	else
+	{
+		GiveStartWeapon();
+	}
 	
 	if (g_Config.m_SvRandomBuff)
 		GiveRandomBuff();
@@ -245,6 +253,9 @@ void CCharacter::DropWeapon()
 {
 	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE ||
 		!GameServer()->m_pController->CanDropWeapon(this))
+		return;
+		
+	if (g_Config.m_SvForceWeapon)
 		return;
 		
 	// check if using dropable weapon
@@ -720,7 +731,7 @@ void CCharacter::FireWeapon()
 
 		
 	// check for ammo
-	if(m_aWeapon[m_ActiveCustomWeapon].m_Ammo <= 0 && aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo > 0)
+	if(!g_Config.m_SvForceWeapon && m_aWeapon[m_ActiveCustomWeapon].m_Ammo <= 0 && aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo > 0)
 	{
 		// 125ms is a magical limit of how fast a human can click
 		m_ReloadTimer = 125 * Server()->TickSpeed() / 1000;
@@ -732,7 +743,7 @@ void CCharacter::FireWeapon()
 
 		return;
 	}
-	
+
 	// weapon knockback to self
 	//m_Core.m_Vel -= Direction * aCustomWeapon[m_ActiveCustomWeapon].m_SelfKnockback;
 	m_Recoil -= Direction * aCustomWeapon[m_ActiveCustomWeapon].m_SelfKnockback;
@@ -1319,6 +1330,10 @@ void CCharacter::UpdateCoreStatus()
 
 void CCharacter::Tick()
 {
+
+	if (g_Config.m_SvForceWeapon)
+		m_aWeapon[m_ActiveCustomWeapon].m_Ammo = 0;
+	
 	if (m_PainSoundTimer > 0)
 		m_PainSoundTimer--;
 	
@@ -1347,7 +1362,7 @@ void CCharacter::Tick()
 	
 	m_Core.m_Input = m_Input;
 
-	float RecoilCap = 18.0f;
+	float RecoilCap = 20.0f;
 	if ((m_Core.m_Vel.x < RecoilCap && m_Recoil.x > 0) || (m_Core.m_Vel.x > -RecoilCap && m_Recoil.x < 0))
 		m_Core.m_Vel.x += m_Recoil.x*0.7f;
 	
@@ -1633,7 +1648,11 @@ void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage, bool IsTurret
 	//	Weapon = 0;
 	// we got to wait 0.5 secs before respawning
 	//m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()/2;
-	m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()*1;
+
+	if (g_Config.m_SvSurvivalMode)
+		m_pPlayer->m_RespawnTick = Server()->Tick();
+	else
+		m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()*1;
 	
 	if (Killer == m_pPlayer->GetCID() && (Weapon == WEAPON_HAMMER || Weapon == WEAPON_GAME))
 		SkipKillMessage = true;
@@ -1756,6 +1775,10 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos,
 		if(From == m_pPlayer->GetCID())
 			Dmg = max(1, Dmg/2);
 	}
+	
+	// disable self damage if weapon is forced
+	if (g_Config.m_SvForceWeapon && From == m_pPlayer->GetCID())
+		return false;
 
 	m_DamageTaken++;
 
@@ -1799,12 +1822,12 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos,
 		if (m_ShieldHealth > 0 && Type != DAMAGETYPE_FLAME)
 		{
 			GameServer()->CreateEffect(FX_SHIELDHIT, DmgPos);
-			m_ShieldHealth -= Dmg;
+			m_ShieldHealth -= Dmg + (g_Config.m_SvOneHitKill ? 1000 : 0);
 			return false;
 		}
 		else
 		{
-			m_HiddenHealth -= Dmg;
+			m_HiddenHealth -= Dmg + (g_Config.m_SvOneHitKill ? 1000 : 0);
 			
 			if (Type == DAMAGETYPE_NORMAL)
 				m_LatestHitVel = Force;
@@ -1878,7 +1901,7 @@ void CCharacter::TakeSawbladeDamage(vec2 SawbladePos)
 	if (m_ShieldHealth > 0)
 	{
 		GameServer()->CreateEffect(FX_SHIELDHIT, (m_Pos+SawbladePos) / 2.0f);
-		m_ShieldHealth -= 5;
+		m_ShieldHealth -= 5 + (g_Config.m_SvOneHitKill ? 1000 : 0);
 		return;
 	}
 	
@@ -1890,7 +1913,7 @@ void CCharacter::TakeSawbladeDamage(vec2 SawbladePos)
 
 	m_Core.m_Vel += normalize(m_Pos-SawbladePos)*2.0f;
 	
-	m_HiddenHealth -= 5;
+	m_HiddenHealth -= 5 + (g_Config.m_SvOneHitKill ? 1000 : 0);
 	m_DamageTakenTick = Server()->Tick();
 	
 	// check for death

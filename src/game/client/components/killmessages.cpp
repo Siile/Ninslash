@@ -66,6 +66,19 @@ void CKillMessages::OnRender()
 
 		float x = StartX;
 
+		
+		int Flags = m_pClient->m_Snap.m_pGameInfoObj ? m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags : 0;
+		
+		
+		if (Flags & GAMEFLAG_TEAMS && !(Flags & GAMEFLAG_INFECTION))
+		{
+			if (m_aKillmsgs[r].m_VictimTeam == TEAM_RED)
+				TextRender()->TextColor(250/255.0f, 100/255.0f, 0, 1.0f);
+				
+			if (m_aKillmsgs[r].m_VictimTeam == TEAM_BLUE)
+				TextRender()->TextColor(0/255.0f, 100/255.0f, 230/255.0f, 1.0f);
+		}
+		
 		// render victim name
 		x -= VictimNameW;
 		
@@ -146,6 +159,15 @@ void CKillMessages::OnRender()
 				}
 			}
 
+			if (Flags & GAMEFLAG_TEAMS && !(Flags & GAMEFLAG_INFECTION))
+			{
+				if (m_aKillmsgs[r].m_KillerTeam == TEAM_RED)
+					TextRender()->TextColor(250/255.0f, 100/255.0f, 0, 1.0f);
+				
+				if (m_aKillmsgs[r].m_KillerTeam == TEAM_BLUE)
+					TextRender()->TextColor(0/255.0f, 100/255.0f, 230/255.0f, 1.0f);
+			}
+			
 			// render killer tee
 			x -= 28.0f;
 			//RenderTools()->RenderTee(CAnimState::GetIdle(), &m_aKillmsgs[r].m_KillerRenderInfo, EMOTE_ANGRY, vec2(1,0), vec2(x, y+28));
@@ -160,5 +182,7 @@ void CKillMessages::OnRender()
 
 		//y += 46.0f;
 		y += 52.0f;
+		
+		TextRender()->TextColor(1, 1, 1, 1.0f);
 	}
 }

@@ -34,12 +34,22 @@ class IGameController
 	void CreateDroppables();
 	
 protected:
+	int m_ClearBroadcastTick;
+
 	void AutoBalance();
 	
 	void RespawnPickups();
 	void FlashPickups();
 	void ClearPickups();
 
+
+	void ResetSurvivalRound();
+	void KillEveryone();
+	
+	// for hooking to different gamemodes, e.g. reseting flags
+	virtual void NewSurvivalRound();
+	
+	
 	// CSTT & CSBB
 	int m_Round;
 	int m_GameState;
@@ -93,7 +103,18 @@ protected:
 	
 	int m_TimeLimit;
 
+	enum SurvivalStatus
+	{
+		SURVIVAL_CANJOIN,
+		SURVIVAL_NOCANDO,
+	};
+	
+	int m_SurvivalStatus;
+	int m_SurvivalDeathTick;
+	int m_SurvivalStartTick;
+	
 public:
+
 	// CSTT & CSBB
 	int GetRoundState(){ return m_GameState; }
 	int GetRound(){ return m_Round; }
@@ -105,13 +126,13 @@ public:
 	
 	int GetTimeLeft();
 	
-	virtual void NextGameState(int NextGameState = -1, float InHowManySeconds = 0.0f);
-	
 	int GetRandomWeapon(int WeaponLevel);
 	
 	//
 	const char *m_pGameType;
 
+	int GetAliveCID(int Team = -1);
+	int CountPlayersAlive(int Team = -1);
 	int CountPlayers(int Team = -1);
 	int CountBots();
 	
