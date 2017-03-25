@@ -182,17 +182,20 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 	float LineHeight = 60.0f;
 	float TeeSizeMod = 1.0f;
 	float Spacing = 16.0f;
-	if(m_pClient->m_Snap.m_aTeamSize[Team] > 12)
+	if (!m_pClient->IsCoop())
 	{
-		LineHeight = 40.0f;
-		TeeSizeMod = 0.8f;
-		Spacing = 0.0f;
-	}
-	else if(m_pClient->m_Snap.m_aTeamSize[Team] > 8)
-	{
-		LineHeight = 50.0f;
-		TeeSizeMod = 0.9f;
-		Spacing = 8.0f;
+		if(m_pClient->m_Snap.m_aTeamSize[Team] > 12)
+		{
+			LineHeight = 40.0f;
+			TeeSizeMod = 0.8f;
+			Spacing = 0.0f;
+		}
+		else if(m_pClient->m_Snap.m_aTeamSize[Team] > 8)
+		{
+			LineHeight = 50.0f;
+			TeeSizeMod = 0.9f;
+			Spacing = 8.0f;
+		}
 	}
 
 	float ScoreOffset = x+10.0f, ScoreLength = 60.0f;
@@ -215,7 +218,7 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 
 	tw = TextRender()->TextWidth(0, HeadlineFontsize, Localize("Ping"), -1);
 	TextRender()->Text(0, PingOffset+PingLength-tw, y, HeadlineFontsize, Localize("Ping"), -1);
-
+		
 	// render player entries
 	y += HeadlineFontsize*2.0f;
 	float FontSize = 24.0f;
@@ -229,17 +232,8 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 		if(!pInfo || pInfo->m_Team != Team)
 			continue;
 
-		if (CustomStuff()->m_aPlayerInfo[i].m_HideName)
+		if (m_pClient->m_aClients[pInfo->m_ClientID].m_IsBot && m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_COOP)
 			continue;
-		
-		// do not show bots in KF
-		/*
-		if (m_pClient->CustomStuff()->m_KF)
-		{
-			if ( strcmp(m_pClient->m_aClients[pInfo->m_ClientID].m_aName, "") == 0)
-				continue;
-		}
-		*/
 		
 		// background so it's easy to find the local player or the followed one in spectator mode
 		if(pInfo->m_Local || (m_pClient->m_Snap.m_SpecInfo.m_Active && pInfo->m_ClientID == m_pClient->m_Snap.m_SpecInfo.m_SpectatorID))
@@ -292,17 +286,20 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 		Cursor.m_LineWidth = ClanLength;
 		TextRender()->TextEx(&Cursor, m_pClient->m_aClients[pInfo->m_ClientID].m_aClan, -1);
 
-		// country flag
-		vec4 Color(1.0f, 1.0f, 1.0f, 0.5f);
-		m_pClient->m_pCountryFlags->Render(m_pClient->m_aClients[pInfo->m_ClientID].m_Country, &Color,
-											CountryOffset, y+(Spacing+TeeSizeMod*5.0f)/2.0f, CountryLength, LineHeight-Spacing-TeeSizeMod*5.0f);
+		if (!m_pClient->m_aClients[pInfo->m_ClientID].m_IsBot)
+		{
+			// country flag
+			vec4 Color(1.0f, 1.0f, 1.0f, 0.5f);
+			m_pClient->m_pCountryFlags->Render(m_pClient->m_aClients[pInfo->m_ClientID].m_Country, &Color,
+												CountryOffset, y+(Spacing+TeeSizeMod*5.0f)/2.0f, CountryLength, LineHeight-Spacing-TeeSizeMod*5.0f);
 
-		// ping
-		str_format(aBuf, sizeof(aBuf), "%d", clamp(pInfo->m_Latency, 0, 1000));
-		tw = TextRender()->TextWidth(0, FontSize, aBuf, -1);
-		TextRender()->SetCursor(&Cursor, PingOffset+PingLength-tw, y+Spacing, FontSize, TEXTFLAG_RENDER|TEXTFLAG_STOP_AT_END);
-		Cursor.m_LineWidth = PingLength;
-		TextRender()->TextEx(&Cursor, aBuf, -1);
+			// ping
+			str_format(aBuf, sizeof(aBuf), "%d", clamp(pInfo->m_Latency, 0, 1000));
+			tw = TextRender()->TextWidth(0, FontSize, aBuf, -1);
+			TextRender()->SetCursor(&Cursor, PingOffset+PingLength-tw, y+Spacing, FontSize, TEXTFLAG_RENDER|TEXTFLAG_STOP_AT_END);
+			Cursor.m_LineWidth = PingLength;
+			TextRender()->TextEx(&Cursor, aBuf, -1);
+		}
 
 		y += LineHeight+Spacing;
 	}

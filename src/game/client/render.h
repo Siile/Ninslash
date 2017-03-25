@@ -28,6 +28,8 @@ public:
 		m_Size = 1.0f;
 		m_GotAirJump = 1;
 		m_Mask = 0;
+		m_IsBot = false;
+		m_BloodColor = 0;
 	};
 
 	int m_Texture;
@@ -39,6 +41,10 @@ public:
 	vec4 m_ColorFeet;
 	vec4 m_ColorTopper;
 	vec4 m_ColorSkin;
+	
+	bool m_IsBot;
+	int m_BloodColor;
+	
 	float m_Size;
 	int m_GotAirJump;
 };
@@ -215,6 +221,8 @@ public:
 
 	void RenderShield(vec2 Pos, vec2 Size, float State);
 	void RenderHeal(vec2 Pos, vec2 Size, float State);
+	
+	void RenderScythe(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec2 Dir, vec2 Pos);
 
 	// render player with custom info (teesplatter, bounciness etc...)
 	void RenderPlayer(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, int WeaponNum, int Emote, vec2 Dir, vec2 Pos);

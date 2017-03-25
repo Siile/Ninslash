@@ -56,7 +56,7 @@ void CEffects::AirJump(vec2 Pos)
 }
 
 
-void CEffects::Blood(vec2 Pos, vec2 Dir)
+void CEffects::Blood(vec2 Pos, vec2 Dir, vec4 Color)
 {
 	CBlooddrop b;
 	b.SetDefault();
@@ -94,7 +94,8 @@ void CEffects::Blood(vec2 Pos, vec2 Dir)
 		b.m_StartSize = 64.0f;
 		b.m_EndSize = 4.0f;
 		b.m_LifeSpan = 8.0f;
-		b.m_StartSize = 32.0f + frandom()*32;
+		b.m_StartSize = 42.0f + frandom()*16;
+		b.m_Gravity = 1500.0f + frandom()*400;
 		//b.m_Friction = 0.95f;
 	}
 	
@@ -105,7 +106,8 @@ void CEffects::Blood(vec2 Pos, vec2 Dir)
 	//b.m_Gravity = 1600.0f;
 	//b.m_Friction *= 0.95f;
 	float c = frandom()*0.3f + 0.7f;
-	b.m_Color = vec4(c, c, c, 1.0f);
+	//b.m_Color = vec4(c, c, c, 1.0f);
+	b.m_Color = Color;
 	m_pClient->m_pBlood->Add(CBlood::GROUP_BLOOD, &b);
 }
 
@@ -152,14 +154,15 @@ void CEffects::Acid(vec2 Pos, vec2 Dir)
 	b.m_Rot = GetAngle(b.m_Vel);
 
 	b.m_Friction = 0.85f+frandom()*0.075f;
-	float c = frandom()*0.3f + 0.7f;
-	b.m_Color = vec4(c, c, c, 1.0f);
+	//float c = frandom()*0.3f + 0.7f;
+	//b.m_Color = vec4(c, c, c, 1.0f);
+	b.m_Color = vec4(0, 1, 0, 1.0f);
 	m_pClient->m_pBlood->Add(CBlood::GROUP_ACID, &b);
 }
 
 
 
-void CEffects::Splatter(vec2 Pos, float Angle, float Size)
+void CEffects::Splatter(vec2 Pos, float Angle, float Size, vec4 Color)
 {
 	CBloodspill b;
 	b.SetDefault();
@@ -177,7 +180,8 @@ void CEffects::Splatter(vec2 Pos, float Angle, float Size)
 	b.m_Rot = Angle;
 	
 	//b.m_Color = vec4(frandom()*0.2f + 0.5f, 0, 0, 1.0f);
-	b.m_Color = vec4(0.65f, 0, 0, 1.0f);
+	//b.m_Color = vec4(0.65f, 0, 0, 1.0f);
+	b.m_Color = Color;
 	m_pClient->m_pSplatter->Add(CSplatter::GROUP_SPLATTER, &b);
 }
 
@@ -458,6 +462,7 @@ void CEffects::PlayerDeath(vec2 Pos, int ClientID)
 {
 	CParticle p;
 	p.SetDefault();
+	//p.m_Special = CustomStuff()->m_aPlayerInfo[ClientID].m_RenderInfo.m_BloodColor;
 	p.m_Spr = SPRITE_DEATH1;
 	p.m_Frames = 8;
 	p.m_Pos = Pos + vec2(0, -24);
@@ -465,6 +470,14 @@ void CEffects::PlayerDeath(vec2 Pos, int ClientID)
 	p.m_StartSize = 100;
 	p.m_EndSize = 100;
 	p.m_Rot = frandom()*pi*2;
+	
+	switch (CustomStuff()->m_aPlayerInfo[ClientID].m_RenderInfo.m_BloodColor)
+	{
+		case 1: p.m_Color = vec4(0, 1, 0, 1); break;
+		case 2: p.m_Color = vec4(0, 0, 0.1f, 1); break;
+		default: p.m_Color = vec4(1, 0, 0, 1); break;
+	};
+	
 	m_pClient->m_pParticles->Add(CParticles::GROUP_DEATH, &p);
 	
 	if (ClientID < 0 || ClientID >= MAX_CLIENTS)
@@ -475,6 +488,7 @@ void CEffects::PlayerDeath(vec2 Pos, int ClientID)
 	{
 		CParticle p;
 		p.SetDefault();
+		p.m_Special = CustomStuff()->m_aPlayerInfo[ClientID].m_RenderInfo.m_BloodColor;
 		p.m_Spr = SPRITE_MEAT1+2*rand()%6;
 		p.m_Pos = Pos + vec2(0, -14) + vec2(frandom()-frandom(), frandom()-frandom())*12;
 		p.m_Vel = RandomDir()*(frandom()+0.2f)*600.0f + vec2(0, -100);
@@ -495,6 +509,7 @@ void CEffects::PlayerDeath(vec2 Pos, int ClientID)
 	{
 		CParticle p;
 		p.SetDefault();
+		p.m_Special = CustomStuff()->m_aPlayerInfo[ClientID].m_RenderInfo.m_BloodColor;
 		p.m_Spr = SPRITE_MEAT1+2*rand()%6;
 		p.m_Pos = Pos + vec2(0, +4) + vec2(frandom()-frandom(), frandom()-frandom())*12;
 		p.m_Vel = RandomDir()*(frandom()+0.2f)*400.0f;
@@ -515,6 +530,7 @@ void CEffects::PlayerDeath(vec2 Pos, int ClientID)
 	{
 		CParticle p;
 		p.SetDefault();
+		p.m_Special = CustomStuff()->m_aPlayerInfo[ClientID].m_RenderInfo.m_BloodColor;
 		p.m_Spr = SPRITE_MEAT7+2*rand()%2;
 		p.m_Pos = Pos + vec2(0, -36) + vec2(frandom()-frandom(), frandom()-frandom())*12;
 		p.m_Vel = RandomDir()*(frandom()+0.2f)*700.0f + vec2(0, -100);
@@ -535,6 +551,7 @@ void CEffects::PlayerDeath(vec2 Pos, int ClientID)
 
 		CParticle p;
 		p.SetDefault();
+		p.m_Special = CustomStuff()->m_aPlayerInfo[ClientID].m_RenderInfo.m_BloodColor;
 		p.m_Spr = SPRITE_MEAT6;
 		p.m_Pos = Pos + vec2(0, -36);
 		p.m_Vel = RandomDir()*(frandom()+0.2f)*700.0f;

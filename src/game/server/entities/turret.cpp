@@ -276,6 +276,9 @@ bool CTurret::FindTarget()
 		
 		if ((!pCharacter->IsAlive() || pCharacter->GetPlayer()->GetCID() == m_OwnerPlayer) && !GameServer()->m_pController->IsTeamplay())
 			continue;
+		
+		if (GameServer()->m_pController->IsCoop() && !pCharacter->m_IsBot)
+			continue;
 			
 		int Distance = distance(pCharacter->m_Pos, TurretPos);
 		if (Distance < 900 && !GameServer()->Collision()->FastIntersectLine(pCharacter->m_Pos, TurretPos))

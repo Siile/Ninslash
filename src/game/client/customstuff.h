@@ -28,12 +28,13 @@ private:
 	vec2 m_CameraCenter;
 	
 public:
-
 	// client prediction for jump pads
 	enum Impact
 	{
 		IMPACT_OFF,
 		IMPACT_READY,
+		IMPACT_SCYTHE,
+		IMPACT_GRENADE,
 		IMPACT_HIT,
 		MAX_IMPACTSTATES
 	};
@@ -42,7 +43,10 @@ public:
 	int m_aImpactState[MAX_IMPACTS];
 	int64 m_aImpactTick[MAX_IMPACTS];
 	vec4 m_aImpactPos[MAX_IMPACTS];
+	vec2 m_aImpactVel[MAX_IMPACTS];
 
+	vec4 BloodColor(int ClientID);
+	bool IsBot(int ClientID);
 	
 	void ClearImpacts()
 	{
@@ -52,30 +56,43 @@ public:
 		{
 			m_aImpactState[i] = IMPACT_OFF;
 			m_aImpactPos[i] = vec4(0, 0, 0, 0);
+			m_aImpactVel[i] = vec2(0, 0);
 		}
 	}
 	
-	void AddImpact(vec4 Pos, int State)
+	void AddImpact(vec4 Pos, int State, vec2 Vel = vec2(0, -1))
 	{
 		if (m_Impact < MAX_IMPACTS)
 		{
 			m_aImpactState[m_Impact] = State;
 			m_aImpactPos[m_Impact] = Pos;
+			m_aImpactVel[m_Impact] = Vel;
 			m_Impact++;
 		}
 	}
 	
-	bool Impact(vec2 Pos)
+	bool Impact(vec2 Pos, vec2 *pVel)
 	{
 		if (!m_Impact)
 			return false;
 		
 		for (int i = 0; i < m_Impact; i++)
 		{
-			if (m_aImpactState[i] == IMPACT_HIT &&
+			if ((m_aImpactState[i] == IMPACT_HIT || m_aImpactState[i] == IMPACT_GRENADE || (m_aImpactState[i] == IMPACT_SCYTHE && pVel->y >= 0.0f)) &&
 				m_aImpactPos[i].x < Pos.x && m_aImpactPos[i].z > Pos.x &&
 				m_aImpactPos[i].y < Pos.y && m_aImpactPos[i].w > Pos.y)
+			{
+				if (pVel)
+					*pVel = m_aImpactVel[i];
+				
+				if (m_aImpactState[i] == IMPACT_GRENADE)
+					pVel->x += (frandom()-frandom())*0.7f;
+				
+				if (m_aImpactState[i] == IMPACT_SCYTHE)
+					pVel->x += (frandom()-frandom())*0.3f;
+				
 				return true;
+			}
 		}		
 		
 		return false;

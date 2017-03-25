@@ -21,6 +21,11 @@ CGameControllerCTF::CGameControllerCTF(class CGameContext *pGameServer)
 	m_pGameType = "CTF";
 	m_GameFlags = GAMEFLAG_TEAMS|GAMEFLAG_FLAGS;
 	
+	g_Config.m_SvDisablePVP = 0;
+
+	if (g_Config.m_SvSurvivalMode)
+		m_GameFlags |= GAMEFLAG_SURVIVAL;
+	
 	if (g_Config.m_SvEnableBuilding)
 		m_GameFlags |= GAMEFLAG_BUILD;
 }

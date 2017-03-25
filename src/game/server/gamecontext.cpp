@@ -255,73 +255,6 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos)
 			return true;
 	}
 	
-	/*
-	if (Kit == KIT_STAND)
-	{
-		// check if there's turret base near
-		CBuilding *pNear = NULL;
-		CBuilding *apEnts[16];
-		int Num = m_World.FindEntities(Pos, 32, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
-
-		for (int i = 0; i < Num; ++i)
-		{
-			CBuilding *pTarget = apEnts[i];
-			
-			if (pTarget->m_Type == BUILDING_BASE && distance(pTarget->m_Pos, Pos) < CheckRange)
-			{
-				pNear = pTarget;
-				break;
-			}
-		}
-		
-		if (pNear)
-		{
-			vec2 p = pNear->m_Pos;
-			m_World.DestroyEntity(pNear);
-			
-			new CBuilding(&m_World, p+vec2(0, -6), BUILDING_STAND, TEAM_NEUTRAL);
-			return true;
-		}
-		
-		//CBuilding *pBuilding = new CBuilding(&m_World, Pos+vec2(0, 0), BUILDING_STAND, TEAM_NEUTRAL);
-		//CTurret *pBuilding = new CTurret(&m_World, Pos+vec2(0, 0), 0, W_SHOTGUN + rand()%5);
-		//CTurret *pBuilding = new CTurret(&m_World, Pos+vec2(0, 0), 0, WEAPON_CHAINSAW);
-		
-	}
-	else
-	{
-		// these buildings can't be set too close to another building
-		bool Near = false;
-		
-		CBuilding *apEnts[16];
-		int Num = m_World.FindEntities(Pos, 32, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
-
-		for (int i = 0; i < Num; ++i)
-		{
-			CBuilding *pTarget = apEnts[i];
-			
-			if (distance(pTarget->m_Pos, Pos) < CheckRange)
-				Near = true;
-		}
-		
-		if (Near)
-			return false;
-		
-		if (Kit == KIT_BARREL)
-		{
-			CBuilding *pBuilding = new CBuilding(&m_World, Pos+vec2(0, -12+OffsetY), BUILDING_BARREL, TEAM_NEUTRAL);
-			return true;
-		}
-		
-		if (Kit == KIT_BASE)
-		{
-			CBuilding *pBuilding = new CBuilding(&m_World, Pos+vec2(0, OffsetY), BUILDING_BASE, TEAM_NEUTRAL);
-			return true;
-		}
-	}
-	*/
-	
-	
 	return false;
 }
 
@@ -330,11 +263,16 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos)
 
 void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, vec2 PlayerPos, vec2 ProjPos, CCharacter *OwnerChr, CBuilding *OwnerBuilding)
 {
-	int ProximityRadius = CCharacter::ms_PhysSize;
+	float Dmg = 1.0f;
+	
+	if (m_pController->IsCoop() && IsBot(DamageOwner))
+		Dmg = 0.6f;
+	
+	int ProximityRadius = CCharacter::ms_PhysSize*0.75f;
 	
 	{
 		CCharacter *apEnts[MAX_CLIENTS];
-		int Num = m_World.FindEntities(ProjPos, ProximityRadius*0.5f, (CEntity**)apEnts,
+		int Num = m_World.FindEntities(ProjPos, ProximityRadius, (CEntity**)apEnts,
 														MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
 
 		for (int i = 0; i < Num; ++i)
@@ -348,7 +286,7 @@ void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, vec2 PlayerPos
 			if (length(pTarget->m_Pos - PlayerPos) > 0.0f)
 				Dir = normalize(pTarget->m_Pos - PlayerPos);
 
-			pTarget->TakeDamage(Dir*1.2f, aCustomWeapon[Weapon].m_Damage,
+			pTarget->TakeDamage(normalize(vec2(frandom()-0.5f, frandom()-0.5f))*2.0f, aCustomWeapon[Weapon].m_Damage*Dmg,
 									DamageOwner, Weapon, ProjPos, DAMAGETYPE_NORMAL, OwnerBuilding ? true : false);
 		}
 	}
@@ -356,7 +294,7 @@ void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, vec2 PlayerPos
 	// monsters
 	{
 		CMonster *apEnts[MAX_CLIENTS];
-		int Num = m_World.FindEntities(ProjPos, ProximityRadius*0.5f, (CEntity**)apEnts,
+		int Num = m_World.FindEntities(ProjPos, ProximityRadius, (CEntity**)apEnts,
 														MAX_CLIENTS, CGameWorld::ENTTYPE_MONSTER);
 
 		for (int i = 0; i < Num; ++i)
@@ -377,15 +315,88 @@ void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, vec2 PlayerPos
 	// buildings
 	{
 		CBuilding *apEnts[MAX_CLIENTS];
-		int Num = m_World.FindEntities(ProjPos, ProximityRadius*0.5f, (CEntity**)apEnts,
+		int Num = m_World.FindEntities(ProjPos, ProximityRadius, (CEntity**)apEnts,
 														MAX_CLIENTS, CGameWorld::ENTTYPE_BUILDING);
 
 		for (int i = 0; i < Num; ++i)
 		{
 			CBuilding *pTarget = apEnts[i];
 			
-			pTarget->TakeDamage(aCustomWeapon[Weapon].m_Damage, DamageOwner, Weapon);
-			CreateBuildingHit((ProjPos+pTarget->m_Pos)/2);
+			if (pTarget->m_Collision)
+			{
+				pTarget->TakeDamage(aCustomWeapon[Weapon].m_Damage, DamageOwner, Weapon);
+				CreateBuildingHit((ProjPos+pTarget->m_Pos)/2);
+			}
+		}
+	}
+}
+
+void CGameContext::CreateScytheHit(int DamageOwner, int Weapon, vec2 PlayerPos, vec2 ProjPos, CCharacter *OwnerChr, CBuilding *OwnerBuilding)
+{
+	int ProximityRadius = CCharacter::ms_PhysSize*3.0f;
+	
+	float Dmg = 1.0f;
+	
+	if (m_pController->IsCoop() && IsBot(DamageOwner))
+		Dmg = 0.6f;
+	
+	{
+		CCharacter *apEnts[MAX_CLIENTS];
+		int Num = m_World.FindEntities(ProjPos, ProximityRadius, (CEntity**)apEnts,
+														MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
+
+		for (int i = 0; i < Num; ++i)
+		{
+			CCharacter *pTarget = apEnts[i];
+
+			if ((pTarget == OwnerChr) || Collision()->IntersectLine(ProjPos, pTarget->m_Pos, NULL, NULL))
+				continue;
+
+			vec2 Dir;
+			if (length(pTarget->m_Pos - PlayerPos) > 0.0f)
+				Dir = normalize(pTarget->m_Pos - PlayerPos);
+
+			pTarget->TakeDamage(normalize(vec2(frandom()-0.5f, frandom()-0.5f))*2.0f, aCustomWeapon[Weapon].m_Damage*Dmg,
+									DamageOwner, Weapon, (ProjPos+pTarget->m_Pos)/2.0f, DAMAGETYPE_NORMAL, OwnerBuilding ? true : false);
+		}
+	}
+		
+	// monsters
+	{
+		CMonster *apEnts[MAX_CLIENTS];
+		int Num = m_World.FindEntities(ProjPos, ProximityRadius, (CEntity**)apEnts,
+														MAX_CLIENTS, CGameWorld::ENTTYPE_MONSTER);
+
+		for (int i = 0; i < Num; ++i)
+		{
+			CMonster *pTarget = apEnts[i];
+
+			if (pTarget->m_Health <= 0)
+				continue;
+
+			vec2 Dir;
+			if (length(pTarget->m_Pos - PlayerPos) > 0.0f)
+				Dir = normalize(pTarget->m_Pos - PlayerPos);
+
+			pTarget->TakeDamage(Dir*1.2f, aCustomWeapon[Weapon].m_Damage, DamageOwner, vec2(0, 0));
+		}
+	}
+	
+	// buildings
+	{
+		CBuilding *apEnts[MAX_CLIENTS];
+		int Num = m_World.FindEntities(ProjPos, ProximityRadius, (CEntity**)apEnts,
+														MAX_CLIENTS, CGameWorld::ENTTYPE_BUILDING);
+
+		for (int i = 0; i < Num; ++i)
+		{
+			CBuilding *pTarget = apEnts[i];
+			
+			if (pTarget->m_Collision)
+			{
+				pTarget->TakeDamage(aCustomWeapon[Weapon].m_Damage, DamageOwner, Weapon);
+				CreateBuildingHit((ProjPos+pTarget->m_Pos)/2);
+			}
 		}
 	}
 }
@@ -395,6 +406,11 @@ void CGameContext::CreateFlamethrowerHit(int DamageOwner, int Weapon, vec2 ProjP
 	int ProximityRadius = CCharacter::ms_PhysSize;
 	
 	float dmg = OwnerBuilding ? 0.5f : 1.0f;
+
+	float Dmg = 1.0f;
+	
+	if (m_pController->IsCoop() && IsBot(DamageOwner))
+		Dmg = 0.6f;
 	
 	{
 		CCharacter *apEnts[MAX_CLIENTS];
@@ -408,7 +424,7 @@ void CGameContext::CreateFlamethrowerHit(int DamageOwner, int Weapon, vec2 ProjP
 			if ((pTarget == OwnerChr) || Collision()->IntersectLine(ProjPos, pTarget->m_Pos, NULL, NULL))
 				continue;
 
-			pTarget->TakeDamage(vec2(0, 0), aCustomWeapon[Weapon].m_Damage*dmg,
+			pTarget->TakeDamage(vec2(0, 0), aCustomWeapon[Weapon].m_Damage*dmg*Dmg,
 									DamageOwner, Weapon, ProjPos, DAMAGETYPE_FLAME, OwnerBuilding ? true : false);
 									
 			pTarget->SetAflame(1.5f, DamageOwner, Weapon);
@@ -442,8 +458,11 @@ void CGameContext::CreateFlamethrowerHit(int DamageOwner, int Weapon, vec2 ProjP
 		{
 			CBuilding *pTarget = apEnts[i];
 			
-			pTarget->TakeDamage(aCustomWeapon[Weapon].m_Damage*dmg+1, DamageOwner, Weapon);
-			CreateFlameHit((ProjPos+pTarget->m_Pos)/2+vec2(frandom()-frandom(), frandom()-frandom())*8.0f);
+			if (pTarget->m_Collision)
+			{
+				pTarget->TakeDamage(aCustomWeapon[Weapon].m_Damage*dmg+1, DamageOwner, Weapon);
+				CreateFlameHit((ProjPos+pTarget->m_Pos)/2+vec2(frandom()-frandom(), frandom()-frandom())*8.0f);
+			}
 		}
 	}
 }
@@ -452,6 +471,12 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, vec2 Pos, vec2 
 {
 	int Explosion = 0;
 	int HitSound = -1;
+	
+	float Dmg = 1.0f;
+	
+	if (m_pController->IsCoop() && IsBot(DamageOwner))
+		Dmg = 0.6f;
+	
 	
 	switch (Weapon)
 	{
@@ -493,7 +518,7 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, vec2 Pos, vec2 
 			Pos,
 			vec2(cosf(Angle), sinf(Angle)),
 			(int)(Server()->TickSpeed()*aCustomWeapon[Weapon].m_BulletLife),
-			aCustomWeapon[Weapon].m_Damage,
+			aCustomWeapon[Weapon].m_Damage * Dmg,
 			Explosion,
 			aCustomWeapon[Weapon].m_Knockback,
 			HitSound);
@@ -560,6 +585,11 @@ void CGameContext::Repair(vec2 Pos)
 
 void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool IsTurret)
 {
+	float Dmg2 = 1.0f;
+	
+	if (m_pController->IsCoop() && IsBot(Owner))
+		Dmg2 = 0.6f;
+	
 	// create the event
 	CNetEvent_Explosion *pEvent = (CNetEvent_Explosion *)m_Events.Create(NETEVENTTYPE_EXPLOSION, sizeof(CNetEvent_Explosion));
 	if(pEvent)
@@ -586,7 +616,7 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 			float Dmg = ExplosionDmg * l;
 						
 			if((int)Dmg && Dmg > 0.0f)
-				apEnts[i]->TakeDamage(ForceDir*Dmg*0.3f, (int)Dmg, Owner, Weapon, vec2(0, 0), DAMAGETYPE_NORMAL, IsTurret);
+				apEnts[i]->TakeDamage(ForceDir*Dmg*0.3f, (int)Dmg*Dmg2, Owner, Weapon, vec2(0, 0), DAMAGETYPE_NORMAL, IsTurret);
 		}
 		
 		// buildings
@@ -835,6 +865,11 @@ void CGameContext::SendEffect(int ClientID, int EffectID)
 
 void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool IsTurret)
 {
+	float Dmg2 = 1.0f;
+	
+	if (m_pController->IsCoop() && IsBot(Owner))
+		Dmg2 = 0.6f;
+	
 	// create the event
 	CreateEffect(FX_ELECTRIC, Pos);
 	
@@ -860,7 +895,7 @@ void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, bool
 				if((int)Dmg && Dmg > 0.0f)
 				{
 					CreateEffect(FX_ELECTROHIT, (Pos+apEnts[i]->m_Pos)/2.0f);
-					apEnts[i]->TakeDamage(ForceDir*0.1f, (int)Dmg, Owner, Weapon, vec2(0, 0), DAMAGETYPE_ELECTRIC, IsTurret);
+					apEnts[i]->TakeDamage(ForceDir*0.1f, (int)Dmg*Dmg2, Owner, Weapon, vec2(0, 0), DAMAGETYPE_ELECTRIC, IsTurret);
 					//apEnts[i]->SetAflame(0.5f+Dmg*0.5f, Owner, Weapon);
 				}
 			}
@@ -2005,6 +2040,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			pPlayer->m_TeeInfos.m_ColorBody = pMsg->m_ColorBody;
 			pPlayer->m_TeeInfos.m_ColorFeet = pMsg->m_ColorFeet;
 			pPlayer->m_TeeInfos.m_ColorTopper = pMsg->m_ColorTopper;
+			pPlayer->m_TeeInfos.m_BloodColor = pMsg->m_BloodColor;
 			pPlayer->m_TeeInfos.m_ColorSkin = pMsg->m_ColorSkin;
 			m_pController->OnPlayerInfoChange(pPlayer);
 		}
@@ -2062,8 +2098,13 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 	}
 	else
 	{
+		// bots skip sending this info
 		if(MsgID == NETMSGTYPE_CL_STARTINFO)
 		{
+			// limit players to 4 in invasion
+			if (m_pController->IsCoop() && m_pController->CountHumans() > 4)
+				Server()->Kick(ClientID, "Server full - max 4 players in invasion");
+			
 			if(pPlayer->m_IsReady)
 				return;
 
@@ -2081,6 +2122,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			pPlayer->m_TeeInfos.m_ColorFeet = pMsg->m_ColorFeet;
 			pPlayer->m_TeeInfos.m_ColorTopper = pMsg->m_ColorTopper;
 			pPlayer->m_TeeInfos.m_ColorSkin = pMsg->m_ColorSkin;
+			pPlayer->m_TeeInfos.m_BloodColor = pMsg->m_BloodColor;
 			m_pController->OnPlayerInfoChange(pPlayer);
 
 			// send vote options
@@ -2537,6 +2579,15 @@ void CGameContext::ConForceVote(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CGameContext::ReloadMap()
+{
+	
+		Console()->ExecuteLine("reload");	
+	
+}
+
+
+
 void CGameContext::ConClearVotes(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
@@ -2822,6 +2873,7 @@ int CGameContext::CountBots(bool SkipSpecialTees)
 	return n;
 }
 
+/*
 int CGameContext::CountHumans()
 {
 	int n = 0;
@@ -2834,6 +2886,7 @@ int CGameContext::CountHumans()
 	
 	return n;
 }
+*/
 
 int CGameContext::CountBotsAlive(bool SkipSpecialTees)
 {

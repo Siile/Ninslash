@@ -84,7 +84,36 @@ void CCustomStuff::Reset()
 }
 
 
+bool CCustomStuff::IsBot(int ClientID)
+{
+	if (ClientID < 0 && ClientID >= MAX_CLIENTS)
+		return false;
+	
+	return m_aPlayerInfo[ClientID].m_RenderInfo.m_IsBot;
+}
 
+vec4 CCustomStuff::BloodColor(int ClientID)
+{
+	//if (ClientID >= 0 && ClientID < MAX_CLIENTS)
+	//	return m_aPlayerInfo[ClientID].m_RenderInfo.m_ColorSkin;
+
+	if (ClientID < 0 && ClientID >= MAX_CLIENTS)
+		return vec4(1, 0, 0, 1);
+
+	int c = m_aPlayerInfo[ClientID].m_RenderInfo.m_BloodColor;
+	
+	switch (c)
+	{
+		case 0: return vec4(1, 0, 0, 1);
+		case 1: return vec4(0, 1, 0, 1);
+		case 2: return vec4(0, 0, 1, 1);
+	};
+
+	//if (ClientID%2)
+	//	return vec4(0, 1, 0, 1);
+	
+	return vec4(1, 0, 0, 1);
+}
 
 
 void CCustomStuff::Tick(bool Paused)
@@ -186,8 +215,11 @@ void CCustomStuff::Update(bool Paused)
 	for (;m_LastUpdate < currentTime; m_LastUpdate += step)
 	{
 		Tick(Paused);
-		if (i++ > 20)
+		if (i++ > 5)
+		{
+			m_LastUpdate = currentTime;
 			break;
+		}
 	}
 	
 }

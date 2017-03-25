@@ -129,6 +129,7 @@ void CControls::OnConsoleInit()
 	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 7}; Console()->Register("+weapon7", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon7"); }
 	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 8}; Console()->Register("+weapon8", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon8"); }
 	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 9}; Console()->Register("+weapon9", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon9"); }
+	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 10}; Console()->Register("+weapon10", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon10"); }
 
 	/*
 	{ static CInputSet s_Set = {this, &m_SelectedBuilding, 1}; Console()->Register("+weapon1", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Build1"); }

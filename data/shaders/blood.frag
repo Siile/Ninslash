@@ -8,24 +8,25 @@ uniform int screenheight;
 
 void main (void)
 {
-	//vec4 color = vec4(1.0f, 1.0f-f*0.5f, 1.0f-f, texture2D(texture, gl_TexCoord[0].st).w);
-	float a = texture2D(texture, gl_TexCoord[0].st).r;
-	
-	float r = 0.7f;
+	float a = texture2D(texture, gl_TexCoord[0].st).r+texture2D(texture, gl_TexCoord[0].st).g+texture2D(texture, gl_TexCoord[0].st).b;
 	
 	float StepX = 2.0f / screenwidth;
 	float StepY = 2.0f / screenheight;
 	
-	float SumRed = (texture2D(texture, gl_TexCoord[0].st + vec2(-StepX, -StepY)).r + texture2D(texture, gl_TexCoord[0].st + vec2(+StepX, +StepY)).r) / 2.0f;
+	vec4 c = texture2D(texture, gl_TexCoord[0].st + vec2(-StepX, -StepY)) + texture2D(texture, gl_TexCoord[0].st + vec2(+StepX, +StepY)) / 2.0f;
 	
-	r = SumRed * 0.7f;
+	c *= gl_Color;
 	
+	c.g -= (c.r + c.b) / 1.3f;
+	c.r -= (c.g + c.b) / 1.3f;
+	c.b -= (c.g + c.r) / 1.3f;
 	
-	//r -= (1.0f-texture2D(texture, gl_TexCoord[0].st + vec2(-0.001f, -0.001f)).r)*0.4f;
-	
+	c.r = clamp(c.r, 0.0f, 0.5f);
+	c.g = clamp(c.g, 0.0f, 0.5f);
+	c.b = clamp(c.b, 0.0f, 0.1f);
 	
 	a = step(0.7f, a);
-	
-	vec4 color = vec4(r * gl_Color.r, 0, 0, a * gl_Color.w);
-	gl_FragColor = color;
+	c.a = a * gl_Color.w;
+
+	gl_FragColor = c;
 }

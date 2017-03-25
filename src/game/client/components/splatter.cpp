@@ -165,7 +165,10 @@ void CSplatter::RenderGroup(int Group)
 			1.0f - a); //0.8f-a*0.8f); // pow(a, 0.75f) *
 			*/
 			
-		Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f-a);
+		//Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f-a);
+		//Graphics()->SetColor(1.0f, 0.0f, 0.0f, 1.0f-a);
+		vec4 c = m_aSplatter[i].m_Color;
+		Graphics()->SetColor(c.r, c.g, c.b, 1.0f-a);
 
 		IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
 		Graphics()->QuadsDraw(&QuadItem, 1);

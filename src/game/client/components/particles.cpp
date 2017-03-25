@@ -135,10 +135,14 @@ void CParticles::Update(float TimePassed)
 					m_aParticles[i].m_Pos.y -= 1.0f;
 				}
 				
-				if (CustomStuff()->Impact(m_aParticles[i].m_Pos))
+				vec2 Force = m_aParticles[i].m_Vel;
+				
+				if (CustomStuff()->Impact(m_aParticles[i].m_Pos, &Force))
 				{
-					m_aParticles[i].m_Pos.y -= 10.0f;
-					m_aParticles[i].m_Vel.y = -1000.0f-frandom()*400.0f;
+					//m_aParticles[i].m_Pos.y -= 10.0f;
+					//m_aParticles[i].m_Vel.y = -1000.0f-frandom()*400.0f;
+					m_aParticles[i].m_Pos += Force*10.0f;
+					m_aParticles[i].m_Vel += Force*(700.0f+frandom()*700);
 				}
 			}
 				
@@ -155,11 +159,39 @@ void CParticles::Update(float TimePassed)
 			{
 				m_aParticles[i].m_Rotspeed += (m_aParticles[i].m_Vel.x / 40 - m_aParticles[i].m_Rotspeed) / 2.0f;
 				if (g_Config.m_GoreBlood > 0 && abs(m_aParticles[i].m_Vel.x) + abs(m_aParticles[i].m_Vel.y) > 340)
-					m_pClient->m_pEffects->Blood(m_aParticles[i].m_Pos, vec2(frandom()-frandom(), frandom()-frandom()) * 0.2f);
+				{
+					vec4 Color = vec4(1, 0, 0, 1);
+					
+								
+					switch (m_aParticles[i].m_Special)
+					{
+						case 1: Color = vec4(0, 1, 0, 1); break;
+						case 2: Color = vec4(0, 0, 1, 1); break;
+					};
+					
+					m_pClient->m_pEffects->Blood(m_aParticles[i].m_Pos, vec2(frandom()-frandom(), frandom()-frandom()) * 0.2f, Color);
+				}
 			}
 			
 			if (g == GROUP_EXPLOSIONS)
-				m_pClient->m_pEffects->Light(m_aParticles[i].m_Pos, 384*(1.0f-m_aParticles[i].m_Life / m_aParticles[i].m_LifeSpan));
+			{
+				//m_pClient->m_pEffects->Light(m_aParticles[i].m_Pos, 384*(1.0f-m_aParticles[i].m_Life / m_aParticles[i].m_LifeSpan));
+
+				if (!m_aParticles[i].m_Special)
+				{
+					m_aParticles[i].m_Special++;
+					
+					float r = 25;
+					vec2 p = m_aParticles[i].m_Pos + vec2(-50, -20);
+					CustomStuff()->AddImpact(vec4(p.x-r, p.y-r, p.x+r, p.y+r), CCustomStuff::IMPACT_GRENADE, vec2(-0.6f, -0.6f));
+
+					p = m_aParticles[i].m_Pos + vec2(0, -20);
+					CustomStuff()->AddImpact(vec4(p.x-r, p.y-r, p.x+r, p.y+r), CCustomStuff::IMPACT_GRENADE, vec2(0, -1));
+
+					p = m_aParticles[i].m_Pos + vec2(50, -20);
+					CustomStuff()->AddImpact(vec4(p.x-r, p.y-r, p.x+r, p.y+r), CCustomStuff::IMPACT_GRENADE, vec2(0.6f, 0.6f));
+				}
+			}
 			
 			// check particle death
 			if(m_aParticles[i].m_Life > m_aParticles[i].m_LifeSpan)
@@ -612,7 +644,15 @@ void CParticles::RenderGroup(int Group)
 			Graphics()->QuadsDraw(&QuadItem, 1);
 			
 			RenderTools()->SelectSprite(m_aParticles[i].m_Spr+1);
-			Graphics()->SetColor(1, 1, 1, 1-a);
+			
+			switch (m_aParticles[i].m_Special)
+			{
+				case 1: Graphics()->SetColor(0, 1, 0, 1-a); break;
+				case 2: Graphics()->SetColor(0, 0, 0, 1-a); break;
+				default: Graphics()->SetColor(1, 0, 0, 1-a); break;
+			};
+			
+			//Graphics()->SetColor(1, 1, 1, 1-a);
 			IGraphics::CQuadItem QuadItem2(p.x, p.y, Size, Size);
 			Graphics()->QuadsDraw(&QuadItem2, 1);
 

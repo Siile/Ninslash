@@ -467,7 +467,8 @@ void CRenderTools::RenderFullScreenLayer()
 
 	Graphics()->QuadsBegin();
 	Graphics()->QuadsSetRotation(0);
-	Graphics()->SetColor(0.6f, 0.0f, 0.0f, 0.8f);
+	//Graphics()->SetColor(0.6f, 0.0f, 0.0f, 0.8f);
+	Graphics()->SetColor(1, 1, 1, 0.8f);
 	
 	{
 		IGraphics::CQuadItem QuadItem(Graphics()->ScreenWidth() / 2, Graphics()->ScreenHeight() / 2, Graphics()->ScreenWidth(), -Graphics()->ScreenHeight());
@@ -487,7 +488,8 @@ void CRenderTools::RenderFullScreenLayer()
 
 	Graphics()->QuadsBegin();
 	Graphics()->QuadsSetRotation(0);
-	Graphics()->SetColor(1.0f, 0, 0, 0.8f);
+	//Graphics()->SetColor(1.0f, 0, 0, 0.8f);
+	Graphics()->SetColor(1, 1, 1, 0.8f);
 	
 	{
 		IGraphics::CQuadItem QuadItem(Graphics()->ScreenWidth() / 2, Graphics()->ScreenHeight() / 2, Graphics()->ScreenWidth(), -Graphics()->ScreenHeight());
@@ -1159,6 +1161,79 @@ void CRenderTools::RenderStaticPlayer(CTeeRenderInfo *pInfo, vec2 Pos)
 }
 
 
+void CRenderTools::RenderScythe(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec2 Dir, vec2 Pos)
+{
+	float WeaponAngle = PlayerInfo->MeleeAngle();
+	int WeaponDir = PlayerInfo->MeleeFlip() ? -1 : 1;
+	bool FlipY = false;
+	vec2 Size = vec2(256, 256)*0.4f;
+	
+	
+	// render effect
+	/*
+	if (PlayerInfo->MeleeEffectFrame() != -1)
+	{
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_SCYTHE].m_Id);
+		int Sprite = SPRITE_FX_SCYTHE1+PlayerInfo->MeleeEffectFrame();
+
+		vec2 p = Pos + PlayerInfo->m_Weapon2Recoil;
+		p += PlayerInfo->MeleeEffectOffset();
+		
+		Graphics()->QuadsBegin();
+		Graphics()->QuadsSetRotation(pi/8.0f*(WeaponDir > 0.0f ? -1.0f : 1.0f));
+		Graphics()->SetColor(0.5f, 0.5f, 0.5f, 0.5f);
+		
+		if (WeaponDir > 0)
+			FlipY = !PlayerInfo->MeleeEffectFlip();
+		else
+			FlipY = PlayerInfo->MeleeEffectFlip();
+
+		{
+			SelectSprite(Sprite, (FlipY ? SPRITE_FLAG_FLIP_Y : 0) + (WeaponDir > 0 ? SPRITE_FLAG_FLIP_X : 0));
+			IGraphics::CQuadItem QuadItem(p.x, p.y, Size.x*2.1f, Size.y*1.5f);
+			Graphics()->QuadsDraw(&QuadItem, 1);
+		}
+		
+		Graphics()->QuadsEnd();
+	}
+	*/
+	
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_SCYTHE].m_Id);
+	int Sprite = SPRITE_SCYTHE1+PlayerInfo->MeleeFrame();
+
+	vec2 WeaponPos = Pos + PlayerInfo->m_Weapon2Recoil;
+	vec2 Offset = vec2(0, 0) + PlayerInfo->MeleeOffset();
+
+		
+	Graphics()->QuadsBegin();
+	Graphics()->QuadsSetRotation(WeaponAngle);
+		
+	{
+		SelectSprite(Sprite, (FlipY ? SPRITE_FLAG_FLIP_Y : 0) + (WeaponDir < 0 ? SPRITE_FLAG_FLIP_X : 0));
+		IGraphics::CQuadItem QuadItem(WeaponPos.x + Offset.x, WeaponPos.y + Offset.y, Size.x*PlayerInfo->MeleeSize(), Size.y*PlayerInfo->MeleeSize());
+		Graphics()->QuadsDraw(&QuadItem, 1);
+	}
+	
+	Graphics()->QuadsEnd();
+		
+	// render hand
+	float HandBaseSize = 10.0f;		
+		
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HANDS].m_Id);
+	Graphics()->QuadsBegin();
+	Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, pInfo->m_ColorSkin.a);
+
+	Graphics()->QuadsSetRotation(WeaponAngle);
+	{
+		SelectSprite(SPRITE_HAND1+pInfo->m_Body);
+		IGraphics::CQuadItem QuadItem(WeaponPos.x+ Offset.x, WeaponPos.y+ Offset.y, 2*HandBaseSize, 2*HandBaseSize);
+		Graphics()->QuadsDraw(&QuadItem, 1);
+	}
+		
+	Graphics()->QuadsEnd();
+}
+	
+
 void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, int WeaponNum, int Emote, vec2 Dir, vec2 Pos)
 {
 	vec2 Direction = Dir;
@@ -1197,11 +1272,18 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 	if (Atlas > NUM_BODIES+1)
 		Atlas = NUM_BODIES+1;
 	
+	
+	if (PlayerInfo->m_Weapon == WEAPON_SCYTHE && !PlayerInfo->MeleeFront())
+		RenderScythe(PlayerInfo, pInfo, Dir, Position);
+	
 	RenderSkeleton(Position+vec2(0, 16), pInfo, PlayerInfo->Animation(), 0, Skelebank()->m_lSkeletons[Atlas], Skelebank()->m_lAtlases[Atlas], PlayerInfo);
 	
 
+	// render melee weapons
+	if (PlayerInfo->m_Weapon == WEAPON_SCYTHE && PlayerInfo->MeleeFront())
+		RenderScythe(PlayerInfo, pInfo, Dir, Position);
 	
-	// render melee weapon
+	
 	if (PlayerInfo->m_Weapon == WEAPON_HAMMER || PlayerInfo->m_Weapon == WEAPON_TOOL)
 	{
 		float WeaponAngle = pi/2.0f - abs(GetAngle(Dir)-pi/2.0f);
@@ -1239,8 +1321,6 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 			}
 		}
 		
-
-		
 		WeaponPos.x += sin(-WeaponAngle*WeaponDir+90*RAD)*Radius*WeaponDir;
 		WeaponPos.y += cos(-WeaponAngle*WeaponDir+90*RAD)*Radius*WeaponDir;
 		
@@ -1258,8 +1338,10 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 			Sprite = SPRITE_WEAPON_TOOL_BODY;
 			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 		}
-		else
+		else if (PlayerInfo->m_Weapon == WEAPON_HAMMER)
+		{
 			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_SWORD].m_Id);
+		}
 		
 		Graphics()->QuadsBegin();
 		Graphics()->QuadsSetRotation(WeaponAngle*WeaponDir);
@@ -1268,7 +1350,6 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 		IGraphics::CQuadItem QuadItem(WeaponPos.x + Offset.x, WeaponPos.y + Offset.y, Size.x, Size.y);
 		Graphics()->QuadsDraw(&QuadItem, 1);
 		Graphics()->QuadsEnd();
-		
 		
 		// render hand
 		float HandBaseSize = 10.0f;		
@@ -1440,21 +1521,21 @@ void CRenderTools::RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, CSkeleto
 					if (PlayerInfo)
 					{
 						if (strcmp(pAttachment->m_Name, "splatter1") == 0)
-							Graphics()->SetColor(1, 1, 1, PlayerInfo->m_aSplatter[0]);
+							Graphics()->SetColor(PlayerInfo->m_aSplatterColor[0].r, PlayerInfo->m_aSplatterColor[0].g, PlayerInfo->m_aSplatterColor[0].b, PlayerInfo->m_aSplatter[0]);
 						if (strcmp(pAttachment->m_Name, "splatter2") == 0)
-							Graphics()->SetColor(1, 1, 1, PlayerInfo->m_aSplatter[1]);
+							Graphics()->SetColor(PlayerInfo->m_aSplatterColor[1].r, PlayerInfo->m_aSplatterColor[1].g, PlayerInfo->m_aSplatterColor[1].b, PlayerInfo->m_aSplatter[1]);
 						if (strcmp(pAttachment->m_Name, "splatter3") == 0)
-							Graphics()->SetColor(1, 1, 1, PlayerInfo->m_aSplatter[2]);
+							Graphics()->SetColor(PlayerInfo->m_aSplatterColor[2].r, PlayerInfo->m_aSplatterColor[2].g, PlayerInfo->m_aSplatterColor[2].b, PlayerInfo->m_aSplatter[2]);
 						if (strcmp(pAttachment->m_Name, "splatter4") == 0)
-							Graphics()->SetColor(1, 1, 1, PlayerInfo->m_aSplatter[3]);
+							Graphics()->SetColor(PlayerInfo->m_aSplatterColor[3].r, PlayerInfo->m_aSplatterColor[3].g, PlayerInfo->m_aSplatterColor[3].b, PlayerInfo->m_aSplatter[3]);
 						if (strcmp(pAttachment->m_Name, "splatter5") == 0)
-							Graphics()->SetColor(1, 1, 1, PlayerInfo->m_aSplatter[4]);
+							Graphics()->SetColor(PlayerInfo->m_aSplatterColor[4].r, PlayerInfo->m_aSplatterColor[4].g, PlayerInfo->m_aSplatterColor[4].b, PlayerInfo->m_aSplatter[4]);
 						if (strcmp(pAttachment->m_Name, "splatter6") == 0)
-							Graphics()->SetColor(1, 1, 1, PlayerInfo->m_aSplatter[5]);
+							Graphics()->SetColor(PlayerInfo->m_aSplatterColor[5].r, PlayerInfo->m_aSplatterColor[5].g, PlayerInfo->m_aSplatterColor[5].b, PlayerInfo->m_aSplatter[5]);
 						if (strcmp(pAttachment->m_Name, "splatter7") == 0)
-							Graphics()->SetColor(1, 1, 1, PlayerInfo->m_aSplatter[6]);
+							Graphics()->SetColor(PlayerInfo->m_aSplatterColor[6].r, PlayerInfo->m_aSplatterColor[6].g, PlayerInfo->m_aSplatterColor[6].b, PlayerInfo->m_aSplatter[6]);
 						if (strcmp(pAttachment->m_Name, "splatter8") == 0)
-							Graphics()->SetColor(1, 1, 1, PlayerInfo->m_aSplatter[7]);
+							Graphics()->SetColor(PlayerInfo->m_aSplatterColor[7].r, PlayerInfo->m_aSplatterColor[7].g, PlayerInfo->m_aSplatterColor[7].b, PlayerInfo->m_aSplatter[7]);
 					}
 
 					if (SybsetType == 1)

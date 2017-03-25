@@ -223,6 +223,7 @@ public:
 	vec2 m_Pos;
 	vec2 m_Vel;
 	
+	bool m_PlayerCollision;
 	bool m_MonsterDamage;
 	bool m_FluidDamage;
 	bool m_HandJetpack;

@@ -572,6 +572,7 @@ void CGameClient::OnRender()
 			str_comp(g_Config.m_PlayerEye, m_aClients[m_Snap.m_LocalClientID].m_aEyeName) ||
 			(m_Snap.m_pGameInfoObj && !(m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_TEAMS) &&	// no teamgame?
 			(g_Config.m_PlayerBody != m_aClients[m_Snap.m_LocalClientID].m_Body ||
+			g_Config.m_PlayerBloodColor != m_aClients[m_Snap.m_LocalClientID].m_BloodColor ||
 			g_Config.m_PlayerColorBody != m_aClients[m_Snap.m_LocalClientID].m_ColorBody ||
 			g_Config.m_PlayerColorFeet != m_aClients[m_Snap.m_LocalClientID].m_ColorFeet ||
 			g_Config.m_PlayerColorSkin != m_aClients[m_Snap.m_LocalClientID].m_ColorSkin ||
@@ -706,6 +707,25 @@ void CGameClient::OnRconLine(const char *pLine)
 	m_pGameConsole->PrintLine(CGameConsole::CONSOLETYPE_REMOTE, pLine);
 }
 
+
+
+void CGameClient::AddPlayerSplatter(vec2 Pos, vec4 Color)
+{
+	for (int c = 0; c < MAX_CLIENTS; c++)
+	{
+		if (CustomStuff()->m_aPlayerInfo[c].m_InUse)
+		{
+			if (abs(CustomStuff()->m_aPlayerInfo[c].Pos().x - Pos.x) < 250 && abs(CustomStuff()->m_aPlayerInfo[c].Pos().y - Pos.y) < 250)
+			{
+				vec2 At;
+				if (!Collision()->IntersectLine(CustomStuff()->m_aPlayerInfo[c].Pos(), Pos, 0x0, 0x0))
+					CustomStuff()->m_aPlayerInfo[c].AddSplatter(Color);		
+			}							
+		}
+	}
+}
+
+
 void CGameClient::ProcessEvents()
 {
 	if(m_SuppressEvents)
@@ -752,18 +772,17 @@ void CGameClient::ProcessEvents()
 			if (BloodAmount > 0)
 			{
 				for (int i = 0; i < BloodAmount; i++)
-					g_GameClient.m_pEffects->Blood(vec2(ev->m_X, ev->m_Y), RandomDir()*0.3f - GetDirection(ev->m_Angle)*2.0f);
+					g_GameClient.m_pEffects->Blood(vec2(ev->m_X, ev->m_Y), RandomDir()*0.3f - GetDirection(ev->m_Angle)*2.0f, CustomStuff()->BloodColor(ev->m_ClientID));
 			}
 			
 			g_GameClient.m_pEffects->DamageInd(vec2(ev->m_X, ev->m_Y), RandomDir()*0.3f - GetDirection(ev->m_Angle)*2.0f, abs(ev->m_Damage), GetPlayerColor(ev->m_ClientID));
 			
 
-			int TeeSplatter = 0;
 			if (BloodAmount > 0)
-				TeeSplatter = 1;
-			
-			for (int i = 0; i < TeeSplatter; i++)
 			{
+				AddPlayerSplatter(vec2(ev->m_X, ev->m_Y), CustomStuff()->BloodColor(ev->m_ClientID));
+				
+				/*
 				for (int c = 0; c < MAX_CLIENTS; c++)
 				{
 					if (CustomStuff()->m_aPlayerInfo[c].m_InUse)
@@ -772,10 +791,11 @@ void CGameClient::ProcessEvents()
 						{
 							vec2 At;
 							if (!Collision()->IntersectLine(CustomStuff()->m_aPlayerInfo[c].Pos(), vec2(ev->m_X, ev->m_Y), 0x0, 0x0))
-								CustomStuff()->m_aPlayerInfo[c].AddSplatter();		
+								CustomStuff()->m_aPlayerInfo[c].AddSplatter(CustomStuff()->BloodColor(ev->m_ClientID));		
 						}							
 					}
 				}
+				*/
 			}
 		}
 		else if(Item.m_Type == NETEVENTTYPE_EXPLOSION)
@@ -922,19 +942,29 @@ void CGameClient::OnNewSnapshot()
 				m_aClients[ClientID].m_ColorFeet = pInfo->m_ColorFeet;
 				m_aClients[ClientID].m_ColorTopper = pInfo->m_ColorTopper;
 				m_aClients[ClientID].m_ColorSkin = pInfo->m_ColorSkin;
+				m_aClients[ClientID].m_BloodColor = pInfo->m_BloodColor;
+				
+				m_aClients[ClientID].m_IsBot = pInfo->m_IsBot;
+				m_aClients[ClientID].m_BloodColor = pInfo->m_BloodColor;
 
 				// prepare the info
-				if(m_aClients[ClientID].m_aTopperName[0] == 'x' || m_aClients[ClientID].m_aTopperName[1] == '_')
-					str_copy(m_aClients[ClientID].m_aTopperName, "default", 64);
 				
-				if(m_aClients[ClientID].m_aEyeName[0] == 'x' || m_aClients[ClientID].m_aEyeName[1] == '_')
-					str_copy(m_aClients[ClientID].m_aEyeName, "default", 64);
+				if (pInfo->m_Body <3 )
+				{
+					if(m_aClients[ClientID].m_aTopperName[0] == 'x' || m_aClients[ClientID].m_aTopperName[1] == '_')
+						str_copy(m_aClients[ClientID].m_aTopperName, "default", 64);
+					
+					if(m_aClients[ClientID].m_aEyeName[0] == 'x' || m_aClients[ClientID].m_aEyeName[1] == '_')
+						str_copy(m_aClients[ClientID].m_aEyeName, "default", 64);
+				}
 
 				m_aClients[ClientID].m_SkinInfo.m_Body = m_aClients[ClientID].m_Body;
 				m_aClients[ClientID].m_SkinInfo.m_ColorBody = m_pSkins->GetColorV4(m_aClients[ClientID].m_ColorBody);
 				m_aClients[ClientID].m_SkinInfo.m_ColorFeet = m_pSkins->GetColorV4(m_aClients[ClientID].m_ColorFeet);
 				m_aClients[ClientID].m_SkinInfo.m_ColorTopper = m_pSkins->GetColorV4(m_aClients[ClientID].m_ColorTopper);
 				m_aClients[ClientID].m_SkinInfo.m_ColorSkin = m_pSkins->GetColorV4(m_aClients[ClientID].m_ColorSkin);
+				m_aClients[ClientID].m_SkinInfo.m_IsBot = pInfo->m_IsBot;
+				m_aClients[ClientID].m_SkinInfo.m_BloodColor = pInfo->m_BloodColor;
 				m_aClients[ClientID].m_SkinInfo.m_Size = 64;
 
 
@@ -1152,7 +1182,7 @@ void CGameClient::OnNewSnapshot()
 	Client()->GetServerInfo(&CurrentServerInfo);
 	if(CurrentServerInfo.m_aGameType[0] != '0')
 	{
-		if(str_comp(CurrentServerInfo.m_aGameType, "DM") != 0 && str_comp(CurrentServerInfo.m_aGameType, "TDM") != 0 && str_comp(CurrentServerInfo.m_aGameType, "CTF") != 0)
+		if(str_comp(CurrentServerInfo.m_aGameType, "INF") != 0 && str_comp(CurrentServerInfo.m_aGameType, "GUN") != 0 && str_comp(CurrentServerInfo.m_aGameType, "DM") != 0 && str_comp(CurrentServerInfo.m_aGameType, "TDM") != 0 && str_comp(CurrentServerInfo.m_aGameType, "CTF") != 0)
 			m_ServerMode = SERVERMODE_MOD;
 		else if(mem_comp(&StandardTuning, &m_Tuning, sizeof(CTuningParams)) == 0)
 			m_ServerMode = SERVERMODE_PURE;
@@ -1368,6 +1398,8 @@ void CGameClient::CClientData::Reset()
 	m_SkinInfo.m_ColorFeet = vec4(1,1,1,1);
 	m_SkinInfo.m_ColorTopper = vec4(1,1,1,1);
 	m_SkinInfo.m_ColorSkin = vec4(1,1,1,1);
+	m_SkinInfo.m_IsBot = false;
+	m_SkinInfo.m_BloodColor = 0;
 	UpdateRenderInfo();
 }
 
@@ -1393,6 +1425,7 @@ void CGameClient::SendInfo(bool Start)
 		Msg.m_ColorFeet = g_Config.m_PlayerColorFeet;
 		Msg.m_ColorTopper = g_Config.m_PlayerColorTopper;
 		Msg.m_ColorSkin = g_Config.m_PlayerColorSkin;
+		Msg.m_BloodColor = g_Config.m_PlayerBloodColor;
 		Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
 	}
 	else
@@ -1408,6 +1441,7 @@ void CGameClient::SendInfo(bool Start)
 		Msg.m_ColorFeet = g_Config.m_PlayerColorFeet;
 		Msg.m_ColorTopper = g_Config.m_PlayerColorTopper;
 		Msg.m_ColorSkin = g_Config.m_PlayerColorSkin;
+		Msg.m_BloodColor = g_Config.m_PlayerBloodColor;
 		Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
 
 		// activate timer to resend the info if it gets filtered
@@ -1458,6 +1492,32 @@ bool CGameClient::BuildingEnabled()
 	return false;
 }
 
+bool CGameClient::Survival()
+{
+	if (m_Snap.m_pGameInfoObj)
+	{
+		int Flags = m_Snap.m_pGameInfoObj->m_GameFlags;
+	
+		if (Flags & GAMEFLAG_SURVIVAL)
+			return true;
+	}
+	
+	return false;
+}
+
+bool CGameClient::IsCoop()
+{
+	if (m_Snap.m_pGameInfoObj)
+	{
+		int Flags = m_Snap.m_pGameInfoObj->m_GameFlags;
+	
+		if (Flags & GAMEFLAG_COOP)
+			return true;
+	}
+	
+	return false;
+}
+
 bool CGameClient::IsLocalUndead()
 {
 	if (m_Snap.m_pGameInfoObj)
@@ -1470,6 +1530,16 @@ bool CGameClient::IsLocalUndead()
 	
 	return false;
 }
+
+vec4 CGameClient::GetBloodColor(int ClientID)
+{
+	if (ClientID < 0 || ClientID >= MAX_CLIENTS)
+		return vec4(1, 0, 0, 1);
+	
+	//return CustomStuff()->m_aPlayerInfo[ClientID].m_Color;
+	return vec4(1, 0, 0, 1);
+}
+
 
 vec4 CGameClient::GetPlayerColor(int ClientID)
 {

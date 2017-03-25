@@ -108,7 +108,7 @@ void CMonsters::OnRender()
 {
 	if(Client()->State() < IClient::STATE_ONLINE)
 		return;
-
+	
 	int Num = Client()->SnapNumItems(IClient::SNAP_CURRENT);
 	for(int i = 0; i < Num; i++)
 	{

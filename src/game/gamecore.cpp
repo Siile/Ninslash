@@ -195,6 +195,7 @@ int CCharacterCore::SlopeState()
 
 void CCharacterCore::Tick(bool UseInput)
 {
+	m_PlayerCollision = false;
 	m_MonsterDamage = false;
 	m_FluidDamage = false;
 	m_HandJetpack = false;
@@ -766,8 +767,10 @@ void CCharacterCore::Tick(bool UseInput)
 			
 			if(m_pWorld->m_Tuning.m_PlayerCollision && m_Roll == 0 && m_Slide == 0 && 
 				pCharCore->m_Slide == 0 && pCharCore->m_Roll == 0 && 
-				Distance < PhysSize*1.25f && Distance > 0.0f)
+				Distance < PhysSize*1.25f && Distance > 12.0f)
 			{
+				m_PlayerCollision = true;
+					
 				float a = (PhysSize*1.45f - Distance);
 				float Velocity = 0.5f;
 
@@ -1041,8 +1044,9 @@ void CCharacterCore::Move()
 				if(!pCharCore || pCharCore == this || pCharCore->m_Roll != 0 || pCharCore->Status(STATUS_SPAWNING))
 					continue;
 				float D = distance(Pos, pCharCore->m_Pos);
-				if(D < 28.0f && D > 0.0f)
+				if(D < 28.0f && D > 12.0f)
 				{
+					m_PlayerCollision = true;
 					if(a > 0.0f)
 						m_Pos = LastPos;
 					else if(distance(NewPos, pCharCore->m_Pos) > D)

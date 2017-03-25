@@ -67,6 +67,7 @@ protected:
 	CGameContext *GameServer() const { return m_pGameServer; }
 	CPlayer *Player() const { return m_pPlayer; }
 	
+	int m_MoveReactTime;
 	
 	// events for talking & stuff
 	bool m_Event[NUM_EVENTS];

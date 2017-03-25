@@ -90,6 +90,7 @@ enum CustomWeapons
 	W_GRENADELAUNCHER,
 	W_FLAMER,
 	W_CHAINSAW,
+	W_SCYTHE,
 	W_WALKER,
 	W_ROBOT1,
 	NUM_CUSTOMWEAPONS
@@ -211,14 +212,14 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 	CWeapon(
 		"Laser rifle",
 		SOUND_LASER_FIRE,
-		35, // damage
+		40, // damage
 		true, // autofire
 		0, // bullet spread
 		1, // shot spread
 		5, // powerup size
 		14, // max ammo
 		0, // bullet life
-		430, // bullet reload time
+		500, // bullet reload time
 		0.0f, // bullet knockback
 		0.0f, // self knockback
 		740 // ai attack range
@@ -266,7 +267,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		200, // bullet reload time
 		0.0f, // bullet knockback
 		0.0f, // self knockback
-		600 // ai attack range
+		400 // ai attack range
 		),
 	CWeapon(
 		"Chainsaw",
@@ -282,6 +283,21 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		0.2f, // knockback
 		0.0f, // self knockback
 		180 // ai attack range
+		),
+	CWeapon(
+		"Scythe",
+		-1,
+		4, // damage
+		true, // autofire
+		0, // bullet spread
+		1, // shot spread
+		0, // powerup size
+		0, // max ammo
+		0, // bullet life
+		50, // bullet reload time
+		0.2f, // knockback
+		0.0f, // self knockback
+		750 // ai attack range
 		),
 	CWeapon(
 		"Walker weapon",

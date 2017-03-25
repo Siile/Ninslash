@@ -69,6 +69,7 @@ void CPlayerInfo::Reset()
 	for (int i = 0; i < 8; i++)
 	{
 		m_aSplatter[i] = 0.0f;
+		m_aSplatterColor[i] = vec4();
 	}
 	
 	// reset bounciness
@@ -99,9 +100,8 @@ void CPlayerInfo::Reset()
 	m_LoadInvisibility = false;
 	
 	m_pAnimation->Reset();
+	m_Melee.Reset();
 }
-
-
 
 
 
@@ -125,12 +125,15 @@ void CPlayerInfo::SetLocal()
 }
 
 
-void CPlayerInfo::AddSplatter()
+void CPlayerInfo::AddSplatter(vec4 Color)
 {
 	if (++m_NextSplatter > 7)
 		m_NextSplatter = 0;
 	
+	Color.b *= 0.2f;
+	
 	m_aSplatter[m_NextSplatter] = 1.0f;
+	m_aSplatterColor[m_NextSplatter] = Color;
 }
 
 static float CurveAngle(float From, float To, float Amount)
@@ -145,8 +148,162 @@ static float CurveAngle(float From, float To, float Amount)
 }
 
 
+
+float CPlayerInfo::MeleeAngle()
+{
+	return m_Melee.m_Angle;
+}
+
+float CPlayerInfo::MeleeSize()
+{
+	return 1.2f;
+	
+	float s = abs(m_Melee.m_TurnSpeed);
+	return 0.8f + (s > 0.2f ? s - 0.2f : 0.0f);
+}
+
+bool CPlayerInfo::MeleeFlip()
+{
+	if (m_Melee.m_Flip)
+		return ((m_Melee.m_TurnSpeed < 0.0f) ? false : true);
+	
+	return ((m_Melee.m_TurnSpeed < 0.0f) ? true : false);
+}
+
+bool CPlayerInfo::MeleeSound()
+{
+	if (abs(m_Melee.m_TurnSpeed) < 0.3f)
+		return false;
+	
+	if (m_Melee.m_EffectFrame != 3 && m_Melee.m_EffectFrame != 9)
+		return false;
+	
+	return true;
+}
+
+bool CPlayerInfo::MeleeEffectFlip()
+{
+	//if (m_Melee.m_Flip)
+	//	return ((m_Melee.m_TurnSpeed < 0.0f) ? false : true);
+	
+	return ((m_Melee.m_TurnSpeed < 0.0f) ? true : false);
+}
+
+vec2 CPlayerInfo::MeleeOffset()
+{
+	vec2 p = vec2(0, -12);
+	
+	p.x += (MeleeFlip() ? -1 : 1)*(10.0f+((m_Melee.m_FireTimer > 0) ? 6 : 0));
+	p.x += sin(m_Melee.m_Angle*1.0f)*8.0f*(MeleeFlip() ? 1 : -1);
+	//p.x *= m_Melee.m_Flip ? -1.0f : 1.0f;
+	
+	p.y += (m_Melee.m_FireTimer > 0) ? -4 : 0;
+	p.y += cos(m_Melee.m_Angle)*4.0f*(MeleeFlip() ? -1.0f : 1.0f);//*(m_Melee.m_Flip ? -1.0f : 1.0f);
+	
+	return p;
+}
+
+vec2 CPlayerInfo::MeleeEffectOffset()
+{
+	vec2 p = vec2(0, -15);
+	
+	p.x += (MeleeFlip() ? -1 : 1)*(11.0f+((m_Melee.m_FireTimer > 0) ? 6 : 0));
+	p.y += (m_Melee.m_FireTimer > 0) ? -4 : 0;
+	
+	return p;
+}
+
+bool CPlayerInfo::MeleeFront()
+{
+	return m_Melee.m_Front;
+}
+
+int CPlayerInfo::MeleeFrame()
+{
+	return min(int(abs(m_Melee.m_TurnSpeed*7)), 3);
+	
+	if (abs(m_Melee.m_TurnSpeed) > 0.1f)
+		return 1;
+	
+	return 0;
+}
+
+int CPlayerInfo::MeleeEffectFrame()
+{
+	if (!m_Melee.m_EffectFrame)
+		return -1;
+	
+	return m_Melee.m_EffectFrame / 3;
+}
+
+int CPlayerInfo::MeleeImpact()
+{
+	if (m_Melee.m_TurnSpeed > 0.3f)
+		return 1;
+	else if (m_Melee.m_TurnSpeed < -0.3f)
+		return -1;
+	
+	return 0;
+}
+
+
+void CPlayerInfo::FireMelee()
+{
+	m_Melee.m_FireTimer = 6;
+	
+	if (m_Melee.m_EffectFrame == 0)
+		m_Melee.m_EffectFrame++;
+				
+	if (m_Melee.m_EffectFrame > 5*3)
+		m_Melee.m_EffectFrame = 1*3;
+}
+
+
 void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 {
+	// spinning melee weapon
+	float TurnSpeedCap = 0.15f;
+	float TurnAmount = 0.03f;
+	
+	if (m_Melee.m_EffectFrame > 0)
+	{
+		if (++m_Melee.m_EffectFrame > 7*3)
+			m_Melee.m_EffectFrame = 0;
+	}
+	
+	if (m_Melee.m_FireTimer > 0)
+	{
+		m_Melee.m_FireTimer--;
+		TurnSpeedCap = 0.6f;
+		TurnAmount = 0.04f;
+		
+		if ((Animation()->m_Flip && m_Melee.m_TurnSpeed > 0.0f) ||
+			(!Animation()->m_Flip && m_Melee.m_TurnSpeed < 0.0f))
+			m_Melee.m_Flip = true;
+			
+		if ((Animation()->m_Flip && m_Melee.m_TurnSpeed < 0.0f) ||
+			(!Animation()->m_Flip && m_Melee.m_TurnSpeed > 0.0f))
+			m_Melee.m_Flip = false;
+	}
+	else
+		m_Melee.m_Flip = false;
+	
+	
+	if ((Animation()->m_Flip && !m_Melee.m_Flip) || (!Animation()->m_Flip && m_Melee.m_Flip))
+		m_Melee.m_TurnSpeed = max(m_Melee.m_TurnSpeed-TurnAmount, -TurnSpeedCap);
+	else
+		m_Melee.m_TurnSpeed = min(m_Melee.m_TurnSpeed+TurnAmount, TurnSpeedCap);
+	
+	m_Melee.m_Angle += m_Melee.m_TurnSpeed;
+	
+	if (abs(m_Melee.m_FrontChangeAngle-m_Melee.m_Angle) >= pi*2)
+	{
+		m_Melee.m_FrontChangeAngle += pi*2.0f * ((m_Melee.m_Angle > m_Melee.m_FrontChangeAngle) ? 1.0f : -1.0f);
+		m_Melee.m_Front = !m_Melee.m_Front;
+	}
+
+
+	// adjust skeleton a bit
 	if (Animation()->m_Flip)
 	{
 		Animation()->m_BodyTilt = -PlayerVel.x*0.00005f;
@@ -158,21 +315,13 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 		Animation()->m_HeadTiltCorrect = -PlayerVel.x*0.00003f;
 	}
 	
-	//float b = 1.5f - g_Config.m_GoreTeeBounciness / 100.0f;
-	
-	
 	// flame motion
 	m_aFlameAngle[0] = m_Angle;
 	
 	for (int i = 1; i < 20; i++)
-		m_aFlameAngle[i] = CurveAngle(m_aFlameAngle[i], m_aFlameAngle[i-1], 1.7f); //(1.0f + i*0.75f);
-		//m_aFlameAngle[i] += (m_aFlameAngle[i-1]-m_aFlameAngle[i]) / 1.5f; //(1.0f + i*0.75f);
-		//m_aFlameAngle[i] += (m_Angle-m_aFlameAngle[i]) / (1.0f + i*0.75f);
+		m_aFlameAngle[i] = CurveAngle(m_aFlameAngle[i], m_aFlameAngle[i-1], 1.7f);
 	
-	
-	//for (int i = 1; i < 20; i++)
-	//	m_aFlameAngle[20-i] = m_aFlameAngle[19-i];
-	
+
 	// weapon recoil
  	m_WeaponRecoilVel.x -= m_WeaponRecoil.x / 6.0f;
 	m_WeaponRecoilVel.y -= m_WeaponRecoil.y / 6.0f;
@@ -228,8 +377,11 @@ void CPlayerInfo::UpdatePhysics(vec2 PlayerVel, vec2 PrevVel)
 	{
 		PhysicsTick(PlayerVel, PrevVel);
 		
-		if (i++ > 20)
+		if (i++ > 1)
+		{
+			m_LastUpdate = currentTime;
 			break;
+		}
 	}
 }
 	

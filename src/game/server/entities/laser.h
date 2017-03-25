@@ -18,6 +18,7 @@ public:
 	class CBuilding *m_OwnerBuilding;
 
 protected:
+	bool HitScythe(vec2 From, vec2 To);
 	bool HitCharacter(vec2 From, vec2 To);
 	bool HitMonster(vec2 From, vec2 To);
 	bool HitBuilding(vec2 From, vec2 To);
@@ -31,6 +32,8 @@ private:
 	int m_EvalTick;
 	int m_Owner;
 	int m_Damage;
+	
+	int m_IgnoreScythe;
 };
 
 #endif

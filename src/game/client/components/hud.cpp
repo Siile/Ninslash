@@ -60,6 +60,17 @@ void CHud::RenderGameTimer()
 		TextRender()->Text(0, Half-w/2, 2, FontSize, Buf, -1);
 		TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
 	}
+	
+	// survival mode text
+	if (m_pClient->Survival())
+	{
+		TextRender()->TextColor(1.0f, 1.0f, 0.0f, 1.0f);
+		const char *pText = Localize("Survival mode");
+		float FontSize = 7.0f;
+		float w = TextRender()->TextWidth(0, FontSize,pText, -1);
+		TextRender()->Text(0, 150.0f*Graphics()->ScreenAspect()+-w/2.0f, 12.0f, FontSize, pText, -1);
+		TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
+	}
 }
 
 void CHud::RenderPauseNotification()
@@ -178,7 +189,8 @@ void CHud::RenderScoreHud()
 			{
 				if(m_pClient->m_Snap.m_paInfoByScore[i]->m_Team != TEAM_SPECTATORS)
 				{
-					if (!CustomStuff()->m_aPlayerInfo[m_pClient->m_Snap.m_paInfoByScore[i]->m_ClientID].m_HideName)
+					//if (!CustomStuff()->IsBot(m_pClient->m_Snap.m_paInfoByScore[i]->m_ClientID) || !(GameFlags&GAMEFLAG_COOP))
+					if (!m_pClient->m_aClients[m_pClient->m_Snap.m_paInfoByScore[i]->m_ClientID].m_IsBot || !(GameFlags&GAMEFLAG_COOP))
 					{
 						apPlayerInfo[t] = m_pClient->m_Snap.m_paInfoByScore[i];
 						if(apPlayerInfo[t]->m_ClientID == m_pClient->m_Snap.m_LocalClientID)

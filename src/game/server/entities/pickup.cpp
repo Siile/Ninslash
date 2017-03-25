@@ -18,7 +18,11 @@ CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType, int Ammo)
 	Reset();
 
 	GameWorld()->InsertEntity(this);
-	m_SkipAutoRespawn = false;
+	
+	if (g_Config.m_SvSurvivalMode)
+		m_SkipAutoRespawn = true;
+	else
+		m_SkipAutoRespawn = false;
 	
 	m_Dropable = false;
 	m_Life = 0;

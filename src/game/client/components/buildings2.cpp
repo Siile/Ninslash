@@ -4,6 +4,7 @@
 #include <engine/demo.h>
 #include <game/generated/protocol.h>
 #include <game/generated/client_data.h>
+#include <engine/shared/config.h>
 
 #include <game/buildables.h>
 #include <game/gamecore.h> // get_angle
@@ -308,8 +309,6 @@ void CBuildings2::OnRender()
 	if(Client()->State() < IClient::STATE_ONLINE)
 		return;
 
-	CustomStuff()->ClearImpacts();
-	
 	int Num = Client()->SnapNumItems(IClient::SNAP_CURRENT);
 	for(int i = 0; i < Num; i++)
 	{

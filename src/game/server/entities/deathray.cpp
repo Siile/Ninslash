@@ -9,7 +9,7 @@ CDeathray::CDeathray(CGameWorld *pGameWorld, vec2 Pos)
 {
 	m_ProximityRadius = TurretPhysSize;
 	m_Life = 100;
-	m_AttackTick = 0;
+	m_AttackTick = int(Server()->TickSpeed()*m_Pos.x/128)%int(Server()->TickSpeed()*3.4f*2);
 	m_Loading = false;
 	m_Height = 0;
 }

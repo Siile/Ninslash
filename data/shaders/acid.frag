@@ -22,6 +22,7 @@ void main (void)
 	float a = texture2D(texture, gl_TexCoord[0].st).g;
 	a = step(0.7f, a);
 	
+	
 	gl_FragColor = vec4(0, g * gl_Color.g, 0, a * gl_Color.w);
 	
 	//vec2 uv = (gl_FragCoord.xy + vec2(camerax, cameray)) / vec2(screenwidth, screenheight);

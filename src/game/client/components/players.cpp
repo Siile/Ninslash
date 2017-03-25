@@ -144,7 +144,7 @@ void CPlayers::RenderPlayer(
 	}
 	
 	pCustomPlayerInfo->m_Angle = Angle;
-
+	
 	// use preditect players if needed
 	if(pInfo.m_Local && g_Config.m_ClPredict && Client()->State() != IClient::STATE_DEMOPLAYBACK)
 	{
@@ -153,6 +153,7 @@ void CPlayers::RenderPlayer(
 		}
 		else
 		{
+			// m_PredictedChar.Write causes crash on some conditions when joining the game! todo: fix somehow 
 			// apply predicted results
 			m_pClient->m_PredictedChar.Write(&Player);
 			m_pClient->m_PredictedPrevChar.Write(&Prev);
@@ -176,7 +177,7 @@ void CPlayers::RenderPlayer(
 		if(!RenderInfo.m_GotAirJump && !(Prev.m_Jumped&2))
 			m_pClient->m_pEffects->AirJump(Position);
 	}
-
+	
 	// Player.IsOnForceTile()
 	
 	int ForceState = Collision()->IsForceTile(Player.m_X-8, Player.m_Y+18);
@@ -195,7 +196,6 @@ void CPlayers::RenderPlayer(
 	bool InAir = !Collision()->CheckPoint(Player.m_X, Player.m_Y+16);
 	bool WantOtherDir = (Player.m_Direction == -1 && Vel.x > 0) || (Player.m_Direction == 1 && Vel.x < 0);
 
-	
 	// flip feet animation when needed
 	if (!InAir || ((Direction.x < 0 && Player.m_VelX < 0) || (Direction.x > 0 && Player.m_VelX > 0)))
 	{
@@ -209,11 +209,9 @@ void CPlayers::RenderPlayer(
 		}
 	}
 	
-	
 	m_pClient->AddFluidForce(Position+vec2(0, -12), Vel*2);
 
 	pCustomPlayerInfo->UpdatePhysics(vec2(Player.m_VelX, Player.m_VelY), vec2(Prev.m_VelX, Prev.m_VelY));
-	
 	
 	float AnimSpeed = abs(Vel.x) / 300.0f;
 	
@@ -295,7 +293,7 @@ void CPlayers::RenderPlayer(
 		s_LastGameTickTime = Client()->GameTickTime();
 		Paused = false;
 	}
-		
+	
 	if (Player.m_Weapon == WEAPON_HAMMER)
 	{
 		// melee attack effect
@@ -321,6 +319,12 @@ void CPlayers::RenderPlayer(
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*95, vec2(frandom()-frandom(), frandom()-frandom())*30);
 			}
+			
+			// impact to particles
+			vec2 p = Position+vec2(0, -24)+Direction*70;
+			float r = 48;
+
+			CustomStuff()->AddImpact(vec4(p.x-r, p.y-r, p.x+r, p.y+r), CCustomStuff::IMPACT_HIT, normalize(p-Position+vec2(0, -0.3f)));
 		}
 	}
 	else if (Player.m_Weapon == WEAPON_TOOL)
@@ -331,6 +335,15 @@ void CPlayers::RenderPlayer(
 			pCustomPlayerInfo->m_MeleeTick = Player.m_AttackTick;
 			pCustomPlayerInfo->m_ToolAngleOffset = 45.0f;
 			pCustomPlayerInfo->m_Weapon2Recoil += Direction * 15;
+		}
+	}
+	else if (Player.m_Weapon == WEAPON_SCYTHE)
+	{
+		// melee attack effect
+		if (pCustomPlayerInfo->m_MeleeTick < Player.m_AttackTick && !Paused)
+		{
+			pCustomPlayerInfo->m_MeleeTick = Player.m_AttackTick;
+			pCustomPlayerInfo->FireMelee();
 		}
 	}
 	else
@@ -399,7 +412,7 @@ void CPlayers::RenderPlayer(
 			Graphics()->SetColor(1.0f, 0.2f, 0.2f, 0.3f*a);
 		else if (Player.m_Weapon == WEAPON_LASER || Player.m_Weapon == WEAPON_ELECTRIC)
 			Graphics()->SetColor(0.2f, 0.2f, 1.0f, 0.3f*a);
-		else if (Player.m_Weapon == WEAPON_CHAINSAW || Player.m_Weapon == WEAPON_HAMMER)
+		else if (Player.m_Weapon == WEAPON_CHAINSAW || Player.m_Weapon == WEAPON_HAMMER || Player.m_Weapon == WEAPON_SCYTHE)
 			Graphics()->SetColor(1.0f, 0.2f, 0.2f, 0.0f);
 		else
 			Graphics()->SetColor(0.2f, 1.0f, 0.2f, 0.3f*a);
@@ -425,9 +438,38 @@ void CPlayers::RenderPlayer(
 		pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE] = 1.0f;
 	}
 	
+	float WeaponScale = 1.0f;
+	
+	// render chainsaw effect
+	if (!Paused && Player.m_Weapon == WEAPON_CHAINSAW && Player.m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)
+	{
+		WeaponScale = 1.07f;
+		
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_CHAINSAW].m_Id);
+		Graphics()->QuadsBegin();
+		
+		Graphics()->QuadsSetRotation(Angle);
+		RenderTools()->SelectSprite(SPRITE_FX_CHAINSAW1+rand()%3, frandom()*10 < 5.0f ? SPRITE_FLAG_FLIP_Y : 0);
+		
+		vec2 p = Position + Direction * g_pData->m_Weapons.m_aId[WEAPON_CHAINSAW].m_Offsetx + CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoil + CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_Weapon2Recoil + WeaponOffset;
+
+		p += Direction*14.0f;
+		
+		Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+		
+		p.y += g_pData->m_Weapons.m_aId[WEAPON_CHAINSAW].m_Offsety;
+		RenderTools()->DrawSprite(p.x, p.y, 132);
+		
+		Graphics()->QuadsEnd();
+	}
+	
+	
+	
+	
+	
 	
 	// render weapon
-	if (Player.m_Weapon != WEAPON_TOOL && Player.m_Weapon != WEAPON_HAMMER)
+	if (Player.m_Weapon != WEAPON_TOOL && Player.m_Weapon != WEAPON_HAMMER && Player.m_Weapon != WEAPON_SCYTHE)
 	{
 		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DEATHRAY] > 0.0f)
 			Graphics()->ShaderBegin(SHADER_DEATHRAY);
@@ -506,6 +548,10 @@ void CPlayers::RenderPlayer(
 			{
 				p = p + vec2(frandom()-frandom(), frandom()-frandom()) * 4.0f;
 				
+				p += Dir*6.0f;
+				
+				Graphics()->QuadsSetRotation(Angle+(frandom()-frandom())*0.1f);
+				
 				// smoke
 				m_pClient->m_pEffects->ChainsawSmoke(p);
 					
@@ -531,7 +577,7 @@ void CPlayers::RenderPlayer(
 				*/
 			{
 				p.y += g_pData->m_Weapons.m_aId[iw].m_Offsety;
-				RenderTools()->DrawSprite(p.x, p.y, g_pData->m_Weapons.m_aId[iw].m_VisualSize);
+				RenderTools()->DrawSprite(p.x, p.y, g_pData->m_Weapons.m_aId[iw].m_VisualSize*WeaponScale);
 			}
 		}
 		
@@ -780,17 +826,40 @@ void CPlayers::RenderPlayer(
 	}
 	
 	
-	// chainsaw effects
+	// chainsaw sound
 	if (Player.m_Weapon == WEAPON_CHAINSAW && !Paused)
 	{
-		// chainsaw sound
 		if (pCustomPlayerInfo->m_LastChainsawSoundTick < Client()->GameTick())
 		{
-			//m_pClient->m_pEffects->SmokeTrail(Position, vec2(0, 0));
 			pCustomPlayerInfo->m_LastChainsawSoundTick = Client()->GameTick() + 500 * Client()->GameTickSpeed()/1000;
 			m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_CHAINSAW_IDLE, 1.0f, Position);
 		}
 	}
+	
+	// scythe sound & impact to particles
+	if (Player.m_Weapon == WEAPON_SCYTHE && !Paused)
+	{
+		if (pCustomPlayerInfo->MeleeSound())
+		{
+			m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_SCYTHE_FIRE, 1.0f, Position);
+		}
+	
+		vec2 p = Position + pCustomPlayerInfo->MeleeOffset();
+		float r = 50.0f;
+		if (pCustomPlayerInfo->MeleeImpact() > 0)
+		{
+			CustomStuff()->AddImpact(vec4(p.x-r, p.y-r, p.x, p.y), CCustomStuff::IMPACT_SCYTHE, vec2(0.4f, -1.5f));
+			CustomStuff()->AddImpact(vec4(p.x, p.y-r, p.x+r, p.y), CCustomStuff::IMPACT_SCYTHE, vec2(0.7f, -1.2f));
+			CustomStuff()->AddImpact(vec4(p.x-r*0.8f, p.y, p.x+r*0.8f, p.y+r), CCustomStuff::IMPACT_SCYTHE, vec2(-0.4f, -1.0f));
+		}
+		else if (pCustomPlayerInfo->MeleeImpact() < 0)
+		{
+			CustomStuff()->AddImpact(vec4(p.x-r, p.y-r, p.x, p.y), CCustomStuff::IMPACT_SCYTHE, vec2(-0.4f, -1.5f));
+			CustomStuff()->AddImpact(vec4(p.x, p.y-r, p.x+r, p.y), CCustomStuff::IMPACT_SCYTHE, vec2(-0.7f, -1.2f));
+			CustomStuff()->AddImpact(vec4(p.x-r*0.8f, p.y, p.x+r*0.8f, p.y+r), CCustomStuff::IMPACT_SCYTHE, vec2(0.4f, -1.0f));
+		}
+	}
+	
 	
 	// body on flame
 	int s = Player.m_Status;
@@ -1039,6 +1108,8 @@ void CPlayers::RenderPlayer(
 	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] > 0.0f)
 		Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL]);
 	
+	//Graphics()->ShaderBegin(SHADER_ELECTRIC, 1.0f);
+	
 	RenderTools()->RenderPlayer(&CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID], &RenderInfo, Player.m_Weapon, Player.m_Emote, Direction, Position);
 	
 	
@@ -1102,42 +1173,12 @@ void CPlayers::RenderPlayer(
 		RenderTools()->RenderHeal(Position+vec2(0, -30), vec2(64, 128), pCustomPlayerInfo->m_Heal);
 		
 	
-
-	
 	
 	m_pClient->m_pEffects->Light(Position+vec2(0, -32), 512+128);
 	
 	// electric sparks
 	if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE] > 0.5f && Client()->GameTick()%5 == 1)
 		m_pClient->m_pEffects->Electrospark(Position+vec2((frandom()-frandom())*16.0f, -frandom()*48.0f), 30.0f);
-	
-	
-	// health bar
-	/*
-	{
-		vec2 HpSize = vec2(64, 12);
-		
-		float x = Position.x - HpSize.x / 2;
-		float y = Position.y - 72 - HpSize.y;
-		
-		Graphics()->TextureSet(g_pData->m_aImages[-1].m_Id);
-		Graphics()->QuadsBegin();
-	
-		float f = min(Player.m_Health, 100) / 100.0f;
-		Graphics()->SetColor(1, 0, 0, 1);
-		//Graphics()->QuadsSetSubsetFree(0, 0.5f, 1*f, 0.5f, 0, 1, 1*f, 1);
-
-		IGraphics::CFreeformItem FreeFormItem(
-			x, y,
-			x+f*HpSize.x, y,
-			x, y+HpSize.y,
-			x+f*HpSize.x, y+HpSize.y);
-
-		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
-		
-		Graphics()->QuadsEnd();
-	}
-	*/
 	
 	
 	if(Player.m_PlayerFlags&PLAYERFLAG_CHATTING)
@@ -1192,6 +1233,8 @@ vec3 CPlayers::GetColorV3(int v)
 
 void CPlayers::OnRender()
 {
+	CustomStuff()->ClearImpacts();
+	
 	const int aTeamColors[2] = {2555648, 8912640};
 	const int aTeamFeetColors[2] = {65280, 10354432};
 	
@@ -1203,9 +1246,10 @@ void CPlayers::OnRender()
 		vec3 TeamColor = GetColorV3(aTeamColors[TEAM_RED]);
 		
 		// robot body => robot eyes
+		/*
 		if (m_aRenderInfo[i].m_Body == 3)
 		{
-			CustomStuff()->m_aPlayerInfo[i].m_HideName = true;
+			//CustomStuff()->m_aPlayerInfo[i].m_HideName = true;
 			
 			int Skin = m_pClient->m_pSkins->FindEye("x_robo1");
 			
@@ -1214,7 +1258,7 @@ void CPlayers::OnRender()
 		}
 		else if (m_aRenderInfo[i].m_Body == 4)
 		{
-			CustomStuff()->m_aPlayerInfo[i].m_HideName = true;
+			//CustomStuff()->m_aPlayerInfo[i].m_HideName = true;
 			
 			int Skin = m_pClient->m_pSkins->FindEye("x_robo2");
 			
@@ -1223,7 +1267,7 @@ void CPlayers::OnRender()
 		}
 		else
 			CustomStuff()->m_aPlayerInfo[i].m_HideName = false;
-		
+		*/
 		
 		// change to custom team colors
 		/*
@@ -1259,6 +1303,7 @@ void CPlayers::OnRender()
 	}
 
 	CustomStuff()->m_LocalAlive = false;
+
 		
 	// render other players in two passes, first pass we render the other, second pass we render our self
 	for(int p = 0; p < 4; p++)

@@ -44,6 +44,7 @@ MACRO_CONFIG_INT(PlayerColorSkin, player_color_skin, 65535, 0, 0xFFFFFF, CFGFLAG
 MACRO_CONFIG_STR(PlayerTopper, player_topper, 24, "default", CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player hair or hat")
 MACRO_CONFIG_STR(PlayerEye, player_eye, 24, "default", CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player eyes")
 MACRO_CONFIG_INT(PlayerBody, player_body, 0, 0, 4, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player body")
+MACRO_CONFIG_INT(PlayerBloodColor, blood_color, 0, 0, 3, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Blood color")
 
 MACRO_CONFIG_INT(UiPage, ui_page, 6, 0, 10, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Interface page")
 MACRO_CONFIG_INT(UiToolboxPage, ui_toolbox_page, 0, 0, 2, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Toolbox page")
@@ -107,7 +108,7 @@ MACRO_CONFIG_INT(SvPreferredTeamSize, sv_preferredteamsize, 5, 0, 16, CFGFLAG_SE
 MACRO_CONFIG_INT(SvUnlimitedTurbo, sv_unlimited_turbo, 0, 0, 1, CFGFLAG_SERVER, "Unlimited turbo")
 MACRO_CONFIG_INT(SvRandomBuff, sv_random_buff, 0, 0, 1, CFGFLAG_SERVER, "Spawn with a random buff")
 MACRO_CONFIG_INT(SvOneHitKill, sv_one_hit_kill, 0, 0, 1, CFGFLAG_SERVER, "One hit kills")
-MACRO_CONFIG_INT(SvForceWeapon, sv_force_weapon, 0, 0, 8, CFGFLAG_SERVER, "The same and only the same weapon for all")
+MACRO_CONFIG_INT(SvForceWeapon, sv_force_weapon, 0, 0, 9, CFGFLAG_SERVER, "The same and only the same weapon for all")
 MACRO_CONFIG_INT(SvSelfKillPenalty, sv_selfkillpenalty, 1, 0, 1, CFGFLAG_SERVER, "Penalty for self kills")
 
 MACRO_CONFIG_INT(SvSpectatorUpdateTime, sv_spectatorupdatetime, 2, 1, 20, CFGFLAG_SERVER, "Time between spectator view changes to spectators")
@@ -127,6 +128,8 @@ MACRO_CONFIG_INT(SvNumRounds, sv_numrounds, 7, 1, 100, CFGFLAG_SERVER, "Number o
 
 // AI
 MACRO_CONFIG_INT(SvBotReactTime, sv_bot_react_time, 6, 0, 20, CFGFLAG_SERVER, "Time bot takes to start shooting")
+MACRO_CONFIG_INT(SvGodBots, sv_godbots, 0, 0, 1, CFGFLAG_SERVER, "Hard bots")
+MACRO_CONFIG_INT(SvRobots, sv_robots, 0, 0, 1, CFGFLAG_SERVER, "Robot bot skins")
 
 
 MACRO_CONFIG_INT(SvStartMoney, sv_startmoney, 100, 0, 1000, CFGFLAG_SERVER, "Start money")

@@ -22,6 +22,7 @@ CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEner
 	//else
 		m_Bounces = 0;
 	m_EvalTick = 0;
+	m_IgnoreScythe = -1;
 	GameWorld()->InsertEntity(this);
 	DoBounce();
 }
@@ -47,6 +48,32 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 	
 	return true;
 }
+
+
+bool CLaser::HitScythe(vec2 From, vec2 To)
+{
+	vec2 At;
+	CCharacter *pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
+	CCharacter *pHit = GameServer()->m_World.IntersectScythe(m_Pos, To, 50.0f, At, pOwnerChar);
+	if(!pHit)
+		return false;
+
+	if (pHit->GetPlayer()->GetCID() == m_IgnoreScythe)
+		return false;
+	
+	m_From = From;
+	m_Pos = At;
+	
+	vec2 d = pHit->m_Pos-m_Pos;
+	d += vec2(frandom()-frandom(), frandom()-frandom()) * length(d) * 0.4f;
+	m_Dir = -normalize(d);
+	
+	GameServer()->CreateBuildingHit(m_Pos);
+	m_IgnoreScythe = pHit->GetPlayer()->GetCID();
+	
+	return true;
+}
+
 
 bool CLaser::HitMonster(vec2 From, vec2 To)
 {
@@ -113,45 +140,53 @@ void CLaser::DoBounce()
 
 	if(GameServer()->Collision()->IntersectLine(m_Pos, To, 0x0, &To))
 	{
-		if(!HitCharacter(m_Pos, To))
+		if(!HitScythe(m_Pos, To))
 		{
-			if(!HitBuilding(m_Pos, To))
+			if(!HitCharacter(m_Pos, To))
 			{
-				if(!HitMonster(m_Pos, To))
+				if(!HitBuilding(m_Pos, To))
 				{
-					// intersected
-					m_From = m_Pos;
-					m_Pos = To;
+					if(!HitMonster(m_Pos, To))
+					{
+						// intersected
+						m_From = m_Pos;
+						m_Pos = To;
 
-					vec2 TempPos = m_Pos;
-					vec2 TempDir = m_Dir * 4.0f;
+						vec2 TempPos = m_Pos;
+						vec2 TempDir = m_Dir * 4.0f;
 
-					GameServer()->Collision()->MovePoint(&TempPos, &TempDir, 1.0f, 0);
-					m_Pos = TempPos;
-					m_Dir = normalize(TempDir);
+						GameServer()->Collision()->MovePoint(&TempPos, &TempDir, 1.0f, 0);
+						m_Pos = TempPos;
+						m_Dir = normalize(TempDir);
 
-					m_Energy -= distance(m_From, m_Pos) + GameServer()->Tuning()->m_LaserBounceCost;
-					m_Bounces++;
+						m_Energy -= distance(m_From, m_Pos) + GameServer()->Tuning()->m_LaserBounceCost;
+						m_Bounces++;
 
-					if(m_Bounces > 2)
-						m_Energy = -1;
+						if(m_Bounces > 4)
+							m_Energy = -1;
+						
+						m_IgnoreScythe = -1;
 
-					GameServer()->CreateSound(m_Pos, SOUND_LASER_BOUNCE);
+						GameServer()->CreateSound(m_Pos, SOUND_LASER_BOUNCE);
+					}
 				}
 			}
 		}
 	}
 	else
 	{
-		if(!HitCharacter(m_Pos, To))
+		if(!HitScythe(m_Pos, To))
 		{
-			if(!HitBuilding(m_Pos, To))
+			if(!HitCharacter(m_Pos, To))
 			{
-				if(!HitMonster(m_Pos, To))
+				if(!HitBuilding(m_Pos, To))
 				{
-					m_From = m_Pos;
-					m_Pos = To;
-					m_Energy = -1;
+					if(!HitMonster(m_Pos, To))
+					{
+						m_From = m_Pos;
+						m_Pos = To;
+						m_Energy = -1;
+					}
 				}
 			}
 		}

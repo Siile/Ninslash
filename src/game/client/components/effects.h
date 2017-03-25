@@ -25,11 +25,11 @@ public:
 	void HammerHit(vec2 Pos);
 	void SwordHit(vec2 Pos, float Angle, bool Flip);
 	void AirJump(vec2 Pos);
-	void Blood(vec2 Pos, vec2 Dir);
+	void Blood(vec2 Pos, vec2 Dir, vec4 Color = vec4(1, 0, 0, 1));
 	void Acid(vec2 Pos, vec2 Dir);
 	void Triangle(vec2 Pos, vec2 Vel);
 	void Flame(vec2 Pos, vec2 Vel, float Alpha = 1.0f, bool IgnoreCollision = false);
-	void Splatter(vec2 Pos, float Angle, float Size = -1);
+	void Splatter(vec2 Pos, float Angle, float Size = -1, vec4 Color = vec4(1, 0, 0, 1));
 	void Spark(vec2 Pos);
 	void DamageIndicator(vec2 Pos, vec2 Dir);
 	void DamageInd(vec2 Pos, vec2 Dir, int Damage, vec4 Color);

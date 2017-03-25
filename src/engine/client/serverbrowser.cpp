@@ -154,7 +154,8 @@ void CServerBrowser::Filter()
 		else if(g_Config.m_BrFilterPure &&
 			(str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "DM") != 0 &&
 			str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "TDM") != 0 &&
-			str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "Infect") != 0 &&
+			str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "INF") != 0 &&
+			str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "GUN") != 0 &&
 			str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "CTF") != 0))
 		{
 			Filtered = 1;
@@ -167,7 +168,8 @@ void CServerBrowser::Filter()
 			!(str_comp(m_ppServerlist[i]->m_Info.m_aMap, "ctf1") == 0)
 		)
 		{
-			Filtered = 1;
+			// don't skip non-standard maps for a while, ever
+			//Filtered = 1;
 		}
 		else if(g_Config.m_BrFilterPing < m_ppServerlist[i]->m_Info.m_Latency)
 			Filtered = 1;
@@ -355,6 +357,10 @@ void CServerBrowser::SetInfo(CServerEntry *pEntry, const CServerInfo &Info)
 		str_copy(pEntry->m_Info.m_aGameType, "TDM", sizeof(pEntry->m_Info.m_aGameType));
 	else if(pEntry->m_Info.m_aGameType[0] == '2' && pEntry->m_Info.m_aGameType[1] == 0)
 		str_copy(pEntry->m_Info.m_aGameType, "CTF", sizeof(pEntry->m_Info.m_aGameType));
+	else if(pEntry->m_Info.m_aGameType[0] == '3' && pEntry->m_Info.m_aGameType[1] == 0)
+		str_copy(pEntry->m_Info.m_aGameType, "INF", sizeof(pEntry->m_Info.m_aGameType));
+	else if(pEntry->m_Info.m_aGameType[0] == '4' && pEntry->m_Info.m_aGameType[1] == 0)
+		str_copy(pEntry->m_Info.m_aGameType, "GUN", sizeof(pEntry->m_Info.m_aGameType));
 
 	/*if(!request)
 	{

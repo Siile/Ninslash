@@ -22,13 +22,39 @@ void CAIdm::OnCharacterSpawn(CCharacter *pChr)
 	
 	m_PowerLevel = 4;
 	
+	if (g_Config.m_SvGodBots)
+		m_PowerLevel = 20;
+	
 	m_WaypointDir = vec2(0, 0);
 	Player()->SetRandomSkin();
 	
-	if (rand()%5 == 1)
+	if (!g_Config.m_SvRobots)
 	{
-		Player()->SetCustomSkin(1);
-		m_PowerLevel = 12;
+		if (rand()%14 == 1)
+		{
+			Player()->SetCustomSkin(1);
+			m_PowerLevel = 10;
+		}
+		else if (rand()%10 == 1)
+		{
+			Player()->SetCustomSkin(2);
+			m_PowerLevel = 6;
+		}
+		else if (rand()%11 == 1)
+		{
+			Player()->SetCustomSkin(3);
+			m_PowerLevel = 8;
+		}
+		else if (rand()%7 == 1)
+		{
+			Player()->SetCustomSkin(4);
+			m_PowerLevel = 4;
+		}
+		else if (rand()%7 == 1)
+		{
+			Player()->SetCustomSkin(5);
+			m_PowerLevel = 4;
+		}
 	}
 	
 	//pChr->GiveRandomWeapon();

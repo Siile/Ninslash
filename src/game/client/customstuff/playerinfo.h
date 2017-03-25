@@ -25,8 +25,47 @@ private:
 	int64 m_LastUpdate;
 	CSkeletonAnimation *m_pAnimation;
 	
+	struct CMelee
+	{
+		bool m_Front;
+		bool m_Flip;
+		float m_FrontChangeAngle;
+		float m_Angle;
+		float m_TurnSpeed;
+		
+		int m_FireTimer;
+		int m_EffectFrame;
+		
+		void Reset()
+		{
+			m_EffectFrame = 0;
+			m_FireTimer = 0;
+			m_Flip = false;
+			m_Front = false;
+			m_FrontChangeAngle = 0.0f;
+			m_Angle = 0.0f;
+			m_TurnSpeed = 0.0f;
+		}
+	};
+	
+	CMelee m_Melee;
+	
 public:
 	CPlayerInfo();
+	
+	float MeleeAngle();
+	float MeleeSize();
+	bool MeleeFlip();
+	bool MeleeEffectFlip();
+	vec2 MeleeOffset();
+	vec2 MeleeEffectOffset();
+	bool MeleeFront();
+	int MeleeFrame();
+	int MeleeEffectFrame();
+	bool MeleeSound();
+	int MeleeImpact();
+	
+	void FireMelee();
 	
 	CTeeRenderInfo m_RenderInfo;
 	
@@ -48,6 +87,7 @@ public:
 	
 	int m_NextSplatter;
 	float m_aSplatter[8];
+	vec4 m_aSplatterColor[8];
 	
 	int m_LastJetpackSound;
 	int m_LastJetpackSoundTick;
@@ -96,7 +136,7 @@ public:
 	
 	bool m_WeaponRecoilLoaded;
 
-	void AddSplatter();
+	void AddSplatter(vec4 Color);
 	
 	void SetLocal();
 	bool m_Local;

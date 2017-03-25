@@ -41,7 +41,9 @@ public:
 	void TryRespawn();
 	void Respawn();
 	void SetTeam(int Team, bool DoChatMsg=true);
-	int GetTeam() const { return m_Team; };
+	
+	//int GetTeam() const { return m_Team; };
+	int GetTeam();
 	
 	/*
 	int GetTeam()
@@ -108,6 +110,8 @@ public:
 		int m_ColorFeet;
 		int m_ColorTopper;
 		int m_ColorSkin;
+		bool m_IsBot;
+		int m_BloodColor;
 	} m_TeeInfos;
 	
 	// gungame

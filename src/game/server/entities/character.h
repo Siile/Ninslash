@@ -58,11 +58,14 @@ public:
 
 	bool IsGrounded();
 	
+	bool PlayerCollision(){ return m_Core.m_PlayerCollision; }
+	
 	void HandleWeaponSwitch();
 	void DoWeaponSwitch();
 
 	void HandleWeapons();
 	
+	void Warp();
 	void Deathray();
 	void Jumppad();
 
@@ -223,7 +226,7 @@ public:
 	
 	bool IgnoreCollision()
 	{
-		if (m_aStatus[STATUS_SPAWNING] > 0.0f)
+		if (m_IgnoreCollision || m_aStatus[STATUS_SPAWNING] > 0.0f)
 			return true;
 		
 		return false;
@@ -253,10 +256,14 @@ public:
 	
 	int m_Kits;
 	
+	bool ScytheReflect();
+	
 private:
 	// player controlling this character
 	class CPlayer *m_pPlayer;
 
+	bool m_IgnoreCollision;
+	
 	int m_DeathrayTick;
 	
 	int m_LastStatusEffect;
@@ -274,7 +281,14 @@ private:
 	
 	// nonprojectile weirdos
 	int m_Chainsaw;
+	int m_Scythe;
+	
+	int m_ScytheTick;
+	int m_ChangeDirTick;
+	int m_LastDir;
+	
 	void Chainsaw();
+	void Scythe();
 	
 	int m_Flamethrower;
 	void Flamethrower();

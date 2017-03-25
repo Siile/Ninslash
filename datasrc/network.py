@@ -2,7 +2,7 @@ from datatypes import *
 
 Emotes = ["NORMAL", "PAIN", "HAPPY", "SURPRISE", "ANGRY", "BLINK"]
 PlayerFlags = ["PLAYING", "IN_MENU", "CHATTING", "SCOREBOARD"]
-GameFlags = ["TEAMS", "INFECTION", "COOP", "BUILD", "FLAGS"]
+GameFlags = ["TEAMS", "INFECTION", "COOP", "SURVIVAL", "BUILD", "FLAGS"]
 GameStateFlags = ["GAMEOVER", "SUDDENDEATH", "PAUSED"]
 
 Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY", "GHOST", "SUSHI", "SPLATTEE", "DEVILTEE", "ZOMG", "ZZZ", "WTF", "EYES", "QUESTION"]
@@ -332,6 +332,9 @@ Objects = [
 		NetIntAny("m_ColorFeet"),
 		NetIntAny("m_ColorTopper"),
 		NetIntAny("m_ColorSkin"),
+		
+		NetIntRange("m_IsBot", 0, 1),
+		NetIntRange("m_BloodColor", 0, 3),
 	]),
 
 	NetObject("SpectatorInfo", [
@@ -502,6 +505,8 @@ Messages = [
 		NetIntAny("m_ColorFeet"),
 		NetIntAny("m_ColorTopper"),
 		NetIntAny("m_ColorSkin"),
+		NetIntAny("m_BloodColor"),
+		NetIntRange("m_IsBot", 0, 1),
 	]),
 
 	NetMessage("Cl_ChangeInfo", [
@@ -515,6 +520,8 @@ Messages = [
 		NetIntAny("m_ColorFeet"),
 		NetIntAny("m_ColorTopper"),
 		NetIntAny("m_ColorSkin"),
+		NetIntAny("m_BloodColor"),
+		NetIntRange("m_IsBot", 0, 1),
 	]),
 
 	NetMessage("Cl_Kill", []),

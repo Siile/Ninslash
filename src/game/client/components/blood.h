@@ -76,7 +76,7 @@ private:
 		MAX_BLOOD=1024*8,
 	};
 
-	void Bounce(vec2 Pos, vec2 Dir, int Group);
+	void Bounce(vec2 Pos, vec2 Dir, int Group, vec4 Color);
 	
 	CBlooddrop m_aBlood[MAX_BLOOD];
 	int m_FirstFree;

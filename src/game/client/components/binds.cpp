@@ -134,6 +134,7 @@ void CBinds::SetDefaults()
 	Bind(KEY_6, "+weapon7");
 	Bind(KEY_7, "+weapon8");
 	Bind(KEY_8, "+weapon9");
+	Bind(KEY_9, "+weapon10");
 
 	Bind(KEY_MOUSE_WHEEL_UP, "+prevweapon");
 	Bind(KEY_MOUSE_WHEEL_DOWN, "+nextweapon");

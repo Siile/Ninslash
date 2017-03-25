@@ -124,6 +124,7 @@ void CProjectile::Tick()
 	int Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &CurPos, 0);
 	CCharacter *OwnerChar = GameServer()->GetPlayerChar(m_Owner);
 	CCharacter *TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, 6.0f, CurPos, OwnerChar);
+	CCharacter *ReflectChr = GameServer()->m_World.IntersectScythe(PrevPos, CurPos, 50.0f, CurPos, OwnerChar);
 	
 	int Team = -1;
 	if (m_Owner == RED_BASE)
@@ -151,6 +152,20 @@ void CProjectile::Tick()
 		//m_Direction.y *= -1;
 		m_Pos = CurPos;
 		Collide = false;
+	}
+	
+	if (ReflectChr)
+	{
+		m_StartTick = Server()->Tick()-1;
+		m_Pos = CurPos;
+		
+		m_Direction.y *= -1;
+		m_Direction.x *= -1;
+		
+		vec2 d = ReflectChr->m_Pos-m_Pos;
+		d += vec2(frandom()-frandom(), frandom()-frandom()) * length(d) * 0.4f;
+		m_Direction = -normalize(d);
+		GameServer()->CreateBuildingHit(CurPos);
 	}
 	
 	if(TargetMonster || TargetBuilding || TargetChr || Collide || m_LifeSpan < 0 || GameLayerClipped(CurPos))

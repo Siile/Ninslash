@@ -31,8 +31,15 @@ void CAIrobot1::OnCharacterSpawn(CCharacter *pChr)
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	m_Triggered = false;
 	
+	pChr->SetHealth(80);
 	
 	pChr->GiveCustomWeapon(WEAPON_RIFLE);
+}
+
+
+void CAIrobot1::ReceiveDamage(int CID, int Dmg)
+{
+	m_Triggered = true;
 }
 
 

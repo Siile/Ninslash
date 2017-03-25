@@ -9,6 +9,7 @@ struct CParticle
 {
 	void SetDefault()
 	{
+		m_Special = 0;
 		m_Frames = 1;
 		m_Vel = vec2(0,0);
 		m_LifeSpan = 0;
@@ -30,6 +31,8 @@ struct CParticle
 		m_Chunk = false;
 	}
 
+	int m_Special;
+	
 	vec2 m_Pos;
 	vec2 m_Vel;
 	

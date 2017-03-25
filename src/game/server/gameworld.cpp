@@ -8,6 +8,8 @@
 #include "entities/building.h"
 #include "entities/monster.h"
 
+#include <engine/shared/config.h>
+
 //////////////////////////////////////////////////
 // game world
 //////////////////////////////////////////////////
@@ -217,6 +219,33 @@ CBuilding *CGameWorld::IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec
 		if (Team == p->m_Team && p->m_Type != BUILDING_MINE1 && p->m_Type != BUILDING_MINE2)
 			continue;
 		
+		if (GameServer()->m_pController->IsCoop() && p->m_Type == BUILDING_TURRET)
+		{
+			if (Team >= 0 && Team < MAX_CLIENTS)
+			{
+				CPlayer *pPlayer = GameServer()->m_apPlayers[Team];
+				
+				if(pPlayer && !pPlayer->m_IsBot)
+					continue;
+			}
+		}
+		
+		/*
+				// co-op player to player collisiong ignore
+		if (g_Config.m_SvDisablePVP && !p->m_IsBot)
+		{
+			if (pNotThis && pNotThis->GetType() != CGameWorld::ENTTYPE_CHARACTER)
+				continue;
+			
+			if (pNotThis && pNotThis->GetType() == CGameWorld::ENTTYPE_CHARACTER)
+			{
+				CCharacter *pOwnerChar = (CCharacter *)pNotThis;
+				if (!pOwnerChar->m_IsBot)
+					continue;
+			}
+		}
+		*/
+		
 		vec2 IntersectPos = closest_point_on_line(Pos0, Pos1, p->m_Pos);
 		float Len = distance(p->m_Pos + p->m_Center, IntersectPos);
 		if(Len < p->m_ProximityRadius+Radius)
@@ -280,6 +309,20 @@ CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, v
 		
 		if(p->IgnoreCollision())
 			continue;
+		
+		// co-op player to player collisiong ignore
+		if (g_Config.m_SvDisablePVP && !p->m_IsBot)
+		{
+			if (pNotThis && pNotThis->GetType() != CGameWorld::ENTTYPE_CHARACTER)
+				continue;
+			
+			if (pNotThis && pNotThis->GetType() == CGameWorld::ENTTYPE_CHARACTER)
+			{
+				CCharacter *pOwnerChar = (CCharacter *)pNotThis;
+				if (!pOwnerChar->m_IsBot)
+					continue;
+			}
+		}
 
 		vec2 IntersectPos = closest_point_on_line(Pos0, Pos1, p->m_Pos);
 		float Len = distance(p->m_Pos, IntersectPos);
@@ -295,6 +338,61 @@ CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, v
 		}
 		// head shot
 		Len = distance(p->m_Pos + vec2(0, -20), IntersectPos);
+		if(Len < p->m_ProximityRadius+Radius)
+		{
+			Len = distance(Pos0, IntersectPos);
+			if(Len < ClosestLen)
+			{
+				NewPos = IntersectPos;
+				ClosestLen = Len;
+				pClosest = p;
+			}
+		}
+	}
+
+	return pClosest;
+}
+
+
+CCharacter *CGameWorld::IntersectScythe(vec2 Pos0, vec2 Pos1, float Radius, vec2& NewPos, CEntity *pNotThis)
+{
+	// Find other players
+	float ClosestLen = distance(Pos0, Pos1) * 100.0f;
+	CCharacter *pClosest = 0;
+
+	CCharacter *p = (CCharacter *)FindFirst(ENTTYPE_CHARACTER);
+	for(; p; p = (CCharacter *)p->TypeNext())
+ 	{
+		if(p == pNotThis)
+			continue;
+		
+		if(p->IgnoreCollision())
+			continue;
+		
+		// co-op player to player collisiong ignore
+		if (g_Config.m_SvDisablePVP && !p->m_IsBot)
+		{
+			if (pNotThis && pNotThis->GetType() != CGameWorld::ENTTYPE_CHARACTER)
+				continue;
+			
+			if (pNotThis && pNotThis->GetType() == CGameWorld::ENTTYPE_CHARACTER)
+			{
+				CCharacter *pOwnerChar = (CCharacter *)pNotThis;
+				if (!pOwnerChar->m_IsBot)
+					continue;
+			}
+		}
+
+		if (!p->ScytheReflect())
+			continue;
+		
+		vec2 IntersectPos = closest_point_on_line(Pos0, Pos1, p->m_Pos);
+		
+		// only reflect in some directions
+		//if (abs(GetAngle(normalize(p->m_Pos - IntersectPos)) - GetAngle(normalize(p->GetVel()))) > pi/4.0f)
+		//	continue;
+		
+		float Len = distance(p->m_Pos + vec2(0, -10), IntersectPos);
 		if(Len < p->m_ProximityRadius+Radius)
 		{
 			Len = distance(Pos0, IntersectPos);

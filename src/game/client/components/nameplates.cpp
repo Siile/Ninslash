@@ -38,7 +38,7 @@ void CNamePlates::RenderNameplate(
 	//	return;
 	
 	// render name plate
-	if(!pPlayerInfo->m_Local && !pCustomPlayerInfo->m_HideName)
+	if(!pPlayerInfo->m_Local && (!CustomStuff()->IsBot(pPlayerInfo->m_ClientID) || !(m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_COOP)))
 	{
 		float a = 1;
 		if(g_Config.m_ClNameplatesAlways == 0)

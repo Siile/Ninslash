@@ -679,6 +679,7 @@ static CKeyInfo gs_aKeys[] =
 	{ "Grenade launcher", "+weapon7", 0 },
 	{ "Flame launcher", "+weapon8", 0 },
 	{ "Chainsaw", "+weapon9", 0 },
+	{ "Slime Sweeper", "+weapon10", 0 },
 	{ "Weapon picker", "+picker", 0 },
 	{ "Select picked weapon", "+lastweapon", 0 },
 	//{ "Switch weapon", "+switch", 0 },

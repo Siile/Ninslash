@@ -1,0 +1,198 @@
+[Lab2 main]
+Index 1
+BaseTile
+
+
+
+# in top left
+Index 3 XYFLIP
+Pos 1 1 EMPTY
+Pos 1 0 FULL
+Pos 0 1 FULL
+
+Index 20 XYFLIP
+Pos 2 2 EMPTY
+Pos 1 1 FULL
+Pos 0 1 FULL
+Pos 1 0 FULL
+
+Index 19 XFLIP_ROTATE
+Pos 2 1 EMPTY
+Pos 1 1 FULL
+Pos 0 1 FULL
+Pos 1 0 FULL
+
+Index 19 XYFLIP
+Pos 1 2 EMPTY
+Pos 1 1 FULL
+Pos 0 1 FULL
+Pos 1 0 FULL
+
+
+# in top right
+Index 3 YFLIP
+Pos -1 1 EMPTY
+Pos -1 0 FULL
+Pos 0 1 FULL
+
+Index 20 YFLIP
+Pos -2 2 EMPTY
+Pos -1 1 FULL
+Pos 0 1 FULL
+Pos -1 0 FULL
+
+Index 19 XYFLIP_ROTATE
+Pos -2 1 EMPTY
+Pos -1 1 FULL
+Pos 0 1 FULL
+Pos -1 0 FULL
+
+Index 19 YFLIP
+Pos -1 2 EMPTY
+Pos -1 1 FULL
+Pos 0 1 FULL
+Pos -1 0 FULL
+
+
+# in bot left
+Index 3 XFLIP
+Pos 1 -1 EMPTY
+Pos 1 0 FULL
+Pos 0 -1 FULL
+
+Index 20 XFLIP
+Pos 2 -2 EMPTY
+Pos 1 -1 FULL
+Pos 0 -1 FULL
+Pos 1 0 FULL
+
+Index 19 ROTATE
+Pos 2 -1 EMPTY
+Pos 1 -1 FULL
+Pos 0 -1 FULL
+Pos 1 0 FULL
+
+Index 19 XFLIP
+Pos 1 -2 EMPTY
+Pos 1 -1 FULL
+Pos 0 -1 FULL
+Pos 1 0 FULL
+
+
+# in bot right
+Index 3
+Pos -1 -1 EMPTY
+Pos -1 0 FULL
+Pos 0 -1 FULL
+
+Index 20
+Pos -2 -2 EMPTY
+Pos -1 -1 FULL
+Pos 0 -1 FULL
+Pos -1 0 FULL
+
+Index 19 YFLIP_ROTATE
+Pos -2 -1 EMPTY
+Pos -1 -1 FULL
+Pos 0 -1 FULL
+Pos -1 0 FULL
+
+Index 19
+Pos -1 -2 EMPTY
+Pos -1 -1 FULL
+Pos 0 -1 FULL
+Pos -1 0 FULL
+
+
+
+
+#top
+Index 2
+Pos 0 -1 EMPTY
+
+Index 18
+Pos 0 -1 FULL
+Pos 0 -2 EMPTY
+
+#bot
+Index 2 YFLIP
+Pos 0 1 EMPTY
+
+Index 18 YFLIP
+Pos 0 1 FULL
+Pos 0 2 EMPTY
+
+#right
+Index 2 XYFLIP_ROTATE
+Pos -1 0 EMPTY
+
+Index 18 XYFLIP_ROTATE
+Pos -1 0 FULL
+Pos -2 0 EMPTY
+Pos 0 -1 FULL
+Pos 0 1 FULL
+
+#left
+Index 2 ROTATE
+Pos 1 0 EMPTY
+
+Index 18 ROTATE
+Pos 1 0 FULL
+Pos 2 0 EMPTY
+Pos 0 -1 FULL
+Pos 0 1 FULL
+
+
+
+
+
+# out top left
+Index 8
+Pos -1 0 EMPTY
+Pos 0 -1 EMPTY
+Pos -1 -1 EMPTY
+
+Index 25
+Pos -1 -1 FULL
+Pos -2 0 EMPTY
+Pos 0 -2 EMPTY
+Pos -2 -2 EMPTY
+
+
+# out top right
+Index 8 XFLIP
+Pos 1 0 EMPTY
+Pos 0 -1 EMPTY
+Pos 1 -1 EMPTY
+
+Index 25 XFLIP
+Pos 1 -1 FULL
+Pos 2 0 EMPTY
+Pos 0 -2 EMPTY
+Pos 2 -2 EMPTY
+
+
+# out bot left
+Index 8 YFLIP
+Pos -1 0 EMPTY
+Pos 0 1 EMPTY
+Pos -1 1 EMPTY
+
+Index 25 YFLIP
+Pos -1 1 FULL
+Pos -2 0 EMPTY
+Pos 0 2 EMPTY
+Pos -2 2 EMPTY
+
+
+# out bot right
+Index 8 XYFLIP
+Pos 1 0 EMPTY
+Pos 0 1 EMPTY
+Pos 1 1 EMPTY
+
+Index 25 XYFLIP
+Pos 1 1 FULL
+Pos 2 0 EMPTY
+Pos 0 2 EMPTY
+Pos 2 2 EMPTY

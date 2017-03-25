@@ -42,6 +42,7 @@ protected:
 	void FlashPickups();
 	void ClearPickups();
 
+	void DeathMessage();
 
 	void ResetSurvivalRound();
 	void KillEveryone();
@@ -80,6 +81,7 @@ protected:
 	void EvaluateSpawnType(CSpawnEval *pEval, int Type);
 	bool EvaluateSpawn(class CPlayer *pP, vec2 *pPos);
 
+	void FirstMap();
 	void CycleMap();
 	void ResetGame();
 
@@ -132,11 +134,16 @@ public:
 	const char *m_pGameType;
 
 	int GetAliveCID(int Team = -1);
-	int CountPlayersAlive(int Team = -1);
+	int CountPlayersAlive(int Team = -1, bool IgnoreBots = false);
 	int CountPlayers(int Team = -1);
+	int CountHumans();
 	int CountBots();
+	int CountBotsAlive();
 	
 	void TriggerSwitch(vec2 Pos);
+	void TriggerEscape();
+	
+	virtual void NextLevel(int CID = -1);
 	
 	bool IsCoop() const;
 	bool IsTeamplay() const;

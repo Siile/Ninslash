@@ -17,6 +17,11 @@ CGameControllerTDM::CGameControllerTDM(class CGameContext *pGameServer) : IGameC
 	m_pGameType = "TDM";
 	m_GameFlags = GAMEFLAG_TEAMS;
 	
+	g_Config.m_SvDisablePVP = 0;
+
+	if (g_Config.m_SvSurvivalMode)
+		m_GameFlags |= GAMEFLAG_SURVIVAL;
+	
 	if (g_Config.m_SvEnableBuilding)
 		m_GameFlags |= GAMEFLAG_BUILD;
 }

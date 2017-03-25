@@ -179,8 +179,26 @@ void CBuilding::Trigger()
 
 void CBuilding::TakeDamage(int Damage, int Owner, int Weapon)
 {
+	if (m_Type == BUILDING_SWITCH)
+	{
+		m_aStatus[BSTATUS_ON] = 1;
+		GameServer()->m_pController->TriggerSwitch(m_Pos);
+		return;
+	}
+	
 	if (m_Life >= 5000)
 		return;
+	
+	if (m_Type == BUILDING_TURRET && GameServer()->m_pController->IsCoop())
+	{
+		if (Owner >= 0 && Owner < MAX_CLIENTS)
+		{
+			CPlayer *pPlayer = GameServer()->m_apPlayers[Owner];
+				
+			if(pPlayer && !pPlayer->m_IsBot)
+				return;
+		}
+	}
 	
 	if (g_Config.m_SvOneHitKill)
 		Damage = 1000;
@@ -190,13 +208,6 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon)
 	
 	if (m_Type == BUILDING_SAWBLADE || m_Type == BUILDING_LAZER || m_Type == BUILDING_POWERUPPER)
 		return;
-	
-	if (m_Type == BUILDING_SWITCH)
-	{
-		m_aStatus[BSTATUS_ON] = 1;
-		GameServer()->m_pController->TriggerSwitch(m_Pos);
-		return;
-	}
 	
 	// todo
 	m_Life -= Damage / 2;
@@ -258,6 +269,16 @@ void CBuilding::Tick()
 		if (m_TriggerTimer > 0 && m_TriggerTimer < GameServer()->Server()->Tick())
 		{
 			m_aStatus[BSTATUS_ON] = 1;
+		}
+		
+		if (m_TriggerTimer > 0 && m_TriggerTimer < GameServer()->Server()->Tick() - Server()->TickSpeed()*0.6f)
+		{
+			CCharacter *pChr = GameServer()->m_World.ClosestCharacter(m_Pos, m_ProximityRadius/2.0f, 0);
+					
+			if(pChr && pChr->IsAlive() && !pChr->m_IsBot)
+			{
+				GameServer()->m_pController->NextLevel(pChr->GetPlayer()->GetCID());
+			}
 		}
 	}
 	
@@ -366,10 +387,18 @@ void CBuilding::Tick()
 		CCharacter *pChr = GameServer()->m_World.ClosestCharacter(m_Pos, m_ProximityRadius*1.7f, 0);
 		if(pChr && pChr->IsAlive() && !pChr->IsSliding())// && (pChr->GetPlayer()->GetTeam() != m_Team || !GameServer()->m_pController->IsTeamplay()))
 		{
-			if (pChr->GetPlayer()->GetTeam() != m_Team || !GameServer()->m_pController->IsTeamplay())
+			// co-op, ignore real players if mine set by a real player
+			if (GameServer()->m_pController->IsCoop() && !pChr->m_IsBot && m_DamageOwner >= 0)
 			{
-				m_DeathTimer = 1;
-				m_Life = 0;
+				// do nothing	
+			}
+			else
+			{
+				if (pChr->GetPlayer()->GetTeam() != m_Team || !GameServer()->m_pController->IsTeamplay())
+				{
+					m_DeathTimer = 1;
+					m_Life = 0;
+				}
 			}
 		}
 	}

@@ -64,6 +64,7 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	m_Kits = 0;
 	m_PainSoundTimer = 0;
 	m_Silent = false;
+	m_IgnoreCollision = false;
 	m_WeaponGroup = 0; // primary weapon
 	//m_aSelectedWeapon[0] = WEAPON_GUN;
 	m_aSelectedWeapon[0] = WEAPON_HAMMER;
@@ -98,7 +99,11 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	for (int i = 0; i < NUM_STATUSS; i++)
 		m_aStatus[i] = 0;
 	
-	m_aStatus[STATUS_SPAWNING] = 0.5f*Server()->TickSpeed();
+	m_aStatus[STATUS_SPAWNING] = 0.7f*Server()->TickSpeed();
+	
+	m_ChangeDirTick = 0;
+	m_LastDir = 0;
+	m_ScytheTick = 0;
 	
 	m_ShieldHealth = 0;
 	m_ShieldRadius = 0;
@@ -152,13 +157,14 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	
 	if (pPlayer->m_pAI)
 	{
+		pPlayer->m_TeeInfos.m_IsBot = true;
 		pPlayer->m_pAI->OnCharacterSpawn(this);
 		pPlayer->m_IsBot = true;
 		m_IsBot = true;
 		
 		if (GameServer()->m_pController->IsCoop())
 		{
-			m_Type = CCharacter::ROBOT;
+			//m_Type = CCharacter::ROBOT;
 			m_Silent = true;
 		}
 	}
@@ -265,6 +271,17 @@ void CCharacter::DropWeapon()
 		
 		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
 		
+		// weapon drop on death
+		if (m_HiddenHealth <= 0)
+		{
+			// throw weapon away
+			float AmmoFill = float(m_aWeapon[m_ActiveCustomWeapon].m_Ammo) / aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo;
+			GameServer()->m_pController->DropPickup(m_Pos+vec2(0, -16), POWERUP_WEAPON, m_Core.m_Vel/1.7f + Direction*8 + vec2(0, -3), m_ActiveCustomWeapon, AmmoFill);
+			m_SkipPickups = 20;
+			m_aWeapon[m_ActiveCustomWeapon].m_Got = false;
+			return;
+		}
+		
 		
 		// check if near upgradeable buildings
 		float CheckRange = 48.0f;
@@ -317,7 +334,7 @@ void CCharacter::DropWeapon()
 			}
 			
 			if (pTurret &&
-				((GameServer()->m_pController->IsTeamplay() && pTurret->m_Team == GetPlayer()->GetTeam()) ||
+				(GameServer()->m_pController->IsCoop() || (GameServer()->m_pController->IsTeamplay() && pTurret->m_Team == GetPlayer()->GetTeam()) ||
 				(!GameServer()->m_pController->IsTeamplay() && pTurret->m_OwnerPlayer == GetPlayer()->GetCID())))
 			{
 				// drop the old weapon
@@ -655,7 +672,7 @@ void CCharacter::Chainsaw()
 		// massacre
 		vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
 		//vec2 ProjStartPos = m_Core.m_Vel*2 +m_Pos+Direction*m_ProximityRadius*1.9f + vec2(0, -11);
-		vec2 ProjStartPos = m_Pos+Direction*m_ProximityRadius*1.9f + vec2(0, -11);
+		vec2 ProjStartPos = m_Pos+Direction*m_ProximityRadius*2.0f + vec2(0, -11);
 		
 		GameServer()->CreateChainsawHit(m_pPlayer->GetCID(), m_ActiveCustomWeapon, m_Pos, ProjStartPos, this);
 		
@@ -664,6 +681,43 @@ void CCharacter::Chainsaw()
 	}
 	else
 		m_Chainsaw = 0;
+}
+
+bool CCharacter::ScytheReflect()
+{
+	if (m_ScytheTick > Server()->Tick()-Server()->TickSpeed()*0.2f)
+		return true;
+
+	return false;
+}
+	
+	
+void CCharacter::Scythe()
+{	
+	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
+	int Dir = Direction.x < 0.0f ? -1 : 1;
+
+	// some delay to slicing when you turn around
+	if (Dir != m_LastDir)
+	{
+		m_LastDir = Dir;
+		m_ChangeDirTick = Server()->Tick();
+	}
+
+	if (m_ActiveCustomWeapon == WEAPON_SCYTHE && m_Scythe >= Server()->Tick() &&
+		(m_ChangeDirTick < Server()->Tick()-Server()->TickSpeed()*0.17f || m_ScytheTick > Server()->Tick()-Server()->TickSpeed()*0.2f))
+	{
+		m_ScytheTick = Server()->Tick();
+		GetPlayer()->m_InterestPoints += 2;
+		
+		vec2 ProjStartPos = m_Pos + vec2(14 * (Direction.x < 0 ? -1 : 1), -12);
+		GameServer()->CreateScytheHit(m_pPlayer->GetCID(), m_ActiveCustomWeapon, m_Pos, ProjStartPos, this);
+		
+		// uncomment to check collosion center
+		//GameServer()->CreateBuildingHit(ProjStartPos);
+	}
+	else
+		m_Scythe = 0;
 }
 
 
@@ -701,6 +755,7 @@ void CCharacter::FireWeapon()
 		return;
 	
 	Chainsaw();
+	Scythe();
 	Flamethrower();
 	DoWeaponSwitch();
 	
@@ -770,6 +825,10 @@ void CCharacter::FireWeapon()
 	{
 		case WEAPON_CHAINSAW:
 			m_Chainsaw = Server()->Tick() + 500 * Server()->TickSpeed()/1000;
+			break;
+			
+		case WEAPON_SCYTHE:
+			m_Scythe = Server()->Tick() + 100 * Server()->TickSpeed()/1000;
 			break;
 		
 		case WEAPON_FLAMER:
@@ -886,12 +945,17 @@ void CCharacter::FireWeapon()
 
 		case WEAPON_LASER:
 		{
+			float Dmg = 1.0f;
+	
+			if (GameServer()->m_pController->IsCoop() && m_IsBot)
+				Dmg = 0.6f;
+			
 			GetPlayer()->m_InterestPoints += 40;
 			
 			float a = GetAngle(Direction);
 			a += (frandom()-frandom())*aCustomWeapon[m_ActiveCustomWeapon].m_BulletSpread;
 			
-			new CLaser(GameWorld(), ProjStartPos, vec2(cosf(a), sinf(a)), GameServer()->Tuning()->m_LaserReach, m_pPlayer->GetCID(), Damage);
+			new CLaser(GameWorld(), ProjStartPos, vec2(cosf(a), sinf(a)), GameServer()->Tuning()->m_LaserReach, m_pPlayer->GetCID(), Damage*Dmg);
 		} break;
 	};
 	
@@ -1003,8 +1067,6 @@ void CCharacter::GiveStartWeapon()
 	GiveCustomWeapon(W_TOOL);
 	GiveCustomWeapon(W_HAMMER);
 	SetCustomWeapon(W_HAMMER);
-	//GiveCustomWeapon(W_PISTOL);
-	//SetCustomWeapon(W_PISTOL);
 	
 	if (g_Config.m_SvRandomWeapons)
 	{
@@ -1319,7 +1381,7 @@ void CCharacter::UpdateCoreStatus()
 		
 		 // flame damage
 		if (m_aStatus[STATUS_AFLAME] > 0)
-			TakeDamage(vec2(0, 0), 3, m_aStatusFrom[STATUS_AFLAME], m_aStatusWeapon[STATUS_AFLAME], vec2(0, 0), DAMAGETYPE_FLAME);
+			TakeDamage(vec2(0, 0), 4, m_aStatusFrom[STATUS_AFLAME], m_aStatusWeapon[STATUS_AFLAME], vec2(0, 0), DAMAGETYPE_FLAME);
 	}
 	
 	// rolling stops flames faster
@@ -1725,6 +1787,14 @@ void CCharacter::Cry()
 }
 #define RAD 0.017453292519943295769236907684886f
 
+
+void CCharacter::Warp()
+{
+	GameServer()->CreateEffect(FX_MONSTERSPAWN, m_Pos);
+	m_aStatus[STATUS_SPAWNING] = 5.5f*Server()->TickSpeed();
+	//m_aStatus[STATUS_INVISIBILITY] = Server()->TickSpeed() * 20.0f;
+	//m_IgnoreCollision = true;
+}
 
 void CCharacter::Deathray()
 {

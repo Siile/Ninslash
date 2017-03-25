@@ -17,5 +17,11 @@ void main (void)
 	
 	vec4 color = vec4((1.0f - min(c1, 1.0f)) * f, (1.0f - min(c1, 1.0f)) * f, 0, 0);
 	
+	float x = sin(gl_TexCoord[0].x*16.0f+intensity)*0.5f + sin(gl_TexCoord[0].y*12.0f+intensity)*0.5f;
+	x = clamp(x, 0.0f, 0.75f);
+	x *= rand(vec2(0, gl_TexCoord[0].y));
+	x *= rnd;
+	color += vec4(x, x, x*0.5f, 0);
+	
 	gl_FragColor = texture2D(texture, gl_TexCoord[0].st) * gl_Color + color*intensity;
 }

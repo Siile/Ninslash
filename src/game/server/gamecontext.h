@@ -81,6 +81,8 @@ public:
 
 	void Clear();
 
+	void ReloadMap();
+	
 	CEventHandler m_Events;
 	CPlayer *m_apPlayers[MAX_CLIENTS];
 
@@ -143,6 +145,7 @@ public:
 	bool AddBuilding(int Kit, vec2 Pos);
 	
 	void CreateChainsawHit(int DamageOwner, int Weapon, vec2 PlayerPos, vec2 ProjPos, class CCharacter *OwnerChr = NULL, class CBuilding *OwnerBuilding = NULL);
+	void CreateScytheHit(int DamageOwner, int Weapon, vec2 PlayerPos, vec2 ProjPos, class CCharacter *OwnerChr = NULL, class CBuilding *OwnerBuilding = NULL);
 	void CreateFlamethrowerHit(int DamageOwner, int Weapon, vec2 ProjPos, class CCharacter *OwnerChr = NULL, class CBuilding *OwnerBuilding = NULL);
 	void CreateProjectile(int DamageOwner, int Weapon, vec2 Pos, vec2 Direction, class CBuilding *OwnerBuilding = NULL);
 
@@ -195,7 +198,7 @@ public:
 
 	int CountBots(bool SkipSpecialTees = false);
 	int CountBotsAlive(bool SkipSpecialTees = false);
-	int CountHumans();
+	//int CountHumans();
 	int CountHumansAlive();
 	
 	virtual void OnClientConnected(int ClientID, bool AI = false);

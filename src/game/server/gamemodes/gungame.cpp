@@ -23,6 +23,12 @@ CGameControllerGunGame::CGameControllerGunGame(CGameContext *pGameServer) : IGam
 {
 	m_pGameType = "GUN";
 	m_GameFlags = 0;
+	
+	g_Config.m_SvDisablePVP = 0;
+	g_Config.m_SvEnableBuilding = 0;
+
+	if (g_Config.m_SvSurvivalMode)
+		m_GameFlags |= GAMEFLAG_SURVIVAL;
 }
 
 void CGameControllerGunGame::DropPickup(vec2 Pos, int PickupType, vec2 Force, int PickupSubtype, float Ammo)

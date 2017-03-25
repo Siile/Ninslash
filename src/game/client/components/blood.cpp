@@ -78,7 +78,7 @@ void CBlood::Add(int Group, CBlooddrop *pPart)
 }
 
 
-void CBlood::Bounce(vec2 Pos, vec2 Dir, int Group)
+void CBlood::Bounce(vec2 Pos, vec2 Dir, int Group, vec4 Color)
 {
 	CBlooddrop b;
 	b.SetDefault();
@@ -89,27 +89,29 @@ void CBlood::Bounce(vec2 Pos, vec2 Dir, int Group)
 	b.m_Rotspeed = 0.0f;
 	b.m_StartSize = (30.0f + frandom()*24) / 1.75f;
 	b.m_EndSize = 16.0f / 1.75f;
-	b.m_Gravity = 1400.0f + frandom()*300;
+	b.m_Gravity = 1500.0f + frandom()*400;
+	b.m_Friction = 0.7f+frandom()*0.075f;
 
 	if (g_Config.m_GfxMultiBuffering)
 	{
 		b.m_Rotspeed = 0.0f;
 		//b.m_StartSize *= 1.5f;
-		b.m_StartSize = 48.0f;
+		b.m_StartSize = 42.0f + frandom()*16;
 		b.m_EndSize = 4.0f;
 		b.m_LifeSpan = 4.0f;
+		b.m_Friction = 0.85f+frandom()*0.075f;
 	}
 	
 	b.m_Vel = Dir * ((frandom()+0.15f)*700.0f);
 	b.m_Rot = GetAngle(b.m_Vel);
 	
-	b.m_Friction = 0.7f+frandom()*0.075f;
-	float c = frandom()*0.3f + 0.7f;
-	b.m_Color = vec4(c, c, c, 1.0f);
+	//float c = frandom()*0.3f + 0.7f;
+	//b.m_Color = vec4(c, c, c, 1.0f);
+	b.m_Color = Color;
 	m_pClient->m_pBlood->Add(Group, &b);
 	
 	if (g_Config.m_GfxMultiBuffering && frandom()*10 < 3 && Group == GROUP_BLOOD)
-		m_pClient->m_pEffects->Splatter(b.m_Pos + Dir*frandom()*48.0f - Dir*frandom()*16.0f, b.m_Rot, b.m_StartSize * 2);
+		m_pClient->m_pEffects->Splatter(b.m_Pos + Dir*frandom()*48.0f - Dir*frandom()*16.0f, b.m_Rot, b.m_StartSize * 2, Color);
 }
 
 
@@ -150,10 +152,15 @@ void CBlood::Update(float TimePassed)
 				//m_aBlood[i].m_Vel.x = (m_aBlood[i].m_Vel.x + OnForceTile*400) / 2.0f;
 				m_aBlood[i].m_Vel.x = OnForceTile*250;
 				
-			if (CustomStuff()->Impact(m_aBlood[i].m_Pos))
+			vec2 Force = m_aBlood[i].m_Vel;
+				
+			if (CustomStuff()->Impact(m_aBlood[i].m_Pos, &Force))
 			{
-				m_aBlood[i].m_Pos.y -= 10.0f;
-				m_aBlood[i].m_Vel.y = -1000.0f-frandom()*400.0f;
+				m_aBlood[i].m_Pos += Force*10.0f;
+				m_aBlood[i].m_Vel += Force*(700.0f+frandom()*700);
+				
+				if (frandom()*20 < 2)
+					m_pClient->AddPlayerSplatter(m_aBlood[i].m_Pos, m_aBlood[i].m_Color);
 			}
 				
 			// move the point
@@ -188,7 +195,7 @@ void CBlood::Update(float TimePassed)
 					m_aBlood[i].m_StartSize /= 1.75f;
 					m_aBlood[i].m_EndSize /= 1.75f;
 					
-					Bounce(m_aBlood[i].m_Pos, RandomDir(), g);
+					Bounce(m_aBlood[i].m_Pos, RandomDir(), g, m_aBlood[i].m_Color);
 				}
 			}
 
@@ -351,9 +358,13 @@ void CBlood::RenderGroup(int Group)
 			vec2 p = m_aBlood[i].m_Pos;
 			float Size = mix(m_aBlood[i].m_StartSize, m_aBlood[i].m_EndSize, a);
 
+			Size = min(m_aBlood[i].m_StartSize, Size*1.5f);
+			
 			Graphics()->QuadsSetRotation(m_aBlood[i].m_Rot);
 
-			Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+			//Graphics()->SetColor(1.0f, 0.0f, 0.0f, 1.0f);
+			vec4 c = m_aBlood[i].m_Color;
+			Graphics()->SetColor(c.r, c.g, c.b, 1.0f);
 
 			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size*0.7f);
 			Graphics()->QuadsDraw(&QuadItem, 1);
@@ -365,7 +376,7 @@ void CBlood::RenderGroup(int Group)
 		Graphics()->BlendNormal();
 	}
 	
-	// ...or render particles to screen
+	// ...or render particles to the screen
 	else if (Group == GROUP_BLOOD)
 	{
 		Graphics()->BlendNormal();

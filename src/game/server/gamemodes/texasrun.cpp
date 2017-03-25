@@ -20,6 +20,7 @@ CGameControllerTexasRun::CGameControllerTexasRun(class CGameContext *pGameServer
 	m_EndTick = 0;
 	m_GameStateLockTick = 0;
 	
+	g_Config.m_SvDisablePVP = 0;
 	
 	if (g_Config.m_SvEnableBuilding)
 		m_GameFlags |= GAMEFLAG_BUILD;

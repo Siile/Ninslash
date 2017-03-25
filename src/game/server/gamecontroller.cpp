@@ -515,8 +515,29 @@ void IGameController::CreateDroppables()
 
 
 
+void IGameController::DeathMessage()
+{
+	switch (rand()%5)
+	{
+		case 0:
+			GameServer()->SendBroadcast("All hope is lost", -1); break;
+		case 1:
+			GameServer()->SendBroadcast("Slaughter", -1); break;
+		case 2:
+			GameServer()->SendBroadcast("Ocean of blood", -1); break;
+		case 3:
+			GameServer()->SendBroadcast("Death takes all", -1); break;
+		default:
+			GameServer()->SendBroadcast("Everybody dies", -1); break;
+	};
+}
+	
+	
 void IGameController::TriggerSwitch(vec2 Pos)
 {
+	TriggerEscape();
+	
+	/*
 	float Radius = 1000;
 	
 	CBuilding *apEnts[99];
@@ -527,6 +548,29 @@ void IGameController::TriggerSwitch(vec2 Pos)
 		CBuilding *pTarget = apEnts[i];
 		pTarget->Trigger();
 	}
+	*/
+}
+
+
+void IGameController::TriggerEscape()
+{
+	float Radius = 1000000;
+	
+	CBuilding *apEnts[999];
+	int Num = GameServer()->m_World.FindEntities(vec2(4000, 4000), Radius, (CEntity**)apEnts,
+													999, CGameWorld::ENTTYPE_BUILDING);
+	for (int i = 0; i < Num; ++i)
+	{
+		CBuilding *pTarget = apEnts[i];
+		if (pTarget->m_Type == BUILDING_DOOR1)
+			pTarget->Trigger();
+	}
+}
+
+
+void IGameController::NextLevel(int CID)
+{
+	//
 }
 
 
@@ -666,6 +710,11 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 			Type = POWERUP_WEAPON;
 			SubType = WEAPON_FLAMER;
 		}
+		else if(Index == ENTITY_WEAPON_SCYTHE)
+		{
+			Type = POWERUP_WEAPON;
+			SubType = WEAPON_SCYTHE;
+		}
 	}
 
 	if(Type != -1)
@@ -682,6 +731,24 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 	}
 
 	return false;
+}
+
+
+int IGameController::CountHumans()
+{
+	int Num = 0;
+		
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CPlayer *pPlayer = GameServer()->m_apPlayers[i];
+		if(!pPlayer)
+			continue;
+
+		if (!pPlayer->m_IsBot)
+			Num++;
+	}
+	
+	return Num;
 }
 
 
@@ -706,7 +773,7 @@ int IGameController::CountPlayers(int Team)
 }
 
 
-int IGameController::CountPlayersAlive(int Team)
+int IGameController::CountPlayersAlive(int Team, bool IgnoreBots)
 {
 	int Num = 0;
 		
@@ -720,7 +787,7 @@ int IGameController::CountPlayersAlive(int Team)
 		{
 			if (pPlayer->GetTeam() == Team || Team == -1)
 			{
-				if (pPlayer->GetCharacter() && pPlayer->GetCharacter()->IsAlive())
+				if (pPlayer->GetCharacter() && pPlayer->GetCharacter()->IsAlive() && (!IgnoreBots || !pPlayer->m_IsBot))
 					Num++;
 			}
 		}
@@ -763,6 +830,23 @@ int IGameController::CountBots()
 			continue;
 
 		if (pPlayer->m_IsBot)
+			Num++;
+	}
+	
+	return Num;
+}
+
+int IGameController::CountBotsAlive()
+{
+	int Num = 0;
+		
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CPlayer *pPlayer = GameServer()->m_apPlayers[i];
+		if(!pPlayer)
+			continue;
+
+		if (pPlayer->m_IsBot && pPlayer->GetCharacter() && pPlayer->GetCharacter()->IsAlive())
 			Num++;
 	}
 	
@@ -921,6 +1005,84 @@ void IGameController::CycleMap()
 	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 	str_copy(g_Config.m_SvMap, &aBuf[i], sizeof(g_Config.m_SvMap));
 }
+
+
+void IGameController::FirstMap()
+{
+	if(m_aMapWish[0] != 0)
+	{
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "rotating map to %s", m_aMapWish);
+		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+		str_copy(g_Config.m_SvMap, m_aMapWish, sizeof(g_Config.m_SvMap));
+		m_aMapWish[0] = 0;
+		m_RoundCount = 0;
+		return;
+	}
+	if(!str_length(g_Config.m_SvMaprotation))
+		return;
+
+	if(m_RoundCount < g_Config.m_SvRoundsPerMap-1)
+	{
+		if(g_Config.m_SvRoundSwap)
+			GameServer()->SwapTeams();
+		return;
+	}
+
+	// handle maprotation
+	const char *pMapRotation = g_Config.m_SvMaprotation;
+	const char *pCurrentMap = g_Config.m_SvMap;
+
+	int CurrentMapLen = str_length(pCurrentMap);
+	const char *pNextMap = pMapRotation;
+	while(*pNextMap)
+	{
+		int WordLen = 0;
+		while(pNextMap[WordLen] && !IsSeparator(pNextMap[WordLen]))
+			WordLen++;
+
+		if(WordLen == CurrentMapLen && str_comp_num(pNextMap, pCurrentMap, CurrentMapLen) == 0)
+		{
+			// map found
+			pNextMap += CurrentMapLen;
+			while(*pNextMap && IsSeparator(*pNextMap))
+				pNextMap++;
+
+			break;
+		}
+
+		pNextMap++;
+	}
+
+	// restart rotation
+	//if(pNextMap[0] == 0)
+		pNextMap = pMapRotation;
+
+	// cut out the next map
+	char aBuf[512] = {0};
+	for(int i = 0; i < 511; i++)
+	{
+		aBuf[i] = pNextMap[i];
+		if(IsSeparator(pNextMap[i]) || pNextMap[i] == 0)
+		{
+			aBuf[i] = 0;
+			break;
+		}
+	}
+
+	// skip spaces
+	int i = 0;
+	while(IsSeparator(aBuf[i]))
+		i++;
+
+	m_RoundCount = 0;
+
+	char aBufMsg[256];
+	str_format(aBufMsg, sizeof(aBufMsg), "restarting map rotating to %s", &aBuf[i]);
+	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+	str_copy(g_Config.m_SvMap, &aBuf[i], sizeof(g_Config.m_SvMap));
+}
+
 
 void IGameController::PostReset()
 {
@@ -1115,6 +1277,14 @@ bool IGameController::CanCharacterSpawn(int ClientID)
 		if (m_SurvivalStatus == SURVIVAL_CANJOIN)
 			return true;
 		
+		if (IsCoop())
+		{
+			CPlayer *pPlayer = GameServer()->m_apPlayers[ClientID];
+				
+			if(pPlayer && pPlayer->m_IsBot)
+				return true;
+		}
+		
 		return false;
 	}
 	
@@ -1232,7 +1402,7 @@ void IGameController::Tick()
 	if(m_GameOverTick != -1)
 	{
 		// game over.. wait for restart
-		if(Server()->Tick() > m_GameOverTick+Server()->TickSpeed()*5)
+		if(Server()->Tick() > m_GameOverTick+Server()->TickSpeed()*(IsCoop() ? 1 : 5))
 		{
 			GameServer()->KickBots();
 			CycleMap();
@@ -1253,11 +1423,11 @@ void IGameController::Tick()
 	// survival mode
 	
 	// force survival mode off in some gamemodes
-	if (g_Config.m_SvSurvivalMode && (IsInfection() || IsCoop()))
+	if (g_Config.m_SvSurvivalMode && (IsInfection()))
 		g_Config.m_SvSurvivalMode = 0;
 	
 	// check for round time ending
-	if (g_Config.m_SvSurvivalMode && m_SurvivalStartTick < Server()->Tick() - Server()->TickSpeed() * g_Config.m_SvSurvivalTime)
+	if (g_Config.m_SvSurvivalTime && g_Config.m_SvSurvivalMode && m_SurvivalStartTick < Server()->Tick() - Server()->TickSpeed() * g_Config.m_SvSurvivalTime)
 	{
 		
 		GameServer()->SendBroadcast("Draw", -1);
@@ -1265,7 +1435,7 @@ void IGameController::Tick()
 	}
 	
 	// check for winning conditions
-	if (g_Config.m_SvSurvivalMode && m_SurvivalStatus == SURVIVAL_NOCANDO && m_SurvivalDeathTick < Server()->Tick())
+	if (!IsCoop() && g_Config.m_SvSurvivalMode && m_SurvivalStatus == SURVIVAL_NOCANDO && m_SurvivalDeathTick < Server()->Tick())
 	{
 		// check if only the last player (or the team) alive
 		if (IsTeamplay())

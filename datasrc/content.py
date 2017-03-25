@@ -145,6 +145,11 @@ class Weapon_Chainsaw(Struct):
 	def __init__(self):
 		Struct.__init__(self, "CDataWeaponspecChainsaw")
 		self.base = Pointer(WeaponSpec, WeaponSpec())
+		
+class Weapon_Scythe(Struct):
+	def __init__(self):
+		Struct.__init__(self, "CDataWeaponspecScythe")
+		self.base = Pointer(WeaponSpec, WeaponSpec())
 
 		
 
@@ -161,6 +166,7 @@ class Weapons(Struct):
 		self.grenade = Weapon_Grenade()
 		self.flamer = Weapon_Flamer()
 		self.chainsaw = Weapon_Chainsaw()
+		self.scythe = Weapon_Scythe()
 		self.id = Array(WeaponSpec())
 
 class DataContainer(Struct):
@@ -181,6 +187,7 @@ container.sounds.Add(SoundSet("gun_fire", FileList("audio/wp_gun_fire-%02d.wv", 
 container.sounds.Add(SoundSet("shotgun_fire", FileList("audio/wp_shotty_fire-%02d.wv", 3)))
 
 container.sounds.Add(SoundSet("electro_fire", FileList("audio/wp_electro_fire-%02d.wv", 3)))
+container.sounds.Add(SoundSet("scythe_fire", FileList("audio/wp_scythe_fire-%02d.wv", 3)))
 
 container.sounds.Add(SoundSet("grenade_fire", FileList("audio/wp_flump_launch-%02d.wv", 3)))
 container.sounds.Add(SoundSet("tool_fire", FileList("audio/wp_hammer_swing-%02d.wv", 3)))
@@ -283,6 +290,7 @@ image_weapons = Image("weapons", "weapons.png")
 image_deathtypes = Image("deathtypes", "deathtypes.png")
 image_items = Image("items", "items.png")
 image_sword = Image("sword", "sword.png")
+image_scythe = Image("scythe", "scythe.png")
 image_hands = Image("hands", "hands.png")
 image_bodies = Image("bodies", "bodies.png")
 image_pickups = Image("pickups", "pickups.png")
@@ -308,6 +316,8 @@ image_lazerload = Image("lazerload", "fx/lazerload.png")
 image_sparks = Image("sparks", "fx/sparks.png")
 image_swordhit = Image("swordhit", "fx/swordhit.png")
 image_bloodfx = Image("bloodfx", "fx/bloodfx.png")
+image_fx_scythe = Image("fx_scythe", "fx/scythe.png")
+image_fx_chainsaw = Image("fx_chainsaw", "fx/chainsaw.png")
 image_playerspawn = Image("playerspawn", "fx/playerspawn.png")
 image_monsterspawn = Image("monsterspawn", "fx/monsterspawn.png")
 image_heal = Image("heal", "fx/heal.png")
@@ -327,6 +337,7 @@ container.images.Add(image_game)
 container.images.Add(image_flag)
 container.images.Add(image_weapons)
 container.images.Add(image_sword)
+container.images.Add(image_scythe)
 container.images.Add(image_items)
 container.images.Add(image_hands)
 container.images.Add(image_bodies)
@@ -361,6 +372,8 @@ container.images.Add(image_lazer)
 container.images.Add(image_lazerload)
 container.images.Add(image_sparks)
 container.images.Add(image_swordhit)
+container.images.Add(image_fx_scythe)
+container.images.Add(image_fx_chainsaw)
 container.images.Add(image_bloodfx)
 container.images.Add(image_playerspawn)
 container.images.Add(image_monsterspawn)
@@ -388,6 +401,7 @@ set_game = SpriteSet("game", image_game, 32, 16)
 set_flag = SpriteSet("flag", image_flag, 8, 2)
 set_weapons = SpriteSet("weapons", image_weapons, 16, 16)
 set_sword = SpriteSet("sword", image_sword, 4, 1)
+set_scythe = SpriteSet("scythe", image_scythe, 4, 1)
 set_hands = SpriteSet("hands", image_hands, 8, 1)
 set_bodies = SpriteSet("bodies", image_bodies, 4, 1)
 set_pickups = SpriteSet("pickups", image_pickups, 8, 2)
@@ -415,6 +429,8 @@ set_lazerload = SpriteSet("lazerload", image_lazerload, 8, 1)
 set_sparks = SpriteSet("sparks", image_sparks, 4, 2)
 set_swordhit = SpriteSet("swordhit", image_swordhit, 3, 1)
 set_bloodfx = SpriteSet("bloodfx", image_bloodfx, 8, 1)
+set_fx_scythe = SpriteSet("fx_scythe", image_fx_scythe, 8, 1)
+set_fx_chainsaw = SpriteSet("fx_chainsaw", image_fx_chainsaw, 4, 1)
 set_playerspawn = SpriteSet("playerspawn", image_playerspawn, 16, 1)
 set_monsterspawn = SpriteSet("monsterspawn", image_monsterspawn, 16, 1)
 set_heal = SpriteSet("heal", image_heal, 8, 2)
@@ -433,6 +449,7 @@ container.spritesets.Add(set_flag)
 container.spritesets.Add(set_weapons)
 container.spritesets.Add(set_items)
 container.spritesets.Add(set_sword)
+container.spritesets.Add(set_scythe)
 container.spritesets.Add(set_hands)
 container.spritesets.Add(set_bodies)
 container.spritesets.Add(set_pickups)
@@ -459,6 +476,8 @@ container.spritesets.Add(set_lazerload)
 container.spritesets.Add(set_sparks)
 container.spritesets.Add(set_swordhit)
 container.spritesets.Add(set_bloodfx)
+container.spritesets.Add(set_fx_scythe)
+container.spritesets.Add(set_fx_chainsaw)
 container.spritesets.Add(set_playerspawn)
 container.spritesets.Add(set_monsterspawn)
 container.spritesets.Add(set_heal)
@@ -506,6 +525,13 @@ for i in range(1, 5):
 for i in range(1, 5):
 	container.sprites.Add(Sprite("sword"+str(i), set_sword, i-1, 0, 1, 1))
 	
+	
+for i in range(1, 5):
+	container.sprites.Add(Sprite("scythe"+str(i), set_scythe, i-1, 0, 1, 1))
+	
+for i in range(1, 5):
+	container.sprites.Add(Sprite("fx_chainsaw"+str(i), set_fx_chainsaw, i-1, 0, 1, 1))
+	
 
 for i in range(1, 5):
 	container.sprites.Add(Sprite("flame"+str(i), set_flame, i-1, 0, 1, 1))
@@ -548,6 +574,8 @@ for i in range(1, 9):
 	container.sprites.Add(Sprite("electric"+str(i), set_electric, i-1, 0, 1, 1))
 for i in range(1, 9):
 	container.sprites.Add(Sprite("lazerload"+str(i), set_lazerload, i-1, 0, 1, 1))
+for i in range(1, 9):
+	container.sprites.Add(Sprite("fx_scythe"+str(i), set_fx_scythe, i-1, 0, 1, 1))
 for i in range(1, 9):
 	container.sprites.Add(Sprite("bloodfx1_"+str(i), set_bloodfx, i-1, 0, 1, 1))
 for i in range(1, 9):
@@ -659,6 +687,11 @@ container.sprites.Add(Sprite("weapon_hammer_body", set_weapons, 8,6,8,2))
 container.sprites.Add(Sprite("weapon_hammer_pickup", set_pickups, 0,0,0,0))
 container.sprites.Add(Sprite("weapon_hammer_cursor", set_game, 0,0,2,2))
 container.sprites.Add(Sprite("weapon_hammer_proj", set_game, 0,0,0,0))
+
+container.sprites.Add(Sprite("weapon_scythe_body", set_weapons, 7,0,6,2))
+container.sprites.Add(Sprite("weapon_scythe_pickup", set_pickups, 0,0,0,0))
+container.sprites.Add(Sprite("weapon_scythe_cursor", set_game, 0,0,2,2))
+container.sprites.Add(Sprite("weapon_scythe_proj", set_game, 0,0,0,0))
 
 container.sprites.Add(Sprite("weapon_chainsaw_body", set_weapons, 7,8,6,2))
 container.sprites.Add(Sprite("weapon_chainsaw_pickup", set_pickups, 6,0,1,1))
@@ -928,4 +961,14 @@ weapon.visual_size.Set(96)
 weapon.offsetx.Set(25)
 weapon.offsety.Set(-2)
 container.weapons.chainsaw.base.Set(weapon)
+container.weapons.id.Add(weapon)
+
+
+weapon = WeaponSpec(container, "scythe")
+weapon.firedelay.Set(125)
+weapon.damage.Set(3)
+weapon.visual_size.Set(96)
+weapon.offsetx.Set(4)
+weapon.offsety.Set(-20)
+container.weapons.scythe.base.Set(weapon)
 container.weapons.id.Add(weapon)

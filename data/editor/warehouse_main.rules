@@ -1,0 +1,71 @@
+[Warehouse]
+Index 18
+BaseTile
+
+#top
+Index 2
+Pos 0 -1 EMPTY
+
+Index 3
+Pos 0 -1 EMPTY
+Random 15
+
+#right
+Index 17 XFLIP
+Pos 1 0 EMPTY
+
+#bottom
+Index 67
+Pos 0 1 EMPTY
+
+Index 66
+Pos 0 1 EMPTY
+Random 15
+
+#left
+Index 17
+Pos -1 0 EMPTY
+
+#corner top-right
+Index 1 XFLIP
+Pos 0 -1 EMPTY
+Pos 1 0 EMPTY
+
+#corner top-left
+Index 1
+Pos 0 -1 EMPTY
+Pos -1 0 EMPTY
+
+#corner bottom-left
+Index 65
+Pos 0 1 EMPTY
+Pos -1 0 EMPTY
+
+#corner bottom-right
+Index 65 XFLIP
+Pos 0 1 EMPTY
+Pos 1 0 EMPTY
+
+#inside corner top-right
+Index 51
+Pos -1 1 EMPTY
+Pos -1 0 FULL
+Pos 0 1 FULL
+
+#inside corner top-left
+Index 51 XFLIP
+Pos 1 1 EMPTY
+Pos 1 0 FULL
+Pos 0 1 FULL
+
+#inside corner bottom-left
+Index 51 XYFLIP
+Pos 1 -1 EMPTY
+Pos 1 0 FULL
+Pos 0 -1 FULL
+
+#inside corner bottom-right
+Index 51 YFLIP
+Pos -1 -1 EMPTY
+Pos -1 0 FULL
+Pos 0 -1 FULL

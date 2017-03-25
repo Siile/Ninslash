@@ -69,6 +69,16 @@ void CAutoMapper::Load(const char* pTileName)
 							NewIndexRule.m_Flag = TILEFLAG_VFLIP;
 						else if(!str_comp(aFlip, "YFLIP"))
 							NewIndexRule.m_Flag = TILEFLAG_HFLIP;
+						else if(!str_comp(aFlip, "XYFLIP"))
+							NewIndexRule.m_Flag = TILEFLAG_VFLIP+TILEFLAG_HFLIP;
+						else if(!str_comp(aFlip, "ROTATE"))
+							NewIndexRule.m_Flag = TILEFLAG_ROTATE;
+						else if(!str_comp(aFlip, "XFLIP_ROTATE"))
+							NewIndexRule.m_Flag = TILEFLAG_ROTATE+TILEFLAG_VFLIP;
+						else if(!str_comp(aFlip, "YFLIP_ROTATE"))
+							NewIndexRule.m_Flag = TILEFLAG_ROTATE+TILEFLAG_HFLIP;
+						else if(!str_comp(aFlip, "XYFLIP_ROTATE"))
+							NewIndexRule.m_Flag = TILEFLAG_ROTATE+TILEFLAG_VFLIP+TILEFLAG_HFLIP;
 					}
 
 					// add the index rule object and make it current

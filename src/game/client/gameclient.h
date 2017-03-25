@@ -120,10 +120,13 @@ public:
 	
 	bool IsLocalUndead();
 	bool BuildingEnabled();
+	bool Survival();
+	bool IsCoop();
 	
 	void AddFluidForce(vec2 Pos, vec2 Vel);
 	
 	vec4 GetPlayerColor(int ClientID);
+	vec4 GetBloodColor(int ClientID);
 
 	// predicted players
 	CCharacterCore m_PredictedPrevChar;
@@ -193,6 +196,9 @@ public:
 		int m_ColorFeet;
 		int m_ColorTopper;
 		int m_ColorSkin;
+		
+		bool m_IsBot;
+		int m_BloodColor;
 
 		char m_aName[MAX_NAME_LENGTH];
 		char m_aClan[MAX_CLAN_LENGTH];
@@ -222,6 +228,8 @@ public:
 
 	CRenderTools m_RenderTools;
 
+	void AddPlayerSplatter(vec2 Pos, vec4 Color);
+	
 	void OnReset();
 
 	// hooks
