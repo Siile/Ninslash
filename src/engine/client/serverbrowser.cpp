@@ -155,6 +155,7 @@ void CServerBrowser::Filter()
 			(str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "DM") != 0 &&
 			str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "TDM") != 0 &&
 			str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "INF") != 0 &&
+			str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "INV") != 0 &&
 			str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "GUN") != 0 &&
 			str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "CTF") != 0))
 		{
@@ -361,6 +362,8 @@ void CServerBrowser::SetInfo(CServerEntry *pEntry, const CServerInfo &Info)
 		str_copy(pEntry->m_Info.m_aGameType, "INF", sizeof(pEntry->m_Info.m_aGameType));
 	else if(pEntry->m_Info.m_aGameType[0] == '4' && pEntry->m_Info.m_aGameType[1] == 0)
 		str_copy(pEntry->m_Info.m_aGameType, "GUN", sizeof(pEntry->m_Info.m_aGameType));
+	else if(pEntry->m_Info.m_aGameType[0] == '5' && pEntry->m_Info.m_aGameType[1] == 0)
+		str_copy(pEntry->m_Info.m_aGameType, "INV", sizeof(pEntry->m_Info.m_aGameType));
 
 	/*if(!request)
 	{

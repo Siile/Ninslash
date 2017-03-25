@@ -22,7 +22,7 @@
 CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 : IGameController(pGameServer)
 {
-	m_pGameType = "inv";
+	m_pGameType = "INV";
 	m_GameFlags = GAMEFLAG_COOP;
 	m_GameState = STATE_STARTING;
 	
