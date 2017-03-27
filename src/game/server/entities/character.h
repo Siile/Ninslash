@@ -60,6 +60,8 @@ public:
 	
 	bool PlayerCollision(){ return m_Core.m_PlayerCollision; }
 	
+	bool Wallrun(){ return (abs(m_Core.m_Wallrun) > 0 && abs(m_Core.m_Wallrun) < 10);}
+	
 	void HandleWeaponSwitch();
 	void DoWeaponSwitch();
 

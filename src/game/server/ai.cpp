@@ -579,6 +579,16 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 			
 			case MOVE_UPLEFT:
 			{
+				if (Player()->GetCharacter()->Wallrun())
+				{
+					m_Move = 0;
+					m_Jump = 0;
+					m_Hook = 0;
+					
+					if (!GameServer()->Collision()->IsTileSolid(m_Pos.x, m_Pos.y-48))
+						break;
+				}
+				
 				m_Jump = 1;
 				m_Move = -1;
 				
@@ -596,6 +606,16 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				
 			case MOVE_UPRIGHT:
 			{
+				if (Player()->GetCharacter()->Wallrun())
+				{
+					m_Move = 0;
+					m_Jump = 0;
+					m_Hook = 0;
+					
+					if (!GameServer()->Collision()->IsTileSolid(m_Pos.x, m_Pos.y-48))
+						break;
+				}
+				
 				m_Jump = 1;
 				m_Move = 1;
 				
@@ -614,6 +634,16 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				
 			case MOVE_UP:
 			{
+				if (Player()->GetCharacter()->Wallrun())
+				{
+					m_Move = 0;
+					m_Jump = 0;
+					m_Hook = 0;
+					
+					if (!GameServer()->Collision()->IsTileSolid(m_Pos.x, m_Pos.y-48))
+						break;
+				}
+				
 				if (Player()->GetCharacter()->IsGrounded())
 				{
 					if (Player()->GetCharacter()->GetCore().m_JetpackPower > 95)
@@ -724,6 +754,10 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 			m_Move = 1;
 	}
 	
+	
+	// jump over other characters sometimes
+	if (abs(Vel) > 1 && Player()->GetCharacter()->PlayerCollision() && frandom()*10 < 2)
+		m_Jump = true;
 	
 	vec2 Pos = Player()->GetCharacter()->GetCore().m_Pos;
 	

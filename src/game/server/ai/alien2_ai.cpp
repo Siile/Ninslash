@@ -74,8 +74,8 @@ void CAIalien2::DoBehavior()
 	}
 	else
 	{
-		if (Player()->GetCharacter()->PlayerCollision() && frandom()*10 < 3)
-			Jump = true;
+		//if (Player()->GetCharacter()->PlayerCollision() && frandom()*10 < 3)
+		//	Jump = true;
 			
 		
 		ShootAtClosestBuilding();
