@@ -1,0 +1,104 @@
+
+alien.png
+size: 512,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+arm
+  rotate: false
+  xy: 2, 2
+  size: 4, 4
+  orig: 4, 4
+  offset: 0, 0
+  index: -1
+body
+  rotate: true
+  xy: 154, 72
+  size: 52, 37
+  orig: 52, 37
+  offset: 0, 0
+  index: -1
+body2
+  rotate: false
+  xy: 132, 126
+  size: 52, 20
+  orig: 52, 20
+  offset: 0, 0
+  index: -1
+eyes
+  rotate: false
+  xy: 132, 190
+  size: 128, 64
+  orig: 128, 64
+  offset: 0, 0
+  index: -1
+foot
+  rotate: false
+  xy: 432, 230
+  size: 41, 24
+  orig: 41, 24
+  offset: 0, 0
+  index: -1
+hand
+  rotate: false
+  xy: 224, 158
+  size: 31, 30
+  orig: 31, 30
+  offset: 0, 0
+  index: -1
+head
+  rotate: false
+  xy: 2, 8
+  size: 102, 116
+  orig: 102, 116
+  offset: 0, 0
+  index: -1
+horn
+  rotate: false
+  xy: 154, 41
+  size: 26, 29
+  orig: 26, 29
+  offset: 0, 0
+  index: -1
+horn_flipped
+  rotate: false
+  xy: 154, 10
+  size: 26, 29
+  orig: 26, 29
+  offset: 0, 0
+  index: -1
+mask
+  rotate: false
+  xy: 2, 126
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+splatter1
+  rotate: false
+  xy: 132, 148
+  size: 90, 40
+  orig: 90, 40
+  offset: 0, 0
+  index: -1
+splatter2
+  rotate: true
+  xy: 106, 2
+  size: 122, 46
+  orig: 122, 46
+  offset: 0, 0
+  index: -1
+splatter3
+  rotate: false
+  xy: 262, 208
+  size: 88, 46
+  orig: 88, 46
+  offset: 0, 0
+  index: -1
+splatter4
+  rotate: false
+  xy: 352, 226
+  size: 78, 28
+  orig: 78, 28
+  offset: 0, 0
+  index: -1

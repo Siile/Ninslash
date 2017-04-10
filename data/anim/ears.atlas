@@ -1,0 +1,90 @@
+
+ears.png
+size: 256,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+arm
+  rotate: false
+  xy: 50, 5
+  size: 4, 4
+  orig: 4, 4
+  offset: 0, 0
+  index: -1
+body
+  rotate: false
+  xy: 198, 217
+  size: 52, 37
+  orig: 52, 37
+  offset: 0, 0
+  index: -1
+body2
+  rotate: false
+  xy: 191, 62
+  size: 52, 20
+  orig: 52, 20
+  offset: 0, 0
+  index: -1
+eyes
+  rotate: true
+  xy: 132, 126
+  size: 128, 64
+  orig: 128, 64
+  offset: 0, 0
+  index: -1
+foot
+  rotate: true
+  xy: 191, 19
+  size: 41, 24
+  orig: 41, 24
+  offset: 0, 0
+  index: -1
+hand
+  rotate: false
+  xy: 217, 30
+  size: 31, 30
+  orig: 31, 30
+  offset: 0, 0
+  index: -1
+head
+  rotate: true
+  xy: 50, 11
+  size: 113, 109
+  orig: 113, 109
+  offset: 0, 0
+  index: -1
+mask
+  rotate: false
+  xy: 2, 126
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+splatter1
+  rotate: false
+  xy: 161, 84
+  size: 90, 40
+  orig: 90, 40
+  offset: 0, 0
+  index: -1
+splatter2
+  rotate: true
+  xy: 2, 2
+  size: 122, 46
+  orig: 122, 46
+  offset: 0, 0
+  index: -1
+splatter3
+  rotate: true
+  xy: 198, 127
+  size: 88, 46
+  orig: 88, 46
+  offset: 0, 0
+  index: -1
+splatter4
+  rotate: true
+  xy: 161, 4
+  size: 78, 28
+  orig: 78, 28
+  offset: 0, 0
+  index: -1

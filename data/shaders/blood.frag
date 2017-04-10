@@ -8,12 +8,12 @@ uniform int screenheight;
 
 void main (void)
 {
-	float a = texture2D(texture, gl_TexCoord[0].st).r+texture2D(texture, gl_TexCoord[0].st).g+texture2D(texture, gl_TexCoord[0].st).b;
-	
 	float StepX = 2.0f / screenwidth;
 	float StepY = 2.0f / screenheight;
 	
-	vec4 c = texture2D(texture, gl_TexCoord[0].st + vec2(-StepX, -StepY)) + texture2D(texture, gl_TexCoord[0].st + vec2(+StepX, +StepY)) / 2.0f;
+	vec4 c = (texture2D(texture, gl_TexCoord[0].st + vec2(-StepX, -StepY)) + texture2D(texture, gl_TexCoord[0].st + vec2(+StepX, +StepY))) / 2.0f;
+	
+	float a = clamp(c.r + c.g + c.b, 0.0f, 1.0f);
 	
 	c *= gl_Color;
 	

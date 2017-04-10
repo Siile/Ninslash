@@ -8,13 +8,13 @@ uniform float intensity;
 //    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 //}
 
-highp float rand(vec2 co)
+float rand(vec2 co)
 {
-    highp float a = 12.9898;
-    highp float b = 78.233;
-    highp float c = 43758.5453;
-    highp float dt= dot(co.xy ,vec2(a,b));
-    highp float sn= mod(dt,3.14);
+    float a = 12.9898f;
+    float b = 78.233f;
+    float c = 43758.5453f;
+    float dt= dot(co.xy ,vec2(a,b));
+    float sn= mod(dt,3.14f);
     return fract(sin(sn) * c);
 }
 
@@ -24,7 +24,7 @@ void main (void)
 
 	vec4 color = vec4(-f*0.5f, f*0.5f, f, 0);
 	
-	float x = sin(gl_TexCoord[0].x*16.0f+intensity)*0.5f + sin(gl_TexCoord[0].y*12.0f+intensity)*0.5f;
+	float x = sin(gl_TexCoord[0].x/16.0f+intensity)*0.5f + sin(gl_TexCoord[0].y/12.0f+intensity)*0.5f;
 	x = clamp(x, 0.0f, 0.75f);
 	x *= rand(vec2(0, gl_TexCoord[0].y));
 	x *= rnd;

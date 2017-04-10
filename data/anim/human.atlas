@@ -1,0 +1,97 @@
+
+human.png
+size: 512,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+arm
+  rotate: false
+  xy: 350, 438
+  size: 4, 4
+  orig: 4, 4
+  offset: 0, 0
+  index: -1
+body
+  rotate: false
+  xy: 260, 357
+  size: 54, 37
+  orig: 54, 37
+  offset: 0, 0
+  index: -1
+body2
+  rotate: false
+  xy: 132, 144
+  size: 54, 58
+  orig: 54, 58
+  offset: 0, 0
+  index: -1
+eyes
+  rotate: false
+  xy: 260, 444
+  size: 128, 64
+  orig: 128, 64
+  offset: 0, 0
+  index: -1
+foot
+  rotate: false
+  xy: 2, 2
+  size: 41, 24
+  orig: 41, 24
+  offset: 0, 0
+  index: -1
+hand
+  rotate: false
+  xy: 96, 90
+  size: 31, 30
+  orig: 31, 30
+  offset: 0, 0
+  index: -1
+hat
+  rotate: false
+  xy: 2, 252
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+head
+  rotate: false
+  xy: 2, 28
+  size: 92, 92
+  orig: 92, 92
+  offset: 0, 0
+  index: -1
+mask
+  rotate: false
+  xy: 2, 122
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+splatter1
+  rotate: false
+  xy: 390, 468
+  size: 90, 40
+  orig: 90, 40
+  offset: 0, 0
+  index: -1
+splatter2
+  rotate: false
+  xy: 132, 204
+  size: 122, 46
+  orig: 122, 46
+  offset: 0, 0
+  index: -1
+splatter3
+  rotate: false
+  xy: 260, 396
+  size: 88, 46
+  orig: 88, 46
+  offset: 0, 0
+  index: -1
+splatter4
+  rotate: true
+  xy: 482, 430
+  size: 78, 28
+  orig: 78, 28
+  offset: 0, 0
+  index: -1

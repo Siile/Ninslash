@@ -1,0 +1,27 @@
+
+jumppad.png
+size: 256,128
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+base
+  rotate: false
+  xy: 2, 2
+  size: 128, 22
+  orig: 128, 22
+  offset: 0, 0
+  index: -1
+body
+  rotate: false
+  xy: 2, 26
+  size: 128, 63
+  orig: 128, 63
+  offset: 0, 0
+  index: -1
+spring
+  rotate: false
+  xy: 132, 28
+  size: 90, 61
+  orig: 90, 61
+  offset: 0, 0
+  index: -1

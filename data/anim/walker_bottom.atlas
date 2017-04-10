@@ -1,0 +1,76 @@
+
+walker_bottom.png
+size: 512,128
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Turret-Back-Foot
+  rotate: true
+  xy: 198, 19
+  size: 37, 71
+  orig: 37, 71
+  offset: 0, 0
+  index: -1
+Turret-Back-LowerLeg
+  rotate: true
+  xy: 2, 5
+  size: 51, 96
+  orig: 51, 96
+  offset: 0, 0
+  index: -1
+Turret-Back-UpperLeg
+  rotate: true
+  xy: 100, 10
+  size: 46, 96
+  orig: 46, 96
+  offset: 0, 0
+  index: -1
+Turret-Front-Foot
+  rotate: true
+  xy: 271, 18
+  size: 38, 58
+  orig: 38, 58
+  offset: 0, 0
+  index: -1
+Turret-Front-LowerLeg
+  rotate: true
+  xy: 2, 58
+  size: 68, 136
+  orig: 68, 136
+  offset: 0, 0
+  index: -1
+Turret-Front-UpperLeg
+  rotate: false
+  xy: 374, 44
+  size: 64, 82
+  orig: 64, 82
+  offset: 0, 0
+  index: -1
+Turret-Hips
+  rotate: false
+  xy: 278, 62
+  size: 94, 64
+  orig: 94, 64
+  offset: 0, 0
+  index: -1
+Turret-Side-Foot
+  rotate: false
+  xy: 331, 2
+  size: 38, 58
+  orig: 38, 58
+  offset: 0, 0
+  index: -1
+Turret-Side-Leg-Top
+  rotate: false
+  xy: 440, 44
+  size: 64, 82
+  orig: 64, 82
+  offset: 0, 0
+  index: -1
+Turret-Side-LowerLeg
+  rotate: true
+  xy: 140, 58
+  size: 68, 136
+  orig: 68, 136
+  offset: 0, 0
+  index: -1
