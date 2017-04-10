@@ -55,6 +55,7 @@ CInput::CInput()
 
 
 	m_GamepadMove = 0;
+	m_GamepadDown = false;
 	m_GamepadJump = false;
 	m_GamepadShoot = false;
 	m_GamepadSelect = false;
@@ -247,6 +248,7 @@ int CInput::KeyState(int Key)
 void CInput::ResetGamepad()
 {
 	m_GamepadMove = 0;
+	m_GamepadDown = false;
 	m_GamepadJump = false;
 	m_GamepadShoot = false;
 	m_GamepadSelect = false;
@@ -306,6 +308,7 @@ int CInput::Update()
 			int Action = IInput::FLAG_PRESS;
 			
 			int LastGamepadMove = m_GamepadMove;
+			bool LastGamepadDown = m_GamepadDown;
 			bool LastGamepadJump = m_GamepadJump;
 			bool LastGamepadShoot = m_GamepadShoot;
 			bool LastGamepadSelect = m_GamepadSelect;
@@ -355,6 +358,11 @@ int CInput::Update()
 					if(Event.cbutton.button == SDL_CONTROLLER_BUTTON_RIGHTSHOULDER) Key = KEY_GAMEPAD_SHOULDER_RIGHT;
 					if(Event.cbutton.button == SDL_CONTROLLER_BUTTON_BACK) Key = KEY_GAMEPAD_BUTTON_BACK;
 					if(Event.cbutton.button == SDL_CONTROLLER_BUTTON_LEFTSTICK) Key = KEY_GAMEPAD_BUTTON_LEFTSTICK;
+					if(Event.cbutton.button == SDL_CONTROLLER_BUTTON_RIGHTSTICK) Key = KEY_GAMEPAD_BUTTON_RIGHTSTICK;
+					if(Event.cbutton.button == SDL_CONTROLLER_BUTTON_A) Key = KEY_GAMEPAD_BUTTON_A;
+					if(Event.cbutton.button == SDL_CONTROLLER_BUTTON_B) Key = KEY_GAMEPAD_BUTTON_B;
+					if(Event.cbutton.button == SDL_CONTROLLER_BUTTON_X) Key = KEY_GAMEPAD_BUTTON_X;
+					if(Event.cbutton.button == SDL_CONTROLLER_BUTTON_Y) Key = KEY_GAMEPAD_BUTTON_Y;
 					break;
 					
 				case SDL_CONTROLLERAXISMOTION:
@@ -386,6 +394,11 @@ int CInput::Update()
 							m_GamepadJump = false;
 						else
 							m_GamepadJump = true;
+						
+						if (Event.jaxis.value < 20000)
+							m_GamepadDown = false;
+						else
+							m_GamepadDown = true;
 					}
 					
 					// move
@@ -485,6 +498,16 @@ int CInput::Update()
 				if(Action == IInput::FLAG_PRESS)
 					m_aInputState[m_InputCurrent][KEY_GAMEPAD_AXIS_UP] = 1;
 				AddEvent(0, KEY_GAMEPAD_AXIS_UP, Action);
+			}
+			
+			// send gamepad down
+			if (LastGamepadDown != m_GamepadDown)
+			{
+				Action = m_GamepadDown ? IInput::FLAG_PRESS : IInput::FLAG_RELEASE;
+				m_aInputCount[m_InputCurrent][KEY_GAMEPAD_AXIS_DOWN].m_Presses++;
+				if(Action == IInput::FLAG_PRESS)
+					m_aInputState[m_InputCurrent][KEY_GAMEPAD_AXIS_DOWN] = 1;
+				AddEvent(0, KEY_GAMEPAD_AXIS_DOWN, Action);
 			}
 			
 			// send gamepad axis x

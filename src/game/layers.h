@@ -15,7 +15,14 @@ class CLayers
 	CMapItemGroup *m_pGameGroup;
 	CMapItemLayerTilemap *m_pGameLayer;
 	class IMap *m_pMap;
+	
+	// for generating layers
+	class CTile *m_pTiles;
 
+	//class CGenerator *m_pGenerator;
+	
+	void GenerateLayers();
+	
 public:
 	CLayers();
 	void Init(class IKernel *pKernel);

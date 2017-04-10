@@ -69,10 +69,8 @@ void CCharacterCore::Reset()
 	m_JumpTimer = 0;
 	m_Jumped = 0;
 	m_Sliding = 0;
-	m_Anim = 0;
-	m_LockDirection = 0;
 	m_Jetpack = 0;
-	m_JetpackPower = 100;
+	m_JetpackPower = 200;
 	m_Wallrun = 0;
 	m_Roll = 0;
 	m_Slide = 0;
@@ -83,6 +81,16 @@ void CCharacterCore::Reset()
 	
 	m_Action = 0;
 	m_ActionState = 0;
+	m_PlayerCollision = false;
+	m_MonsterDamage = false;
+	m_FluidDamage = false;
+	m_HandJetpack = false;
+	m_OnWall = false;
+	
+	m_Direction = 0;
+	m_Angle = 0;
+	m_Anim = 0;
+	m_LockDirection = 0;
 }
 
 
@@ -373,7 +381,7 @@ void CCharacterCore::Tick(bool UseInput)
 				if (m_Direction < 0 && m_pCollision->CheckPoint(m_Pos.x-PhysSize, m_Pos.y+PhysSize/2) &&
 										m_pCollision->CheckPoint(m_Pos.x-PhysSize, m_Pos.y-PhysSize/2))
 				{
-					if (m_Input.m_Hook && m_JetpackPower > 0 && TargetDirection.y > 0)
+					if ((m_Input.m_Hook && m_JetpackPower > 0 && TargetDirection.y > 0) || m_Input.m_Down)
 						m_Vel.y *= 0.97f;
 					else
 						m_Vel.y *= 0.7f;
@@ -387,7 +395,7 @@ void CCharacterCore::Tick(bool UseInput)
 				if (m_Direction > 0 && m_pCollision->CheckPoint(m_Pos.x+PhysSize, m_Pos.y+PhysSize/2) &&
 										m_pCollision->CheckPoint(m_Pos.x+PhysSize, m_Pos.y-PhysSize/2))
 				{
-					if (m_Input.m_Hook && m_JetpackPower > 0 && TargetDirection.y > 0)
+					if ((m_Input.m_Hook && m_JetpackPower > 0 && TargetDirection.y > 0) || m_Input.m_Down)
 						m_Vel.y *= 0.97f;
 					else
 						m_Vel.y *= 0.7f;
@@ -524,14 +532,14 @@ void CCharacterCore::Tick(bool UseInput)
 				//if (--m_JetpackPower <= 0)
 				//	m_Jetpack = 0;
 				
-				if (m_Vel.y > -11.0f)
-					m_Vel.y -= m_pWorld->m_Tuning.m_Gravity*2.2f;
+				if (m_Vel.y > -12.0f)
+					m_Vel.y -= m_pWorld->m_Tuning.m_Gravity*2.6f;
 				
 				if (m_Direction == 1 && m_Vel.x < 14.0f)
-					m_Vel.x += 0.5f;
+					m_Vel.x += 0.7f;
 				
 				if (m_Direction == -1 && m_Vel.x > -14.0f)
-					m_Vel.x -= 0.5f;
+					m_Vel.x -= 0.7f;
 				
 				m_JetpackPower -= 2;
 			}
@@ -588,6 +596,12 @@ void CCharacterCore::Tick(bool UseInput)
 			m_Jetpack = 0;
 		}
 
+		// press down on wall
+		if (!m_Input.m_Hook && m_Input.m_Down && m_Vel.y < 0.0f && m_Wallrun != 0 && m_Wallrun <= 10 && m_Wallrun >= -10)
+		{
+			m_Wallrun = 0;
+			m_Vel.y = 0.0f;
+		}
 		
 		if(m_Input.m_Hook && m_JetpackPower > 0 && !IsInFluid())
 		{
@@ -701,8 +715,8 @@ void CCharacterCore::Tick(bool UseInput)
 	{
 		m_JetpackPower += 3;
 		
-		if (m_JetpackPower > 100)
-			m_JetpackPower = 100;
+		if (m_JetpackPower > 200)
+			m_JetpackPower = 200;
 	}
 
 	
@@ -830,11 +844,14 @@ void CCharacterCore::Tick(bool UseInput)
 	{
 		if (!m_pCollision->IsTileSolid(m_Pos.x-PhysSize, m_Pos.y+PhysSize*0.7) || !m_pCollision->IsTileSolid(m_Pos.x+PhysSize, m_Pos.y+PhysSize*0.7))
 		{
-			if (m_pCollision->IsTileSolid(m_Pos.x-PhysSize*1.2f, m_Pos.y))
-				m_Pos.x += 2.0f;
-			
-			if (m_pCollision->IsTileSolid(m_Pos.x+PhysSize*1.2f, m_Pos.y))
-				m_Pos.x -= 2.0f;
+			if (!m_pCollision->IsTileSolid(m_Pos.x-PhysSize*0.2f, m_Pos.y+25) || !m_pCollision->IsTileSolid(m_Pos.x+PhysSize*0.2f, m_Pos.y+25))
+			{
+				if (m_pCollision->IsTileSolid(m_Pos.x-PhysSize*1.2f, m_Pos.y))
+					m_Pos.x += 2.0f;
+				
+				if (m_pCollision->IsTileSolid(m_Pos.x+PhysSize*1.2f, m_Pos.y))
+					m_Pos.x -= 2.0f;
+			}
 		}
 	}
 	
@@ -851,7 +868,7 @@ void CCharacterCore::Tick(bool UseInput)
 	// infinite fuel effect
 	s = m_Status;
 	if (s & (1<<STATUS_FUEL))
-		m_JetpackPower = 100;
+		m_JetpackPower = 200;
 	
 	// fluid collision
 	if (IsInFluid())

@@ -223,6 +223,10 @@ public:
 	void RenderHeal(vec2 Pos, vec2 Size, float State);
 	
 	void RenderScythe(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec2 Dir, vec2 Pos);
+	
+	void RenderArm(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec2 Pos, vec2 PlayerPos);
+	
+	void RenderFreeHand(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec2 Dir, vec2 Pos, bool Behind = false);
 
 	// render player with custom info (teesplatter, bounciness etc...)
 	void RenderPlayer(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, int WeaponNum, int Emote, vec2 Dir, vec2 Pos);

@@ -197,7 +197,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 	CWeapon(
 		"Robot rifle",
 		SOUND_WALKER_FIRE,
-		5, // damage
+		6, // damage
 		true, // autofire
 		0.06f, // bullet spread
 		1, // shot spread
@@ -261,8 +261,8 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		true, // autofire
 		0, // bullet spread
 		1, // shot spread
-		7, // powerup size
-		20, // max ammo
+		8, // powerup size
+		24, // max ammo
 		0.0f, // bullet life
 		200, // bullet reload time
 		0.0f, // bullet knockback

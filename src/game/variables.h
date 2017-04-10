@@ -43,7 +43,7 @@ MACRO_CONFIG_INT(PlayerColorTopper, player_color_topper, 65535, 0, 0xFFFFFF, CFG
 MACRO_CONFIG_INT(PlayerColorSkin, player_color_skin, 65535, 0, 0xFFFFFF, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player skin color")
 MACRO_CONFIG_STR(PlayerTopper, player_topper, 24, "default", CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player hair or hat")
 MACRO_CONFIG_STR(PlayerEye, player_eye, 24, "default", CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player eyes")
-MACRO_CONFIG_INT(PlayerBody, player_body, 0, 0, 4, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player body")
+MACRO_CONFIG_INT(PlayerBody, player_body, 0, 0, 5, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player body")
 MACRO_CONFIG_INT(PlayerBloodColor, blood_color, 0, 0, 3, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Blood color")
 
 MACRO_CONFIG_INT(UiPage, ui_page, 6, 0, 10, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Interface page")

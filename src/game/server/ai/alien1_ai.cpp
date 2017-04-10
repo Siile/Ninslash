@@ -77,8 +77,8 @@ void CAIalien1::DoBehavior()
 			{
 				m_TargetPos = m_PlayerPos;
 				
-				if (WeaponShootRange() - m_PlayerDistance > 200)
-					SeekRandomWaypoint();
+				//if (WeaponShootRange() - m_PlayerDistance > 200)
+				//	SeekRandomWaypoint();
 			}
 		}
 	}

@@ -4,6 +4,7 @@
 #include <engine/storage.h>
 #include <engine/shared/linereader.h>
 
+#include "generator.h"
 #include "auto_map.h"
 #include "editor.h"
 
@@ -11,6 +12,7 @@ CAutoMapper::CAutoMapper(CEditor *pEditor)
 {
 	m_pEditor = pEditor;
 	m_FileLoaded = false;
+	m_pGenerator = new CGenerator();
 }
 
 void CAutoMapper::Load(const char* pTileName)
@@ -133,6 +135,17 @@ const char* CAutoMapper::GetConfigName(int Index)
 	return m_lConfigs[Index].m_aName;
 }
 
+void CAutoMapper::Generate(CLayerTiles *pLayer, int ConfigID)
+{
+	// generate layer
+	if (pLayer->m_Readonly)
+		return;
+	
+	m_pGenerator->Generate(pLayer);
+	
+	Proceed(pLayer, ConfigID);
+}
+	
 void CAutoMapper::Proceed(CLayerTiles *pLayer, int ConfigID)
 {
 	if(!m_FileLoaded || pLayer->m_Readonly || ConfigID < 0 || ConfigID >= m_lConfigs.size())

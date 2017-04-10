@@ -541,7 +541,7 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	y = -1;
 	
 	vec2 FrameSize = vec2(38, 38);
-	int Fuel = pCharacter->m_JetpackPower;
+	int Fuel = pCharacter->m_JetpackPower/2;
 	
 	
 	

@@ -109,7 +109,7 @@ enum
 	DEATHTYPE_FLAMETRAP,
 	NUM_DEATHTYPES,
 	
-	NUM_BODIES=3,
+	NUM_BODIES=6,
 	MAX_PLAYERITEMS=2,
 	
 	SPEC_FREEVIEW=-1,
@@ -257,7 +257,7 @@ Objects = [
 		NetIntAny("m_LockDirection"),
 		NetIntRange("m_HandJetpack", 0, 1),
 		NetIntRange("m_Jetpack", 0, 1),
-		NetIntRange("m_JetpackPower", 0, 100),
+		NetIntRange("m_JetpackPower", 0, 200),
 		NetIntRange("m_Wallrun", -100, 100),
 		NetIntRange("m_Roll", 0, 32),
 		NetIntRange("m_Slide", -10, 32),

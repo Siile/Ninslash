@@ -396,6 +396,7 @@ int CLayerTiles::RenderProperties(CUIRect *pToolBox)
 			int Result = m_pEditor->PopupSelectConfigAutoMapResult();
 			if(Result > -1)
 			{
+				//m_pEditor->m_Map.m_lImages[m_Image]->m_AutoMapper.Generate(this, Result);
 				m_pEditor->m_Map.m_lImages[m_Image]->m_AutoMapper.Proceed(this, Result);
 				return 1;
 			}

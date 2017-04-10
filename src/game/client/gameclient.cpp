@@ -562,7 +562,7 @@ void CGameClient::OnRender()
 	m_NewPredictedTick = false;
 
 	// check if client info has to be resent
-	if(m_LastSendInfo && Client()->State() == IClient::STATE_ONLINE && m_Snap.m_LocalClientID >= 0 && !m_pMenus->IsActive() && m_LastSendInfo+time_freq()*6 < time_get())
+	if(m_LastSendInfo && Client()->State() == IClient::STATE_ONLINE && m_Snap.m_LocalClientID >= 0 && !m_pMenus->IsActive() && m_LastSendInfo+time_freq()*3 < time_get())
 	{
 		// resend if client info differs
 		if(str_comp(g_Config.m_PlayerName, m_aClients[m_Snap.m_LocalClientID].m_aName) ||
@@ -949,14 +949,11 @@ void CGameClient::OnNewSnapshot()
 
 				// prepare the info
 				
-				if (pInfo->m_Body <3 )
-				{
-					if(m_aClients[ClientID].m_aTopperName[0] == 'x' || m_aClients[ClientID].m_aTopperName[1] == '_')
-						str_copy(m_aClients[ClientID].m_aTopperName, "default", 64);
+				if(m_aClients[ClientID].m_aTopperName[0] == 'x' || m_aClients[ClientID].m_aTopperName[1] == '_')
+					str_copy(m_aClients[ClientID].m_aTopperName, "default", 64);
 					
-					if(m_aClients[ClientID].m_aEyeName[0] == 'x' || m_aClients[ClientID].m_aEyeName[1] == '_')
-						str_copy(m_aClients[ClientID].m_aEyeName, "default", 64);
-				}
+				if(m_aClients[ClientID].m_aEyeName[0] == 'x' || m_aClients[ClientID].m_aEyeName[1] == '_')
+					str_copy(m_aClients[ClientID].m_aEyeName, "default", 64);
 
 				m_aClients[ClientID].m_SkinInfo.m_Body = m_aClients[ClientID].m_Body;
 				m_aClients[ClientID].m_SkinInfo.m_ColorBody = m_pSkins->GetColorV4(m_aClients[ClientID].m_ColorBody);

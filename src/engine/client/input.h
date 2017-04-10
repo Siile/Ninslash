@@ -18,6 +18,7 @@ class CInput : public IEngineInput
 	bool m_MouseEntered;
 	
 	int m_GamepadMove;
+	bool m_GamepadDown;
 	bool m_GamepadJump;
 	bool m_GamepadShoot;
 	bool m_GamepadSelect;

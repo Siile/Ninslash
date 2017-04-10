@@ -186,7 +186,7 @@ void CPlayer::Tick()
 	
 	if(!GameServer()->m_World.m_Paused)
 	{
-		if(!m_pCharacter && (m_Team == TEAM_SPECTATORS || g_Config.m_SvSurvivalMode) && m_SpectatorID == SPEC_FREEVIEW)
+		if(!m_pCharacter && m_Team == TEAM_SPECTATORS && m_SpectatorID == SPEC_FREEVIEW)
 			m_ViewPos -= vec2(clamp(m_ViewPos.x-m_LatestActivity.m_TargetX, -500.0f, 500.0f), clamp(m_ViewPos.y-m_LatestActivity.m_TargetY, -400.0f, 400.0f));
 		
 		// dead in survival mode
@@ -565,56 +565,106 @@ void CPlayer::TryRespawn()
 
 void CPlayer::SetRandomSkin()
 {
-	switch (rand()%15)
-	{
-	case 0: str_copy(m_TeeInfos.m_TopperName, "tigerboy", 64); break;	
-	case 1: str_copy(m_TeeInfos.m_TopperName, "emo", 64); break;
-	case 2: str_copy(m_TeeInfos.m_TopperName, "emo2", 64); break;
-	case 3: str_copy(m_TeeInfos.m_TopperName, "dr", 64); break;
-	case 4: str_copy(m_TeeInfos.m_TopperName, "gentlenin", 64); break;
-	case 5: str_copy(m_TeeInfos.m_TopperName, "gentlenin2", 64); break;
-	case 6: str_copy(m_TeeInfos.m_TopperName, "casual", 64); break;
-	case 7: str_copy(m_TeeInfos.m_TopperName, "casual2", 64); break;
-	case 8: str_copy(m_TeeInfos.m_TopperName, "casual3", 64); break;
-	case 9: str_copy(m_TeeInfos.m_TopperName, "pipo", 64); break;
-	case 10: str_copy(m_TeeInfos.m_TopperName, "nitters", 64); break;
-	case 11: str_copy(m_TeeInfos.m_TopperName, "raiden", 64); break;
-	case 12: str_copy(m_TeeInfos.m_TopperName, "afro", 64); break;
-	case 13: str_copy(m_TeeInfos.m_TopperName, "long", 64); break;
-	default: str_copy(m_TeeInfos.m_TopperName, "default", 64);
-	};	
-	
-	switch (rand()%5)
-	{
-	case 0: str_copy(m_TeeInfos.m_EyeName, "halfhollow", 64); break;	
-	case 1: str_copy(m_TeeInfos.m_EyeName, "single", 64); break;
-	case 2: str_copy(m_TeeInfos.m_EyeName, "birdy", 64); break;
-	case 3: str_copy(m_TeeInfos.m_EyeName, "lid", 64); break;
-	default: str_copy(m_TeeInfos.m_EyeName, "default", 64);
-	};
-	
-	/*
-	str_copy(m_TeeInfos.m_TopperName, "none", 64);
-	str_copy(m_TeeInfos.m_EyeName, "x_robot", 64);
-	
-	m_TeeInfos.m_Body = 3;
-	m_TeeInfos.m_ColorSkin = 10747862;
-	m_TeeInfos.m_ColorBody = 0;
-	m_TeeInfos.m_ColorFeet = 0;
-	m_TeeInfos.m_ColorTopper = 0;
-	*/
-	
-	
 	if (GetCharacter())
 		GetCharacter()->m_Type = CCharacter::PLAYER;
 	
+	// get random body
 	m_TeeInfos.m_Body = rand()%NUM_BODIES;
-	m_TeeInfos.m_BloodColor = 0;
-	m_TeeInfos.m_ColorTopper = rand()%(0xFFFFFF/10)*1000;
-	m_TeeInfos.m_ColorSkin = rand()%(0xFFFFFF/10)*100;
-//	m_TeeInfos.m_ColorBody = rand()*(0xFFFFFF/RAND_MAX);
-	m_TeeInfos.m_ColorBody = rand()%(0xFFFFFF/10)*1000;
-	m_TeeInfos.m_ColorFeet = rand()%(0xFFFFFF/10)*1000;
+	
+	switch (m_TeeInfos.m_Body)
+	{
+	case 0: // human
+		m_TeeInfos.m_BloodColor = 0;
+		m_TeeInfos.m_ColorTopper = rand()%(0xFFFFFF/10)*1000;
+		m_TeeInfos.m_ColorSkin = rand()%(0xFFFFFF/10)*100;
+		m_TeeInfos.m_ColorBody = rand()%(0xFFFFFF/10)*1000;
+		m_TeeInfos.m_ColorFeet = rand()%(0xFFFFFF/10)*1000;
+		break;
+		
+	case 1: // alien
+		m_TeeInfos.m_BloodColor = 1;
+		m_TeeInfos.m_ColorTopper = rand()%(0xFFFFFF/10)*1000;
+		m_TeeInfos.m_ColorSkin = rand()%(0xFFFFFF/10)*1000;
+		m_TeeInfos.m_ColorBody = rand()%(0xFFFFFF/10)*1000;
+		m_TeeInfos.m_ColorFeet = rand()%(0xFFFFFF/10)*1000;
+		str_copy(m_TeeInfos.m_TopperName, "none", 64);
+		str_copy(m_TeeInfos.m_EyeName, "alien", 64);
+		break;
+		
+	case 2: // robo
+		m_TeeInfos.m_BloodColor = 2;
+		
+		if (rand()%10 < 5)
+			m_TeeInfos.m_ColorTopper = 0;
+		else
+			m_TeeInfos.m_ColorTopper = 2161663;
+		
+		m_TeeInfos.m_ColorSkin = m_TeeInfos.m_ColorTopper;
+		m_TeeInfos.m_ColorBody = m_TeeInfos.m_ColorTopper;
+		m_TeeInfos.m_ColorFeet = m_TeeInfos.m_ColorTopper;
+		str_copy(m_TeeInfos.m_TopperName, "none", 64);
+		str_copy(m_TeeInfos.m_EyeName, "robo1", 64);
+		
+		if (GetCharacter())
+			GetCharacter()->m_Type = CCharacter::ROBOT;
+		break;
+		
+	case 3: // leather bag
+		m_TeeInfos.m_BloodColor = 0;
+		m_TeeInfos.m_ColorTopper = rand()%(0xFFFFFF/10)*1000;
+		m_TeeInfos.m_ColorSkin = m_TeeInfos.m_ColorTopper;
+		m_TeeInfos.m_ColorBody = m_TeeInfos.m_ColorTopper;
+		m_TeeInfos.m_ColorFeet = m_TeeInfos.m_ColorTopper;
+		str_copy(m_TeeInfos.m_TopperName, "none", 64);
+		str_copy(m_TeeInfos.m_EyeName, "glitter", 64);
+		break;
+		
+	case 4: // skele
+		m_TeeInfos.m_BloodColor = 2;
+		
+		if (rand()%10 < 5)
+			m_TeeInfos.m_ColorTopper = 0;
+		else
+			m_TeeInfos.m_ColorTopper = 2161663;
+		
+		m_TeeInfos.m_ColorSkin = m_TeeInfos.m_ColorTopper;
+		m_TeeInfos.m_ColorBody = m_TeeInfos.m_ColorTopper;
+		m_TeeInfos.m_ColorFeet = m_TeeInfos.m_ColorTopper;
+		str_copy(m_TeeInfos.m_TopperName, "none", 64);
+		str_copy(m_TeeInfos.m_EyeName, "skeletor", 64);
+		break;
+		
+	case 5: // big ears
+		m_TeeInfos.m_BloodColor = 0;
+		m_TeeInfos.m_ColorTopper = rand()%(0xFFFFFF/10)*1000;
+		m_TeeInfos.m_ColorSkin = rand()%(0xFFFFFF/10)*1000;
+		m_TeeInfos.m_ColorBody = rand()%(0xFFFFFF/10)*1000;
+		m_TeeInfos.m_ColorFeet = rand()%(0xFFFFFF/10)*1000;
+		str_copy(m_TeeInfos.m_TopperName, "none", 64);
+		str_copy(m_TeeInfos.m_EyeName, "lsd", 64);
+		break;
+	};
+	
+	if (m_TeeInfos.m_Body == 0)
+	{
+		switch (rand()%7)
+		{
+		case 0: str_copy(m_TeeInfos.m_TopperName, "basic", 64); break;	
+		case 1: str_copy(m_TeeInfos.m_TopperName, "casual", 64); break;
+		case 2: str_copy(m_TeeInfos.m_TopperName, "dr", 64); break;
+		case 3: str_copy(m_TeeInfos.m_TopperName, "emo", 64); break;
+		case 4: str_copy(m_TeeInfos.m_TopperName, "nitters", 64); break;
+		case 5: str_copy(m_TeeInfos.m_TopperName, "raiden", 64); break;
+		default: str_copy(m_TeeInfos.m_TopperName, "default", 64);
+		};	
+		
+		switch (rand()%3)
+		{
+		case 0: str_copy(m_TeeInfos.m_EyeName, "cyan", 64); break;	
+		case 1: str_copy(m_TeeInfos.m_EyeName, "lsd", 64); break;
+		default: str_copy(m_TeeInfos.m_EyeName, "default", 64);
+		};
+	}
 	
 	
 	if (g_Config.m_SvRobots)
@@ -639,34 +689,17 @@ void CPlayer::SetCustomSkin(int Type)
 	if (GetCharacter())
 		GetCharacter()->m_Type = CCharacter::PLAYER;
 	
-	if (Type == 1)
-	{
-		m_TeeInfos.m_BloodColor = 0;
-		str_copy(m_TeeInfos.m_TopperName, "meganin", 64);
-		str_copy(m_TeeInfos.m_EyeName, "birdy", 64);
-		m_TeeInfos.m_Body = 0;
-		m_TeeInfos.m_ColorTopper = 10419968;
-		m_TeeInfos.m_ColorSkin = 10747862;
-		m_TeeInfos.m_ColorBody = 9174784;
-		m_TeeInfos.m_ColorFeet = 10354432;
-		
-		char aBotName[128];
-		str_format(aBotName, sizeof(aBotName), "%s%s-T1", aBotName1[rand()%(sizeof(aBotName1)/sizeof(aBotName1[0]))], aBotName2[rand()%(sizeof(aBotName2)/sizeof(aBotName2[0]))]);
-		GameServer()->Server()->SetClientName(GetCID(), aBotName);
-	}
-	
+	// robo
 	if (Type == 2)
 	{
+		m_TeeInfos.m_Body = 2;
 		m_TeeInfos.m_BloodColor = 2;
+		m_TeeInfos.m_ColorTopper = 2161663;
+		m_TeeInfos.m_ColorSkin = m_TeeInfos.m_ColorTopper;
+		m_TeeInfos.m_ColorBody = m_TeeInfos.m_ColorTopper;
+		m_TeeInfos.m_ColorFeet = m_TeeInfos.m_ColorTopper;
 		str_copy(m_TeeInfos.m_TopperName, "none", 64);
-		str_copy(m_TeeInfos.m_EyeName, "x_robo1", 64);
-		m_TeeInfos.m_Body = 3;
-		m_TeeInfos.m_ColorTopper = 10747862;
-		m_TeeInfos.m_ColorSkin = 10747862;
-		m_TeeInfos.m_ColorBody = 10747862;
-		m_TeeInfos.m_ColorFeet = 10747862;
-		
-		//GameServer()->Server()->SetClientName(GetCID(), "");
+		str_copy(m_TeeInfos.m_EyeName, "robo1", 64);
 		
 		if (!GameServer()->m_pController->IsCoop())
 		{
@@ -679,18 +712,17 @@ void CPlayer::SetCustomSkin(int Type)
 			GetCharacter()->m_Type = CCharacter::ROBOT;
 	}
 	
+	// robo
 	if (Type == 3)
 	{
+		m_TeeInfos.m_Body = 2;
 		m_TeeInfos.m_BloodColor = 2;
+		m_TeeInfos.m_ColorTopper = 0;
+		m_TeeInfos.m_ColorSkin = m_TeeInfos.m_ColorTopper;
+		m_TeeInfos.m_ColorBody = m_TeeInfos.m_ColorTopper;
+		m_TeeInfos.m_ColorFeet = m_TeeInfos.m_ColorTopper;
 		str_copy(m_TeeInfos.m_TopperName, "none", 64);
-		str_copy(m_TeeInfos.m_EyeName, "x_robo2", 64);
-		m_TeeInfos.m_Body = 4;
-		m_TeeInfos.m_ColorTopper = 10747862;
-		m_TeeInfos.m_ColorSkin = 10747862;
-		m_TeeInfos.m_ColorBody = 10747862;
-		m_TeeInfos.m_ColorFeet = 10747862;
-		
-		//GameServer()->Server()->SetClientName(GetCID(), "");
+		str_copy(m_TeeInfos.m_EyeName, "robo1", 64);
 		
 		if (!GameServer()->m_pController->IsCoop())
 		{
@@ -703,13 +735,14 @@ void CPlayer::SetCustomSkin(int Type)
 			GetCharacter()->m_Type = CCharacter::ROBOT;
 	}
 	
+	// alien
 	if (Type == 4)
 	{
 		m_TeeInfos.m_BloodColor = 1;
-		str_copy(m_TeeInfos.m_TopperName, "nitters", 64);
-		str_copy(m_TeeInfos.m_EyeName, "single", 64);
+		str_copy(m_TeeInfos.m_TopperName, "none", 64);
+		str_copy(m_TeeInfos.m_EyeName, "alien", 64);
 		m_TeeInfos.m_Body = 1;
-		m_TeeInfos.m_ColorTopper = 8847104;
+		m_TeeInfos.m_ColorTopper = 0;
 		m_TeeInfos.m_ColorSkin = 5682688;
 		m_TeeInfos.m_ColorBody = 8847104;
 		m_TeeInfos.m_ColorFeet = 8847104;
@@ -720,21 +753,18 @@ void CPlayer::SetCustomSkin(int Type)
 			str_format(aBotName, sizeof(aBotName), "%s%s", aBotName1[rand()%(sizeof(aBotName1)/sizeof(aBotName1[0]))], aBotName2[rand()%(sizeof(aBotName2)/sizeof(aBotName2[0]))]);
 			GameServer()->Server()->SetClientName(GetCID(), aBotName);
 		}
-		
-		//GameServer()->Server()->SetClientName(GetCID(), "asd");
 	}
 	
 	if (Type == 5)
 	{
 		m_TeeInfos.m_BloodColor = 1;
-		str_copy(m_TeeInfos.m_TopperName, "nitters", 64);
-		str_copy(m_TeeInfos.m_EyeName, "single", 64);
-		m_TeeInfos.m_Body = 2;
-		m_TeeInfos.m_ColorTopper = 65280;
-		//m_TeeInfos.m_ColorSkin = 55808;
-		m_TeeInfos.m_ColorSkin = 5682688;
-		m_TeeInfos.m_ColorBody = 55808;
-		m_TeeInfos.m_ColorFeet = 5963776;
+		str_copy(m_TeeInfos.m_TopperName, "none", 64);
+		str_copy(m_TeeInfos.m_EyeName, "alien", 64);
+		m_TeeInfos.m_Body = 1;
+		m_TeeInfos.m_ColorTopper = 0;
+		m_TeeInfos.m_ColorSkin = 3735296;
+		m_TeeInfos.m_ColorBody = 65339;
+		m_TeeInfos.m_ColorFeet = 65340;
 		
 		if (!GameServer()->m_pController->IsCoop())
 		{
@@ -742,7 +772,6 @@ void CPlayer::SetCustomSkin(int Type)
 			str_format(aBotName, sizeof(aBotName), "%s%s", aBotName1[rand()%(sizeof(aBotName1)/sizeof(aBotName1[0]))], aBotName2[rand()%(sizeof(aBotName2)/sizeof(aBotName2[0]))]);
 			GameServer()->Server()->SetClientName(GetCID(), aBotName);
 		}
-		//GameServer()->Server()->SetClientName(GetCID(), "asd");
 	}
 }
 

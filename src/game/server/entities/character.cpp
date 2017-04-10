@@ -1373,7 +1373,7 @@ void CCharacter::UpdateCoreStatus()
 	}
 	
 	if (g_Config.m_SvUnlimitedTurbo)
-		m_Core.m_JetpackPower = 100;
+		m_Core.m_JetpackPower = 200;
 	
 	if(m_LastStatusEffect+Server()->TickSpeed()/3 <= Server()->Tick())
 	{

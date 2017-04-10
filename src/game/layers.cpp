@@ -1,5 +1,4 @@
-
-
+#include <game/mapitems.h>
 #include "layers.h"
 
 CLayers::CLayers()
@@ -11,6 +10,9 @@ CLayers::CLayers()
 	m_pGameGroup = 0;
 	m_pGameLayer = 0;
 	m_pMap = 0;
+	
+	m_pTiles = 0;
+	//m_pGenerator = new CGenerator();
 }
 
 void CLayers::Init(class IKernel *pKernel)
@@ -55,6 +57,39 @@ void CLayers::Init(class IKernel *pKernel)
 		}
 	}
 }
+
+
+
+void CLayers::GenerateLayers()
+{
+	for(int g = 0; g < NumGroups(); g++)
+	{
+		CMapItemGroup *pGroup = GetGroup(g);
+		for(int l = 0; l < pGroup->m_NumLayers; l++)
+		{
+			CMapItemLayer *pLayer = GetLayer(pGroup->m_StartLayer+l);
+
+			if(pLayer->m_Type == LAYERTYPE_TILES)
+			{
+				CMapItemLayerTilemap *pTilemap = reinterpret_cast<CMapItemLayerTilemap *>(pLayer);
+				
+				if(!(pTilemap->m_Flags&TILESLAYERFLAG_GAME))
+				{
+					// do something
+					
+					int Width = pTilemap->m_Width;
+					int Height = pTilemap->m_Height;
+					m_pTiles = static_cast<CTile *>(Map()->GetData(pTilemap->m_Data));
+
+					
+				}
+			}
+		}
+	}
+}
+
+
+
 
 CMapItemGroup *CLayers::GetGroup(int Index) const
 {

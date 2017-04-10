@@ -291,8 +291,8 @@ image_deathtypes = Image("deathtypes", "deathtypes.png")
 image_items = Image("items", "items.png")
 image_sword = Image("sword", "sword.png")
 image_scythe = Image("scythe", "scythe.png")
-image_hands = Image("hands", "hands.png")
-image_bodies = Image("bodies", "bodies.png")
+image_hands = Image("hands", "anim/hands.png")
+image_bodies = Image("bodies", "anim/bodies.png")
 image_pickups = Image("pickups", "pickups.png")
 image_buildings = Image("buildings", "buildings.png")
 image_browseicons = Image("browseicons", "browse_icons.png")
@@ -402,8 +402,8 @@ set_flag = SpriteSet("flag", image_flag, 8, 2)
 set_weapons = SpriteSet("weapons", image_weapons, 16, 16)
 set_sword = SpriteSet("sword", image_sword, 4, 1)
 set_scythe = SpriteSet("scythe", image_scythe, 4, 1)
-set_hands = SpriteSet("hands", image_hands, 8, 1)
-set_bodies = SpriteSet("bodies", image_bodies, 4, 1)
+set_hands = SpriteSet("hands", image_hands, 4, 8)
+set_bodies = SpriteSet("bodies", image_bodies, 8, 1)
 set_pickups = SpriteSet("pickups", image_pickups, 8, 2)
 set_deathtypes = SpriteSet("deathtypes", image_deathtypes, 8, 4)
 set_items = SpriteSet("items", image_items, 8, 1)
@@ -513,8 +513,6 @@ for i in range(1, 4):
 	container.sprites.Add(Sprite("muzzle"+str(i), set_muzzle, i-1, 0, 1, 1))
 
 # 4 frames
-for i in range(1, 5):
-	container.sprites.Add(Sprite("body"+str(i), set_bodies, i-1, 0, 1, 1))
 	
 for i in range(1, 5):
 	container.sprites.Add(Sprite("mine2_"+str(i), set_mine2, i-1, 0, 1, 1))
@@ -555,6 +553,9 @@ for i in range(1, 5):
 	container.sprites.Add(Sprite("electromine"+str(8+i), set_electromine, i-1,1,1,1))
 	
 # 8 frames
+for i in range(1, 9):
+	container.sprites.Add(Sprite("body"+str(i), set_bodies, i-1, 0, 1, 1))
+
 for i in range(1, 9):
 	container.sprites.Add(Sprite("deathtype"+str(i), set_deathtypes, i-1,0,1,1))
 for i in range(1, 9):
@@ -610,8 +611,18 @@ for y in range(1, 4):
 
 		
 
-for i in range(1, 6):
-	container.sprites.Add(Sprite("hand"+str(i), set_hands, i-1, 0, 1, 1))
+for i in range(1, 5):
+	container.sprites.Add(Sprite("hand1_"+str(i), set_hands, i-1, 0, 1, 1))
+for i in range(1, 5):
+	container.sprites.Add(Sprite("hand2_"+str(i), set_hands, i-1, 1, 1, 1))
+for i in range(1, 5):
+	container.sprites.Add(Sprite("hand3_"+str(i), set_hands, i-1, 2, 1, 1))
+for i in range(1, 5):
+	container.sprites.Add(Sprite("hand4_"+str(i), set_hands, i-1, 3, 1, 1))
+for i in range(1, 5):
+	container.sprites.Add(Sprite("hand5_"+str(i), set_hands, i-1, 4, 1, 1))
+for i in range(1, 5):
+	container.sprites.Add(Sprite("hand6_"+str(i), set_hands, i-1, 5, 1, 1))
 
 		
 container.sprites.Add(Sprite("hp_frame", set_hud, 0,0,1,1))

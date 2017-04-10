@@ -869,7 +869,7 @@ void CAI::ReceiveDamage(int CID, int Dmg)
 	if (!m_EventTriggerTick[EVENT_STARTLE])
 		TriggerEvent(EVENT_STARTLE);
 	
-	if (frandom()*10 < 5)
+	if (frandom()*20 < 2)
 		m_Jump = 1;
 	
 	if (CID >= 0 && CID < 16)

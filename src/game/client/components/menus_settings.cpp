@@ -530,7 +530,7 @@ void CMenus::RenderSettingsTee(CUIRect MainView)
 		int OldSelected = -1;
 		UiDoListboxStart(&s_InitSkinlist, &MainView, 50.0f, Localize("Body"), "", NUM_BODIES, 4, OldSelected, s_ScrollValue);
 
-		const int s[NUM_BODIES] = {0, 1, 2};
+		const int s[NUM_BODIES] = {0, 1, 2, 3, 4, 5};
 		
 		for (int i = 0; i < NUM_BODIES; i++)
 		{

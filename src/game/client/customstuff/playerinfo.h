@@ -50,8 +50,41 @@ private:
 	
 	CMelee m_Melee;
 	
+	
+	struct CHand
+	{
+		bool m_Front;
+		bool m_Flip;
+		float m_Angle;
+		vec2 m_Pos;
+		vec2 m_TargetPos;
+		vec2 m_Vel;
+		vec2 m_Offset;
+		
+		void Reset()
+		{
+			m_Vel = vec2(0, 0);
+			m_Pos = vec2(0, 0);
+			m_Offset = vec2(0, 0);
+			m_TargetPos = vec2(0, 0);
+			m_Flip = false;
+			m_Front = false;
+			m_Angle = 0.0f;
+		}
+	};
+	
+	CHand m_Hand;
+	
 public:
 	CPlayerInfo();
+	
+	bool m_Jetpack;
+	vec2 m_ArmPos;
+	
+	bool m_Turbo;
+	vec2 HandOffset();
+	void SetHandTarget(vec3 Pos);
+	int HandFrame();
 	
 	float MeleeAngle();
 	float MeleeSize();

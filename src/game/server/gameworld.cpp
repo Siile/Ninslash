@@ -337,7 +337,7 @@ CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, v
 			}
 		}
 		// head shot
-		Len = distance(p->m_Pos + vec2(0, -20), IntersectPos);
+		Len = distance(p->m_Pos + vec2(0, -28), IntersectPos);
 		if(Len < p->m_ProximityRadius+Radius)
 		{
 			Len = distance(Pos0, IntersectPos);
@@ -431,7 +431,7 @@ CCharacter *CGameWorld::ClosestCharacter(vec2 Pos, float Radius, CEntity *pNotTh
 			}
 		}
 		// head collision
-		Len = distance(Pos, p->m_Pos + vec2(0, -18));
+		Len = distance(Pos, p->m_Pos + vec2(0, -28));
 		if(Len < p->m_ProximityRadius+Radius)
 		{
 			if(Len < ClosestRange)

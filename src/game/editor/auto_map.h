@@ -5,6 +5,8 @@
 
 class CAutoMapper
 {
+	class CGenerator *m_pGenerator;
+	
 	struct CPosRule
 	{
 		int m_X;
@@ -39,6 +41,7 @@ public:
 
 	void Load(const char* pTileName);
 	void Proceed(class CLayerTiles *pLayer, int ConfigID);
+	void Generate(class CLayerTiles *pLayer, int ConfigID);
 
 	int ConfigNamesNum() { return m_lConfigs.size(); }
 	const char* GetConfigName(int Index);

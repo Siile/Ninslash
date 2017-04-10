@@ -333,7 +333,7 @@ void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, vec2 PlayerPos
 
 void CGameContext::CreateScytheHit(int DamageOwner, int Weapon, vec2 PlayerPos, vec2 ProjPos, CCharacter *OwnerChr, CBuilding *OwnerBuilding)
 {
-	int ProximityRadius = CCharacter::ms_PhysSize*3.0f;
+	int ProximityRadius = CCharacter::ms_PhysSize*2.2f;
 	
 	float Dmg = 1.0f;
 	

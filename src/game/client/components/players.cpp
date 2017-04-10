@@ -30,7 +30,7 @@ void CPlayers::RenderHand(CTeeRenderInfo *pInfo, vec2 CenterPos, vec2 Dir, float
 	// for drawing hand
 	//const skin *s = skin_get(skin_id);
 
-	float BaseSize = 10.0f;
+	float BaseSize = 16.0f;
 	//dir = normalize(hook_pos-pos);
 
 	vec2 HandPos = CenterPos + Dir;
@@ -60,7 +60,7 @@ void CPlayers::RenderHand(CTeeRenderInfo *pInfo, vec2 CenterPos, vec2 Dir, float
 		//bool OutLine = i == 0;
 
 		//RenderTools()->SelectSprite(OutLine?SPRITE_TEE_HAND_OUTLINE:SPRITE_TEE_HAND, 0, 0, 0);
-		RenderTools()->SelectSprite(SPRITE_HAND1+pInfo->m_Body);
+		RenderTools()->SelectSprite(SPRITE_HAND1_4+pInfo->m_Body*4);
 		Graphics()->QuadsSetRotation(Angle);
 		IGraphics::CQuadItem QuadItem(HandPos.x, HandPos.y, 2*BaseSize, 2*BaseSize);
 		Graphics()->QuadsDraw(&QuadItem, 1);
@@ -647,22 +647,22 @@ void CPlayers::RenderPlayer(
 				if (pCustomPlayerInfo->m_FlameState == 0)
 					pCustomPlayerInfo->m_FlameState++;
 				
-				if (pCustomPlayerInfo->m_FlameState > 9*5)
-					pCustomPlayerInfo->m_FlameState = 5*5;
+				if (pCustomPlayerInfo->m_FlameState > 9*4)
+					pCustomPlayerInfo->m_FlameState = 5*4;
 				
 				
 				CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilVel -= Direction * 0.8f;
 			}
 			else
 			{
-				if (pCustomPlayerInfo->m_FlameState > 0 && pCustomPlayerInfo->m_FlameState < 9*5)
-					pCustomPlayerInfo->m_FlameState = 9*5;
+				if (pCustomPlayerInfo->m_FlameState > 0 && pCustomPlayerInfo->m_FlameState < 9*4)
+					pCustomPlayerInfo->m_FlameState = 9*4;
 			}
 			
 			// render the flame
 			if (pCustomPlayerInfo->m_FlameState > 0)
 			{
-				int f = pCustomPlayerInfo->m_FlameState / 5;
+				int f = pCustomPlayerInfo->m_FlameState / 4;
 				
 				Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FLAME].m_Id);
 				Graphics()->QuadsBegin();
@@ -785,11 +785,11 @@ void CPlayers::RenderPlayer(
 			case WEAPON_SHOTGUN: RenderHand(&RenderInfo, p, Direction, -pi/2, vec2(-8, 4)); break;
 			case WEAPON_GRENADE: RenderHand(&RenderInfo, p, Direction, -pi/2, vec2(-8, 7)); break;
 			case WEAPON_RIFLE: RenderHand(&RenderInfo, p, Direction, -pi/2, vec2(-8, 7)); break;
-			case WEAPON_ELECTRIC: RenderHand(&RenderInfo, p, Direction, -pi/2, vec2(-8, 7)); break;
+			case WEAPON_ELECTRIC: RenderHand(&RenderInfo, p, Direction, -pi/2, vec2(-8, 10)); break;
 			case WEAPON_LASER: RenderHand(&RenderInfo, p, Direction, -pi/2, vec2(-8, 7)); break;
 			case WEAPON_FLAMER: RenderHand(&RenderInfo, p, Direction, -pi/2, vec2(-10, 7)); break;
 			case WEAPON_CHAINSAW:
-				RenderHand(&RenderInfo, p, Direction, -pi/2, vec2(-8, -4));
+				RenderHand(&RenderInfo, p, Direction, -pi/2, vec2(-8, 10));
 				//RenderHand(&RenderInfo, p, Direction, -pi/2, vec2(-42, 4));
 				break;
 		}
@@ -806,10 +806,14 @@ void CPlayers::RenderPlayer(
 	// jetpack effects
 	if (Player.m_Jetpack == 1 && Player.m_JetpackPower > 0 && Player.m_Wallrun == 0)
 	{
+		/*
 		m_pClient->m_pEffects->Triangle(Position + vec2(4, 8), vec2(Vel.x*-20, 600));
 		m_pClient->m_pEffects->Triangle(Position + vec2(-4, 8), vec2(Vel.x*-20, 600));
+		*/
 		
-		if (pCustomPlayerInfo->m_LastJetpackSoundTick <= Client()->GameTick())
+		pCustomPlayerInfo->m_Jetpack = 1;
+		
+		if (!Paused && pCustomPlayerInfo->m_LastJetpackSoundTick <= Client()->GameTick())
 		{
 			pCustomPlayerInfo->m_LastJetpackSoundTick = Client()->GameTick() + 190 * Client()->GameTickSpeed()/1000;
 			if (pCustomPlayerInfo->m_LastJetpackSound == 0)
@@ -824,6 +828,8 @@ void CPlayers::RenderPlayer(
 			}
 		}
 	}
+	else
+		pCustomPlayerInfo->m_Jetpack = 0;
 	
 	
 	// chainsaw sound
@@ -1113,7 +1119,33 @@ void CPlayers::RenderPlayer(
 	RenderTools()->RenderPlayer(&CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID], &RenderInfo, Player.m_Weapon, Player.m_Emote, Direction, Position);
 	
 	
-
+	// iron man jetpack
+	if (Player.m_HandJetpack)
+	{
+		// sound
+		if (!Paused && pCustomPlayerInfo->m_LastJetpackSoundTick <= Client()->GameTick())
+		{
+			pCustomPlayerInfo->m_LastJetpackSoundTick = Client()->GameTick() + 190 * Client()->GameTickSpeed()/1000;
+			if (pCustomPlayerInfo->m_LastJetpackSound == 0)
+			{
+				pCustomPlayerInfo->m_LastJetpackSound = 1;
+				m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_JETPACK1, 1.0f, Position);
+			}
+			else
+			{
+				pCustomPlayerInfo->m_LastJetpackSound = 0;
+				m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_JETPACK2, 1.0f, Position);
+			}
+		}
+		
+		// info to physics
+		pCustomPlayerInfo->m_Turbo = true;
+	}
+	else
+		pCustomPlayerInfo->m_Turbo = false;
+	
+	
+/*
 	// iron man jetpack
 	if (Player.m_HandJetpack)
 	{
@@ -1141,7 +1173,8 @@ void CPlayers::RenderPlayer(
 			}
 		}
 	}
-	
+*/	
+
 	Graphics()->ShaderEnd();
 	
 	
@@ -1244,62 +1277,6 @@ void CPlayers::OnRender()
 		m_aRenderInfo[i] = m_pClient->m_aClients[i].m_RenderInfo;
 		
 		vec3 TeamColor = GetColorV3(aTeamColors[TEAM_RED]);
-		
-		// robot body => robot eyes
-		/*
-		if (m_aRenderInfo[i].m_Body == 3)
-		{
-			//CustomStuff()->m_aPlayerInfo[i].m_HideName = true;
-			
-			int Skin = m_pClient->m_pSkins->FindEye("x_robo1");
-			
-			if(Skin != -1)
-				m_aRenderInfo[i].m_EyeTexture = m_pClient->m_pSkins->GetEye(Skin)->m_Texture;
-		}
-		else if (m_aRenderInfo[i].m_Body == 4)
-		{
-			//CustomStuff()->m_aPlayerInfo[i].m_HideName = true;
-			
-			int Skin = m_pClient->m_pSkins->FindEye("x_robo2");
-			
-			if(Skin != -1)
-				m_aRenderInfo[i].m_EyeTexture = m_pClient->m_pSkins->GetEye(Skin)->m_Texture;
-		}
-		else
-			CustomStuff()->m_aPlayerInfo[i].m_HideName = false;
-		*/
-		
-		// change to custom team colors
-		/*
-		if (g_Config.m_GoreCustomTeams)
-		{
-			if (m_aRenderInfo[i].m_ColorBody.r == TeamColor.r && m_aRenderInfo[i].m_ColorBody.g == TeamColor.g && m_aRenderInfo[i].m_ColorBody.b == TeamColor.b)
-			{
-				m_aRenderInfo[i].m_ColorBody.r = 217/255.0f;
-				m_aRenderInfo[i].m_ColorBody.g = 140/255.0f;
-				m_aRenderInfo[i].m_ColorBody.b = 65/255.0f;
-				
-				m_aRenderInfo[i].m_ColorFeet.r = 255/255.0f;
-				m_aRenderInfo[i].m_ColorFeet.g = 140/255.0f;
-				m_aRenderInfo[i].m_ColorFeet.b = 10/255.0f;
-			}
-			else
-			{
-				TeamColor = GetColorV3(aTeamColors[TEAM_BLUE]);
-					
-				if (m_aRenderInfo[i].m_ColorBody.r == TeamColor.r && m_aRenderInfo[i].m_ColorBody.g == TeamColor.g && m_aRenderInfo[i].m_ColorBody.b == TeamColor.b)
-				{
-					m_aRenderInfo[i].m_ColorBody.r = 100/255.0f;
-					m_aRenderInfo[i].m_ColorBody.g = 140/255.0f;
-					m_aRenderInfo[i].m_ColorBody.b = 100/255.0f;
-					
-					m_aRenderInfo[i].m_ColorFeet.r = 55/255.0f;
-					m_aRenderInfo[i].m_ColorFeet.g = 155/255.0f;
-					m_aRenderInfo[i].m_ColorFeet.b = 105/255.0f;
-				}
-			}
-		}
-		*/
 	}
 
 	CustomStuff()->m_LocalAlive = false;

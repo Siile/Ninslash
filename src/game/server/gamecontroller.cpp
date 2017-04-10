@@ -1430,7 +1430,6 @@ void IGameController::Tick()
 	// check for round time ending
 	if (g_Config.m_SvSurvivalTime && g_Config.m_SvSurvivalMode && m_SurvivalStartTick < Server()->Tick() - Server()->TickSpeed() * g_Config.m_SvSurvivalTime)
 	{
-		
 		GameServer()->SendBroadcast("Draw", -1);
 		ResetSurvivalRound();
 	}

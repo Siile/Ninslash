@@ -92,12 +92,15 @@ void CPicker::OnConsoleInit()
 	//Console()->Register("+gamepaditempicker", "", CFGFLAG_CLIENT, ConKeyItemPicker, this, "Open item selector");
 	
 	Console()->Register("+switch", "", CFGFLAG_CLIENT, ConSwitchGroup, this, "Switch between weapon groups");
+	Console()->Register("+gamepaddropweapon", "", CFGFLAG_CLIENT, ConDropWeapon, this, "Drop weapon");
 	Console()->Register("+dropweapon", "", CFGFLAG_CLIENT, ConDropWeapon, this, "Drop weapon");
 	Console()->Register("+lastweapon", "", CFGFLAG_CLIENT, ConLastWeaponpick, this, "Select last picked weapon");
+	Console()->Register("+gamepadlastweapon", "", CFGFLAG_CLIENT, ConLastWeaponpick, this, "Select last picked weapon");
 	Console()->Register("+picker", "", CFGFLAG_CLIENT, ConKeyPicker, this, "Open weapon selector");
 	Console()->Register("+gamepadpicker", "", CFGFLAG_CLIENT, ConKeyPicker, this, "Open weapon selector");
 	Console()->Register("weaponpick", "i", CFGFLAG_CLIENT, ConWeaponpick, this, "Use weapon");
 	
+	Console()->Register("+gamepademote", "", CFGFLAG_CLIENT, ConKeyEmote, this, "Open emote selector");
 	Console()->Register("+emote", "", CFGFLAG_CLIENT, ConKeyEmote, this, "Open emote selector");
 	Console()->Register("emote", "i", CFGFLAG_CLIENT, ConEmote, this, "Use emote");
 }

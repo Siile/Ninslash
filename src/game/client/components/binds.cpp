@@ -111,21 +111,26 @@ void CBinds::SetDefaults()
 	Bind(KEY_LEFT, "spectate_previous");
 
 	// gamepad
+	Bind(KEY_GAMEPAD_AXIS_DOWN, "+gamepaddown");
 	Bind(KEY_GAMEPAD_AXIS_UP, "+gamepadjump");
 	Bind(KEY_GAMEPAD_AXIS_LEFT, "+gamepadleft");
 	Bind(KEY_GAMEPAD_AXIS_RIGHT, "+gamepadright");
 	
 	Bind(KEY_GAMEPAD_TRIGGER_RIGHT, "+gamepadfire");
-	//Bind(KEY_GAMEPAD_TRIGGER_LEFT, "+gamepadturbo");
 	Bind(KEY_GAMEPAD_TRIGGER_LEFT, "+gamepadturbo");
 	Bind(KEY_GAMEPAD_BUTTON_LEFTSTICK, "+gamepadpicker");
+	Bind(KEY_GAMEPAD_BUTTON_RIGHTSTICK, "+gamepadlastweapon");
 	
-	Bind(KEY_GAMEPAD_SHOULDER_LEFT, "+gamepadweapon1");
-	Bind(KEY_GAMEPAD_SHOULDER_RIGHT, "+gamepadweapon2");
+	Bind(KEY_GAMEPAD_SHOULDER_LEFT, "+gamepadprevweapon");
+	Bind(KEY_GAMEPAD_SHOULDER_RIGHT, "+gamepadnextweapon");
 	
 	Bind(KEY_GAMEPAD_BUTTON_BACK, "+gamepadscoreboard");
 	
-	//Bind(KEY_1, "+weapon1");
+	Bind(KEY_GAMEPAD_BUTTON_B, "+gamepaddropweapon");
+	Bind(KEY_GAMEPAD_BUTTON_Y, "+gamepadbuild");
+	
+	Bind(KEY_GAMEPAD_BUTTON_A, "+gamepademote");
+	
 	Bind(KEY_1, "+weapon2");
 	Bind(KEY_2, "+weapon3");
 	Bind(KEY_3, "+weapon4");

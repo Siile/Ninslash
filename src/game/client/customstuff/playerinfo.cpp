@@ -44,6 +44,10 @@ CPlayerInfo *CPlayerInfo::GetIdle()
 void CPlayerInfo::Reset()
 {
 	m_Angle = 0;
+	m_Turbo = false;
+	m_Jetpack = false;
+	
+	m_ArmPos = vec2(0, 0);
 	
 	for (int i = 0; i < 20; i++)
 		m_aFlameAngle[i] = 0.0f;
@@ -101,6 +105,7 @@ void CPlayerInfo::Reset()
 	
 	m_pAnimation->Reset();
 	m_Melee.Reset();
+	m_Hand.Reset();
 }
 
 
@@ -259,8 +264,65 @@ void CPlayerInfo::FireMelee()
 }
 
 
+
+
+vec2 CPlayerInfo::HandOffset()
+{
+	vec2 p = m_Hand.m_Pos + m_Hand.m_Offset + vec2(0, 16);
+	
+	
+	
+	/*
+	p.x += (MeleeFlip() ? -1 : 1)*(10.0f+((m_Melee.m_FireTimer > 0) ? 6 : 0));
+	p.x += sin(m_Melee.m_Angle*1.0f)*8.0f*(MeleeFlip() ? 1 : -1);
+	//p.x *= m_Melee.m_Flip ? -1.0f : 1.0f;
+	
+	p.y += (m_Melee.m_FireTimer > 0) ? -4 : 0;
+	p.y += cos(m_Melee.m_Angle)*4.0f*(MeleeFlip() ? -1.0f : 1.0f);//*(m_Melee.m_Flip ? -1.0f : 1.0f);
+	*/
+	
+	return p;
+}
+
+void CPlayerInfo::SetHandTarget(vec3 Pos)
+{
+	if (!m_Turbo)
+		m_Hand.m_TargetPos = vec2(Pos.x, Pos.y);
+}
+
+
+int CPlayerInfo::HandFrame()
+{
+	if (m_Turbo)
+		return 2;
+	
+	return 0;
+}
+
+
 void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 {
+	// free hand
+	m_Hand.m_Pos += (m_Hand.m_TargetPos - m_Hand.m_Pos) / 3.0f;
+	
+	if (m_Turbo)
+	{
+		m_Hand.m_TargetPos = -vec2(cos(m_Angle), sin(m_Angle)) * 18.0f;
+		//m_Hand.m_TargetPos += vec2(0, -30);
+		m_Hand.m_TargetPos += m_ArmPos + vec2(0, -16);
+	}
+	//else
+	//	m_Hand.m_TargetPos = -vec2(cos(m_Angle), sin(m_Angle)) * 0.0f;
+	
+	
+	m_Hand.m_Vel *= 0.9f;
+	m_Hand.m_Vel += (((PrevVel-PlayerVel)/2000)*((PrevVel-PlayerVel)/2000))/2.0f;
+	//m_Hand.m_Vel += (m_Hand.m_TargetPos-m_Hand.m_Offset)/14.0f;
+	m_Hand.m_Vel += (-m_Hand.m_Offset)/14.0f;
+	
+	m_Hand.m_Offset += m_Hand.m_Vel;
+	
+	
 	// spinning melee weapon
 	float TurnSpeedCap = 0.15f;
 	float TurnAmount = 0.03f;
@@ -306,13 +368,13 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 	// adjust skeleton a bit
 	if (Animation()->m_Flip)
 	{
-		Animation()->m_BodyTilt = -PlayerVel.x*0.00005f;
-		Animation()->m_HeadTiltCorrect = +PlayerVel.x*0.00003f;
+		Animation()->m_BodyTilt = -PlayerVel.x*0.000075f;
+		Animation()->m_HeadTiltCorrect = +PlayerVel.x*0.000035f;
 	}
 	else
 	{
-		Animation()->m_BodyTilt = PlayerVel.x*0.00005f;
-		Animation()->m_HeadTiltCorrect = -PlayerVel.x*0.00003f;
+		Animation()->m_BodyTilt = PlayerVel.x*0.000075f;
+		Animation()->m_HeadTiltCorrect = -PlayerVel.x*0.000035f;
 	}
 	
 	// flame motion
@@ -441,7 +503,7 @@ void CPlayerInfo::Tick()
 	// flamethrower frame animation
 	if (m_FlameState > 0)
 	{
-		if (++m_FlameState > 13*5)
+		if (++m_FlameState > 13*4)
 			m_FlameState = 0;
 	}
 	
