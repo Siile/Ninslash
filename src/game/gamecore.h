@@ -265,6 +265,7 @@ public:
 
 	int m_TriggeredEvents;
 
+	CCharacterCore();
 	void Init(CWorldCore *pWorld, CCollision *pCollision);
 	void Reset();
 	void Tick(bool UseInput);

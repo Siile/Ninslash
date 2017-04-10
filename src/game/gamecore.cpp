@@ -55,6 +55,11 @@ float VelocityRamp(float Value, float Start, float Range, float Curvature)
 	return 1.0f/powf(Curvature, (Value-Start)/Range);
 }
 
+CCharacterCore::CCharacterCore()
+{
+	Init(NULL, NULL);
+}
+
 void CCharacterCore::Init(CWorldCore *pWorld, CCollision *pCollision)
 {
 	m_pWorld = pWorld;
@@ -1272,6 +1277,12 @@ void CCharacterCore::Move()
 
 void CCharacterCore::Write(CNetObj_CharacterCore *pObjCore)
 {
+	if (!m_pWorld || !m_pCollision || !m_pCollision->m_pTiles || !m_pCollision->m_pLayers)
+	{
+		dbg_msg("Error", "CCharacterCore::Write(): m_pWorld or m_pCollision are NULL!");
+		return;
+	}
+
 	pObjCore->m_X = round_to_int(m_Pos.x);
 	pObjCore->m_Y = round_to_int(m_Pos.y);
 
