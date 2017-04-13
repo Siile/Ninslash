@@ -17,8 +17,9 @@ class CMapGen
 	CCollision *m_pCollision;
 	class CPerlinOctave *m_pNoise;
 
-	void GenerateCaves(int FillBlock);
+	void GenerateCaves(int FillBlock, float Freq);
 	void GenerateTunnels(int Num);
+	void GenerateBorder();
 	void GenerateSkip();
 
 	void ModifTile(ivec2 Pos, int Layer, int Tile);

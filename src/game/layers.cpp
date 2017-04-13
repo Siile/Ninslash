@@ -30,7 +30,9 @@ void CLayers::Init(class IKernel *pKernel)
 
 	// BackgroundLayer & ForegroundLayer can exists or not... need reset to null
 	m_pBackgrounLayer = 0x0;
+	m_BackgrounLayerIndex = -1;
 	m_pForegroundLayer = 0x0;
+	m_ForegroundLayerIndex = -1;
 
 	for(int g = 0; g < NumGroups(); g++)
 	{
@@ -55,6 +57,7 @@ void CLayers::Init(class IKernel *pKernel)
 				{
 					m_pForegroundLayer = pTilemap;
 					m_ForegroundLayerIndex = l;
+					break; // Finish here... in not generated maps increase the CPU usage :/
 				}
 
 				if(pTilemap->m_Flags&TILESLAYERFLAG_GAME)
@@ -80,8 +83,6 @@ void CLayers::Init(class IKernel *pKernel)
 					// MapGen: Game layer access info
 					m_GameGroupIndex = g;
 					m_GameLayerIndex = l;
-
-					break;
 				}
 			}
 		}

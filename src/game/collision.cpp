@@ -871,13 +871,13 @@ bool CCollision::ModifTile(ivec2 pos, int group, int layer, int tile, int flags,
         CTile *pTiles = static_cast<CTile *>(m_pLayers->Map()->GetData(pTilemap->m_Data));
         pTiles[tpos].m_Flags = flags;
         pTiles[tpos].m_Index = tile;
-        pTiles[tpos].m_Reserved = 1;
+        pTiles[tpos].m_Reserved = reserved;
     }
     else
     {
         m_pTiles[tpos].m_Index = tile;
         m_pTiles[tpos].m_Flags = flags;
-        m_pTiles[tpos].m_Reserved = 1;
+        m_pTiles[tpos].m_Reserved = reserved;
 
         switch(tile)
         {

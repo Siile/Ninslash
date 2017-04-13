@@ -32,7 +32,7 @@ void CMapGen::FillMap(int Seed)
 
 	if (m_pNoise)
 		delete m_pNoise;
-	m_pNoise = new CPerlinOctave(7, Seed);
+	m_pNoise = new CPerlinOctave(1, Seed);
 
 	int64 ProcessTime = 0;
 	int64 TotalTime = time_get();
@@ -55,35 +55,35 @@ void CMapGen::FillMap(int Seed)
 
 
 	// tunnels
-	ProcessTime = time_get();
-	GenerateTunnels(m_pNoise->Perlin()->GetURandom(10,20));
-	dbg_msg("mapgen", "tunnels generated in %.5fs", (float)(time_get()-ProcessTime)/time_freq());
+	//ProcessTime = time_get();
+	//GenerateTunnels(m_pNoise->Perlin()->GetURandom(2,4));
+	//dbg_msg("mapgen", "tunnels generated in %.5fs", (float)(time_get()-ProcessTime)/time_freq());
 
 	// caves
 	ProcessTime = time_get();
-	GenerateCaves(0);
+	GenerateCaves(0, 0.05f);
+	GenerateCaves(0, 0.08f);
+	GenerateCaves(0, 0.1f);
 	dbg_msg("mapgen", "caves generated in %.5fs", (float)(time_get()-ProcessTime)/time_freq());
 
 	// Performance
 	dbg_msg("mapgen", "finalizing map...");
+	GenerateBorder();
 	GenerateSkip();
 
 	dbg_msg("mapgen", "map successfully generated in %.5fs", (float)(time_get()-TotalTime)/time_freq());
 }
 
-void CMapGen::GenerateCaves(int FillBlock)
+void CMapGen::GenerateCaves(int FillBlock, float Freq)
 {
-	const int CaveLevel = PercOf(CAVE_LEVEL, m_pLayers->GameLayer()->m_Height);
-
 	// cut in the caves with a 2d perlin noise
-	const float frequency = 32.0f / (float)m_pLayers->GameLayer()->m_Width;
 	for(int x = 0; x < m_pLayers->GameLayer()->m_Width; x++)
 	{
-		for(int y = CaveLevel; y < m_pLayers->GameLayer()->m_Height; y++)
+		for(int y = 0; y < m_pLayers->GameLayer()->m_Height; y++)
 		{
-			float noise = m_pNoise->Noise((float)x * frequency, (float)y * frequency);
+			float noise = m_pNoise->Noise((float)x * Freq, (float)y * Freq);
 	
-			if(noise > 0.01f)
+			if(noise > 0.00001f)
 			{
 				ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), FillBlock);
 				ModifTile(ivec2(x, y), m_pLayers->GetForegroundLayerIndex(), FillBlock);
@@ -94,19 +94,17 @@ void CMapGen::GenerateCaves(int FillBlock)
 
 void CMapGen::GenerateTunnels(int Num)
 {
-	const int TunnelLevel = PercOf(TUNNEL_LEVEL, m_pLayers->GameLayer()->m_Height);
-
 	int TilePosY, Level, Freq, TunnelSize, StartX, EndX;
 	for (int r=0; r<Num; ++r)
 	{
-		Level = TunnelLevel + m_pNoise->Perlin()->GetURandom(0,m_pLayers->GameLayer()->m_Height);
+		Level = m_pNoise->Perlin()->GetURandom(0,m_pLayers->GameLayer()->m_Height);
 		Freq = m_pNoise->Perlin()->GetURandom(2,10);
-		TunnelSize = m_pNoise->Perlin()->GetURandom(2,2);
+		TunnelSize = m_pNoise->Perlin()->GetURandom(2,4);
 		StartX = m_pNoise->Perlin()->GetURandom(0,m_pLayers->GameLayer()->m_Width);
 		EndX = min(m_pLayers->GameLayer()->m_Width, m_pNoise->Perlin()->GetURandom(0,m_pLayers->GameLayer()->m_Width)+StartX);
 		for(int TilePosX = StartX; TilePosX < EndX; TilePosX++)
 		{
-			float frequency = Freq / (float)m_pLayers->GameLayer()->m_Width;
+			float frequency = 0.05f;
 			TilePosY = m_pNoise->Noise((float)TilePosX * frequency) * (m_pLayers->GameLayer()->m_Height) + Level;
 			if (TilePosY < m_pLayers->GameLayer()->m_Height-1)
 				for (int i=-TunnelSize; i<=TunnelSize; i++)
@@ -115,6 +113,35 @@ void CMapGen::GenerateTunnels(int Num)
 					ModifTile(ivec2(TilePosX, TilePosY), m_pLayers->GetForegroundLayerIndex(), 0);
 				}
 		}
+	}
+}
+
+void CMapGen::GenerateBorder()
+{
+	// draw a boarder all around the map
+	for(int i = 0; i < m_pLayers->GameLayer()->m_Width; i++)
+	{
+		// bottom border
+		ModifTile(ivec2(i, m_pLayers->GameLayer()->m_Height-1), m_pLayers->GetForegroundLayerIndex(), 1);
+		ModifTile(ivec2(i, m_pLayers->GameLayer()->m_Height-2), m_pLayers->GetForegroundLayerIndex(), 1);
+		ModifTile(ivec2(i, m_pLayers->GameLayer()->m_Height-1), m_pLayers->GetGameLayerIndex(), 1);
+		ModifTile(ivec2(i, m_pLayers->GameLayer()->m_Height-2), m_pLayers->GetGameLayerIndex(), 1);
+	}
+
+	for(int i = 0; i < m_pLayers->GameLayer()->m_Height; i++)
+	{
+		// left border
+		ModifTile(ivec2(0, i), m_pLayers->GetForegroundLayerIndex(), 1);
+		ModifTile(ivec2(1, i), m_pLayers->GetForegroundLayerIndex(), 1);
+		ModifTile(ivec2(0, i), m_pLayers->GetGameLayerIndex(), 1);
+		ModifTile(ivec2(1, i), m_pLayers->GetGameLayerIndex(), 1);
+
+
+		// right border
+		ModifTile(ivec2(m_pLayers->GameLayer()->m_Width-1, i), m_pLayers->GetForegroundLayerIndex(), 1);
+		ModifTile(ivec2(m_pLayers->GameLayer()->m_Width-2, i), m_pLayers->GetForegroundLayerIndex(), 1);
+		ModifTile(ivec2(m_pLayers->GameLayer()->m_Width-1, i), m_pLayers->GetGameLayerIndex(), 1);
+		ModifTile(ivec2(m_pLayers->GameLayer()->m_Width-2, i), m_pLayers->GetGameLayerIndex(), 1);
 	}
 }
 
