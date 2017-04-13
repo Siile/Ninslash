@@ -229,7 +229,7 @@ public:
 	void UpdateAIInput();
 	void PumpNetwork();
 
-	char *GetMapName();
+	virtual char *GetMapName(); // MapGen
 	int LoadMap(const char *pMapName);
 
 	void InitRegister(CNetServer *pNetServer, IEngineMasterServer *pMasterServer, IConsole *pConsole);

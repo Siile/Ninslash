@@ -851,3 +851,47 @@ void CCollision::MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, float Elas
 	*pInoutPos = Pos;
 	*pInoutVel = Vel;
 }
+
+bool CCollision::ModifTile(ivec2 pos, int group, int layer, int tile, int flags, int reserved)
+{
+    CMapItemGroup *pGroup = m_pLayers->GetGroup(group);
+    CMapItemLayer *pLayer = m_pLayers->GetLayer(pGroup->m_StartLayer+layer);
+    if (pLayer->m_Type != LAYERTYPE_TILES)
+        return false;
+
+    CMapItemLayerTilemap *pTilemap = reinterpret_cast<CMapItemLayerTilemap *>(pLayer);
+    int TotalTiles = pTilemap->m_Width*pTilemap->m_Height;
+    int tpos = (int)pos.y*pTilemap->m_Width+(int)pos.x;
+    if (tpos < 0 || tpos >= TotalTiles)
+        return false;
+
+
+    if (pTilemap != m_pLayers->GameLayer())
+    {
+        CTile *pTiles = static_cast<CTile *>(m_pLayers->Map()->GetData(pTilemap->m_Data));
+        pTiles[tpos].m_Flags = flags;
+        pTiles[tpos].m_Index = tile;
+        pTiles[tpos].m_Reserved = 1;
+    }
+    else
+    {
+        m_pTiles[tpos].m_Index = tile;
+        m_pTiles[tpos].m_Flags = flags;
+        m_pTiles[tpos].m_Reserved = 1;
+
+        switch(tile)
+        {
+        case TILE_DEATH:
+            m_pTiles[tpos].m_Index = COLFLAG_DEATH;
+            break;
+        case TILE_SOLID:
+            m_pTiles[tpos].m_Index = COLFLAG_SOLID;
+            break;
+        default:
+            if(tile <= 128)
+                m_pTiles[tpos].m_Index = 0;
+        }
+    }
+
+    return true;
+}

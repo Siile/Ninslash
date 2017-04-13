@@ -105,3 +105,13 @@ bool CMapChecker::ReadAndValidateMap(IStorage *pStorage, const char *pFilename, 
 	}
 	return StandardMap?false:true;
 }
+
+// MapGen
+bool CMapChecker::Exists(class IStorage *pStorage, const char *pFilename, int StorageType)
+{
+	CDataFileReader DataFile;
+	if(!DataFile.Open(pStorage, pFilename, StorageType))
+		return false;
+	DataFile.Close();
+	return true;
+}

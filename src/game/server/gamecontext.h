@@ -6,6 +6,7 @@
 #include <engine/server.h>
 #include <engine/console.h>
 #include <engine/shared/memheap.h>
+#include <engine/storage.h> // MapGen
 
 #include <game/layers.h>
 #include <game/voting.h>
@@ -14,6 +15,7 @@
 #include "gamecontroller.h"
 #include "gameworld.h"
 #include "player.h"
+#include "mapgen.h"
 
 
 /*
@@ -45,6 +47,9 @@ class CGameContext : public IGameServer
 	CCollision m_Collision;
 	CNetObjHandler m_NetObjHandler;
 	CTuningParams m_Tuning;
+	// MapGen
+	CMapGen m_MapGen;
+	IStorage *m_pStorage;
 
 	static void ConTuneParam(IConsole::IResult *pResult, void *pUserData);
 	static void ConTuneReset(IConsole::IResult *pResult, void *pUserData);
@@ -75,6 +80,10 @@ public:
 	class IConsole *Console() { return m_pConsole; }
 	CCollision *Collision() { return &m_Collision; }
 	CTuningParams *Tuning() { return &m_Tuning; }
+	// MapGen
+	CLayers *Layers() { return &m_Layers; }
+	IStorage *Storage() const { return m_pStorage; }
+	CMapGen *MapGen() { return &m_MapGen; }
 
 	CGameContext();
 	~CGameContext();
@@ -214,6 +223,9 @@ public:
 	virtual const char *Version();
 	virtual const char *NetVersion();
 	
+	// MapGen
+	virtual void SaveMap(const char *path);
+
 	vec2 GetNearHumanSpawnPos(bool AllowVision = false);
 	vec2 GetFarHumanSpawnPos(bool AllowVision = false);
 	int DistanceToHuman(vec2 Pos);

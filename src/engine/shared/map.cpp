@@ -41,6 +41,8 @@ public:
 	{
 		return m_DataFile.Crc();
 	}
+
+	virtual CDataFileReader* GetFileReader() { return &m_DataFile; } // MapGen
 };
 
 extern IEngineMap *CreateEngineMap() { return new CMap; }

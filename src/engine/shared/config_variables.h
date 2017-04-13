@@ -129,4 +129,10 @@ MACRO_CONFIG_INT(DbgGraphs, dbg_graphs, 0, 0, 1, CFGFLAG_CLIENT, "Performance gr
 MACRO_CONFIG_INT(DbgHitch, dbg_hitch, 0, 0, 0, CFGFLAG_SERVER, "Hitch warnings")
 MACRO_CONFIG_STR(DbgStressServer, dbg_stress_server, 32, "localhost", CFGFLAG_CLIENT, "Server to stress")
 MACRO_CONFIG_INT(DbgResizable, dbg_resizable, 0, 0, 0, CFGFLAG_CLIENT, "Enables window resizing")
+
+// MapGen
+MACRO_CONFIG_INT(SvMapGen, sv_mapgen, 0, 0, 1, CFGFLAG_SERVER, "Map Generation Status")
+MACRO_CONFIG_INT(SvMapGenSeed, sv_mapgen_seed, 0, 0, 2147483647, CFGFLAG_SERVER, "Map Generation Seed")
+MACRO_CONFIG_INT(SvMapGenWidth, sv_mapgen_width, 50, 0, 99999, CFGFLAG_SERVER, "Map Generation Width")
+MACRO_CONFIG_INT(SvMapGenHeight, sv_mapgen_height, 50, 0, 99999, CFGFLAG_SERVER, "Map Generation Height")
 #endif

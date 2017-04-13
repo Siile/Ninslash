@@ -1282,13 +1282,19 @@ int CServer::LoadMap(const char *pMapName)
 {
 	KickBots();
 	
-	//DATAFILE *df;
 	char aBuf[512];
-	str_format(aBuf, sizeof(aBuf), "maps/%s.map", pMapName);
-
-	/*df = datafile_load(buf);
-	if(!df)
-		return 0;*/
+	if (g_Config.m_SvMapGen)
+	{
+		str_format(aBuf, sizeof(aBuf), "maps/%s_%d.map", pMapName, g_Config.m_SvMapGenSeed);
+		if(!m_MapChecker.Exists(Storage(), aBuf, IStorage::TYPE_SAVE))
+		{
+			CDataFileWriter fileWrite;
+			if (!(m_MapGenerated = fileWrite.CreateEmptyMap(Storage(), aBuf, g_Config.m_SvMapGenWidth, g_Config.m_SvMapGenHeight, 0x0)))
+				return 0;
+		} else
+			m_MapGenerated = false;
+	} else
+		str_format(aBuf, sizeof(aBuf), "maps/%s.map", pMapName);
 
 	// check for valid standard map
 	if(!m_MapChecker.ReadAndValidateMap(Storage(), aBuf, IStorage::TYPE_ALL))
