@@ -1369,6 +1369,13 @@ void IGameController::ResetSurvivalRound()
 	m_ClearBroadcastTick = Server()->Tick() + Server()->TickSpeed()*2;
 	m_SurvivalStartTick = Server()->Tick();
 	m_SurvivalStatus = 0;
+	
+	// reset pickups
+	CPickup *apEnts[4000];
+	int Num = GameServer()->m_World.FindEntities(vec2(0, 0), 0.0f, (CEntity**)apEnts, 4000, CGameWorld::ENTTYPE_PICKUP);
+
+	for (int i = 0; i < Num; ++i)
+		apEnts[i]->SurvivalReset();
 }
 
 void IGameController::KillEveryone()

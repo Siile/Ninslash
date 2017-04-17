@@ -59,7 +59,7 @@ int CGameWorld::FindEntities(vec2 Pos, float Radius, CEntity **ppEnts, int Max, 
 			Pos = OPos + pEnt->m_Center;
 		
 		// circle body collision
-		if(distance(pEnt->m_Pos, Pos) < Radius+pEnt->m_ProximityRadius || 
+		if(Radius <= 0.0f || distance(pEnt->m_Pos, Pos) < Radius+pEnt->m_ProximityRadius || 
 			// head collision if character
 			(Type == CGameWorld::ENTTYPE_CHARACTER && distance(pEnt->m_Pos + vec2(0, -27), Pos) < Radius+pEnt->m_ProximityRadius))
 		{

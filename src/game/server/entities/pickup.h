@@ -29,6 +29,25 @@ public:
 		}
 	}
 	
+	void SurvivalReset()
+	{
+		if (!m_Dropable || m_ResetableDropable)
+		{
+			m_SpawnTick = -1;
+			m_Flashing = false;
+			m_FlashTimer = 0;
+			
+			if (m_ResetableDropable)
+			{
+				m_Pos = m_SpawnPos;
+				m_Dropable = false;
+			}
+		}
+		
+		if (m_Dropable)
+			m_SpawnTick = 999;
+	}
+	
 	void RespawnDropable()
 	{
 		m_SpawnTick = -1;
