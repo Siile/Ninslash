@@ -276,6 +276,9 @@ class CMenus : public CComponent
 	void RenderSettings(CUIRect MainView);
 
 	void SetActive(bool Active);
+	
+	void SetClientRandomSkin();
+	
 public:
 	void RenderBackground();
 

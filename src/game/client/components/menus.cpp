@@ -1283,6 +1283,8 @@ int CMenus::Render()
 		}
 		else if(m_Popup == POPUP_FIRST_LAUNCH)
 		{
+			rand();
+			
 			CUIRect Label, TextBox;
 
 			Box.HSplitBottom(20.f, &Box, &Part);
@@ -1291,7 +1293,10 @@ int CMenus::Render()
 
 			static int s_EnterButton = 0;
 			if(DoButton_Menu(&s_EnterButton, Localize("Enter"), 0, &Part) || m_EnterPressed)
+			{
+				SetClientRandomSkin();
 				m_Popup = POPUP_NONE;
+			}
 
 			Box.HSplitBottom(40.f, &Box, &Part);
 			Box.HSplitBottom(24.f, &Box, &Part);
@@ -1322,6 +1327,33 @@ int CMenus::Render()
 	return 0;
 }
 
+void CMenus::SetClientRandomSkin()
+{
+	g_Config.m_PlayerColorSkin = 982985;
+	g_Config.m_PlayerColorBody = rand()%(0xFFFFFF/10)*1000;;
+	g_Config.m_PlayerColorFeet = rand()%(0xFFFFFF/10)*1000;;
+	g_Config.m_PlayerColorTopper = rand()%(0xFFFFFF/10)*1000;
+	
+	switch (rand()%7)
+	{
+		case 0: str_copy(g_Config.m_PlayerTopper, "basic", 64); break;	
+		case 1: str_copy(g_Config.m_PlayerTopper, "casual", 64); break;
+		case 2: str_copy(g_Config.m_PlayerTopper, "dr", 64); break;
+		case 3: str_copy(g_Config.m_PlayerTopper, "emo", 64); break;
+		case 4: str_copy(g_Config.m_PlayerTopper, "nitters", 64); break;
+		case 5: str_copy(g_Config.m_PlayerTopper, "raiden", 64); break;
+		default: str_copy(g_Config.m_PlayerTopper, "default", 64);
+	};	
+		
+	switch (rand()%5)
+		{
+		case 0: str_copy(g_Config.m_PlayerEye, "cyan", 64); break;	
+		case 1: str_copy(g_Config.m_PlayerEye, "lsd", 64); break;
+		case 2: str_copy(g_Config.m_PlayerEye, "sleepy", 64); break;
+		case 3: str_copy(g_Config.m_PlayerEye, "diag", 64); break;
+		default: str_copy(g_Config.m_PlayerEye, "default", 64);
+	};
+}
 
 void CMenus::SetActive(bool Active)
 {

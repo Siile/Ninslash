@@ -59,6 +59,12 @@ void CAI::Reset()
 	m_Direction = vec2(-1, 0);
 	m_DisplayDirection = vec2(-1, 0);
 	
+	if (frandom()*10 < 5)
+	{
+		m_Direction = vec2(1, 0);
+		m_DisplayDirection = vec2(1, 0);
+	}
+	
 	m_MoveReactTime = 0;
 	m_HookTick = 0;
 	m_HookReleaseTick = 0;
@@ -412,7 +418,8 @@ void CAI::HookMove()
 
 void CAI::HeadToMovingDirection()
 {
-	m_Direction = m_WaypointPos - m_Pos;
+	if (abs(m_WaypointPos.x - m_Pos.x) + abs(m_WaypointPos.y - m_Pos.y) > 4)
+		m_Direction = m_WaypointPos - m_Pos;
 	
 	//if (m_Move != 0)
 	//	m_Direction = vec2(m_Move, 0);
