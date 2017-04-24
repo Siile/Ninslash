@@ -134,6 +134,4 @@ MACRO_CONFIG_INT(DbgResizable, dbg_resizable, 0, 0, 0, CFGFLAG_CLIENT, "Enables 
 MACRO_CONFIG_INT(SvMapGen, sv_mapgen, 0, 0, 1, CFGFLAG_SERVER, "Map Generation Status")
 MACRO_CONFIG_INT(SvMapGenLevel, sv_mapgen_level, 1, 1, 9999, CFGFLAG_SERVER, "Map Difficulty")
 MACRO_CONFIG_INT(SvMapGenSeed, sv_mapgen_seed, 0, 0, 2147483647, CFGFLAG_SERVER, "Map Generation Seed")
-MACRO_CONFIG_INT(SvMapGenWidth, sv_mapgen_width, 50, 0, 99999, CFGFLAG_SERVER, "Map Generation Width")
-MACRO_CONFIG_INT(SvMapGenHeight, sv_mapgen_height, 50, 0, 99999, CFGFLAG_SERVER, "Map Generation Height")
 #endif

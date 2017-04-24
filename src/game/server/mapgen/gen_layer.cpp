@@ -4,6 +4,7 @@ CGenLayer::CGenLayer(int w, int h)
 {
 	m_Width = w;
 	m_Height = h;
+	m_Size = 0;
 	
 	m_pTiles = new int[w*h];
 	for (int i = 0; i < w*h; i++)
@@ -353,6 +354,21 @@ bool CGenLayer::Used(int x, int y)
 	return false;
 }
 
+int CGenLayer::Size()
+{
+	if (m_Size > 0)
+		return m_Size;
+	
+	
+	for (int x = 0; x < m_Width; x++)
+		for (int y = 0; y < m_Height; y++)
+		{
+			if (m_pTiles[x + y*m_Width] == 0)
+				m_Size++;
+		}
+	
+	return m_Size;
+}
 
 void CGenLayer::Use(int x, int y)
 {

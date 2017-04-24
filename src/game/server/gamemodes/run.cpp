@@ -252,6 +252,7 @@ void CGameControllerCoop::Tick()
 		{
 			m_RoundWin = false;
 			m_RoundWinTick = 0;
+			g_Config.m_SvMapGenLevel++;
 			EndRound();
 		}
 	}

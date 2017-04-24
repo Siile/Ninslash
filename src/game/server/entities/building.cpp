@@ -22,6 +22,9 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 	for (int i = 0; i < NUM_BSTATUS; i++)
 		m_aStatus[i] = 0;
 	
+	
+	m_TriggerTimer = 0;
+	
 	switch (Type)
 	{
 	case BUILDING_SAWBLADE:
@@ -79,6 +82,7 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		break;
 		
 	case BUILDING_FLAMETRAP:
+		m_TriggerTimer = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed() * (frandom()*4.0f);
 		m_ProximityRadius = FlametrapPhysSize;
 		m_Life = 60;
 		break;
@@ -102,8 +106,6 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		m_DamageOwner = RED_BASE;
 	else
 		m_DamageOwner = NEUTRAL_BASE;
-	
-	m_TriggerTimer = 0;
 	
 	GameWorld()->InsertEntity(this);
 }

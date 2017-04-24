@@ -11,6 +11,7 @@ private:
 	int *m_pTiles;
 	int m_Width;
 	int m_Height;
+	int m_Size;
 
 	ivec2 m_aPlatform[GEN_MAX];
 	int m_NumPlatforms;
@@ -50,6 +51,7 @@ public:
 	int NumTopCorners() { return m_NumTopCorners; }
 	
 	void Scan();
+	int Size();
 	
 	ivec2 GetPlatform();
 	ivec2 GetCeiling();

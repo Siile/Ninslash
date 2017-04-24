@@ -1596,6 +1596,13 @@ void CGameContext::OnClientEnter(int ClientID)
 	str_format(aBuf, sizeof(aBuf), "team_join player='%d:%s' team=%d", ClientID, Server()->ClientName(ClientID), m_apPlayers[ClientID]->GetTeam());
 	Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
+	if (m_pController->IsCoop() && g_Config.m_SvMapGen)
+	{
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "Level %d", g_Config.m_SvMapGenLevel);
+		SendBroadcast(aBuf, ClientID);
+	}
+	
 	m_VoteUpdate = true;
 }
 

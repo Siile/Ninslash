@@ -1009,6 +1009,8 @@ void IGameController::CycleMap()
 
 void IGameController::FirstMap()
 {
+	g_Config.m_SvMapGenLevel = 1;
+	
 	if(m_aMapWish[0] != 0)
 	{
 		char aBuf[256];

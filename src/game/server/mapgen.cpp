@@ -30,6 +30,9 @@ void CMapGen::FillMap(int Seed)
 {
 	dbg_msg("mapgen", "started map generation with seed=%d", Seed);
 
+	for (int i = 0; i < g_Config.m_SvMapGenLevel; i++)
+		rand();
+	
 	int64 ProcessTime = 0;
 	int64 TotalTime = time_get();
 
@@ -51,7 +54,7 @@ void CMapGen::FillMap(int Seed)
 
 
 	ProcessTime = time_get();
-	GenerateRooms();
+	GenerateLevel();
 	
 	dbg_msg("mapgen", "map successfully generated in %.5fs", (float)(time_get()-TotalTime)/time_freq());
 }
@@ -78,6 +81,11 @@ void CMapGen::GenerateStart(CGenLayer *pTiles)
 				pTiles->Set(-1, x, y);
 				pTiles->Set(-1, x+1, y);
 				pTiles->Set(-1, x+2, y);
+				
+				
+				for (int xx = -2; xx < 2; xx++)
+					for (int yy = -3; yy < 0; yy++)
+						pTiles->Use(x+xx, y+yy);
 				
 				if (++Spawns >= 4)
 					return;
@@ -108,6 +116,10 @@ void CMapGen::GenerateEnd(CGenLayer *pTiles)
 				pTiles->Set(-1, x, y);
 				pTiles->Set(-1, x+1, y);
 				pTiles->Set(-1, x+2, y);
+				
+				for (int xx = -2; xx < 2; xx++)
+					for (int yy = -4; yy < 0; yy++)
+						pTiles->Set(-1, x+xx, y+yy);
 				
 				return;
 			}
@@ -147,7 +159,10 @@ void CMapGen::GenerateSawblade(CGenLayer *pTiles)
 	if (p.x == 0)
 		return;
 	
-	pTiles->Use(p.x, p.y);
+	for (int x = -2; x < 2; x++)
+		for (int y = -2; y < 2; y++)
+			pTiles->Use(p.x+x, p.y+y);
+		
 	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SAWBLADE);
 }
 
@@ -187,14 +202,34 @@ void CMapGen::GenerateBarrel(CGenLayer *pTiles)
 	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_BARREL);
 }
 
-void CMapGen::GenerateAlien(CGenLayer *pTiles)
+void CMapGen::GenerateSwitch(CGenLayer *pTiles)
 {
 	ivec2 p = pTiles->GetPlatform();
 	
 	if (p.x == 0)
 		return;
 	
-	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_ROBOT1);
+	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SWITCH);
+}
+
+void CMapGen::GeneratePowerupper(CGenLayer *pTiles)
+{
+	ivec2 p = pTiles->GetPlatform();
+	
+	if (p.x == 0)
+		return;
+	
+	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_POWERUPPER);
+}
+
+void CMapGen::GenerateAlien(CGenLayer *pTiles, int Type)
+{
+	ivec2 p = pTiles->GetPlatform();
+	
+	if (p.x == 0)
+		return;
+	
+	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_ROBOT1+Type);
 }
 
 void CMapGen::GenerateFiretrap(CGenLayer *pTiles)
@@ -208,6 +243,10 @@ void CMapGen::GenerateFiretrap(CGenLayer *pTiles)
 		ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_FLAMETRAP_RIGHT);
 	else
 		ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_FLAMETRAP_LEFT);
+	
+	for (int x = -1; x < 1; x++)
+		for (int y = -1; y < 1; y++)
+			pTiles->Use(p.x+x, p.y+y);
 }
 
 void CMapGen::GenerateDeathray(CGenLayer *pTiles)
@@ -218,6 +257,10 @@ void CMapGen::GenerateDeathray(CGenLayer *pTiles)
 		return;
 	
 	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_LAZER);
+	
+	for (int x = -1; x < 1; x++)
+		for (int y = -1; y < 1; y++)
+			pTiles->Use(p.x+x, p.y+y);
 }
 
 
@@ -287,22 +330,25 @@ void CMapGen::GenerateAcid(CGenLayer *pTiles)
 }
 
 
-void CMapGen::GenerateRooms()
+void CMapGen::GenerateRooms(CRoom *pRoom, int Type, int w, int h)
 {
-	int w = m_pLayers->GameLayer()->m_Width;
-	int h = m_pLayers->GameLayer()->m_Height;
-
-	if (w < 10 || h < 10)
+	// linear
+	if (Type == 0)
+	{
+		int y = h / 2;
+		
+		for (int x = 8; x < w-8; x++)
+		{
+			pRoom->Open(x-1, y-1);
+			pRoom->Open(x, y);
+			pRoom->Open(x+1, y+1);
+		}
+		
 		return;
+	}
 	
-	CGenLayer *pTiles = new CGenLayer(w, h);
-	
-	// generate room structure
-	CRoom *pRoom = new CRoom(3, 3, w-6, h-6);
-	
-	
-	// linear sine wave
-	/*
+	// sine wave
+	if (Type == 1)
 	{
 		int y = h / 2;
 		
@@ -316,24 +362,127 @@ void CMapGen::GenerateRooms()
 			pRoom->Open(x, y+sin(a+x*c)*(1.0f*h/s));
 			pRoom->Open(x+1, y+1+sin(a+x*c)*(1.0f*h/s));
 		}
+		
+		return;
 	}
-	*/
 	
-	// linear line
-	/*
+	// double route
+	if (Type == 2)
 	{
 		int y = h / 2;
+			
+		for (int x = 8; x < w-8; x++)
+		{
+			y = h/2 + (w/2-abs(x-w/2))*(1.0f*h/w)*0.8f;
+
+			pRoom->Open(x-1, y-1);
+			pRoom->Open(x, y);
+			pRoom->Open(x+1, y+1);
+		}
+			
+		for (int x = 8; x < w-8; x++)
+		{
+			y = h/2 - (w/2-abs(x-w/2))*(1.0f*h/w)*0.8f;
+
+			pRoom->Open(x-1, y-1);
+			pRoom->Open(x, y);
+			pRoom->Open(x+1, y+1);
+		}
 		
+		return;
+	}
+	
+	// line + sine
+	if (Type == 3)
+	{
+		int y = h / 2;
+			
+		float a = frandom()*pi*2;
+		float c = 0.1f;
+		float s = 2.5f + frandom()*2.0f;
+			
+		for (int x = 8; x < w-8; x++)
+		{
+			pRoom->Open(x-1, y-1+sin(a+x*c)*(1.0f*h/s));
+			pRoom->Open(x, y+sin(a+x*c)*(1.0f*h/s));
+			pRoom->Open(x+1, y+1+sin(a+x*c)*(1.0f*h/s));
+		}
+			
+		y = h * (0.1f + frandom()*0.8f);
+			
 		for (int x = 8; x < w-8; x++)
 		{
 			pRoom->Open(x-1, y-1);
 			pRoom->Open(x, y);
 			pRoom->Open(x+1, y+1);
 		}
+		
+		return;
 	}
-	*/
+	
+	// double sine wave
+	if (Type == 4)
+	{
+		int y = h / 2;
+		
+		float a = frandom()*pi*2;
+		float c = 0.1f + frandom()*0.05f;
+		float s = 2.5f + frandom()*2.0f;
+		
+		for (int x = 8; x < w-8; x++)
+		{
+			pRoom->Open(x-1, y-1+sin(a+x*c)*(1.0f*h/s));
+			pRoom->Open(x, y+sin(a+x*c)*(1.0f*h/s));
+			pRoom->Open(x+1, y+1+sin(a+x*c)*(1.0f*h/s));
+		}
+		
+		for (int x = 8; x < w-8; x++)
+		{
+			pRoom->Open(x-1, y-1-sin(a+x*c)*(1.0f*h/s));
+			pRoom->Open(x, y-sin(a+x*c)*(1.0f*h/s));
+			pRoom->Open(x+1, y+1-sin(a+x*c)*(1.0f*h/s));
+		}
+		
+		return;
+	}
+	
+	// #
+	if (Type == 5)
+	{
+		int y = 13;
+		for (int x = 8+rand()%10; x < w-8-rand()%10; x++)
+		{
+			pRoom->Open(x-1, y-1);
+			pRoom->Open(x, y);
+			pRoom->Open(x+1, y+1);
+		}
+		
+		y = h-13;
+		for (int x = 8+rand()%10; x < w-8-rand()%10; x++)
+		{
+			pRoom->Open(x-1, y-1);
+			pRoom->Open(x, y);
+			pRoom->Open(x+1, y+1);
+		}
+		
+		int n = 1 + rand()%6;
+		
+		for (int i = 0; i < n; i++)
+		{
+			int x = w * (0.1f + frandom()*0.8f);
+			for (y = 4; y < h-4; y++)
+			{
+				pRoom->Open(x-1, y-1);
+				pRoom->Open(x, y);
+				pRoom->Open(x+1, y+1);
+			}
+		}
+		
+		return;
+	}
 	
 	// box
+	if (Type == 6)
 	{
 		int y = 13;
 		for (int x = 8+rand()%10; x < w-8-rand()%10; x++)
@@ -366,120 +515,53 @@ void CMapGen::GenerateRooms()
 			pRoom->Open(x, y);
 			pRoom->Open(x+1, y+1);
 		}
+		
+		return;
 	}
 	
-	// #
-	/*
+	// box + sine wave
+	if (Type == 7)
 	{
-		int y = 13;
-		for (int x = 8+rand()%10; x < w-8-rand()%10; x++)
-		{
-			pRoom->Open(x-1, y-1);
-			pRoom->Open(x, y);
-			pRoom->Open(x+1, y+1);
-		}
+		GenerateRooms(pRoom, 6, w, h);
+		GenerateRooms(pRoom, 1, w, h);
 		
-		y = h-13;
-		for (int x = 8+rand()%10; x < w-8-rand()%10; x++)
-		{
-			pRoom->Open(x-1, y-1);
-			pRoom->Open(x, y);
-			pRoom->Open(x+1, y+1);
-		}
-		
-		int n = 1 + rand()%6;
-		
-		for (int i = 0; i < n; i++)
-		{
-			int x = w * (0.1f + frandom()*0.8f);
-			for (y = 4; y < h-4; y++)
-			{
-				pRoom->Open(x-1, y-1);
-				pRoom->Open(x, y);
-				pRoom->Open(x+1, y+1);
-			}
-		}
+		return;
 	}
-	*/
 	
-	// dual route
-	/*
-	{
-		int y = h / 2;
-		
-		for (int x = 8; x < w-8; x++)
-		{
-			y = h/2 + (w/2-abs(x-w/2))*(1.0f*h/w)*0.8f;
-			
-			pRoom->Open(x-1, y-1);
-			pRoom->Open(x, y);
-			pRoom->Open(x+1, y+1);
-		}
-		
-		for (int x = 8; x < w-8; x++)
-		{
-			y = h/2 - (w/2-abs(x-w/2))*(1.0f*h/w)*0.8f;
-			
-			pRoom->Open(x-1, y-1);
-			pRoom->Open(x, y);
-			pRoom->Open(x+1, y+1);
-		}
-	}
-	*/
+	// if all else fails, try random
+	GenerateRooms(pRoom, rand()%10, w, h);
+}
+
+
+
+void CMapGen::GenerateLevel()
+{
+	int w = m_pLayers->GameLayer()->m_Width;
+	int h = m_pLayers->GameLayer()->m_Height;
+
+	if (w < 10 || h < 10)
+		return;
 	
-	// double sine wave
-	/*
-	{
-		int y = h / 2;
-		
-		float a = frandom()*pi*2;
-		float c = 0.1f;
-		float s = 2.5f + frandom()*2.0f;
-		
-		for (int x = 8; x < w-8; x++)
-		{
-			pRoom->Open(x-1, y-1+sin(a+x*c)*(1.0f*h/s));
-			pRoom->Open(x, y+sin(a+x*c)*(1.0f*h/s));
-			pRoom->Open(x+1, y+1+sin(a+x*c)*(1.0f*h/s));
-		}
-		
-		for (int x = 8; x < w-8; x++)
-		{
-			pRoom->Open(x-1, y-1-sin(a+x*c)*(1.0f*h/s));
-			pRoom->Open(x, y-sin(a+x*c)*(1.0f*h/s));
-			pRoom->Open(x+1, y+1-sin(a+x*c)*(1.0f*h/s));
-		}
-	}
-	*/
+	CGenLayer *pTiles = new CGenLayer(w, h);
 	
+	// generate room structure
+	CRoom *pRoom = new CRoom(3, 3, w-6, h-6);
 	
-	// sine + linear
-	/*
-	{
-		int y = h / 2;
-		
-		float a = frandom()*pi*2;
-		float c = 0.1f;
-		float s = 2.5f + frandom()*2.0f;
-		
-		for (int x = 8; x < w-8; x++)
-		{
-			pRoom->Open(x-1, y-1+sin(a+x*c)*(1.0f*h/s));
-			pRoom->Open(x, y+sin(a+x*c)*(1.0f*h/s));
-			pRoom->Open(x+1, y+1+sin(a+x*c)*(1.0f*h/s));
-		}
-		
-		y = h * (0.1f + frandom()*0.8f);
-		
-		for (int x = 8; x < w-8; x++)
-		{
-			pRoom->Open(x-1, y-1);
-			pRoom->Open(x, y);
-			pRoom->Open(x+1, y+1);
-		}
-	}
-	*/
+	int Level = g_Config.m_SvMapGenLevel;
+
 	
+	if (Level <= 5)
+		GenerateRooms(pRoom, 0, w, h);
+	else if (Level <= 10)
+		GenerateRooms(pRoom, 1, w, h);
+	else if (Level <= 20)
+		GenerateRooms(pRoom, 2+rand()%3, w, h);
+	else if (Level <= 30)
+		GenerateRooms(pRoom, 5+rand()%3, w, h);
+	else
+		GenerateRooms(pRoom, 2+rand()%6, w, h);
+	
+	//GenerateRooms(pRoom, Level-1, w, h);
 
 	pRoom->Generate(pTiles);
 	
@@ -495,6 +577,8 @@ void CMapGen::GenerateRooms()
 					pRoom->Fill(pTiles, 0, x, y, 1, 2);
 			}
 	}
+	
+	dbg_msg("mapgen", "rooms generated, map size: %d", pTiles->Size());
 	
 	// write to layers
 	for(int x = 0; x < w; x++)
@@ -516,33 +600,73 @@ void CMapGen::GenerateRooms()
 	// find platforms, corners etc.
 	pTiles->Scan();
 	
-	// fill level with stuff
-	for (int i = 0; i < 99; i++)
+	// acid pools
+	for (int i = 0; i < Level-1; i++)
 		GenerateAcid(pTiles);
 	
-	for (int i = 0; i < pTiles->NumPlatforms() / 5; i++)
+	// barrels
+	int b = max(2, 15 - Level/3)+rand()%3;
+	
+	for (int i = 0; i < pTiles->NumPlatforms() / b; i++)
 		GenerateBarrel(pTiles);
 	
-	for (int i = 0; i < 5; i++)
-		GenerateAlien(pTiles);
+	int e = 2 + log(float(1 + Level/4)) * 5;
 	
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < e; i++)
+	{
+		int t = 0;
+		
+		if (Level > 10 && frandom() < 0.2f)
+			t = 2;
+		else if (Level > 20 && frandom() < 0.2f)
+			t = 3;
+		
+		GenerateAlien(pTiles, t);
+	}
+	
+	// pickups
+	for (int i = 0; i < (pTiles->Size()-Level*5)/700; i++)
+		GenerateWeapon(pTiles, ENTITY_WEAPON_CHAINSAW+rand()%8);
+	
+	for (int i = 0; i < (pTiles->Size()-Level*5)/1000; i++)
 		GenerateHearts(pTiles);
 	
-	for (int i = 0; i < 9; i++)
+	for (int i = 0; i < (pTiles->Size()-Level*5)/1000; i++)
 		GenerateAmmo(pTiles);
 	
-	for (int i = 0; i < 2; i++)
-		GenerateSawblade(pTiles);
+	// power upper(s)
+	if (Level > 15 && frandom() < 0.15f)
+		GeneratePowerupper(pTiles);
+	if (Level > 20 && frandom() < 0.1f)
+		GeneratePowerupper(pTiles);
 	
-	for (int i = 0; i < 2; i++)
-		GenerateFiretrap(pTiles);
+	if (Level > 10 && frandom() < 0.1f)
+		GenerateSwitch(pTiles);
+	if (Level > 20 && frandom() < 0.1f)
+		GenerateSwitch(pTiles);
 	
-	for (int i = 0; i < 2; i++)
-		GenerateDeathray(pTiles);
+	// obstacles
+	int Obs = Level/2 - 5;
 	
-	for (int i = 0; i < 8; i++)
-		GenerateWeapon(pTiles, ENTITY_WEAPON_CHAINSAW+i);
+	if (Level > 10 && frandom() < 0.3f)
+		Obs += Level;
+	
+	if (Obs > 1)
+		Obs = Obs/2 + (rand()%Obs)/2;
+	
+	while (Obs-- > 0)
+	{
+		switch (rand()%6)
+		{
+		case 0:
+		case 1:
+		case 2: GenerateSawblade(pTiles); break;
+		case 3:
+		case 4: GenerateFiretrap(pTiles); break;
+		case 5: GenerateDeathray(pTiles); break;
+		}
+	}
+
 	
 	if (pRoom)
 		delete pRoom;

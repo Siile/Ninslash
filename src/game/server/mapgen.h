@@ -11,13 +11,17 @@ class CMapGen
 	class CLayers *m_pLayers;
 	CCollision *m_pCollision;
 
-	void GenerateRooms();
+	void GenerateLevel();
+	
+	void GenerateRooms(class CRoom *pRoom, int Type, int w, int h);
 	
 	void GenerateStart(class CGenLayer *pTiles);
 	void GenerateEnd(class CGenLayer *pTiles);
 	
+	void GeneratePowerupper(class CGenLayer *pTiles);
+	void GenerateSwitch(class CGenLayer *pTiles);
 	void GenerateBarrel(class CGenLayer *pTiles);
-	void GenerateAlien(class CGenLayer *pTiles);
+	void GenerateAlien(class CGenLayer *pTiles, int Type);
 	void GenerateHearts(class CGenLayer *pTiles);
 	void GenerateAmmo(class CGenLayer *pTiles);
 	void GenerateAcid(class CGenLayer *pTiles);
