@@ -16,6 +16,14 @@ class CLayers
 	CMapItemLayerTilemap *m_pGameLayer;
 	class IMap *m_pMap;
 	
+	// MapGen: Direct layer access
+	int m_GameGroupIndex;
+	int m_GameLayerIndex;
+	int m_BackgrounLayerIndex;
+	int m_ForegroundLayerIndex;
+	CMapItemLayerTilemap *m_pBackgrounLayer;
+	CMapItemLayerTilemap *m_pForegroundLayer;
+
 	// for generating layers
 	class CTile *m_pTiles;
 
@@ -32,6 +40,14 @@ public:
 	CMapItemLayerTilemap *GameLayer() const { return m_pGameLayer; };
 	CMapItemGroup *GetGroup(int Index) const;
 	CMapItemLayer *GetLayer(int Index) const;
+
+	// MapGen: Direct layer access
+	int GetGameGroupIndex() const { return m_GameGroupIndex; }
+	int GetGameLayerIndex() const { return m_GameLayerIndex; }
+	CMapItemLayerTilemap *BackgroundLayer() const { return m_pBackgrounLayer; };
+	int GetBackgroundLayerIndex() const { return m_BackgrounLayerIndex; }
+	CMapItemLayerTilemap *ForegroundLayer() const { return m_pForegroundLayer; };
+	int GetForegroundLayerIndex() const { return m_ForegroundLayerIndex; }
 };
 
 #endif

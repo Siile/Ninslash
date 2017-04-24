@@ -110,6 +110,9 @@ public:
 	bool MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, int *pBounces, bool IgnoreCollision = false);
 	void MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, float Elasticity, bool check_speed = true);
 	int TestBox(vec2 Pos, vec2 Size);
+
+	// MapGen
+	bool ModifTile(ivec2 pos, int group, int layer, int tile, int flags, int reserved);
 };
 
 #endif

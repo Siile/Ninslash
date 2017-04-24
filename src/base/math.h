@@ -69,4 +69,23 @@ template <typename T> inline T min(T a, T b) { return a<b?a:b; }
 template <typename T> inline T max(T a, T b) { return a>b?a:b; }
 template <typename T> inline T absolute(T a) { return a<T(0)?-a:a; }
 
+// MapGen: Perlin Noise
+inline double fade(double t)
+{
+    return t * t * t * (t * (t * 6 - 15) + 10);
+}
+
+inline double lerp(double t, double a, double b)
+{
+    return a + t * (b - a);
+}
+
+inline double grad(int hash, double x, double y, double z)
+{
+    int h = hash & 15;
+    double u = h < 8 ? x : y;
+    double v = h < 4 ? y : h == 12 || h == 14 ? x : z;
+    return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
+}
+
 #endif // BASE_MATH_H

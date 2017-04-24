@@ -2,6 +2,36 @@
 
 #ifndef ENGINE_SHARED_DATAFILE_H
 #define ENGINE_SHARED_DATAFILE_H
+#include <base/system.h>
+
+// FIXME: Original definition in "graphics" (CImageInfo)... clone like CImageInfoFile for server/client compatibility (really redefined in client side :/)
+class CImageInfoFile
+{
+public:
+	enum
+	{
+		FORMAT_AUTO=-1,
+		FORMAT_RGB=0,
+		FORMAT_RGBA=1,
+		FORMAT_ALPHA=2,
+	};
+
+	/* Variable: width
+		Contains the width of the image */
+	int m_Width;
+
+	/* Variable: height
+		Contains the height of the image */
+	int m_Height;
+
+	/* Variable: format
+		Contains the format of the image. See <Image Formats> for more information. */
+	int m_Format;
+
+	/* Variable: data
+		Pointer to the image data. */
+	void *m_pData;
+};
 
 // raw datafile access
 class CDataFileReader
@@ -84,6 +114,10 @@ public:
 	int AddDataSwapped(int Size, void *pData);
 	int AddItem(int Type, int ID, int Size, void *pData);
 	int Finish();
+
+	// MapGen
+	bool CreateEmptyMap(class IStorage *pStorage, const char *pFileName, int w, int h, CImageInfoFile *pTileset = 0x0);
+	bool SaveMap(class IStorage *pStorage, CDataFileReader *pFileMap, const char *pFileName, char *pBlocksData = 0x0, int BlocksDataSize = 0);
 };
 
 

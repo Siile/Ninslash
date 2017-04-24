@@ -5,6 +5,7 @@
 #include <new>
 #include <base/math.h>
 #include <engine/shared/config.h>
+#include <engine/shared/datafile.h> // MapGen
 #include <engine/map.h>
 #include <engine/console.h>
 #include "gamecontext.h"
@@ -2669,6 +2670,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 {
 	m_pServer = Kernel()->RequestInterface<IServer>();
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
+	m_pStorage = Kernel()->RequestInterface<IStorage>(); // MapGen
 	m_World.SetGameServer(this);
 	m_Events.SetGameServer(this);
 
@@ -2680,6 +2682,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 	m_Layers.Init(Kernel());
 	m_Collision.Init(&m_Layers);
+	m_MapGen.Init(&m_Layers, &m_Collision); // MapGen
 
 	// reset everything here
 	//world = new GAMEWORLD;
@@ -2700,6 +2703,13 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		m_pController = new CGameControllerCoop(this);
 	else
 		m_pController = new CGameControllerDM(this);
+
+	// MapGen
+	if (m_pServer->m_MapGenerated)
+	{
+		m_MapGen.FillMap(g_Config.m_SvMapGenSeed);
+		SaveMap("");
+	}
 
 	// setup core world
 	//for(int i = 0; i < MAX_CLIENTS; i++)
@@ -3048,4 +3058,40 @@ vec2 CGameContext::GetFarHumanSpawnPos(bool AllowVision)
 }
 
 
+// MapGen
+void CGameContext::SaveMap(const char *path)
+{
+    IMap *pMap = Layers()->Map();
+    if (!pMap)
+        return;
+
+    CDataFileWriter fileWrite;
+    char aMapFile[512];
+    str_format(aMapFile, sizeof(aMapFile), "maps/%s_%d.map", Server()->GetMapName(), g_Config.m_SvMapGenSeed);
+    if (path[0] == 0)
+    {
+    	// FIXME: Do this for not write&read in the same file... and yeah, is ugly :/
+    	char aMapFileCopy[512];
+    	str_format(aMapFileCopy, sizeof(aMapFileCopy), "maps/%s__.map", Server()->GetMapName());
+    	if (fileWrite.SaveMap(Storage(), pMap->GetFileReader(), aMapFileCopy))
+    	{
+    		// Really hackish :(
+    		//IOHANDLE *pTempFile = pMap->GetFileReader()->GetFile();
+    		//io_close(*pTempFile);
+    		Storage()->RemoveFile(aMapFile, IStorage::TYPE_SAVE);
+    		Storage()->RenameFile(aMapFileCopy, aMapFile, IStorage::TYPE_SAVE);
+
+			//char aMapsPath[512];
+			//Storage()->GetCompletePath(IStorage::TYPE_SAVE, "worlds", aMapsPath, sizeof(aMapsPath));
+			//str_format(aMapFileCopy, sizeof(aMapFileCopy), "%s%s/%s.map", aMapsPath, Server()->GetMapName(), Server()->GetMapName());
+			//*pTempFile = io_open(aMapFileCopy, IOFLAG_READ);
+    	}
+    }
+    else
+    	fileWrite.SaveMap(Storage(), pMap->GetFileReader(), aMapFile);
+
+    char aBuf[128];
+    str_format(aBuf, sizeof(aBuf), "Map saved in '%s'!", aMapFile);
+    Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+}
 
