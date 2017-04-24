@@ -1602,8 +1602,7 @@ void CGameContext::OnClientEnter(int ClientID)
 void CGameContext::OnClientConnected(int ClientID, bool AI)
 {
 	// Check which team the player should be on
-	//const int StartTeam = g_Config.m_SvTournamentMode ? TEAM_SPECTATORS : m_pController->GetAutoTeam(ClientID);
-	const int StartTeam = m_pController->GetAutoTeam(ClientID);
+	const int StartTeam = g_Config.m_SvTournamentMode ? TEAM_SPECTATORS : m_pController->GetAutoTeam(ClientID);
 
 	m_apPlayers[ClientID] = new(ClientID) CPlayer(this, ClientID, StartTeam);
 	//players[client_id].init(client_id);
@@ -2705,10 +2704,13 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		m_pController = new CGameControllerDM(this);
 
 	// MapGen
-	if (m_pServer->m_MapGenerated)
+	if (g_Config.m_SvMapGen && !m_pServer->m_MapGenerated)
 	{
 		m_MapGen.FillMap(g_Config.m_SvMapGenSeed);
 		SaveMap("");
+		
+		str_copy(g_Config.m_SvMap, "generated", sizeof(g_Config.m_SvMap));
+		m_pServer->m_MapGenerated = true;
 	}
 
 	// setup core world
@@ -3067,7 +3069,10 @@ void CGameContext::SaveMap(const char *path)
 
     CDataFileWriter fileWrite;
     char aMapFile[512];
-    str_format(aMapFile, sizeof(aMapFile), "maps/%s_%d.map", Server()->GetMapName(), g_Config.m_SvMapGenSeed);
+	//str_format(aMapFile, sizeof(aMapFile), "maps/%s_%d.map", Server()->GetMapName(), g_Config.m_SvMapGenSeed);
+	str_format(aMapFile, sizeof(aMapFile), "maps/generated.map");
+	
+	/*
     if (path[0] == 0)
     {
     	// FIXME: Do this for not write&read in the same file... and yeah, is ugly :/
@@ -3089,6 +3094,9 @@ void CGameContext::SaveMap(const char *path)
     }
     else
     	fileWrite.SaveMap(Storage(), pMap->GetFileReader(), aMapFile);
+		*/
+		
+    fileWrite.SaveMap(Storage(), pMap->GetFileReader(), aMapFile);
 
     char aBuf[128];
     str_format(aBuf, sizeof(aBuf), "Map saved in '%s'!", aMapFile);

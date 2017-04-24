@@ -157,7 +157,7 @@ public:
 	void CreateScytheHit(int DamageOwner, int Weapon, vec2 PlayerPos, vec2 ProjPos, class CCharacter *OwnerChr = NULL, class CBuilding *OwnerBuilding = NULL);
 	void CreateFlamethrowerHit(int DamageOwner, int Weapon, vec2 ProjPos, class CCharacter *OwnerChr = NULL, class CBuilding *OwnerBuilding = NULL);
 	void CreateProjectile(int DamageOwner, int Weapon, vec2 Pos, vec2 Direction, class CBuilding *OwnerBuilding = NULL);
-	
+
 	void Repair(vec2 Pos);
 	void AmmoFill(vec2 Pos, int Weapon);
 	

@@ -5,6 +5,7 @@
 #include <base/math.h>
 #include "noise.h"
 
+/*
 CPerlin::CPerlin(uint32_t seed)
 : m_Engine(seed)
 {
@@ -100,3 +101,4 @@ double CPerlinOctave::Noise(double x, double y, double z) const
 
     return result;
 }
+*/

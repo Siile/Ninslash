@@ -887,6 +887,9 @@ bool CCollision::ModifTile(ivec2 pos, int group, int layer, int tile, int flags,
         case TILE_SOLID:
             m_pTiles[tpos].m_Index = COLFLAG_SOLID;
             break;
+        case TILE_DAMAGEFLUID:
+            m_pTiles[tpos].m_Index = COLFLAG_DAMAGEFLUID;
+            break;
         default:
             if(tile <= 128)
                 m_pTiles[tpos].m_Index = 0;

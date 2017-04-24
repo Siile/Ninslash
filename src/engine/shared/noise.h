@@ -5,6 +5,7 @@
 #include <random>
 #include <array>
 
+/*
 class CPerlin
 {
 public:
@@ -38,5 +39,6 @@ private:
     CPerlin m_Perlin;
     int m_Octaves;
 };
+*/
 
 #endif // NOISE_H
