@@ -134,4 +134,6 @@ MACRO_CONFIG_INT(DbgResizable, dbg_resizable, 0, 0, 0, CFGFLAG_CLIENT, "Enables 
 MACRO_CONFIG_INT(SvMapGen, sv_mapgen, 0, 0, 1, CFGFLAG_SERVER, "Map Generation Status")
 MACRO_CONFIG_INT(SvMapGenLevel, sv_mapgen_level, 1, 1, 9999, CFGFLAG_SERVER, "Map Difficulty")
 MACRO_CONFIG_INT(SvMapGenSeed, sv_mapgen_seed, 0, 0, 2147483647, CFGFLAG_SERVER, "Map Generation Seed")
+
+MACRO_CONFIG_INT(SvInvFails, sv_not_to_be_used_like_this_8f3jd72h,  0, 0, 9, CFGFLAG_SERVER, "Invasion level fails")
 #endif

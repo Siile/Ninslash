@@ -50,6 +50,7 @@ public:
 	int NumPlatforms() { return m_NumPlatforms; }
 	int NumTopCorners() { return m_NumTopCorners; }
 	
+	void GenerateAirPlatforms(int Num);
 	void Scan();
 	int Size();
 	

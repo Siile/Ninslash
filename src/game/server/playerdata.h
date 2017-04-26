@@ -1,0 +1,17 @@
+#ifndef GAME_SERVER_PLAYERDATA_H
+#define GAME_SERVER_PLAYERDATA_H
+
+// stored player data for switching between levels
+class CPlayerData
+{
+private:
+
+public:
+	CPlayerData();
+	void Die();
+	
+	int m_aAmmo[99];
+	int m_Weapon;
+};
+
+#endif

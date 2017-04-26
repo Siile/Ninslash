@@ -20,7 +20,9 @@ class CMapGen
 	
 	void GeneratePowerupper(class CGenLayer *pTiles);
 	void GenerateSwitch(class CGenLayer *pTiles);
+	void GenerateTurretStand(class CGenLayer *pTiles);
 	void GenerateBarrel(class CGenLayer *pTiles);
+	void GenerateMine(class CGenLayer *pTiles);
 	void GenerateAlien(class CGenLayer *pTiles, int Type);
 	void GenerateHearts(class CGenLayer *pTiles);
 	void GenerateAmmo(class CGenLayer *pTiles);

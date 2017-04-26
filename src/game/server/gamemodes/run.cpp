@@ -11,6 +11,7 @@
 
 #include "run.h"
 
+#include <game/server/playerdata.h>
 #include <game/server/ai.h>
 #include <game/server/ai/robot1_ai.h>
 #include <game/server/ai/robot2_ai.h>
@@ -150,6 +151,14 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			pChr->GetPlayer()->m_ToBeKicked = true;
 		}
 	}
+	else
+	{
+		/*
+		CPlayerData *pData = GameServer()->Server()->PlayerData(pChr->GetPlayer()->GetCID());
+		pChr->GiveCustomWeapon(pData->m_Weapon);
+		pChr->SetCustomWeapon(pData->m_Weapon);
+		*/
+	}
 }
 
 
@@ -158,6 +167,11 @@ int CGameControllerCoop::OnCharacterDeath(class CCharacter *pVictim, class CPlay
 	IGameController::OnCharacterDeath(pVictim, pKiller, Weapon);
 
 	//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "inv", "OnCharacterDeath");
+		
+	if (Weapon != WEAPON_GAME)
+		GameServer()->Server()->PlayerData(pVictim->GetPlayer()->GetCID())->Die();
+	else if (!pVictim->m_IsBot)
+		pVictim->SaveData();
 		
 	if (pVictim->m_IsBot && !pVictim->GetPlayer()->m_ToBeKicked)
 	{
@@ -230,7 +244,21 @@ void CGameControllerCoop::Tick()
 	{
 		// lose => restart
 		if (m_RoundOverTick && m_RoundOverTick < Server()->Tick() - Server()->TickSpeed()*2.0f)
-			GameServer()->ReloadMap();
+		{
+			if (++g_Config.m_SvInvFails >= 3)
+			{
+				g_Config.m_SvInvFails = 0;
+				
+				if (--g_Config.m_SvMapGenLevel < 1)
+					g_Config.m_SvMapGenLevel = 1;
+				
+				int l = g_Config.m_SvMapGenLevel;
+				FirstMap();
+				g_Config.m_SvMapGenLevel = l;
+			}
+			else
+				GameServer()->ReloadMap();
+		}
 	}
 	
 	GameServer()->UpdateAI();
@@ -253,6 +281,7 @@ void CGameControllerCoop::Tick()
 			m_RoundWin = false;
 			m_RoundWinTick = 0;
 			g_Config.m_SvMapGenLevel++;
+			g_Config.m_SvInvFails = 0;
 			EndRound();
 		}
 	}

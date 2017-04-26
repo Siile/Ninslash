@@ -36,6 +36,7 @@ public:
 	
 	void Init(int CID);
 
+	void SaveData();	
 	void NewRound();
 	
 	void TryRespawn();

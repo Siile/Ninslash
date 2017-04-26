@@ -25,6 +25,7 @@
 #include <mastersrv/mastersrv.h>
 
 #include <game/server/ai.h>
+#include <game/server/playerdata.h>
 
 
 #include "register.h"
@@ -287,8 +288,24 @@ CServer::CServer() : m_DemoRecorder(&m_SnapshotDelta)
 	m_RconClientID = IServer::RCON_CID_SERV;
 	m_RconAuthLevel = AUTHED_ADMIN;
 
+	for (int i = 0; i < MAX_CLIENTS; i++)
+		m_apPlayerData[i] = NULL;
+	
 	Init();
 }
+
+
+CPlayerData *CServer::PlayerData(int ClientID)
+{
+	if (ClientID < 0 | ClientID >= MAX_CLIENTS)
+		return NULL;
+	
+	if (!m_apPlayerData[ClientID])
+		m_apPlayerData[ClientID] = new CPlayerData();
+	
+	return m_apPlayerData[ClientID];
+}
+
 
 
 int CServer::TrySetClientName(int ClientID, const char *pName)

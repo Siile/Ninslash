@@ -129,7 +129,9 @@ public:
 	
 	bool m_WeaponPicked;
 	
-	int GetActiveWeapon(){ return m_ActiveWeapon; }
+	int GetActiveWeapon(){ return m_ActiveCustomWeapon; }
+	
+	void SaveData();
 	
 	int m_SkipPickups;
 	
@@ -306,7 +308,6 @@ private:
 
 	int m_aSelectedWeapon[3];
 	
-	int m_ActiveWeapon;
 	int m_LastWeapon;
 
 	int m_ReloadTimer;

@@ -76,6 +76,12 @@ void CMapGen::GenerateStart(CGenLayer *pTiles)
 			{
 				ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SPAWN);
 				
+				for (int xx = -3; xx < 3; xx++)
+					for (int yy = 1; yy < 40; yy++)
+						pTiles->Use(x+xx, y-yy);
+					
+					
+				
 				pTiles->Set(-1, x-2, y);
 				pTiles->Set(-1, x-1, y);
 				pTiles->Set(-1, x, y);
@@ -202,6 +208,19 @@ void CMapGen::GenerateBarrel(CGenLayer *pTiles)
 	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_BARREL);
 }
 
+void CMapGen::GenerateMine(CGenLayer *pTiles)
+{
+	ivec2 p = pTiles->GetPlatform();
+	
+	if (p.x == 0)
+		return;
+	
+	if (frandom() < 0.5f)
+		ModifTile(p+ivec2(1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_MINE1);
+	else
+		ModifTile(p+ivec2(-1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_MINE2);
+}
+
 void CMapGen::GenerateSwitch(CGenLayer *pTiles)
 {
 	ivec2 p = pTiles->GetPlatform();
@@ -210,6 +229,16 @@ void CMapGen::GenerateSwitch(CGenLayer *pTiles)
 		return;
 	
 	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SWITCH);
+}
+
+void CMapGen::GenerateTurretStand(CGenLayer *pTiles)
+{
+	ivec2 p = pTiles->GetPlatform();
+	
+	if (p.x == 0)
+		return;
+	
+	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_STAND);
 }
 
 void CMapGen::GeneratePowerupper(CGenLayer *pTiles)
@@ -332,6 +361,21 @@ void CMapGen::GenerateAcid(CGenLayer *pTiles)
 
 void CMapGen::GenerateRooms(CRoom *pRoom, int Type, int w, int h)
 {
+	// vertical line
+	if (Type == -1)
+	{
+		int x = w * (0.2f + frandom()*0.6f);
+		for (int y = 4; y < h-4; y++)
+		{
+			pRoom->Open(x-1, y-1);
+			pRoom->Open(x, y);
+			pRoom->Open(x+1, y+1);
+		}
+
+		return;
+	}
+	
+	
 	// linear
 	if (Type == 0)
 	{
@@ -559,9 +603,12 @@ void CMapGen::GenerateLevel()
 	else if (Level <= 30)
 		GenerateRooms(pRoom, 5+rand()%3, w, h);
 	else
-		GenerateRooms(pRoom, 2+rand()%6, w, h);
+		GenerateRooms(pRoom, 0+rand()%8, w, h);
 	
-	//GenerateRooms(pRoom, Level-1, w, h);
+	// vertical line(s) to some levels sometimes
+	for (int i = 0; i < 2; i++)
+		if (Level > 1 && frandom() < 0.25f)
+			GenerateRooms(pRoom, -1, w, h);
 
 	pRoom->Generate(pTiles);
 	
@@ -579,6 +626,8 @@ void CMapGen::GenerateLevel()
 	}
 	
 	dbg_msg("mapgen", "rooms generated, map size: %d", pTiles->Size());
+	
+	pTiles->GenerateAirPlatforms(pTiles->Size()/500);
 	
 	// write to layers
 	for(int x = 0; x < w; x++)
@@ -610,18 +659,35 @@ void CMapGen::GenerateLevel()
 	for (int i = 0; i < pTiles->NumPlatforms() / b; i++)
 		GenerateBarrel(pTiles);
 	
+	bool Defend = false;
+	
+	if (Level > 1 && Level%5 == 0)
+		Defend = true;
+	
 	int e = 2 + log(float(1 + Level/4)) * 5;
+	
+	if (Defend)
+		e *= 2;
 	
 	for (int i = 0; i < e; i++)
 	{
 		int t = 0;
 		
 		if (Level > 10 && frandom() < 0.2f)
-			t = 2;
+			t = 1;
 		else if (Level > 20 && frandom() < 0.2f)
-			t = 3;
+			t = 2;
 		
-		GenerateAlien(pTiles, t);
+		if (i <= 12)
+			GenerateAlien(pTiles, t);
+	}
+	
+	if (Defend)
+	{
+		int t = rand()%(e/3+1)+2;
+		
+		for (int i = 0; i < t; i++)
+			GenerateTurretStand(pTiles);
 	}
 	
 	// pickups
@@ -651,8 +717,11 @@ void CMapGen::GenerateLevel()
 	if (Level > 10 && frandom() < 0.3f)
 		Obs += Level;
 	
+	if (Defend)
+		Obs /= 5;
+	
 	if (Obs > 1)
-		Obs = Obs/2 + (rand()%Obs)/2;
+		Obs = Obs/3 + (rand()%Obs)/2;
 	
 	while (Obs-- > 0)
 	{
@@ -661,12 +730,19 @@ void CMapGen::GenerateLevel()
 		case 0:
 		case 1:
 		case 2: GenerateSawblade(pTiles); break;
-		case 3:
+		case 3: GenerateMine(pTiles); break;
 		case 4: GenerateFiretrap(pTiles); break;
 		case 5: GenerateDeathray(pTiles); break;
 		}
 	}
 
+	
+	for (int i = 0; i < e; i++)
+	{
+		if (i > 12)
+			GenerateAlien(pTiles, 3);
+	}
+	
 	
 	if (pRoom)
 		delete pRoom;

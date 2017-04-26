@@ -1010,6 +1010,7 @@ void IGameController::CycleMap()
 void IGameController::FirstMap()
 {
 	g_Config.m_SvMapGenLevel = 1;
+	g_Config.m_SvInvFails = 0;
 	
 	if(m_aMapWish[0] != 0)
 	{

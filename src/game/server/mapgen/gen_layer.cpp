@@ -41,12 +41,47 @@ CGenLayer::~CGenLayer()
 		delete m_pTiles;
 }
 
+void CGenLayer::GenerateAirPlatforms(int Num)
+{
+	int b = 5;
+	int x, y;
+	
+	int i = 0;
+	
+	while (Num > 0 && i++ < 10000)
+	{
+		x = b+rand()%(m_Width-b*2);
+		y = b+rand()%(m_Height-b*2);
+		
+		if (!Used(x, y))
+		{
+			bool Valid = true;
+			for (int xx = -7; xx < 7; xx++)
+				for (int yy = -5; yy < 5; yy++)
+					if (Used(x+xx, y+yy))
+						Valid = false;
+					
+			if (Valid)
+			{
+				Num--;
+				int s = 2+rand()%2;
+				for (int xx = -s; xx < s; xx++)
+				{
+					Set(-1, x+xx, y-1);
+					Set(1, x+xx, y);
+				}
+			}
+		}
+		
+	}
+}
+
 
 void CGenLayer::Scan()
 {
 	// find pits
-	for (int x = 2; x < m_Width-2; x++)
-		for (int y = 2; y < m_Height-2; y++)
+	for (int x = 1; x < m_Width-1; x++)
+		for (int y = 1; y < m_Height-1; y++)
 		{
 			// bot left
 			if (!Used(x, y) && !Used(x+1, y) && !Used(x, y-1) &&
@@ -390,6 +425,9 @@ void CGenLayer::Use(int x, int y)
 	for (int i = 0; i < m_NumCorners; i++)
 		if (abs(m_aCorner[i].x - x) < 2 && abs(m_aCorner[i].y - y) < 2)
 			m_aCorner[i] = ivec2(0, 0);
+		
+	if (!Used(x, y))
+		Set(-1, x, y);
 }
 
 

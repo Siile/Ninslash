@@ -76,11 +76,16 @@ class CServer : public IServer
 	class IGameServer *m_pGameServer;
 	class IConsole *m_pConsole;
 	class IStorage *m_pStorage;
+
+	class CPlayerData *m_apPlayerData[MAX_CLIENTS];
+	
 public:
 	class IGameServer *GameServer() { return m_pGameServer; }
 	class IConsole *Console() { return m_pConsole; }
 	class IStorage *Storage() { return m_pStorage; }
 
+	class CPlayerData *PlayerData(int ClientID);
+	
 	enum
 	{
 		AUTHED_NO=0,

@@ -70,6 +70,14 @@ CPlayer::~CPlayer()
 	m_pCharacter = 0;
 }
 
+
+
+void CPlayer::SaveData()
+{
+	if (GetCharacter())
+		GetCharacter()->SaveData();
+}
+
 void CPlayer::NewRound()
 {
 	m_Score = 0;

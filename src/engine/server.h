@@ -70,6 +70,8 @@ public:
 	
 	virtual void AddZombie() = 0;
 
+	virtual class CPlayerData *PlayerData(int ClientID) = 0;
+	
 	virtual char *GetMapName() = 0;
 	bool m_MapGenerated; // MapGen
 };

@@ -12,9 +12,9 @@ private:
 	enum Enemies
 	{
 		ENEMY_ALIEN1,
-		ENEMY_ALIEN2,
 		ENEMY_ROBOT1,
 		ENEMY_ROBOT2,
+		ENEMY_ALIEN2,
 		NUM_ENEMIES
 	};
 

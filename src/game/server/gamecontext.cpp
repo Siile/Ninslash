@@ -25,6 +25,8 @@
 #include <game/server/entities/turret.h>
 #include <game/server/entities/monster.h>
 
+#include <game/server/playerdata.h>
+
 #include <game/server/ai_protocol.h>
 #include <game/server/ai.h>
 
@@ -1599,7 +1601,12 @@ void CGameContext::OnClientEnter(int ClientID)
 	if (m_pController->IsCoop() && g_Config.m_SvMapGen)
 	{
 		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Level %d", g_Config.m_SvMapGenLevel);
+		if (!g_Config.m_SvInvFails)
+			str_format(aBuf, sizeof(aBuf), "Level %d", g_Config.m_SvMapGenLevel);
+		else if (g_Config.m_SvInvFails == 1)
+			str_format(aBuf, sizeof(aBuf), "Level %d - Second try", g_Config.m_SvMapGenLevel);
+		else
+			str_format(aBuf, sizeof(aBuf), "Level %d - Last chance", g_Config.m_SvMapGenLevel);
 		SendBroadcast(aBuf, ClientID);
 	}
 	
@@ -1655,6 +1662,8 @@ void CGameContext::OnClientDrop(int ClientID, const char *pReason)
 		if(m_apPlayers[i] && m_apPlayers[i]->m_SpectatorID == ClientID)
 			m_apPlayers[i]->m_SpectatorID = SPEC_FREEVIEW;
 	}
+	
+	Server()->PlayerData(ClientID)->Die();
 }
 
 void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
@@ -2590,9 +2599,7 @@ void CGameContext::ConForceVote(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ReloadMap()
 {
-	
-		Console()->ExecuteLine("reload");	
-	
+	Console()->ExecuteLine("reload");
 }
 
 
@@ -2774,6 +2781,10 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 void CGameContext::OnShutdown()
 {
 	KickBots();
+	for (int i = 0; i < MAX_CLIENTS; i++)
+		if (m_apPlayers[i])
+			m_apPlayers[i]->SaveData();
+	
 	delete m_pController;
 	m_pController = 0;
 	Clear();
