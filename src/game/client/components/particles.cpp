@@ -635,8 +635,9 @@ void CParticles::RenderGroup(int Group)
 		{
 			float a = m_aParticles[i].m_Life / m_aParticles[i].m_LifeSpan;
 			vec2 p = m_aParticles[i].m_Pos;
+			float alpha = min(1.0f, (1.0f-a)*1.5f);
 
-			float Size = mix(m_aParticles[i].m_StartSize, m_aParticles[i].m_EndSize*1.0f, a);
+			float Size = mix(m_aParticles[i].m_StartSize, m_aParticles[i].m_EndSize*1.0f, alpha);
 			RenderTools()->SelectSprite(m_aParticles[i].m_Spr);
 			Graphics()->QuadsSetRotation(m_aParticles[i].m_Rot);
 			Graphics()->SetColor(m_aParticles[i].m_Color.r, m_aParticles[i].m_Color.g, m_aParticles[i].m_Color.b, 1-a);
@@ -645,11 +646,12 @@ void CParticles::RenderGroup(int Group)
 			
 			RenderTools()->SelectSprite(m_aParticles[i].m_Spr+1);
 			
+				
 			switch (m_aParticles[i].m_Special)
 			{
-				case 1: Graphics()->SetColor(0, 1, 0, 1-a); break;
-				case 2: Graphics()->SetColor(0, 0, 0, 1-a); break;
-				default: Graphics()->SetColor(1, 0, 0, 1-a); break;
+				case 1: Graphics()->SetColor(0, 1, 0, 1-alpha); break;
+				case 2: Graphics()->SetColor(0, 0, 0, 1-alpha); break;
+				default: Graphics()->SetColor(1, 0, 0, 1-alpha); break;
 			};
 			
 			//Graphics()->SetColor(1, 1, 1, 1-a);

@@ -1,5 +1,5 @@
 {
-"skeleton": { "hash": "fsBVrVYZWWpD1qJ++TssX/CGqOg", "spine": "3.5.32", "width": 742.66, "height": 369.26, "images": "" },
+"skeleton": { "hash": "k9yk5buXRAoWpu4SXmITr9OlVOw", "spine": "3.5.51", "width": 743.29, "height": 370.45, "images": "" },
 "bones": [
 	{ "name": "root" },
 	{ "name": "center", "parent": "root", "rotation": 84.76, "x": 2.74, "y": 263.23 },
@@ -29,19 +29,19 @@
 "skins": {
 	"default": {
 		"Turret-Back-Foot": {
-			"Turret-Back-Foot": { "x": 56.38, "y": 5.77, "rotation": 96.96, "width": 73, "height": 141 }
+			"Turret-Back-Foot": { "x": 56.38, "y": 5.77, "rotation": 96.96, "width": 73, "height": 143 }
 		},
 		"Turret-Back-LowerLeg": {
-			"Turret-Back-LowerLeg": { "x": 55.05, "y": -2.76, "rotation": 99.93, "width": 101, "height": 191 }
+			"Turret-Back-LowerLeg": { "x": 55.05, "y": -2.76, "rotation": 99.93, "width": 105, "height": 195 }
 		},
 		"Turret-Back-UpperLeg": {
 			"Turret-Back-UpperLeg": { "x": 71.15, "y": -12.71, "rotation": 94.22, "width": 91, "height": 191 }
 		},
 		"Turret-Front-Foot": {
-			"Turret-Front-Foot": { "x": 44.58, "y": 3.53, "rotation": 97.96, "width": 75, "height": 115 }
+			"Turret-Front-Foot": { "x": 44.58, "y": 3.53, "rotation": 97.96, "width": 77, "height": 117 }
 		},
 		"Turret-Front-LowerLeg": {
-			"Turret-Front-LowerLeg": { "x": 96.9, "y": -3.04, "rotation": 71.1, "width": 135, "height": 271 }
+			"Turret-Front-LowerLeg": { "x": 96.9, "y": -3.04, "rotation": 71.1, "width": 137, "height": 270 }
 		},
 		"Turret-Front-UpperLeg": {
 			"Turret-Front-UpperLeg": { "x": 69.76, "y": -28.17, "rotation": 101.53, "width": 127, "height": 164 }
@@ -50,13 +50,13 @@
 			"Turret-Hips": { "x": 20.65, "y": -4.07, "rotation": -84.76, "width": 187, "height": 128 }
 		},
 		"Turret-Side-Foot": {
-			"Turret-Side-Foot": { "x": 41.23, "y": -2.73, "rotation": 81.74, "width": 75, "height": 115 }
+			"Turret-Side-Foot": { "x": 41.23, "y": -2.73, "rotation": 81.74, "width": 77, "height": 117 }
 		},
 		"Turret-Side-Leg-Top": {
 			"Turret-Side-Leg-Top": { "x": 71.37, "y": 23.77, "rotation": 75.06, "width": 127, "height": 164 }
 		},
 		"Turret-Side-LowerLeg": {
-			"Turret-Side-LowerLeg": { "x": 95.04, "y": 1.05, "rotation": 108.84, "width": 135, "height": 271 }
+			"Turret-Side-LowerLeg": { "x": 95.04, "y": 1.05, "rotation": 108.84, "width": 136, "height": 270 }
 		}
 	}
 },

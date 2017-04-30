@@ -37,6 +37,7 @@ void CMonster::Reset()
 	m_ProximityRadius = MonsterPhysSize;
 	m_FireDelay = 0;
 	m_FireCount = 0;
+	m_AttackTimer = 0;
 }
 
 
@@ -51,6 +52,16 @@ void CMonster::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type)
 		Dmg = 1000;
 
 	vec2 DmgPos = m_Pos + m_Center;
+	
+	if (m_TargetIndex < 0 && frandom() < 0.3f)
+	{
+		SetState(CMonster::TURN);
+		
+		if (m_AttackTimer > 0)
+			m_AttackTimer = 20;
+		else
+			m_AttackTimer--;
+	}
 	
 	// create healthmod indicator
 	if (Type == DAMAGETYPE_NORMAL)
@@ -69,6 +80,8 @@ void CMonster::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type)
 		//GameServer()->SendEffect(m_pPlayer->GetCID(), EFFECT_ELECTRODAMAGE);
 		m_Status = MONSTERSTATUS_ELECTRIC;
 	}
+	else if (Type == DAMAGETYPE_FLAME)
+		m_Status = MONSTERSTATUS_HURT;
 	
 	GameServer()->CreateDamageInd(DmgPos, GetAngle(-Force), -Dmg, -1);
 	
@@ -130,7 +143,7 @@ void CMonster::Tick()
 	bool WillFire = false;
 	
 	
-	if (Target())
+	if (m_AttackTimer > 0 && Target())
 	{
 		WillFire = true;
 		if (m_TargetTimer-- < 0)
@@ -175,6 +188,7 @@ void CMonster::Tick()
 		m_Target += (vec2(m_Dir * 50, 0)-m_Target) / 6.0f;
 		
 		// takeoff
+		/*
 		if (m_Mode == CMonster::WALKER && m_FlyTargetTick > 0 && m_FlyTargetTick < Server()->Tick())
 		{
 			m_Mode = CMonster::DRONE;
@@ -184,6 +198,7 @@ void CMonster::Tick()
 			GameServer()->CreateEffect(FX_TAKEOFF, m_Pos+vec2(0, -4));
 			m_ProximityRadius = MonsterPhysSize*0.7f;
 		}
+		*/
 	}
 	
 	
@@ -243,9 +258,17 @@ void CMonster::Tick()
 	{
 		m_Anim = 1;
 		
-		if (m_Dir == -1)
+		float Speed = 6.0f;
+		
+		if (m_AttackTimer-- < -40)
 		{
-			m_Pos.x -= 1.95f;
+			m_AttackTimer = 10+rand()%20;
+			m_State = CMonster::IDLE;
+			m_StateChangeTick = Server()->Tick() + Server()->TickSpeed() * (2 + frandom());
+		}
+		else if (m_Dir == -1)
+		{
+			m_Pos.x -= Speed;
 			
 			// wall
 			if (GameServer()->Collision()->IsTileSolid(m_Pos.x-46, m_Pos.y-8))
@@ -262,7 +285,7 @@ void CMonster::Tick()
 		}
 		else if (m_Dir == 1)
 		{
-			m_Pos.x += 1.95f;
+			m_Pos.x += Speed;
 			
 			// wall
 			if (GameServer()->Collision()->IsTileSolid(m_Pos.x+46, m_Pos.y-8))
@@ -301,7 +324,7 @@ void CMonster::Fire()
 	if (m_ReloadTimer-- < 0)
 	{
 		m_FireCount++;
-		m_ReloadTimer = 160 * Server()->TickSpeed() / 1000;
+		m_ReloadTimer = 80 * Server()->TickSpeed() / 1000;
 		
 		vec2 TurretPos = m_Pos+vec2(m_Dir * 16, m_Center.y);
 		//float Angle = (m_Angle + 90) / (180/pi);
@@ -319,7 +342,7 @@ void CMonster::Fire()
 			m_Vel += normalize(m_Target)*4.0f;
 	}
 	
-	if (m_FireCount > 3)
+	if (m_FireCount > 4)
 	{
 		m_FireCount = 0;
 		m_FireDelay = 20;
@@ -356,7 +379,8 @@ bool CMonster::Target()
 		int Distance = distance(pCharacter->m_Pos, TurretPos);
 		if (Distance < 700 && !GameServer()->Collision()->FastIntersectLine(pCharacter->m_Pos+vec2(0, -24), TurretPos))
 		{
-			m_NewTarget = TurretPos - ((pCharacter->m_Pos+vec2(0, -24)) + pCharacter->GetCore().m_Vel * 2.0f);
+			vec2 r = vec2(sin(Server()->Tick()*0.075f), cos(Server()->Tick()*0.075f))*Distance*0.3f;
+			m_NewTarget = r + TurretPos - ((pCharacter->m_Pos+vec2(0, -24)) + pCharacter->GetCore().m_Vel * 2.0f);
 			return true;
 		}
 		else

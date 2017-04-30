@@ -144,8 +144,8 @@ void CCustomStuff::Tick(bool Paused)
 	if (m_WeaponSignalTimer > 0.0f)
 		m_WeaponSignalTimer -= 0.035f;
 	
-	m_MonsterAnim += 0.006f;
-	m_MonsterAnim += 0.006f;
+	m_MonsterAnim += 0.025f;
+	
 	//if (m_MonsterAnim >= 1.0f)
 	//	m_MonsterAnim -= 1.0f;
 	

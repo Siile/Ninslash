@@ -1,104 +1,104 @@
 
 walker.png
-size: 1024,256
+size: 1024,1024
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
 Drone-Body
   rotate: false
-  xy: 2, 72
-  size: 237, 155
-  orig: 237, 155
+  xy: 2, 707
+  size: 523, 309
+  orig: 523, 309
   offset: 0, 0
   index: -1
 Drone-Engine-Back
-  rotate: true
-  xy: 617, 133
-  size: 94, 107
-  orig: 94, 107
+  rotate: false
+  xy: 2, 274
+  size: 191, 216
+  orig: 191, 216
   offset: 0, 0
   index: -1
 Drone-Engine-Deactivated
   rotate: false
-  xy: 241, 120
-  size: 111, 107
-  orig: 111, 107
+  xy: 2, 492
+  size: 222, 213
+  orig: 222, 213
   offset: 0, 0
   index: -1
 Gun-Drone
   rotate: false
-  xy: 492, 150
-  size: 123, 77
-  orig: 123, 77
+  xy: 527, 856
+  size: 249, 160
+  orig: 249, 160
   offset: 0, 0
   index: -1
 Turret-Back-Foot
-  rotate: true
-  xy: 354, 120
-  size: 37, 71
-  orig: 37, 71
+  rotate: false
+  xy: 140, 129
+  size: 73, 143
+  orig: 73, 143
   offset: 0, 0
   index: -1
 Turret-Back-LowerLeg
   rotate: true
-  xy: 726, 176
-  size: 51, 96
-  orig: 51, 96
+  xy: 778, 911
+  size: 105, 195
+  orig: 105, 195
   offset: 0, 0
   index: -1
 Turret-Back-UpperLeg
   rotate: true
-  xy: 241, 72
-  size: 46, 96
-  orig: 46, 96
+  xy: 226, 475
+  size: 91, 191
+  orig: 91, 191
   offset: 0, 0
   index: -1
 Turret-Front-Foot
-  rotate: true
-  xy: 339, 80
-  size: 38, 58
-  orig: 38, 58
+  rotate: false
+  xy: 140, 10
+  size: 77, 117
+  orig: 77, 117
   offset: 0, 0
   index: -1
 Turret-Front-LowerLeg
   rotate: true
-  xy: 2, 2
-  size: 68, 136
-  orig: 68, 136
+  xy: 226, 568
+  size: 137, 270
+  orig: 137, 270
   offset: 0, 0
   index: -1
 Turret-Front-UpperLeg
-  rotate: true
-  xy: 236, 6
-  size: 64, 82
-  orig: 64, 82
+  rotate: false
+  xy: 195, 309
+  size: 127, 164
+  orig: 127, 164
   offset: 0, 0
   index: -1
 Turret-Hips
   rotate: false
-  xy: 140, 6
-  size: 94, 64
-  orig: 94, 64
+  xy: 527, 726
+  size: 187, 128
+  orig: 187, 128
   offset: 0, 0
   index: -1
 Turret-Side-Foot
-  rotate: true
-  xy: 726, 136
-  size: 38, 58
-  orig: 38, 58
+  rotate: false
+  xy: 716, 737
+  size: 77, 117
+  orig: 77, 117
   offset: 0, 0
   index: -1
 Turret-Side-Leg-Top
-  rotate: true
-  xy: 824, 163
-  size: 64, 82
-  orig: 64, 82
+  rotate: false
+  xy: 324, 309
+  size: 127, 164
+  orig: 127, 164
   offset: 0, 0
   index: -1
 Turret-Side-LowerLeg
-  rotate: true
-  xy: 354, 159
-  size: 68, 136
-  orig: 68, 136
+  rotate: false
+  xy: 2, 2
+  size: 136, 270
+  orig: 136, 270
   offset: 0, 0
   index: -1

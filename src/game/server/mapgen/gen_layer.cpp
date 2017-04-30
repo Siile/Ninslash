@@ -33,6 +33,10 @@ CGenLayer::CGenLayer(int w, int h)
 	m_NumCeilings = 0;
 	for (int i = 0; i < GEN_MAX; i++)
 		m_aCeiling[i] = ivec2(0, 0);
+	
+	m_NumPlayerSpawns = 0;
+	for (int i = 0; i < GEN_MAX; i++)
+		m_aPlayerSpawn[i] = ivec2(0, 0);
 }
 
 CGenLayer::~CGenLayer()
@@ -79,6 +83,37 @@ void CGenLayer::GenerateAirPlatforms(int Num)
 
 void CGenLayer::Scan()
 {
+	// find player spawn spots
+	for (int x = 2; x < m_Width-2; x++)
+		for (int y = 2; y < m_Height-2; y++)
+		{
+			if (m_NumPlayerSpawns < 4)
+			{
+				if (!Used(x-1, y) && !Used(x, y) && !Used(x+1, y) &&
+					Get(x-1, y+1) && Get(x, y+1) && Get(x+1, y+1))
+				{
+					m_aPlayerSpawn[m_NumPlayerSpawns++] = ivec2(x, y);
+					Set(-1, x-1, y);
+					Set(-1, x, y);
+					Set(-1, x+1, y);
+				}
+			}
+			else
+				break;
+		}
+		
+	// safe zonens
+	for (int i = 0; i < m_NumPlayerSpawns; i++)
+	{
+		ivec2 p = m_aPlayerSpawn[i];
+		
+		for (int x = -20; x <= 20; x++)
+			for (int y = -20; y <= 20; y++)
+				if (!Used(p.x+x, p.y+y))
+					Set(-1, p.x+x, p.y+y);
+	}
+		
+	
 	// find pits
 	for (int x = 1; x < m_Width-1; x++)
 		for (int y = 1; y < m_Height-1; y++)
@@ -253,6 +288,15 @@ void CGenLayer::Scan()
 		}
 }
 
+ivec2 CGenLayer::GetPlayerSpawn()
+{
+	if (m_NumPlayerSpawns <= 0)
+		return ivec2(0, 0);
+		
+	m_NumPlayerSpawns--;
+
+	return m_aPlayerSpawn[m_NumPlayerSpawns];
+}
 ivec2 CGenLayer::GetPlatform()
 {
 	if (m_NumPlatforms <= 0)
@@ -410,6 +454,10 @@ void CGenLayer::Use(int x, int y)
 	if (x < 0 || y < 0 || x >= m_Width || y >= m_Height)
 		return;
 	
+	for (int i = 0; i < m_NumPits; i++)
+		if (x >= m_aPit[i].x && x <= m_aPit[i].z && y >= m_aPit[i].y && y <= m_aPit[i].w)
+			m_aPit[i] = ivec4(0, 0, 0, 0);
+		
 	for (int i = 0; i < m_NumPlatforms; i++)
 		if (abs(m_aPlatform[i].x - x) < 2 && m_aPlatform[i].y == y)
 			m_aPlatform[i] = ivec2(0, 0);

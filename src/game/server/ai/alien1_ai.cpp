@@ -14,6 +14,7 @@ CAIalien1::CAIalien1(CGameContext *pGameServer, CPlayer *pPlayer)
 	m_SkipMoveUpdate = 0;
 	Player()->SetCustomSkin(4);
 	m_StartPos = vec2(0, 0);
+	m_ShockTimer = 0;
 }
 
 
@@ -41,18 +42,30 @@ void CAIalien1::OnCharacterSpawn(CCharacter *pChr)
 		pChr->GiveCustomWeapon(WEAPON_ELECTRIC);
 	
 	pChr->SetHealth(60);
+	
+	m_ShockTimer = 10;
 }
 
 
 void CAIalien1::ReceiveDamage(int CID, int Dmg)
 {
 	m_Triggered = true;
+	m_ShockTimer = 2 + Dmg/2;
+	m_Attack = 0;
 }
 
 
 void CAIalien1::DoBehavior()
 {
 	m_Attack = 0;
+	
+
+	if (m_ShockTimer > 0 && m_ShockTimer--)
+	{
+		m_ReactionTime = 1 + frandom()*3;
+		return;
+	}
+	
 	
 	HeadToMovingDirection();
 

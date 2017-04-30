@@ -315,7 +315,7 @@ void CCharacter::DropWeapon()
 			}
 		}
 		
-		if (pNear)
+		if (m_ActiveCustomWeapon != W_SCYTHE && pNear)
 		{
 			vec2 p = pNear->m_Pos;
 			GameServer()->m_World.DestroyEntity(pNear);
@@ -347,7 +347,7 @@ void CCharacter::DropWeapon()
 				}
 			}
 			
-			if (pTurret &&
+			if (m_ActiveCustomWeapon != W_SCYTHE && pTurret &&
 				(GameServer()->m_pController->IsCoop() || (GameServer()->m_pController->IsTeamplay() && pTurret->m_Team == GetPlayer()->GetTeam()) ||
 				(!GameServer()->m_pController->IsTeamplay() && pTurret->m_OwnerPlayer == GetPlayer()->GetCID())))
 			{

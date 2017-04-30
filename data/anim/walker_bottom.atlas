@@ -1,76 +1,76 @@
 
 walker_bottom.png
-size: 512,128
+size: 1024,256
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
 Turret-Back-Foot
   rotate: true
-  xy: 198, 19
-  size: 37, 71
-  orig: 37, 71
+  xy: 392, 38
+  size: 73, 143
+  orig: 73, 143
   offset: 0, 0
   index: -1
 Turret-Back-LowerLeg
   rotate: true
   xy: 2, 5
-  size: 51, 96
-  orig: 51, 96
+  size: 105, 195
+  orig: 105, 195
   offset: 0, 0
   index: -1
 Turret-Back-UpperLeg
   rotate: true
-  xy: 100, 10
-  size: 46, 96
-  orig: 46, 96
+  xy: 199, 19
+  size: 91, 191
+  orig: 91, 191
   offset: 0, 0
   index: -1
 Turret-Front-Foot
   rotate: true
-  xy: 271, 18
-  size: 38, 58
-  orig: 38, 58
+  xy: 537, 34
+  size: 77, 117
+  orig: 77, 117
   offset: 0, 0
   index: -1
 Turret-Front-LowerLeg
   rotate: true
-  xy: 2, 58
-  size: 68, 136
-  orig: 68, 136
+  xy: 2, 112
+  size: 137, 270
+  orig: 137, 270
   offset: 0, 0
   index: -1
 Turret-Front-UpperLeg
   rotate: false
-  xy: 374, 44
-  size: 64, 82
-  orig: 64, 82
+  xy: 735, 85
+  size: 127, 164
+  orig: 127, 164
   offset: 0, 0
   index: -1
 Turret-Hips
   rotate: false
-  xy: 278, 62
-  size: 94, 64
-  orig: 94, 64
+  xy: 546, 121
+  size: 187, 128
+  orig: 187, 128
   offset: 0, 0
   index: -1
 Turret-Side-Foot
   rotate: false
-  xy: 331, 2
-  size: 38, 58
-  orig: 38, 58
+  xy: 656, 2
+  size: 77, 117
+  orig: 77, 117
   offset: 0, 0
   index: -1
 Turret-Side-Leg-Top
   rotate: false
-  xy: 440, 44
-  size: 64, 82
-  orig: 64, 82
+  xy: 864, 85
+  size: 127, 164
+  orig: 127, 164
   offset: 0, 0
   index: -1
 Turret-Side-LowerLeg
   rotate: true
-  xy: 140, 58
-  size: 68, 136
-  orig: 68, 136
+  xy: 274, 113
+  size: 136, 270
+  orig: 136, 270
   offset: 0, 0
   index: -1

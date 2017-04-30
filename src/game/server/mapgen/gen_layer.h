@@ -34,6 +34,9 @@ private:
 	ivec2 m_aCeiling[GEN_MAX];
 	int m_NumCeilings;
 	
+	ivec2 m_aPlayerSpawn[GEN_MAX];
+	int m_NumPlayerSpawns;
+	
 public:
 	CGenLayer(int w, int h);
 	~CGenLayer();
@@ -54,6 +57,7 @@ public:
 	void Scan();
 	int Size();
 	
+	ivec2 GetPlayerSpawn();
 	ivec2 GetPlatform();
 	ivec2 GetCeiling();
 	ivec2 GetWall();

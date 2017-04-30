@@ -67,7 +67,16 @@ void CMapGen::GenerateStart(CGenLayer *pTiles)
 	
 	int Spawns = 0;
 	
+	/*
+	for (int i = 0; i < 4; i++)
+	{
+		ivec2 p = pTiles->GetPlayerSpawn();
+		ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SPAWN);
+	}
+	*/
+	
 	// find a platform
+	/*
 	for(int x = 3; x < w-3; x++)
 		for(int y = 3; y < h-3; y++)
 		{
@@ -99,6 +108,7 @@ void CMapGen::GenerateStart(CGenLayer *pTiles)
 				x++;
 			}
 		}
+	*/
 }
 
 
@@ -219,6 +229,16 @@ void CMapGen::GenerateMine(CGenLayer *pTiles)
 		ModifTile(p+ivec2(1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_MINE1);
 	else
 		ModifTile(p+ivec2(-1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_MINE2);
+}
+
+void CMapGen::GenerateWalker(CGenLayer *pTiles)
+{
+	ivec2 p = pTiles->GetPlatform();
+	
+	if (p.x == 0)
+		return;
+	
+	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_MONSTER1);
 }
 
 void CMapGen::GenerateSwitch(CGenLayer *pTiles)
@@ -641,7 +661,7 @@ void CMapGen::GenerateLevel()
 		}
 	
 	// start pos
-	GenerateStart(pTiles);
+	//GenerateStart(pTiles);
 	
 	// finish pos
 	GenerateEnd(pTiles);
@@ -649,12 +669,19 @@ void CMapGen::GenerateLevel()
 	// find platforms, corners etc.
 	pTiles->Scan();
 	
+	// start pos
+	for (int i = 0; i < 4; i++)
+	{
+		ivec2 p = pTiles->GetPlayerSpawn();
+		ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SPAWN);
+	}
+	
 	// acid pools
 	for (int i = 0; i < Level-1; i++)
 		GenerateAcid(pTiles);
 	
 	// barrels
-	int b = max(2, 15 - Level/3)+rand()%3;
+	int b = max(4, 15 - Level/3)+rand()%3;
 	
 	for (int i = 0; i < pTiles->NumPlatforms() / b; i++)
 		GenerateBarrel(pTiles);
@@ -711,8 +738,18 @@ void CMapGen::GenerateLevel()
 	if (Level > 20 && frandom() < 0.1f)
 		GenerateSwitch(pTiles);
 	
+	// walkers
+	if (Level%3 == 0 || Level%7 == 0 || Level%13 == 0 || Level%17 == 0)
+	{
+		int w = 1+rand()%(1+min(Level/3, 4));
+		
+		for (int i = 0; i < w; i++)
+			GenerateWalker(pTiles);
+	}
+	
+	
 	// obstacles
-	int Obs = Level/2 - 5;
+	int Obs = Level/3 - 4;
 	
 	if (Level > 10 && frandom() < 0.3f)
 		Obs += Level;

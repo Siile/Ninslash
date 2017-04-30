@@ -3,7 +3,7 @@
 
 #include <game/server/entity.h>
 
-const int MonsterPhysSize = 42;
+const int MonsterPhysSize = 60;
 
 class CMonster : public CEntity
 {
@@ -43,6 +43,8 @@ private:
 	int m_Anim;
 	
 	int m_Mode;
+	
+	int m_AttackTimer;
 	
 	vec2 m_Vel;
 	

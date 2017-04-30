@@ -1,5 +1,5 @@
 {
-"skeleton": { "hash": "2mZh+I0+DW3t/7OqkKOYcQl0kyU", "spine": "3.5.32", "width": 782.45, "height": 368.54, "images": "" },
+"skeleton": { "hash": "QQ6YPUdhhj0qOYNxuzBST+pkly4", "spine": "3.5.51", "width": 782.45, "height": 368.54, "images": "" },
 "bones": [
 	{ "name": "root" },
 	{ "name": "body1", "parent": "root", "length": 299.44, "rotation": 80.74, "x": -18.13, "y": -144.78 },
@@ -17,19 +17,19 @@
 "skins": {
 	"default": {
 		"Drone-Body": {
-			"Drone-Body": { "x": 48.71, "y": 76.05, "width": 474, "height": 309 }
+			"Drone-Body": { "x": 48.71, "y": 76.05, "width": 523, "height": 309 }
 		},
 		"Drone-Engine-Back": {
-			"Drone-Engine-Back": { "x": -107.77, "y": 150.17, "width": 188, "height": 213 }
+			"Drone-Engine-Back": { "x": -107.77, "y": 150.17, "width": 191, "height": 216 }
 		},
 		"Drone-Engine-Deactivated": {
-			"Drone-Engine-Active": { "x": -255.78, "y": 103.72, "width": 222, "height": 213 }
+			"Drone-Engine-Active": { "x": -255.78, "y": 103.72, "width": 237, "height": 233 }
 		},
 		"Gun-Drone": {
-			"Gun-Drone": { "x": 67.55, "y": 3.38, "rotation": 0.5, "width": 246, "height": 153 }
+			"Gun-Drone": { "x": 67.55, "y": 3.38, "rotation": 0.5, "width": 249, "height": 160 }
 		},
 		"Gun-Drone2": {
-			"Gun-Drone": { "x": 76.87, "y": 5.56, "width": 246, "height": 153 }
+			"Gun-Drone": { "x": 76.87, "y": 5.56, "width": 249, "height": 160 }
 		}
 	}
 },

@@ -484,7 +484,7 @@ void CEffects::PlayerDeath(vec2 Pos, int ClientID)
 		return;
 	
 	// body
-	for (int i = 0; i < 7; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		CParticle p;
 		p.SetDefault();
@@ -492,8 +492,8 @@ void CEffects::PlayerDeath(vec2 Pos, int ClientID)
 		p.m_Spr = SPRITE_MEAT1+2*rand()%6;
 		p.m_Pos = Pos + vec2(0, -14) + vec2(frandom()-frandom(), frandom()-frandom())*12;
 		p.m_Vel = RandomDir()*(frandom()+0.2f)*600.0f + vec2(0, -100);
-		p.m_LifeSpan = 3.0f+frandom();
-		p.m_StartSize = 18 + frandom()*18;
+		p.m_LifeSpan = 4.0f+frandom();
+		p.m_StartSize = 32;
 		p.m_EndSize = p.m_StartSize;
 		p.m_Rot = frandom()*pi*2;
 		p.m_Rotspeed = p.m_Vel.x / 10;
@@ -505,7 +505,7 @@ void CEffects::PlayerDeath(vec2 Pos, int ClientID)
 	}
 	
 	// feet
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		CParticle p;
 		p.SetDefault();
@@ -513,8 +513,8 @@ void CEffects::PlayerDeath(vec2 Pos, int ClientID)
 		p.m_Spr = SPRITE_MEAT1+2*rand()%6;
 		p.m_Pos = Pos + vec2(0, +4) + vec2(frandom()-frandom(), frandom()-frandom())*12;
 		p.m_Vel = RandomDir()*(frandom()+0.2f)*400.0f;
-		p.m_LifeSpan = 3.0f+frandom();
-		p.m_StartSize = 12 + frandom()*12;
+		p.m_LifeSpan = 4.0f+frandom();
+		p.m_StartSize = 32;
 		p.m_EndSize = p.m_StartSize;
 		p.m_Rot = frandom()*pi*2;
 		p.m_Rotspeed = p.m_Vel.x / 10;
@@ -526,7 +526,7 @@ void CEffects::PlayerDeath(vec2 Pos, int ClientID)
 	}
 	
 	// skin (head)
-	for (int i = 0; i < 9; i++)
+	for (int i = 0; i < 7; i++)
 	{
 		CParticle p;
 		p.SetDefault();
@@ -534,8 +534,8 @@ void CEffects::PlayerDeath(vec2 Pos, int ClientID)
 		p.m_Spr = SPRITE_MEAT7+2*rand()%2;
 		p.m_Pos = Pos + vec2(0, -36) + vec2(frandom()-frandom(), frandom()-frandom())*12;
 		p.m_Vel = RandomDir()*(frandom()+0.2f)*700.0f + vec2(0, -100);
-		p.m_LifeSpan = 3.0f+frandom();
-		p.m_StartSize = 18 + frandom()*18;
+		p.m_LifeSpan = 4.0f+frandom();
+		p.m_StartSize = 32;
 		p.m_EndSize = p.m_StartSize;
 		p.m_Rot = frandom()*pi*2;
 		p.m_Rotspeed = p.m_Vel.x / 10;
@@ -547,8 +547,8 @@ void CEffects::PlayerDeath(vec2 Pos, int ClientID)
 	}
 	
 	// eye
+	/*
 	{
-
 		CParticle p;
 		p.SetDefault();
 		p.m_Special = CustomStuff()->m_aPlayerInfo[ClientID].m_RenderInfo.m_BloodColor;
@@ -566,6 +566,7 @@ void CEffects::PlayerDeath(vec2 Pos, int ClientID)
 		p.m_Color = vec4(1, 1, 1, 1);
 		m_pClient->m_pParticles->Add(CParticles::GROUP_MEAT, &p);
 	}
+	*/
 }
 
 
