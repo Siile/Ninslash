@@ -209,6 +209,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderElectric);
 	m_All.Add(&m_pParticles->m_RenderMine2);
 	m_All.Add(&m_pParticles->m_RenderFlames);
+	m_All.Add(&m_pParticles->m_RenderFlame1);
 	m_All.Add(&m_pParticles->m_RenderSwordHits);
 	m_All.Add(&m_pParticles->m_RenderBloodFX);
 	m_All.Add(&m_pParticles->m_RenderLazer);

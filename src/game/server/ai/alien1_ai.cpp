@@ -71,6 +71,8 @@ void CAIalien1::DoBehavior()
 
 	SeekClosestEnemyInSight();
 
+	bool Shooting = false;
+	
 	// if we see a player
 	if (m_EnemiesInSight > 0)
 	{
@@ -83,6 +85,7 @@ void CAIalien1::DoBehavior()
 		
 		if (ShootAtClosestEnemy())
 		{
+			Shooting = true;
 		}
 		else
 		{
@@ -115,10 +118,12 @@ void CAIalien1::DoBehavior()
 	}
 
 
-	if (abs(m_Pos.x - m_TargetPos.x) < 40 && abs(m_Pos.y - m_TargetPos.y) < 40)
+	if ((Shooting && Player()->GetCharacter()->IsGrounded()) || (abs(m_Pos.x - m_TargetPos.x) < 40 && abs(m_Pos.y - m_TargetPos.y) < 40))
 	{
 		// stand still
 		m_Move = 0;
+		m_Jump = 0;
+		m_Hook = 0;
 	}
 	else
 	{
@@ -139,6 +144,8 @@ void CAIalien1::DoBehavior()
 	Player()->GetCharacter()->m_SkipPickups = 999;
 
 	RandomlyStopShooting();
+	
+	//m_Attack = 0;
 	
 	// next reaction in
 	m_ReactionTime = 1 + frandom()*3;

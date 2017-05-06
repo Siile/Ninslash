@@ -231,6 +231,10 @@ container.sounds.Add(SoundSet("weapon_noammo", FileList("audio/wp_noammo-%02d.wv
 container.sounds.Add(SoundSet("hit", FileList("audio/sfx_hit_weak-%02d.wv", 2)))
 
 
+container.sounds.Add(SoundSet("kick", FileList("audio/sfx_kick-%02d.wv", 3)))
+container.sounds.Add(SoundSet("kickhit", FileList("audio/sfx_kick_hit-%02d.wv", 3)))
+
+
 container.sounds.Add(SoundSet("ui_pick", ["audio/ui_pick.wv"]))
 container.sounds.Add(SoundSet("ui_negative", ["audio/ui_negative.wv"]))
 container.sounds.Add(SoundSet("ui_positive", ["audio/ui_positive.wv"]))
@@ -323,6 +327,7 @@ image_monsterspawn = Image("monsterspawn", "fx/monsterspawn.png")
 image_heal = Image("heal", "fx/heal.png")
 image_takeoff = Image("takeoff", "fx/takeoff.png")
 image_flame = Image("flame", "fx/flame.png")
+image_flame1 = Image("flame1", "fx/flame1.png")
 image_cbelt = Image("cbelt", "cbelt.png")
 image_muzzle = Image("muzzle", "muzzle.png")
 
@@ -380,6 +385,7 @@ container.images.Add(image_monsterspawn)
 container.images.Add(image_heal)
 container.images.Add(image_takeoff)
 container.images.Add(image_flame)
+container.images.Add(image_flame1)
 container.images.Add(image_cbelt)
 container.images.Add(image_texasmask)
 container.images.Add(image_hp)
@@ -436,6 +442,7 @@ set_monsterspawn = SpriteSet("monsterspawn", image_monsterspawn, 16, 1)
 set_heal = SpriteSet("heal", image_heal, 8, 2)
 set_takeoff = SpriteSet("takeoff", image_takeoff, 8, 1)
 set_flame = SpriteSet("flame", image_flame, 4, 4)
+set_flame1 = SpriteSet("flame1", image_flame1, 8, 1)
 set_muzzle = SpriteSet("muzzle", image_muzzle, 4, 1)
 
 set_hud = SpriteSet("hud", image_hp, 1, 2)
@@ -483,6 +490,7 @@ container.spritesets.Add(set_monsterspawn)
 container.spritesets.Add(set_heal)
 container.spritesets.Add(set_takeoff)
 container.spritesets.Add(set_flame)
+container.spritesets.Add(set_flame1)
 container.spritesets.Add(set_hud)
 container.spritesets.Add(set_muzzle)
 
@@ -581,6 +589,8 @@ for i in range(1, 9):
 	container.sprites.Add(Sprite("bloodfx1_"+str(i), set_bloodfx, i-1, 0, 1, 1))
 for i in range(1, 9):
 	container.sprites.Add(Sprite("takeoff"+str(i), set_takeoff, i-1,0,1,1))
+for i in range(1, 9):
+	container.sprites.Add(Sprite("flame1_"+str(i), set_flame1, i-1,0,1,1))
 	
 for i in range(1, 9):
 	container.sprites.Add(Sprite("death"+str(i), set_death, i-1, 0, 1, 1))

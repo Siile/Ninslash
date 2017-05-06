@@ -308,19 +308,18 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 	if (m_Turbo)
 	{
 		m_Hand.m_TargetPos = -vec2(cos(m_Angle), sin(m_Angle)) * 18.0f;
-		//m_Hand.m_TargetPos += vec2(0, -30);
 		m_Hand.m_TargetPos += m_ArmPos + vec2(0, -16);
 	}
-	//else
-	//	m_Hand.m_TargetPos = -vec2(cos(m_Angle), sin(m_Angle)) * 0.0f;
-	
 	
 	m_Hand.m_Vel *= 0.9f;
-	m_Hand.m_Vel += (((PrevVel-PlayerVel)/2000)*((PrevVel-PlayerVel)/2000))/2.0f;
-	//m_Hand.m_Vel += (m_Hand.m_TargetPos-m_Hand.m_Offset)/14.0f;
+	m_Hand.m_Vel.x -= (((PrevVel.x-PlayerVel.x)/2000)*((PrevVel.x-PlayerVel.x)/2000))/2.0f;
+	m_Hand.m_Vel.y += (((PrevVel.y-PlayerVel.y)/2000)*((PrevVel.y-PlayerVel.y)/2000))/2.0f;
 	m_Hand.m_Vel += (-m_Hand.m_Offset)/14.0f;
 	
 	m_Hand.m_Offset += m_Hand.m_Vel;
+	
+	if (length(m_Hand.m_Offset) > 40.0f)
+		m_Hand.m_Offset = normalize(m_Hand.m_Offset) * 40.0f;
 	
 	
 	// spinning melee weapon
@@ -419,6 +418,8 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 	Animation()->m_FeetAngle = 0.0f;
 	
 	Animation()->m_HeadOffset = vec2(m_FeetRecoil.y, m_FeetRecoil.x) * 0.6f;
+	
+	//Animation()->m_HeadForce -= m_FeetRecoil.y * 0.002f;
 }
 	
 	

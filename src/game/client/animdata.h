@@ -28,6 +28,7 @@ enum PlayerAnimation
 	PANIM_SLIDERUN_BACK,
 	PANIM_SLIDE_FRONT,
 	PANIM_SLIDE_BACK,
+	PANIM_SLIDEKICK,
 	NUM_PANIMS
 };
 
@@ -53,11 +54,14 @@ const string Anim[NUM_PANIMS] = {
 	"sliderun_back",
 	"slide_front",
 	"slide_back",
+	"slide_kick",
 };
 
 
 class CSkeletonAnimation
 {
+	int64 m_LastUpdate;
+	
 public:
 	float m_Speed;
 	float m_Time;
@@ -91,6 +95,13 @@ public:
 	vec4 m_ColorSkin;
 	
 	CSkeletonAnimation();
+	
+	float m_HeadAngle;
+	float m_HeadForce;
+	float m_HeadTargetAngle;
+	
+	void HeadTick();
+	void UpdateHead();
 	
 	void Reset();
 	

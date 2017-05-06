@@ -823,7 +823,11 @@ const char *CClient::LoadMapSearch(const char *pMapName, int WantedCrc)
 	str_format(aBuf, sizeof(aBuf), "loading map, map=%s wanted crc=%08x", pMapName, WantedCrc);
 	m_pConsole->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "client", aBuf);
 	SetState(IClient::STATE_LOADING);
+	
 
+	// remove old generated map file first if needed
+	m_pStorage->RemoveFile("downloadedmaps/generated.map", IStorage::TYPE_SAVE);
+	
 	// try the normal maps folder
 	str_format(aBuf, sizeof(aBuf), "maps/%s.map", pMapName);
 	pError = LoadMap(pMapName, aBuf, WantedCrc);
@@ -1037,6 +1041,9 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket)
 
 			if(Unpacker.Error())
 				return;
+			
+			// remove old generated map file first if needed
+			m_pStorage->RemoveFile("downloadedmaps/generated.map", IStorage::TYPE_SAVE);
 
 			// check for valid standard map
 			if(!m_MapChecker.IsMapValid(pMap, MapCrc, MapSize))

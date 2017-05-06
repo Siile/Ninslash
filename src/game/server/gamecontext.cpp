@@ -2695,7 +2695,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 
 	m_Layers.Init(Kernel());
 	m_Collision.Init(&m_Layers);
-	m_MapGen.Init(&m_Layers, &m_Collision); // MapGen
+	m_MapGen.Init(&m_Layers, &m_Collision, m_pStorage); // MapGen
 
 	// reset everything here
 	//world = new GAMEWORLD;
@@ -2718,9 +2718,9 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		m_pController = new CGameControllerDM(this);
 
 	// MapGen
-	if (g_Config.m_SvMapGen && !m_pServer->m_MapGenerated)
+	if (str_comp(g_Config.m_SvGametype, "coop") == 0 && g_Config.m_SvMapGen && !m_pServer->m_MapGenerated)
 	{
-		m_MapGen.FillMap(g_Config.m_SvMapGenSeed);
+		m_MapGen.FillMap();
 		SaveMap("");
 		
 		str_copy(g_Config.m_SvMap, "generated", sizeof(g_Config.m_SvMap));

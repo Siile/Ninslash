@@ -700,6 +700,22 @@ void CEffects::SpriteSheet(int FX, vec2 Pos)
 		}
 		break;
 		
+	case FX_FLAME1:
+		//m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_WALKER_TAKEOFF, 1.0f, Pos);
+		{
+			CParticle p;
+			p.SetDefault();
+			p.m_Spr = SPRITE_FLAME1_1;
+			p.m_Frames = 8;
+			p.m_Pos = Pos;
+			p.m_LifeSpan = 0.3f;
+			p.m_StartSize = 90;
+			p.m_EndSize = 90;
+			p.m_Rot = 0;
+			m_pClient->m_pParticles->Add(CParticles::GROUP_FLAME1, &p);
+		}
+		break;
+		
 	case FX_BARREL:
 		{
 			CParticle p;

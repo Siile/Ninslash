@@ -15,6 +15,10 @@ void CSkeletonAnimation::Reset()
 	m_Flip = false;
 	m_FlipBody = false;
 	
+	m_HeadAngle = 0.0f;
+	m_HeadForce = 0.0f;
+	m_HeadTargetAngle = 0.0f;
+	
 	m_BodyTilt = 0.0f;
 	m_HeadTilt = 0.0f;
 	m_HeadTiltCorrect = 0.0f;
@@ -30,7 +34,47 @@ void CSkeletonAnimation::Reset()
 	m_FeetAngle = 0.0f;
 	
 	m_HeadOffset = vec2(0, 0);
+	
+	m_LastUpdate = 0;
 }
+	
+void CSkeletonAnimation::HeadTick()
+{
+	m_HeadForce += (m_HeadTargetAngle-m_HeadAngle)/8.0f;
+	m_HeadForce *= 0.95f;
+	
+	m_HeadAngle += (m_HeadTargetAngle-m_HeadAngle) / 20.0f;
+	m_HeadAngle +=  m_HeadForce;
+
+	//m_HeadAngle = m_HeadTargetAngle;
+}
+
+
+void CSkeletonAnimation::UpdateHead()
+{
+	int64 currentTime = time_get();
+	if ((currentTime-m_LastUpdate > time_freq()) || (m_LastUpdate == 0))
+		m_LastUpdate = currentTime;
+		
+	int step = time_freq()/60;
+	
+	if (step <= 0)
+		step = 1;
+	
+	int i = 0;
+	
+	for (;m_LastUpdate < currentTime; m_LastUpdate += step)
+	{
+		HeadTick();
+		
+		if (i++ > 1)
+		{
+			m_LastUpdate = currentTime;
+			break;
+		}
+	}
+}
+
 	
 void CSkeletonAnimation::SetAnimation(int Anim, float Speed)
 {

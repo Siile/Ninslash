@@ -1485,6 +1485,13 @@ void CCharacter::Tick()
 	
 	m_Recoil *= 0.5f;
 	
+	if (m_Core.m_KickDamage >= 0 && m_Core.m_KickDamage < MAX_CLIENTS)
+	{
+		TakeDamage(vec2(0, 0), 20, m_Core.m_KickDamage, WEAPON_WORLD, vec2(0, 0), DAMAGETYPE_NORMAL);
+		GameServer()->CreateSound(m_Pos, SOUND_KICKHIT);
+	}
+	
+	m_Core.m_ClientID = GetPlayer()->GetCID();
 	m_Core.Tick(true);
 	
 	// anti head stuck
@@ -1501,6 +1508,12 @@ void CCharacter::Tick()
 	
 	if (m_Core.m_FluidDamage)
 		TakeDamage(normalize(m_Core.m_Vel), 2, -1, WEAPON_WORLD, vec2(0, 0), DAMAGETYPE_FLUID);
+
+	if (m_Core.m_KickDamage >= 0 && m_Core.m_KickDamage < MAX_CLIENTS)
+	{
+		TakeDamage(vec2(0, 0), 20, m_Core.m_KickDamage, WEAPON_WORLD, vec2(0, 0), DAMAGETYPE_NORMAL);
+		GameServer()->CreateSound(m_Pos, SOUND_KICKHIT);
+	}
 
 	
 	if (m_CryTimer > 0)
@@ -1967,17 +1980,20 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos,
 
 
 	// do damage Hit sound
-	if(From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
+	if (Type != DAMAGETYPE_FLAME)
 	{
-		GameServer()->m_apPlayers[From]->m_InterestPoints += Dmg * 5;
-		
-		int Mask = CmaskOne(From);
-		for(int i = 0; i < MAX_CLIENTS; i++)
+		if(From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
 		{
-			if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorID == From)
-				Mask |= CmaskOne(i);
+			GameServer()->m_apPlayers[From]->m_InterestPoints += Dmg * 5;
+			
+			int Mask = CmaskOne(From);
+			for(int i = 0; i < MAX_CLIENTS; i++)
+			{
+				if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorID == From)
+					Mask |= CmaskOne(i);
+			}
+			GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, Mask);
 		}
-		GameServer()->CreateSound(GameServer()->m_apPlayers[From]->m_ViewPos, SOUND_HIT, Mask);
 	}
 
 	// check for death

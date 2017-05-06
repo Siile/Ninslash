@@ -107,6 +107,9 @@ void CAnimSkeletonInfo::UpdateBones(float Time, CSpineAnimation *pAnimation, CSk
 				{
 					Position += pAnimData->m_HeadOffset;
 					Rotation += pAnimData->m_HeadTilt + pAnimData->m_HeadTiltCorrect;
+					pAnimData->m_HeadTargetAngle = (pAnimData->m_HeadTilt + pAnimData->m_HeadTiltCorrect)*0.5f; // - pBone->m_Rotation;
+					pAnimData->UpdateHead();
+					Rotation = Rotation + pAnimData->m_HeadAngle;
 				}
 			}
 		}
@@ -1474,7 +1477,7 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 		float WeaponAngle = pi/2.0f - abs(GetAngle(Dir)-pi/2.0f);
 		
 		vec2 WeaponPos = Position + PlayerInfo->m_Weapon2Recoil;
-		WeaponPos.y -= 16;
+		WeaponPos.y -= 10;
 		
 		int WeaponDir = Dir.x < 0 ? -1 : 1;
 		bool FlipY = false;
@@ -1574,6 +1577,7 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 }
 
 
+// render player character
 void CRenderTools::RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, CSkeletonAnimation *AnimData, float Rotation, CAnimSkeletonInfo *pSkeleton, CTextureAtlas *pAtlas, CPlayerInfo *PlayerInfo)
 {
 	dbg_assert(pSkeleton != 0x0, "missing skeleton information");
@@ -1599,7 +1603,7 @@ void CRenderTools::RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, CSkeleto
 
 	pSkeleton->UpdateBones(Time, pAnimation, AnimData);
 	
-
+	int Foot = 0;
 
 	if(pAtlas)
 	{
@@ -1693,8 +1697,10 @@ void CRenderTools::RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, CSkeleto
 					
 					
 					// turbo effect to feet
-					if (PlayerInfo->m_Jetpack && strcmp(pAttachment->m_Name, "foot") == 0)
+					if ((PlayerInfo->m_Jetpack || AnimData->GetAnimation() == PANIM_SLIDEKICK) && strcmp(pAttachment->m_Name, "foot") == 0)// && Foot++ == 1)
 					{
+						bool Kicking = AnimData->GetAnimation() == PANIM_SLIDEKICK;
+						
 						Graphics()->TextureSet(g_pData->m_aImages[IMAGE_MUZZLE].m_Id);
 						Graphics()->QuadsBegin();
 						Graphics()->SetColor(1, 1, 1, 1);
@@ -1706,6 +1712,8 @@ void CRenderTools::RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, CSkeleto
 						Graphics()->QuadsSetRotation(GetAngle(di));
 						{
 							float s = 3*16/2+rand()%8;
+							if (Kicking)
+								s *= 1.1f;
 							SelectSprite(SPRITE_MUZZLE1+rand()%2);
 							IGraphics::CQuadItem QuadItem(p.x+di.x*s, p.y+di.y*s, s*2, s*2);
 							Graphics()->QuadsDraw(&QuadItem, 1);

@@ -84,6 +84,10 @@ void CCharacterCore::Reset()
 	m_PlayerCollision = false;
 	m_MonsterDamage = false;
 	m_FluidDamage = false;
+	
+	m_ClientID = -1;
+	m_KickDamage = -1;
+	
 	m_HandJetpack = false;
 	m_OnWall = false;
 	
@@ -205,6 +209,7 @@ void CCharacterCore::Tick(bool UseInput)
 {
 	m_PlayerCollision = false;
 	m_MonsterDamage = false;
+	m_KickDamage = -1;
 	m_FluidDamage = false;
 	m_HandJetpack = false;
 	
@@ -270,13 +275,17 @@ void CCharacterCore::Tick(bool UseInput)
 	if (m_Slide > 0)
 		HandJetpackControlSpeed *= 1.2f;
 	
-	
 	// gravity & jump physics
 	if (m_Action == COREACTION_JUMP)
 	{
 		// sharper jump upwards
 		if (m_ActionState++ > 2)
 			m_Vel.y += m_pWorld->m_Tuning.m_Gravity;
+	}
+	else if (m_Action == COREACTION_SLIDEKICK)
+	{
+		if (m_ActionState < 8)
+			m_Vel.y += m_pWorld->m_Tuning.m_Gravity*2;
 	}
 	else if (m_Action == COREACTION_JUMPPAD)
 	{
@@ -571,6 +580,13 @@ void CCharacterCore::Tick(bool UseInput)
 							m_Vel.y = -JumpPower*invsqrt2;
 						}
 						m_Jumped |= 1;
+						
+						if (m_Slide > 0 && m_Slide < 12)
+						{
+							m_Action = COREACTION_SLIDEKICK;
+							m_ActionState = 0;
+							m_TriggeredEvents |= COREEVENT_SLIDEKICK;
+						}
 					}
 				}
 				// launch jetpack
@@ -781,7 +797,7 @@ void CCharacterCore::Tick(bool UseInput)
 			
 			if(m_pWorld->m_Tuning.m_PlayerCollision && m_Roll == 0 && m_Slide == 0 && 
 				pCharCore->m_Slide == 0 && pCharCore->m_Roll == 0 && 
-				Distance < PhysSize*1.25f && Distance > 12.0f)
+				Distance < PhysSize*1.35f && Distance > 12.0f)
 			{
 				m_PlayerCollision = true;
 					
@@ -853,6 +869,30 @@ void CCharacterCore::Tick(bool UseInput)
 					m_Pos.x -= 2.0f;
 			}
 		}
+	}
+	
+	
+
+	if (m_Action == COREACTION_SLIDEKICK)
+	{
+		if (m_ActionState == 1 && abs(m_Vel.x) < 20.0f)
+			m_Vel.x *= 1.05f;
+		
+		if (m_ActionState < 0)
+		{
+			if (m_ActionState-- < -11)
+				m_Action = COREACTION_IDLE;
+		}
+		else
+		{
+			if (m_ActionState++ > 11)
+				m_Action = COREACTION_IDLE;
+		}
+		
+		if (m_Vel.x > 0)
+			m_Anim = 7;
+		else
+			m_Anim = -7;
 	}
 	
 	
@@ -1045,7 +1085,44 @@ void CCharacterCore::Move()
 	
 	m_Vel.x = m_Vel.x*(1.0f/RampValue);
 
-	if(m_pWorld && m_pWorld->m_Tuning.m_PlayerCollision && m_Roll == 0 && m_Slide == 0)
+	/*
+	if (m_Action == COREACTION_SLIDEKICK)
+	{
+		
+		float Distance = distance(m_Pos, NewPos);
+		int End = Distance+1;
+		vec2 LastPos = m_Pos;
+		for(int i = 0; i < End; i++)
+		{
+			float a = i/Distance;
+			vec2 Pos = mix(m_Pos, NewPos, a);
+			for(int p = 0; p < MAX_CLIENTS; p++)
+			{
+				CCharacterCore *pCharCore = m_pWorld->m_apCharacters[p];
+				if(!pCharCore || pCharCore == this || pCharCore->m_Roll != 0 || pCharCore->Status(STATUS_SPAWNING))
+					continue;
+				float D = distance(Pos, pCharCore->m_Pos+vec2(0, -32));
+				if(D < 40.0f)
+				{
+					m_PlayerCollision = true;
+					if(a > 0.0f)
+						m_Pos = LastPos;
+					else if(distance(NewPos, pCharCore->m_Pos) > D)
+						m_Pos = NewPos;
+					
+					pCharCore->m_Vel += m_Vel;
+					//m_Vel.x *= 0.9f;
+					
+					return;
+				}
+			}
+			LastPos = Pos;
+		}
+	}
+	*/
+	
+	
+	if ((m_Action == COREACTION_SLIDEKICK && m_ActionState > 2 &&  m_ActionState < 10) || (m_pWorld && m_pWorld->m_Tuning.m_PlayerCollision && m_Roll == 0 && m_Slide == 0))
 	{
 		// check player collision
 		float Distance = distance(m_Pos, NewPos);
@@ -1061,13 +1138,52 @@ void CCharacterCore::Move()
 				if(!pCharCore || pCharCore == this || pCharCore->m_Roll != 0 || pCharCore->Status(STATUS_SPAWNING))
 					continue;
 				float D = distance(Pos, pCharCore->m_Pos);
-				if(D < 28.0f && D > 12.0f)
+				float D2 = 9000.0f;
+				
+				vec2 Off = vec2(20.0, 0.0f);
+				if (m_Vel.x < 0)
+					Off.x *= -1;
+				
+				if (m_Action == COREACTION_SLIDEKICK)
+					D2 = distance(Pos+Off, pCharCore->m_Pos+vec2(0, -32));
+				
+				if(D2 < 40.0f || (D < 32.0f && D > 12.0f))
 				{
 					m_PlayerCollision = true;
 					if(a > 0.0f)
 						m_Pos = LastPos;
 					else if(distance(NewPos, pCharCore->m_Pos) > D)
 						m_Pos = NewPos;
+
+					if (m_Action == COREACTION_SLIDEKICK)
+					{
+						if (m_ActionState > 0)
+						{
+							m_ActionState *= -1;
+							pCharCore->m_KickDamage = m_ClientID;
+								
+							// both players hitting
+							if (pCharCore->m_Action == COREACTION_SLIDEKICK && m_ActionState > 2 &&  m_ActionState < 10)
+							{
+								m_KickDamage = pCharCore->m_ClientID;
+								pCharCore->m_ActionState *= -1;
+								
+								vec2 CCv = vec2(m_Vel.x*1.5f, -abs(m_Vel.x*0.5f));
+								
+								m_Vel = vec2(pCharCore->m_Vel.x*1.5f, -abs(pCharCore->m_Vel.x*0.5f));
+								pCharCore->m_Vel = CCv;
+							}
+							// just this hitting
+							else
+							{
+								pCharCore->m_Vel = vec2(m_Vel.x*1.5f, -abs(m_Vel.x*0.5f));
+								m_Vel *= 0.3f;
+							}
+						}
+						else
+							m_Vel *= 0.3f;
+					}
+					
 					return;
 				}
 			}

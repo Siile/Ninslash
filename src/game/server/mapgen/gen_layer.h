@@ -9,6 +9,9 @@ class CGenLayer
 {
 private:
 	int *m_pTiles;
+	int *m_pBGTiles;
+	int *m_pFlags;
+	int *m_pBGFlags;
 	int m_Width;
 	int m_Height;
 	int m_Size;
@@ -41,8 +44,16 @@ public:
 	CGenLayer(int w, int h);
 	~CGenLayer();
 	
-	void Set(int Tile, int x, int y);
-	int Get(int x, int y);
+	enum Layer
+	{
+		FOREGROUND,
+		BACKGROUND
+	};
+	
+	void Set(int Tile, int x, int y, int Flags = 0, int Layer = FOREGROUND);
+	int GetByIndex(int Index, int Layer = FOREGROUND);
+	int Get(int x, int y, int Layer = FOREGROUND);
+	int GetFlags(int x, int y, int Layer = FOREGROUND);
 	bool Used(int x, int y);
 	
 	void Use(int x, int y);
@@ -53,6 +64,7 @@ public:
 	int NumPlatforms() { return m_NumPlatforms; }
 	int NumTopCorners() { return m_NumTopCorners; }
 	
+	void GenerateBackground();
 	void GenerateAirPlatforms(int Num);
 	void Scan();
 	int Size();

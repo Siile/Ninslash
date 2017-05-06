@@ -205,8 +205,8 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		0, // max ammo
 		0.35f, // bullet life
 		120, // bullet reload time
-		3.5f, // bullet knockback
-		1.5f, // self knockback
+		1.5f, // bullet knockback
+		0.5f, // self knockback
 		780 // ai attack range
 		),
 	CWeapon(

@@ -47,15 +47,7 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	//m_WantedTeam = m_Team;
 	//m_Team = TEAM_SPECTATORS;
 	
-	/*
-	if(str_comp(g_Config.m_SvGametype, "cstt") == 0)
-		m_ForceToSpectators = true;
-	else
-		m_ForceToSpectators = false;
-	*/
-	
 	m_ForceToSpectators = false;
-
 	
 	// warm welcome awaits
 	m_Welcomed = false;

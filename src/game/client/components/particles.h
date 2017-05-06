@@ -90,6 +90,7 @@ public:
 		GROUP_GENERAL,
 		GROUP_TRIANGLES,
 		GROUP_FLAMES,
+		GROUP_FLAME1,
 		GROUP_SWORDHITS,
 		GROUP_DEATH,
 		GROUP_LAZER,
@@ -146,6 +147,7 @@ private:
 	CRenderGroup<GROUP_GENERAL> m_RenderGeneral;
 	CRenderGroup<GROUP_TRIANGLES> m_RenderTriangles;
 	CRenderGroup<GROUP_FLAMES> m_RenderFlames;
+	CRenderGroup<GROUP_FLAME1> m_RenderFlame1;
 	CRenderGroup<GROUP_SWORDHITS> m_RenderSwordHits;
 	CRenderGroup<GROUP_DEATH> m_RenderDeath;
 	CRenderGroup<GROUP_LAZER> m_RenderLazer;

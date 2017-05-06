@@ -69,3 +69,36 @@ Index 51 YFLIP
 Pos -1 -1 EMPTY
 Pos -1 0 FULL
 Pos 0 -1 FULL
+
+
+
+#platforms
+Index 82
+Pos 0 -1 EMPTY
+Pos 0 1 EMPTY
+Pos -1 0 FULL
+Pos 1 0 FULL
+
+Index 81
+Pos 0 -1 EMPTY
+Pos 0 1 EMPTY
+Pos -1 0 EMPTY
+Pos 1 0 FULL
+
+Index 83
+Pos 0 -1 EMPTY
+Pos 0 1 EMPTY
+Pos -1 0 FULL
+Pos 1 0 EMPTY
+
+
+#chains (for backgrounds)
+Index 97
+Pos -1 0 EMPTY
+Pos 1 0 EMPTY
+YRemainder 2 0
+
+Index 113
+Pos -1 0 EMPTY
+Pos 1 0 EMPTY
+YRemainder 2 1

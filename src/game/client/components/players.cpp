@@ -957,6 +957,8 @@ void CPlayers::RenderPlayer(
 	
 	if (Player.m_Anim == -3 && Player.m_Slide > 0)
 	{
+		
+		
 		if (Player.m_Slide > 4)
 		{
 			WantedAnimation = PANIM_SLIDE;
@@ -1041,6 +1043,27 @@ void CPlayers::RenderPlayer(
 		{
 			WantedAnimation = PANIM_WALLJUMP;
 		}
+	}
+	
+
+	if (Player.m_Anim == 7 || Player.m_Anim == -7)
+	{
+		WantedAnimation = PANIM_SLIDEKICK;
+		AnimationSpeed = 0.03f;
+		
+		if (pCustomPlayerInfo->Animation()->m_Time < 0.04f)
+		{
+			m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_KICK, 1.0f, Position);
+			//m_pClient->m_pEffects->Electrospark(Position+vec2(0, 18), 48);
+			//m_pClient->m_pEffects->SpriteSheet(FX_FLAME1, Position+vec2(Player.m_Anim * 4, -18));
+		}
+		
+			//m_pClient->m_pEffects->Electrospark(Position, 48);
+		
+		if (Player.m_Anim == 7)
+			pCustomPlayerInfo->Animation()->m_Flip = false;
+		else
+			pCustomPlayerInfo->Animation()->m_Flip = true;
 	}
 	
 	// set the animation

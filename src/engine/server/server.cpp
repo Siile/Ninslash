@@ -1300,32 +1300,14 @@ int CServer::LoadMap(const char *pMapName)
 {
 	if (strcmp(pMapName, "generated") != 0)
 		m_MapGenerated = false;
+	else if (g_Config.m_SvMapGen)
+		str_copy(g_Config.m_SvInvMap, m_aCurrentMap, sizeof(g_Config.m_SvInvMap));
+		
 	
 	KickBots();
 	
-	if (g_Config.m_SvMapGenSeed)
-	{
-		for (int i = 0; i < g_Config.m_SvMapGenSeed; i++)
-			rand();
-	}
-	
 	char aBuf[512];
-	if (g_Config.m_SvMapGen && !m_MapGenerated)
-	{
-		//str_format(aBuf, sizeof(aBuf), "maps/%s_%d.map", pMapName, g_Config.m_SvMapGenSeed);
-		str_format(aBuf, sizeof(aBuf), "maps/%s.map", pMapName);
-		/*
-		if(!m_MapChecker.Exists(Storage(), aBuf, IStorage::TYPE_SAVE))
-		{
-			CDataFileWriter fileWrite;
-			if (!(m_MapGenerated = fileWrite.CreateEmptyMap(Storage(), aBuf, g_Config.m_SvMapGenWidth, g_Config.m_SvMapGenHeight, 0x0)))
-				return 0;
-		} else*/
-		//	m_MapGenerated = true;
-		
-		//g_Config.m_SvMapGen = 0;
-	} else
-		str_format(aBuf, sizeof(aBuf), "maps/%s.map", pMapName);
+	str_format(aBuf, sizeof(aBuf), "maps/%s.map", pMapName);
 
 	// check for valid standard map
 	if(!m_MapChecker.ReadAndValidateMap(Storage(), aBuf, IStorage::TYPE_ALL))
@@ -1455,8 +1437,7 @@ int CServer::Run()
 						if(m_aClients[c].m_State <= CClient::STATE_AUTH)
 							continue;
 
-						//if (!g_Config.m_SvMapGen)
-							SendMap(c);
+						SendMap(c);
 						
 						m_aClients[c].Reset();
 						m_aClients[c].m_State = CClient::STATE_CONNECTING;
@@ -1466,25 +1447,6 @@ int CServer::Run()
 					m_CurrentGameTick = 0;
 					Kernel()->ReregisterInterface(GameServer());
 					GameServer()->OnInit();
-					
-					/*
-					if (g_Config.m_SvMapGen)
-					{
-						g_Config.m_SvMapGen = 0;
-						LoadMap("generated");
-						
-						str_copy(m_aCurrentMap, "generated", sizeof(m_aCurrentMap));
-						str_copy(g_Config.m_SvMap, m_aCurrentMap, sizeof(g_Config.m_SvMap));
-						
-						GameServer()->OnShutdown();
-						
-						for(int c = 0; c < MAX_CLIENTS; c++)
-							SendMap(c);
-						
-						GameServer()->OnInit();
-						g_Config.m_SvMapGen = 1;
-					}
-					*/
 					
 					UpdateServerInfo();
 				}

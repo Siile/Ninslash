@@ -2,7 +2,7 @@
 #define GAME_SERVER_GAMEMODES_RUN_H
 #include <game/server/gamecontroller.h>
 
-#define MAX_ROBOTS 512
+#define MAX_ENEMIES 512
 
 
 class CGameControllerCoop : public IGameController
@@ -18,24 +18,19 @@ private:
 		NUM_ENEMIES
 	};
 
-	int m_Enemies[NUM_ENEMIES];
-	vec2 m_EnemySpawnPos[MAX_ROBOTS*(NUM_ENEMIES+1)];
-	
-	int EnemiesLeft()
-	{
-		int Total = 0;
-		
-		for (int i = 0; i < NUM_ENEMIES; i++)
-			Total += m_Enemies[i];
-		
-		return Total;
-	}
+	vec2 m_aEnemySpawnPos[MAX_ENEMIES];
 	
 	int m_Deaths;
 	bool m_RoundWin;
 	int m_RoundWinTick;
-	
 	int m_RoundOverTick;
+	
+	// hordes of enemies
+	int m_EnemyCount;
+	int m_EnemiesLeft;
+	
+	int m_NumEnemySpawnPos;
+	int m_SpawnPosRotation;
 	
 public:
 	CGameControllerCoop(class CGameContext *pGameServer);

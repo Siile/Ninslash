@@ -955,7 +955,10 @@ void IGameController::CycleMap()
 	// handle maprotation
 	const char *pMapRotation = g_Config.m_SvMaprotation;
 	const char *pCurrentMap = g_Config.m_SvMap;
-
+	
+	if (strcmp(g_Config.m_SvMap, "generated") == 0)
+		pCurrentMap = g_Config.m_SvInvMap;
+	
 	int CurrentMapLen = str_length(pCurrentMap);
 	const char *pNextMap = pMapRotation;
 	while(*pNextMap)

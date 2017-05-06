@@ -10,6 +10,18 @@ CGenLayer::CGenLayer(int w, int h)
 	for (int i = 0; i < w*h; i++)
 		m_pTiles[i] = 1;
 	
+	m_pBGTiles = new int[w*h];
+	for (int i = 0; i < w*h; i++)
+		m_pBGTiles[i] = 0;
+	
+	m_pFlags = new int[w*h];
+	for (int i = 0; i < w*h; i++)
+		m_pFlags[i] = 1;
+	
+	m_pBGFlags = new int[w*h];
+	for (int i = 0; i < w*h; i++)
+		m_pBGFlags[i] = 1;
+	
 	m_NumPlatforms = 0;
 	for (int i = 0; i < GEN_MAX; i++)
 		m_aPlatform[i] = ivec2(0, 0);
@@ -43,14 +55,60 @@ CGenLayer::~CGenLayer()
 {
 	if (m_pTiles)
 		delete m_pTiles;
+	
+	if (m_pBGTiles)
+		delete m_pBGTiles;
+	
+	if (m_pFlags)
+		delete m_pFlags;
+	
+	if (m_pBGFlags)
+		delete m_pBGFlags;
 }
 
+void CGenLayer::GenerateBackground()
+{
+	if (m_Width < 30)
+		return;
+
+	int n = 4;
+
+	while (n-- > 0)
+	{
+		int nx = 10 + rand()%(m_Width - 20);
+		
+		int s = 5 + rand()%6;
+		
+		bool Valid = true;
+		
+		// check if the area is empty first
+		for (int x = nx - s; x < nx + s; x++)
+			for (int y = 0; y < m_Height; y++)
+				if (Get(x, y, BACKGROUND))
+					Valid = false;
+				
+		// fill the area
+		if (Valid)
+		{
+			for (int x = nx - s; x < nx + s; x++)
+				for (int y = 0; y < m_Height; y++)
+					Set(1, x, y, 0, BACKGROUND);
+		}
+	}
+}
+	
 void CGenLayer::GenerateAirPlatforms(int Num)
 {
 	int b = 5;
 	int x, y;
 	
 	int i = 0;
+	
+	// don't stack platforms (temporary solution to crappy auto mapper rules)
+	bool XUsed[99999];
+	
+	for (int p = 0; p < 99999; p++)
+		XUsed[p] = false;
 	
 	while (Num > 0 && i++ < 10000)
 	{
@@ -62,17 +120,48 @@ void CGenLayer::GenerateAirPlatforms(int Num)
 			bool Valid = true;
 			for (int xx = -7; xx < 7; xx++)
 				for (int yy = -5; yy < 5; yy++)
+				{
 					if (Used(x+xx, y+yy))
 						Valid = false;
+					
+					if (x+xx >= 0 && x+xx < m_Width && XUsed[x+xx])
+						Valid = false;
+				}
 					
 			if (Valid)
 			{
 				Num--;
-				int s = 2+rand()%2;
-				for (int xx = -s; xx < s; xx++)
+				int s = 3+rand()%3;
+				for (int xx = -s; xx < s-1; xx++)
 				{
 					Set(-1, x+xx, y-1);
 					Set(1, x+xx, y);
+					
+					if (x+xx >= 0 && x+xx < m_Width)
+						XUsed[x+xx] = true;
+				}
+				
+				// chains
+				int Sanity = 0;
+				int yy = y-1;
+				if (!Get(x-s, yy+1, BACKGROUND))
+				{
+					while (!Get(x-s, yy) && Sanity++ < 500)
+					{
+						Set(1, x-s, yy, 0, BACKGROUND);
+						yy--;
+					}
+				}
+				
+				Sanity = 0;
+				yy = y-1;
+				if (!Get(x+s-2, yy+1, BACKGROUND) && !Get(x+s-1, yy+2, BACKGROUND))
+				{
+					while (!Get(x+s-2, yy) && Sanity++ < 500)
+					{
+						Set(1, x+s-2, yy, 0, BACKGROUND);
+						yy--;
+					}
 				}
 			}
 		}
@@ -114,7 +203,7 @@ void CGenLayer::Scan()
 	}
 		
 	
-	// find pits
+	// find pits / pools
 	for (int x = 1; x < m_Width-1; x++)
 		for (int y = 1; y < m_Height-1; y++)
 		{
@@ -147,7 +236,7 @@ void CGenLayer::Scan()
 				
 				// check the whole area
 				for (int ax = x; ax < px; ax++)
-					for (int ay = py; ay < y; ay++)
+					for (int ay = py-3; ay < y; ay++)
 						if (Used(ax, ay))
 						{
 							Valid = false;
@@ -401,20 +490,65 @@ ivec2 CGenLayer::GetSharpCorner()
 }
 
 
-void CGenLayer::Set(int Tile, int x, int y)
+void CGenLayer::Set(int Tile, int x, int y, int Flags, int Layer)
 {
 	if (x < 0 || y < 0 || x >= m_Width || y >= m_Height)
 		return;
 	
-	m_pTiles[x + y*m_Width] = Tile;
+	if (Layer == FOREGROUND)
+	{
+		m_pTiles[x + y*m_Width] = Tile;
+		m_pFlags[x + y*m_Width] = Flags;
+	}
+	else if (Layer == BACKGROUND)
+	{
+		m_pBGTiles[x + y*m_Width] = Tile;
+		m_pBGFlags[x + y*m_Width] = Flags;
+	}
 }
 
-int CGenLayer::Get(int x, int y)
+int CGenLayer::Get(int x, int y, int Layer)
 {
 	if (x < 0 || y < 0 || x >= m_Width || y >= m_Height)
 		return 1;
+
+	int i = 0;
 	
-	int i = m_pTiles[x + y*m_Width];
+	if (Layer == FOREGROUND)
+		i = m_pTiles[x + y*m_Width];
+	else if (Layer == BACKGROUND)
+		i = m_pBGTiles[x + y*m_Width];
+	
+	if (i < 0)
+		i = 0;
+	
+	return i;
+}
+
+int CGenLayer::GetFlags(int x, int y, int Layer)
+{
+	if (x < 0 || y < 0 || x >= m_Width || y >= m_Height)
+		return 0;
+	
+	if (Layer == FOREGROUND)
+		return m_pFlags[x + y*m_Width];
+	else if (Layer == BACKGROUND)
+		return m_pBGFlags[x + y*m_Width];
+	
+	return 0;
+}
+
+int CGenLayer::GetByIndex(int Index, int Layer)
+{
+	if (Index < 0 || Index >= m_Width*m_Height)
+		return 1;
+	
+	int i = 0;
+	
+	if (Layer == FOREGROUND)
+		i = m_pTiles[Index];
+	else if (Layer == BACKGROUND)
+		i = m_pBGTiles[Index];
 	
 	if (i < 0)
 		i = 0;

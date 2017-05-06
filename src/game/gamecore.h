@@ -146,6 +146,7 @@ enum
 {
 	COREEVENT_GROUND_JUMP=0x01,
 	COREEVENT_AIR_JUMP=0x02,
+	COREEVENT_SLIDEKICK=0x04,
 };
 
 
@@ -228,6 +229,10 @@ public:
 	bool m_FluidDamage;
 	bool m_HandJetpack;
 
+	// used for getting kick damage owner
+	int m_ClientID;
+	int m_KickDamage;
+	
 	int m_Jumped;
 	
 	int m_Health;

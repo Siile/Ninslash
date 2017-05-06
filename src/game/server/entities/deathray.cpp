@@ -38,7 +38,7 @@ void CDeathray::Tick()
 	
 	
 	// death ray on characters & buildings
-	if (m_AttackTick > GameServer()->Server()->Tick() - Server()->TickSpeed()*0.25f)
+	if (m_AttackTick > GameServer()->Server()->Tick() - Server()->TickSpeed()*0.2f)
 	{
 		vec2 At;
 		CCharacter *pHit = GameServer()->m_World.IntersectCharacter(m_Pos, m_Pos+vec2(0, m_Height), 4.0f, At);

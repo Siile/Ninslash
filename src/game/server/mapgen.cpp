@@ -1,7 +1,10 @@
+#include <random>
+
 #include <base/system.h>
 #include <base/math.h>
 #include <base/vmath.h>
 #include <engine/shared/config.h>
+#include <engine/shared/linereader.h>
 
 #include "mapgen.h"
 #include <game/server/mapgen/gen_layer.h>
@@ -14,21 +17,156 @@ CMapGen::CMapGen()
 {
 	m_pLayers = 0x0;
 	m_pCollision = 0x0;
+	m_pStorage = 0x0;
+	m_FileLoaded = false;
 }
 CMapGen::~CMapGen()
 {
 	
 }
 
-void CMapGen::Init(CLayers *pLayers, CCollision *pCollision)
+void CMapGen::Init(CLayers *pLayers, CCollision *pCollision, IStorage *pStorage)
 {
 	m_pLayers = pLayers;
 	m_pCollision = pCollision;
+	m_pStorage = pStorage;
+	
+	Load("warehouse_main");
 }
 
-void CMapGen::FillMap(int Seed)
+
+
+void CMapGen::Load(const char* pTileName)
 {
-	dbg_msg("mapgen", "started map generation with seed=%d", Seed);
+	char aPath[256];
+	str_format(aPath, sizeof(aPath), "editor/%s.rules", pTileName);
+	IOHANDLE RulesFile = Storage()->OpenFile(aPath, IOFLAG_READ, IStorage::TYPE_ALL);
+	if(!RulesFile)
+		return;
+
+	CLineReader LineReader;
+	LineReader.Init(RulesFile);
+
+	CConfiguration *pCurrentConf = 0;
+	CIndexRule *pCurrentIndex = 0;
+
+	char aBuf[256];
+
+	// read each line
+	while(char *pLine = LineReader.Get())
+	{
+		// skip blank/empty lines as well as comments
+		if(str_length(pLine) > 0 && pLine[0] != '#' && pLine[0] != '\n' && pLine[0] != '\r'
+			&& pLine[0] != '\t' && pLine[0] != '\v' && pLine[0] != ' ')
+		{
+			if(pLine[0]== '[')
+			{
+				// new configuration, get the name
+				pLine++;
+
+				CConfiguration NewConf;
+				int ID = m_lConfigs.add(NewConf);
+				pCurrentConf = &m_lConfigs[ID];
+
+				str_copy(pCurrentConf->m_aName, pLine, str_length(pLine));
+			}
+			else
+			{
+				if(!str_comp_num(pLine, "Index", 5))
+				{
+					// new index
+					int ID = 0;
+					char aFlip[128] = "";
+
+					sscanf(pLine, "Index %d %127s", &ID, aFlip);
+
+					CIndexRule NewIndexRule;
+					NewIndexRule.m_ID = ID;
+					NewIndexRule.m_Flag = 0;
+					NewIndexRule.m_RandomValue = 0;
+					NewIndexRule.m_YDivisor = 0;
+					NewIndexRule.m_YRemainder = 0;
+					NewIndexRule.m_BaseTile = false;
+
+					if(str_length(aFlip) > 0)
+					{
+						if(!str_comp(aFlip, "XFLIP"))
+							NewIndexRule.m_Flag = TILEFLAG_VFLIP;
+						else if(!str_comp(aFlip, "YFLIP"))
+							NewIndexRule.m_Flag = TILEFLAG_HFLIP;
+						else if(!str_comp(aFlip, "XYFLIP"))
+							NewIndexRule.m_Flag = TILEFLAG_VFLIP+TILEFLAG_HFLIP;
+						else if(!str_comp(aFlip, "ROTATE"))
+							NewIndexRule.m_Flag = TILEFLAG_ROTATE;
+						else if(!str_comp(aFlip, "XFLIP_ROTATE"))
+							NewIndexRule.m_Flag = TILEFLAG_ROTATE+TILEFLAG_VFLIP;
+						else if(!str_comp(aFlip, "YFLIP_ROTATE"))
+							NewIndexRule.m_Flag = TILEFLAG_ROTATE+TILEFLAG_HFLIP;
+						else if(!str_comp(aFlip, "XYFLIP_ROTATE"))
+							NewIndexRule.m_Flag = TILEFLAG_ROTATE+TILEFLAG_VFLIP+TILEFLAG_HFLIP;
+					}
+
+					// add the index rule object and make it current
+					int ArrayID = pCurrentConf->m_aIndexRules.add(NewIndexRule);
+					pCurrentIndex = &pCurrentConf->m_aIndexRules[ArrayID];
+				}
+				else if(!str_comp_num(pLine, "BaseTile", 8) && pCurrentIndex)
+				{
+					pCurrentIndex->m_BaseTile = true;
+				}
+				else if(!str_comp_num(pLine, "Pos", 3) && pCurrentIndex)
+				{
+					int x = 0, y = 0;
+					char aValue[128];
+					int Value = CPosRule::EMPTY;
+					bool IndexValue = false;
+
+					sscanf(pLine, "Pos %d %d %127s", &x, &y, aValue);
+
+					if(!str_comp(aValue, "FULL"))
+						Value = CPosRule::FULL;
+					else if(!str_comp_num(aValue, "INDEX", 5))
+					{
+						sscanf(pLine, "Pos %*d %*d INDEX %d", &Value);
+						IndexValue = true;
+					}
+
+					CPosRule NewPosRule = {x, y, Value, IndexValue};
+					pCurrentIndex->m_aRules.add(NewPosRule);
+				}
+				else if(!str_comp_num(pLine, "Random", 6) && pCurrentIndex)
+				{
+					sscanf(pLine, "Random %d", &pCurrentIndex->m_RandomValue);
+				}
+				else if(!str_comp_num(pLine, "YRemainder", 10) && pCurrentIndex)
+				{
+					sscanf(pLine, "YRemainder %d %d", &pCurrentIndex->m_YDivisor, &pCurrentIndex->m_YRemainder);
+				}
+			}
+		}
+	}
+
+	io_close(RulesFile);
+
+	//str_format(aBuf, sizeof(aBuf),"loaded %s", aPath);
+	//m_pEditor->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "editor", aBuf);
+
+	m_FileLoaded = true;
+}
+
+const char* CMapGen::GetConfigName(int Index)
+{
+	if(Index < 0 || Index >= m_lConfigs.size())
+		return "";
+
+	return m_lConfigs[Index].m_aName;
+}
+
+
+
+void CMapGen::FillMap()
+{
+	dbg_msg("mapgen", "started map generation");
 
 	for (int i = 0; i < g_Config.m_SvMapGenLevel; i++)
 		rand();
@@ -60,57 +198,6 @@ void CMapGen::FillMap(int Seed)
 }
 
 
-void CMapGen::GenerateStart(CGenLayer *pTiles)
-{
-	int w = pTiles->Width();
-	int h = pTiles->Height();
-	
-	int Spawns = 0;
-	
-	/*
-	for (int i = 0; i < 4; i++)
-	{
-		ivec2 p = pTiles->GetPlayerSpawn();
-		ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SPAWN);
-	}
-	*/
-	
-	// find a platform
-	/*
-	for(int x = 3; x < w-3; x++)
-		for(int y = 3; y < h-3; y++)
-		{
-			if (!pTiles->Get(x-2, y) && !pTiles->Get(x-1, y) && !pTiles->Get(x, y) && !pTiles->Get(x+1, y) && !pTiles->Get(x+2, y) && 
-				pTiles->Get(x-2, y+1) && pTiles->Get(x-1, y+1) && pTiles->Get(x, y+1) && pTiles->Get(x+1, y+1) && pTiles->Get(x+2, y+1))
-			{
-				ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SPAWN);
-				
-				for (int xx = -3; xx < 3; xx++)
-					for (int yy = 1; yy < 40; yy++)
-						pTiles->Use(x+xx, y-yy);
-					
-					
-				
-				pTiles->Set(-1, x-2, y);
-				pTiles->Set(-1, x-1, y);
-				pTiles->Set(-1, x, y);
-				pTiles->Set(-1, x+1, y);
-				pTiles->Set(-1, x+2, y);
-				
-				
-				for (int xx = -2; xx < 2; xx++)
-					for (int yy = -3; yy < 0; yy++)
-						pTiles->Use(x+xx, y+yy);
-				
-				if (++Spawns >= 4)
-					return;
-				
-				x++;
-			}
-		}
-	*/
-}
-
 
 void CMapGen::GenerateEnd(CGenLayer *pTiles)
 {
@@ -121,8 +208,8 @@ void CMapGen::GenerateEnd(CGenLayer *pTiles)
 	for(int x = w-3; x > 3; x--)
 		for(int y = 3; y < h-3; y++)
 		{
-			if (!pTiles->Get(x-2, y) && !pTiles->Get(x-1, y) && !pTiles->Get(x, y) && !pTiles->Get(x+1, y) && !pTiles->Get(x+2, y) && 
-				pTiles->Get(x-2, y+1) && pTiles->Get(x-1, y+1) && pTiles->Get(x, y+1) && pTiles->Get(x+1, y+1) && pTiles->Get(x+2, y+1) &&
+			if (!pTiles->Get(x-2, y) && !pTiles->Get(x-1, y) && !pTiles->Get(x, y) && !pTiles->Get(x+1, y) && !pTiles->Get(x+2, y) && !pTiles->Get(x+3, y) && 
+				pTiles->Get(x-2, y+1) && pTiles->Get(x-1, y+1) && pTiles->Get(x, y+1) && pTiles->Get(x+1, y+1) && pTiles->Get(x+2, y+1) && pTiles->Get(x+3, y+1) &&
 				!pTiles->Get(x, y-2) && !pTiles->Get(x, y-3) && !pTiles->Get(x, y-4) && !pTiles->Get(x, y-5))
 			{
 				ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_DOOR1);
@@ -133,9 +220,15 @@ void CMapGen::GenerateEnd(CGenLayer *pTiles)
 				pTiles->Set(-1, x+1, y);
 				pTiles->Set(-1, x+2, y);
 				
-				for (int xx = -2; xx < 2; xx++)
+				// clear
+				for (int xx = -2; xx < 3; xx++)
 					for (int yy = -4; yy < 0; yy++)
 						pTiles->Set(-1, x+xx, y+yy);
+					
+				// background
+				for (int xx = -5; xx < 6; xx++)
+					for (int yy = -7; yy < 4000; yy++)
+						pTiles->Set(1, x+xx, y+yy, 0, CGenLayer::BACKGROUND);
 				
 				return;
 			}
@@ -271,14 +364,14 @@ void CMapGen::GeneratePowerupper(CGenLayer *pTiles)
 	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_POWERUPPER);
 }
 
-void CMapGen::GenerateAlien(CGenLayer *pTiles, int Type)
+void CMapGen::GenerateEnemySpawn(CGenLayer *pTiles)
 {
 	ivec2 p = pTiles->GetPlatform();
 	
 	if (p.x == 0)
 		return;
 	
-	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_ROBOT1+Type);
+	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_ENEMYSPAWN);
 }
 
 void CMapGen::GenerateFiretrap(CGenLayer *pTiles)
@@ -647,24 +740,42 @@ void CMapGen::GenerateLevel()
 	
 	dbg_msg("mapgen", "rooms generated, map size: %d", pTiles->Size());
 	
-	pTiles->GenerateAirPlatforms(pTiles->Size()/500);
+	int n = pTiles->Size()/500;
 	
-	// write to layers
-	for(int x = 0; x < w; x++)
-		for(int y = 0; y < h; y++)
-		{
-			if (pTiles->Get(x, y))
-			{
-				ModifTile(ivec2(x, y), m_pLayers->GetForegroundLayerIndex(), 1);
-				ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), 1);
-			}
-		}
-	
-	// start pos
-	//GenerateStart(pTiles);
+	if (n > 1)
+		pTiles->GenerateAirPlatforms(n/2 + rand()%(n/2));
+	else
+		pTiles->GenerateAirPlatforms(n);
 	
 	// finish pos
 	GenerateEnd(pTiles);
+	pTiles->GenerateBackground();
+
+	Proceed(pTiles, 0);
+	
+	// write to layers; foreground
+	for(int x = 0; x < w; x++)
+		for(int y = 0; y < h; y++)
+		{
+			int i = pTiles->Get(x, y);
+			
+			if (i > 0)
+			{
+				ModifTile(ivec2(x, y), m_pLayers->GetForegroundLayerIndex(), i, pTiles->GetFlags(x, y));
+				ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), 1);
+			}
+		}
+		
+	// background
+	for(int x = 0; x < w; x++)
+		for(int y = 0; y < h; y++)
+		{
+			int i = pTiles->Get(x, y, CGenLayer::BACKGROUND);
+			
+			if (i > 0)
+				ModifTile(ivec2(x, y), m_pLayers->GetBackgroundLayerIndex(), i, pTiles->GetFlags(x, y, CGenLayer::BACKGROUND));
+		}
+	
 	
 	// find platforms, corners etc.
 	pTiles->Scan();
@@ -686,28 +797,16 @@ void CMapGen::GenerateLevel()
 	for (int i = 0; i < pTiles->NumPlatforms() / b; i++)
 		GenerateBarrel(pTiles);
 	
-	bool Defend = false;
+	// enemy spawn positions
+	for (int i = 0; i < 12; i++)
+		GenerateEnemySpawn(pTiles);
 	
-	if (Level > 1 && Level%5 == 0)
-		Defend = true;
 	
+	bool Defend = (Level > 1 && Level%5 == 0);
 	int e = 2 + log(float(1 + Level/4)) * 5;
-	
+
 	if (Defend)
 		e *= 2;
-	
-	for (int i = 0; i < e; i++)
-	{
-		int t = 0;
-		
-		if (Level > 10 && frandom() < 0.2f)
-			t = 1;
-		else if (Level > 20 && frandom() < 0.2f)
-			t = 2;
-		
-		if (i <= 12)
-			GenerateAlien(pTiles, t);
-	}
 	
 	if (Defend)
 	{
@@ -752,7 +851,7 @@ void CMapGen::GenerateLevel()
 	int Obs = Level/3 - 4;
 	
 	if (Level > 10 && frandom() < 0.3f)
-		Obs += Level;
+		Obs += Level/2;
 	
 	if (Defend)
 		Obs /= 5;
@@ -773,13 +872,9 @@ void CMapGen::GenerateLevel()
 		}
 	}
 
-	
-	for (int i = 0; i < e; i++)
-	{
-		if (i > 12)
-			GenerateAlien(pTiles, 3);
-	}
-	
+	// more enemy spawn positions
+	for (int i = 0; i < 12; i++)
+		GenerateEnemySpawn(pTiles);
 	
 	if (pRoom)
 		delete pRoom;
@@ -790,7 +885,90 @@ void CMapGen::GenerateLevel()
 
 
 
-inline void CMapGen::ModifTile(ivec2 Pos, int Layer, int Tile)
+inline void CMapGen::ModifTile(ivec2 Pos, int Layer, int Tile, int Flags)
 {
-	m_pCollision->ModifTile(Pos, m_pLayers->GetGameGroupIndex(), Layer, Tile, 0, 0);
+	m_pCollision->ModifTile(Pos, m_pLayers->GetGameGroupIndex(), Layer, Tile, Flags, 0);
+}
+
+
+
+
+void CMapGen::Proceed(CGenLayer *pTiles, int ConfigID)
+{
+	if(!m_FileLoaded || ConfigID < 0 || ConfigID >= m_lConfigs.size())
+		return;
+
+	CConfiguration *pConf = &m_lConfigs[ConfigID];
+
+	if(!pConf->m_aIndexRules.size())
+		return;
+
+	int BaseTile = 1;
+
+	// find base tile if there is one
+	for(int i = 0; i < pConf->m_aIndexRules.size(); ++i)
+	{
+		if(pConf->m_aIndexRules[i].m_BaseTile)
+		{
+			BaseTile = pConf->m_aIndexRules[i].m_ID;
+			break;
+		}
+	}
+	
+	int Width = m_pLayers->GameLayer()->m_Width;
+	int Height = m_pLayers->GameLayer()->m_Height;
+	
+	// auto map !
+	int MaxIndex = Width*Height;
+	for (int l = 0; l < 2; l++)
+		for (int y = 0; y < Height; y++)
+			for (int x = 0; x < Width; x++)
+			{
+				if (pTiles->Get(x, y, l) == 0)
+					continue;
+				
+				pTiles->Set(BaseTile, x, y, 0, l);
+
+				if (y == 0 || y == Height-1 || x == 0 || x == Width-1)
+					continue;
+
+				for (int i = 0; i < pConf->m_aIndexRules.size(); ++i)
+				{
+					if (pConf->m_aIndexRules[i].m_BaseTile)
+						continue;
+
+					bool RespectRules = true;
+					for (int j = 0; j < pConf->m_aIndexRules[i].m_aRules.size() && RespectRules; ++j)
+					{
+						CPosRule *pRule = &pConf->m_aIndexRules[i].m_aRules[j];
+						int CheckIndex = (y+pRule->m_Y)*Width+(x+pRule->m_X);
+
+						if (CheckIndex < 0 || CheckIndex >= MaxIndex)
+							RespectRules = false;
+						else
+						{
+							if (pRule->m_IndexValue)
+							{
+								if (pTiles->GetByIndex(CheckIndex, l) != pRule->m_Value)
+									RespectRules = false;
+							}
+							else
+							{
+								if(pTiles->GetByIndex(CheckIndex, l) > 0 && pRule->m_Value == CPosRule::EMPTY)
+									RespectRules = false;
+
+								if(pTiles->GetByIndex(CheckIndex, l) == 0 && pRule->m_Value == CPosRule::FULL)
+									RespectRules = false;
+							}
+						}
+					}
+
+					if (RespectRules &&
+						(pConf->m_aIndexRules[i].m_YDivisor < 2 || y%pConf->m_aIndexRules[i].m_YDivisor == pConf->m_aIndexRules[i].m_YRemainder) &&
+						(pConf->m_aIndexRules[i].m_RandomValue <= 1 || (int)((float)rand() / ((float)RAND_MAX + 1) * pConf->m_aIndexRules[i].m_RandomValue) == 1))
+					{
+						pTiles->Set(pConf->m_aIndexRules[i].m_ID, x, y, pConf->m_aIndexRules[i].m_Flag, l);
+					}
+				}
+			}
 }

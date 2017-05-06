@@ -64,7 +64,7 @@ MACRO_CONFIG_INT(GamepadID, gamepadid, -1, 9999, -1, CFGFLAG_SAVE|CFGFLAG_CLIENT
 
 
 
-MACRO_CONFIG_INT(GoreBlood, gore_blood, 30, 0, 100, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Blood amount")
+MACRO_CONFIG_INT(GoreBlood, gore_blood, 10, 0, 100, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Blood amount")
 MACRO_CONFIG_INT(GoreWallSplatter, gore_wallsplatter, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Wall splatter enable")
 
 MACRO_CONFIG_INT(GoreAimLine, gore_aimline, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Aim line enable")
@@ -103,6 +103,7 @@ MACRO_CONFIG_STR(Bindaddr, bindaddr, 128, "", CFGFLAG_CLIENT|CFGFLAG_SERVER|CFGF
 MACRO_CONFIG_INT(SvPort, sv_port, 8303, 0, 0, CFGFLAG_SERVER, "Port to use for the server")
 MACRO_CONFIG_INT(SvExternalPort, sv_external_port, 0, 0, 0, CFGFLAG_SERVER, "External port to report to the master servers")
 MACRO_CONFIG_STR(SvMap, sv_map, 128, "dm1", CFGFLAG_SERVER, "Map to use on the server")
+MACRO_CONFIG_STR(SvInvMap, sv_dont_use_j92tka9j, 128, "", CFGFLAG_SERVER, "Latest invasion map")
 MACRO_CONFIG_INT(SvMaxClients, sv_max_clients, 16, 1, MAX_CLIENTS, CFGFLAG_SERVER, "Maximum number of clients that are allowed on a server")
 MACRO_CONFIG_INT(SvMaxClientsPerIP, sv_max_clients_per_ip, 16, 1, MAX_CLIENTS, CFGFLAG_SERVER, "Maximum number of clients with the same IP that can connect to the server")
 MACRO_CONFIG_INT(SvHighBandwidth, sv_high_bandwidth, 0, 0, 1, CFGFLAG_SERVER, "Use high bandwidth mode. Doubles the bandwidth required for the server. LAN use only")
@@ -131,9 +132,8 @@ MACRO_CONFIG_STR(DbgStressServer, dbg_stress_server, 32, "localhost", CFGFLAG_CL
 MACRO_CONFIG_INT(DbgResizable, dbg_resizable, 0, 0, 0, CFGFLAG_CLIENT, "Enables window resizing")
 
 // MapGen
-MACRO_CONFIG_INT(SvMapGen, sv_mapgen, 0, 0, 1, CFGFLAG_SERVER, "Map Generation Status")
+MACRO_CONFIG_INT(SvMapGen, sv_mapgen, 1, 0, 1, CFGFLAG_SERVER, "Map Generation Status")
 MACRO_CONFIG_INT(SvMapGenLevel, sv_mapgen_level, 1, 1, 9999, CFGFLAG_SERVER, "Map Difficulty")
-MACRO_CONFIG_INT(SvMapGenSeed, sv_mapgen_seed, 0, 0, 2147483647, CFGFLAG_SERVER, "Map Generation Seed")
 
 MACRO_CONFIG_INT(SvInvFails, sv_not_to_be_used_like_this_8f3jd72h,  0, 0, 9, CFGFLAG_SERVER, "Invasion level fails")
 #endif

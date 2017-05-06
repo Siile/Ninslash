@@ -15,7 +15,7 @@ Damagetypes = ["NORMAL", "FLAME", "ELECTRIC", "FLUID"]
 
 Monsterstatus = ["IDLE", "HURT", "ELECTRIC"]
 
-CoreAction = ["IDLE", "JUMP", "WALLJUMP", "ROLL", "SLIDE", "JUMPPAD"]
+CoreAction = ["IDLE", "JUMP", "WALLJUMP", "ROLL", "SLIDE", "SLIDEKICK", "FALL", "JUMPPAD"]
 
 RawHeader = '''
 
@@ -77,6 +77,7 @@ enum
 	FX_MONSTERDEATH,
 	FX_MONSTERSPAWN,
 	FX_TAKEOFF,
+	FX_FLAME1,
 	NUMFX,
 	
 	EFFECT_ELECTRODAMAGE=1,
