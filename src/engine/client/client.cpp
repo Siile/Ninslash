@@ -797,6 +797,7 @@ const char *CClient::LoadMap(const char *pName, const char *pFilename, unsigned 
 		str_format(aErrorMsg, sizeof(aErrorMsg), "map differs from the server. %08x != %08x", m_pMap->Crc(), WantedCrc);
 		m_pConsole->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "client", aErrorMsg);
 		m_pMap->Unload();
+
 		return aErrorMsg;
 	}
 
@@ -823,10 +824,6 @@ const char *CClient::LoadMapSearch(const char *pMapName, int WantedCrc)
 	str_format(aBuf, sizeof(aBuf), "loading map, map=%s wanted crc=%08x", pMapName, WantedCrc);
 	m_pConsole->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "client", aBuf);
 	SetState(IClient::STATE_LOADING);
-	
-
-	// remove old generated map file first if needed
-	m_pStorage->RemoveFile("downloadedmaps/generated.map", IStorage::TYPE_SAVE);
 	
 	// try the normal maps folder
 	str_format(aBuf, sizeof(aBuf), "maps/%s.map", pMapName);
@@ -1041,9 +1038,6 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket)
 
 			if(Unpacker.Error())
 				return;
-			
-			// remove old generated map file first if needed
-			m_pStorage->RemoveFile("downloadedmaps/generated.map", IStorage::TYPE_SAVE);
 
 			// check for valid standard map
 			if(!m_MapChecker.IsMapValid(pMap, MapCrc, MapSize))
@@ -1071,7 +1065,14 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket)
 				}
 				else
 				{
-					str_format(m_aMapdownloadFilename, sizeof(m_aMapdownloadFilename), "downloadedmaps/%s_%08x.map", pMap, MapCrc);
+					// don't flood downloadedmaps folder with generated maps
+					if (str_comp(pMap, "generated") == 0)
+					{
+						m_pStorage->RemoveFile("downloadedmaps/generated.map", IStorage::TYPE_SAVE);
+						str_format(m_aMapdownloadFilename, sizeof(m_aMapdownloadFilename), "downloadedmaps/%s.map", pMap);
+					}
+					else
+						str_format(m_aMapdownloadFilename, sizeof(m_aMapdownloadFilename), "downloadedmaps/%s_%08x.map", pMap, MapCrc);
 
 					char aBuf[256];
 					str_format(aBuf, sizeof(aBuf), "starting to download map to '%s'", m_aMapdownloadFilename);
@@ -1085,7 +1086,7 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket)
 					m_MapdownloadCrc = MapCrc;
 					m_MapdownloadTotalsize = MapSize;
 					m_MapdownloadAmount = 0;
-
+			
 					CMsgPacker Msg(NETMSG_REQUEST_MAP_DATA);
 					Msg.AddInt(m_MapdownloadChunk);
 					SendMsgEx(&Msg, MSGFLAG_VITAL|MSGFLAG_FLUSH);
