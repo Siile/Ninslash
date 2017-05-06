@@ -17,6 +17,8 @@
 #include <game/server/ai/robot2_ai.h>
 #include <game/server/ai/alien1_ai.h>
 #include <game/server/ai/alien2_ai.h>
+#include <game/server/ai/bunny1_ai.h>
+#include <game/server/ai/bunny2_ai.h>
 
 
 
@@ -121,7 +123,14 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 				i = ENEMY_ROBOT2;
 			
 			if (m_EnemyCount > 12)
+			{
 				i = ENEMY_ALIEN2;
+				
+				if (g_Config.m_SvMapGenLevel > 30 && frandom() < 0.35f)
+						i = ENEMY_BUNNY1;
+				if (g_Config.m_SvMapGenLevel > 35 && frandom() < 0.35f)
+						i = ENEMY_BUNNY2;
+			}
 			
 			switch (i)
 			{
@@ -139,6 +148,14 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 					
 			case ENEMY_ROBOT2:
 				pChr->GetPlayer()->m_pAI = new CAIrobot2(GameServer(), pChr->GetPlayer());
+				break;
+				
+			case ENEMY_BUNNY1:
+				pChr->GetPlayer()->m_pAI = new CAIbunny1(GameServer(), pChr->GetPlayer());
+				break;
+				
+			case ENEMY_BUNNY2:
+				pChr->GetPlayer()->m_pAI = new CAIbunny2(GameServer(), pChr->GetPlayer());
 				break;
 				
 			default:

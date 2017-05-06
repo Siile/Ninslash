@@ -810,7 +810,7 @@ void CMapGen::GenerateLevel()
 	
 	if (Defend)
 	{
-		int t = rand()%(e/3+1)+2;
+		int t = rand()%(e/3+3)+3;
 		
 		for (int i = 0; i < t; i++)
 			GenerateTurretStand(pTiles);
@@ -820,10 +820,10 @@ void CMapGen::GenerateLevel()
 	for (int i = 0; i < (pTiles->Size()-Level*5)/700; i++)
 		GenerateWeapon(pTiles, ENTITY_WEAPON_CHAINSAW+rand()%8);
 	
-	for (int i = 0; i < (pTiles->Size()-Level*5)/1000; i++)
+	for (int i = 0; i < (pTiles->Size()-Level*5)/900; i++)
 		GenerateHearts(pTiles);
 	
-	for (int i = 0; i < (pTiles->Size()-Level*5)/1000; i++)
+	for (int i = 0; i < (pTiles->Size()-Level*5)/900; i++)
 		GenerateAmmo(pTiles);
 	
 	// power upper(s)

@@ -628,7 +628,7 @@ void CRenderTools::RenderShield(vec2 Pos, vec2 Size, float State)
 	
 	Graphics()->QuadsBegin();
 	Graphics()->QuadsSetRotation(0);
-	Graphics()->SetColor(1, 1, 1, 0.7f);
+	Graphics()->SetColor(1, 1, 1, 0.5f);
 	SelectSprite(SPRITE_SHIELD1 + State*8, 0, 0, 0);
 	IGraphics::CQuadItem QuadItem(Pos.x, Pos.y, Size.x, Size.y);
 	Graphics()->QuadsDraw(&QuadItem, 1);
