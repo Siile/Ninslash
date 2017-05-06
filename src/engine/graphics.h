@@ -17,6 +17,7 @@ enum RenderBuffers
 
 enum Shaders
 {
+	SHADER_CHAINSAW,
 	SHADER_ELECTRIC,
 	SHADER_DEATHRAY,
 	SHADER_SPAWN,

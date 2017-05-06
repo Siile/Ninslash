@@ -485,6 +485,13 @@ void CPlayers::RenderPlayer(
 			Graphics()->ShaderBegin(SHADER_RAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE]);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] > 0.0f)
 			Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL]);
+		else if (Player.m_Weapon == WEAPON_CHAINSAW)
+		{
+			float attackTime = (Player.m_AttackTick - Client()->GameTick()) / (float)Client()->GameTickSpeed();
+			attackTime = min(1.0f, (attackTime + 1.0f) * 2.0f); // glow for 1 second, fade for 0.5 seconds
+			if (attackTime >= 0)
+				Graphics()->ShaderBegin(SHADER_CHAINSAW, attackTime);
+		}
 		
 		//Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
