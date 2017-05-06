@@ -1298,7 +1298,7 @@ char *CServer::GetMapName()
 
 int CServer::LoadMap(const char *pMapName)
 {
-	if (strcmp(pMapName, "generated") != 0)
+	if (str_comp(pMapName, "generated") != 0)
 		m_MapGenerated = false;
 	else if (g_Config.m_SvMapGen)
 		str_copy(g_Config.m_SvInvMap, m_aCurrentMap, sizeof(g_Config.m_SvInvMap));
