@@ -3114,6 +3114,9 @@ void CGameContext::SaveMap(const char *path)
     	fileWrite.SaveMap(Storage(), pMap->GetFileReader(), aMapFile);
 		*/
 		
+	// Map will be saved to current dir, not to ~/.ninslash/maps or to data/maps, so we need to create a dir for it
+	Storage()->CreateFolder("maps", IStorage::TYPE_SAVE);
+
     fileWrite.SaveMap(Storage(), pMap->GetFileReader(), aMapFile);
 
     char aBuf[128];
