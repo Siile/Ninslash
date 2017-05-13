@@ -17,6 +17,7 @@ class CBuildings : public CComponent
 	void RenderFlametrap(const struct CNetObj_Building *pCurrent);
 	void RenderSwitch(const struct CNetObj_Building *pCurrent);
 	void RenderDoor1(const struct CNetObj_Building *pCurrent);
+	void RenderSpeaker(const struct CNetObj_Building *pCurrent);
 
 public:
 	virtual void OnReset();

@@ -73,6 +73,11 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		m_Collision = false;
 		break;
 		
+	case BUILDING_SPEAKER:
+		m_Life = 9000;
+		m_Collision = false;
+		break;
+		
 	case BUILDING_JUMPPAD:
 		m_ProximityRadius = JumppadPhysSize;
 		m_Life = 9000;
@@ -175,7 +180,7 @@ void CBuilding::Trigger()
 	{
 		m_aStatus[BSTATUS_EVENT] = 1;
 		m_TriggerTimer = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed() * 0.5f;
-		GameServer()->CreateSound(m_Pos, SOUND_DOOR1);
+		GameServer()->CreateSoundGlobal(SOUND_DOOR1);
 	}
 }
 
@@ -234,11 +239,13 @@ void CBuilding::Destroy()
 {
 	if (m_Type == BUILDING_MINE1)
 	{
+		m_Life = 9000;
 		GameServer()->CreateMineExplosion(m_Pos, m_DamageOwner, DEATHTYPE_LANDMINE, false);
 		GameServer()->m_World.DestroyEntity(this);
 	}
 	else if (m_Type == BUILDING_MINE2)
 	{
+		m_Life = 9000;
 		GameServer()->CreateElectromineExplosion(m_Pos, m_DamageOwner, DEATHTYPE_ELECTROMINE, false);
 		GameServer()->m_World.DestroyEntity(this);
 	}

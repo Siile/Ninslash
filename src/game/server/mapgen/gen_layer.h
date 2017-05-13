@@ -37,6 +37,12 @@ private:
 	ivec2 m_aCeiling[GEN_MAX];
 	int m_NumCeilings;
 	
+	ivec3 m_aLongCeiling[GEN_MAX];
+	int m_NumLongCeilings;
+	
+	ivec3 m_aLongPlatform[GEN_MAX];
+	int m_NumLongPlatforms;
+	
 	ivec2 m_aPlayerSpawn[GEN_MAX];
 	int m_NumPlayerSpawns;
 	
@@ -76,6 +82,9 @@ public:
 	ivec2 GetTopCorner();
 	ivec2 GetSharpCorner();
 	ivec4 GetPit();
+	
+	ivec3 GetLongPlatform();
+	ivec3 GetLongCeiling();
 };
 
 #endif

@@ -78,6 +78,8 @@ private:
 public:
 	CPlayerInfo();
 	
+	vec2 m_FGHandPos;
+	
 	bool m_Jetpack;
 	vec2 m_ArmPos;
 	
@@ -85,6 +87,8 @@ public:
 	vec2 HandOffset();
 	void SetHandTarget(vec3 Pos);
 	int HandFrame();
+	
+	bool m_Hang;
 	
 	float MeleeAngle();
 	float MeleeSize();

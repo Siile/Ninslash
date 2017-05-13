@@ -50,9 +50,10 @@ public:
 		COLFLAG_ROOFSLOPE_RIGHT=64,
 		COLFLAG_DAMAGEFLUID=128,
 		
-		// 256 = out of range for unsigned char, ugly!
+		// 256 = out of range for unsigned char, ugly! spurdo :D
 		COLFLAG_MOVELEFT=129,
 		COLFLAG_MOVERIGHT=130,
+		COLFLAG_HANG=131,
 	};
 	
 	enum
@@ -97,6 +98,9 @@ public:
 	
 	bool IsSawblade(float x, float y);
 	bool IsSawblade(vec2 Pos){ return IsSawblade(Pos.x, Pos.y); }
+	
+	bool IsHangTile(float x, float y);
+	bool IsHangTile(vec2 Pos){ return IsHangTile(Pos.x, Pos.y); }
 	
 	int CheckPoint(float x, float y, bool IncludeDeath = false) { return SolidState(round_to_int(x), round_to_int(y), IncludeDeath); }
 	bool CheckPoint(vec2 Pos) { return CheckPoint(Pos.x, Pos.y); }

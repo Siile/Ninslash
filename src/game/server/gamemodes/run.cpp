@@ -196,7 +196,7 @@ int CGameControllerCoop::OnCharacterDeath(class CCharacter *pVictim, class CPlay
 		
 	if (pVictim->m_IsBot && !pVictim->GetPlayer()->m_ToBeKicked)
 	{
-		if (--m_Deaths <= 0)
+		if (--m_Deaths <= 0 && CountPlayersAlive(-1, true) > 0)
 			TriggerEscape();
 				
 		if (m_EnemiesLeft <= 0)

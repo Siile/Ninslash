@@ -15,7 +15,7 @@ Damagetypes = ["NORMAL", "FLAME", "ELECTRIC", "FLUID"]
 
 Monsterstatus = ["IDLE", "HURT", "ELECTRIC"]
 
-CoreAction = ["IDLE", "JUMP", "WALLJUMP", "ROLL", "SLIDE", "SLIDEKICK", "FALL", "JUMPPAD"]
+CoreAction = ["IDLE", "JUMP", "WALLJUMP", "ROLL", "SLIDE", "SLIDEKICK", "FALL", "JUMPPAD", "HANG"]
 
 RawHeader = '''
 
@@ -50,6 +50,7 @@ enum
 	BUILDING_JUMPPAD,
 	BUILDING_SWITCH,
 	BUILDING_DOOR1,
+	BUILDING_SPEAKER,
 	
 	KIT_BARREL=0,
 	KIT_TURRET,
@@ -254,6 +255,7 @@ Objects = [
 
 		NetIntAny("m_Angle"),
 		NetIntRange("m_Direction", -1, 1),
+		NetIntRange("m_Down", 0, 1),
 		NetIntAny("m_Anim"),
 		NetIntAny("m_LockDirection"),
 		NetIntRange("m_HandJetpack", 0, 1),

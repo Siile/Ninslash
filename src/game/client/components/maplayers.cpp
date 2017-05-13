@@ -15,6 +15,9 @@
 #include <game/client/components/camera.h>
 #include <game/client/components/mapimages.h>
 
+// unfortunate include
+#include <game/client/customstuff.h>
+#include <game/client/customstuff/playerinfo.h>
 
 #include "maplayers.h"
 
@@ -291,5 +294,8 @@ void CMapLayers::OnRender()
 	//Graphics()->RenderToScreen();
 	//RenderTools()->RenderFullScreenLayer();
 	
+	// render players hand here ( wtf :D ) in some cases
+	for (int i = 0; i < MAX_CLIENTS; i++)
+		RenderTools()->RenderForegroundHand(&CustomStuff()->m_aPlayerInfo[i]);
 }
 

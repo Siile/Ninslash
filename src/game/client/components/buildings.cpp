@@ -114,6 +114,56 @@ void CBuildings::RenderDoor1(const struct CNetObj_Building *pCurrent)
 }
 
 
+void CBuildings::RenderSpeaker(const struct CNetObj_Building *pCurrent)
+{
+	if (!g_Config.m_SndEnvironmental)
+		return;
+	
+	bool Flip = false;
+	vec2 p = vec2(pCurrent->m_X, pCurrent->m_Y);
+	
+	if (Collision()->CheckPoint(pCurrent->m_X - 48, pCurrent->m_Y))
+		Flip = true;
+	
+	// sound
+	int64 currentTime = time_get();
+	
+	int i = (pCurrent->m_X/64 + pCurrent->m_Y/17)%MAX_BG_SOUNDS;
+	
+	if (currentTime > CustomStuff()->m_aBGSound[i])
+	{
+		CustomStuff()->m_aBGSound[i] = currentTime+time_freq()*3.7f;
+		m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_BG1+i%13, 1.0f, p);
+	}
+	
+	if (currentTime > CustomStuff()->m_aBGEffect[i])
+	{
+		vec2 o = vec2(-28, 28);
+		if (Flip)
+			o.x *= -1;
+		
+		if (frandom() < 0.3f)
+			CustomStuff()->m_aBGEffect[i] = currentTime+(time_freq()*3.7f)/16.0f;
+		else
+			CustomStuff()->m_aBGEffect[i] = currentTime+(time_freq()*3.7f)/8.0f;
+		
+		m_pClient->m_pEffects->Electrospark(p+o, 48, o*2.0f+vec2(frandom()-frandom(), frandom()-frandom()) * 20.0f);
+	}
+	
+	// render
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
+	Graphics()->QuadsBegin();
+	
+	RenderTools()->SelectSprite(SPRITE_SPEAKER, Flip ? SPRITE_FLAG_FLIP_X : 0);
+	
+	Graphics()->SetColor(1, 1, 1, 1);
+	Graphics()->QuadsSetRotation(0);
+		
+	RenderTools()->DrawSprite(p.x, p.y, 128);
+	Graphics()->QuadsEnd();
+}
+
+
 void CBuildings::RenderSwitch(const struct CNetObj_Building *pCurrent)
 {
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
@@ -271,6 +321,59 @@ void CBuildings::RenderStand(const struct CNetObj_Building *pCurrent)
 	
 void CBuildings::RenderLazer(const struct CNetObj_Building *pCurrent)
 {
+	// danger line
+	Graphics()->ShaderBegin(SHADER_DEATHRAY, 0.3f);
+	Graphics()->TextureSet(-1);
+	RenderTools()->SelectSprite(-1);
+	Graphics()->QuadsBegin();
+	
+	Graphics()->SetColor(0, 0, 0, 0.15f);
+	
+	vec2 p1 = vec2(pCurrent->m_X, pCurrent->m_Y+8);
+	//vec2 p2 = vec2(pCurrent->m_X, pCurrent->m_Y+1200);
+	
+	float y = 64.0f;
+	bool Break = false;
+	
+	float s1 = 2.0f;
+	
+	while (y < 1200.0f && !Break)
+	{
+		vec2 p2 = vec2(pCurrent->m_X, pCurrent->m_Y+y);
+		if (Collision()->IntersectLine(p1, p2, 0x0, &p2))
+			Break = true;
+		
+		float s2 = frandom()*6.0f;
+		
+		IGraphics::CFreeformItem FreeFormItem(
+			p1.x-s1, p1.y,
+			p1.x+s1, p1.y,
+			p1.x-s2, p2.y,
+			p1.x+s2, p2.y);
+							
+		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+	
+		s1 = s2;
+		p1 = p2;
+		y += 64.0f;
+	}
+	
+	/*
+	Collision()->IntersectLine(p1, p2, 0x0, &p2);
+	
+	IGraphics::CFreeformItem FreeFormItem(
+		p1.x-2, p1.y,
+		p1.x+2, p1.y,
+		p1.x-2, p2.y,
+		p1.x+2, p2.y);
+						
+	Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+	*/
+	Graphics()->QuadsEnd();
+	Graphics()->ShaderEnd();
+	
+	
+	// deathray
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
 	Graphics()->QuadsBegin();
 	
@@ -664,6 +767,10 @@ void CBuildings::OnRender()
 				
 			case BUILDING_DOOR1:
 				RenderDoor1(pBuilding);
+				break;
+				
+			case BUILDING_SPEAKER:
+				RenderSpeaker(pBuilding);
 				break;
 				
 			default:;

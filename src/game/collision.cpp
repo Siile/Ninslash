@@ -80,6 +80,9 @@ void CCollision::Init(class CLayers *pLayers)
 		case TILE_MOVERIGHT:
 			m_pTiles[i].m_Index = COLFLAG_MOVERIGHT;
 			break;
+		case TILE_HANG:
+			m_pTiles[i].m_Index = COLFLAG_HANG;
+			break;
 		default:
 			m_pTiles[i].m_Index = 0;
 		}
@@ -507,6 +510,17 @@ int CCollision::ForceState(int x, int y)
 }
 
 
+bool CCollision::IsHangTile(float x, float y)
+{
+	int Nx = clamp(round_to_int(x)/32, 0, m_Width-1);
+	int Ny = clamp(round_to_int(y)/32, 0, m_Height-1);
+	
+	if (m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_HANG)
+		return true;
+	
+	return false;
+}
+
 bool CCollision::IsSawblade(float x, float y)
 {
 	int Nx = clamp(round_to_int(x)/32, 0, m_Width-1);
@@ -889,6 +903,15 @@ bool CCollision::ModifTile(ivec2 pos, int group, int layer, int tile, int flags,
             break;
         case TILE_DAMAGEFLUID:
             m_pTiles[tpos].m_Index = COLFLAG_DAMAGEFLUID;
+            break;
+        case TILE_MOVELEFT:
+            m_pTiles[tpos].m_Index = COLFLAG_MOVELEFT;
+            break;
+        case TILE_MOVERIGHT:
+            m_pTiles[tpos].m_Index = COLFLAG_MOVERIGHT;
+            break;
+        case TILE_HANG:
+            m_pTiles[tpos].m_Index = COLFLAG_HANG;
             break;
         default:
             if(tile <= 128)

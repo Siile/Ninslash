@@ -241,6 +241,7 @@ public:
 	int m_JumpTimer;
 	
 	int m_Direction;
+	int m_Down;
 	int m_Angle;
 	int m_Anim;
 	int m_LockDirection;

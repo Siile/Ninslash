@@ -21,6 +21,7 @@ class CMapGen
 	
 	void GenerateEnd(class CGenLayer *pTiles);
 	
+	void GenerateSpeaker(class CGenLayer *pTiles);
 	void GeneratePowerupper(class CGenLayer *pTiles);
 	void GenerateSwitch(class CGenLayer *pTiles);
 	void GenerateTurretStand(class CGenLayer *pTiles);
@@ -31,6 +32,9 @@ class CMapGen
 	void GenerateHearts(class CGenLayer *pTiles);
 	void GenerateAmmo(class CGenLayer *pTiles);
 	void GenerateAcid(class CGenLayer *pTiles);
+	
+	void GenerateConveyorBelt(class CGenLayer *pTiles);
+	void GenerateHangables(class CGenLayer *pTiles);
 	
 	void GenerateSawblade(class CGenLayer *pTiles);
 	void GenerateFiretrap(class CGenLayer *pTiles);

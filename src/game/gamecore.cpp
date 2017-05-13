@@ -92,6 +92,7 @@ void CCharacterCore::Reset()
 	m_OnWall = false;
 	
 	m_Direction = 0;
+	m_Down = 0;
 	m_Angle = 0;
 	m_Anim = 0;
 	m_LockDirection = 0;
@@ -358,6 +359,7 @@ void CCharacterCore::Tick(bool UseInput)
 	if(UseInput)
 	{
 		m_Direction = m_Input.m_Direction;
+		m_Down = m_Input.m_Down;
 		
 		
 		// sliding
@@ -664,6 +666,11 @@ void CCharacterCore::Tick(bool UseInput)
 			m_Vel.x += diff;
 	}
 	
+	if (m_Action == COREACTION_HANG)
+	{
+		Accel *= 0.3f;
+		MaxSpeed *= 0.3f;
+	}
 	
 	// add the speed modification according to players wanted direction
 	if (m_Slide == 0)
@@ -896,6 +903,39 @@ void CCharacterCore::Tick(bool UseInput)
 	}
 	
 	
+	// hang on to somethings
+	if (m_Down || m_HandJetpack || m_Jetpack)
+	{
+		if (m_Action == COREACTION_HANG)
+			m_Action = COREACTION_IDLE;
+	}
+	else
+	{
+		if (m_pCollision->IsHangTile(m_Pos + vec2(0, -32))) // -32
+		{
+			if (m_Vel.y >= 0.0f)
+			{
+				m_Vel.x *= 0.97f;
+				m_Vel.y = 0.0f;
+				m_Action = COREACTION_HANG;
+				m_ActionState = 0;
+				//m_Pos.y = (int(m_Pos.y/32))*32 + int(m_Pos.y)%32;
+				m_Pos.y -= (int(m_Pos.y)%32-26)/2.0f; // 26
+				
+				if (!LoadJetpack)
+				{
+					m_JetpackPower += 3;
+					
+					if (m_JetpackPower > 200)
+						m_JetpackPower = 200;
+				}
+			}
+		}
+		else if (m_Action == COREACTION_HANG)
+			m_Action = COREACTION_IDLE;
+	}
+	
+	
 	// clamp the velocity to something sane
 	if(length(m_Vel) > 6000)
 		m_Vel = normalize(m_Vel) * 6000;
@@ -914,13 +954,11 @@ void CCharacterCore::Tick(bool UseInput)
 	if (IsInFluid())
 	{
 		m_Vel *= 0.9f;
-		m_Jetpack = 0;
+		m_Jetpack = false;;
 		m_HandJetpack = 0;
 		m_FluidDamage = true;
 	}
 }
-
-
 
 
 void CCharacterCore::Jumppad()
@@ -1244,6 +1282,7 @@ void CCharacterCore::Write(CNetObj_CharacterCore *pObjCore)
 	pObjCore->m_Jumped = m_Jumped;
 	pObjCore->m_JumpTimer = m_JumpTimer;
 	pObjCore->m_Direction = m_Direction;
+	pObjCore->m_Down = m_Down;
 	pObjCore->m_Sliding = m_Sliding;
 	pObjCore->m_Grounded = IsGrounded();
 	pObjCore->m_Angle = m_Angle;
@@ -1273,6 +1312,7 @@ void CCharacterCore::Read(const CNetObj_CharacterCore *pObjCore)
 	m_Jumped = pObjCore->m_Jumped;
 	m_JumpTimer = pObjCore->m_JumpTimer;
 	m_Direction = pObjCore->m_Direction;
+	m_Down = pObjCore->m_Down;
 	m_Sliding = pObjCore->m_Sliding;
 	m_Angle = pObjCore->m_Angle;
 	m_Anim = pObjCore->m_Anim;

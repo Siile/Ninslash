@@ -9,6 +9,8 @@
 #include <game/weapons.h>
 #include "customstuff/playerinfo.h"
 
+#define MAX_BG_SOUNDS 64
+
 enum Pickers
 {
 	PICKER_WEAPON,
@@ -38,6 +40,9 @@ public:
 		IMPACT_HIT,
 		MAX_IMPACTSTATES
 	};
+	
+	int64 m_aBGSound[MAX_BG_SOUNDS];
+	int64 m_aBGEffect[MAX_BG_SOUNDS];
 	
 	int m_Impact;
 	int m_aImpactState[MAX_IMPACTS];

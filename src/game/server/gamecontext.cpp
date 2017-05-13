@@ -35,7 +35,7 @@
 
 
 const int ExplosionDmg = 40;
-const int MineExplosionDmg = 25;
+const int MineExplosionDmg = 20;
 
 
 enum
@@ -734,7 +734,7 @@ void CGameContext::CreateElectromineExplosion(vec2 Pos, int Owner, int Weapon, b
 				if(l)
 					ForceDir = normalize(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
-				float Dmg = 20 * l;
+				float Dmg = 15 * l;
 							
 				if((int)Dmg && Dmg > 0.0f)
 				{
@@ -3116,7 +3116,7 @@ void CGameContext::SaveMap(const char *path)
 		
 	// Map will be saved to current dir, not to ~/.ninslash/maps or to data/maps, so we need to create a dir for it
 	Storage()->CreateFolder("maps", IStorage::TYPE_SAVE);
-
+		
     fileWrite.SaveMap(Storage(), pMap->GetFileReader(), aMapFile);
 
     char aBuf[128];

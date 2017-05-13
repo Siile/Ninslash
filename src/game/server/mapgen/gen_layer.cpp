@@ -46,6 +46,14 @@ CGenLayer::CGenLayer(int w, int h)
 	for (int i = 0; i < GEN_MAX; i++)
 		m_aCeiling[i] = ivec2(0, 0);
 	
+	m_NumLongCeilings = 0;
+	for (int i = 0; i < GEN_MAX; i++)
+		m_aLongCeiling[i] = ivec3(0, 0, 0);
+	
+	m_NumLongPlatforms = 0;
+	for (int i = 0; i < GEN_MAX; i++)
+		m_aLongPlatform[i] = ivec3(0, 0, 0);
+	
 	m_NumPlayerSpawns = 0;
 	for (int i = 0; i < GEN_MAX; i++)
 		m_aPlayerSpawn[i] = ivec2(0, 0);
@@ -172,6 +180,38 @@ void CGenLayer::GenerateAirPlatforms(int Num)
 
 void CGenLayer::Scan()
 {
+	// find long ceilings (hangables)
+	for (int x = 2; x < m_Width-2; x++)
+		for (int y = 2; y < m_Height-2; y++)
+		{
+			if (!Used(x, y+1) && Get(x, y) && (Get(x-1, y+1) || !Get(x-1, y)))
+			{
+				int x1 = 1;
+				bool Valid = false;
+				
+				while (x1 < 20)
+				{
+					if (Get(x+x1, y+1) || !Get(x+x1, y))
+					{
+						x1--;
+						Valid = true;
+						break;
+					}
+					x1++;
+				}
+				
+				if (x1 > 3 && Valid)
+				{
+					if (m_NumLongCeilings < GEN_MAX)
+					{
+						m_aLongCeiling[m_NumLongCeilings++] = ivec3(x, y, x+x1);
+						Set(-1, x, y+1);
+						Use(x, y);
+					}
+				}
+			}
+		}
+	
 	// find player spawn spots
 	for (int x = 2; x < m_Width-2; x++)
 		for (int y = 2; y < m_Height-2; y++)
@@ -222,7 +262,7 @@ void CGenLayer::Scan()
 				
 				// check to right
 				n = 0;
-				while (!Used(px, y) && Get(px, y+1) && n++ < 40)
+				while (!Used(px, y) && Get(px, y+1) && n++ < 60)
 					px++;
 				
 				// check to top from right
@@ -253,6 +293,45 @@ void CGenLayer::Scan()
 			}
 		}
 	
+	// find long platforms (conveyor belts)
+	for (int x = 2; x < m_Width-2; x++)
+		for (int y = 2; y < m_Height-2; y++)
+		{
+			if (!Get(x, y-1) && Get(x, y) && Get(x, y+1) && (!Get(x-1, y)))
+			{
+				int x1 = 1;
+				bool Valid = false;
+				
+				while (x1 < 40)
+				{
+					//if (Used(x+x1, y-1) || !Get(x+x1, y))
+					
+					if (Get(x+x1, y-1))
+						break;
+					
+					if (!Get(x+x1, y))
+					{
+						x1--;
+						Valid = true;
+						break;
+					}
+					x1++;
+				}
+				
+				
+				if (x1 > 7 && Valid)
+				{
+					if (m_NumLongPlatforms < GEN_MAX)
+					{
+						m_aLongPlatform[m_NumLongPlatforms++] = ivec3(x, y, x+x1);
+						Set(-1, x, y-1);
+						Use(x, y);
+					}
+				}
+			}
+		}
+		
+		
 	// find platforms
 	for (int x = 2; x < m_Width-2; x++)
 		for (int y = 2; y < m_Height-2; y++)
@@ -386,6 +465,31 @@ ivec2 CGenLayer::GetPlayerSpawn()
 
 	return m_aPlayerSpawn[m_NumPlayerSpawns];
 }
+
+ivec3 CGenLayer::GetLongPlatform()
+{
+	if (m_NumLongPlatforms <= 0)
+		return ivec3(0, 0, 0);
+	
+	int n = 0;
+	int i = rand()%m_NumLongPlatforms;
+	
+	while (m_aLongPlatform[i].x == 0 && n++ < 9999)
+		i = rand()%m_NumLongPlatforms;
+	
+	ivec3 p = m_aLongPlatform[i];
+	
+	for (int x = p.x; x <= p.z; x++)
+	{
+		Use(x, p.y);
+		Use(x, p.y-1);
+	}
+	
+	m_aLongPlatform[i] = ivec3(0, 0, 0);
+	
+	return p;
+}
+
 ivec2 CGenLayer::GetPlatform()
 {
 	if (m_NumPlatforms <= 0)
@@ -399,6 +503,31 @@ ivec2 CGenLayer::GetPlatform()
 	
 	ivec2 p = m_aPlatform[i];
 	m_aPlatform[i] = ivec2(0, 0);
+	
+	return p;
+}
+
+ivec3 CGenLayer::GetLongCeiling()
+{
+	if (m_NumLongCeilings <= 0)
+		return ivec3(0, 0, 0);
+	
+	int n = 0;
+	int i = rand()%m_NumLongCeilings;
+	
+	while (m_aLongCeiling[i].x == 0 && n++ < 9999)
+		i = rand()%m_NumLongCeilings;
+	
+	ivec3 p = m_aLongCeiling[i];
+	
+	for (int x = p.x; x <= p.z; x++)
+	{
+		Use(x, p.y);
+		Use(x, p.y+1);
+		Use(x, p.y-1);
+	}
+	
+	m_aLongCeiling[i] = ivec3(0, 0, 0);
 	
 	return p;
 }
@@ -607,6 +736,20 @@ void CGenLayer::Use(int x, int y)
 	for (int i = 0; i < m_NumCorners; i++)
 		if (abs(m_aCorner[i].x - x) < 2 && abs(m_aCorner[i].y - y) < 2)
 			m_aCorner[i] = ivec2(0, 0);
+		
+	for (int i = 0; i < m_NumTopCorners; i++)
+		if (abs(m_aTopCorner[i].x - x) < 2 && abs(m_aTopCorner[i].y - y) < 2)
+			m_aTopCorner[i] = ivec2(0, 0);
+		
+		/*
+	for (int i = 0; i < m_NumLongPlatforms; i++)
+		if (m_aLongPlatform[i].x <= x && m_aLongPlatform[i].z >= x && abs(m_aLongPlatform[i].y - y) < 2)
+			m_aLongPlatform[i] = ivec3(0, 0, 0);
+		
+	for (int i = 0; i < m_NumLongCeilings; i++)
+		if (m_aLongCeiling[i].x <= x && m_aLongCeiling[i].z >= x && abs(m_aLongCeiling[i].y - y) < 2)
+			m_aLongCeiling[i] = ivec3(0, 0, 0);
+		*/
 		
 	if (!Used(x, y))
 		Set(-1, x, y);

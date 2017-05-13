@@ -994,6 +994,11 @@ void CPlayers::RenderPlayer(
 		pCustomPlayerInfo->Animation()->m_Flip = true;
 	}
 	
+	if (Player.m_Action == COREACTION_HANG)
+		pCustomPlayerInfo->m_Hang = true;
+	else
+		pCustomPlayerInfo->m_Hang = false;
+	
 	/* ugly
 	if (Player.m_Anim == 5)
 	{

@@ -126,7 +126,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_EmoteStop = -1;
 	m_LastAction = -1;
 	m_LastNoAmmoSound = -1;
-	m_LastWeapon = WEAPON_HAMMER;
 	m_PrevWeapon = WEAPON_HAMMER;
 	m_QueuedCustomWeapon = -1;
 
@@ -410,7 +409,6 @@ void CCharacter::SetCustomWeapon(int CustomWeapon)
 
 	m_aSelectedWeapon[m_WeaponGroup] = CustomWeapon;
 	
-	m_LastWeapon = m_ActiveCustomWeapon;
 	m_QueuedCustomWeapon = -1;
 	
 	m_PrevWeapon = m_ActiveCustomWeapon;
@@ -1269,6 +1267,7 @@ void CCharacter::ResetInput()
 {
 	m_Input.m_Direction = 0;
 	m_Input.m_Hook = 0;
+	m_Input.m_Down = 0;
 	// simulate releasing the fire button
 	if((m_Input.m_Fire&1) != 0)
 		m_Input.m_Fire++;

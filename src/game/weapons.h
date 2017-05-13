@@ -231,8 +231,8 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		true, // autofire
 		0, // bullet spread
 		1, // shot spread
-		5, // powerup size
-		15, // max ammo
+		7, // powerup size
+		20, // max ammo
 		0.3f, // bullet life
 		260, // bullet reload time
 		12.5f, // bullet knockback

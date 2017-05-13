@@ -634,6 +634,11 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		new CBuilding(&GameServer()->m_World, Pos, BUILDING_DOOR1, TEAM_NEUTRAL);
 		return true;
 	}
+	else if (Index == ENTITY_SPEAKER)
+	{
+		new CBuilding(&GameServer()->m_World, Pos, BUILDING_SPEAKER, TEAM_NEUTRAL);
+		return true;
+	}
 	else if (Index == ENTITY_JUMPPAD)
 	{
 		new CBuilding(&GameServer()->m_World, Pos, BUILDING_JUMPPAD, TEAM_NEUTRAL);

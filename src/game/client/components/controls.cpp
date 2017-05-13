@@ -25,6 +25,7 @@ void CControls::OnReset()
 {
 	m_LastData.m_Direction = 0;
 	m_LastData.m_Hook = 0;
+	m_LastData.m_Down = 0;
 	// simulate releasing the fire button
 	if((m_LastData.m_Fire&1) != 0)
 		m_LastData.m_Fire++;
@@ -257,6 +258,7 @@ int CControls::SnapInput(int *pData)
 			m_InputData.m_Jump = ((int)t);
 			m_InputData.m_Fire = ((int)(t*10));
 			m_InputData.m_Hook = ((int)(t*2))&1;
+			m_InputData.m_Down = ((int)(t*3))&1;
 			m_InputData.m_WantedWeapon = ((int)t)%NUM_WEAPONS;
 			m_InputData.m_TargetX = (int)(sinf(t*3)*100.0f);
 			m_InputData.m_TargetY = (int)(cosf(t*3)*100.0f);
@@ -322,6 +324,7 @@ int CControls::SnapInput(int *pData)
 		else if(m_InputData.m_Jump != m_LastData.m_Jump) Send = true;
 		else if(m_InputData.m_Fire != m_LastData.m_Fire) Send = true;
 		else if(m_InputData.m_Hook != m_LastData.m_Hook) Send = true;
+		else if(m_InputData.m_Down != m_LastData.m_Down) Send = true;
 		else if(m_InputData.m_WantedWeapon != m_LastData.m_WantedWeapon) Send = true;
 		else if(m_InputData.m_NextWeapon != m_LastData.m_NextWeapon) Send = true;
 		else if(m_InputData.m_PrevWeapon != m_LastData.m_PrevWeapon) Send = true;

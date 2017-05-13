@@ -803,7 +803,12 @@ bool CDataFileWriter::SaveMap(class IStorage *pStorage, CDataFileReader *pFileMa
 		COLFLAG_SOLID=1,
 		COLFLAG_DEATH=2,
 		COLFLAG_NOHOOK=4,
-		COLFLAG_NODAMAGEFLUID=128,
+		COLFLAG_DAMAGEFLUID=128,
+		
+		// 256 = out of range for unsigned char, ugly! spurdo :D
+		COLFLAG_MOVELEFT=129,
+		COLFLAG_MOVERIGHT=130,
+		COLFLAG_HANG=131,
 	};
 
 	int LayerStart, LayerCount=0, LayerNum, GroupStart, GroupCount=0, GroupNum;
@@ -833,11 +838,14 @@ bool CDataFileWriter::SaveMap(class IStorage *pStorage, CDataFileReader *pFileMa
                         {
                             const int tpos = o*Tilemap.m_Width+u;
                             const int index = pTiles[tpos].m_Index;
-                            if (index <= 128)
+                            if (index <= 132)
                             {
                                 if (index&COLFLAG_DEATH) pTiles[tpos].m_Index = TILE_DEATH;
                                 if (index&COLFLAG_SOLID) pTiles[tpos].m_Index = TILE_SOLID;
-                                if (index&COLFLAG_NODAMAGEFLUID) pTiles[tpos].m_Index = TILE_DAMAGEFLUID;
+                                if (index&COLFLAG_DAMAGEFLUID) pTiles[tpos].m_Index = TILE_DAMAGEFLUID;
+                                if (index == COLFLAG_MOVELEFT) pTiles[tpos].m_Index = TILE_MOVELEFT;
+                                if (index == COLFLAG_MOVERIGHT) pTiles[tpos].m_Index = TILE_MOVERIGHT;
+                                if (index == COLFLAG_HANG) pTiles[tpos].m_Index = TILE_HANG;
                             }
                         }
                     }

@@ -213,6 +213,7 @@ public:
 	// object render methods (gc_render_obj.cpp)
 	//void RenderTee(class CAnimState *pAnim, CTeeRenderInfo *pInfo, int Emote, vec2 Dir, vec2 Pos);
 
+	void RenderForegroundHand(class CPlayerInfo *PlayerInfo);
 
 	// for selection menu
 	void RenderTopper(CTeeRenderInfo *pInfo, vec2 Pos);
@@ -222,6 +223,7 @@ public:
 	void RenderShield(vec2 Pos, vec2 Size, float State);
 	void RenderHeal(vec2 Pos, vec2 Size, float State);
 	
+	void RenderMelee(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec2 Dir, vec2 Pos);
 	void RenderScythe(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec2 Dir, vec2 Pos);
 	
 	void RenderArm(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec2 Pos, vec2 PlayerPos);

@@ -281,6 +281,20 @@ container.sounds.Add(SoundSet("build", FileList("audio/build-%02d.wv", 2)))
 
 container.sounds.Add(SoundSet("menu", ["audio/music_menu.wv"]))
 
+container.sounds.Add(SoundSet("bg1", ["audio/bg1.wv"]))
+container.sounds.Add(SoundSet("bg2", ["audio/bg2.wv"]))
+container.sounds.Add(SoundSet("bg3", ["audio/bg3.wv"]))
+container.sounds.Add(SoundSet("bg4", ["audio/bg4.wv"]))
+container.sounds.Add(SoundSet("bg5", ["audio/bg5.wv"]))
+container.sounds.Add(SoundSet("bg6", ["audio/bg6.wv"]))
+container.sounds.Add(SoundSet("bg7", ["audio/bg7.wv"]))
+container.sounds.Add(SoundSet("bg8", ["audio/bg8.wv"]))
+container.sounds.Add(SoundSet("bg9", ["audio/bg9.wv"]))
+container.sounds.Add(SoundSet("bg10", ["audio/bg10.wv"]))
+container.sounds.Add(SoundSet("bg11", ["audio/bg11.wv"]))
+container.sounds.Add(SoundSet("bg12", ["audio/bg12.wv"]))
+container.sounds.Add(SoundSet("bg13", ["audio/bg13.wv"]))
+
 
 
 image_null = Image("null", "")
@@ -804,6 +818,8 @@ container.sprites.Add(Sprite("status_nope", set_buildings, 7, 0, 1, 1))
 container.sprites.Add(Sprite("switch", set_buildings, 		10,0,1, 2))
 container.sprites.Add(Sprite("switch_off", set_buildings, 	12,0,1,2))
 container.sprites.Add(Sprite("switch_on", set_buildings, 	11,0,1,2))
+
+container.sprites.Add(Sprite("speaker", set_buildings, 	13,0,3,3))
 
 
 

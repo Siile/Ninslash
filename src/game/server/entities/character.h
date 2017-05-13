@@ -307,8 +307,6 @@ private:
 	int m_NumObjectsHit;
 
 	int m_aSelectedWeapon[3];
-	
-	int m_LastWeapon;
 
 	int m_ReloadTimer;
 

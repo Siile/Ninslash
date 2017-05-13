@@ -43,9 +43,11 @@ CPlayerInfo *CPlayerInfo::GetIdle()
 
 void CPlayerInfo::Reset()
 {
+	m_FGHandPos = vec2(0, 0);
 	m_Angle = 0;
 	m_Turbo = false;
 	m_Jetpack = false;
+	m_Hang = false;
 	
 	m_ArmPos = vec2(0, 0);
 	
@@ -288,6 +290,9 @@ void CPlayerInfo::SetHandTarget(vec3 Pos)
 {
 	if (!m_Turbo)
 		m_Hand.m_TargetPos = vec2(Pos.x, Pos.y);
+	
+	if (m_Hang)
+		m_Hand.m_TargetPos = vec2(0, -46);
 }
 
 
@@ -307,7 +312,7 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 	
 	if (m_Turbo)
 	{
-		m_Hand.m_TargetPos = -vec2(cos(m_Angle), sin(m_Angle)) * 18.0f;
+		m_Hand.m_TargetPos = -vec2(cos(m_Angle), sin(m_Angle)) * 20.0f;
 		m_Hand.m_TargetPos += m_ArmPos + vec2(0, -16);
 	}
 	
@@ -318,7 +323,7 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 	
 	m_Hand.m_Offset += m_Hand.m_Vel;
 	
-	if (length(m_Hand.m_Offset) > 40.0f)
+	if (!m_Hang && length(m_Hand.m_Offset) > 40.0f)
 		m_Hand.m_Offset = normalize(m_Hand.m_Offset) * 40.0f;
 	
 	
