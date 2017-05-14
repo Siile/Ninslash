@@ -132,7 +132,7 @@ void CBuildings::RenderSpeaker(const struct CNetObj_Building *pCurrent)
 	
 	if (currentTime > CustomStuff()->m_aBGSound[i])
 	{
-		CustomStuff()->m_aBGSound[i] = currentTime+time_freq()*3.7f;
+		CustomStuff()->m_aBGSound[i] = currentTime+int(time_freq()*3.7f);
 		m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_BG1+i%13, 1.0f, p);
 	}
 	
