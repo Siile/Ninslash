@@ -6,6 +6,8 @@
 #include "gamecontext.h"
 
 
+CLastSeen CGameContext::m_LastSeen;
+
 CLastSeen::CLastSeen()
 {
 	m_aSeen[0] = m_aSeen[1] = 0;

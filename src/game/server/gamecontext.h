@@ -245,7 +245,7 @@ public:
 	
 	bool m_ShowWaypoints;
 
-	CLastSeen m_LastSeen;
+	static CLastSeen m_LastSeen;
 };
 
 inline int CmaskAll() { return -1; }
