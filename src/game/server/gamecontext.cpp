@@ -1598,6 +1598,8 @@ void CGameContext::OnClientEnter(int ClientID)
 	str_format(aBuf, sizeof(aBuf), "team_join player='%d:%s' team=%d", ClientID, Server()->ClientName(ClientID), m_apPlayers[ClientID]->GetTeam());
 	Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
+	m_LastSeen.SendLastSeenMsg(this, ClientID);
+
 	if (m_pController->IsCoop() && g_Config.m_SvMapGen)
 	{
 		char aBuf[256];
@@ -1648,6 +1650,7 @@ void CGameContext::OnClientConnected(int ClientID, bool AI)
 
 void CGameContext::OnClientDrop(int ClientID, const char *pReason)
 {
+	m_LastSeen.OnClientDrop(this, ClientID);
 	AbortVoteKickOnDisconnect(ClientID);
 	m_apPlayers[ClientID]->OnDisconnect(pReason);
 	delete m_apPlayers[ClientID];

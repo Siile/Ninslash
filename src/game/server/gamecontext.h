@@ -16,6 +16,7 @@
 #include "gameworld.h"
 #include "player.h"
 #include "mapgen.h"
+#include "lastseen.h"
 
 
 /*
@@ -243,6 +244,8 @@ public:
 	bool m_CanRespawn;
 	
 	bool m_ShowWaypoints;
+
+	CLastSeen m_LastSeen;
 };
 
 inline int CmaskAll() { return -1; }
