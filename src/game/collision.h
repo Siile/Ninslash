@@ -7,10 +7,11 @@
 #include "pathfinding.h"
 
 
-
+class CCharacterCore;
 
 class CCollision
 {
+	friend class CCharacterCore;
 	class CTile *m_pTiles;
 	int m_Width;
 	int m_Height;
