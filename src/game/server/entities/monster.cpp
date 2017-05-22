@@ -101,7 +101,7 @@ void CMonster::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type)
 				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + Server()->TickSpeed());
 		}
 
-		GameServer()->CreateExplosion(m_Pos+m_Center, NEUTRAL_BASE, WEAPON_HAMMER, false, false);
+		GameServer()->CreateExplosion(m_Pos+m_Center, NEUTRAL_BASE, WEAPON_HAMMER, 0, false, false);
 		GameServer()->CreateSound(m_Pos+m_Center, SOUND_GRENADE_EXPLODE);
 		m_DeathTick = Server()->Tick();
 		
@@ -333,8 +333,8 @@ void CMonster::Fire()
 		
 		GameServer()->CreateSound(m_Pos, aCustomWeapon[W_WALKER].m_Sound);
 		
-		GameServer()->CreateProjectile(NEUTRAL_BASE, W_WALKER, TurretPos+normalize(m_Target*-1)*32.0f, m_Target*-1);
-		GameServer()->CreateProjectile(NEUTRAL_BASE, W_WALKER, TurretPos+normalize(m_Target*-1)*32.0f+vec2(m_Dir * 4, -8), m_Target*-1);
+		GameServer()->CreateProjectile(NEUTRAL_BASE, W_WALKER, 0, TurretPos+normalize(m_Target*-1)*32.0f, m_Target*-1);
+		GameServer()->CreateProjectile(NEUTRAL_BASE, W_WALKER, 0, TurretPos+normalize(m_Target*-1)*32.0f+vec2(m_Dir * 4, -8), m_Target*-1);
 		
 		m_AttackTick = Server()->Tick();
 		

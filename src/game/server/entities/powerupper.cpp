@@ -26,10 +26,14 @@ void CPowerupper::Reset()
 
 void CPowerupper::Tick()
 {
-	if (m_Item < 0 && (m_ItemTakenTick + Server()->TickSpeed()*30.0f < GameServer()->Server()->Tick() || m_ItemTakenTick == 0))
+	if (m_Item < 0 && ((!GameServer()->m_pController->IsCoop() && m_ItemTakenTick + Server()->TickSpeed()*30.0f < GameServer()->Server()->Tick()) || m_ItemTakenTick == 0))
 	{
-		while (m_Item < 0 || m_Item == PLAYERITEM_LANDMINE || m_Item == PLAYERITEM_ELECTROMINE || m_Item == PLAYERITEM_HEAL || (m_Item == PLAYERITEM_FUEL && g_Config.m_SvUnlimitedTurbo))
+		while (m_Item < 0 || m_Item == PLAYERITEM_FILL || m_Item == PLAYERITEM_LANDMINE || m_Item == PLAYERITEM_ELECTROMINE || (m_Item == PLAYERITEM_FUEL && g_Config.m_SvUnlimitedTurbo))
+		{
 			m_Item = rand()%NUM_PLAYERITEMS;
+			if (frandom() < 0.4f)
+				m_Item = PLAYERITEM_UPGRADE;
+		}
 	}
 	
 	// give buff to player
@@ -38,12 +42,17 @@ void CPowerupper::Tick()
 		CCharacter *apEnts[MAX_CLIENTS];
 		int Num = GameServer()->m_World.FindEntities(m_Pos+vec2(0, -24), 16.0f, (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
 		
+		int Bots = 0;
+		
 		for(int i = 0; i < Num; i++)
 		{
-			apEnts[i]->GiveBuff(m_Item);
+			if (apEnts[i]->m_IsBot)
+				Bots++;
+			else
+				apEnts[i]->GiveBuff(m_Item);
 		}
 		
-		if (Num > 0)
+		if (Num - Bots > 0)
 		{
 			m_Item = -1;
 			m_ItemTakenTick = GameServer()->Server()->Tick();

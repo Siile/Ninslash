@@ -167,6 +167,7 @@ public:
 	int m_SelectedGroup;
 	
 	int m_LocalWeapons;
+	int m_LocalUpgrades;
 	int m_LocalKits;
 	int m_aLocalItems[NUM_PLAYERITEMS];
 	

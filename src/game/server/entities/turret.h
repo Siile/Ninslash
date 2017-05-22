@@ -19,6 +19,7 @@ public:
 	vec2 m_Target;
 	int m_Angle;
 	int m_Weapon;
+	int m_PowerLevel;
 	int m_Ammo;
 	
 	int m_Flamethrower;

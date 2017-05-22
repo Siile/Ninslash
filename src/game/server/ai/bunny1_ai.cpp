@@ -26,7 +26,7 @@ void CAIbunny1::OnCharacterSpawn(CCharacter *pChr)
 	m_WaypointDir = vec2(0, 0);
 	//Player()->SetRandomSkin();
 	
-	m_PowerLevel = 15;
+	m_PowerLevel = 10;
 	
 	m_StartPos = Player()->GetCharacter()->m_Pos;
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
@@ -34,7 +34,7 @@ void CAIbunny1::OnCharacterSpawn(CCharacter *pChr)
 	
 	pChr->GiveCustomWeapon(WEAPON_SCYTHE);
 	
-	pChr->SetHealth(70);
+	pChr->SetHealth(30);
 	
 	m_ShockTimer = 0;
 }

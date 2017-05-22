@@ -33,7 +33,11 @@ void CNamePlates::RenderNameplate(
 	if ((CustomStuff()->m_LocalTeam == pPlayerInfo->m_Team && m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_TEAMS) ||
 		CustomStuff()->m_LocalTeam == TEAM_SPECTATORS)
 		v = 0.0f;
+
+	if (pPlayerInfo->m_Team == 0 && m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_COOP)
+		v = 0.0f;
 	
+		
 	//if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY] > 0.4f)
 	//	return;
 	

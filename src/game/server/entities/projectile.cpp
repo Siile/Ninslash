@@ -22,6 +22,9 @@ CProjectile::CProjectile(CGameWorld *pGameWorld, int Weapon, int Owner, vec2 Pos
 	m_SoundImpact = SoundImpact;
 	m_StartTick = Server()->Tick();
 	m_Explosive = Explosive;
+	m_Bouncy = false;
+	
+	m_PowerLevel = 0;
 
 	m_ElectroTimer = 0;
 	
@@ -35,6 +38,30 @@ void CProjectile::Reset()
 {
 	GameServer()->m_World.DestroyEntity(this);
 }
+
+
+void CProjectile::SetPowerLevel(int PowerLevel)
+{
+	m_PowerLevel = PowerLevel;
+	
+	if (PowerLevel > 0)
+	{
+		if (m_Weapon == WEAPON_RIFLE)
+		{
+			m_Damage += 3;
+			m_Bouncy = true;
+			m_LifeSpan *= 1.1f;
+		}
+		
+		if (m_Weapon == WEAPON_SHOTGUN)
+		{
+			m_LifeSpan *= 1.2f;
+			m_Damage += 1;
+		}
+	}
+}
+
+
 
 vec2 CProjectile::GetPos(float Time)
 {
@@ -80,7 +107,7 @@ vec2 CProjectile::GetPos(float Time)
 
 bool CProjectile::Bounce(vec2 Pos)
 {
-	if (m_Weapon == WEAPON_ELECTRIC)
+	if (m_Weapon == WEAPON_ELECTRIC || m_Bouncy)
 	{
 		BounceTick = Server()->Tick();
 	
@@ -180,12 +207,12 @@ void CProjectile::Tick()
 		
 		else if(m_Explosive == EXPLOSION_ELECTRIC)
 		{		
-			GameServer()->CreateElectricExplosion(CurPos, m_Owner, m_Weapon, false, m_OwnerBuilding ? true : false);
+			GameServer()->CreateElectricExplosion(CurPos, m_Owner, m_Weapon, m_PowerLevel, false, m_OwnerBuilding ? true : false);
 		}
 	
 		else if(m_Explosive == EXPLOSION_EXPLOSION)
 		{
-			GameServer()->CreateExplosion(CurPos, m_Owner, m_Weapon, false, m_OwnerBuilding ? true : false);
+			GameServer()->CreateExplosion(CurPos, m_Owner, m_Weapon, m_PowerLevel, false, m_OwnerBuilding ? true : false);
 		}
 
 		else if(TargetChr)
@@ -230,6 +257,7 @@ void CProjectile::FillInfo(CNetObj_Projectile *pProj)
 	pProj->m_VelY = (int)(m_Direction.y*100.0f);
 	pProj->m_StartTick = m_StartTick;
 	pProj->m_Type = m_Weapon;
+	pProj->m_PowerLevel = m_PowerLevel;
 }
 
 void CProjectile::Snap(int SnappingClient)

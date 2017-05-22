@@ -11,6 +11,7 @@ class CBuildings : public CComponent
 	void RenderMine(const struct CNetObj_Building *pCurrent);
 	void RenderElectromine(const struct CNetObj_Building *pCurrent);
 	void RenderBarrel(const struct CNetObj_Building *pCurrent);
+	void RenderPowerBarrel(const struct CNetObj_Building *pCurrent);
 	void RenderLazer(const struct CNetObj_Building *pCurrent);
 	void RenderBase(const struct CNetObj_Building *pCurrent);
 	void RenderStand(const struct CNetObj_Building *pCurrent);

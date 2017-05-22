@@ -336,6 +336,7 @@ image_swordhit = Image("swordhit", "fx/swordhit.png")
 image_bloodfx = Image("bloodfx", "fx/bloodfx.png")
 image_fx_scythe = Image("fx_scythe", "fx/scythe.png")
 image_fx_chainsaw = Image("fx_chainsaw", "fx/chainsaw.png")
+image_fx_chainsaw2 = Image("fx_chainsaw2", "fx/chainsaw2.png")
 image_playerspawn = Image("playerspawn", "fx/playerspawn.png")
 image_monsterspawn = Image("monsterspawn", "fx/monsterspawn.png")
 image_heal = Image("heal", "fx/heal.png")
@@ -393,6 +394,7 @@ container.images.Add(image_sparks)
 container.images.Add(image_swordhit)
 container.images.Add(image_fx_scythe)
 container.images.Add(image_fx_chainsaw)
+container.images.Add(image_fx_chainsaw2)
 container.images.Add(image_bloodfx)
 container.images.Add(image_playerspawn)
 container.images.Add(image_monsterspawn)
@@ -420,7 +422,7 @@ set_splatter = SpriteSet("splatter", image_splatter, 4, 1)
 set_game = SpriteSet("game", image_game, 32, 16)
 set_flag = SpriteSet("flag", image_flag, 8, 2)
 set_weapons = SpriteSet("weapons", image_weapons, 16, 16)
-set_sword = SpriteSet("sword", image_sword, 4, 1)
+set_sword = SpriteSet("sword", image_sword, 4, 2)
 set_scythe = SpriteSet("scythe", image_scythe, 4, 1)
 set_hands = SpriteSet("hands", image_hands, 4, 8)
 set_bodies = SpriteSet("bodies", image_bodies, 8, 1)
@@ -451,6 +453,7 @@ set_swordhit = SpriteSet("swordhit", image_swordhit, 3, 1)
 set_bloodfx = SpriteSet("bloodfx", image_bloodfx, 8, 1)
 set_fx_scythe = SpriteSet("fx_scythe", image_fx_scythe, 8, 1)
 set_fx_chainsaw = SpriteSet("fx_chainsaw", image_fx_chainsaw, 4, 1)
+set_fx_chainsaw2 = SpriteSet("fx_chainsaw2", image_fx_chainsaw2, 4, 1)
 set_playerspawn = SpriteSet("playerspawn", image_playerspawn, 16, 1)
 set_monsterspawn = SpriteSet("monsterspawn", image_monsterspawn, 16, 1)
 set_heal = SpriteSet("heal", image_heal, 8, 2)
@@ -499,6 +502,7 @@ container.spritesets.Add(set_swordhit)
 container.spritesets.Add(set_bloodfx)
 container.spritesets.Add(set_fx_scythe)
 container.spritesets.Add(set_fx_chainsaw)
+container.spritesets.Add(set_fx_chainsaw2)
 container.spritesets.Add(set_playerspawn)
 container.spritesets.Add(set_monsterspawn)
 container.spritesets.Add(set_heal)
@@ -543,7 +547,10 @@ for i in range(1, 5):
 	container.sprites.Add(Sprite("electrohit"+str(i), set_electrohit, i-1, 0, 1, 1))
 	
 for i in range(1, 5):
-	container.sprites.Add(Sprite("sword"+str(i), set_sword, i-1, 0, 1, 1))
+	container.sprites.Add(Sprite("sword1_"+str(i), set_sword, i-1, 0, 1, 1))
+	
+for i in range(1, 5):
+	container.sprites.Add(Sprite("sword2_"+str(i), set_sword, i-1, 1, 1, 1))
 	
 	
 for i in range(1, 5):
@@ -551,6 +558,9 @@ for i in range(1, 5):
 	
 for i in range(1, 5):
 	container.sprites.Add(Sprite("fx_chainsaw"+str(i), set_fx_chainsaw, i-1, 0, 1, 1))
+	
+for i in range(1, 5):
+	container.sprites.Add(Sprite("fx_chainsaw2_"+str(i), set_fx_chainsaw2, i-1, 0, 1, 1))
 	
 
 for i in range(1, 5):
@@ -710,6 +720,7 @@ container.sprites.Add(Sprite("part9", set_game, 13,0,2,2))
 container.sprites.Add(Sprite("repair", set_pickups, 6,1,2,1))
 
 container.sprites.Add(Sprite("weapon_pickup", set_weapons, 8,12,4,4))
+container.sprites.Add(Sprite("weapon_upgraded", set_weapons, 14,0,2,2))
 
 container.sprites.Add(Sprite("walker_proj", set_game, 6,6,2,2))
 
@@ -798,6 +809,10 @@ container.sprites.Add(Sprite("pickup_weapon", set_game, 3,0,6,2))
 for i in range(1, 9):
 	container.sprites.Add(Sprite("barrel"+str(i), set_buildings, i-1,2,1,2))
 
+container.sprites.Add(Sprite("powerbarrel", set_buildings, 8,2,1,2))
+
+container.sprites.Add(Sprite("lightningwall", set_buildings, 6,1,1,1))
+
 container.sprites.Add(Sprite("mine1", set_buildings, 0,0,2,1))
 container.sprites.Add(Sprite("mine2", set_buildings, 0,1,2,1))
 container.sprites.Add(Sprite("sawblade", set_buildings, 4,0,2,2))
@@ -811,6 +826,7 @@ container.sprites.Add(Sprite("turret_fastener", set_buildings, 4, 6, 2, 2))
 container.sprites.Add(Sprite("kit_barrel", set_buildings, 3, 2, 1, 2))
 container.sprites.Add(Sprite("kit_turret", set_buildings, 1, 4, 3, 4))
 container.sprites.Add(Sprite("kit_flametrap", set_buildings, 8, 0,2, 2))
+container.sprites.Add(Sprite("kit_lightninwall", set_buildings, 6, 1, 1, 1))
 
 container.sprites.Add(Sprite("status_repair", set_buildings, 6, 0, 1, 1))
 container.sprites.Add(Sprite("status_nope", set_buildings, 7, 0, 1, 1))

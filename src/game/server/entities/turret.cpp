@@ -18,6 +18,7 @@ CTurret::CTurret(CGameWorld *pGameWorld, vec2 Pos, int Team, int Weapon)
 	m_AttackTick = 0;
 	m_Weapon = Weapon;
 	m_OriginalDirection = vec2(0, 10);
+	m_PowerLevel = 0;
 	
 	m_Flamethrower = 0;
 	
@@ -63,13 +64,13 @@ void CTurret::Tick()
 		if (m_DeathTimer%10 == 1)
 		{
 			vec2 ep = m_Pos + vec2((frandom()-frandom())*32.0f, -48+(frandom()-frandom())*32.0f);
-			GameServer()->CreateExplosion(ep, m_DamageOwner, WEAPON_HAMMER, false, false);
+			GameServer()->CreateExplosion(ep, m_DamageOwner, WEAPON_HAMMER, 0, false, false);
 			GameServer()->CreateSound(ep, SOUND_GRENADE_EXPLODE);
 		}
 			
 		if (m_Life <= 0 && m_DeathTimer <= 0)
 		{
-			GameServer()->CreateExplosion(m_Pos + vec2(0, -48), m_DamageOwner, WEAPON_HAMMER, false, false);
+			GameServer()->CreateExplosion(m_Pos + vec2(0, -48), m_DamageOwner, 0, WEAPON_HAMMER, false, false);
 			//GameServer()->CreateExplosion(m_Pos, m_DamageOwner, WEAPON_HAMMER, false, false);
 			GameServer()->CreateSound(m_Pos + vec2(0, -48), SOUND_GRENADE_EXPLODE);
 			//GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
@@ -131,7 +132,7 @@ void CTurret::Tick()
 		vec2 Dir = vec2(cosf(Angle), sinf(Angle));
 		
 		vec2 TurretPos = m_Pos+vec2(0, -54);
-		GameServer()->CreateChainsawHit(m_OwnerPlayer, m_Weapon, TurretPos, TurretPos+Dir*40, NULL, this);
+		GameServer()->CreateChainsawHit(m_OwnerPlayer, m_Weapon, m_PowerLevel, TurretPos, TurretPos+Dir*40, NULL, this);
 	}
 	
 	Flamethrower();
@@ -156,7 +157,7 @@ void CTurret::Flamethrower()
 			vec2 To = StartPos+Dir*28*i*2.1f;
 			
 			GameServer()->Collision()->IntersectLine(StartPos, To, 0x0, &To);
-			GameServer()->CreateFlamethrowerHit(m_OwnerPlayer, m_Weapon, To, NULL, this);
+			GameServer()->CreateFlamethrowerHit(m_OwnerPlayer, m_Weapon, m_PowerLevel, To, NULL, this);
 			
 			// to visualize hit points
 			//GameServer()->CreateFlameHit(To);
@@ -188,14 +189,14 @@ void CTurret::Fire()
 		
 		if (m_Weapon == WEAPON_LASER)
 		{
-			CLaser *pLaser = new CLaser(GameWorld(), TurretPos+Dir*40, Dir, GameServer()->Tuning()->m_LaserReach, m_OwnerPlayer, aCustomWeapon[m_Weapon].m_Damage, this);
+			CLaser *pLaser = new CLaser(GameWorld(), TurretPos+Dir*40, Dir, GameServer()->Tuning()->m_LaserReach, m_OwnerPlayer, aCustomWeapon[m_Weapon].m_Damage, m_PowerLevel, this);
 		}
 		else if (m_Weapon == WEAPON_CHAINSAW)
 			m_Chainsaw = Server()->Tick() + 500 * Server()->TickSpeed()/1000;
 		else if (m_Weapon == WEAPON_FLAMER)
 			m_Flamethrower = Server()->Tick() + 400 * Server()->TickSpeed()/1000;
 		else
-			GameServer()->CreateProjectile(m_OwnerPlayer, m_Weapon, TurretPos+Dir*40, Dir, this);
+			GameServer()->CreateProjectile(m_OwnerPlayer, m_Weapon, m_PowerLevel, TurretPos+Dir*40, Dir, this);
 		
 		/*
 		CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_RIFLE,
@@ -324,5 +325,6 @@ void CTurret::Snap(int SnappingClient)
 	
 	pP->m_Status = m_Status;
 	pP->m_Weapon = m_Weapon;
+	pP->m_PowerLevel = m_PowerLevel;
 	pP->m_AttackTick = m_AttackTick;
 }

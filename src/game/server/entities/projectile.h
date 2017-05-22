@@ -24,7 +24,9 @@ public:
 
 	vec2 GetPos(float Time);
 	void FillInfo(CNetObj_Projectile *pProj);
-
+	
+	void SetPowerLevel(int PowerLevel);
+	
 	bool Bounce(vec2 Pos);
 	int BounceTick;
 	
@@ -37,6 +39,7 @@ public:
 
 private:
 	vec2 m_Direction;
+	int m_PowerLevel;
 	int m_LifeSpan;
 	int m_Owner;
 	int m_Weapon;
@@ -45,6 +48,7 @@ private:
 	float m_Force;
 	int m_StartTick;
 	int m_Explosive;
+	bool m_Bouncy;
 	
 	int m_ElectroTimer;
 };

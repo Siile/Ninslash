@@ -1,5 +1,3 @@
-
-
 #include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
 #include "laser.h"
@@ -7,7 +5,7 @@
 #include "monster.h"
 #include "superexplosion.h"
 
-CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Damage, CBuilding *OwnerBuilding)
+CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Damage, int PowerLevel, CBuilding *OwnerBuilding)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
 	m_Damage = Damage;
@@ -16,6 +14,7 @@ CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEner
 	m_Energy = StartEnergy;
 	m_Dir = Direction;
 	m_OwnerBuilding = OwnerBuilding;
+	m_PowerLevel = PowerLevel;
 	
 	//if (StartEnergy > 200)
 	//	m_Bounces = 2;
@@ -40,11 +39,12 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 	m_Pos = At;
 	m_Energy = -1;
 
-	//vec2 Dir = normalize(m_Pos-From) * 0.1f;
-	
-	//pHit->TakeDamage(Dir, m_Damage, m_Owner, WEAPON_RIFLE);
-	pHit->TakeDamage(normalize(To-From)*0.1f, m_Damage, m_Owner, WEAPON_LASER, At, DAMAGETYPE_NORMAL, m_OwnerBuilding ? true : false);
+	if (m_PowerLevel == 0)
+		pHit->TakeDamage(normalize(To-From)*0.1f, m_Damage, m_Owner, WEAPON_LASER, At, DAMAGETYPE_NORMAL, m_OwnerBuilding ? true : false);
+	else
+		pHit->TakeDamage(normalize(To-From)*0.1f, m_Damage, m_Owner, WEAPON_LASER, At, DAMAGETYPE_ELECTRIC, m_OwnerBuilding ? true : false);
 
+	//pHit->Deathray(false);
 	
 	return true;
 }
@@ -222,5 +222,6 @@ void CLaser::Snap(int SnappingClient)
 	pObj->m_Y = (int)m_Pos.y;
 	pObj->m_FromX = (int)m_From.x;
 	pObj->m_FromY = (int)m_From.y;
+	pObj->m_PowerLevel = m_PowerLevel;
 	pObj->m_StartTick = m_EvalTick;
 }

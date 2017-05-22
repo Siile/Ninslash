@@ -19,11 +19,11 @@ public:
 	void SkidTrail(vec2 Pos, vec2 Vel);
 	void SpriteSheet(int FX, vec2 Pos);
 	void Lazer(vec2 Pos, int Height);
-	void Explosion(vec2 Pos);
+	void Explosion(vec2 Pos, int PowerLevel = 0);
 	void ChainsawSmoke(vec2 Pos);
 	void FlameExplosion(vec2 Pos);
 	void HammerHit(vec2 Pos);
-	void SwordHit(vec2 Pos, float Angle, bool Flip);
+	void SwordHit(vec2 Pos, float Angle, bool Flip, int PowerLevel);
 	void AirJump(vec2 Pos);
 	void Blood(vec2 Pos, vec2 Dir, vec4 Color = vec4(1, 0, 0, 1));
 	void Acid(vec2 Pos, vec2 Dir);

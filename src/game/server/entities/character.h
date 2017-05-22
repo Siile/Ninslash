@@ -40,9 +40,6 @@ class CCharacter : public CEntity
 public:
 	// weapon system
 	int m_ActiveWeaponGroup;
-	int m_ActivePrimaryWeapon;
-	int m_ActiveSecondaryWeapon;
-	int m_ActiveTool;
 
 	//character's size
 	static const int ms_PhysSize = 28;
@@ -68,7 +65,7 @@ public:
 	void HandleWeapons();
 	
 	void Warp();
-	void Deathray();
+	void Deathray(bool Kill = true);
 	void Jumppad();
 
 	void OnPredictedInput(CNetObj_PlayerInput *pNewInput);
@@ -150,6 +147,7 @@ public:
 	struct CustomWeaponStat
 	{
 		int m_Ammo;
+		int m_PowerLevel;
 		bool m_Got;
 		bool m_Disabled;
 		bool m_Ready;
@@ -167,11 +165,21 @@ public:
 		return false;
 	}
 	
+	int WeaponPowerLevel(int CustomWeapon){
+		if (CustomWeapon < 0 || CustomWeapon >= NUM_CUSTOMWEAPONS)
+			return 0;
+		
+		return m_aWeapon[CustomWeapon].m_PowerLevel;
+	}
+	
+	
 	bool GotWeapon(int CustomWeapon){ return m_aWeapon[CustomWeapon].m_Got; }
 	bool WeaponDisabled(int CustomWeapon){ return m_aWeapon[CustomWeapon].m_Disabled; }
 	void DisableWeapon(int CustomWeapon){ m_aWeapon[CustomWeapon].m_Disabled = true; }
 	
-	bool GiveCustomWeapon(int CustomWeapon, float AmmoFill = 1.0f);
+	void UpgradeWeapon();
+	
+	bool GiveCustomWeapon(int CustomWeapon, float AmmoFill = 1.0f, int PowerLevel = 0);
 	void GiveRandomWeapon(int WeaponLevel = -1);
 	void GiveAllWeapons();
 	bool GiveAmmo(int *CustomWeapon, float AmmoFill);

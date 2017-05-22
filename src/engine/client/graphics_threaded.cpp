@@ -390,11 +390,12 @@ void CGraphics_Threaded::LoadShaders()
 	m_pCommandBuffer->AddCommand(Cmd);
 }
 
-void CGraphics_Threaded::ShaderBegin(int Shader, float Intensity)
+void CGraphics_Threaded::ShaderBegin(int Shader, float Intensity, float ColorSwap)
 {
 	CCommandBuffer::SCommand_ShaderBegin Cmd;
 	Cmd.m_Shader = Shader;
 	Cmd.m_Intensity = Intensity;
+	Cmd.m_ColorSwap = ColorSwap;
 	m_pCommandBuffer->AddCommand(Cmd);
 }
 

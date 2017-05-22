@@ -109,6 +109,8 @@ public:
 	vec2 m_Pos;
 	vec2 m_Vel;
 	
+	int m_WeaponPowerLevel;
+	
 	float m_Angle;
 	
 	float m_aFlameAngle[20];

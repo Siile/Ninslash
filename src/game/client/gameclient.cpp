@@ -802,15 +802,15 @@ void CGameClient::ProcessEvents()
 		else if(Item.m_Type == NETEVENTTYPE_EXPLOSION)
 		{
 			CNetEvent_Explosion *ev = (CNetEvent_Explosion *)pData;
-			g_GameClient.m_pEffects->Explosion(vec2(ev->m_X, ev->m_Y));
+			g_GameClient.m_pEffects->Explosion(vec2(ev->m_X, ev->m_Y), ev->m_PowerLevel);
 			
 			// add camera shake
 			float d = distance(CustomStuff()->m_LocalPos, vec2(ev->m_X, ev->m_Y));
 			
-			if (d < 80)
-				CustomStuff()->SetScreenshake(10.0f);
-			else if (d < 140)
-				CustomStuff()->SetScreenshake(6.0f);
+			if (d < 80 + ev->m_PowerLevel * 40)
+				CustomStuff()->SetScreenshake(10.0f + ev->m_PowerLevel * 2);
+			else if (d < 140 + ev->m_PowerLevel * 40)
+				CustomStuff()->SetScreenshake(6.0f + ev->m_PowerLevel * 2);
 		}
 		else if(Item.m_Type == NETEVENTTYPE_REPAIR)
 		{

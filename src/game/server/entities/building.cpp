@@ -10,6 +10,7 @@
 #include "building.h"
 #include "projectile.h"
 #include "superexplosion.h"
+#include "laserfail.h"
 
 CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_BUILDING)
@@ -17,6 +18,7 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 	m_SetTimer = 0;
 	m_Center = vec2(0, 0);
 	m_Collision = true;
+	m_Height = 0;
 	
 	m_Status = 0;
 	for (int i = 0; i < NUM_BSTATUS; i++)
@@ -35,13 +37,18 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 	case BUILDING_MINE1:
 	case BUILDING_MINE2:
 		m_ProximityRadius = MinePhysSize;
-		m_Life = 10+frandom()*10;
+		m_Life = 10+frandom()*5;
 		m_SetTimer = GameServer()->Server()->TickSpeed()*1.5f;
 		break;
 		
 	case BUILDING_BARREL:
 		m_ProximityRadius = BarrelPhysSize;
-		m_Life = 15+frandom()*10;
+		m_Life = 15+frandom()*5;
+		break;
+		
+	case BUILDING_POWERBARREL:
+		m_ProximityRadius = BarrelPhysSize;
+		m_Life = 15+frandom()*5;
 		break;
 		
 	case BUILDING_LAZER:
@@ -64,6 +71,18 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		m_ProximityRadius = SwitchPhysSize;
 		m_Life = 9000;
 		m_Center = vec2(0, -34);
+		break;
+		
+	case BUILDING_LIGHTNINGWALL:
+		m_ProximityRadius = LightningWallPhysSize;
+		m_Life = 70;
+		m_Center = vec2(0, 10);
+		break;
+		
+	case BUILDING_LIGHTNINGWALL2:
+		m_ProximityRadius = LightningWallPhysSize;
+		m_Life = 70;
+		m_Center = vec2(0, -10);
 		break;
 		
 	case BUILDING_DOOR1:
@@ -113,11 +132,28 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		m_DamageOwner = NEUTRAL_BASE;
 	
 	GameWorld()->InsertEntity(this);
+	
+	if (Type == BUILDING_LIGHTNINGWALL)
+		CreateLightningWallTop();
 }
 
 void CBuilding::Reset()
 {
 	//GameServer()->m_World.DestroyEntity(this);
+}
+
+
+void CBuilding::CreateLightningWallTop()
+{
+	vec2 To = m_Pos + vec2(0, -600);
+
+	if (GameServer()->Collision()->IntersectLine(m_Pos, To, 0x0, &To))
+	{
+		m_Height = m_Pos.y-To.y;
+		new CBuilding(&GameServer()->m_World, To+vec2(0, 15), BUILDING_LIGHTNINGWALL2, TEAM_NEUTRAL);
+	}
+	else
+		GameServer()->m_World.DestroyEntity(this);
 }
 
 
@@ -216,8 +252,15 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon)
 	if (m_Type == BUILDING_SAWBLADE || m_Type == BUILDING_LAZER || m_Type == BUILDING_POWERUPPER)
 		return;
 	
-	// todo
-	m_Life -= Damage / 2;
+	int Dmg = Damage / 2;
+	
+	m_Life -= Dmg;
+	
+	if (Dmg < 200)
+		GameServer()->CreateDamageInd(m_Pos+vec2(frandom()-frandom(), frandom()-frandom()), frandom()*pi, -Dmg, -1);
+	else
+		GameServer()->CreateDamageInd(m_Pos+vec2(frandom()-frandom(), frandom()-frandom()), frandom()*pi, -1, -1);
+	
 	if (m_Life <= 0)
 	{
 		m_DeathTimer = 5;
@@ -229,7 +272,7 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon)
 		//Destroy();
 		//GameServer()->m_World.DestroyEntity(this);
 		
-		if (m_Type == BUILDING_BARREL)
+		if (m_Type == BUILDING_BARREL || m_Type == BUILDING_POWERBARREL)
 			m_DamageOwner = Owner;
 	}
 }
@@ -251,19 +294,58 @@ void CBuilding::Destroy()
 	}
 	else if (m_Type == BUILDING_BARREL)
 	{
-		//CSuperexplosion *S = new CSuperexplosion(&GameServer()->m_World, m_Pos, m_DamageOwner, WEAPON_HAMMER, 1);
-		//GameServer()->m_World.InsertEntity(S);
-		//GameServer()->CreateExplosion(ep, m_DamageOwner, Weapon, false, false);
-		//GameServer()->CreateFlameExplosion(m_Pos, m_DamageOwner, WEAPON_HAMMER, false);
-		
 		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
-		GameServer()->CreateExplosion(m_Pos, m_DamageOwner, DEATHTYPE_BARREL, false, false);
+		GameServer()->CreateExplosion(m_Pos, m_DamageOwner, DEATHTYPE_BARREL, 0, false, false);
+		GameServer()->m_World.DestroyEntity(this);
+	}
+	else if (m_Type == BUILDING_POWERBARREL)
+	{
+		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
+		GameServer()->CreateExplosion(m_Pos, m_DamageOwner, DEATHTYPE_POWERBARREL, 2, false, false);
 		GameServer()->m_World.DestroyEntity(this);
 	}
 	else if (m_Type == BUILDING_FLAMETRAP)
 	{
 		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
-		GameServer()->CreateExplosion(m_Pos, m_DamageOwner, DEATHTYPE_FLAMETRAP, false, false);
+		GameServer()->CreateExplosion(m_Pos, m_DamageOwner, DEATHTYPE_FLAMETRAP, 0, false, false);
+		GameServer()->m_World.DestroyEntity(this);
+	}
+	else if (m_Type == BUILDING_LIGHTNINGWALL)
+	{
+		m_Life = 0;
+		
+		// find the other part
+		CBuilding *apBuildings[99];
+		int Num = GameServer()->m_World.FindEntities(m_Pos+vec2(0, -400), 1200, (CEntity**)apBuildings, 99, CGameWorld::ENTTYPE_BUILDING);
+
+		for(int i = 0; i < Num; i++)
+		{
+			if (apBuildings[i]->m_Type == BUILDING_LIGHTNINGWALL2 && apBuildings[i]->m_Life > 0 && apBuildings[i]->m_Pos.y < m_Pos.y &&
+				abs(apBuildings[i]->m_Pos.x - m_Pos.x) < 4.0f)
+				apBuildings[i]->Destroy();
+		}
+		
+		new CLaserFail(GameWorld(), m_Pos, m_Pos + vec2(0, -m_Height), 1);
+		
+		GameServer()->CreateEffect(FX_SMALLELECTRIC, m_Pos);
+		GameServer()->m_World.DestroyEntity(this);
+	}
+	else if (m_Type == BUILDING_LIGHTNINGWALL2)
+	{
+		m_Life = 0;
+		
+		// find the other part
+		CBuilding *apBuildings[99];
+		int Num = GameServer()->m_World.FindEntities(m_Pos+vec2(0, +400), 1200, (CEntity**)apBuildings, 99, CGameWorld::ENTTYPE_BUILDING);
+
+		for(int i = 0; i < Num; i++)
+		{
+			if (apBuildings[i]->m_Type == BUILDING_LIGHTNINGWALL && apBuildings[i]->m_Life > 0 && apBuildings[i]->m_Pos.y > m_Pos.y &&
+				abs(apBuildings[i]->m_Pos.x - m_Pos.x) < 4.0f)
+				apBuildings[i]->Destroy();
+		}
+		
+		GameServer()->CreateEffect(FX_SMALLELECTRIC, m_Pos);
 		GameServer()->m_World.DestroyEntity(this);
 	}
 	else
@@ -289,6 +371,15 @@ void CBuilding::Tick()
 				GameServer()->m_pController->NextLevel(pChr->GetPlayer()->GetCID());
 			}
 		}
+	}
+	
+	if (m_Type == BUILDING_LIGHTNINGWALL)
+	{
+		vec2 At;
+		CCharacter *pHit = GameServer()->m_World.IntersectCharacter(m_Pos, m_Pos+vec2(0, -m_Height), 4.0f, At);
+		
+		if(pHit)
+			pHit->TakeDamage(vec2(0, 0), 3, NEUTRAL_BASE, DEATHTYPE_LIGHTNINGWALL, vec2(0, 0), DAMAGETYPE_ELECTRIC);	
 	}
 	
 	if (m_Type == BUILDING_JUMPPAD)

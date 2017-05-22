@@ -12,6 +12,7 @@ const int LazerPhysSize = 10;
 const int PowerupperPhysSize = 10;
 const int BasePhysSize = 10;
 const int StandPhysSize = 20;
+const int LightningWallPhysSize = 20;
 const int FlametrapPhysSize = 20;
 const int SwitchPhysSize = 7;
 const int DoorPhysSize = 40;
@@ -58,6 +59,10 @@ protected:
 	
 private:
 	int m_SetTimer;
+	
+	// lightning wall
+	void CreateLightningWallTop();
+	int m_Height;
 };
 
 #endif

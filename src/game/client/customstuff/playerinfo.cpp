@@ -49,6 +49,8 @@ void CPlayerInfo::Reset()
 	m_Jetpack = false;
 	m_Hang = false;
 	
+	m_WeaponPowerLevel = 0;
+	
 	m_ArmPos = vec2(0, 0);
 	
 	for (int i = 0; i < 20; i++)
@@ -163,7 +165,7 @@ float CPlayerInfo::MeleeAngle()
 
 float CPlayerInfo::MeleeSize()
 {
-	return 1.2f;
+	return 1.1f + m_WeaponPowerLevel*0.2f;
 	
 	float s = abs(m_Melee.m_TurnSpeed);
 	return 0.8f + (s > 0.2f ? s - 0.2f : 0.0f);
@@ -340,7 +342,7 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 	if (m_Melee.m_FireTimer > 0)
 	{
 		m_Melee.m_FireTimer--;
-		TurnSpeedCap = 0.6f;
+		TurnSpeedCap = 0.5f + m_WeaponPowerLevel*0.1f;
 		TurnAmount = 0.04f;
 		
 		if ((Animation()->m_Flip && m_Melee.m_TurnSpeed > 0.0f) ||
@@ -463,6 +465,9 @@ void CPlayerInfo::Tick()
 		if (m_EffectIntensity[i] > 0.0f)
 		{
 			m_EffectIntensity[i] -= 0.01f;
+			
+			if (i == EFFECT_DEATHRAY)
+				m_EffectIntensity[i] -= 0.1f;
 			
 			if (i == EFFECT_SPAWNING)
 				m_EffectIntensity[i] -= 0.01f;

@@ -7,13 +7,14 @@
 
 enum PlayerItems
 {
-	PLAYERITEM_HEAL,
+	PLAYERITEM_FILL,
 	PLAYERITEM_RAGE,
 	PLAYERITEM_INVISIBILITY,
 	PLAYERITEM_LANDMINE,
 	PLAYERITEM_ELECTROMINE,
 	PLAYERITEM_SHIELD,
 	PLAYERITEM_FUEL,
+	PLAYERITEM_UPGRADE,
 	NUM_PLAYERITEMS,
 };
 
@@ -157,7 +158,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		0, // powerup size
 		0, // max ammo
 		0, // bullet life
-		250, // bullet reload time
+		350, // bullet reload time
 		1.0f, // knockback
 		0.0f, // self knockback
 		270 // ai attack range
@@ -169,8 +170,8 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		true, // autofire
 		0.06f, // bullet spread
 		6, // shot spread
-		4, // powerup size
-		10, // max ammo
+		5, // powerup size
+		14, // max ammo
 		0.17f, // bullet life
 		400, // bullet reload time
 		3.0f, // bullet knockback

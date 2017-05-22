@@ -14,6 +14,7 @@ CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType, int Ammo)
 	m_ProximityRadius = PickupPhysSize;
 
 	m_ResetableDropable = false;
+	m_PowerLevel = 0;
 	
 	Reset();
 
@@ -41,6 +42,7 @@ void CPickup::Reset()
 			
 		m_Flashing = false;
 		m_FlashTimer = 0;
+		m_PowerLevel = 0;
 	}
 }
 
@@ -67,6 +69,7 @@ void CPickup::Tick()
 		{
 			// respawn
 			m_SpawnTick = -1;
+			m_PowerLevel = 0;
 			
 			if (m_ResetableDropable)
 			{
@@ -74,6 +77,8 @@ void CPickup::Tick()
 				m_Dropable = false;
 			}
 			
+			if (m_Type == POWERUP_WEAPON && frandom() < 0.13f)
+				m_PowerLevel = 1;
 
 			if(m_Type == POWERUP_WEAPON)
 				GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SPAWN);
@@ -218,7 +223,7 @@ void CPickup::Tick()
 					if (m_Ammo >= 0.0f)
 						AmmoFill = m_Ammo;
 					
-					if (pChr->GiveCustomWeapon(m_Subtype, AmmoFill))
+					if (pChr->GiveCustomWeapon(m_Subtype, AmmoFill, m_PowerLevel))
 					{
 						if(m_Subtype == WEAPON_GRENADE)
 							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE);
@@ -227,12 +232,7 @@ void CPickup::Tick()
 						
 						if(pChr->GetPlayer())
 						{
-							//GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), Parent);
-							
 							GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), m_Subtype);
-							
-							//char aBuf[256]; str_format(aBuf, sizeof(aBuf), "Picked up %s", aCustomWeapon[m_Subtype].m_Name);
-							//GameServer()->SendChatTarget(pChr->GetPlayer()->GetCID(), aBuf);
 						}
 						
 						RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
@@ -317,6 +317,7 @@ void CPickup::Snap(int SnappingClient)
 	pP->m_X = (int)m_Pos.x;
 	pP->m_Y = (int)m_Pos.y;
 	pP->m_Type = m_Type;
+	pP->m_PowerLevel = m_PowerLevel;
 	
 	if (m_Type == POWERUP_WEAPON && m_Subtype >= 0 && m_Subtype < NUM_WEAPONS)
 	{

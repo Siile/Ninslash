@@ -29,6 +29,100 @@ void CBuildings2::OnReset()
 }
 
 
+
+void CBuildings2::RenderLightningWall(const struct CNetObj_Building *pCurrent)
+{
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
+	Graphics()->QuadsBegin();
+	
+	RenderTools()->SelectSprite(SPRITE_LIGHTNINGWALL);
+	
+	Graphics()->SetColor(1, 1, 1, 1);
+	Graphics()->QuadsSetRotation(0);
+		
+	RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y-4, 64);
+	
+	Graphics()->QuadsEnd();
+	
+	
+	// lightning effect
+	
+	vec2 Out, Border;
+	
+	vec2 From = vec2(pCurrent->m_X, pCurrent->m_Y-5);
+	vec2 Pos = From + vec2(0, -600);
+	
+	Collision()->IntersectLine(From, Pos, 0x0, &Pos);
+	
+	Pos.y += 20;
+	
+	vec2 Dir = normalize(Pos-From);
+	
+	Graphics()->ShaderBegin(SHADER_ELECTRIC, 1.0f);
+	Graphics()->BlendNormal();
+	Graphics()->TextureSet(-1);
+	Graphics()->QuadsBegin();
+	
+	Graphics()->SetColor(0.5f, 0.5f, 1, 1.0f);
+	//Graphics()->SetColor(0.3f + frandom()*0.4f, 0.3f + frandom()*0.4f, 1, 1.0f);
+	int Steps = 2 + length(Pos - From) / 60;
+	vec2 Step = (Pos - From) / Steps;
+	Out = vec2(Dir.y, -Dir.x) * 1.0f;
+		
+	vec2 p1 = From;
+	vec2 s1 = vec2(0, 0);
+		
+	vec2 o1 = vec2(0, 0);
+			
+	for (int i = 0; i < Steps; i++)
+	{
+		vec2 p2 = p1 + Step;
+		vec2 o2 = vec2(0, 0);
+			
+		if (i < Steps-1)
+			o2 = vec2(frandom()-frandom(), (frandom()-frandom())/2) * 15.0f;
+			
+		vec2 s2 = Out * frandom()*8.0f;
+			
+		if (i == Steps -1)
+			s2 = vec2(0, 0);
+			
+		IGraphics::CFreeformItem FreeFormItem(
+			p1.x-s1.x+o1.x, p1.y-s1.y+o1.y,
+			p1.x+s1.x+o1.x, p1.y+s1.y+o1.y,
+			p2.x-s2.x+o2.x, p2.y-s2.y+o2.y,
+			p2.x+s2.x+o2.x, p2.y+s2.y+o2.y);
+								
+		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+		
+		//m_pClient->m_pEffects->BulletTrail(p1+o1, p2+o2, vec4(0.5f, 0.5f, 1.0f, 0.2f));
+		
+		s1 = s2;
+		p1 = p2;
+		o1 = o2;
+	}
+	
+	Graphics()->QuadsEnd();
+	Graphics()->ShaderEnd();
+}
+
+
+void CBuildings2::RenderLightningWallTop(const struct CNetObj_Building *pCurrent)
+{
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
+	Graphics()->QuadsBegin();
+	
+	RenderTools()->SelectSprite(SPRITE_LIGHTNINGWALL, SPRITE_FLAG_FLIP_Y);
+	
+	Graphics()->SetColor(1, 1, 1, 1);
+	Graphics()->QuadsSetRotation(0);
+		
+	RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y+4, 64);
+	
+	Graphics()->QuadsEnd();
+}
+
+
 void CBuildings2::RenderSawblade(const struct CNetObj_Building *pCurrent)
 {
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
@@ -186,18 +280,12 @@ void CBuildings2::RenderBuildMode()
 
 	int SnapRange = 128;
 	
-	if (Selected >= 0 && Selected < 3)
+	if (Selected >= 0 && Selected < NUM_BUILDABLES)
 	{
 		int Cost = BuildableCost[Selected];
 
 		//if (Cost <= CustomStuff()->m_LocalKits)
 		{
-			// render selected building
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
-			
-			Graphics()->ShaderBegin(SHADER_GRAYSCALE, 0.0f);
-			Graphics()->QuadsBegin();
-
 			bool Valid = false;
 			
 			// snap pos
@@ -207,7 +295,7 @@ void CBuildings2::RenderBuildMode()
 				Valid = true;
 			
 			// snap y down
-			if (Valid && Selected != 2)
+			if (Valid && Selected != BUILDABLE_FLAMETRAP)
 			{
 				vec2 To = Pos+vec2(0, SnapRange);
 				if (Collision()->IntersectLine(Pos, To, 0x0, &To))
@@ -228,8 +316,32 @@ void CBuildings2::RenderBuildMode()
 					Valid = false;
 			}
 			
+			// lightning wall line
+			if (Valid && Selected == BUILDABLE_LIGHTNINGWALL)
+			{
+				vec2 To = Pos+vec2(0, -550);
+				if (Collision()->IntersectLine(Pos, To, 0x0, &To))
+				{
+					Graphics()->TextureSet(-1);
+					Graphics()->QuadsBegin();
+					Graphics()->SetColor(0.0f, 1.0f, 0.0f, 0.3f);
+				
+					IGraphics::CFreeformItem FreeFormItem(
+						Pos.x-4, Pos.y,
+						Pos.x+4, Pos.y,
+						To.x-4, To.y,
+						To.x+4, To.y);
+										
+					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+				
+					Graphics()->QuadsEnd();
+				}
+				else
+					Valid = false;
+			}
+			
 			// snap x
-			if (Valid && Selected == 2)
+			if (Valid && Selected == BUILDABLE_FLAMETRAP)
 			{
 				vec2 To = Pos+vec2(SnapRange, 0);
 				if (Collision()->IntersectLine(Pos, To, 0x0, &To))
@@ -279,6 +391,13 @@ void CBuildings2::RenderBuildMode()
 			if (Cost > CustomStuff()->m_LocalKits)
 				Valid = false;
 		
+		
+			// render selected building
+			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
+			
+			Graphics()->ShaderBegin(SHADER_GRAYSCALE, 0.0f);
+			Graphics()->QuadsBegin();
+		
 			// color
 			if (Valid)
 			{
@@ -321,6 +440,15 @@ void CBuildings2::OnRender()
 			
 			switch (pBuilding->m_Type)
 			{
+			case BUILDING_LIGHTNINGWALL:
+				RenderLightningWall(pBuilding);
+				break;
+				
+			case BUILDING_LIGHTNINGWALL2:
+				RenderLightningWallTop(pBuilding);
+				break;
+				
+				
 			case BUILDING_SAWBLADE:
 				RenderSawblade(pBuilding);
 				break;

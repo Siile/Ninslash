@@ -9,11 +9,10 @@
 #include "building.h"
 #include "turret.h"
 #include "laser.h"
-#include "lightning.h"
-#include "electro.h"
 #include "projectile.h"
 #include "superexplosion.h"
 #include "monster.h"
+#include "laserfail.h"
 
 #include <game/weapons.h>
 #include <game/buildables.h>
@@ -140,6 +139,17 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	
 	m_LatestHitVel = vec2(0, 0);
 	
+	// reset weapons
+	for (int i = 0; i < NUM_WEAPONS; i++)
+	{
+		m_aWeapon[i].m_Ammo = 0;
+		m_aWeapon[i].m_PowerLevel = 0;
+		m_aWeapon[i].m_Got = false;
+		m_aWeapon[i].m_Disabled = false;
+		m_aWeapon[i].m_Ready = false;
+	}
+	
+	
 	m_Core.Reset();
 	m_Core.Init(&GameServer()->m_World.m_Core, GameServer()->Collision());
 	m_Core.m_Pos = m_Pos;
@@ -157,10 +167,10 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	
 	if (pPlayer->m_pAI)
 	{
+		m_IsBot = true;
 		pPlayer->m_TeeInfos.m_IsBot = true;
 		pPlayer->m_pAI->OnCharacterSpawn(this);
 		pPlayer->m_IsBot = true;
-		m_IsBot = true;
 		
 		if (GameServer()->m_pController->IsCoop())
 		{
@@ -191,13 +201,20 @@ void CCharacter::SaveData()
 	CPlayerData *pData = GameServer()->Server()->PlayerData(GetPlayer()->GetCID());
 
 	pData->m_Weapon = GetActiveWeapon();
+	pData->m_Kits = m_Kits;
 	
 	for (int i = 0; i < NUM_WEAPONS; i++)
 	{
 		if (GotWeapon(i))
+		{
 			pData->m_aAmmo[i] = m_aWeapon[i].m_Ammo;
+			pData->m_aPowerLevel[i] = m_aWeapon[i].m_PowerLevel;
+		}
 		else
+		{
 			pData->m_aAmmo[i] = -1;
+			pData->m_aPowerLevel[i] = 0;
+		}
 	}
 }
 
@@ -284,12 +301,14 @@ void CCharacter::DropWeapon()
 		
 		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
 		
+		int PowerLevel = m_ActiveCustomWeapon >= 0 && m_ActiveCustomWeapon < NUM_WEAPONS ? m_aWeapon[m_ActiveCustomWeapon].m_PowerLevel : 0;
+		
 		// weapon drop on death
 		if (m_HiddenHealth <= 0)
 		{
 			// throw weapon away
 			float AmmoFill = float(m_aWeapon[m_ActiveCustomWeapon].m_Ammo) / aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo;
-			GameServer()->m_pController->DropPickup(m_Pos+vec2(0, -16), POWERUP_WEAPON, m_Core.m_Vel/1.7f + Direction*8 + vec2(0, -3), m_ActiveCustomWeapon, AmmoFill);
+			GameServer()->m_pController->DropPickup(m_Pos+vec2(0, -16), POWERUP_WEAPON, m_Core.m_Vel/1.7f + Direction*8 + vec2(0, -3), m_ActiveCustomWeapon, AmmoFill, PowerLevel);
 			m_SkipPickups = 20;
 			m_aWeapon[m_ActiveCustomWeapon].m_Got = false;
 			return;
@@ -323,6 +342,7 @@ void CCharacter::DropWeapon()
 			pTurret->m_OwnerPlayer = GetPlayer()->GetCID();
 			pTurret->SetAngle(-Direction);
 			pTurret->m_Ammo = m_aWeapon[m_ActiveCustomWeapon].m_Ammo;
+			pTurret->m_PowerLevel = m_aWeapon[m_ActiveCustomWeapon].m_PowerLevel;
 			
 			// sound
 			GameServer()->CreateSound(m_Pos, SOUND_BUILD_TURRET);
@@ -355,7 +375,7 @@ void CCharacter::DropWeapon()
 				if (aCustomWeapon[pTurret->m_Weapon].m_MaxAmmo)
 					AmmoFill = float(pTurret->m_Ammo) / aCustomWeapon[pTurret->m_Weapon].m_MaxAmmo;
 				
-				GameServer()->m_pController->DropPickup(pTurret->m_Pos+vec2(0, -40), POWERUP_WEAPON, vec2(0, -3), pTurret->m_Weapon, AmmoFill);
+				GameServer()->m_pController->DropPickup(pTurret->m_Pos+vec2(0, -40), POWERUP_WEAPON, vec2(0, -3), pTurret->m_Weapon, AmmoFill, pTurret->m_PowerLevel);
 
 				if (pTurret->m_Weapon == m_ActiveCustomWeapon && m_aWeapon[m_ActiveCustomWeapon].m_Ammo > 0)
 					GameServer()->AmmoFill(pTurret->m_Pos+vec2(0, -50), m_ActiveCustomWeapon);
@@ -365,6 +385,7 @@ void CCharacter::DropWeapon()
 				pTurret->SetAngle(-Direction);
 				pTurret->m_Ammo = m_aWeapon[m_ActiveCustomWeapon].m_Ammo;
 				pTurret->m_Weapon = m_ActiveCustomWeapon;
+				pTurret->m_PowerLevel = m_aWeapon[m_ActiveCustomWeapon].m_PowerLevel;
 				
 				// sound
 				GameServer()->CreateSound(m_Pos, SOUND_BUILD_TURRET);
@@ -376,7 +397,7 @@ void CCharacter::DropWeapon()
 				if (aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo > 0)
 					AmmoFill = float(m_aWeapon[m_ActiveCustomWeapon].m_Ammo) / aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo;
 				
-				GameServer()->m_pController->DropPickup(m_Pos+vec2(0, -16), POWERUP_WEAPON, m_Core.m_Vel/1.7f + Direction*8 + vec2(0, -3), m_ActiveCustomWeapon, AmmoFill);
+				GameServer()->m_pController->DropPickup(m_Pos+vec2(0, -16), POWERUP_WEAPON, m_Core.m_Vel/1.7f + Direction*8 + vec2(0, -3), m_ActiveCustomWeapon, AmmoFill, PowerLevel);
 				m_SkipPickups = 20;
 			}
 		}
@@ -687,13 +708,15 @@ void CCharacter::Chainsaw()
 	{
 		GetPlayer()->m_InterestPoints += 3;
 		
+		int PowerLevel = m_aWeapon[m_ActiveCustomWeapon].m_PowerLevel;
+		
 		// massacre
 		vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
 		//vec2 ProjStartPos = m_Core.m_Vel*2 +m_Pos+Direction*m_ProximityRadius*1.9f + vec2(0, -11);
 		vec2 ProjStartPos = m_Pos+Direction*m_ProximityRadius*2.0f + vec2(0, -11);
 		
-		GameServer()->CreateChainsawHit(m_pPlayer->GetCID(), m_ActiveCustomWeapon, m_Pos, ProjStartPos, this);
-		
+		GameServer()->CreateChainsawHit(m_pPlayer->GetCID(), m_ActiveCustomWeapon, PowerLevel, m_Pos, ProjStartPos, this);
+
 		// test
 		//GameServer()->CreateBuildingHit(ProjStartPos);
 	}
@@ -729,7 +752,7 @@ void CCharacter::Scythe()
 		GetPlayer()->m_InterestPoints += 2;
 		
 		vec2 ProjStartPos = m_Pos + vec2(14 * (Direction.x < 0 ? -1 : 1), -12);
-		GameServer()->CreateScytheHit(m_pPlayer->GetCID(), m_ActiveCustomWeapon, m_Pos, ProjStartPos, this);
+		GameServer()->CreateScytheHit(m_pPlayer->GetCID(), m_ActiveCustomWeapon, m_aWeapon[m_ActiveCustomWeapon].m_PowerLevel, m_Pos, ProjStartPos, this);
 		
 		// uncomment to check collosion center
 		//GameServer()->CreateBuildingHit(ProjStartPos);
@@ -756,7 +779,7 @@ void CCharacter::Flamethrower()
 			vec2 To = StartPos+Direction*m_ProximityRadius*i*2.1f;
 			
 			GameServer()->Collision()->IntersectLine(StartPos, To, 0x0, &To);
-			GameServer()->CreateFlamethrowerHit(m_pPlayer->GetCID(), m_ActiveCustomWeapon, To, this);
+			GameServer()->CreateFlamethrowerHit(m_pPlayer->GetCID(), m_ActiveCustomWeapon, m_aWeapon[m_ActiveCustomWeapon].m_PowerLevel, To, this);
 			
 			// to visualize hit points
 			//GameServer()->CreateFlameHit(To);
@@ -834,9 +857,12 @@ void CCharacter::FireWeapon()
 	
 	
 	int Damage = aCustomWeapon[m_ActiveCustomWeapon].m_Damage;
+	int PowerLevel = m_aWeapon[m_ActiveCustomWeapon].m_PowerLevel;
 	
 	m_ReloadTimer = aCustomWeapon[m_ActiveCustomWeapon].m_BulletReloadTime * Server()->TickSpeed() / 1000;
 	
+	//if (m_ActiveCustomWeapon == WEAPON_RIFLE && PowerLevel > 0)
+	//	m_ReloadTimer *= 0.85f;
 	
 	// create the projectile
 	switch(m_ActiveCustomWeapon)
@@ -870,6 +896,8 @@ void CCharacter::FireWeapon()
 			// for testing the center pos
 			//GameServer()->CreateEffect(FX_ELECTROHIT, ProjStartPos);
 			
+			Damage += PowerLevel*15;
+			
 			{
 				CCharacter *apEnts[MAX_CLIENTS];
 				int Num = GameServer()->m_World.FindEntities(ProjStartPos, m_ProximityRadius*2.5f, (CEntity**)apEnts,
@@ -893,7 +921,7 @@ void CCharacter::FireWeapon()
 					else
 						Dir = vec2(0.f, 0.f);
 
-					pTarget->TakeDamage(Dir * 10.0f * aCustomWeapon[m_ActiveCustomWeapon].m_Knockback, Damage,
+					pTarget->TakeDamage((Dir + vec2(0, -0.2f)) * 10.0f * aCustomWeapon[m_ActiveCustomWeapon].m_Knockback*(1.0f+PowerLevel*1.5f), Damage,
 						m_pPlayer->GetCID(), m_ActiveCustomWeapon, vec2(0, 0), false);
 				}
 			}
@@ -956,9 +984,9 @@ void CCharacter::FireWeapon()
 			GetPlayer()->m_InterestPoints += 10;	
 			
 			if (m_ActiveCustomWeapon == WEAPON_RIFLE && m_Type == CCharacter::ROBOT)
-				GameServer()->CreateProjectile(m_pPlayer->GetCID(), W_WALKER, ProjStartPos, Direction);
+				GameServer()->CreateProjectile(m_pPlayer->GetCID(), W_WALKER, 0, ProjStartPos, Direction);
 			else
-				GameServer()->CreateProjectile(m_pPlayer->GetCID(), m_ActiveCustomWeapon, ProjStartPos, Direction);
+				GameServer()->CreateProjectile(m_pPlayer->GetCID(), m_ActiveCustomWeapon, PowerLevel, ProjStartPos, Direction);
 		} break;
 
 		case WEAPON_LASER:
@@ -968,12 +996,15 @@ void CCharacter::FireWeapon()
 			if (GameServer()->m_pController->IsCoop() && m_IsBot)
 				Dmg = 0.6f;
 			
+			if (PowerLevel > 0)
+				Dmg *= 1.35f;
+			
 			GetPlayer()->m_InterestPoints += 40;
 			
 			float a = GetAngle(Direction);
 			a += (frandom()-frandom())*aCustomWeapon[m_ActiveCustomWeapon].m_BulletSpread;
 			
-			new CLaser(GameWorld(), ProjStartPos, vec2(cosf(a), sinf(a)), GameServer()->Tuning()->m_LaserReach, m_pPlayer->GetCID(), Damage*Dmg);
+			new CLaser(GameWorld(), ProjStartPos, vec2(cosf(a), sinf(a)), GameServer()->Tuning()->m_LaserReach, m_pPlayer->GetCID(), Damage*Dmg, PowerLevel);
 		} break;
 	};
 	
@@ -1054,8 +1085,6 @@ void CCharacter::AutoWeaponChange()
 
 void CCharacter::GiveStartWeapon()
 {
-
-
 	if (GameServer()->m_pController->IsCoop())
 	{
 		if (m_IsBot)
@@ -1071,11 +1100,7 @@ void CCharacter::GiveStartWeapon()
 		for (int i = 0; i < NUM_WEAPONS; i++)
 			if (pData->m_aAmmo[i] >= 0)
 			{
-				//float AmmoFill = 0;
-				//if (aCustomWeapon[i].m_MaxAmmo > 0)
-				//	AmmoFill = float(pData->m_aAmmo[i]) / float(aCustomWeapon[i].m_MaxAmmo);
-				
-				GiveCustomWeapon(i, 0);
+				GiveCustomWeapon(i, 0, pData->m_aPowerLevel[i]);
 				m_aWeapon[i].m_Ammo = pData->m_aAmmo[i];
 			}
 			
@@ -1083,6 +1108,11 @@ void CCharacter::GiveStartWeapon()
 			SetCustomWeapon(pData->m_Weapon);
 		else
 			SetCustomWeapon(W_HAMMER);
+		
+		m_aWeapon[1].m_PowerLevel = pData->m_aPowerLevel[1];
+		m_Kits = pData->m_Kits;
+		
+		//GiveAllWeapons();
 		
 		return;
 	}
@@ -1121,8 +1151,6 @@ void CCharacter::GiveStartWeapon()
 	{
 		GiveRandomWeapon();
 	}
-	
-	//GiveAllWeapons();
 }
 
 
@@ -1170,17 +1198,59 @@ bool CCharacter::GiveAmmo(int *CustomWeapon, float AmmoFill)
 }
 
 
-bool CCharacter::GiveCustomWeapon(int CustomWeapon, float AmmoFill)
+void CCharacter::UpgradeWeapon()
+{
+	int w = m_ActiveCustomWeapon;
+
+	GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
+	GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN);
+	
+	if (w >= 1 && w < NUM_WEAPONS)
+	{
+		if (m_aWeapon[w].m_PowerLevel < 1)
+		{
+			m_aWeapon[w].m_PowerLevel++;
+			// sound here
+			return;
+		}
+		else
+		{
+			w = m_PrevWeapon;
+			if (w >= 1 && w < NUM_WEAPONS && GotWeapon(w) && m_aWeapon[w].m_PowerLevel < 1)
+			{
+				m_aWeapon[w].m_PowerLevel++;
+				// sound here
+				return;
+			}
+			else
+			{
+				for (w = 1; w < NUM_WEAPONS; w++)
+					if (GotWeapon(w) && m_aWeapon[w].m_PowerLevel < 1)
+					{
+						m_aWeapon[w].m_PowerLevel++;
+						// sound here
+						return;
+					}
+			}
+		}
+		
+	}
+}
+
+	
+bool CCharacter::GiveCustomWeapon(int CustomWeapon, float AmmoFill, int PowerLevel)
 {
 	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE && CustomWeapon != WEAPON_CHAINSAW)
 		return false;
 	
 	if(!m_aWeapon[CustomWeapon].m_Got && !m_aWeapon[CustomWeapon].m_Disabled)
-	{	
+	{
 		m_aWeapon[CustomWeapon].m_Got = true;
 		m_aWeapon[CustomWeapon].m_Disabled = false;
 		m_aWeapon[CustomWeapon].m_Ready = false;
 		m_aWeapon[CustomWeapon].m_Ammo = aCustomWeapon[CustomWeapon].m_MaxAmmo;
+		
+		m_aWeapon[CustomWeapon].m_PowerLevel = PowerLevel;
 		
 		//bool SkipAmmoFill = false;
 				
@@ -1190,6 +1260,15 @@ bool CCharacter::GiveCustomWeapon(int CustomWeapon, float AmmoFill)
 		
 		ScanWeapons();
 
+		return true;
+	}
+	else if (PowerLevel > m_aWeapon[CustomWeapon].m_PowerLevel)
+	{
+		m_aWeapon[CustomWeapon].m_PowerLevel = PowerLevel;
+		
+		// todo: ammofill
+		m_aWeapon[CustomWeapon].m_Ready = false;
+		
 		return true;
 	}
 	return false;
@@ -1278,8 +1357,8 @@ void CCharacter::ResetInput()
 
 bool CCharacter::Invisible()
 {
-	if ((m_Core.m_Jetpack == 1 || m_Core.m_Input.m_Hook > 0) && m_Core.m_JetpackPower > 0)
-		return false;
+	//if ((m_Core.m_Jetpack == 1 || m_Core.m_Input.m_Hook > 0) && m_Core.m_JetpackPower > 0)
+	//	return false;
 		
 	if (m_DamageTakenTick > Server()->Tick() - Server()->TickSpeed() * 1.0f)
 		return false;
@@ -1315,11 +1394,13 @@ void CCharacter::SelectItem(int Item)
 	if (m_aItem[Item] <= 0)
 		return;
 	
+	/*
 	if (Item == PLAYERITEM_HEAL && m_aStatus[STATUS_HEAL] <= 0)
 	{
 		m_aStatus[STATUS_HEAL] = Server()->TickSpeed() * 0.75f;
 		m_aItem[Item]--;
 	}
+	*/
 
 	if (Item == PLAYERITEM_RAGE && m_aStatus[STATUS_RAGE] <= 0)
 	{
@@ -1359,16 +1440,20 @@ void CCharacter::GiveBuff(int Item)
 	if (Item < 0)
 		return;
 	
-	GameServer()->SendBuff(Item, Server()->Tick(), GetPlayer()->GetCID());
+	if (Item != PLAYERITEM_UPGRADE)
+		GameServer()->SendBuff(Item, Server()->Tick(), GetPlayer()->GetCID());
 	
-	if (Item == PLAYERITEM_HEAL)
-		m_aStatus[STATUS_HEAL] = Server()->TickSpeed() * 0.75f;
+	//if (Item == PLAYERITEM_HEAL)
+	//	m_aStatus[STATUS_HEAL] = Server()->TickSpeed() * 0.75f;
 
 	if (Item == PLAYERITEM_RAGE)
 		m_aStatus[STATUS_RAGE] = Server()->TickSpeed() * 20.0f;
 	
 	if (Item == PLAYERITEM_FUEL)
 		m_aStatus[STATUS_FUEL] = Server()->TickSpeed() * 20.0f;
+	
+	if (Item == PLAYERITEM_UPGRADE)
+		UpgradeWeapon();
 	
 	
 	if (Item == PLAYERITEM_SHIELD)
@@ -1386,7 +1471,7 @@ void CCharacter::GiveRandomBuff()
 {
 	int Buff = -1;
 	
-	while (Buff < 0 || Buff == PLAYERITEM_LANDMINE || Buff == PLAYERITEM_ELECTROMINE || Buff == PLAYERITEM_HEAL || (Buff == PLAYERITEM_FUEL && g_Config.m_SvUnlimitedTurbo))
+	while (Buff < 0 || Buff == PLAYERITEM_FILL || Buff == PLAYERITEM_LANDMINE || Buff == PLAYERITEM_ELECTROMINE || (Buff == PLAYERITEM_FUEL && g_Config.m_SvUnlimitedTurbo))
 		Buff = rand()%NUM_PLAYERITEMS;
 	
 	GiveBuff(Buff);
@@ -1859,13 +1944,20 @@ void CCharacter::Warp()
 	//m_IgnoreCollision = true;
 }
 
-void CCharacter::Deathray()
+void CCharacter::Deathray(bool Kill)
 {
 	if (m_DeathrayTick > 0)
 		return;
 	
-	m_DeathrayTick = Server()->Tick() + Server()->TickSpeed() * 0.2f;
-	m_aStatus[STATUS_DEATHRAY] = 10.0f*Server()->TickSpeed();
+	if (Kill)
+	{
+		m_DeathrayTick = Server()->Tick() + Server()->TickSpeed() * 0.2f;
+		m_aStatus[STATUS_DEATHRAY] = 10.0f*Server()->TickSpeed();
+	}
+	else
+	{
+		m_aStatus[STATUS_DEATHRAY] = 0.25f*Server()->TickSpeed();
+	}
 }
 
 
@@ -2166,6 +2258,11 @@ void CCharacter::Snap(int SnappingClient)
 	pCharacter->m_Armor = 0;
 
 	pCharacter->m_Weapon = m_ActiveCustomWeapon;
+	
+	if (m_ActiveCustomWeapon >= 0 && m_ActiveCustomWeapon < NUM_CUSTOMWEAPONS)
+		pCharacter->m_WeaponPowerLevel = m_aWeapon[m_ActiveCustomWeapon].m_PowerLevel;
+	else
+		pCharacter->m_WeaponPowerLevel = 0;
 	
 	pCharacter->m_WeaponGroup1 = m_aSelectedWeapon[0];
 	pCharacter->m_WeaponGroup2 = m_aSelectedWeapon[1];

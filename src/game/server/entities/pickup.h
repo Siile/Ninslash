@@ -18,6 +18,7 @@ public:
 	virtual void Snap(int SnappingClient);
 
 	float m_Ammo;
+	int m_PowerLevel;
 	
 	void Respawn()
 	{

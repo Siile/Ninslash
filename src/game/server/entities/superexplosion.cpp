@@ -39,7 +39,7 @@ void CSuperexplosion::Tick()
 			GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
 		
 		if (m_Life == 0)
-			GameServer()->CreateExplosion(m_Pos, m_Player, m_Weapon, false, m_Superdamage);
+			GameServer()->CreateExplosion(m_Pos, m_Player, m_Weapon, 0, false, m_Superdamage);
 		else
 		{
 			int Steps = m_Life * 4;
@@ -53,7 +53,7 @@ void CSuperexplosion::Tick()
 
 				if(!GameServer()->Collision()->IntersectLine(m_Pos + Dir * 48, To, NULL, NULL))
 				{
-					GameServer()->CreateExplosion(To, m_Player, m_Weapon, false, m_Superdamage);
+					GameServer()->CreateExplosion(To, m_Player, m_Weapon, 0, false, m_Superdamage);
 				}
 				
 				Angle += StepAngle;

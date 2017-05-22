@@ -238,6 +238,23 @@ void CBuildings::RenderBarrel(const struct CNetObj_Building *pCurrent)
 	Graphics()->QuadsEnd();
 }
 
+void CBuildings::RenderPowerBarrel(const struct CNetObj_Building *pCurrent)
+{
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
+	Graphics()->QuadsBegin();
+	
+	RenderTools()->SelectSprite(SPRITE_POWERBARREL);
+	
+	Graphics()->SetColor(1, 1, 1, 1);
+	Graphics()->QuadsSetRotation(0);
+		
+	RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y-16, 96+12);
+	
+	Graphics()->QuadsEnd();
+}
+
+
+
 
 void CBuildings::RenderFlametrap(const struct CNetObj_Building *pCurrent)
 {
@@ -410,6 +427,8 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 	Graphics()->QuadsEnd();
 	
 	// weapon
+	if (pCurrent->m_PowerLevel > 0)
+		Graphics()->ShaderBegin(SHADER_COLORSWAP);
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 	Graphics()->QuadsBegin();
 
@@ -551,20 +570,10 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 				
 			OffsetY = -0 * (Dir.x < 0 ? -1 : 1);
 
-			/*
-			if (Player.m_AttackTick > Client()->GameTick() - 240 * Client()->GameTickSpeed()/1000)
-			{
-				FPos = p + Dir * 60 + DirY * OffsetY;
-						
-				if (frandom()*10 < 4 && !Collision()->CheckPoint(FPos.x, FPos.y))
-				{
-					m_pClient->m_pEffects->SmokeTrail(FPos, Dir * (600.0f+frandom()*500.0f));
-				}
-			}
-			*/
 		}
-	}	
+	}
 
+	Graphics()->ShaderEnd();
 	
 	
 	// fastener
@@ -743,6 +752,10 @@ void CBuildings::OnRender()
 				
 			case BUILDING_BARREL:
 				RenderBarrel(pBuilding);
+				break;
+				
+			case BUILDING_POWERBARREL:
+				RenderPowerBarrel(pBuilding);
 				break;
 				
 			case BUILDING_LAZER:

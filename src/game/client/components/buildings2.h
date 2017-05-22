@@ -6,6 +6,8 @@
 // rendered over the game layer
 class CBuildings2 : public CComponent
 {
+	void RenderLightningWall(const struct CNetObj_Building *pCurrent);
+	void RenderLightningWallTop(const struct CNetObj_Building *pCurrent);
 	void RenderSawblade(const struct CNetObj_Building *pCurrent);
 	void RenderFlametrap(const struct CNetObj_Building *pCurrent);
 	void RenderJumppad(const struct CNetObj_Building *pCurrent);

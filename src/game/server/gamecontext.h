@@ -137,11 +137,11 @@ public:
 	void CreateFlameHit(vec2 Pos);
 	void CreateBuildingHit(vec2 Pos);
 	void CreateDamageInd(vec2 Pos, float AngleMod, int Damage, int ClientID);
-	void CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool IsTurret = false);
+	void CreateExplosion(vec2 Pos, int Owner, int Weapon, int PowerLevel, bool NoDamage, bool IsTurret = false);
 	void CreateElectromineExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage);
 	void CreateMineExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage);
 	void CreateFlameExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool IsTurret = false);
-	void CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool IsTurret = false);
+	void CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, int PowerLevel, bool NoDamage, bool IsTurret = false);
 	void SendEffect(int ClientID, int EffectID);
 	void CreateHammerHit(vec2 Pos);
 	void CreateEffect(int FX, vec2 Pos);
@@ -153,10 +153,10 @@ public:
 
 	bool AddBuilding(int Kit, vec2 Pos);
 	
-	void CreateChainsawHit(int DamageOwner, int Weapon, vec2 PlayerPos, vec2 ProjPos, class CCharacter *OwnerChr = NULL, class CBuilding *OwnerBuilding = NULL);
-	void CreateScytheHit(int DamageOwner, int Weapon, vec2 PlayerPos, vec2 ProjPos, class CCharacter *OwnerChr = NULL, class CBuilding *OwnerBuilding = NULL);
-	void CreateFlamethrowerHit(int DamageOwner, int Weapon, vec2 ProjPos, class CCharacter *OwnerChr = NULL, class CBuilding *OwnerBuilding = NULL);
-	void CreateProjectile(int DamageOwner, int Weapon, vec2 Pos, vec2 Direction, class CBuilding *OwnerBuilding = NULL);
+	void CreateChainsawHit(int DamageOwner, int Weapon, int PowerLevel, vec2 PlayerPos, vec2 ProjPos, class CCharacter *OwnerChr = NULL, class CBuilding *OwnerBuilding = NULL);
+	void CreateScytheHit(int DamageOwner, int Weapon, int PowerLevel, vec2 PlayerPos, vec2 ProjPos, class CCharacter *OwnerChr = NULL, class CBuilding *OwnerBuilding = NULL);
+	void CreateFlamethrowerHit(int DamageOwner, int Weapon, int PowerLevel, vec2 ProjPos, class CCharacter *OwnerChr = NULL, class CBuilding *OwnerBuilding = NULL);
+	void CreateProjectile(int DamageOwner, int Weapon, int PowerLevel, vec2 Pos, vec2 Direction, class CBuilding *OwnerBuilding = NULL);
 
 	void Repair(vec2 Pos);
 	void AmmoFill(vec2 Pos, int Weapon);

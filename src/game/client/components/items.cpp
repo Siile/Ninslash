@@ -106,6 +106,13 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 		m_pClient->m_pEffects->Light(Pos, 128);
 	else
 		m_pClient->m_pEffects->Light(Pos, 96);
+
+
+	if(pCurrent->m_Type == WEAPON_ELECTRIC && pCurrent->m_PowerLevel > 0)
+		Graphics()->ShaderBegin(SHADER_ELECTRIC, 1.0f);
+	
+	if(pCurrent->m_Type == WEAPON_GRENADE && pCurrent->m_PowerLevel > 0)
+		Graphics()->ShaderBegin(SHADER_COLORSWAP);
 	
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
 	Graphics()->QuadsBegin();
@@ -150,6 +157,9 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	}
 	else if(pCurrent->m_Type == WEAPON_GRENADE)
 	{
+		//if (pCurrent->m_PowerLevel > 0)
+		//	m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(1.0f, 0.3f, 0.3f, 0.75f));
+		
 		m_pClient->m_pEffects->SmokeTrail(Pos, Vel*-1);
 		static float s_Time = 0.0f;
 		static float s_LastLocalTime = Client()->LocalTime();
@@ -171,6 +181,9 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	}
 	else if(pCurrent->m_Type == WEAPON_ELECTRIC)
 	{
+		if (pCurrent->m_PowerLevel > 0)
+			m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.5f, 0.5f, 1.0f, 0.75f));
+		
 		//m_pClient->m_pEffects->BulletTrail(Pos);
 		m_pClient->m_pEffects->Electrospark(Pos, 16, Vel * 100.0f);
 		
@@ -197,10 +210,23 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	}
 	else
 	{
-		if(pCurrent->m_Type == WEAPON_SHOTGUN && Ct > 0.01f) m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.6f, 0.6f, 0.3f, 0.75f));
-		//if(pCurrent->m_Type == WEAPON_RIFLE) m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(1.0f, 1.0f, 0.5f, 0.65f));
-		if(pCurrent->m_Type == WEAPON_RIFLE) m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.2f, 0.2f, 1.0f, 0.75f));
-		if(pCurrent->m_Type == W_WALKER) m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.2f, 0.2f, 1.0f, 0.75f));
+		if(pCurrent->m_Type == WEAPON_SHOTGUN && Ct > 0.01f)
+		{
+			if (pCurrent->m_PowerLevel == 0)
+				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.6f, 0.6f, 0.3f, 0.75f));
+			else
+				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.7f, 0.5f, 0.3f, 0.75f));
+		}
+		
+		if(pCurrent->m_Type == WEAPON_RIFLE || pCurrent->m_Type == W_WALKER)
+		{
+			if (pCurrent->m_PowerLevel == 0)
+				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.2f, 0.2f, 1.0f, 0.75f));
+			else if (pCurrent->m_PowerLevel == 1)
+				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.2f, 1.0f, 0.5f, 0.75f));
+			else
+				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(1.0f, 0.2f, 0.2f, 0.75f));
+		}
 		
 		if (Collision()->GetCollisionAt(PredictPos.x, PredictPos.y)&1 ||  // solid
 			Collision()->GetCollisionAt(PredictPos.x, PredictPos.y)&4)    // nohook
@@ -229,10 +255,15 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	Graphics()->QuadsDraw(&QuadItem, 1);
 	Graphics()->QuadsSetRotation(0);
 	Graphics()->QuadsEnd();
+	
+	Graphics()->ShaderEnd();
 }
 
 void CItems::RenderPickup(const CNetObj_Pickup *pPrev, const CNetObj_Pickup *pCurrent)
 {
+	if (pCurrent->m_PowerLevel > 0)
+		Graphics()->ShaderBegin(SHADER_COLORSWAP);
+	
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 	Graphics()->QuadsBegin();
 	vec2 Pos = mix(vec2(pPrev->m_X, pPrev->m_Y), vec2(pCurrent->m_X, pCurrent->m_Y), Client()->IntraGameTick());
@@ -307,6 +338,7 @@ void CItems::RenderPickup(const CNetObj_Pickup *pPrev, const CNetObj_Pickup *pCu
 	s_LastLocalTime = Client()->LocalTime();
 	RenderTools()->DrawSprite(Pos.x, Pos.y, Size);
 	Graphics()->QuadsEnd();
+	Graphics()->ShaderEnd();
 }
 
 
@@ -446,7 +478,15 @@ void CItems::RenderLaser(const struct CNetObj_Laser *pCurrent)
 	a = clamp(a, 0.0f, 1.0f);
 	float Ia = 1-a;
 
-	m_pClient->m_pEffects->BulletTrail(Pos, From, vec4(0.3f, 0.3f, 1.0f, 0.2f));
+	
+	if (pCurrent->m_PowerLevel == 0)
+	{
+		m_pClient->m_pEffects->BulletTrail(Pos, From, vec4(0.3f, 0.3f, 1.0f, 0.2f));
+	}
+	else
+	{
+		Graphics()->ShaderBegin(SHADER_ELECTRIC, 1.0f);
+	}
 	
 	vec2 Out, Border;
 
@@ -454,35 +494,77 @@ void CItems::RenderLaser(const struct CNetObj_Laser *pCurrent)
 	Graphics()->TextureSet(-1);
 	Graphics()->QuadsBegin();
 
-	//vec4 inner_color(0.15f,0.35f,0.75f,1.0f);
-	//vec4 outer_color(0.65f,0.85f,1.0f,1.0f);
-
-	// do outline
 	vec4 OuterColor(0.075f, 0.075f, 0.25f, 1.0f);
-	Graphics()->SetColor(OuterColor.r, OuterColor.g, OuterColor.b, 1.0f);
-	Out = vec2(Dir.y, -Dir.x) * (7.0f*Ia);
-
-	IGraphics::CFreeformItem Freeform(
-			From.x-Out.x, From.y-Out.y,
-			From.x+Out.x, From.y+Out.y,
-			Pos.x-Out.x, Pos.y-Out.y,
-			Pos.x+Out.x, Pos.y+Out.y);
-	Graphics()->QuadsDrawFreeform(&Freeform, 1);
-
-	// do inner
 	vec4 InnerColor(0.5f, 0.5f, 1.0f, 1.0f);
-	Out = vec2(Dir.y, -Dir.x) * (5.0f*Ia);
-	Graphics()->SetColor(InnerColor.r, InnerColor.g, InnerColor.b, 1.0f); // center
 
-	Freeform = IGraphics::CFreeformItem(
-			From.x-Out.x, From.y-Out.y,
-			From.x+Out.x, From.y+Out.y,
-			Pos.x-Out.x, Pos.y-Out.y,
-			Pos.x+Out.x, Pos.y+Out.y);
-	Graphics()->QuadsDrawFreeform(&Freeform, 1); 
+	if (pCurrent->m_PowerLevel == 0)
+	{
+		// do outline
+		Graphics()->SetColor(OuterColor.r, OuterColor.g, OuterColor.b, 1.0f);
+		Out = vec2(Dir.y, -Dir.x) * (7.0f*Ia);
 
+		IGraphics::CFreeformItem Freeform(
+				From.x-Out.x, From.y-Out.y,
+				From.x+Out.x, From.y+Out.y,
+				Pos.x-Out.x, Pos.y-Out.y,
+				Pos.x+Out.x, Pos.y+Out.y);
+		Graphics()->QuadsDrawFreeform(&Freeform, 1);
+
+		// do inner
+		Out = vec2(Dir.y, -Dir.x) * (5.0f*Ia);
+		Graphics()->SetColor(InnerColor.r, InnerColor.g, InnerColor.b, 1.0f); // center
+
+		Freeform = IGraphics::CFreeformItem(
+				From.x-Out.x, From.y-Out.y,
+				From.x+Out.x, From.y+Out.y,
+				Pos.x-Out.x, Pos.y-Out.y,
+				Pos.x+Out.x, Pos.y+Out.y);
+		Graphics()->QuadsDrawFreeform(&Freeform, 1); 
+	}
+	else
+	{
+		Graphics()->SetColor(0.5f, 0.5f, 1, 1.0f);
+		int Steps = 1 + length(Pos - From) / 75;
+		vec2 Step = (Pos - From) / Steps;
+		Out = vec2(Dir.y, -Dir.x) * (7.0f*Ia);
+		
+		vec2 p1 = From;
+		vec2 s1 = Out * 0.1f;
+		
+		vec2 o1 = vec2(0, 0);
+			
+		for (int i = 0; i < Steps; i++)
+		{
+			vec2 p2 = p1 + Step;
+			vec2 o2 = vec2(0, 0);
+			
+			if (i < Steps-1)
+				o2 = vec2(frandom()-frandom(), frandom()-frandom()) * 15.0f;
+			
+			vec2 s2 = Out * frandom()*4.0f;
+			
+			if (i == Steps -1)
+				s2 *= 0.1f;
+			
+			IGraphics::CFreeformItem FreeFormItem(
+				p1.x-s1.x+o1.x, p1.y-s1.y+o1.y,
+				p1.x+s1.x+o1.x, p1.y+s1.y+o1.y,
+				p2.x-s2.x+o2.x, p2.y-s2.y+o2.y,
+				p2.x+s2.x+o2.x, p2.y+s2.y+o2.y);
+								
+			Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+		
+			m_pClient->m_pEffects->BulletTrail(p1+o1, p2+o2, vec4(0.5f, 0.5f, 1.0f, 0.2f));
+		
+			s1 = s2;
+			p1 = p2;
+			o1 = o2;
+		}
+	}
+	
 	Graphics()->QuadsEnd();
-
+	
+	
 	// render head
 	{
 		Graphics()->BlendNormal();
@@ -500,9 +582,83 @@ void CItems::RenderLaser(const struct CNetObj_Laser *pCurrent)
 		Graphics()->QuadsDraw(&QuadItem, 1);
 		Graphics()->QuadsEnd();
 	}
+	
+	if (pCurrent->m_PowerLevel > 0)
+		Graphics()->ShaderEnd();
 
 	Graphics()->BlendNormal();
 }
+
+
+
+void CItems::RenderLaserFail(const struct CNetObj_LaserFail *pCurrent)
+{
+	vec2 Pos = vec2(pCurrent->m_X, pCurrent->m_Y);
+	vec2 From = vec2(pCurrent->m_FromX, pCurrent->m_FromY);
+	vec2 Dir = normalize(Pos-From);
+
+	float Ticks = Client()->GameTick() + Client()->IntraGameTick() - pCurrent->m_StartTick;
+	float Ms = (Ticks/50.0f) * 1000.0f;
+	float a = Ms / m_pClient->m_Tuning.m_LaserBounceDelay;
+	a = clamp(a, 0.0f, 1.0f);
+	float Ia = 1-a;
+
+	Graphics()->ShaderBegin(SHADER_ELECTRIC, 1.0f);
+	
+	vec2 Out;
+
+	Graphics()->BlendNormal();
+	Graphics()->TextureSet(-1);
+	Graphics()->QuadsBegin();
+
+	vec4 OuterColor(0.075f, 0.075f, 0.25f, 1.0f);
+	vec4 InnerColor(0.5f, 0.5f, 1.0f, 1.0f);
+
+	Graphics()->SetColor(0.5f, 0.5f, 1, 1.0f);
+	int Steps = 1 + length(Pos - From) / 75;
+	vec2 Step = (Pos - From) / Steps;
+	Out = vec2(Dir.y, -Dir.x) * (7.0f*Ia);
+		
+	vec2 p1 = From;
+	vec2 s1 = Out * 0.1f;
+		
+	vec2 o1 = vec2(0, 0);
+			
+	for (int i = 0; i < Steps; i++)
+	{
+		vec2 p2 = p1 + Step;
+		vec2 o2 = vec2(0, 0);
+			
+		if (i < Steps-1)
+			o2 = vec2(frandom()-frandom(), frandom()-frandom()) * (15.0f + a*70.0f);
+			
+		vec2 s2 = Out * frandom()*4.0f;
+			
+		if (i == Steps -1)
+			s2 *= 0.1f;
+			
+		IGraphics::CFreeformItem FreeFormItem(
+			p1.x-s1.x+o1.x, p1.y-s1.y+o1.y,
+			p1.x+s1.x+o1.x, p1.y+s1.y+o1.y,
+			p2.x-s2.x+o2.x, p2.y-s2.y+o2.y,
+			p2.x+s2.x+o2.x, p2.y+s2.y+o2.y);
+								
+		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+		
+		m_pClient->m_pEffects->BulletTrail(p1+o1, p2+o2, vec4(0.5f, 0.5f, 1.0f, 0.2f));
+		
+		s1 = s2;
+		p1 = p2;
+		o1 = o2;
+	}
+	
+	Graphics()->QuadsEnd();
+	Graphics()->ShaderEnd();
+	Graphics()->BlendNormal();
+}
+
+
+
 
 void CItems::OnRender()
 {
@@ -528,6 +684,10 @@ void CItems::OnRender()
 		else if(Item.m_Type == NETOBJTYPE_LASER)
 		{
 			RenderLaser((const CNetObj_Laser *)pData);
+		}
+		else if(Item.m_Type == NETOBJTYPE_LASERFAIL)
+		{
+			RenderLaserFail((const CNetObj_LaserFail *)pData);
 		}
 	}
 

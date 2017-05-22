@@ -308,7 +308,20 @@ void CMapGen::GenerateBarrel(CGenLayer *pTiles)
 	if (p.x == 0)
 		return;
 	
-	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_BARREL);
+	if (frandom() < 0.3f && g_Config.m_SvMapGenLevel > 15)
+		ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_POWERBARREL);
+	else
+		ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_BARREL);
+}
+
+void CMapGen::GenerateLightningWall(CGenLayer *pTiles)
+{
+	ivec2 p = pTiles->GetPlatform();
+	
+	if (p.x == 0)
+		return;
+	
+	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_LIGHTNINGWALL);
 }
 
 void CMapGen::GenerateConveyorBelt(CGenLayer *pTiles)
@@ -851,7 +864,7 @@ void CMapGen::GenerateLevel()
 	// conveyor belts
 	if (Level > 10)
 	{
-		int c = rand()%(min(9, Level/5));
+		int c = rand()%(min(10, Level/5));
 		for (int i = 0; i < c; i++)
 			GenerateConveyorBelt(pTiles);
 	}
@@ -859,7 +872,7 @@ void CMapGen::GenerateLevel()
 	// hangables
 	if (Level > 5)
 	{
-		int c = 1+rand()%(min(9, Level/4));
+		int c = 1+rand()%(min(11, Level/4));
 		for (int i = 0; i < c; i++)
 			GenerateHangables(pTiles);
 	}
@@ -874,7 +887,14 @@ void CMapGen::GenerateLevel()
 	for (int i = 0; i < pTiles->NumPlatforms() / b; i++)
 		GenerateBarrel(pTiles);
 	
-	
+	// lightning walls
+	if (Level > 1 + rand()%15)
+	{
+		int l = 1 + rand()%min(9, 1 + Level/5);
+		for (int i = 0; i < l; i++)
+			GenerateLightningWall(pTiles);
+	}
+		
 	bool Defend = (Level > 1 && Level%5 == 0);
 	int e = 2 + log(float(1 + Level/4)) * 5;
 
@@ -895,8 +915,14 @@ void CMapGen::GenerateLevel()
 	
 	
 	// pickups
-	for (int i = 0; i < (pTiles->Size()-Level*5)/700; i++)
+	//for (int i = 0; i < (pTiles->Size()-Level*5)/700; i++)
+	
+	w = 2 + rand()%3 + (Level > 15 ? 1 : 0);
+	
+	for (int i = 0; i < w; i++)
 		GenerateWeapon(pTiles, ENTITY_WEAPON_CHAINSAW+rand()%8);
+
+	GenerateWeapon(pTiles, ENTITY_KIT);
 	
 	for (int i = 0; i < (pTiles->Size()-Level*5)/1200; i++)
 		GenerateHearts(pTiles);
@@ -906,13 +932,13 @@ void CMapGen::GenerateLevel()
 	for (int i = 0; i < (pTiles->Size()-Level*3)/900; i++)
 		GenerateHearts(pTiles);
 	
-	for (int i = 0; i < (pTiles->Size()-Level*3)/900; i++)
-		GenerateAmmo(pTiles);
-	
 	// power upper(s)
 	if (Level > 15 && frandom() < 0.15f)
 		GeneratePowerupper(pTiles);
-	if (Level > 20 && frandom() < 0.1f)
+	if (Level > 5 && frandom() < 0.4f)
+		GeneratePowerupper(pTiles);
+	
+	if (Level%3 == 0 || Level%5 == 0)
 		GeneratePowerupper(pTiles);
 	
 	if (Level > 10 && frandom() < 0.1f)

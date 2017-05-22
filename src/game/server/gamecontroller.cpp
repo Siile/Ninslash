@@ -69,7 +69,7 @@ IGameController::~IGameController()
 }
 
 
-void IGameController::DropPickup(vec2 Pos, int PickupType, vec2 Force, int PickupSubtype, float Ammo)
+void IGameController::DropPickup(vec2 Pos, int PickupType, vec2 Force, int PickupSubtype, float Ammo, int PowerLevel)
 {
 	if (!g_Config.m_SvEnableBuilding && PickupType == POWERUP_KIT)
 		PickupType = POWERUP_HEALTH;
@@ -84,6 +84,7 @@ void IGameController::DropPickup(vec2 Pos, int PickupType, vec2 Force, int Picku
 				m_apPickup[i]->SetSubtype(PickupSubtype);
 			
 			m_apPickup[i]->m_Vel = Force;
+			m_apPickup[i]->m_PowerLevel = PowerLevel;
 			
 			if (Ammo >= 0.0f)
 				m_apPickup[i]->m_Ammo = Ammo;
@@ -608,6 +609,16 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		new CBuilding(&GameServer()->m_World, Pos+vec2(0,-12), BUILDING_BARREL, TEAM_NEUTRAL);
 		return true;
 	}
+	else if (Index == ENTITY_POWERBARREL)
+	{
+		new CBuilding(&GameServer()->m_World, Pos+vec2(0,-12), BUILDING_POWERBARREL, TEAM_NEUTRAL);
+		return true;
+	}
+	else if (Index == ENTITY_LIGHTNINGWALL)
+	{
+		new CBuilding(&GameServer()->m_World, Pos, BUILDING_LIGHTNINGWALL, TEAM_NEUTRAL);
+		return true;
+	}
 	else if (Index == ENTITY_LAZER)
 	{
 		new CDeathray(&GameServer()->m_World, Pos+vec2(0, -20));
@@ -732,6 +743,14 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		
 		CPickup *pPickup = new CPickup(&GameServer()->m_World, Type, SubType);
 		pPickup->m_Pos = Pos;
+		
+		// upgraded weapons on level 10+ to invasion
+		//if (Type == POWERUP_WEAPON && IsCoop() && ((g_Config.m_SvMapGenLevel >= 10 && frandom() < 0.15f) || (g_Config.m_SvMapGenLevel >= 20 && frandom() < 0.15f)))
+		
+		// ...or on random instead
+		if (Type == POWERUP_WEAPON && IsCoop() && frandom() < 0.12f)
+			pPickup->m_PowerLevel = 1;
+		
 		return true;
 	}
 

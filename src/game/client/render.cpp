@@ -1275,7 +1275,10 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 		RenderArm(PlayerInfo, pInfo, WeaponPos, Pos);
 		
 		// render sword
-		int Sprite = SPRITE_SWORD1 + int(PlayerInfo->m_MeleeAnimState);
+		int Sprite = SPRITE_SWORD1_1 + int(PlayerInfo->m_MeleeAnimState);
+			
+		if (PlayerInfo->m_WeaponPowerLevel > 0)
+			Sprite = SPRITE_SWORD2_1 + int(PlayerInfo->m_MeleeAnimState);
 			
 		if (PlayerInfo->m_Weapon == WEAPON_TOOL)
 		{
@@ -1373,7 +1376,11 @@ void CRenderTools::RenderScythe(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 	int Sprite = SPRITE_SCYTHE1+PlayerInfo->MeleeFrame();
 		
 	Graphics()->QuadsBegin();
-	Graphics()->SetColor(1, 1, 1, 1);
+	
+	if (PlayerInfo->m_WeaponPowerLevel == 0)
+		Graphics()->SetColor(0.1f, 0.1f, 1, 1);
+	else
+		Graphics()->SetColor(1.0f, 0.1f, 0.1f, 1);
 	Graphics()->QuadsSetRotation(WeaponAngle);
 		
 	{

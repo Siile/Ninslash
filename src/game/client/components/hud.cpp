@@ -737,16 +737,24 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		m_pClient->m_pControls->m_SignalWeapon = -1;
 	}
 	
+	
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
+	
 	for (int i = 1; i < NUM_WEAPONS; i++)
 	{
 		if (i != 1)
 			x += 40*Size;
 		
 		bool Got = true;
+		bool Upgraded = true;
 		
 		int w = CustomStuff()->m_LocalWeapons;
 		if (!(w & (1<<(i))))
 			Got = false;
+		
+		int u = CustomStuff()->m_LocalUpgrades;
+		if (!(u & (1<<(i))))
+			Upgraded = false;
 		
 		if (CustomStuff()->m_WeaponpickTimer > 0.0f)
 		{
@@ -764,10 +772,19 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 			}
 		}
 
+		if (Got && Upgraded)
+		{
+			Graphics()->QuadsBegin();
+			Graphics()->SetColor(1, 1, 1, 0.5f);
+				
+			RenderTools()->SelectSprite(SPRITE_WEAPON_UPGRADED);
+			RenderTools()->DrawSprite(x, y, 18);
+			Graphics()->QuadsEnd();
+		}
+		
 		if (!Got)
 			Graphics()->ShaderBegin(SHADER_GRAYSCALE, 0.5f);
 		
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 		Graphics()->QuadsBegin();
 		
 		if (!Got)

@@ -19,6 +19,7 @@ enum Shaders
 {
 	SHADER_ELECTRIC,
 	SHADER_DEATHRAY,
+	SHADER_COLORSWAP,
 	SHADER_SPAWN,
 	SHADER_DAMAGE,
 	SHADER_SHIELD,
@@ -127,7 +128,7 @@ public:
 	virtual void CreateTextureBuffer(int Width, int Height) = 0;
 
 	virtual void LoadShaders() = 0;
-	virtual void ShaderBegin(int Shade, float Intensity = 1.0f) = 0;
+	virtual void ShaderBegin(int Shade, float Intensity = 1.0f, float ColorSwap = 0.0f) = 0;
 	virtual void ShaderEnd() = 0;
 	
 	virtual void CameraToShaders(int ScreenWidth, int ScreenHeight, int CameraX, int CameraY) = 0;

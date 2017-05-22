@@ -653,6 +653,21 @@ void CEffects::SpriteSheet(int FX, vec2 Pos)
 		}
 		break;
 		
+	case FX_SMALLELECTRIC:
+		{
+			CParticle p;
+			p.SetDefault();
+			p.m_Spr = SPRITE_ELECTRIC1;
+			p.m_Frames = 8;
+			p.m_Pos = Pos;
+			p.m_LifeSpan = 0.20f;
+			p.m_StartSize = 70;
+			p.m_EndSize = 70;
+			p.m_Rot = frandom()*pi*2;
+			m_pClient->m_pParticles->Add(CParticles::GROUP_ELECTRIC, &p);
+		}
+		break;
+		
 	case FX_ELECTRIC:
 		{
 			CParticle p;
@@ -665,6 +680,24 @@ void CEffects::SpriteSheet(int FX, vec2 Pos)
 			p.m_EndSize = 150;
 			p.m_Rot = frandom()*pi*2;
 			m_pClient->m_pParticles->Add(CParticles::GROUP_ELECTRIC, &p);
+		}
+		break;
+		
+	case FX_SUPERELECTRIC:
+		{
+			CParticle p;
+			p.SetDefault();
+			p.m_Spr = SPRITE_ELECTRIC1;
+			p.m_Frames = 8;
+			p.m_Pos = Pos;
+			p.m_LifeSpan = 0.20f;
+			p.m_StartSize = 210;
+			p.m_EndSize = 210;
+			p.m_Rot = frandom()*pi*2;
+			m_pClient->m_pParticles->Add(CParticles::GROUP_ELECTRIC, &p);
+			
+			for (int i = 0; i < 4; i++)
+				Electrospark(Pos+vec2(frandom()-frandom(), frandom()-frandom())*120.0f, 64);
 		}
 		break;
 		
@@ -825,7 +858,7 @@ void CEffects::SpriteSheet(int FX, vec2 Pos)
 
 
 
-void CEffects::Explosion(vec2 Pos)
+void CEffects::Explosion(vec2 Pos, int PowerLevel)
 {
 	// add to flow
 	for(int y = -8; y <= 8; y++)
@@ -843,27 +876,34 @@ void CEffects::Explosion(vec2 Pos)
 	CParticle p;
 	p.SetDefault();
 	p.m_Spr = SPRITE_EXPLOSION1_1;
+	
+	if (PowerLevel == 2)
+	p.m_Spr = SPRITE_EXPLOSION2_1;
+	
 	p.m_Frames = 8;
 	p.m_Pos = Pos;
-	p.m_LifeSpan = 0.35f;
-	p.m_StartSize = 200;
-	p.m_EndSize = 200;
-	p.m_Rot = frandom()*pi*2;
+	p.m_LifeSpan = 0.3f;
+	p.m_StartSize = 200 + PowerLevel*100;
+	p.m_EndSize = 200+ PowerLevel*100;
+	//p.m_Rot = frandom()*pi*2;
 	m_pClient->m_pParticles->Add(CParticles::GROUP_EXPLOSIONS, &p);
 
 	//Swordtracer(Pos, frandom()*pi*2);
 	
 	// add the smoke
-	for(int i = 0; i < 20; i++)
+	for(int i = 0; i < 20+PowerLevel*5; i++)
 	{
 		Spark(Pos);
 		Spark(Pos);
+		
+		if (PowerLevel > 0)
+			Spark(Pos);
 		
 		CParticle p;
 		p.SetDefault();
 		p.m_Spr = SPRITE_PART_SMOKE;
 		p.m_Pos = Pos;
-		p.m_Vel = RandomDir() * ((1.0f + frandom()*0.2f) * 1000.0f);
+		p.m_Vel = RandomDir() * ((1.0f + frandom()*0.2f) * (1000.0f+PowerLevel*500));
 		p.m_LifeSpan = 0.5f + frandom()*0.4f;
 		p.m_StartSize = 32.0f + frandom()*8;
 		p.m_EndSize = 0;
@@ -934,7 +974,7 @@ void CEffects::HammerHit(vec2 Pos)
 	m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_HAMMER_HIT, 1.0f, Pos);
 }
 
-void CEffects::SwordHit(vec2 Pos, float Angle, bool Flip)
+void CEffects::SwordHit(vec2 Pos, float Angle, bool Flip, int PowerLevel)
 {
 	CParticle p;
 	p.SetDefault();
@@ -946,6 +986,8 @@ void CEffects::SwordHit(vec2 Pos, float Angle, bool Flip)
 	p.m_EndSize = 170;
 	p.m_Rot = Angle;
 	p.m_Flip = Flip;
+	if (PowerLevel > 0)
+		p.m_Color = vec4(0.5f, 1.0f, 0.5f, 1.0f);
 	m_pClient->m_pParticles->Add(CParticles::GROUP_SWORDHITS, &p);
 }
 

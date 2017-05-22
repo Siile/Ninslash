@@ -320,6 +320,7 @@ void CPlayer::Snap(int SnappingClient)
 	
 	// snap weapons
 	pPlayerInfo->m_Weapons = 0;
+	pPlayerInfo->m_Upgrades = 0;
 	pPlayerInfo->m_Kits = 0;
 	
 	if (GetCharacter())
@@ -329,6 +330,9 @@ void CPlayer::Snap(int SnappingClient)
 			if (GetCharacter()->GotWeapon(i))
 			{
 				pPlayerInfo->m_Weapons |= 1 << i;
+				
+				if (GetCharacter()->WeaponPowerLevel(i) > 0)
+					pPlayerInfo->m_Upgrades |= 1 << i;
 			}
 		}
 		

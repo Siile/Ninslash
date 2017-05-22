@@ -51,10 +51,14 @@ enum
 	BUILDING_SWITCH,
 	BUILDING_DOOR1,
 	BUILDING_SPEAKER,
+	BUILDING_POWERBARREL,
+	BUILDING_LIGHTNINGWALL,
+	BUILDING_LIGHTNINGWALL2,
 	
 	KIT_BARREL=0,
 	KIT_TURRET,
 	KIT_FLAMETRAP,
+	KIT_LIGHTNINGWALL,
 	NUM_KITS,
 	
 	BSTATUS_REPAIR=1,
@@ -67,7 +71,9 @@ enum
 	
 	FX_EXPLOSION1=1,
 	FX_EXPLOSION2,
+	FX_SMALLELECTRIC,
 	FX_ELECTRIC,
+	FX_SUPERELECTRIC,
 	FX_ELECTROHIT,
 	FX_ELECTROMINE,
 	FX_SHIELDHIT,
@@ -109,6 +115,9 @@ enum
 	DEATHTYPE_DEATHRAY,
 	DEATHTYPE_MONSTER,
 	DEATHTYPE_FLAMETRAP,
+	DEATHTYPE_TURRETADDITION,
+	DEATHTYPE_POWERBARREL,
+	DEATHTYPE_LIGHTNINGWALL,
 	NUM_DEATHTYPES,
 	
 	NUM_BODIES=6,
@@ -165,6 +174,7 @@ Objects = [
 		NetIntAny("m_VelY"),
 
 		NetIntRange("m_Type", 0, 'NUM_WEAPONS'), #'NUM_WEAPONS-1'
+		NetIntRange("m_PowerLevel", 0, 9),
 		NetTick("m_StartTick"),
 	]),
 
@@ -173,6 +183,17 @@ Objects = [
 		NetIntAny("m_Y"),
 		NetIntAny("m_FromX"),
 		NetIntAny("m_FromY"),
+		NetIntRange("m_PowerLevel", 0, 9),
+
+		NetTick("m_StartTick"),
+	]),
+	
+	NetObject("LaserFail", [
+		NetIntAny("m_X"),
+		NetIntAny("m_Y"),
+		NetIntAny("m_FromX"),
+		NetIntAny("m_FromY"),
+		NetIntRange("m_PowerLevel", 0, 9),
 
 		NetTick("m_StartTick"),
 	]),
@@ -181,6 +202,7 @@ Objects = [
 		NetIntAny("m_X"),
 		NetIntAny("m_Y"),
 
+		NetIntRange("m_PowerLevel", 0, 9),
 		NetIntRange("m_Type", 0, 'max_int'),
 		NetIntRange("m_Subtype", 0, 'max_int'),
 	]),
@@ -209,6 +231,7 @@ Objects = [
 	NetObject("Turret:Building", [
 		NetIntAny("m_Angle"),
 		NetIntRange("m_Weapon", 0, 'NUM_WEAPONS-1'),
+		NetIntRange("m_PowerLevel", 0, 9),
 		NetIntRange("m_AttackTick", 0, 'max_int')
 	]),
 	
@@ -288,6 +311,7 @@ Objects = [
 		NetIntRange("m_AmmoCount", 0, 30),
 		NetIntRange("m_SelectedGroup", 0, 3),
 		NetIntRange("m_Weapon", 0, 'NUM_WEAPONS-1'),
+		NetIntRange("m_WeaponPowerLevel", 0, 9),
 		NetIntRange("m_WeaponGroup1", 0, 'NUM_WEAPONS-1'),
 		NetIntRange("m_WeaponGroup2", 0, 'NUM_WEAPONS-1'),
 		NetIntRange("m_Emote", 0, len(Emotes)),
@@ -303,6 +327,7 @@ Objects = [
 		NetIntAny("m_Latency"),
 		
 		NetIntAny("m_Weapons"),
+		NetIntAny("m_Upgrades"),
 		NetIntRange("m_Kits", 0, 9),
 		NetIntRange("m_Item1", 0, 9),
 		NetIntRange("m_Item2", 0, 9),
@@ -361,7 +386,11 @@ Objects = [
 	
 	NetEvent("BuildingHit:Common", []),
 	NetEvent("FlameHit:Common", []),
-	NetEvent("Explosion:Common", []),
+	
+	NetEvent("Explosion:Common", [
+		NetIntRange("m_PowerLevel", 0, 9),
+	]),
+
 	NetEvent("FlameExplosion:Common", []),
 	NetEvent("Spawn:Common", []),
 	NetEvent("HammerHit:Common", []),

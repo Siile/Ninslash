@@ -124,7 +124,7 @@ public:
 	virtual int GetDefendingTeam();
 	
 	void SetPickup(vec2 Pos, int PickupType, int PickupSubtype, int Amount = 1);
-	void DropPickup(vec2 Pos, int PickupType, vec2 Force, int PickupSubtype, float Ammo = -1.0f);
+	void DropPickup(vec2 Pos, int PickupType, vec2 Force, int PickupSubtype, float Ammo = -1.0f, int PowerLevel = 0);
 	
 	int GetTimeLeft();
 	

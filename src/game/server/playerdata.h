@@ -11,7 +11,9 @@ public:
 	void Die();
 	
 	int m_aAmmo[99];
+	int m_aPowerLevel[99];
 	int m_Weapon;
+	int m_Kits;
 };
 
 #endif
