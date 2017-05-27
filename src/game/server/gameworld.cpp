@@ -393,7 +393,7 @@ CCharacter *CGameWorld::IntersectScythe(vec2 Pos0, vec2 Pos1, float Radius, vec2
 		//	continue;
 		
 		float Len = distance(p->m_Pos + vec2(0, -10), IntersectPos);
-		if(Len < p->m_ProximityRadius+Radius)
+		if(Len < p->m_ProximityRadius+Radius+p->WeaponPowerLevel(WEAPON_SCYTHE)*10.0f)
 		{
 			Len = distance(Pos0, IntersectPos);
 			if(Len < ClosestLen)

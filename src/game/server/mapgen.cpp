@@ -557,6 +557,164 @@ void CMapGen::GenerateRooms(CRoom *pRoom, int Type, int w, int h)
 		return;
 	}
 	
+	// horizontal line
+	if (Type == -2)
+	{
+		int y = h * (0.2f + frandom()*0.6f);
+		for (int x = 8; x < w-8; x++)
+		{
+			pRoom->Open(x-1, y-1);
+			pRoom->Open(x, y);
+			pRoom->Open(x+1, y+1);
+		}
+
+		return;
+	}
+	
+	// ***********************************************
+	
+	if (h > w)
+	{
+		// top
+		{
+			int y = h * 0.1f;
+				
+			for (int x = 8; x < w-8; x++)
+			{
+				pRoom->Open(x-1, y-1);
+				pRoom->Open(x, y);
+				pRoom->Open(x+1, y+1);
+			}
+		}
+			
+		// bot
+		{
+			int y = h * 0.9f;
+				
+			for (int x = 8; x < w-8; x++)
+			{
+				pRoom->Open(x-1, y-1);
+				pRoom->Open(x, y);
+				pRoom->Open(x+1, y+1);
+			}
+		}
+		
+		// random horizontals
+		for (int i = 0; i < 4; i++)
+			if (frandom() < 0.25f)
+				GenerateRooms(pRoom, -2, w, h);
+		
+		Type = rand()%4;
+		
+		// sine wave
+		if (Type == 0)
+		{
+			int x = w / 2;
+			
+			float a = frandom()*pi*2;
+			float c = frandom()*0.1f;
+			float s = 2.5f + frandom()*2.0f;
+			
+			for (int y = 8; y < h-8; y++)
+			{
+				pRoom->Open(x-1+sin(a+y*c)*(1.0f*w/s), y-1);
+				pRoom->Open(x+sin(a+y*c)*(1.0f*w/s), y);
+				pRoom->Open(x+1+sin(a+y*c)*(1.0f*w/s), y+1);
+			}
+			
+			if (frandom() < 0.5f)
+				GenerateRooms(pRoom, -1, w, h);
+			
+			return;
+		}
+		
+		// mix 1
+		if (Type == 1)
+		{
+			// sine
+			{
+				int x = w / 2;
+				
+				float a = frandom()*pi*2;
+				float c = 0.1f;
+				float s = 2.5f + frandom()*2.0f;
+				
+				for (int y = 8; y < h-8; y++)
+				{
+					pRoom->Open(x-1+sin(a+y*c)*(1.0f*w/s), y-1);
+					pRoom->Open(x+sin(a+y*c)*(1.0f*w/s), y);
+					pRoom->Open(x+1+sin(a+y*c)*(1.0f*w/s), y+1);
+				}
+			}
+			
+			// line
+			{
+				int x = w * (0.2f + frandom()*0.6f);
+				for (int y = 4; y < h-4; y++)
+				{
+					pRoom->Open(x-1, y-1);
+					pRoom->Open(x, y);
+					pRoom->Open(x+1, y+1);
+				}
+			}
+			
+			return;
+		}
+		
+		// dual line
+		if (Type == 2)
+		{
+			// line
+			{
+				int x = w * 0.15f;
+				for (int y = 4; y < h-4; y++)
+				{
+					pRoom->Open(x-1, y-1);
+					pRoom->Open(x, y);
+					pRoom->Open(x+1, y+1);
+				}
+			}
+			
+			// line
+			{
+				int x = w * 0.85f;
+				for (int y = 4; y < h-4; y++)
+				{
+					pRoom->Open(x-1, y-1);
+					pRoom->Open(x, y);
+					pRoom->Open(x+1, y+1);
+				}
+			}
+			
+			return;
+		}
+		
+		// mix 2
+		{
+			// sine
+			for (int i = 0; i < 2; i++)
+			{
+				int x = w / 2;
+				
+				float a = frandom()*pi*2;
+				float c = 0.1f;
+				float s = 2.5f + frandom()*2.0f;
+				
+				for (int y = 8; y < h-8; y++)
+				{
+					pRoom->Open(x-1+sin(a+y*c)*(1.0f*w/s), y-1);
+					pRoom->Open(x+sin(a+y*c)*(1.0f*w/s), y);
+					pRoom->Open(x+1+sin(a+y*c)*(1.0f*w/s), y+1);
+				}
+			}
+			return;
+		}
+		
+		return;
+	}
+	
+	
+	// *********************************************
 	
 	// linear
 	if (Type == 0)

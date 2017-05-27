@@ -15,9 +15,9 @@ public:
 	int m_Weapon;
 	
 	int m_NextIn;
-	bool m_Superdamage;
+	bool m_IsTurret;
 	
-	CSuperexplosion(CGameWorld *pGameWorld, vec2 Pos, int Player, int Weapon, int MaxLife, int StartLife = 0, bool Superdamage = false);
+	CSuperexplosion(CGameWorld *pGameWorld, vec2 Pos, int Player, int Weapon, int MaxLife, int StartLife = 0, bool IsTurret = false);
 
 	virtual void Reset();
 	virtual void Tick();

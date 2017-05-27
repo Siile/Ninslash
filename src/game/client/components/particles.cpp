@@ -761,8 +761,8 @@ void CParticles::RenderGroup(int Group)
 					m_aParticles[i].m_Color.b+l,
 					m_aParticles[i].m_Color.a * (1 - a));
 					
-				if (Group == GROUP_FLAMES)
-					m_pClient->m_pEffects->Light(m_aParticles[i].m_Pos, 32*(1.0f-m_aParticles[i].m_Life / m_aParticles[i].m_LifeSpan));
+				//if (Group == GROUP_FLAMES)
+				//	m_pClient->m_pEffects->Light(m_aParticles[i].m_Pos, 32*(1.0f-m_aParticles[i].m_Life / m_aParticles[i].m_LifeSpan));
 			}
 			else
 				Graphics()->SetColor(

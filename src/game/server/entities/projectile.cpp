@@ -48,7 +48,7 @@ void CProjectile::SetPowerLevel(int PowerLevel)
 	{
 		if (m_Weapon == WEAPON_RIFLE)
 		{
-			m_Damage += 3;
+			m_Damage += PowerLevel*3;
 			m_Bouncy = true;
 			m_LifeSpan *= 1.1f;
 		}
@@ -217,7 +217,15 @@ void CProjectile::Tick()
 
 		else if(TargetChr)
 		{
-			TargetChr->TakeDamage(m_Direction * max(0.001f, m_Force), m_Damage, m_Owner, m_Weapon, CurPos, DAMAGETYPE_NORMAL, m_OwnerBuilding ? true : false);
+			vec2 Force = m_Direction * max(0.001f, m_Force);
+			
+			if (m_Weapon == WEAPON_RIFLE && m_PowerLevel > 1)
+			{
+				TargetChr->Electrocute(0.15f);
+				Force *= 2.0f;
+			}
+			
+			TargetChr->TakeDamage(Force, m_Damage, m_Owner, m_Weapon, CurPos, DAMAGETYPE_NORMAL, m_OwnerBuilding ? true : false);
 		}
 		
 		else if(TargetBuilding)

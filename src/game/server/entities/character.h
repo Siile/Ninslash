@@ -64,8 +64,11 @@ public:
 
 	void HandleWeapons();
 	
+	bool m_ExplodeOnDeath;
+	
 	void Warp();
 	void Deathray(bool Kill = true);
+	void Electrocute(float Duration);
 	void Jumppad();
 
 	void OnPredictedInput(CNetObj_PlayerInput *pNewInput);
@@ -305,6 +308,8 @@ private:
 	int m_Flamethrower;
 	void Flamethrower();
 	
+	float m_DelayedShotgunTick;
+	void DelayedFire();
 	
 	CCharacter *m_LockedTo;
 	

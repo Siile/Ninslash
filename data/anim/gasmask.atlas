@@ -1,0 +1,104 @@
+
+gasmask.png
+size: 512,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+arm
+  rotate: false
+  xy: 390, 463
+  size: 4, 4
+  orig: 4, 4
+  offset: 0, 0
+  index: -1
+body
+  rotate: false
+  xy: 132, 148
+  size: 52, 55
+  orig: 52, 55
+  offset: 0, 0
+  index: -1
+body2
+  rotate: true
+  xy: 97, 73
+  size: 48, 14
+  orig: 48, 14
+  offset: 0, 0
+  index: -1
+eyes
+  rotate: false
+  xy: 260, 445
+  size: 128, 64
+  orig: 128, 64
+  offset: 0, 0
+  index: -1
+foot
+  rotate: false
+  xy: 2, 2
+  size: 41, 24
+  orig: 41, 24
+  offset: 0, 0
+  index: -1
+hand
+  rotate: false
+  xy: 350, 413
+  size: 31, 30
+  orig: 31, 30
+  offset: 0, 0
+  index: -1
+hat
+  rotate: false
+  xy: 2, 253
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+head
+  rotate: false
+  xy: 2, 28
+  size: 93, 93
+  orig: 93, 93
+  offset: 0, 0
+  index: -1
+head_asset
+  rotate: false
+  xy: 260, 357
+  size: 43, 38
+  orig: 43, 38
+  offset: 0, 0
+  index: -1
+mask
+  rotate: false
+  xy: 2, 123
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+splatter1
+  rotate: false
+  xy: 390, 469
+  size: 90, 40
+  orig: 90, 40
+  offset: 0, 0
+  index: -1
+splatter2
+  rotate: false
+  xy: 132, 205
+  size: 122, 46
+  orig: 122, 46
+  offset: 0, 0
+  index: -1
+splatter3
+  rotate: false
+  xy: 260, 397
+  size: 88, 46
+  orig: 88, 46
+  offset: 0, 0
+  index: -1
+splatter4
+  rotate: true
+  xy: 482, 431
+  size: 78, 28
+  orig: 78, 28
+  offset: 0, 0
+  index: -1

@@ -159,6 +159,10 @@ public:
 	void CreateFlamethrowerHit(int DamageOwner, int Weapon, int PowerLevel, vec2 ProjPos, class CCharacter *OwnerChr = NULL, class CBuilding *OwnerBuilding = NULL);
 	void CreateProjectile(int DamageOwner, int Weapon, int PowerLevel, vec2 Pos, vec2 Direction, class CBuilding *OwnerBuilding = NULL);
 
+	void ClearFlameHits();
+	
+	bool m_aFlameHit[MAX_CLIENTS];
+	
 	void Repair(vec2 Pos);
 	void AmmoFill(vec2 Pos, int Weapon);
 	

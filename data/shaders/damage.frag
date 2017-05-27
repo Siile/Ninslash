@@ -19,12 +19,18 @@ void main (void)
 	vec4 color = vec4(1, 0, 0, texture2D(texture, gl_TexCoord[0].st).w * gl_Color.w);
 
 	vec4 c = texture2D(texture, gl_TexCoord[0].st);
-	float r = c.r;
-	float b = c.b;
-	c.r = r*(1-colorswap) + b*colorswap;
-	c.b = b*(1-colorswap) + r*colorswap;
+	float r = c.r; float b = c.b; float g = c.g;
+
+	float swap2 = (0.5f - abs(0.5f - colorswap))*2.0f;
+	c.r = r*(1.0f-swap2) + g*swap2;
+	c.b = b*(1.0f-swap2) + g*swap2;
+	c.g = g*(1.0f-swap2) + b*swap2;
 	
-	c = c * gl_Color;
+	float swap1 = colorswap * (1.0f - swap2);
+	r = c.r; b = c.b;
 	
-	gl_FragColor = c + color*intensity;
+	c.r = r*(1.0f-swap1) + b*swap1;
+	c.b = b*(1.0f-swap1) + r*swap1;
+	
+	gl_FragColor = c*gl_Color + color*intensity;
 }

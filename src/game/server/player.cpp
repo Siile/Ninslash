@@ -256,7 +256,7 @@ void CPlayer::PostTick()
 	}
 
 	// update view pos for spectators
-	if(m_Team == TEAM_SPECTATORS && m_SpectatorID != SPEC_FREEVIEW && GameServer()->m_apPlayers[m_SpectatorID])
+	if(Spectating() && m_SpectatorID != SPEC_FREEVIEW && GameServer()->m_apPlayers[m_SpectatorID])
 	//if(m_Spectate && m_SpectatorID != SPEC_FREEVIEW && GameServer()->m_apPlayers[m_SpectatorID])
 		m_ViewPos = GameServer()->m_apPlayers[m_SpectatorID]->m_ViewPos;
 }
@@ -295,13 +295,7 @@ void CPlayer::Snap(int SnappingClient)
 	pPlayerInfo->m_ClientID = m_ClientID;
 	pPlayerInfo->m_Score = m_Score;
 	pPlayerInfo->m_Team = m_Team;
-	
-	// fake spectator mode in survival
-	if (SnappingClient == GetCID() && m_Team != TEAM_SPECTATORS && g_Config.m_SvSurvivalMode && !GetCharacter() && m_DieTick < Server()->Tick() - Server()->TickSpeed()*1)
-	{
-		pPlayerInfo->m_Team = TEAM_SPECTATORS;
-	}
-	
+		
 	/*
 	if (pPlayerInfo->m_Team != TEAM_SPECTATORS)
 	{
@@ -321,6 +315,7 @@ void CPlayer::Snap(int SnappingClient)
 	// snap weapons
 	pPlayerInfo->m_Weapons = 0;
 	pPlayerInfo->m_Upgrades = 0;
+	pPlayerInfo->m_Upgrades2 = 0;
 	pPlayerInfo->m_Kits = 0;
 	
 	if (GetCharacter())
@@ -333,6 +328,8 @@ void CPlayer::Snap(int SnappingClient)
 				
 				if (GetCharacter()->WeaponPowerLevel(i) > 0)
 					pPlayerInfo->m_Upgrades |= 1 << i;
+				if (GetCharacter()->WeaponPowerLevel(i) > 1)
+					pPlayerInfo->m_Upgrades2 |= 1 << i;
 			}
 		}
 		
@@ -351,8 +348,27 @@ void CPlayer::Snap(int SnappingClient)
 	if(m_ClientID == SnappingClient)
 		pPlayerInfo->m_Local = 1;
 
-	if(m_ClientID == SnappingClient && m_Team == TEAM_SPECTATORS)
+	// fake spectator mode in survival
+	/*
+	if (SnappingClient == GetCID() && m_Team != TEAM_SPECTATORS && g_Config.m_SvSurvivalMode && !GetCharacter() && m_DieTick < Server()->Tick() - Server()->TickSpeed()*1)
 	{
+		pPlayerInfo->m_Team = TEAM_SPECTATORS;
+		
+		CNetObj_SpectatorInfo *pSpectatorInfo = static_cast<CNetObj_SpectatorInfo *>(Server()->SnapNewItem(NETOBJTYPE_SPECTATORINFO, m_ClientID, sizeof(CNetObj_SpectatorInfo)));
+		if(!pSpectatorInfo)
+			return;
+
+		pSpectatorInfo->m_SpectatorID = m_SpectatorID;
+		pSpectatorInfo->m_X = m_ViewPos.x;
+		pSpectatorInfo->m_Y = m_ViewPos.y;
+	}
+	*/
+	
+	//if(m_ClientID == SnappingClient && m_Team == TEAM_SPECTATORS)
+	if(m_ClientID == SnappingClient && Spectating())
+	{
+		pPlayerInfo->m_Team = TEAM_SPECTATORS;
+		
 		CNetObj_SpectatorInfo *pSpectatorInfo = static_cast<CNetObj_SpectatorInfo *>(Server()->SnapNewItem(NETOBJTYPE_SPECTATORINFO, m_ClientID, sizeof(CNetObj_SpectatorInfo)));
 		if(!pSpectatorInfo)
 			return;
@@ -382,6 +398,17 @@ void CPlayer::Snap(int SnappingClient)
 	}
 	*/
 }
+
+bool CPlayer::Spectating()
+{
+	if (m_Team == TEAM_SPECTATORS ||
+	(g_Config.m_SvSurvivalMode && !GetCharacter() && m_DieTick < Server()->Tick() - Server()->TickSpeed()*1))
+		return true;
+	
+	return false;
+}
+
+
 
 void CPlayer::OnDisconnect(const char *pReason)
 {

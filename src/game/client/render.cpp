@@ -1203,7 +1203,11 @@ void CRenderTools::RenderArm(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec
 	
 	// fill
 	{
-		Graphics()->SetColor(pInfo->m_ColorBody.r/1.5f, pInfo->m_ColorBody.g/1.5f, pInfo->m_ColorBody.b/1.5f, pInfo->m_ColorBody.a);
+		if (pInfo->m_Body == 6)
+			Graphics()->SetColor(pInfo->m_ColorBody.r/2.5f, pInfo->m_ColorBody.g/2.5f, pInfo->m_ColorBody.b/2.5f, pInfo->m_ColorBody.a);
+		else
+			Graphics()->SetColor(pInfo->m_ColorBody.r/1.5f, pInfo->m_ColorBody.g/1.5f, pInfo->m_ColorBody.b/1.5f, pInfo->m_ColorBody.a);
+		
 		float s1 = 2.0f;
 
 		vec2 p1 = ArmPos+vec2(cos(a1), sin(a1))*s1;
@@ -1277,8 +1281,10 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 		// render sword
 		int Sprite = SPRITE_SWORD1_1 + int(PlayerInfo->m_MeleeAnimState);
 			
-		if (PlayerInfo->m_WeaponPowerLevel > 0)
+		if (PlayerInfo->m_WeaponPowerLevel == 1)
 			Sprite = SPRITE_SWORD2_1 + int(PlayerInfo->m_MeleeAnimState);
+		else if (PlayerInfo->m_WeaponPowerLevel > 1)
+			Sprite = SPRITE_SWORD3_1 + int(PlayerInfo->m_MeleeAnimState);
 			
 		if (PlayerInfo->m_Weapon == WEAPON_TOOL)
 		{
@@ -1379,8 +1385,11 @@ void CRenderTools::RenderScythe(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 	
 	if (PlayerInfo->m_WeaponPowerLevel == 0)
 		Graphics()->SetColor(0.1f, 0.1f, 1, 1);
-	else
+	else if (PlayerInfo->m_WeaponPowerLevel == 1)
 		Graphics()->SetColor(1.0f, 0.1f, 0.1f, 1);
+	else
+		Graphics()->SetColor(0.1f, 1.0f, 0.1f, 1);
+	
 	Graphics()->QuadsSetRotation(WeaponAngle);
 		
 	{
@@ -1499,7 +1508,11 @@ void CRenderTools::RenderFreeHand(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo
 	
 	// fill
 	{
-		Graphics()->SetColor(pInfo->m_ColorBody.r/1.5f, pInfo->m_ColorBody.g/1.5f, pInfo->m_ColorBody.b/1.5f, pInfo->m_ColorBody.a);
+		if (pInfo->m_Body == 6)
+			Graphics()->SetColor(pInfo->m_ColorBody.r/2.5f, pInfo->m_ColorBody.g/2.5f, pInfo->m_ColorBody.b/2.5f, pInfo->m_ColorBody.a);
+		else
+			Graphics()->SetColor(pInfo->m_ColorBody.r/1.5f, pInfo->m_ColorBody.g/1.5f, pInfo->m_ColorBody.b/1.5f, pInfo->m_ColorBody.a);
+		
 		float s1 = 2.0f;
 
 		vec2 p1 = ArmPos+vec2(cos(a1), sin(a1))*s1;

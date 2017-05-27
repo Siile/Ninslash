@@ -747,14 +747,19 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		
 		bool Got = true;
 		bool Upgraded = true;
+		bool Upgraded2 = true;
 		
 		int w = CustomStuff()->m_LocalWeapons;
-		if (!(w & (1<<(i))))
+		if (!(w & (1<<i)))
 			Got = false;
 		
 		int u = CustomStuff()->m_LocalUpgrades;
-		if (!(u & (1<<(i))))
+		if (!(u & (1<<i)))
 			Upgraded = false;
+		
+		u = CustomStuff()->m_LocalUpgrades2;
+		if (!(u & (1<<i)))
+			Upgraded2 = false;
 		
 		if (CustomStuff()->m_WeaponpickTimer > 0.0f)
 		{
@@ -776,8 +781,12 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		{
 			Graphics()->QuadsBegin();
 			Graphics()->SetColor(1, 1, 1, 0.5f);
-				
-			RenderTools()->SelectSprite(SPRITE_WEAPON_UPGRADED);
+			
+			if (Upgraded2)
+				RenderTools()->SelectSprite(SPRITE_WEAPON_UPGRADED2);
+			else
+				RenderTools()->SelectSprite(SPRITE_WEAPON_UPGRADED1);
+			
 			RenderTools()->DrawSprite(x, y, 18);
 			Graphics()->QuadsEnd();
 		}

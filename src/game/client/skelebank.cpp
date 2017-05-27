@@ -29,6 +29,9 @@ void CSkelebank::Init(IStorage *pStorage)
 	
 	AddSkeleton("data/anim/ears.json", IStorage::STORAGETYPE_CLIENT);
 	AddAtlas("data/anim/ears.atlas", IStorage::STORAGETYPE_CLIENT);
+	
+	AddSkeleton("data/anim/gasmask.json", IStorage::STORAGETYPE_CLIENT);
+	AddAtlas("data/anim/gasmask.atlas", IStorage::STORAGETYPE_CLIENT);
 
 	AddSkeleton("data/anim/walker.json", IStorage::STORAGETYPE_CLIENT);
 	AddAtlas("data/anim/walker.atlas", IStorage::STORAGETYPE_CLIENT);

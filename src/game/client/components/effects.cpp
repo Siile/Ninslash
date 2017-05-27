@@ -986,8 +986,10 @@ void CEffects::SwordHit(vec2 Pos, float Angle, bool Flip, int PowerLevel)
 	p.m_EndSize = 170;
 	p.m_Rot = Angle;
 	p.m_Flip = Flip;
-	if (PowerLevel > 0)
+	if (PowerLevel == 1)
 		p.m_Color = vec4(0.5f, 1.0f, 0.5f, 1.0f);
+	else if (PowerLevel > 1)
+		p.m_Color = vec4(0.5f, 0.5f, 1.0f, 1.0f);
 	m_pClient->m_pParticles->Add(CParticles::GROUP_SWORDHITS, &p);
 }
 

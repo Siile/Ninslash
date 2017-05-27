@@ -24,6 +24,7 @@ CTurret::CTurret(CGameWorld *pGameWorld, vec2 Pos, int Team, int Weapon)
 	
 	m_OwnerPlayer = -1;
 	m_Chainsaw = 0;
+	m_DelayedShotgunTick = 0;
 	
 	m_Ammo = 0;
 	
@@ -136,6 +137,7 @@ void CTurret::Tick()
 	}
 	
 	Flamethrower();
+	DelayedFire();
 	
 	UpdateStatus();
 }
@@ -177,48 +179,47 @@ void CTurret::Fire()
 		vec2 TurretPos = m_Pos+vec2(0, -52.5f);
 		float Angle = (m_Angle + 90) / (180/pi);
 		
-		int Owner = NEUTRAL_BASE;
-		if (m_Team == TEAM_RED)
-			Owner = RED_BASE;
-		else if (m_Team == TEAM_BLUE)
-			Owner = BLUE_BASE;
-		
 		vec2 Dir = vec2(cosf(Angle), sinf(Angle));
 		
 		GameServer()->CreateSound(m_Pos, aCustomWeapon[m_Weapon].m_Sound);
 		
 		if (m_Weapon == WEAPON_LASER)
 		{
-			CLaser *pLaser = new CLaser(GameWorld(), TurretPos+Dir*40, Dir, GameServer()->Tuning()->m_LaserReach, m_OwnerPlayer, aCustomWeapon[m_Weapon].m_Damage, m_PowerLevel, this);
+			CLaser *pLaser = new CLaser(GameWorld(), TurretPos+Dir*40, Dir, GameServer()->Tuning()->m_LaserReach, m_OwnerPlayer, aCustomWeapon[m_Weapon].m_Damage*(1.0f + m_PowerLevel*0.35f), m_PowerLevel, this);
 		}
 		else if (m_Weapon == WEAPON_CHAINSAW)
 			m_Chainsaw = Server()->Tick() + 500 * Server()->TickSpeed()/1000;
 		else if (m_Weapon == WEAPON_FLAMER)
 			m_Flamethrower = Server()->Tick() + 400 * Server()->TickSpeed()/1000;
+		else if (m_Weapon == WEAPON_SHOTGUN && m_PowerLevel > 1)
+		{
+			if (!m_DelayedShotgunTick)
+				m_DelayedShotgunTick = Server()->Tick() + Server()->TickSpeed() * 0.15f;
+			
+			GameServer()->CreateProjectile(m_OwnerPlayer, m_Weapon, 1, TurretPos+Dir*40, Dir, this);
+		}
 		else
 			GameServer()->CreateProjectile(m_OwnerPlayer, m_Weapon, m_PowerLevel, TurretPos+Dir*40, Dir, this);
 		
-		/*
-		CProjectile *pProj = new CProjectile(GameWorld(), WEAPON_RIFLE,
-			Owner, // player index
-			TurretPos,
-			vec2(cosf(Angle), sinf(Angle)),
-			(int)(Server()->TickSpeed()*400),
-			12, 0, 14, -1);
+		m_AttackTick = Server()->Tick();
+	}
+}
 
-		// pack the Projectile and send it to the client Directly
-		CNetObj_Projectile p;
-		pProj->FillInfo(&p);
 
-		CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-		Msg.AddInt(1);
-		for(unsigned i = 0; i < sizeof(CNetObj_Projectile)/sizeof(int); i++)
-			Msg.AddInt(((int *)&p)[i]);
-
-		Server()->SendMsg(&Msg, 0, -1);
-		*/
+void CTurret::DelayedFire()
+{
+	if (m_Weapon == WEAPON_SHOTGUN && m_DelayedShotgunTick && m_DelayedShotgunTick <= Server()->Tick())
+	{
+		m_DelayedShotgunTick = 0;
+		
+		vec2 TurretPos = m_Pos+vec2(0, -52.5f);
+		float Angle = (m_Angle + 90) / (180/pi);
+		vec2 Dir = vec2(cosf(Angle), sinf(Angle));
+		
+		GameServer()->CreateProjectile(m_OwnerPlayer, m_Weapon, 0, TurretPos+Dir*40, Dir, this);
 		
 		m_AttackTick = Server()->Tick();
+		m_ReloadTimer = aCustomWeapon[m_Weapon].m_BulletReloadTime * Server()->TickSpeed() / 1000;
 	}
 }
 

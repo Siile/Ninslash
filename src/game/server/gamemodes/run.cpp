@@ -39,7 +39,7 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	
 	// hordes of enemies
 	bool Defend = (g_Config.m_SvMapGenLevel > 1 && g_Config.m_SvMapGenLevel%5 == 0);
-	int e = 2 + log(float(1 + g_Config.m_SvMapGenLevel/3)) * 5;
+	int e = 3 + log(float(1 + g_Config.m_SvMapGenLevel/3)) * 5;
 	e += rand()%(1+g_Config.m_SvMapGenLevel/4);
 
 	if (Defend)
@@ -122,7 +122,7 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			if (g_Config.m_SvMapGenLevel > 20 && frandom() < 0.35f)
 				i = ENEMY_ROBOT2;
 			
-			if (m_EnemyCount > 12)
+			if (m_EnemyCount >= 12)
 			{
 				i = ENEMY_ALIEN2;
 				

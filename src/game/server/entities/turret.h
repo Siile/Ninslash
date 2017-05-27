@@ -38,6 +38,8 @@ private:
 	
 	int m_ReloadTimer;
 	int m_Chainsaw;
+	float m_DelayedShotgunTick;
+	void DelayedFire();
 };
 
 #endif

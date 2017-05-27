@@ -109,6 +109,8 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_ShieldHealth = 0;
 	m_ShieldRadius = 0;
 	
+	m_DelayedShotgunTick = 0;
+	
 	m_Recoil = vec2(0, 0);
 	
 	m_SkipPickups = 0;
@@ -116,6 +118,8 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	
 	m_CryTimer = 0;
 	m_CryState = 0;
+	
+	m_ExplodeOnDeath = false;
 	
 	m_EmoteLockStop = 0;
 	m_DeathTileTimer = 0;
@@ -774,6 +778,7 @@ void CCharacter::Flamethrower()
 		
 		vec2 StartPos = m_Pos+Direction*m_ProximityRadius*3.0f + OffsetY;
 		
+		GameServer()->ClearFlameHits();
 		for (int i = 0; i < 4; i++)
 		{
 			vec2 To = StartPos+Direction*m_ProximityRadius*i*2.1f;
@@ -784,6 +789,7 @@ void CCharacter::Flamethrower()
 			// to visualize hit points
 			//GameServer()->CreateFlameHit(To);
 		}
+		GameServer()->ClearFlameHits();
 	}
 	else
 		m_Flamethrower = 0;
@@ -795,6 +801,7 @@ void CCharacter::FireWeapon()
 	if (m_aStatus[STATUS_SPAWNING] > 0.0f)
 		return;
 	
+	DelayedFire();
 	Chainsaw();
 	Scythe();
 	Flamethrower();
@@ -896,7 +903,11 @@ void CCharacter::FireWeapon()
 			// for testing the center pos
 			//GameServer()->CreateEffect(FX_ELECTROHIT, ProjStartPos);
 			
-			Damage += PowerLevel*15;
+			if (PowerLevel > 0)
+				Damage += 15;
+			
+			if (PowerLevel > 1)
+				m_ReloadTimer *= 0.7f;
 			
 			{
 				CCharacter *apEnts[MAX_CLIENTS];
@@ -921,7 +932,12 @@ void CCharacter::FireWeapon()
 					else
 						Dir = vec2(0.f, 0.f);
 
-					pTarget->TakeDamage((Dir + vec2(0, -0.2f)) * 10.0f * aCustomWeapon[m_ActiveCustomWeapon].m_Knockback*(1.0f+PowerLevel*1.5f), Damage,
+					vec2 KnockBack = (Dir + vec2(0, -0.2f)) * 10.0f * aCustomWeapon[m_ActiveCustomWeapon].m_Knockback;
+					
+					if (PowerLevel > 0)
+						KnockBack *= 1.5f;
+					
+					pTarget->TakeDamage(KnockBack, Damage,
 						m_pPlayer->GetCID(), m_ActiveCustomWeapon, vec2(0, 0), false);
 				}
 			}
@@ -981,12 +997,19 @@ void CCharacter::FireWeapon()
 		case WEAPON_GRENADE:
 		case WEAPON_ELECTRIC:
 		{
-			GetPlayer()->m_InterestPoints += 10;	
+			GetPlayer()->m_InterestPoints += 10;
+			
+			if (m_ActiveCustomWeapon == WEAPON_SHOTGUN && PowerLevel > 1 && !m_DelayedShotgunTick)
+			{
+				m_DelayedShotgunTick = Server()->Tick() + Server()->TickSpeed() * 0.15f;
+				PowerLevel = 1;
+			}
 			
 			if (m_ActiveCustomWeapon == WEAPON_RIFLE && m_Type == CCharacter::ROBOT)
 				GameServer()->CreateProjectile(m_pPlayer->GetCID(), W_WALKER, 0, ProjStartPos, Direction);
 			else
 				GameServer()->CreateProjectile(m_pPlayer->GetCID(), m_ActiveCustomWeapon, PowerLevel, ProjStartPos, Direction);
+			
 		} break;
 
 		case WEAPON_LASER:
@@ -996,8 +1019,7 @@ void CCharacter::FireWeapon()
 			if (GameServer()->m_pController->IsCoop() && m_IsBot)
 				Dmg = 0.6f;
 			
-			if (PowerLevel > 0)
-				Dmg *= 1.35f;
+			Dmg += PowerLevel*0.35f;
 			
 			GetPlayer()->m_InterestPoints += 40;
 			
@@ -1020,16 +1042,31 @@ void CCharacter::FireWeapon()
 		if (m_ActiveCustomWeapon == WEAPON_RIFLE && m_Type == CCharacter::ROBOT)
 			m_aWeapon[m_ActiveCustomWeapon].m_Ammo = 20;
 	}
-
-	/*
-	if(m_ReloadTimer <= 0)
-	{
-		m_ReloadTimer = aCustomWeapon[m_ActiveCustomWeapon].m_BulletReloadTime * Server()->TickSpeed() / 1000;
-	}
-	*/
 }
 
 
+void CCharacter::DelayedFire()
+{
+	if (m_ActiveCustomWeapon == WEAPON_SHOTGUN && m_DelayedShotgunTick && m_DelayedShotgunTick <= Server()->Tick())
+	{
+		m_DelayedShotgunTick = 0;
+		
+
+		vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
+
+		m_Recoil -= Direction * aCustomWeapon[m_ActiveCustomWeapon].m_SelfKnockback;
+		
+		vec2 ProjStartPos = m_Pos+Direction*m_ProximityRadius*0.75f + vec2(0, -11);
+	
+		if (aCustomWeapon[m_ActiveCustomWeapon].m_Sound >= 0)
+			GameServer()->CreateSound(m_Pos, aCustomWeapon[m_ActiveCustomWeapon].m_Sound);
+		
+		GameServer()->CreateProjectile(m_pPlayer->GetCID(), m_ActiveCustomWeapon, 0, ProjStartPos, Direction);
+		
+		m_AttackTick = Server()->Tick();
+		m_ReloadTimer = aCustomWeapon[m_ActiveCustomWeapon].m_BulletReloadTime * Server()->TickSpeed() / 1000;
+	}
+}
 	
 	
 void CCharacter::HandleWeapons()
@@ -1207,7 +1244,7 @@ void CCharacter::UpgradeWeapon()
 	
 	if (w >= 1 && w < NUM_WEAPONS)
 	{
-		if (m_aWeapon[w].m_PowerLevel < 1)
+		if (m_aWeapon[w].m_PowerLevel < 2)
 		{
 			m_aWeapon[w].m_PowerLevel++;
 			// sound here
@@ -1216,7 +1253,7 @@ void CCharacter::UpgradeWeapon()
 		else
 		{
 			w = m_PrevWeapon;
-			if (w >= 1 && w < NUM_WEAPONS && GotWeapon(w) && m_aWeapon[w].m_PowerLevel < 1)
+			if (w >= 1 && w < NUM_WEAPONS && GotWeapon(w) && m_aWeapon[w].m_PowerLevel < 2)
 			{
 				m_aWeapon[w].m_PowerLevel++;
 				// sound here
@@ -1225,7 +1262,7 @@ void CCharacter::UpgradeWeapon()
 			else
 			{
 				for (w = 1; w < NUM_WEAPONS; w++)
-					if (GotWeapon(w) && m_aWeapon[w].m_PowerLevel < 1)
+					if (GotWeapon(w) && m_aWeapon[w].m_PowerLevel < 2)
 					{
 						m_aWeapon[w].m_PowerLevel++;
 						// sound here
@@ -1858,7 +1895,7 @@ void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage, bool IsTurret
 	//	Weapon = 0;
 	// we got to wait 0.5 secs before respawning
 	//m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()/2;
-
+	
 	if (g_Config.m_SvSurvivalMode)
 		m_pPlayer->m_RespawnTick = Server()->Tick();
 	else
@@ -1906,6 +1943,10 @@ void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage, bool IsTurret
 	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCID()] = 0;
 	
 	GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID());
+	
+
+	if (m_ExplodeOnDeath && Killer >= 0)
+		GameServer()->CreateExplosion(m_Pos, Killer, Weapon, 0, false, false);
 }
 
 
@@ -1960,6 +2001,12 @@ void CCharacter::Deathray(bool Kill)
 	}
 }
 
+void CCharacter::Electrocute(float Duration)
+{
+	if (m_aStatus[STATUS_ELECTRIC] < Duration*Server()->TickSpeed())
+		m_aStatus[STATUS_ELECTRIC] = Duration*Server()->TickSpeed();
+}
+
 
 void CCharacter::SetAflame(float Duration, int From, int Weapon)
 {
@@ -2000,6 +2047,9 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos,
 		if(From == m_pPlayer->GetCID())
 			Dmg = max(1, Dmg/2);
 	}
+	
+	if (From == m_pPlayer->GetCID() && IsTurret && GameServer()->m_pController->IsCoop())
+		Dmg = 0;
 	
 	// disable self damage if weapon is forced
 	if (g_Config.m_SvForceWeapon && From == m_pPlayer->GetCID())

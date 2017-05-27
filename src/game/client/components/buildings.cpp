@@ -426,20 +426,61 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 	Graphics()->QuadsDraw(&Stand, 1);
 	Graphics()->QuadsEnd();
 	
-	// weapon
-	if (pCurrent->m_PowerLevel > 0)
-		Graphics()->ShaderBegin(SHADER_COLORSWAP);
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
-	Graphics()->QuadsBegin();
-
+	
 	int Weapon = pCurrent->m_Weapon;
 	float Angle = (pCurrent->m_Angle+90) / (180/pi);
 	vec2 p = Pos + vec2(cosf(Angle)*12, sinf(Angle)*12-40-9); //+ vec2(cosf(Angle)*90, sinf(Angle)*90-71);
 	vec2 Dir = GetDirection((int)(Angle*256));
 	
-	Graphics()->QuadsSetRotation(Angle);
-	
 	int iw = clamp(Weapon, 0, NUM_WEAPONS-1);
+	
+	// render chainsaw effect
+	if (iw == WEAPON_CHAINSAW && pCurrent->m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)
+	{
+		float WeaponScale = 1.07f;
+		
+		if (pCurrent->m_PowerLevel == 1)
+			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_CHAINSAW2].m_Id);
+		else if (pCurrent->m_PowerLevel > 1)
+			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_CHAINSAW3].m_Id);
+		else
+			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_CHAINSAW].m_Id);
+		Graphics()->QuadsBegin();
+		
+		Graphics()->QuadsSetRotation(Angle);
+		
+		if (pCurrent->m_PowerLevel == 1)
+			RenderTools()->SelectSprite(SPRITE_FX_CHAINSAW2_1+rand()%3, frandom()*10 < 5.0f ? SPRITE_FLAG_FLIP_Y : 0);
+		else if (pCurrent->m_PowerLevel > 1)
+			RenderTools()->SelectSprite(SPRITE_FX_CHAINSAW3_1+rand()%3, frandom()*10 < 5.0f ? SPRITE_FLAG_FLIP_Y : 0);
+		else
+			RenderTools()->SelectSprite(SPRITE_FX_CHAINSAW1+rand()%3, frandom()*10 < 5.0f ? SPRITE_FLAG_FLIP_Y : 0);
+		
+		p += Dir*14.0f;
+		
+		Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+		
+		float Size = 132;
+		
+		if (pCurrent->m_PowerLevel > 1)
+			Size *= 1.15f;
+		
+		p.y += g_pData->m_Weapons.m_aId[WEAPON_CHAINSAW].m_Offsety;
+		RenderTools()->DrawSprite(p.x, p.y, Size);
+		
+		Graphics()->QuadsEnd();
+	}
+	
+	
+	// weapon
+	if (pCurrent->m_PowerLevel == 1)
+		Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 1.0f);
+	else if (pCurrent->m_PowerLevel > 1)
+		Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 0.5f);
+	
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
+	Graphics()->QuadsBegin();
+	Graphics()->QuadsSetRotation(Angle);
 	RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[iw].m_pSpriteBody, Dir.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
 	
 	/*
@@ -449,7 +490,7 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 
 	vec2 Offset = vec2(0, 0);
 	
-	// chainsaw effects
+	// chainsaw shake effects
 	if (iw == WEAPON_CHAINSAW)
 	{
 		if (pCurrent->m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)
@@ -788,6 +829,8 @@ void CBuildings::OnRender()
 				
 			default:;
 			};
+			
+			m_pClient->m_pEffects->Light(vec2(pBuilding->m_X, pBuilding->m_Y), 512);
 		}
 	}
 }

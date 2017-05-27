@@ -497,7 +497,7 @@ void CCommandProcessorFragment_OpenGL::Cmd_ClearBufferTexture(const CCommandBuff
 		if (i == RENDERBUFFER_LIGHT)
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, textureBuffer[i]);
-			glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+			glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
 			continue;
 		}

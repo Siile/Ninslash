@@ -79,6 +79,9 @@ void CPickup::Tick()
 			
 			if (m_Type == POWERUP_WEAPON && frandom() < 0.13f)
 				m_PowerLevel = 1;
+			
+			if (m_Type == POWERUP_WEAPON && frandom() < 0.06f)
+				m_PowerLevel = 2;
 
 			if(m_Type == POWERUP_WEAPON)
 				GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SPAWN);

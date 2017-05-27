@@ -102,17 +102,22 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	
 	vec2 PredictPos = CalcPos(StartPos, StartVel, Curvature, Speed, Ct+0.01f);
 	
+	/*
 	if(pCurrent->m_Type == WEAPON_GRENADE || pCurrent->m_Type == WEAPON_FLAMER)
 		m_pClient->m_pEffects->Light(Pos, 128);
 	else
 		m_pClient->m_pEffects->Light(Pos, 96);
+	*/
 
+	if (pCurrent->m_Type == WEAPON_ELECTRIC || pCurrent->m_Type == WEAPON_GRENADE)
+	{
+		if (pCurrent->m_PowerLevel == 1)
+			Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 1.0f);
+		else if (pCurrent->m_PowerLevel > 1)
+			Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 0.5f);
+	}
 
-	if(pCurrent->m_Type == WEAPON_ELECTRIC && pCurrent->m_PowerLevel > 0)
-		Graphics()->ShaderBegin(SHADER_ELECTRIC, 1.0f);
 	
-	if(pCurrent->m_Type == WEAPON_GRENADE && pCurrent->m_PowerLevel > 0)
-		Graphics()->ShaderBegin(SHADER_COLORSWAP);
 	
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
 	Graphics()->QuadsBegin();
@@ -123,6 +128,8 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	}
 	else if (pCurrent->m_Type == W_WALKER)
 		RenderTools()->SelectSprite(SPRITE_WALKER_PROJ);
+	else if (pCurrent->m_Type == WEAPON_RIFLE && pCurrent->m_PowerLevel > 1)
+		RenderTools()->SelectSprite(SPRITE_WEAPON_RIFLE_PROJ2);
 	else
 		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[clamp(pCurrent->m_Type, 0, NUM_WEAPONS-1)].m_pSpriteProj);
 	
@@ -181,8 +188,10 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	}
 	else if(pCurrent->m_Type == WEAPON_ELECTRIC)
 	{
-		if (pCurrent->m_PowerLevel > 0)
+		if (pCurrent->m_PowerLevel == 1)
 			m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.5f, 0.5f, 1.0f, 0.75f));
+		else if (pCurrent->m_PowerLevel > 1)
+			m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.5f, 1.0f, 0.5f, 0.75f));
 		
 		//m_pClient->m_pEffects->BulletTrail(Pos);
 		m_pClient->m_pEffects->Electrospark(Pos, 16, Vel * 100.0f);
@@ -225,7 +234,7 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 			else if (pCurrent->m_PowerLevel == 1)
 				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.2f, 1.0f, 0.5f, 0.75f));
 			else
-				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(1.0f, 0.2f, 0.2f, 0.75f));
+				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.5f, 0.5f, 1.0f, 0.75f));
 		}
 		
 		if (Collision()->GetCollisionAt(PredictPos.x, PredictPos.y)&1 ||  // solid
@@ -261,8 +270,10 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 
 void CItems::RenderPickup(const CNetObj_Pickup *pPrev, const CNetObj_Pickup *pCurrent)
 {
-	if (pCurrent->m_PowerLevel > 0)
-		Graphics()->ShaderBegin(SHADER_COLORSWAP);
+	if (pCurrent->m_PowerLevel == 1)
+		Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 1.0f);
+	else if (pCurrent->m_PowerLevel == 2)
+		Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 0.5f);
 	
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 	Graphics()->QuadsBegin();
@@ -280,7 +291,7 @@ void CItems::RenderPickup(const CNetObj_Pickup *pPrev, const CNetObj_Pickup *pCu
 	{
 		Angle = 0; //-pi/6;//-0.25f * pi * 2.0f;
 		
-		m_pClient->m_pEffects->Light(Pos, 256);
+		//m_pClient->m_pEffects->Light(Pos, 256);
 		
 		int Weapon = pCurrent->m_Subtype;
 		
@@ -309,7 +320,7 @@ void CItems::RenderPickup(const CNetObj_Pickup *pPrev, const CNetObj_Pickup *pCu
 			Pos.x -= 10.0f;
 		}
 		else*/
-			m_pClient->m_pEffects->Light(Pos, 128);
+		//	m_pClient->m_pEffects->Light(Pos, 128);
 	}
 
 	Graphics()->QuadsSetRotation(Angle);
@@ -391,7 +402,7 @@ void CItems::RenderFlag(const CNetObj_Flag *pPrev, const CNetObj_Flag *pCurrent,
 	}
 	
 	
-	m_pClient->m_pEffects->Light(Pos+vec2(0, -32), 256);
+	//m_pClient->m_pEffects->Light(Pos+vec2(0, -32), 256);
 
 
 	
@@ -523,7 +534,15 @@ void CItems::RenderLaser(const struct CNetObj_Laser *pCurrent)
 	}
 	else
 	{
-		Graphics()->SetColor(0.5f, 0.5f, 1, 1.0f);
+		if (pCurrent->m_PowerLevel > 1)
+		{
+			Graphics()->SetColor(1.0f, 0.5f, 0.0f, 1.0f);
+			OuterColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);
+			InnerColor = vec4(1.0f, 0.4f, 0.0f, 1.0f);
+		}
+		else
+			Graphics()->SetColor(0.5f, 0.5f, 1, 1.0f);
+		
 		int Steps = 1 + length(Pos - From) / 75;
 		vec2 Step = (Pos - From) / Steps;
 		Out = vec2(Dir.y, -Dir.x) * (7.0f*Ia);
@@ -554,7 +573,10 @@ void CItems::RenderLaser(const struct CNetObj_Laser *pCurrent)
 								
 			Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 		
-			m_pClient->m_pEffects->BulletTrail(p1+o1, p2+o2, vec4(0.5f, 0.5f, 1.0f, 0.2f));
+			if (pCurrent->m_PowerLevel > 1)
+				m_pClient->m_pEffects->BulletTrail(p1+o1, p2+o2, vec4(1.0f, 0.5f, 0.0f, 0.2f));
+			else
+				m_pClient->m_pEffects->BulletTrail(p1+o1, p2+o2, vec4(0.5f, 0.5f, 1.0f, 0.2f));
 		
 			s1 = s2;
 			p1 = p2;

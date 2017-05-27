@@ -46,6 +46,8 @@ public:
 	//int GetTeam() const { return m_Team; };
 	int GetTeam();
 	
+	bool Spectating();
+	
 	/*
 	int GetTeam()
 	{

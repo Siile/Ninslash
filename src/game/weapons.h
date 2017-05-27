@@ -220,7 +220,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		5, // powerup size
 		14, // max ammo
 		0, // bullet life
-		500, // bullet reload time
+		550, // bullet reload time
 		0.0f, // bullet knockback
 		0.0f, // self knockback
 		740 // ai attack range

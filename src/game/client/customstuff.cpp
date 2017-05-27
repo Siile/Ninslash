@@ -36,6 +36,7 @@ void CCustomStuff::Reset()
 	m_SelectedWeapon = 0;
 	m_LocalWeapons = 0;
 	m_LocalUpgrades = 0;
+	m_LocalUpgrades2 = 0;
 	m_LocalKits = 0;
 	m_Picker = 0;
 	m_LastUpdate = time_get();

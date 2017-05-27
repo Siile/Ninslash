@@ -24,6 +24,7 @@
 #include <game/server/entities/building.h>
 #include <game/server/entities/turret.h>
 #include <game/server/entities/monster.h>
+#include <game/server/entities/superexplosion.h>
 
 #include <game/server/playerdata.h>
 
@@ -60,6 +61,8 @@ void CGameContext::Construct(int Resetting)
 	m_pVoteOptionLast = 0;
 	m_NumVoteOptions = 0;
 	m_LockTeams = 0;
+	
+	ClearFlameHits();
 	
 	m_aMostInterestingPlayer[0] = -1;
 	m_aMostInterestingPlayer[1] = -1;
@@ -280,7 +283,13 @@ void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, int PowerLevel
 	if (PowerLevel > 0)
 		Dmg *= 1.25f;
 	
+	if (PowerLevel > 1)
+		Dmg *= 1.15f;
+	
 	int ProximityRadius = CCharacter::ms_PhysSize*0.75f;
+	
+	if (PowerLevel > 1)
+		ProximityRadius *= 1.2f;
 	
 	{
 		CCharacter *apEnts[MAX_CLIENTS];
@@ -371,7 +380,7 @@ void CGameContext::CreateScytheHit(int DamageOwner, int Weapon, int PowerLevel, 
 			if (length(pTarget->m_Pos - PlayerPos) > 0.0f)
 				Dir = normalize(pTarget->m_Pos - PlayerPos);
 
-			pTarget->TakeDamage(normalize(vec2(frandom()-0.5f, frandom()-0.5f))*2.0f, aCustomWeapon[Weapon].m_Damage*Dmg,
+			pTarget->TakeDamage(normalize(vec2(frandom()-0.5f, frandom()-0.5f))*2.0f*(1.0f + PowerLevel*0.5f), aCustomWeapon[Weapon].m_Damage*Dmg,
 									DamageOwner, Weapon, (ProjPos+pTarget->m_Pos)/2.0f, DAMAGETYPE_NORMAL, OwnerBuilding ? true : false);
 		}
 	}
@@ -416,6 +425,15 @@ void CGameContext::CreateScytheHit(int DamageOwner, int Weapon, int PowerLevel, 
 	}
 }
 
+
+void CGameContext::ClearFlameHits()
+{
+	for (int i = 0; i < MAX_CLIENTS; i++)
+		m_aFlameHit[i] = false;
+}
+
+
+
 void CGameContext::CreateFlamethrowerHit(int DamageOwner, int Weapon, int PowerLevel, vec2 ProjPos, CCharacter *OwnerChr, CBuilding *OwnerBuilding)
 {
 	int ProximityRadius = CCharacter::ms_PhysSize;
@@ -438,10 +456,19 @@ void CGameContext::CreateFlamethrowerHit(int DamageOwner, int Weapon, int PowerL
 
 			if ((pTarget == OwnerChr) || Collision()->IntersectLine(ProjPos, pTarget->m_Pos, NULL, NULL))
 				continue;
+			
+			if (m_aFlameHit[pTarget->GetPlayer()->GetCID()])
+				continue;
+			
+			m_aFlameHit[pTarget->GetPlayer()->GetCID()] = true;
 
+			if (PowerLevel > 1)
+				pTarget->m_ExplodeOnDeath = true;
+			
 			pTarget->TakeDamage(vec2(0, 0), aCustomWeapon[Weapon].m_Damage*dmg*Dmg,
 									DamageOwner, Weapon, ProjPos, DAMAGETYPE_FLAME, OwnerBuilding ? true : false);
 									
+			pTarget->m_ExplodeOnDeath = false;
 			pTarget->SetAflame(1.5f+PowerLevel * 0.5f, DamageOwner, Weapon);
 		}
 	}
@@ -459,7 +486,7 @@ void CGameContext::CreateFlamethrowerHit(int DamageOwner, int Weapon, int PowerL
 			if (pTarget->m_Health <= 0)
 				continue;
 
-			pTarget->TakeDamage(vec2(0, 0), aCustomWeapon[Weapon].m_Damage*dmg+1, DamageOwner, vec2(0, 0), DAMAGETYPE_FLAME);
+			pTarget->TakeDamage(vec2(0, 0), aCustomWeapon[Weapon].m_Damage*dmg*Dmg+1, DamageOwner, vec2(0, 0), DAMAGETYPE_FLAME);
 		}
 	}
 	
@@ -475,7 +502,7 @@ void CGameContext::CreateFlamethrowerHit(int DamageOwner, int Weapon, int PowerL
 			
 			if (pTarget->m_Collision)
 			{
-				pTarget->TakeDamage(aCustomWeapon[Weapon].m_Damage*dmg+1, DamageOwner, Weapon);
+				pTarget->TakeDamage(aCustomWeapon[Weapon].m_Damage*dmg*Dmg+1, DamageOwner, Weapon);
 				CreateFlameHit((ProjPos+pTarget->m_Pos)/2+vec2(frandom()-frandom(), frandom()-frandom())*8.0f);
 			}
 		}
@@ -636,7 +663,7 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, int PowerLev
 		{
 			Radius *= 1.5f;
 			InnerRadius *= 1.5f;
-			Dmg2 *= 1.6f;
+			Dmg2 *= 1.8f;
 		}
 		
 		int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
@@ -667,7 +694,7 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, int PowerLev
 				float Dmg = ExplosionDmg * l;
 							
 				if((int)Dmg && Dmg > 0.0f)
-					apBuildings[i]->TakeDamage((int)Dmg, Owner, Weapon);
+					apBuildings[i]->TakeDamage((int)Dmg*Dmg2, Owner, Weapon);
 			}
 		}		
 		
@@ -691,7 +718,7 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, int PowerLev
 				float Dmg = ExplosionDmg * l;
 							
 				if((int)Dmg && Dmg > 0.0f)
-					apMonsters[i]->TakeDamage(ForceDir*Dmg*0.3f, (int)Dmg, Owner, vec2(0, 0));
+					apMonsters[i]->TakeDamage(ForceDir*Dmg*0.3f, (int)Dmg*Dmg2*1.2f, Owner, vec2(0, 0));
 			}
 		}
 	}
@@ -900,6 +927,12 @@ void CGameContext::SendEffect(int ClientID, int EffectID)
 
 void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, int PowerLevel, bool NoDamage, bool IsTurret)
 {
+	if (PowerLevel > 1)
+	{
+		new CSuperexplosion(&m_World, Pos, Owner, Weapon, 1, 0, IsTurret);
+		return;
+	}
+	
 	float Dmg2 = 1.0f;
 	
 	if (m_pController->IsCoop() && IsBot(Owner))
@@ -959,7 +992,7 @@ void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, int 
 				float Dmg = 28 * l;
 				
 				if((int)Dmg && Dmg > 0.0f)
-					apBuildings[i]->TakeDamage((int)Dmg, Owner, Weapon);
+					apBuildings[i]->TakeDamage((int)Dmg*Dmg2, Owner, Weapon);
 			}
 		}
 		
@@ -984,7 +1017,7 @@ void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, int 
 				if((int)Dmg && Dmg > 0.0f)
 				{
 					CreateEffect(FX_ELECTROHIT, (Pos+apMonsters[i]->m_Pos)/2.0f);
-					apMonsters[i]->TakeDamage(ForceDir*0.1f, (int)Dmg, Owner, vec2(0, 0), DAMAGETYPE_ELECTRIC);
+					apMonsters[i]->TakeDamage(ForceDir*0.1f, (int)Dmg*Dmg2*1.3f, Owner, vec2(0, 0), DAMAGETYPE_ELECTRIC);
 				}
 			}
 		}
@@ -2067,7 +2100,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		{
 			CNetMsg_Cl_SetSpectatorMode *pMsg = (CNetMsg_Cl_SetSpectatorMode *)pRawMsg;
 
-			if(pPlayer->GetTeam() != TEAM_SPECTATORS || pPlayer->m_SpectatorID == pMsg->m_SpectatorID || ClientID == pMsg->m_SpectatorID ||
+			if((pPlayer->GetTeam() != TEAM_SPECTATORS && !m_pController->IsCoop()) || 
+				pPlayer->m_SpectatorID == pMsg->m_SpectatorID || ClientID == pMsg->m_SpectatorID ||
 				(g_Config.m_SvSpamprotection && pPlayer->m_LastSetSpectatorMode && pPlayer->m_LastSetSpectatorMode+Server()->TickSpeed()*1 > Server()->Tick()))
 				return;
 

@@ -446,16 +446,20 @@ void CPlayers::RenderPlayer(
 	{
 		WeaponScale = 1.07f;
 		
-		if (Player.m_WeaponPowerLevel > 0)
+		if (Player.m_WeaponPowerLevel == 1)
 			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_CHAINSAW2].m_Id);
+		else if (Player.m_WeaponPowerLevel > 1)
+			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_CHAINSAW3].m_Id);
 		else
 			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_CHAINSAW].m_Id);
 		Graphics()->QuadsBegin();
 		
 		Graphics()->QuadsSetRotation(Angle);
 		
-		if (Player.m_WeaponPowerLevel > 0)
+		if (Player.m_WeaponPowerLevel == 1)
 			RenderTools()->SelectSprite(SPRITE_FX_CHAINSAW2_1+rand()%3, frandom()*10 < 5.0f ? SPRITE_FLAG_FLIP_Y : 0);
+		else if (Player.m_WeaponPowerLevel > 1)
+			RenderTools()->SelectSprite(SPRITE_FX_CHAINSAW3_1+rand()%3, frandom()*10 < 5.0f ? SPRITE_FLAG_FLIP_Y : 0);
 		else
 			RenderTools()->SelectSprite(SPRITE_FX_CHAINSAW1+rand()%3, frandom()*10 < 5.0f ? SPRITE_FLAG_FLIP_Y : 0);
 		
@@ -465,14 +469,19 @@ void CPlayers::RenderPlayer(
 		
 		Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
 		
+		float Size = 132;
+		
+		if (Player.m_WeaponPowerLevel > 1)
+			Size *= 1.15f;
+		
 		p.y += g_pData->m_Weapons.m_aId[WEAPON_CHAINSAW].m_Offsety;
-		RenderTools()->DrawSprite(p.x, p.y, 132);
+		RenderTools()->DrawSprite(p.x, p.y, Size);
 		
 		Graphics()->QuadsEnd();
 	}
 	
-	
-	
+	if (Player.m_Weapon == WEAPON_CHAINSAW && Player.m_WeaponPowerLevel > 1)
+		WeaponScale *= 1.15f;
 	
 	
 	
@@ -481,8 +490,10 @@ void CPlayers::RenderPlayer(
 	{
 		float ColorSwap = 0.0f;
 		
-		if (Player.m_WeaponPowerLevel > 0)
+		if (Player.m_WeaponPowerLevel == 1)
 			ColorSwap = 1.0f;
+		if (Player.m_WeaponPowerLevel == 2)
+			ColorSwap = 0.5f;
 		
 		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DEATHRAY] > 0.0f)
 			Graphics()->ShaderBegin(SHADER_DEATHRAY);
@@ -499,7 +510,7 @@ void CPlayers::RenderPlayer(
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] > 0.0f)
 			Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL], ColorSwap);
 		else if (Player.m_WeaponPowerLevel > 0)
-			Graphics()->ShaderBegin(SHADER_COLORSWAP);
+			Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, ColorSwap);
 		
 		//Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
@@ -580,16 +591,6 @@ void CPlayers::RenderPlayer(
 				}
 			}
 			
-			// custom "chainsaw" for robos
-			/*
-			if (RenderInfo.m_Body == 3 && iw == WEAPON_CHAINSAW)
-			{
-				//p = Position;
-				RenderTools()->SelectSprite(SPRITE_WEAPON_ROBO_SAWBLADE, Direction.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
-				RenderTools()->DrawSprite(p.x, p.y, 48);
-			}
-			else
-				*/
 			{
 				p.y += g_pData->m_Weapons.m_aId[iw].m_Offsety;
 				RenderTools()->DrawSprite(p.x, p.y, g_pData->m_Weapons.m_aId[iw].m_VisualSize*WeaponScale);
@@ -679,8 +680,10 @@ void CPlayers::RenderPlayer(
 			{
 				int f = pCustomPlayerInfo->m_FlameState / 4;
 				
-				if (Player.m_WeaponPowerLevel > 0)
-					Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f);
+				if (Player.m_WeaponPowerLevel == 1)
+					Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 1.0f);
+				if (Player.m_WeaponPowerLevel > 1)
+					Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 0.5f);
 				Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FLAME].m_Id);
 				Graphics()->QuadsBegin();
 				
@@ -1254,8 +1257,8 @@ void CPlayers::RenderPlayer(
 		RenderTools()->RenderHeal(Position+vec2(0, -30), vec2(64, 128), pCustomPlayerInfo->m_Heal);
 		
 	
-	
-	m_pClient->m_pEffects->Light(Position+vec2(0, -32), 512+128);
+	//if (pInfo.m_Local)
+	//	m_pClient->m_pEffects->Light(Position+vec2(0, -32), 512+128);
 	
 	// electric sparks
 	if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE] > 0.5f && Client()->GameTick()%5 == 1)
@@ -1367,6 +1370,7 @@ void CPlayers::OnRender()
 						LocalWeaponsChangeCounter = 0;
 					}
 					CustomStuff()->m_LocalUpgrades = ((const CNetObj_PlayerInfo *)pInfo)->m_Upgrades;
+					CustomStuff()->m_LocalUpgrades2 = ((const CNetObj_PlayerInfo *)pInfo)->m_Upgrades2;
 					CustomStuff()->m_LocalKits = ((const CNetObj_PlayerInfo *)pInfo)->m_Kits;
 					CustomStuff()->m_aLocalItems[0] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item1;
 					CustomStuff()->m_aLocalItems[1] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item2;
