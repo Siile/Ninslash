@@ -751,6 +751,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		if (Type == POWERUP_WEAPON && IsCoop() && frandom() < 0.14f)
 			pPickup->m_PowerLevel = 1;
 		
+		if (Type == POWERUP_WEAPON && IsCoop() && frandom() < min(0.14f, 0.07f + g_Config.m_SvMapGenLevel*0.002f))
 			pPickup->m_PowerLevel = 2;
 		
 		return true;
