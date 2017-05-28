@@ -77,10 +77,10 @@ void CPickup::Tick()
 				m_Dropable = false;
 			}
 			
-			if (m_Type == POWERUP_WEAPON && frandom() < 0.13f)
+			if (m_Type == POWERUP_WEAPON && frandom() < 0.14f)
 				m_PowerLevel = 1;
 			
-			if (m_Type == POWERUP_WEAPON && frandom() < 0.06f)
+			if (m_Type == POWERUP_WEAPON && frandom() < 0.07f)
 				m_PowerLevel = 2;
 
 			if(m_Type == POWERUP_WEAPON)
