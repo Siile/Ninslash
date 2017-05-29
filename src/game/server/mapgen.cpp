@@ -448,7 +448,7 @@ void CMapGen::GenerateDeathray(CGenLayer *pTiles)
 	
 	bool Valid = false;
 	
-	for (int y = 1; y < 30; y++)
+	for (int y = 1; y < 22; y++)
 	{
 		if (pTiles->Get(p.x, p.y+y))
 			Valid = true;

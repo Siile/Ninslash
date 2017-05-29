@@ -9,6 +9,7 @@
 #include <game/generated/protocol.h>
 
 #include <game/client/render.h>
+#include <game/client/customstuff.h>
 
 #include "spectator.h"
 
@@ -215,7 +216,7 @@ void CSpectator::OnRender()
 	float x = -270.0f, y = StartY;
 	for(int i = 0, Count = 0; i < MAX_CLIENTS; ++i)
 	{
-		if(!m_pClient->m_Snap.m_paPlayerInfos[i] || m_pClient->m_Snap.m_paPlayerInfos[i]->m_Team == TEAM_SPECTATORS)
+		if ((CustomStuff()->IsBot(i) && m_pClient->IsCoop()) || !m_pClient->m_Snap.m_paPlayerInfos[i] || m_pClient->m_Snap.m_paPlayerInfos[i]->m_Team == TEAM_SPECTATORS)
 			continue;
 
 		if(++Count%9 == 0)
