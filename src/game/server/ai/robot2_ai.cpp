@@ -34,6 +34,8 @@ void CAIrobot2::OnCharacterSpawn(CCharacter *pChr)
 	pChr->SetHealth(100);
 	
 	pChr->GiveCustomWeapon(WEAPON_CHAINSAW);
+	
+	m_ReactionTime = 150;
 }
 
 

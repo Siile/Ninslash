@@ -1397,6 +1397,9 @@ bool CCharacter::Invisible()
 	//if ((m_Core.m_Jetpack == 1 || m_Core.m_Input.m_Hook > 0) && m_Core.m_JetpackPower > 0)
 	//	return false;
 		
+	if (m_aStatus[STATUS_SPAWNING] > 0)
+		return true;
+		
 	if (m_DamageTakenTick > Server()->Tick() - Server()->TickSpeed() * 1.0f)
 		return false;
 		

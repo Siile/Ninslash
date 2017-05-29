@@ -760,6 +760,7 @@ void CRenderTools::RenderPortrait(CTeeRenderInfo *pInfo, vec2 Pos, int EyeType)
 					
 					// skip all but these
 					if (!strcmp(pAttachment->m_Name, "head") == 0 &&
+						!strcmp(pAttachment->m_Name, "head_asset") == 0 &&
 						!strcmp(pAttachment->m_Name, "hat") == 0 &&
 						!strcmp(pAttachment->m_Name, "mask") == 0 &&
 						!strcmp(pAttachment->m_Name, "eyes") == 0)

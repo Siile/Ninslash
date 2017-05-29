@@ -44,6 +44,8 @@ void CAIalien1::OnCharacterSpawn(CCharacter *pChr)
 	pChr->SetHealth(60);
 	
 	m_ShockTimer = 10;
+	
+	m_ReactionTime = 150;
 }
 
 

@@ -34,6 +34,8 @@ void CAIrobot1::OnCharacterSpawn(CCharacter *pChr)
 	pChr->SetHealth(80);
 	
 	pChr->GiveCustomWeapon(WEAPON_RIFLE);
+	
+	m_ReactionTime = 150;
 }
 
 
