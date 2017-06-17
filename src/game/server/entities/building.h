@@ -5,6 +5,7 @@
 
 const int BuildingPhysSize = 32;
 const int TurretPhysSize = 32;
+const int TeslacoilPhysSize = 36;
 const int SawbladePhysSize = 32;
 const int MinePhysSize = 6;
 const int BarrelPhysSize = 28;
@@ -14,8 +15,9 @@ const int BasePhysSize = 10;
 const int StandPhysSize = 20;
 const int LightningWallPhysSize = 20;
 const int FlametrapPhysSize = 20;
-const int SwitchPhysSize = 7;
+const int SwitchPhysSize = 10;
 const int DoorPhysSize = 40;
+const int ReactorPhysSize = 50;
 const int JumppadPhysSize = 60;
 
 class CBuilding : public CEntity

@@ -24,6 +24,7 @@
 #include <game/client/components/sounds.h>
 #include <game/client/gameclient.h>
 #include <game/client/lineinput.h>
+#include <game/client/skelebank.h>
 #include <game/localization.h>
 #include <mastersrv/mastersrv.h>
 
@@ -46,12 +47,15 @@ float CMenus::ms_FontmodHeight = 0.8f;
 IInput::CEvent CMenus::m_aInputEvents[MAX_INPUTEVENTS];
 int CMenus::m_NumInputEvents;
 
+static bool s_ResetMenu = true;
 
 CMenus::CMenus()
 {
 	m_Popup = POPUP_NONE;
-	m_ActivePage = PAGE_INTERNET;
+	m_ActivePage = PAGE_FRONT;
 	m_GamePage = PAGE_GAME;
+	
+	g_Config.m_UiPage = PAGE_FRONT;
 
 	m_NeedRestartGraphics = false;
 	m_NeedRestartSound = false;
@@ -520,6 +524,13 @@ int CMenus::RenderMenubar(CUIRect r)
 	CUIRect Box = r;
 	CUIRect Button;
 
+	
+	if (s_ResetMenu)
+	{
+		g_Config.m_UiPage = PAGE_FRONT;
+		s_ResetMenu = false;
+	}
+	
 	m_ActivePage = g_Config.m_UiPage;
 	int NewPage = -1;
 
@@ -538,30 +549,33 @@ int CMenus::RenderMenubar(CUIRect r)
 			Box.VSplitLeft(30.0f, 0, &Box);
 		}
 
-		Box.VSplitLeft(100.0f, &Button, &Box);
-		static int s_InternetButton=0;
-		if(DoButton_MenuTab(&s_InternetButton, Localize("Internet"), m_ActivePage==PAGE_INTERNET, &Button, CUI::CORNER_TL))
+		if (m_ActivePage != PAGE_SETTINGS)
 		{
-			ServerBrowser()->Refresh(IServerBrowser::TYPE_INTERNET);
-			NewPage = PAGE_INTERNET;
-		}
+			Box.VSplitLeft(100.0f, &Button, &Box);
+			static int s_InternetButton=0;
+			if(DoButton_MenuTab(&s_InternetButton, Localize("Internet"), m_ActivePage==PAGE_INTERNET, &Button, CUI::CORNER_TL))
+			{
+				ServerBrowser()->Refresh(IServerBrowser::TYPE_INTERNET);
+				NewPage = PAGE_INTERNET;
+			}
 
-		//Box.VSplitLeft(4.0f, 0, &Box);
-		Box.VSplitLeft(80.0f, &Button, &Box);
-		static int s_LanButton=0;
-		if(DoButton_MenuTab(&s_LanButton, Localize("LAN"), m_ActivePage==PAGE_LAN, &Button, 0))
-		{
-			ServerBrowser()->Refresh(IServerBrowser::TYPE_LAN);
-			NewPage = PAGE_LAN;
-		}
+			//Box.VSplitLeft(4.0f, 0, &Box);
+			Box.VSplitLeft(80.0f, &Button, &Box);
+			static int s_LanButton=0;
+			if(DoButton_MenuTab(&s_LanButton, Localize("LAN"), m_ActivePage==PAGE_LAN, &Button, 0))
+			{
+				ServerBrowser()->Refresh(IServerBrowser::TYPE_LAN);
+				NewPage = PAGE_LAN;
+			}
 
-		//box.VSplitLeft(4.0f, 0, &box);
-		Box.VSplitLeft(110.0f, &Button, &Box);
-		static int s_FavoritesButton=0;
-		if(DoButton_MenuTab(&s_FavoritesButton, Localize("Favorites"), m_ActivePage==PAGE_FAVORITES, &Button, CUI::CORNER_TR))
-		{
-			ServerBrowser()->Refresh(IServerBrowser::TYPE_FAVORITES);
-			NewPage = PAGE_FAVORITES;
+			//box.VSplitLeft(4.0f, 0, &box);
+			Box.VSplitLeft(110.0f, &Button, &Box);
+			static int s_FavoritesButton=0;
+			if(DoButton_MenuTab(&s_FavoritesButton, Localize("Favorites"), m_ActivePage==PAGE_FAVORITES, &Button, CUI::CORNER_TR))
+			{
+				ServerBrowser()->Refresh(IServerBrowser::TYPE_FAVORITES);
+				NewPage = PAGE_FAVORITES;
+			}
 		}
 
 		/*
@@ -574,6 +588,11 @@ int CMenus::RenderMenubar(CUIRect r)
 			NewPage = PAGE_DEMOS;
 		}
 		*/
+		
+		Box.VSplitRight(180.0f, &Box, &Button);
+		static int s_MenuButton=0;
+		if(DoButton_MenuTab(&s_MenuButton, Localize("Main menu"), m_ActivePage==PAGE_FRONT, &Button, CUI::CORNER_T))
+			NewPage = PAGE_FRONT;
 	}
 	else
 	{
@@ -597,17 +616,22 @@ int CMenus::RenderMenubar(CUIRect r)
 		static int s_CallVoteButton=0;
 		if(DoButton_MenuTab(&s_CallVoteButton, Localize("Call vote"), m_ActivePage==PAGE_CALLVOTE, &Button, CUI::CORNER_TR))
 			NewPage = PAGE_CALLVOTE;
+		
+		Box.VSplitRight(180.0f, &Box, &Button);
+		static int s_MenuButton=0;
+		if(DoButton_MenuTab(&s_MenuButton, Localize("Quit"), m_ActivePage==PAGE_FRONT, &Button, CUI::CORNER_T))
+			m_Popup = POPUP_QUIT;
+		
+		Box.VSplitRight(10.0f, &Box, &Button);
+		Box.VSplitRight(130.0f, &Box, &Button);
+		static int s_SettingsButton=0;
+		if(DoButton_MenuTab(&s_SettingsButton, Localize("Settings"), m_ActivePage==PAGE_SETTINGS, &Button, CUI::CORNER_T))
+			NewPage = PAGE_SETTINGS;
 	}
 
+
+
 	/*
-	box.VSplitRight(110.0f, &box, &button);
-	static int system_button=0;
-	if (UI()->DoButton(&system_button, "System", g_Config.m_UiPage==PAGE_SYSTEM, &button))
-		g_Config.m_UiPage = PAGE_SYSTEM;
-
-	box.VSplitRight(30.0f, &box, 0);
-	*/
-
 	Box.VSplitRight(90.0f, &Box, &Button);
 	static int s_QuitButton=0;
 	if(DoButton_MenuTab(&s_QuitButton, Localize("Quit"), 0, &Button, CUI::CORNER_T))
@@ -618,6 +642,9 @@ int CMenus::RenderMenubar(CUIRect r)
 	static int s_SettingsButton=0;
 	if(DoButton_MenuTab(&s_SettingsButton, Localize("Settings"), m_ActivePage==PAGE_SETTINGS, &Button, CUI::CORNER_T))
 		NewPage = PAGE_SETTINGS;
+	*/
+	
+
 
 	if(NewPage != -1)
 	{
@@ -764,6 +791,88 @@ void CMenus::PopupMessage(const char *pTopic, const char *pBody, const char *pBu
 }
 
 
+static int gs_TextureLogo = -1;
+
+
+void CMenus::RenderFront(CUIRect MainView)
+{
+	s_ResetMenu = false;
+	
+	static int s_MenuPage = 0;
+	static float s_ReactorTime = 0.0f;
+	
+	if(gs_TextureLogo == -1)
+		gs_TextureLogo = Graphics()->LoadTexture("logo.png", IStorage::TYPE_ALL, CImageInfo::FORMAT_AUTO, 0);
+	
+	vec2 s = vec2(800, 120) * 0.8f;
+	
+	CUIRect Screen = *UI()->Screen();
+	
+	Graphics()->TextureSet(gs_TextureLogo);
+	Graphics()->QuadsBegin();
+	Graphics()->SetColor(1, 1, 1, 1);
+	
+	IGraphics::CQuadItem QuadItem((Screen.w-s.x)/2, 130, s.x, s.y);
+	Graphics()->QuadsDrawTL(&QuadItem, 1);
+	Graphics()->QuadsEnd();
+	
+	s_ReactorTime += 0.01f;
+	
+	RenderTools()->RenderSkeleton(vec2(250, Screen.h/1.35f), ATLAS_REACTOR, "idle", s_ReactorTime, vec2(1.0f, 1.0f)*0.8f, 1, 0);
+	RenderTools()->RenderSkeleton(vec2(Screen.w-250, Screen.h/1.35f), ATLAS_REACTOR, "idle", s_ReactorTime, vec2(1.0f, 1.0f)*0.8f, 1, 0);
+
+	
+	
+	
+	// render background
+	CUIRect Temp, TabBar;
+	MainView.VSplitLeft(350, &MainView, &TabBar);
+	TabBar.VSplitRight(350, &TabBar, NULL);
+	TabBar.HSplitTop(220, NULL, &TabBar);
+	
+	
+	MainView.HSplitTop(10.0f, 0, &MainView);
+
+	CUIRect Button;
+	
+	
+	TabBar.HSplitTop(10, &Button, &TabBar);
+	TabBar.HSplitTop(30, &Button, &TabBar);
+	static int s_PlayButton=0;
+	if(DoButton_Menu(&s_PlayButton, Localize("Play"), 0, &Button) || m_EnterPressed)
+	{
+		ServerBrowser()->Refresh(IServerBrowser::TYPE_INTERNET);
+		g_Config.m_UiPage = PAGE_INTERNET;
+	}
+	
+	TabBar.HSplitTop(10, &Button, &TabBar);
+	TabBar.HSplitTop(30, &Button, &TabBar);
+	static int s_CustomizeButton=0;
+	if(DoButton_Menu(&s_CustomizeButton, Localize("Customize"), 0, &Button))
+		g_Config.m_UiPage = PAGE_CUSTOMIZE;
+	
+	TabBar.HSplitTop(10, &Button, &TabBar);
+	TabBar.HSplitTop(30, &Button, &TabBar);
+	static int s_EditorButton=0;
+	if(DoButton_Menu(&s_EditorButton, Localize("Editor"), 0, &Button))
+		g_Config.m_ClEditor = g_Config.m_ClEditor^1;
+	
+	TabBar.HSplitTop(10, &Button, &TabBar);
+	TabBar.HSplitTop(30, &Button, &TabBar);
+	static int s_SettingsButton=0;
+	if(DoButton_Menu(&s_SettingsButton, Localize("Settings"), 0, &Button))
+		g_Config.m_UiPage = PAGE_SETTINGS;
+	
+	TabBar.HSplitTop(10, &Button, &TabBar);
+	TabBar.HSplitTop(30, &Button, &TabBar);
+	static int s_QuitButton=0;
+	if(DoButton_Menu(&s_QuitButton, Localize("Quit"), 0, &Button))
+		m_Popup = POPUP_QUIT;
+}
+
+
+
+
 int CMenus::Render()
 {
 	CUIRect Screen = *UI()->Screen();
@@ -813,14 +922,28 @@ int CMenus::Render()
 		// do tab bar
 		Screen.HSplitTop(24.0f, &TabBar, &MainView);
 		TabBar.VMargin(20.0f, &TabBar);
+
+		if(g_Config.m_UiPage == PAGE_FRONT)
+		{
+			RenderFront(MainView);
+			return 0;
+		}
+		else if(g_Config.m_UiPage == PAGE_CUSTOMIZE)
+		{
+			RenderCustomize(MainView);
+			return 0;
+		}
+		
 		RenderMenubar(TabBar);
 
+		/*
 		// news is not implemented yet
 		if(g_Config.m_UiPage <= PAGE_NEWS || g_Config.m_UiPage > PAGE_SETTINGS || (Client()->State() == IClient::STATE_OFFLINE && g_Config.m_UiPage >= PAGE_GAME && g_Config.m_UiPage <= PAGE_CALLVOTE))
 		{
 			ServerBrowser()->Refresh(IServerBrowser::TYPE_INTERNET);
 			g_Config.m_UiPage = PAGE_INTERNET;
 		}
+		*/
 
 		// render current page
 		if(Client()->State() != IClient::STATE_OFFLINE)
@@ -835,6 +958,8 @@ int CMenus::Render()
 				RenderServerControl(MainView);
 			else if(m_GamePage == PAGE_SETTINGS)
 				RenderSettings(MainView);
+			else if(m_GamePage == PAGE_CUSTOMIZE)
+				RenderCustomize(MainView);
 		}
 		else if(g_Config.m_UiPage == PAGE_NEWS)
 			RenderNews(MainView);
@@ -848,6 +973,8 @@ int CMenus::Render()
 			RenderServerbrowser(MainView);
 		else if(g_Config.m_UiPage == PAGE_SETTINGS)
 			RenderSettings(MainView);
+		else if(g_Config.m_UiPage == PAGE_CUSTOMIZE)
+			RenderCustomize(MainView);
 	}
 	else
 	{
@@ -1635,6 +1762,7 @@ void CMenus::RenderBackground()
 	*/
 
 	// render background image
+	/*
 	Graphics()->TextureSet(gs_TextureBlob);
 	Graphics()->QuadsBegin();
 		Graphics()->SetColor(0.2f, 0.2f, 0.2f, 0.5f);
@@ -1642,6 +1770,7 @@ void CMenus::RenderBackground()
 		QuadItem = IGraphics::CQuadItem(100, 100, sw-200, sh-200);
 		Graphics()->QuadsDrawTL(&QuadItem, 1);
 	Graphics()->QuadsEnd();
+	*/
 	
 	// restore screen
 	{CUIRect Screen = *UI()->Screen();

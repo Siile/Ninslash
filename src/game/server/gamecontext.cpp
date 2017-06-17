@@ -23,6 +23,7 @@
 #include <game/server/entities/projectile.h>
 #include <game/server/entities/building.h>
 #include <game/server/entities/turret.h>
+#include <game/server/entities/teslacoil.h>
 #include <game/server/entities/monster.h>
 #include <game/server/entities/superexplosion.h>
 
@@ -68,6 +69,7 @@ void CGameContext::Construct(int Resetting)
 	m_aMostInterestingPlayer[1] = -1;
 	
 	m_ShowWaypoints = false;
+	m_ShowAiState = false;
 	m_FreezeCharacters = false;
 
 	if(Resetting==NO_RESET)
@@ -205,7 +207,7 @@ void CGameContext::CreateEffect(int FX, vec2 Pos)
 
 
 
-bool CGameContext::AddBuilding(int Kit, vec2 Pos)
+bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
 {
 	//float OffsetY = -(int(Pos.y)%32) + 12;
 	float CheckRange = 40.0f;
@@ -249,6 +251,13 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos)
 	if (Kit == BUILDABLE_LIGHTNINGWALL)
 	{
 			new CBuilding(&m_World, Pos+vec2(0, -14), BUILDING_LIGHTNINGWALL, TEAM_NEUTRAL);
+			return true;
+	}
+	
+	if (Kit == BUILDABLE_TESLACOIL)
+	{
+			CTeslacoil *Tesla = new CTeslacoil(&m_World, Pos+vec2(0, +35), m_apPlayers[Owner]->GetTeam());
+			Tesla->m_DamageOwner = Owner;
 			return true;
 	}
 	
@@ -346,6 +355,15 @@ void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, int PowerLevel
 		{
 			CBuilding *pTarget = apEnts[i];
 			
+			// skip own buildings in co-op
+			if (m_pController->IsCoop() && (pTarget->m_Type == BUILDING_TURRET || pTarget->m_Type == BUILDING_TESLACOIL || pTarget->m_Type == BUILDING_REACTOR))
+				if (DamageOwner >= 0 && DamageOwner < MAX_CLIENTS)
+				{
+					CPlayer *pPlayer = m_apPlayers[DamageOwner];
+					if(pPlayer && !pPlayer->m_IsBot)
+						continue;
+				}
+			
 			if (pTarget->m_Collision)
 			{
 				pTarget->TakeDamage(aCustomWeapon[Weapon].m_Damage*Dmg, DamageOwner, Weapon);
@@ -416,6 +434,15 @@ void CGameContext::CreateScytheHit(int DamageOwner, int Weapon, int PowerLevel, 
 		{
 			CBuilding *pTarget = apEnts[i];
 			
+			// skip own buildings in co-op
+			if (m_pController->IsCoop() && (pTarget->m_Type == BUILDING_TURRET || pTarget->m_Type == BUILDING_TESLACOIL || pTarget->m_Type == BUILDING_REACTOR))
+				if (DamageOwner >= 0 && DamageOwner < MAX_CLIENTS)
+				{
+					CPlayer *pPlayer = m_apPlayers[DamageOwner];
+					if(pPlayer && !pPlayer->m_IsBot)
+						continue;
+				}
+			
 			if (pTarget->m_Collision)
 			{
 				pTarget->TakeDamage(aCustomWeapon[Weapon].m_Damage, DamageOwner, Weapon);
@@ -438,7 +465,8 @@ void CGameContext::CreateFlamethrowerHit(int DamageOwner, int Weapon, int PowerL
 {
 	int ProximityRadius = CCharacter::ms_PhysSize;
 	
-	float dmg = OwnerBuilding ? 0.5f : 1.0f;
+	//float dmg = OwnerBuilding ? 0.5f : 1.0f;
+	float dmg = 1.0f;
 
 	float Dmg = 1.0f * (1.0f + PowerLevel * 0.5f);
 	
@@ -499,6 +527,15 @@ void CGameContext::CreateFlamethrowerHit(int DamageOwner, int Weapon, int PowerL
 		for (int i = 0; i < Num; ++i)
 		{
 			CBuilding *pTarget = apEnts[i];
+			
+			// skip own buildings in co-op
+			if (m_pController->IsCoop() && (pTarget->m_Type == BUILDING_TURRET || pTarget->m_Type == BUILDING_TESLACOIL || pTarget->m_Type == BUILDING_REACTOR))
+				if (DamageOwner >= 0 && DamageOwner < MAX_CLIENTS)
+				{
+					CPlayer *pPlayer = m_apPlayers[DamageOwner];
+					if(pPlayer && !pPlayer->m_IsBot)
+						continue;
+				}
 			
 			if (pTarget->m_Collision)
 			{
@@ -688,6 +725,15 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, int PowerLev
 
 			for(int i = 0; i < Num; i++)
 			{
+				// skip own buildings in co-op
+				if (m_pController->IsCoop() && (apBuildings[i]->m_Type == BUILDING_TURRET || apBuildings[i]->m_Type == BUILDING_TESLACOIL || apBuildings[i]->m_Type == BUILDING_REACTOR))
+					if (Owner >= 0 && Owner < MAX_CLIENTS)
+					{
+						CPlayer *pPlayer = m_apPlayers[Owner];
+						if(pPlayer && !pPlayer->m_IsBot)
+							continue;
+					}
+				
 				vec2 Diff = apBuildings[i]->m_Pos - Pos;
 				float l = length(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
@@ -986,6 +1032,15 @@ void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, int 
 
 			for(int i = 0; i < Num; i++)
 			{
+				// skip own buildings in co-op
+				if (m_pController->IsCoop() && (apBuildings[i]->m_Type == BUILDING_TURRET || apBuildings[i]->m_Type == BUILDING_TESLACOIL || apBuildings[i]->m_Type == BUILDING_REACTOR))
+					if (Owner >= 0 && Owner < MAX_CLIENTS)
+					{
+						CPlayer *pPlayer = m_apPlayers[Owner];
+						if(pPlayer && !pPlayer->m_IsBot)
+							continue;
+					}
+				
 				vec2 Diff = apBuildings[i]->m_Pos - Pos;
 				float l = length(Diff);
 				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
@@ -1292,6 +1347,7 @@ void CGameContext::CheckPureTuning()
 
 	if(	str_comp(m_pController->m_pGameType, "DM")==0 ||
 		str_comp(m_pController->m_pGameType, "TDM")==0 ||
+		str_comp(m_pController->m_pGameType, "DEF")==0 ||
 		str_comp(m_pController->m_pGameType, "INF")==0 ||
 		str_comp(m_pController->m_pGameType, "INV")==0 ||
 		str_comp(m_pController->m_pGameType, "GUN")==0 ||
@@ -1823,6 +1879,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				SkipSending = true;
 			}
 			
+			if ( strcmp(pMsg->m_pMessage, "/showaistate") == 0 )
+			{
+				m_ShowAiState = !m_ShowAiState;
+				SkipSending = true;
+			}
+			
 			
 		
 			if (!SkipSending)
@@ -2200,7 +2262,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		{
 			// limit players to 4 in invasion
 			if (m_pController->IsCoop() && m_pController->CountHumans() > 4)
-				Server()->Kick(ClientID, "Server full - max 4 players in invasion");
+				Server()->Kick(ClientID, "Server full - max 4 players in co-op modes");
 			
 			if(pPlayer->m_IsReady)
 				return;

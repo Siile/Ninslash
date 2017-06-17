@@ -10,6 +10,7 @@
 #include "entities/pickup.h"
 #include "entities/character.h"
 #include "entities/turret.h"
+#include "entities/teslacoil.h"
 #include "entities/building.h"
 #include "entities/deathray.h"
 #include "entities/powerupper.h"
@@ -619,6 +620,16 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		new CBuilding(&GameServer()->m_World, Pos, BUILDING_LIGHTNINGWALL, TEAM_NEUTRAL);
 		return true;
 	}
+	else if (Index == ENTITY_REACTOR)
+	{
+		new CBuilding(&GameServer()->m_World, Pos, BUILDING_REACTOR, TEAM_NEUTRAL);
+		return true;
+	}
+	else if (Index == ENTITY_TESLACOIL)
+	{
+		new CTeslacoil(&GameServer()->m_World, Pos, TEAM_NEUTRAL);
+		return true;
+	}
 	else if (Index == ENTITY_LAZER)
 	{
 		new CDeathray(&GameServer()->m_World, Pos+vec2(0, -20));
@@ -1163,6 +1174,16 @@ void IGameController::OnPlayerInfoChange(class CPlayer *pP)
 
 int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
 {
+	if (g_Config.m_SvSurvivalMode)
+	{
+		// update spectator modes
+		for(int i = 0; i < MAX_CLIENTS; ++i)
+		{
+			if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->m_SpectatorID == pVictim->GetPlayer()->GetCID())
+				GameServer()->m_apPlayers[i]->m_SpectatorID = SPEC_FREEVIEW;
+		}
+	}
+	
 	if (g_Config.m_SvSurvivalMode && Weapon != WEAPON_GAME)
 	{
 		if (!IsCoop() || !pVictim->m_IsBot)

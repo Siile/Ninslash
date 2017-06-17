@@ -1,0 +1,41 @@
+
+reactor.png
+size: 256,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+core
+  rotate: true
+  xy: 2, 2
+  size: 49, 48
+  orig: 49, 48
+  offset: 0, 0
+  index: -1
+engine
+  rotate: false
+  xy: 202, 122
+  size: 44, 132
+  orig: 44, 132
+  offset: 0, 0
+  index: -1
+frame
+  rotate: false
+  xy: 2, 53
+  size: 94, 201
+  orig: 94, 201
+  offset: 0, 0
+  index: -1
+glow1
+  rotate: true
+  xy: 98, 12
+  size: 66, 133
+  orig: 66, 133
+  offset: 0, 0
+  index: -1
+glow2
+  rotate: false
+  xy: 98, 80
+  size: 102, 174
+  orig: 102, 174
+  offset: 0, 0
+  index: -1

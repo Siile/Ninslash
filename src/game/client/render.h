@@ -243,7 +243,7 @@ public:
 	void RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, class CSkeletonAnimation *AnimData, float Rotation, CAnimSkeletonInfo *pSkeleton, CTextureAtlas *pAtlas, class CPlayerInfo *PlayerInfo = NULL);
 	void RenderBuilding(vec2 Position, CAnimSkeletonInfo *pSkeleton, CTextureAtlas *pAtlas, int Team, int WeaponAngle = 0);
 
-	void RenderSkeleton(vec2 Pos, int Atlas, const char *Anim, float Time, vec2 Scale, int Dir, float Angle);
+	void RenderSkeleton(vec2 Pos, int Atlas, const char *Anim, float Time, vec2 Scale, int Dir, float Angle, int Team = -1);
 	
 	template<typename TKeyframe>
 	static void RenderEvalSkeletonAnim(TKeyframe *pKeyFrame, int NumKeyframes, float Time, typename TKeyframe::KeyframeReturnType *pResult);

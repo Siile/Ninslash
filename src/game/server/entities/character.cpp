@@ -13,6 +13,7 @@
 #include "superexplosion.h"
 #include "monster.h"
 #include "laserfail.h"
+#include "staticlaser.h"
 
 #include <game/weapons.h>
 #include <game/buildables.h>
@@ -105,6 +106,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_ChangeDirTick = 0;
 	m_LastDir = 0;
 	m_ScytheTick = 0;
+	m_DamageSoundTimer = 0;
 	
 	m_ShieldHealth = 0;
 	m_ShieldRadius = 0;
@@ -323,14 +325,14 @@ void CCharacter::DropWeapon()
 		float CheckRange = 48.0f;
 		CBuilding *pNear = NULL;
 		CBuilding *apEnts[16];
-		int Num = GameServer()->m_World.FindEntities(m_Pos, 32, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
+		int Num = GameServer()->m_World.FindEntities(m_Pos+vec2(0, -20), 40, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
 
 		// check for turret stands
 		for (int i = 0; i < Num; ++i)
 		{
 			CBuilding *pTarget = apEnts[i];
 			
-			if (pTarget->m_Type == BUILDING_STAND && distance(pTarget->m_Pos, m_Pos) < CheckRange)
+			if (pTarget->m_Type == BUILDING_STAND && distance(pTarget->m_Pos, m_Pos+vec2(0, -20)) < CheckRange)
 			{
 				pNear = pTarget;
 				break;
@@ -357,13 +359,13 @@ void CCharacter::DropWeapon()
 			CTurret *pTurret = NULL;
 			CTurret *apTurrets[16];
 			
-			Num = GameServer()->m_World.FindEntities(m_Pos, 32, (CEntity**)apTurrets, 16, CGameWorld::ENTTYPE_BUILDING);
+			Num = GameServer()->m_World.FindEntities(m_Pos+vec2(0, -20), 40, (CEntity**)apTurrets, 16, CGameWorld::ENTTYPE_BUILDING);
 			
 			for (int i = 0; i < Num; ++i)
 			{
 				CTurret *pTarget = apTurrets[i];
 				
-				if (pTarget->m_Type == BUILDING_TURRET && distance(pTarget->m_Pos, m_Pos) < CheckRange)
+				if (pTarget->m_Type == BUILDING_TURRET && distance(pTarget->m_Pos, m_Pos+vec2(0, -20)) < CheckRange)
 				{
 					pTurret = pTarget;
 					break;
@@ -379,7 +381,7 @@ void CCharacter::DropWeapon()
 				if (aCustomWeapon[pTurret->m_Weapon].m_MaxAmmo)
 					AmmoFill = float(pTurret->m_Ammo) / aCustomWeapon[pTurret->m_Weapon].m_MaxAmmo;
 				
-				GameServer()->m_pController->DropPickup(pTurret->m_Pos+vec2(0, -40), POWERUP_WEAPON, vec2(0, -3), pTurret->m_Weapon, AmmoFill, pTurret->m_PowerLevel);
+				GameServer()->m_pController->DropPickup(pTurret->m_Pos+vec2(0, -40*pTurret->m_FlipY), POWERUP_WEAPON, vec2(0, -3), pTurret->m_Weapon, AmmoFill, pTurret->m_PowerLevel);
 
 				if (pTurret->m_Weapon == m_ActiveCustomWeapon && m_aWeapon[m_ActiveCustomWeapon].m_Ammo > 0)
 					GameServer()->AmmoFill(pTurret->m_Pos+vec2(0, -50), m_ActiveCustomWeapon);
@@ -980,6 +982,11 @@ void CCharacter::FireWeapon()
 				{
 					CBuilding *pTarget = apEnts[i];
 
+					// skip own buildings in co-op
+					if (GameServer()->m_pController->IsCoop() && (pTarget->m_Type == BUILDING_TESLACOIL || pTarget->m_Type == BUILDING_TURRET || pTarget->m_Type == BUILDING_REACTOR))
+						if(!m_IsBot)
+							continue;
+					
 					if (!pTarget->m_Collision)
 						continue;
 					
@@ -1036,7 +1043,7 @@ void CCharacter::FireWeapon()
 	// infinite ammo for the dead in infection
 	if (!(GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE))
 	{
-		if(m_aWeapon[m_ActiveCustomWeapon].m_Ammo > 0)
+		if((!GameServer()->m_pController->IsCoop() || !m_IsBot) && m_aWeapon[m_ActiveCustomWeapon].m_Ammo > 0)
 			m_aWeapon[m_ActiveCustomWeapon].m_Ammo--;
 		
 		if (m_ActiveCustomWeapon == WEAPON_RIFLE && m_Type == CCharacter::ROBOT)
@@ -1420,7 +1427,7 @@ void CCharacter::UseKit(int Kit, vec2 Pos)
 	
 	if (m_Kits >= BuildableCost[Kit])
 	{
-		if (GameServer()->AddBuilding(Kit, Pos))
+		if (GameServer()->AddBuilding(Kit, Pos, GetPlayer()->GetCID()))
 		{
 			m_Kits -= BuildableCost[Kit];
 			GameServer()->CreateSound(Pos, SOUND_BUILD);
@@ -1576,6 +1583,16 @@ void CCharacter::Tick()
 	
 	if (m_SkipPickups > 0)
 		m_SkipPickups--;
+	
+	if (m_DamageSoundTimer > 0)
+		m_DamageSoundTimer--;
+	
+	// ugly way to test / visualize waypoints
+	if (!m_IsBot && GameServer()->m_ShowWaypoints)
+	{
+		vec2 WpPos = GameServer()->Collision()->GetClosestWaypointPos(m_Pos);
+		new CStaticlaser(&GameServer()->m_World, m_Pos, WpPos, 2);
+	}
 	
 	
 	/*
@@ -2078,7 +2095,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos,
 				GameServer()->CreateDamageInd(DmgPos, GetAngle(-Force), Dmg * (m_Type == CCharacter::ROBOT ? -1 : 1), m_pPlayer->GetCID());
 			}
 			
-			if (m_Type == CCharacter::ROBOT)
+			if (m_Type == CCharacter::ROBOT && m_DamageSoundTimer <= 0)
 				GameServer()->CreateBuildingHit(DmgPos);
 		}
 		else
@@ -2124,10 +2141,11 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos,
 
 
 	// do damage Hit sound
-	if (Type != DAMAGETYPE_FLAME)
+	if (Type != DAMAGETYPE_FLAME && Weapon != DEATHTYPE_TESLACOIL && !IsTurret && m_DamageSoundTimer <= 0)
 	{
 		if(From >= 0 && From != m_pPlayer->GetCID() && GameServer()->m_apPlayers[From])
 		{
+			m_DamageSoundTimer = 2;
 			GameServer()->m_apPlayers[From]->m_InterestPoints += Dmg * 5;
 			
 			int Mask = CmaskOne(From);

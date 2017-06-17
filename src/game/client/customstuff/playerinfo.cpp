@@ -499,10 +499,8 @@ void CPlayerInfo::Tick()
 	if (m_EffectState >= 1.0f)
 		m_EffectState -= 1.0f;
 	
-	if (m_UpdateTimer++ > 5)
-	{
+	if (m_UpdateTimer++ > 200)
 		m_InUse = false;
-	}
 	
 	if (m_MeleeAnimState > 0.0f)
 	{

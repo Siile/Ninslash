@@ -159,6 +159,8 @@ void CGenLayer::GenerateAirPlatforms(int Num)
 						Set(1, x-s, yy, 0, BACKGROUND);
 						yy--;
 					}
+					
+					Set(1, x-s, yy, 0, BACKGROUND);
 				}
 				
 				Sanity = 0;
@@ -170,11 +172,171 @@ void CGenLayer::GenerateAirPlatforms(int Num)
 						Set(1, x+s-2, yy, 0, BACKGROUND);
 						yy--;
 					}
+					
+					Set(1, x+s-2, yy, 0, BACKGROUND);
 				}
 			}
 		}
 		
 	}
+}
+
+
+void CGenLayer::GenerateSlopes()
+{
+	// top ramp
+	for (int x = 2; x < m_Width-2; x++)
+		for (int y = 6; y < m_Height-2; y++)
+		{
+			if (Get(x, y) && frandom() < 0.5f)
+			{
+				bool Valid = true;
+				
+				int s = 3+rand()%3;
+				
+				for (int xx = x; xx < x + s; xx++)
+					if (!Get(xx, y) || Get(xx, y+1))
+						Valid = false;
+				
+				for (int yy = y-s; yy < y; yy++)
+					if (!Get(x, yy) || Get(x-1, yy))
+						Valid = false;
+				
+				if (Valid)
+					for (int xx = x; xx < x + s; xx++)
+						for (int yy = y-s; yy < y; yy++)
+							if (!Get(xx, yy))
+								Valid = false;
+							
+				if (Valid)
+					for (int yy = y-s; yy < y; yy++)
+						if (!Get(x + s + 1, yy))
+							Valid = false;
+						
+				if (Valid)
+					for (int xx = x; xx < x + s; xx++)
+						if (!Get(xx, y-s-1))
+							Valid = false;
+
+				if (Valid)
+					for (int xx = 0; xx <= s; xx++)
+						for (int yy = 0; yy < xx; yy++)
+							Set(-1, x+s-xx, y-yy);
+			}
+			else if (Get(x, y) && frandom() < 0.5f)
+			{
+				bool Valid = true;
+				
+				int s = 3+rand()%3;
+				
+				for (int xx = x-s; xx < x; xx++)
+					if (!Get(xx, y) || Get(xx, y+1))
+						Valid = false;
+				
+				for (int yy = y-s; yy < y; yy++)
+					if (!Get(x, yy) || Get(x+1, yy))
+						Valid = false;
+				
+				if (Valid)
+					for (int xx = x-s; xx < x; xx++)
+						for (int yy = y-s; yy < y; yy++)
+							if (!Get(xx, yy))
+								Valid = false;
+							
+				if (Valid)
+					for (int yy = y-s; yy < y; yy++)
+						if (!Get(x - s - 1, yy))
+							Valid = false;
+						
+				if (Valid)
+					for (int xx = x-s; xx < x; xx++)
+						if (!Get(xx, y-s-1))
+							Valid = false;
+
+				if (Valid)
+					for (int xx = -s; xx <= 0; xx++)
+						for (int yy = 0; yy < xx+s; yy++)
+							Set(-1, x+xx, y-yy);
+			}
+			
+		}
+	
+	// bottom ramp
+	for (int x = 2; x < m_Width-2; x++)
+		for (int y = 2; y < m_Height-2; y++)
+		{
+			if (Get(x, y) && frandom() < 0.5f)
+			{
+				bool Valid = true;
+				
+				int s = 3+rand()%3;
+				
+				for (int xx = x; xx < x + s; xx++)
+					if (!Get(xx, y) || Get(xx, y-1))
+						Valid = false;
+				
+				for (int yy = y; yy < y + s; yy++)
+					if (!Get(x, yy) || Get(x-1, yy))
+						Valid = false;
+				
+				if (Valid)
+					for (int xx = x; xx < x + s; xx++)
+						for (int yy = y; yy < y + s; yy++)
+							if (!Get(xx, yy))
+								Valid = false;
+							
+				if (Valid)
+					for (int yy = y; yy < y + s; yy++)
+						if (!Get(x + s + 1, yy))
+							Valid = false;
+						
+				if (Valid)
+					for (int xx = x; xx < x + s; xx++)
+						if (!Get(xx, y+s+1))
+							Valid = false;
+
+				if (Valid)
+					for (int xx = 0; xx <= s; xx++)
+						for (int yy = 0; yy < xx; yy++)
+							Set(-1, x+s-xx, y+yy);
+			}
+			else if (Get(x, y) && frandom() < 0.5f)
+			{
+				bool Valid = true;
+				
+				int s = 3+rand()%3;
+				
+				for (int xx = x-s; xx < x; xx++)
+					if (!Get(xx, y) || Get(xx, y-1))
+						Valid = false;
+				
+				for (int yy = y; yy < y + s; yy++)
+					if (!Get(x, yy) || Get(x+1, yy))
+						Valid = false;
+				
+				if (Valid)
+					for (int xx = x-s; xx < x; xx++)
+						for (int yy = y; yy < y + s; yy++)
+							if (!Get(xx, yy))
+								Valid = false;
+							
+				if (Valid)
+					for (int yy = y; yy < y + s; yy++)
+						if (!Get(x - s - 1, yy))
+							Valid = false;
+						
+				if (Valid)
+					for (int xx = x-s; xx < x; xx++)
+						if (!Get(xx, y+s+1))
+							Valid = false;
+
+				if (Valid)
+					for (int xx = -s; xx <= 0; xx++)
+						for (int yy = 0; yy < xx+s; yy++)
+							Set(-1, x+xx, y+yy);
+			}
+			
+		}
 }
 
 
@@ -282,6 +444,15 @@ void CGenLayer::Scan()
 							Valid = false;
 							break;
 						}
+				
+				// check borders
+				for (int ay = py; ay < y; ay++)
+				{
+					if (!Get(x-1, ay))
+						Valid = false;
+					else if (!Get(px+1, ay))
+						Valid = false;
+				}
 				
 				if (abs(x-px) < 3 || abs(y-py) < 2)
 					Valid = false;

@@ -295,6 +295,7 @@ void CPlayer::Snap(int SnappingClient)
 	pPlayerInfo->m_ClientID = m_ClientID;
 	pPlayerInfo->m_Score = m_Score;
 	pPlayerInfo->m_Team = m_Team;
+	pPlayerInfo->m_Spectating = 0;
 		
 	/*
 	if (pPlayerInfo->m_Team != TEAM_SPECTATORS)
@@ -364,10 +365,14 @@ void CPlayer::Snap(int SnappingClient)
 	}
 	*/
 	
+	if (g_Config.m_SvSurvivalMode && !GetCharacter() && m_DieTick < Server()->Tick() - Server()->TickSpeed()*1)
+		pPlayerInfo->m_Spectating = 1;
+	
 	//if(m_ClientID == SnappingClient && m_Team == TEAM_SPECTATORS)
 	if(m_ClientID == SnappingClient && Spectating())
 	{
 		pPlayerInfo->m_Team = TEAM_SPECTATORS;
+		pPlayerInfo->m_Spectating = 1;
 		
 		CNetObj_SpectatorInfo *pSpectatorInfo = static_cast<CNetObj_SpectatorInfo *>(Server()->SnapNewItem(NETOBJTYPE_SPECTATORINFO, m_ClientID, sizeof(CNetObj_SpectatorInfo)));
 		if(!pSpectatorInfo)
@@ -768,7 +773,7 @@ void CPlayer::SetCustomSkin(int Type)
 			GetCharacter()->m_Type = CCharacter::ROBOT;
 	}
 	
-	// robo
+	// black robo
 	if (Type == 3)
 	{
 		m_TeeInfos.m_Body = 2;
@@ -875,6 +880,69 @@ void CPlayer::SetCustomSkin(int Type)
 		m_TeeInfos.m_ColorSkin = 9109359;
 		m_TeeInfos.m_ColorBody = 9823232;
 		m_TeeInfos.m_ColorFeet = 9809408;
+		
+		if (!GameServer()->m_pController->IsCoop())
+		{
+			char aBotName[128];
+			str_format(aBotName, sizeof(aBotName), "%s%s", aBotName1[rand()%(sizeof(aBotName1)/sizeof(aBotName1[0]))], aBotName2[rand()%(sizeof(aBotName2)/sizeof(aBotName2[0]))]);
+			GameServer()->Server()->SetClientName(GetCID(), aBotName);
+		}
+	}
+	
+	// golden robo
+	if (Type == 8)
+	{
+		m_TeeInfos.m_Body = 2;
+		m_TeeInfos.m_BloodColor = 2;
+		m_TeeInfos.m_ColorTopper = 2752256;
+		m_TeeInfos.m_ColorSkin = m_TeeInfos.m_ColorTopper;
+		m_TeeInfos.m_ColorBody = m_TeeInfos.m_ColorTopper;
+		m_TeeInfos.m_ColorFeet = m_TeeInfos.m_ColorTopper;
+		str_copy(m_TeeInfos.m_TopperName, "none", 64);
+		str_copy(m_TeeInfos.m_EyeName, "robo1", 64);
+		
+		if (!GameServer()->m_pController->IsCoop())
+		{
+			char aBotName[128];
+			str_format(aBotName, sizeof(aBotName), "%u%u%u%u%u%u%u%u", rand()%2, rand()%2, rand()%2, rand()%2, rand()%2, rand()%2, rand()%2, rand()%2);
+			GameServer()->Server()->SetClientName(GetCID(), aBotName);
+		}
+		
+		if (GetCharacter())
+			GetCharacter()->m_Type = CCharacter::ROBOT;
+	}
+	
+	// pyro1
+	if (Type == 9)
+	{
+		m_TeeInfos.m_Body = 6;
+		m_TeeInfos.m_BloodColor = 0;
+		m_TeeInfos.m_ColorTopper = 0;
+		m_TeeInfos.m_ColorSkin = 2752256;
+		m_TeeInfos.m_ColorBody = 65280;
+		m_TeeInfos.m_ColorFeet = 0;
+		str_copy(m_TeeInfos.m_TopperName, "none", 64);
+		str_copy(m_TeeInfos.m_EyeName, "gas3", 64);
+		
+		if (!GameServer()->m_pController->IsCoop())
+		{
+			char aBotName[128];
+			str_format(aBotName, sizeof(aBotName), "%s%s", aBotName1[rand()%(sizeof(aBotName1)/sizeof(aBotName1[0]))], aBotName2[rand()%(sizeof(aBotName2)/sizeof(aBotName2[0]))]);
+			GameServer()->Server()->SetClientName(GetCID(), aBotName);
+		}
+	}
+	
+	// pyro2
+	if (Type == 10)
+	{
+		m_TeeInfos.m_Body = 6;
+		m_TeeInfos.m_BloodColor = 0;
+		m_TeeInfos.m_ColorTopper = 0;
+		m_TeeInfos.m_ColorSkin = 0;
+		m_TeeInfos.m_ColorBody = 0;
+		m_TeeInfos.m_ColorFeet = 0;
+		str_copy(m_TeeInfos.m_TopperName, "horn", 64);
+		str_copy(m_TeeInfos.m_EyeName, "robo3", 64);
 		
 		if (!GameServer()->m_pController->IsCoop())
 		{

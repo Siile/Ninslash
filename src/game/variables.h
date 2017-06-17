@@ -22,6 +22,8 @@ MACRO_CONFIG_INT(ClThreadsoundloading, cl_threadsoundloading, 0, 0, 1, CFGFLAG_C
 
 MACRO_CONFIG_INT(ClWarningTeambalance, cl_warning_teambalance, 1, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Warn about team balance")
 
+MACRO_CONFIG_INT(ClLighting, cl_lighting, 0, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Environmental lighting")
+
 MACRO_CONFIG_INT(ClMouseDeadzone, cl_mouse_deadzone, 0, 0, 0, CFGFLAG_CLIENT|CFGFLAG_SAVE, "")
 MACRO_CONFIG_INT(ClMouseFollowfactor, cl_mouse_followfactor, 0, 0, 200, CFGFLAG_CLIENT|CFGFLAG_SAVE, "")
 MACRO_CONFIG_INT(ClMouseMaxDistance, cl_mouse_max_distance, 400, 0, 0, CFGFLAG_CLIENT|CFGFLAG_SAVE, "")
@@ -46,7 +48,8 @@ MACRO_CONFIG_STR(PlayerEye, player_eye, 24, "default", CFGFLAG_CLIENT|CFGFLAG_SA
 MACRO_CONFIG_INT(PlayerBody, player_body, 0, 0, 6, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player body")
 MACRO_CONFIG_INT(PlayerBloodColor, blood_color, 0, 0, 3, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Blood color")
 
-MACRO_CONFIG_INT(UiPage, ui_page, 6, 0, 10, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Interface page")
+//MACRO_CONFIG_INT(UiPage, ui_page, 6, 0, 10, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Interface page")
+MACRO_CONFIG_INT(UiPage, ui_page, 1, 0, 25, CFGFLAG_CLIENT, "Interface page")
 MACRO_CONFIG_INT(UiToolboxPage, ui_toolbox_page, 0, 0, 2, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Toolbox page")
 MACRO_CONFIG_STR(UiServerAddress, ui_server_address, 64, "localhost:8303", CFGFLAG_CLIENT|CFGFLAG_SAVE, "Interface server address")
 MACRO_CONFIG_INT(UiScale, ui_scale, 100, 50, 150, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Interface scale")

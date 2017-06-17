@@ -245,6 +245,12 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 			Graphics()->QuadsEnd();
 		}
 
+
+		if (pInfo->m_Spectating)
+			TextRender()->TextColor(0.4f, 0.4f, 0.4f, 1);
+		else
+			TextRender()->TextColor(1, 1, 1, 1);
+		
 		// score
 		str_format(aBuf, sizeof(aBuf), "%d", clamp(pInfo->m_Score, -999, 999));
 		tw = TextRender()->TextWidth(0, FontSize, aBuf, -1);
@@ -279,7 +285,7 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 		TextRender()->SetCursor(&Cursor, NameOffset, y+Spacing, FontSize, TEXTFLAG_RENDER|TEXTFLAG_STOP_AT_END);
 		Cursor.m_LineWidth = NameLength;
 		TextRender()->TextEx(&Cursor, m_pClient->m_aClients[pInfo->m_ClientID].m_aName, -1);
-
+		
 		// clan
 		tw = TextRender()->TextWidth(0, FontSize, m_pClient->m_aClients[pInfo->m_ClientID].m_aClan, -1);
 		TextRender()->SetCursor(&Cursor, ClanOffset+ClanLength/2-tw/2, y+Spacing, FontSize, TEXTFLAG_RENDER|TEXTFLAG_STOP_AT_END);
@@ -302,6 +308,8 @@ void CScoreboard::RenderScoreboard(float x, float y, float w, int Team, const ch
 		}
 
 		y += LineHeight+Spacing;
+		
+		TextRender()->TextColor(1, 1, 1, 1);
 	}
 }
 

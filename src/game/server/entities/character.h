@@ -280,6 +280,7 @@ private:
 	bool m_IgnoreCollision;
 	
 	int m_DeathrayTick;
+	int m_DamageSoundTimer;
 	
 	int m_LastStatusEffect;
 	

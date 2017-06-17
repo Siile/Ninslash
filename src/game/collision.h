@@ -67,6 +67,8 @@ public:
 		SS_COL_HR=5,
 	};
 	
+	vec2 GetClosestWaypointPos(vec2 Pos);
+	
 	bool IsTileSolid(int x, int y, bool IncludeDeath = false);
 	
 	void GenerateWaypoints();

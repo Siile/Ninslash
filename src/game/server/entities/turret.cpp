@@ -33,6 +33,14 @@ CTurret::CTurret(CGameWorld *pGameWorld, vec2 Pos, int Team, int Weapon)
 		m_Weapon = 0;
 	
 	m_Center = vec2(0, -40);
+	m_FlipY = 1;
+	
+	if (GameServer()->Collision()->IsTileSolid(Pos.x, Pos.y - 40))
+	{
+		m_Mirror = true;
+		m_Center = vec2(0, +40);
+		m_FlipY = -1;
+	}
 }
 
 
@@ -71,7 +79,7 @@ void CTurret::Tick()
 			
 		if (m_Life <= 0 && m_DeathTimer <= 0)
 		{
-			GameServer()->CreateExplosion(m_Pos + vec2(0, -48), m_DamageOwner, 0, WEAPON_HAMMER, false, false);
+			GameServer()->CreateExplosion(m_Pos + vec2(0, -48), m_DamageOwner, WEAPON_HAMMER, 0, false, false);
 			//GameServer()->CreateExplosion(m_Pos, m_DamageOwner, WEAPON_HAMMER, false, false);
 			GameServer()->CreateSound(m_Pos + vec2(0, -48), SOUND_GRENADE_EXPLODE);
 			//GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
@@ -109,13 +117,26 @@ void CTurret::Tick()
 	if (TargetAngle < 0)
 		TargetAngle += 360;
 	
-	if (m_Angle < TargetAngle+1)
-		m_Angle += 2;
-	else if (m_Angle > TargetAngle-1)
+	if (m_Angle < 90 && TargetAngle > 270)
+	{
 		m_Angle -= 2;
+	}
+	else if (m_Angle > 270 && TargetAngle < 90)
+	{
+		m_Angle += 2;
+	}
+	else
+	{
+		if (m_Angle < TargetAngle+1)
+			m_Angle += 2;
+		else if (m_Angle > TargetAngle-1)
+			m_Angle -= 2;
+	}
 	
 	if (m_Angle < 0)
 		m_Angle += 360;
+	if (m_Angle > 360)
+		m_Angle -= 360;
 	
 	if (WillFire && abs(m_Angle - TargetAngle) < 30)
 		Fire();
@@ -132,7 +153,7 @@ void CTurret::Tick()
 		float Angle = (m_Angle + 90) / (180/pi);
 		vec2 Dir = vec2(cosf(Angle), sinf(Angle));
 		
-		vec2 TurretPos = m_Pos+vec2(0, -54);
+		vec2 TurretPos = m_Pos+vec2(0, -54*m_FlipY);
 		GameServer()->CreateChainsawHit(m_OwnerPlayer, m_Weapon, m_PowerLevel, TurretPos, TurretPos+Dir*40, NULL, this);
 	}
 	
@@ -150,7 +171,7 @@ void CTurret::Flamethrower()
 		float Angle = (m_Angle + 90) / (180/pi);
 		vec2 Dir = vec2(cosf(Angle), sinf(Angle));
 		
-		vec2 OffsetY = vec2(0, -48);
+		vec2 OffsetY = vec2(0, -48*m_FlipY);
 		
 		vec2 StartPos = m_Pos+Dir*28*3.0f + OffsetY;
 		
@@ -176,7 +197,7 @@ void CTurret::Fire()
 		m_ReloadTimer = aCustomWeapon[m_Weapon].m_BulletReloadTime * Server()->TickSpeed() / 1000;
 		m_Ammo--;
 		
-		vec2 TurretPos = m_Pos+vec2(0, -52.5f);
+		vec2 TurretPos = m_Pos+vec2(0, -52.5f*m_FlipY);
 		float Angle = (m_Angle + 90) / (180/pi);
 		
 		vec2 Dir = vec2(cosf(Angle), sinf(Angle));
@@ -212,7 +233,7 @@ void CTurret::DelayedFire()
 	{
 		m_DelayedShotgunTick = 0;
 		
-		vec2 TurretPos = m_Pos+vec2(0, -52.5f);
+		vec2 TurretPos = m_Pos+vec2(0, -52.5f*m_FlipY);
 		float Angle = (m_Angle + 90) / (180/pi);
 		vec2 Dir = vec2(cosf(Angle), sinf(Angle));
 		
@@ -226,7 +247,7 @@ void CTurret::DelayedFire()
 
 bool CTurret::Target()
 {
-	vec2 TurretPos = m_Pos+vec2(0, -67);
+	vec2 TurretPos = m_Pos+vec2(0, -67*m_FlipY);
 	
 	if (m_TargetIndex >= 0 && m_TargetIndex < MAX_CLIENTS)
 	{
@@ -261,7 +282,7 @@ bool CTurret::FindTarget()
 	m_TargetIndex = -1;
 	CCharacter *pClosestCharacter = NULL;
 	int ClosestDistance = 0;
-	vec2 TurretPos = m_Pos+vec2(0, -67);
+	vec2 TurretPos = m_Pos+vec2(0, -67*m_FlipY);
 	
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -280,6 +301,9 @@ bool CTurret::FindTarget()
 			continue;
 		
 		if (GameServer()->m_pController->IsCoop() && !pCharacter->m_IsBot)
+			continue;
+		
+		if (pCharacter->Invisible())
 			continue;
 			
 		int Distance = distance(pCharacter->m_Pos, TurretPos);

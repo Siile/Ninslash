@@ -186,6 +186,7 @@ protected:
 	
 	bool SeekRandomEnemy();
 	bool SeekClosestFriend(bool OnlyUnharmed = false);
+	bool SeekClosestReactor();
 	bool SeekClosestHuman();
 	bool SeekClosestEnemy();
 	bool SeekClosestEnemyInSight();

@@ -347,9 +347,9 @@ bool CAI::UpdateWaypoint()
 		m_pVisible = m_pVisible->GetVisible(GameServer(), m_Pos-vec2(0, 16));
 		
 		m_WayVisibleUpdateTick = GameServer()->Server()->Tick();
-		
-		//if (GameServer()->m_ShowWaypoints)
-		//	new CStaticlaser(&GameServer()->m_World, m_Pos, m_WaypointPos, 10);
+
+		if (GameServer()->m_ShowWaypoints)
+			new CStaticlaser(&GameServer()->m_World, m_Pos, m_WaypointPos, 10);
 	}
 
 	
@@ -503,6 +503,25 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 
 	bool OnWall = Player()->GetCharacter()->GetCore().m_OnWall;
 	
+	if (GameServer()->m_ShowAiState)
+	{
+		vec2 wpPos = vec2(0, 0);
+		
+		switch (m_MoveType)
+		{
+			case MOVE_LEFT: wpPos = vec2(-1, 0); break;
+			case MOVE_RIGHT: wpPos = vec2(1, 0); break;
+			case MOVE_UP: wpPos = vec2(0, -1); break;
+			case MOVE_UPLEFT: wpPos = vec2(-1, -1); break;
+			case MOVE_UPRIGHT: wpPos = vec2(1, -1); break;
+			
+			default: wpPos = vec2(0, 0); break;
+			
+		};
+		
+		new CStaticlaser(&GameServer()->m_World, m_Pos, m_Pos+wpPos*Player()->GetCharacter()->GetCore().m_JetpackPower/2, 5);
+	}
+	
 	// handle basic movements
 	int LastMoveType = -1;
 	int i = 0;
@@ -517,10 +536,10 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 			case MOVE_IDLE:
 			{
 				m_Move = 0;
-				
-				if (rand()%5 == 2)
+					
+				if (rand()%9 == 2)
 					m_Move = -1;
-				else if (rand()%5 == 2)
+				else if (rand()%9 == 2)
 					m_Move = 1;
 			}
 			break;
@@ -540,7 +559,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				
 				if (!OnWall)
 				{
-					if (m_EnemiesInSight > 0 && Player()->GetCharacter()->GetCore().m_JetpackPower > 50 && abs(Player()->GetCharacter()->GetCore().m_Vel.x) < 12)
+					if (m_EnemiesInSight > 0 && Player()->GetCharacter()->GetCore().m_JetpackPower > 150 && abs(Player()->GetCharacter()->GetCore().m_Vel.x) < 12)
 					{
 						m_Hook = 1;
 						m_Direction = m_WaypointDir;
@@ -569,7 +588,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				
 				if (!OnWall)
 				{
-					if (m_EnemiesInSight > 0 && Player()->GetCharacter()->GetCore().m_JetpackPower > 50 && abs(Player()->GetCharacter()->GetCore().m_Vel.x) < 12)
+					if (m_EnemiesInSight > 0 && Player()->GetCharacter()->GetCore().m_JetpackPower > 150 && abs(Player()->GetCharacter()->GetCore().m_Vel.x) < 12)
 					{
 						m_Hook = 1;
 						m_Direction = m_WaypointDir;
@@ -599,9 +618,20 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				m_Jump = 1;
 				m_Move = -1;
 				
-				int Treshold = 40;
+				int Treshold = 100;
 				if (Player()->GetCharacter()->IsGrounded())
-					Treshold += 30;
+				{
+					Treshold += 50;
+					
+					// load jetpack for a while if needed
+					if (Player()->GetCharacter()->GetCore().m_JetpackPower < 100)
+					{
+						m_Move = 0;
+						m_Hook = 0;
+						m_Jump = 0;
+						Treshold = 500;
+					}
+				}
 				
 				if (Player()->GetCharacter()->GetCore().m_JetpackPower > Treshold)
 				{
@@ -626,9 +656,20 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				m_Jump = 1;
 				m_Move = 1;
 				
-				int Treshold = 40;
+				int Treshold = 100;
 				if (Player()->GetCharacter()->IsGrounded())
-					Treshold += 30;
+				{
+					Treshold += 50;
+					
+					// load jetpack for a while if needed
+					if (Player()->GetCharacter()->GetCore().m_JetpackPower < 100)
+					{
+						m_Move = 0;
+						m_Hook = 0;
+						m_Jump = 0;
+						Treshold = 500;
+					}
+				}
 				
 				if (Player()->GetCharacter()->GetCore().m_JetpackPower > Treshold)
 				{
@@ -653,7 +694,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				
 				if (Player()->GetCharacter()->IsGrounded())
 				{
-					if (Player()->GetCharacter()->GetCore().m_JetpackPower > 95)
+					if (Player()->GetCharacter()->GetCore().m_JetpackPower > 150)
 					{
 						m_Jump = 1;
 						if (rand()%6 == 2)
@@ -673,21 +714,40 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 					if (Player()->GetCharacter()->GetCore().m_JetpackPower > 50)
 					{
 						m_Hook = 1;
-						m_Direction = vec2(-1, 0);
+						m_Direction = vec2(0, -1);
 					}
 					
-					m_Jump = 1;
+					if (Player()->GetCharacter()->GetCore().m_JetpackPower > 20)
+						m_Jump = 1;
 					
 					if (Player()->GetCharacter()->GetCore().m_OnWall)
 					{
 						m_Jump = 1;
-						m_Move *= -1;
+						//m_Move *= -1;
 					}
 					
+					if (GameServer()->Collision()->IsTileSolid(m_Pos.x + 48, m_Pos.y-32))
+					{
+						//m_MoveType = MOVE_UPRIGHT;
+						m_Move = 1;
+					}
+						
+					else if (GameServer()->Collision()->IsTileSolid(m_Pos.x - 48, m_Pos.y-32))
+					{
+						//m_MoveType = MOVE_UPLEFT;
+						m_Move = -1;
+					}
+						
+					
+					//if (GameServer()->Collision()->FastIntersectLine(m_Pos+vec2(0, -32), m_Pos+vec2(0, -64)))
+					//	Freestyle = true;
+					
+					/*
 					if (GameServer()->Collision()->FastIntersectLine(m_Pos+vec2(-24, -32), m_Pos+vec2(-24, -48)))
 						m_MoveType = MOVE_UPRIGHT;
 					else if (GameServer()->Collision()->FastIntersectLine(m_Pos+vec2(+24, -32), m_Pos+vec2(+24, -48)))
 						m_MoveType = MOVE_UPLEFT;
+					*/
 				}
 			}
 			break;
@@ -699,6 +759,10 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 		
 		if (Freestyle)
 		{
+			if (GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y - 64) &&
+				!GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y - 24))
+				m_Down = 1;
+			
 			if ((m_MoveType == MOVE_LEFT || m_MoveType == MOVE_UPLEFT) &&
 				GameServer()->Collision()->IsTileSolid(m_Pos.x - 24, m_Pos.y-14))
 			{
@@ -715,6 +779,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 			}
 		}
 	}
+	
 	
 	// teach some basic moves to override shitty waypoint logic
 	float Vel = Player()->GetCharacter()->GetCore().m_Vel.x;
@@ -794,6 +859,9 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 		}
 	}
 	
+	if (frandom() < 0.3f)
+		m_Jump = 0;
+	
 	if (Freestyle)
 	{
 		if (m_Move < 0 && (m_MoveType == MOVE_RIGHT || m_MoveType == MOVE_UPRIGHT))
@@ -823,14 +891,14 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 		if (m_LastPos.x < m_WaypointPos.x)
 		{
 			m_MoveType = MOVE_RIGHT;
-			if (m_LastPos.y > m_WaypointPos.y + 64 && abs(m_LastPos.x - m_WaypointPos.x) < 400 && Player()->GetCharacter()->GetCore().m_JetpackPower > 10)
+			if (m_LastPos.y > m_WaypointPos.y + 200 || (m_LastPos.y > m_WaypointPos.y + 64 && abs(m_LastPos.x - m_WaypointPos.x) < 400))
 				m_MoveType = MOVE_UPRIGHT;
 		}
 			
 		if (m_LastPos.x > m_WaypointPos.x)
 		{
 			m_MoveType = MOVE_LEFT;
-			if (m_LastPos.y > m_WaypointPos.y + 64 && abs(m_LastPos.x - m_WaypointPos.x) < 400 && Player()->GetCharacter()->GetCore().m_JetpackPower > 10)
+			if (m_LastPos.y > m_WaypointPos.y + 200 || (m_LastPos.y > m_WaypointPos.y + 64 && abs(m_LastPos.x - m_WaypointPos.x) < 400))
 				m_MoveType = MOVE_UPLEFT;
 		}
 	}
@@ -841,7 +909,18 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 		else
 			m_MoveType = MOVE_IDLE;
 	}
-		
+
+	bool Floor = false;
+	for (int y = 1; y < 30; y++)
+		if (GameServer()->Collision()->IsTileSolid(m_Pos.x, m_Pos.y + y*32))
+		{
+			Floor = true;
+			break;
+		}
+	
+	if (!Floor && (m_MoveType != MOVE_UP || m_MoveType != MOVE_UPLEFT || m_MoveType != MOVE_UPRIGHT))
+		m_MoveType = MOVE_UP;
+	
 	return false;
 }
 
@@ -1160,8 +1239,8 @@ bool CAI::ShootAtClosestMonster()
 		if (Distance < 800 && 
 			!GameServer()->Collision()->FastIntersectLine(pMonster->m_Pos + vec2(0, -20), m_LastPos))
 		{
-			if (abs(pMonster->m_Pos.x - m_LastPos.x) < 96 && abs(pMonster->m_Pos.y - m_LastPos.y) < 24)
-				m_EnemyInLine = true;
+			//if (abs(pMonster->m_Pos.x - m_LastPos.x) < 96 && abs(pMonster->m_Pos.y - m_LastPos.y) < 24)
+			//	m_EnemyInLine = true;
 			
 			if (!pClosestMonster || Distance < ClosestDistance)
 			{
@@ -1211,25 +1290,32 @@ bool CAI::ShootAtClosestBuilding()
 	{
 		CBuilding *pBuilding = apEnts[i];
 
-		if (pBuilding->m_Type != BUILDING_TURRET && pBuilding->m_Type != BUILDING_MINE1 && pBuilding->m_Type != BUILDING_MINE2)
-			continue;
-		
-		if (GameServer()->m_pController->IsTeamplay() && pBuilding->m_Team == Player()->GetTeam())
-			continue;
-		
-		vec2 Dir;
-		if (length(pBuilding->m_Pos - m_LastPos) > 0.0f)
-			Dir = normalize(pBuilding->m_Pos - m_LastPos);
-
-		int Distance = distance(pBuilding->m_Pos, m_LastPos);
-		if (Distance < 800 && 
-			!GameServer()->Collision()->FastIntersectLine(pBuilding->m_Pos + vec2(0, -30), m_LastPos))
+		if (pBuilding->m_Type == BUILDING_TURRET || pBuilding->m_Type == BUILDING_TESLACOIL || pBuilding->m_Type == BUILDING_MINE1 || pBuilding->m_Type == BUILDING_MINE2 ||
+			(str_comp(g_Config.m_SvGametype, "base") == 0 && (pBuilding->m_Type == BUILDING_REACTOR || pBuilding->m_Type == BUILDING_TESLACOIL || pBuilding->m_Type == BUILDING_FLAMETRAP || pBuilding->m_Type == BUILDING_LIGHTNINGWALL || pBuilding->m_Type == BUILDING_LIGHTNINGWALL2)))
 		{
-			if (!pClosestBuilding || Distance < ClosestDistance)
+		
+			if (GameServer()->m_pController->IsTeamplay() && pBuilding->m_Team == Player()->GetTeam())
+				continue;
+			
+			int FlipY = 1;
+			
+			if ((pBuilding->m_Type == BUILDING_TURRET || pBuilding->m_Type == BUILDING_TESLACOIL) && pBuilding->m_Mirror)
+				FlipY = -1;
+			
+			vec2 Dir;
+			if (length(pBuilding->m_Pos - m_LastPos) > 0.0f)
+				Dir = normalize(pBuilding->m_Pos - m_LastPos);
+
+			int Distance = distance(pBuilding->m_Pos, m_LastPos);
+			if (Distance < 800 && 
+				!GameServer()->Collision()->FastIntersectLine(pBuilding->m_Pos + vec2(0, -30*FlipY), m_LastPos))
 			{
-				pClosestBuilding = pBuilding;
-				ClosestDistance = Distance;
-				BuildingDir = (pBuilding->m_Pos+vec2(0, -30)) - m_LastPos;
+				if (!pClosestBuilding || Distance < ClosestDistance)
+				{
+					pClosestBuilding = pBuilding;
+					ClosestDistance = Distance;
+					BuildingDir = (pBuilding->m_Pos+vec2(0, -30)) - m_LastPos;
+				}
 			}
 		}
 	}
@@ -1420,6 +1506,39 @@ bool CAI::SeekClosestFriend(bool OnlyUnharmed)
 		return true;
 	}
 
+	return false;
+}
+
+
+bool CAI::SeekClosestReactor()
+{
+	CBuilding *pClosestBuilding = NULL;
+	int ClosestDistance = 0;
+	
+	CBuilding *apEnts[9999];
+	int Num = GameServer()->m_World.FindEntities(m_LastPos, 0, (CEntity**)apEnts, 9999, CGameWorld::ENTTYPE_BUILDING);
+
+	for (int i = 0; i < Num; ++i)
+	{
+		CBuilding *pBuilding = apEnts[i];
+
+		if (pBuilding->m_Type != BUILDING_REACTOR)
+			continue;
+	
+		int Distance = distance(pBuilding->m_Pos, m_LastPos);
+		if (!pClosestBuilding || Distance < ClosestDistance)
+		{
+			pClosestBuilding = pBuilding;
+			ClosestDistance = Distance;
+		}
+	}
+	
+	if (pClosestBuilding)
+	{
+		m_TargetPos = pClosestBuilding->m_Pos;
+		return true;
+	}
+	
 	return false;
 }
 
@@ -1688,6 +1807,7 @@ void CAI::Tick()
 	{
 		m_NextReaction = m_ReactionTime;
 	
+		m_EnemyInLine = false;
 		DoBehavior();
 		UseItems();
 		

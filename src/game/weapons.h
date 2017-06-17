@@ -258,7 +258,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 	CWeapon(
 		"Flame thrower",
 		SOUND_JETPACK1,
-		2, // damage
+		3, // damage
 		true, // autofire
 		0, // bullet spread
 		1, // shot spread

@@ -31,7 +31,7 @@ void CMapGen::Init(CLayers *pLayers, CCollision *pCollision, IStorage *pStorage)
 	m_pCollision = pCollision;
 	m_pStorage = pStorage;
 	
-	Load("warehouse_main");
+	Load("metal_main");
 }
 
 
@@ -209,7 +209,7 @@ void CMapGen::GenerateEnd(CGenLayer *pTiles)
 		for(int y = 3; y < h-3; y++)
 		{
 			if (!pTiles->Get(x-2, y) && !pTiles->Get(x-1, y) && !pTiles->Get(x, y) && !pTiles->Get(x+1, y) && !pTiles->Get(x+2, y) && !pTiles->Get(x+3, y) && 
-				pTiles->Get(x-2, y+1) && pTiles->Get(x-1, y+1) && pTiles->Get(x, y+1) && pTiles->Get(x+1, y+1) && pTiles->Get(x+2, y+1) && pTiles->Get(x+3, y+1) &&
+				pTiles->Get(x-3, y+1) && pTiles->Get(x-2, y+1) && pTiles->Get(x-1, y+1) && pTiles->Get(x, y+1) && pTiles->Get(x+1, y+1) && pTiles->Get(x+2, y+1) && pTiles->Get(x+3, y+1) &&
 				!pTiles->Get(x, y-2) && !pTiles->Get(x, y-3) && !pTiles->Get(x, y-4) && !pTiles->Get(x, y-5))
 			{
 				ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_DOOR1);
@@ -352,11 +352,27 @@ void CMapGen::GenerateHangables(CGenLayer *pTiles)
 	for (int x = p.x; x <= p.z; x++)
 	{
 		ModifTile(ivec2(x, p.y), m_pLayers->GetGameLayerIndex(), TILE_HANG);
-		ModifTile(ivec2(x, p.y), m_pLayers->GetForegroundLayerIndex(), 241, 0);
+		if (frandom() < 0.11f)
+			ModifTile(ivec2(x, p.y), m_pLayers->GetForegroundLayerIndex(), 91, 0);
+		else
+			ModifTile(ivec2(x, p.y), m_pLayers->GetForegroundLayerIndex(), 90, 0);
 	}
 	
-	ModifTile(ivec2(p.x, p.y), m_pLayers->GetForegroundLayerIndex(), 240, 0);
-	ModifTile(ivec2(p.z, p.y), m_pLayers->GetForegroundLayerIndex(), 242, 0);
+	if (pTiles->Get(p.x-1, p.y))
+		ModifTile(ivec2(p.x, p.y), m_pLayers->GetForegroundLayerIndex(), 89, 0);
+	else
+	{
+		ModifTile(ivec2(p.x, p.y), m_pLayers->GetForegroundLayerIndex(), 92, TILEFLAG_VFLIP);
+		ModifTile(ivec2(p.x+1, p.y), m_pLayers->GetForegroundLayerIndex(), 91, 0);
+	}
+	
+	if (pTiles->Get(p.z+1, p.y))
+		ModifTile(ivec2(p.z, p.y), m_pLayers->GetForegroundLayerIndex(), 89, TILEFLAG_VFLIP);
+	else
+	{
+		ModifTile(ivec2(p.z, p.y), m_pLayers->GetForegroundLayerIndex(), 92, 0);
+		ModifTile(ivec2(p.z-1, p.y), m_pLayers->GetForegroundLayerIndex(), 91, 0);
+	}
 }
 
 void CMapGen::GenerateMine(CGenLayer *pTiles)
@@ -965,6 +981,8 @@ void CMapGen::GenerateLevel()
 			}
 	}
 	
+	pTiles->GenerateSlopes();
+	
 	dbg_msg("mapgen", "rooms generated, map size: %d", pTiles->Size());
 	
 	int n = pTiles->Size()/500;
@@ -988,8 +1006,20 @@ void CMapGen::GenerateLevel()
 			
 			if (i > 0)
 			{
-				ModifTile(ivec2(x, y), m_pLayers->GetForegroundLayerIndex(), i, pTiles->GetFlags(x, y));
-				ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), 1);
+				int f = pTiles->GetFlags(x, y);
+				ModifTile(ivec2(x, y), m_pLayers->GetForegroundLayerIndex(), i, f);
+				
+				// slopes
+				if (i == 20 && f == TILEFLAG_VFLIP)
+					ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), TILE_RAMP_RIGHT);
+				else if (i == 20 && f == 0)
+					ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), TILE_RAMP_LEFT);
+				else if (i == 20 && f == TILEFLAG_HFLIP+TILEFLAG_VFLIP)
+					ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), TILE_ROOFSLOPE_RIGHT);
+				else if (i == 20 && f == TILEFLAG_HFLIP)
+					ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), TILE_ROOFSLOPE_LEFT);
+				else
+					ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), 1);
 			}
 		}
 		

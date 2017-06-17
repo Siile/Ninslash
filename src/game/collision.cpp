@@ -210,25 +210,28 @@ void CCollision::GenerateWaypoints()
 				// outer corner found -> create a waypoint
 				
 				// check validity (solid tiles under the corner)
+				/*
 				bool Found = false;
 				for (int i = 0; i < 20; ++i)
 					if (IsTileSolid(x*32, (y+i)*32))
 						Found = true;
+					*/
+					
+				bool Found = true;
 				
 				// count slopes
 				int Slopes = 0;
 				
-				if (GetTile((x-1)*32, y*32) >= COLFLAG_RAMP_LEFT) Slopes++;
-				if (GetTile((x+1)*32, y*32) >= COLFLAG_RAMP_LEFT) Slopes++;
-				if (GetTile(x*32, (y+1)*32) >= COLFLAG_RAMP_LEFT) Slopes++;
-				if (GetTile(x*32, (y+1)*32) >= COLFLAG_RAMP_LEFT) Slopes++;
+				for (int xx = -2; xx <= 2; xx++)
+					for (int yy = -2; yy <= 2; yy++)
+						if (GetTile((x+xx)*32, (y+yy)*32) >= COLFLAG_RAMP_LEFT) Slopes++;
 				
-				if (Found && Slopes < 2)
+				if (Found && Slopes < 3)
 					AddWaypoint(vec2(x, y));
 			}
 			else
 			// find all inner corners
-			if ((IsTileSolid((x+1)*32, y*32) || IsTileSolid((x-1)*32, y*32)) && (IsTileSolid(x*32, (y+1)*32) || IsTileSolid(x*32, (y+1)*32)))
+			if ((IsTileSolid((x+1)*32, y*32) || IsTileSolid((x-1)*32, y*32)) && (IsTileSolid(x*32, (y-1)*32) || IsTileSolid(x*32, (y+1)*32)))
 			{
 				// inner corner found -> create a waypoint
 				//AddWaypoint(vec2(x, y), true);
@@ -242,17 +245,16 @@ void CCollision::GenerateWaypoints()
 				// count slopes
 				int Slopes = 0;
 				
-				if (GetTile((x-1)*32, y*32) >= COLFLAG_RAMP_LEFT) Slopes++;
-				if (GetTile((x+1)*32, y*32) >= COLFLAG_RAMP_LEFT) Slopes++;
-				if (GetTile(x*32, (y+1)*32) >= COLFLAG_RAMP_LEFT) Slopes++;
-				if (GetTile(x*32, (y+1)*32) >= COLFLAG_RAMP_LEFT) Slopes++;
+				for (int xx = -2; xx <= 2; xx++)
+					for (int yy = -2; yy <= 2; yy++)
+						if (GetTile((x+xx)*32, (y+yy)*32) >= COLFLAG_RAMP_LEFT) Slopes++;
 				
 				// too tight spots to go
 				if ((IsTileSolid((x)*32, (y-1)*32) && IsTileSolid((x)*32, (y+1)*32)) ||
 					(IsTileSolid((x-1)*32, (y)*32) && IsTileSolid((x+1)*32, (y)*32)))
 					Found = false;
 				
-				if (Found && Slopes < 2)
+				if (Found && Slopes < 3)
 					AddWaypoint(vec2(x, y));
 			}
 		}
@@ -415,7 +417,7 @@ void CCollision::ConnectWaypoints()
 			{
 				float Dist = distance(m_apWaypoint[i]->m_Pos, m_apWaypoint[j]->m_Pos);
 				
-				if (Dist < 600 && !IntersectLine(m_apWaypoint[i]->m_Pos, m_apWaypoint[j]->m_Pos, NULL, NULL, true) &&
+				if (Dist < 1000 && !IntersectLine(m_apWaypoint[i]->m_Pos, m_apWaypoint[j]->m_Pos, NULL, NULL, true) &&
 					m_apWaypoint[i]->m_Pos.y != m_apWaypoint[j]->m_Pos.y)
 				{
 					if (m_apWaypoint[i]->Connect(m_apWaypoint[j]))
@@ -426,6 +428,15 @@ void CCollision::ConnectWaypoints()
 	}
 }
 
+vec2 CCollision::GetClosestWaypointPos(vec2 Pos)
+{
+	CWaypoint *Wp = GetClosestWaypoint(Pos);
+	
+	if (Wp)
+		return Wp->m_Pos;
+	
+	return vec2(0, 0);
+}
 
 CWaypoint *CCollision::GetClosestWaypoint(vec2 Pos)
 {
@@ -910,6 +921,18 @@ bool CCollision::ModifTile(ivec2 pos, int group, int layer, int tile, int flags,
         case TILE_MOVERIGHT:
             m_pTiles[tpos].m_Index = COLFLAG_MOVERIGHT;
             break;
+        case TILE_RAMP_LEFT:
+            m_pTiles[tpos].m_Index = COLFLAG_RAMP_LEFT;
+            break;
+        case TILE_RAMP_RIGHT:
+            m_pTiles[tpos].m_Index = COLFLAG_RAMP_RIGHT;
+            break;
+		case TILE_ROOFSLOPE_LEFT:
+			m_pTiles[tpos].m_Index = COLFLAG_ROOFSLOPE_LEFT;
+			break;
+		case TILE_ROOFSLOPE_RIGHT:
+			m_pTiles[tpos].m_Index = COLFLAG_ROOFSLOPE_RIGHT;
+			break;
         case TILE_HANG:
             m_pTiles[tpos].m_Index = COLFLAG_HANG;
             break;

@@ -45,10 +45,14 @@ void CFluid::Add(vec2 Pos)
 	// scan size
 	vec2 Size = vec2(0, 0);
 	
-	while (Collision()->GetCollisionAt(Pos.x + Size.x, Pos.y) == CCollision::COLFLAG_DAMAGEFLUID)
+	// sanity check
+	int i = 0;
+	
+	while (Collision()->GetCollisionAt(Pos.x + Size.x, Pos.y) == CCollision::COLFLAG_DAMAGEFLUID && i++ < 100)
 		Size.x += 32;
 	
-	while (Collision()->GetCollisionAt(Pos.x, Pos.y + Size.y) == CCollision::COLFLAG_DAMAGEFLUID)
+	i = 0;
+	while (Collision()->GetCollisionAt(Pos.x, Pos.y + Size.y) == CCollision::COLFLAG_DAMAGEFLUID && i++ < 100)
 		Size.y += 32;
 	
 	m_aPool[m_PoolCount].m_Pos = Pos;

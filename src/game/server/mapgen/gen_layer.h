@@ -70,6 +70,7 @@ public:
 	int NumPlatforms() { return m_NumPlatforms; }
 	int NumTopCorners() { return m_NumTopCorners; }
 	
+	void GenerateSlopes();
 	void GenerateBackground();
 	void GenerateAirPlatforms(int Num);
 	void Scan();

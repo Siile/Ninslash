@@ -28,8 +28,10 @@ public:
 	int m_OwnerPlayer;
 	
 	void SetAngle(vec2 Direction);
+	int m_FlipY;
 	
 private:
+
 	bool FindTarget();
 	bool Target();
 	void Fire();

@@ -11,12 +11,13 @@ CWaypointPath *CWaypointPath::GetVisible(CGameContext *pGameServer, vec2 Pos)
 {
 	if (m_pNext)
 	{
-		if (!pGameServer->Collision()->FastIntersectLine(m_pNext->m_Pos, Pos))
+		if (!pGameServer->Collision()->IntersectLine(m_pNext->m_Pos, Pos, NULL, NULL))
 			return m_pNext->GetVisible(pGameServer, Pos);
 	}
 	
 	return this;
 	
+	/*
 	if (!pGameServer->Collision()->FastIntersectLine(m_Pos, Pos))
 	{
 		return this;
@@ -32,6 +33,7 @@ CWaypointPath *CWaypointPath::GetVisible(CGameContext *pGameServer, vec2 Pos)
 	}
 
 	return 0;
+	*/
 }
 
 

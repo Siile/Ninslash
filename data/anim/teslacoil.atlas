@@ -1,0 +1,48 @@
+
+teslacoil.png
+size: 1024,128
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+frame
+  rotate: true
+  xy: 2, 6
+  size: 103, 187
+  orig: 103, 187
+  offset: 0, 0
+  index: -1
+glass
+  rotate: false
+  xy: 300, 8
+  size: 100, 101
+  orig: 100, 101
+  offset: 0, 0
+  index: -1
+spark1
+  rotate: false
+  xy: 505, 11
+  size: 100, 98
+  orig: 100, 98
+  offset: 0, 0
+  index: -1
+spark2
+  rotate: false
+  xy: 402, 10
+  size: 101, 99
+  orig: 101, 99
+  offset: 0, 0
+  index: -1
+team
+  rotate: false
+  xy: 607, 15
+  size: 57, 94
+  orig: 57, 94
+  offset: 0, 0
+  index: -1
+top
+  rotate: false
+  xy: 191, 2
+  size: 107, 107
+  orig: 107, 107
+  offset: 0, 0
+  index: -1

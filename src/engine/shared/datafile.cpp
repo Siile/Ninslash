@@ -803,9 +803,15 @@ bool CDataFileWriter::SaveMap(class IStorage *pStorage, CDataFileReader *pFileMa
 		COLFLAG_SOLID=1,
 		COLFLAG_DEATH=2,
 		COLFLAG_NOHOOK=4,
+		
+		COLFLAG_RAMP_LEFT=8,
+		COLFLAG_RAMP_RIGHT=16,
+		COLFLAG_ROOFSLOPE_LEFT=32,
+		COLFLAG_ROOFSLOPE_RIGHT=64,
+		
 		COLFLAG_DAMAGEFLUID=128,
 		
-		// 256 = out of range for unsigned char, ugly! spurdo :D
+		// 256 = out of range for unsigned char, ugly! it custom :D
 		COLFLAG_MOVELEFT=129,
 		COLFLAG_MOVERIGHT=130,
 		COLFLAG_HANG=131,
@@ -843,6 +849,10 @@ bool CDataFileWriter::SaveMap(class IStorage *pStorage, CDataFileReader *pFileMa
                                 if (index&COLFLAG_DEATH) pTiles[tpos].m_Index = TILE_DEATH;
                                 if (index&COLFLAG_SOLID) pTiles[tpos].m_Index = TILE_SOLID;
                                 if (index&COLFLAG_DAMAGEFLUID) pTiles[tpos].m_Index = TILE_DAMAGEFLUID;
+                                if (index == COLFLAG_RAMP_LEFT) pTiles[tpos].m_Index = TILE_RAMP_LEFT;
+                                if (index == COLFLAG_RAMP_RIGHT) pTiles[tpos].m_Index = TILE_RAMP_RIGHT;
+                                if (index == COLFLAG_ROOFSLOPE_LEFT) pTiles[tpos].m_Index = TILE_ROOFSLOPE_LEFT;
+                                if (index == COLFLAG_ROOFSLOPE_RIGHT) pTiles[tpos].m_Index = TILE_ROOFSLOPE_RIGHT;
                                 if (index == COLFLAG_MOVELEFT) pTiles[tpos].m_Index = TILE_MOVELEFT;
                                 if (index == COLFLAG_MOVERIGHT) pTiles[tpos].m_Index = TILE_MOVERIGHT;
                                 if (index == COLFLAG_HANG) pTiles[tpos].m_Index = TILE_HANG;

@@ -219,7 +219,7 @@ CBuilding *CGameWorld::IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec
 		if (Team == p->m_Team && p->m_Type != BUILDING_MINE1 && p->m_Type != BUILDING_MINE2)
 			continue;
 		
-		if (GameServer()->m_pController->IsCoop() && p->m_Type == BUILDING_TURRET)
+		if (GameServer()->m_pController->IsCoop() && (p->m_Type == BUILDING_TURRET || p->m_Type == BUILDING_TESLACOIL || p->m_Type == BUILDING_REACTOR))
 		{
 			if (Team >= 0 && Team < MAX_CLIENTS)
 			{

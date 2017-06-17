@@ -1,6 +1,7 @@
 #include <base/math.h>
 #include <engine/graphics.h>
 #include <engine/demo.h>
+#include <engine/shared/config.h>
 
 #include <game/generated/client_data.h>
 #include <game/client/render.h>
@@ -11,6 +12,7 @@ CLight::CLight()
 {
 	OnReset();
 	m_RenderLight.m_pParts = this;
+	m_Rendered = false;
 }
 
 
@@ -47,7 +49,11 @@ void CLight::Add(int Group, CLightsource *pPart)
 
 void CLight::Update(float TimePassed)
 {
-	m_Count = 0;
+	if (m_Rendered)
+	{
+		m_Count = 0;
+		m_Rendered = false;
+	}
 }
 
 void CLight::OnRender()
@@ -75,7 +81,8 @@ void CLight::OnRender()
 
 void CLight::RenderGroup(int Group)
 {
-	return;
+	if (!g_Config.m_ClLighting)
+		return;
 	
 	Graphics()->RenderToTexture(RENDERBUFFER_LIGHT);
 	Graphics()->BlendAdditive();
@@ -88,7 +95,7 @@ void CLight::RenderGroup(int Group)
 		vec2 p = m_aLightsource[i].m_Pos;
 		float Size = m_aLightsource[i].m_Size;
 		
-		Graphics()->SetColor(1, 1, 1, 1);
+		Graphics()->SetColor(0.4f, 0.4f, 1, 1);
 			
 		IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
 		Graphics()->QuadsDraw(&QuadItem, 1);
@@ -97,6 +104,8 @@ void CLight::RenderGroup(int Group)
 	Graphics()->QuadsEnd();
 	
 	Graphics()->RenderToScreen();
+	
+
 	Graphics()->BlendLight();
 	
 	// render buffer to screen using special blending
@@ -115,4 +124,6 @@ void CLight::RenderGroup(int Group)
 	Graphics()->QuadsEnd();
 	
 	Graphics()->BlendNormal();
+	
+	m_Rendered = true;
 }

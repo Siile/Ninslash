@@ -560,7 +560,13 @@ void CItems::RenderLaser(const struct CNetObj_Laser *pCurrent)
 			if (i < Steps-1)
 				o2 = vec2(frandom()-frandom(), frandom()-frandom()) * 15.0f;
 			
+			if (i < Steps-1 && pCurrent->m_PowerLevel < 0)
+				o2 += vec2(frandom()-frandom(), frandom()-frandom()) * 50.0f;
+			
 			vec2 s2 = Out * frandom()*4.0f;
+			
+			if (pCurrent->m_PowerLevel < 0)
+				s2 = Out * frandom()*2.0f;
 			
 			if (i == Steps -1)
 				s2 *= 0.1f;
@@ -573,9 +579,10 @@ void CItems::RenderLaser(const struct CNetObj_Laser *pCurrent)
 								
 			Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 		
+		
 			if (pCurrent->m_PowerLevel > 1)
 				m_pClient->m_pEffects->BulletTrail(p1+o1, p2+o2, vec4(1.0f, 0.5f, 0.0f, 0.2f));
-			else
+			else if (pCurrent->m_PowerLevel > 0)
 				m_pClient->m_pEffects->BulletTrail(p1+o1, p2+o2, vec4(0.5f, 0.5f, 1.0f, 0.2f));
 		
 			s1 = s2;
@@ -605,7 +612,7 @@ void CItems::RenderLaser(const struct CNetObj_Laser *pCurrent)
 		Graphics()->QuadsEnd();
 	}
 	
-	if (pCurrent->m_PowerLevel > 0)
+	if (pCurrent->m_PowerLevel != 0)
 		Graphics()->ShaderEnd();
 
 	Graphics()->BlendNormal();

@@ -287,6 +287,7 @@ void CBuildings2::RenderBuildMode()
 		//if (Cost <= CustomStuff()->m_LocalKits)
 		{
 			bool Valid = false;
+			bool FlipY = false;
 			
 			// snap pos
 			vec2 Pos = m_pClient->m_pControls->m_TargetPos;
@@ -313,6 +314,32 @@ void CBuildings2::RenderBuildMode()
 					Valid = false;
 				
 				if (Collision()->IsForceTile(To.x, To.y+16))
+					Valid = false;
+			}
+			
+			// snap y up / turret stand
+			if (!Valid && (Selected == BUILDABLE_TURRET || Selected == BUILDABLE_TESLACOIL))
+			{
+				vec2 To = Pos+vec2(0, -SnapRange);
+				if (Collision()->IntersectLine(Pos, To, 0x0, &To))
+				{
+					Pos = To;
+					Pos.y -= BuildableOffset[Selected];
+					Valid = true;
+				}
+				else
+					Valid = false;
+				
+				if (Valid)
+					FlipY = true;
+				
+				if (!Collision()->IsTileSolid(To.x - 22, To.y-12) || !Collision()->IsTileSolid(To.x + 22, To.y-12))
+					Valid = false;
+
+				if (Collision()->IsTileSolid(To.x , To.y+64))
+					Valid = false;
+				
+				if (Collision()->IsTileSolid(To.x , To.y+6))
 					Valid = false;
 			}
 			
@@ -384,7 +411,12 @@ void CBuildings2::RenderBuildMode()
 			}
 			
 			// not too close to other buildings
-			if (m_pClient->BuildingNear(Pos, 48))
+			float Range = 48.0f;
+			
+			if (Selected == BUILDABLE_TESLACOIL)
+				Range = 74.0f;
+			
+			if (m_pClient->BuildingNear(Pos, Range))
 				Valid = false;
 		
 			// check for kits
@@ -402,6 +434,15 @@ void CBuildings2::RenderBuildMode()
 			if (Valid)
 			{
 				CustomStuff()->m_BuildPos = Pos;
+				
+				if (FlipY)
+				{
+					if (Selected == BUILDABLE_TURRET)
+						CustomStuff()->m_BuildPos.y += BuildableOffset[Selected]-18;
+					else if (Selected == BUILDABLE_TESLACOIL)
+						CustomStuff()->m_BuildPos.y += BuildableOffset[Selected]-38;
+				}
+				
 				CustomStuff()->m_BuildPosValid = true;
 				Graphics()->SetColor(0.0f, 1.0f, 0.0f, 0.75f);
 			}
@@ -412,7 +453,7 @@ void CBuildings2::RenderBuildMode()
 			}
 		
 			RenderTools()->SelectSprite(SPRITE_KIT_BARREL+Selected,
-										(Selected == 2 && CustomStuff()->m_FlipBuilding) ? SPRITE_FLAG_FLIP_X : 0);
+										(Selected == 2 && CustomStuff()->m_FlipBuilding) ? SPRITE_FLAG_FLIP_X : 0 + (FlipY ? SPRITE_FLAG_FLIP_Y : 0));
 										
 			RenderTools()->DrawSprite(Pos.x, Pos.y, BuildableSize[Selected]);
 

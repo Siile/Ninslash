@@ -45,6 +45,7 @@ public:
 private:
  
 	int m_Count;
+	bool m_Rendered;
  
 	enum
 	{

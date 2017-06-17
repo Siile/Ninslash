@@ -15,6 +15,9 @@ class CBuildings : public CComponent
 	void RenderLazer(const struct CNetObj_Building *pCurrent);
 	void RenderBase(const struct CNetObj_Building *pCurrent);
 	void RenderStand(const struct CNetObj_Building *pCurrent);
+	void RenderReactor(const struct CNetObj_Building *pCurrent);
+	void RenderTeslacoil(const struct CNetObj_Building *pCurrent);
+	void RenderDestroyedReactor(const struct CNetObj_Building *pCurrent);
 	void RenderFlametrap(const struct CNetObj_Building *pCurrent);
 	void RenderSwitch(const struct CNetObj_Building *pCurrent);
 	void RenderDoor1(const struct CNetObj_Building *pCurrent);

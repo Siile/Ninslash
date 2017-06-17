@@ -1,0 +1,384 @@
+[Metal]
+Index 34
+BaseTile
+
+
+#random stuff
+Index 51
+Pos 0 1 FULL
+Pos 0 -1 FULL
+Pos 1 0 FULL
+Pos -1 0 FULL
+Random 500
+
+Index 84
+Pos 0 1 FULL
+Pos 0 -1 FULL
+Pos 1 0 FULL
+Pos -1 0 FULL
+Random 500
+
+Index 100
+Pos 0 1 FULL
+Pos 0 -1 FULL
+Pos 1 0 FULL
+Pos -1 0 FULL
+Random 500
+
+Index 101
+Pos 0 1 FULL
+Pos 0 -1 FULL
+Pos 1 0 FULL
+Pos -1 0 FULL
+Random 500
+
+Index 102
+Pos 0 1 FULL
+Pos 0 -1 FULL
+Pos 1 0 FULL
+Pos -1 0 FULL
+Random 500
+
+Index 103
+Pos 0 1 FULL
+Pos 0 -1 FULL
+Pos 1 0 FULL
+Pos -1 0 FULL
+Random 500
+
+
+#top
+Index 19
+Pos 0 -1 EMPTY
+
+Index 18
+Pos 0 -1 EMPTY
+Random 15
+
+
+#right
+Index 19 ROTATE
+Pos 1 0 EMPTY
+
+Index 18 ROTATE
+Pos 1 0 EMPTY
+Random 15
+
+
+#bottom
+Index 19 YFLIP
+Pos 0 1 EMPTY
+
+Index 18 YFLIP
+Pos 0 1 EMPTY
+Random 15
+
+
+#left
+Index 19 YFLIP_ROTATE
+Pos -1 0 EMPTY
+
+Index 18 YFLIP_ROTATE
+Pos -1 0 EMPTY
+Random 15
+
+#corner top-right
+Index 17 XFLIP
+Pos 0 -1 EMPTY
+Pos 1 0 EMPTY
+
+#corner top-left
+Index 17
+Pos 0 -1 EMPTY
+Pos -1 0 EMPTY
+
+#corner bottom-left
+Index 17 YFLIP
+Pos 0 1 EMPTY
+Pos -1 0 EMPTY
+
+#corner bottom-right
+Index 17 XYFLIP
+Pos 0 1 EMPTY
+Pos 1 0 EMPTY
+
+
+#slope top-left 1
+Index 20 XFLIP
+Pos 0 -1 EMPTY
+Pos -1 0 EMPTY
+
+Pos -2 0 EMPTY
+Pos -1 1 FULL
+Pos -2 1 EMPTY
+
+#slope top-left 2
+Index 20 XFLIP
+Pos 0 -1 EMPTY
+Pos -1 0 EMPTY
+
+Pos 0 -2 EMPTY
+Pos 1 -1 FULL
+Pos 1 -2 EMPTY
+
+
+#slope top-right 1
+Index 20
+Pos 0 -1 EMPTY
+Pos 1 0 EMPTY
+
+Pos 2 0 EMPTY
+Pos 1 1 FULL
+Pos 2 1 EMPTY
+
+#slope top-right 2
+Index 20
+Pos 0 -1 EMPTY
+Pos 1 0 EMPTY
+
+Pos 0 -2 EMPTY
+Pos -1 -1 FULL
+Pos -1 -2 EMPTY
+
+
+#slope bot-left 1
+Index 20 XYFLIP
+Pos 0 1 EMPTY
+Pos -1 0 EMPTY
+
+Pos -2 0 EMPTY
+Pos -1 -1 FULL
+Pos -2 -1 EMPTY
+
+#slope bot-left 2
+Index 20 XYFLIP
+Pos 0 1 EMPTY
+Pos -1 0 EMPTY
+
+Pos 0 2 EMPTY
+Pos 1 1 FULL
+Pos 1 2 EMPTY
+
+
+#slope bot-right 1
+Index 20 YFLIP
+Pos 0 1 EMPTY
+Pos 1 0 EMPTY
+
+Pos 2 0 EMPTY
+Pos 1 -1 FULL
+Pos 2 -1 EMPTY
+
+#slope bot-right 2
+Index 20 YFLIP
+Pos 0 1 EMPTY
+Pos 1 0 EMPTY
+
+Pos 0 2 EMPTY
+Pos -1 1 FULL
+Pos -1 2 EMPTY
+
+
+
+#inside corner top-right
+Index 36 XYFLIP
+Pos -1 1 EMPTY
+Pos 1 1 FULL
+Pos -1 0 FULL
+Pos 0 1 FULL
+
+#inside corner top-left
+Index 36 YFLIP
+Pos 1 1 EMPTY
+Pos -1 1 FULL
+Pos 1 0 FULL
+Pos 0 1 FULL
+
+#inside corner bottom-left
+Index 36
+Pos 1 -1 EMPTY
+Pos 1 0 FULL
+Pos 0 -1 FULL
+
+#inside corner bottom-right
+Index 36 XFLIP
+Pos -1 -1 EMPTY
+Pos -1 0 FULL
+Pos 0 -1 FULL
+
+
+
+
+#corner combine bottom-right
+Index 17 XYFLIP
+Pos 0 -1 FULL
+Pos -1 0 FULL
+Pos 1 0 FULL
+Pos 0 1 EMPTY
+Pos 1 -1 EMPTY
+
+#corner combine bottom-left
+Index 17 YFLIP
+Pos 0 -1 FULL
+Pos -1 0 FULL
+Pos 1 0 FULL
+Pos 0 1 EMPTY
+Pos -1 -1 EMPTY
+
+
+#corner combine top-right
+Index 17 XFLIP
+Pos 0 1 FULL
+Pos -1 0 FULL
+Pos 1 0 FULL
+Pos 0 -1 EMPTY
+Pos 1 1 EMPTY
+
+#corner combine top-left
+Index 17
+Pos 0 1 FULL
+Pos 1 0 FULL
+Pos -1 0 FULL
+Pos 0 -1 EMPTY
+Pos -1 1 EMPTY
+
+
+#chain top
+Index 19 YFLIP
+Pos -1 1 EMPTY
+Pos 1 1 EMPTY
+Pos -1 0 FULL
+Pos 1 0 FULL
+Pos 0 1 FULL
+
+#chain bot
+Index 19
+Pos -1 -1 EMPTY
+Pos 1 -1 EMPTY
+Pos -1 0 FULL
+Pos 1 0 FULL
+Pos 0 1 FULL
+
+
+#chain cross bot left
+Index 17
+Pos -1 -1 EMPTY
+Pos -1 0 EMPTY
+Pos 1 -1 EMPTY
+Pos 0 -1 FULL
+Pos 0 1 FULL
+
+#chain cross bot left
+Index 17 XFLIP
+Pos 1 -1 EMPTY
+Pos 1 0 EMPTY
+Pos -1 -1 EMPTY
+Pos 0 -1 FULL
+Pos 0 1 FULL
+
+#chain cross top left
+Index 17 YFLIP
+Pos -1 1 EMPTY
+Pos -1 0 EMPTY
+Pos 1 1 EMPTY
+Pos 0 1 FULL
+Pos 0 -1 FULL
+
+#chain cross top left
+Index 17 XYFLIP
+Pos 1 1 EMPTY
+Pos 1 0 EMPTY
+Pos -1 1 EMPTY
+Pos 0 1 FULL
+Pos 0 -1 FULL
+
+
+
+#platform next to a wall
+
+#left
+Index 19 YFLIP_ROTATE
+Pos -1 0 FULL
+Pos -1 -1 EMPTY
+Pos -1 1 EMPTY
+Pos 1 -1 FULL
+Pos 1 0 FULL
+Pos 1 1 FULL
+Pos 0 -1 FULL
+Pos 0 1 FULL
+
+#right
+Index 19 ROTATE
+Pos 1 0 FULL
+Pos 1 -1 EMPTY
+Pos 1 1 EMPTY
+Pos -1 -1 FULL
+Pos -1 0 FULL
+Pos -1 1 FULL
+Pos 0 -1 FULL
+Pos 0 1 FULL
+
+
+
+#platforms
+Index 107
+Pos 0 -1 EMPTY
+Pos 0 1 EMPTY
+Pos -1 0 FULL
+Pos 1 0 FULL
+
+Index 106
+Pos 0 -1 EMPTY
+Pos 0 1 EMPTY
+Pos -1 0 FULL
+Pos 1 0 FULL
+Random 15
+
+Index 106
+Pos 0 -1 FULL
+Pos -1 -1 EMPTY
+Pos 1 -1 EMPTY
+Pos 0 1 EMPTY
+Pos -1 0 FULL
+Pos 1 0 FULL
+
+Index 105
+Pos 0 -1 EMPTY
+Pos 0 1 EMPTY
+Pos -1 0 EMPTY
+Pos 1 0 FULL
+
+Index 105
+Pos 0 -1 FULL
+Pos -1 -1 EMPTY
+Pos 1 -1 EMPTY
+Pos 0 1 EMPTY
+Pos -1 0 EMPTY
+Pos 1 0 FULL
+
+Index 105 XFLIP
+Pos 0 -1 EMPTY
+Pos 0 1 EMPTY
+Pos -1 0 FULL
+Pos 1 0 EMPTY
+
+Index 105 XFLIP
+Pos 0 -1 FULL
+Pos -1 -1 EMPTY
+Pos 1 -1 EMPTY
+Pos 0 1 EMPTY
+Pos -1 0 FULL
+Pos 1 0 EMPTY
+
+
+#chains (for backgrounds)
+Index 125
+Pos -1 0 EMPTY
+Pos 1 0 EMPTY
+
+Index 109
+Pos -1 -1 FULL
+Pos 0 -1 FULL
+Pos 1 -1 FULL
+Pos -1 0 EMPTY
+Pos 1 0 EMPTY

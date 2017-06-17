@@ -300,11 +300,135 @@ void CBuildings::RenderBase(const struct CNetObj_Building *pCurrent)
 	*/
 }
 
-void CBuildings::RenderStand(const struct CNetObj_Building *pCurrent)
+
+void CBuildings::RenderReactor(const struct CNetObj_Building *pCurrent)
+{
+	int Anim = ANIM_IDLE;
+	int s = pCurrent->m_Status;
+	bool Repair = s & (1<<BSTATUS_REPAIR);
+	
+	float Time = pCurrent->m_X * 0.432f + pCurrent->m_Y * 0.2354f + CustomStuff()->m_SawbladeAngle * 0.1f;
+	
+	if (Repair)
+		Time += CustomStuff()->m_SawbladeAngle * 0.15f;
+	
+	m_pClient->m_pEffects->Light(vec2(pCurrent->m_X, pCurrent->m_Y-30), 320);
+	m_pClient->m_pEffects->Light(vec2(pCurrent->m_X, pCurrent->m_Y-0), 320);
+	
+	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y+16+50), ATLAS_REACTOR, aAnimList[Anim], Time, vec2(1.0f, 1.0f)*0.8f, 1, 0);
+	
+	// damage mask
+	if (Repair)
+	{
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_REACTOR_DAMAGE].m_Id);
+		Graphics()->QuadsBegin();
+		
+		RenderTools()->SelectSprite(SPRITE_REACTOR_DAMAGE);
+		
+		Graphics()->SetColor(1, 1, 1, 1);
+		Graphics()->QuadsSetRotation(0);
+			
+		RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y, 70);
+		
+		Graphics()->QuadsEnd();
+	}
+	
+	// repair sprite
+	if (Repair && (CustomStuff()->LocalTick()/12+(pCurrent->m_X/8 + pCurrent->m_Y/32))%8 < 4)
+	{
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
+		Graphics()->QuadsBegin();
+		RenderTools()->SelectSprite(SPRITE_STATUS_REPAIR);
+		Graphics()->SetColor(1, 1, 1, 1);
+		
+		Graphics()->QuadsSetRotation(0);
+		
+		RenderTools()->DrawSprite(pCurrent->m_X-20, pCurrent->m_Y-102, 52);
+		Graphics()->QuadsEnd();
+	}
+	
+	int f = CustomStuff()->m_SawbladeAngle * 100;
+	
+	
+	if (Repair && frandom() < 0.15f)
+		m_pClient->m_pEffects->Electrospark(vec2(pCurrent->m_X, pCurrent->m_Y-10+frandom()*30-frandom()*30)+vec2(frandom()-frandom(), frandom()-frandom()) * 20.0f, 20+frandom()*20, vec2(0, 0));
+	
+	/*
+	if (Repair && CustomStuff()->LocalTick()%30 == 1)
+		m_pClient->m_pEffects->Electrospark(vec2(pCurrent->m_X, pCurrent->m_Y-30-frandom()*10)+vec2(frandom()-frandom(), frandom()-frandom()) * 20.0f, 20+frandom()*20, vec2(0, 0));
+	if (Repair && CustomStuff()->LocalTick()%30 == 11)
+		m_pClient->m_pEffects->Electrospark(vec2(pCurrent->m_X, pCurrent->m_Y+20-frandom()*10)+vec2(frandom()-frandom(), frandom()-frandom()) * 20.0f, 20+frandom()*20, vec2(0, 0));
+	*/
+}
+
+
+void CBuildings::RenderTeslacoil(const struct CNetObj_Building *pCurrent)
+{
+	int Anim = ANIM_IDLE;
+	int s = pCurrent->m_Status;
+	bool Repair = s & (1<<BSTATUS_REPAIR);
+	
+	s = pCurrent->m_Status;
+	int FlipY = (s & (1<<BSTATUS_MIRROR)) ? -1 : 1;
+	
+	float Time = pCurrent->m_X * 0.432f + pCurrent->m_Y * 0.2354f + CustomStuff()->m_SawbladeAngle * 0.06f;
+	
+	if (Repair)
+		Time += CustomStuff()->m_SawbladeAngle * 0.1f;
+	
+	//m_pClient->m_pEffects->Light(vec2(pCurrent->m_X, pCurrent->m_Y-30), 320);
+	//m_pClient->m_pEffects->Light(vec2(pCurrent->m_X, pCurrent->m_Y-0), 320);
+	
+	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y+20*FlipY), ATLAS_TESLACOIL, aAnimList[Anim], Time, vec2(1.0f, 1.0f*FlipY)*0.55f, 1, 0, pCurrent->m_Team);
+
+	
+	// repair sprite
+	if (Repair && (CustomStuff()->LocalTick()/12+(pCurrent->m_X/8 + pCurrent->m_Y/32))%8 < 4)
+	{
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
+		Graphics()->QuadsBegin();
+		RenderTools()->SelectSprite(SPRITE_STATUS_REPAIR);
+		Graphics()->SetColor(1, 1, 1, 1);
+		
+		Graphics()->QuadsSetRotation(0);
+		
+		RenderTools()->DrawSprite(pCurrent->m_X-20, pCurrent->m_Y-30-70*FlipY, 52);
+		Graphics()->QuadsEnd();
+	}
+	
+	int f = CustomStuff()->m_SawbladeAngle * 100;
+	
+	
+	if (Repair && frandom() < 0.15f)
+		m_pClient->m_pEffects->Electrospark(vec2(pCurrent->m_X, pCurrent->m_Y-(10+frandom()*30)*FlipY)+vec2(frandom()-frandom(), frandom()-frandom()) * 20.0f, 20+frandom()*20, vec2(0, 0));
+}
+
+
+void CBuildings::RenderDestroyedReactor(const struct CNetObj_Building *pCurrent)
 {
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
 	Graphics()->QuadsBegin();
-	RenderTools()->SelectSprite(SPRITE_STAND);
+	
+	RenderTools()->SelectSprite(SPRITE_REACTOR_DESTROYED);
+	
+	Graphics()->SetColor(1, 1, 1, 1);
+	Graphics()->QuadsSetRotation(0);
+	
+	RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y-12, 183);
+	
+	Graphics()->QuadsEnd();
+}
+
+	
+void CBuildings::RenderStand(const struct CNetObj_Building *pCurrent)
+{
+	int s = pCurrent->m_Status;
+	bool Flip = s & (1<<BSTATUS_MIRROR);
+	int FlipY = Flip ? -1 : 1;
+	
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
+	Graphics()->QuadsBegin();
+	RenderTools()->SelectSprite(SPRITE_STAND, Flip ? SPRITE_FLAG_FLIP_Y : 0);
 	
 	Graphics()->SetColor(1, 1, 1, 1);
 	Graphics()->QuadsSetRotation(0);
@@ -312,7 +436,7 @@ void CBuildings::RenderStand(const struct CNetObj_Building *pCurrent)
 	//RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y-24, 96*1.3f);
 	
 	float Scale = 0.8f;
-	IGraphics::CQuadItem QuadItem(pCurrent->m_X, pCurrent->m_Y-25, 96*Scale, 128*Scale); // -37
+	IGraphics::CQuadItem QuadItem(pCurrent->m_X, pCurrent->m_Y-25*FlipY, 96*Scale, 128*Scale); // -37
 	Graphics()->QuadsDraw(&QuadItem, 1);
 	
 	Graphics()->QuadsEnd();
@@ -327,11 +451,11 @@ void CBuildings::RenderStand(const struct CNetObj_Building *pCurrent)
 	}
 	
 	// render drop weapon tip for local player
-	if (distance(CustomStuff()->m_LocalPos, vec2(pCurrent->m_X, pCurrent->m_Y)) < 40 && 
+	if (distance(CustomStuff()->m_LocalPos, vec2(pCurrent->m_X, pCurrent->m_Y+15)) < 45 && 
 		CustomStuff()->m_LocalWeapon != WEAPON_TOOL && CustomStuff()->m_LocalWeapon != WEAPON_SCYTHE && CustomStuff()->m_LocalWeapon != WEAPON_HAMMER)
 	{
 		TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
-		TextRender()->Text(0, pCurrent->m_X + 22, pCurrent->m_Y - 90, 32, m_pClient->m_pBinds->GetKey("+dropweapon"), -1);
+		TextRender()->Text(0, pCurrent->m_X + 22, pCurrent->m_Y - 30 - 60*FlipY, 32, m_pClient->m_pBinds->GetKey("+dropweapon"), -1);
 		TextRender()->TextColor(1, 1, 1, 1);
 	}
 }
@@ -412,24 +536,28 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 	vec2 Pos = vec2(pCurrent->m_X, pCurrent->m_Y);
 	float Scale = 0.8f;
 	
+	int s = pCurrent->m_Status;
+	bool Flip = s & (1<<BSTATUS_MIRROR);
+	int FlipY = Flip ? -1 : 1;
+	
 	// stand
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
 	Graphics()->QuadsBegin();
-	RenderTools()->SelectSprite(SPRITE_STAND);
+	RenderTools()->SelectSprite(SPRITE_STAND, Flip ? SPRITE_FLAG_FLIP_Y : 0);
 	
 	Graphics()->SetColor(1, 1, 1, 1);
 	Graphics()->QuadsSetRotation(0);
 		
 	//RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y-24-9, 96*1.3f);
 	
-	IGraphics::CQuadItem Stand(pCurrent->m_X, pCurrent->m_Y-25, 96*Scale, 128*Scale); // -37
+	IGraphics::CQuadItem Stand(pCurrent->m_X, pCurrent->m_Y-25*FlipY, 96*Scale, 128*Scale); // -37
 	Graphics()->QuadsDraw(&Stand, 1);
 	Graphics()->QuadsEnd();
 	
 	
 	int Weapon = pCurrent->m_Weapon;
 	float Angle = (pCurrent->m_Angle+90) / (180/pi);
-	vec2 p = Pos + vec2(cosf(Angle)*12, sinf(Angle)*12-40-9); //+ vec2(cosf(Angle)*90, sinf(Angle)*90-71);
+	vec2 p = Pos + vec2(cosf(Angle)*12, sinf(Angle)*12+(-40-9)*FlipY); //+ vec2(cosf(Angle)*90, sinf(Angle)*90-71);
 	vec2 Dir = GetDirection((int)(Angle*256));
 	
 	int iw = clamp(Weapon, 0, NUM_WEAPONS-1);
@@ -496,7 +624,7 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 		if (pCurrent->m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)
 		{
 			Offset = vec2(frandom()-frandom(), frandom()-frandom()) * 2.0f;
-			m_pClient->m_pEffects->ChainsawSmoke(vec2(pCurrent->m_X, pCurrent->m_Y-50));
+			m_pClient->m_pEffects->ChainsawSmoke(vec2(pCurrent->m_X, pCurrent->m_Y-50*FlipY));
 		}
 	}
 	
@@ -646,7 +774,7 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 	
 	Graphics()->QuadsSetRotation(Angle);
 		
-	RenderTools()->DrawSprite(pCurrent->m_X+Offset.x, pCurrent->m_Y-40-9+Offset.y, 64*1.3f);
+	RenderTools()->DrawSprite(pCurrent->m_X+Offset.x, pCurrent->m_Y+(-40-9)*FlipY+Offset.y, 64*1.3f);
 	Graphics()->QuadsEnd();
 
 	
@@ -664,7 +792,7 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 		// check if we're firing stuff
 		if(g_pData->m_Weapons.m_aId[iw].m_NumSpriteMuzzles)//prev.attackticks)
 		{
-			vec2 p = Pos + vec2(cosf(Angle)*80, sinf(Angle)*80-49);
+			vec2 p = Pos + vec2(cosf(Angle)*80, sinf(Angle)*80-49*FlipY);
 			vec2 Dir = GetDirection((int)(Angle*256));
 			
 			float Alpha = 0.0f;
@@ -710,7 +838,7 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 	}
 	
 	// no ammo & low health status
-	int s = pCurrent->m_Status;
+	s = pCurrent->m_Status;
 	bool Repair = s & (1<<BSTATUS_REPAIR);
 	
 	s = pCurrent->m_Status;
@@ -725,7 +853,7 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 		
 		Graphics()->QuadsSetRotation(0);
 		
-		RenderTools()->DrawSprite(pCurrent->m_X - (NoAmmo ? 24 : 0), pCurrent->m_Y-102, 52);
+		RenderTools()->DrawSprite(pCurrent->m_X - (NoAmmo ? 24 : 0), pCurrent->m_Y-50-52*FlipY, 52);
 		Graphics()->QuadsEnd();
 	}
 	
@@ -739,7 +867,7 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 		
 		Graphics()->QuadsSetRotation(0);
 			
-		RenderTools()->DrawSprite(pCurrent->m_X + (Repair ? 24 : 0), pCurrent->m_Y-102, 52);
+		RenderTools()->DrawSprite(pCurrent->m_X + (Repair ? 24 : 0), pCurrent->m_Y-50-52*FlipY, 52);
 		Graphics()->QuadsEnd();
 		
 		
@@ -750,7 +878,7 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 		Graphics()->QuadsSetRotation(0);
 			
 		//RenderTools()->DrawSprite(pCurrent->m_X + (Repair ? 24 : 0), pCurrent->m_Y-102, 52);
-		IGraphics::CQuadItem Ammo(pCurrent->m_X + (Repair ? 24 : 0), pCurrent->m_Y-102, 18, 36); // -37
+		IGraphics::CQuadItem Ammo(pCurrent->m_X + (Repair ? 24 : 0), pCurrent->m_Y-50-52*FlipY, 18, 36); // -37
 		Graphics()->QuadsDraw(&Ammo, 1);
 		Graphics()->QuadsEnd();
 	}
@@ -815,6 +943,18 @@ void CBuildings::OnRender()
 				RenderStand(pBuilding);
 				break;
 				
+			case BUILDING_REACTOR:
+				RenderReactor(pBuilding);
+				break;
+				
+			case BUILDING_TESLACOIL:
+				RenderTeslacoil(pBuilding);
+				break;
+				
+			case BUILDING_REACTOR_DESTROYED:
+				RenderDestroyedReactor(pBuilding);
+				break;
+				
 			case BUILDING_SWITCH:
 				RenderSwitch(pBuilding);
 				break;
@@ -830,7 +970,7 @@ void CBuildings::OnRender()
 			default:;
 			};
 			
-			m_pClient->m_pEffects->Light(vec2(pBuilding->m_X, pBuilding->m_Y), 512);
+			//m_pClient->m_pEffects->Light(vec2(pBuilding->m_X, pBuilding->m_Y), 512);
 		}
 	}
 }

@@ -624,13 +624,13 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	if (m_pClient->m_pControls->m_BuildMode && m_pClient->BuildingEnabled())
 	{
 		float Size = 0.2f;
-		y += 20;
-		x += 12;
+		y += 24;
+		//x += 12;
 		
 		for (int i = 0; i < NUM_KITS; i++)
 		{
 			if (i != 0)
-				x += 180*Size;
+				x += 140*Size;
 			
 			int Cost = BuildableCost[i];
 			

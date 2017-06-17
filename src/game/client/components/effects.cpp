@@ -215,10 +215,10 @@ void CEffects::DamageInd(vec2 Pos, vec2 Dir, int Damage, vec4 Color)
 	p.SetDefault();
 	p.m_Spr = Damage;
 	p.m_Pos = Pos;
-	p.m_Vel = Dir * 50 * (1 + Damage*0.025f);
-	p.m_LifeSpan = 0.5f+Damage*0.025f;
-	p.m_StartSize = 16.0f+Damage*0.7f;
-	p.m_EndSize = 16.0f+Damage*0.5f;
+	p.m_Vel = Dir * 50 * (1 + min(Damage, 60)*0.025f);
+	p.m_LifeSpan = 0.5f+min(Damage, 60)*0.025f;
+	p.m_StartSize = 16.0f+min(Damage, 60)*0.7f;
+	p.m_EndSize = 16.0f+min(Damage, 60)*0.5f;
 	p.m_Color = Color;
 	p.m_Rot = 0;
 	p.m_Rotspeed = 0;

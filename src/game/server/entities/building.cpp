@@ -65,6 +65,13 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		m_ProximityRadius = StandPhysSize;
 		m_Life = 60;
 		m_Center = vec2(0, -10);
+		
+		if (GameServer()->Collision()->IsTileSolid(Pos.x, Pos.y - 30))
+		{
+			m_Mirror = true;
+			m_Center = vec2(0, +10);
+			Pos.y += 16;
+		}
 		break;
 		
 	case BUILDING_SWITCH:
@@ -83,6 +90,20 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		m_ProximityRadius = LightningWallPhysSize;
 		m_Life = 70;
 		m_Center = vec2(0, -10);
+		break;
+		
+	case BUILDING_REACTOR:
+		m_ProximityRadius = ReactorPhysSize;
+		m_Life = 400;
+		m_Center = vec2(0, 0);
+		Pos += vec2(0, -50);
+		break;
+		
+	case BUILDING_REACTOR_DESTROYED:
+		m_ProximityRadius = ReactorPhysSize;
+		m_Life = 9000;
+		m_Center = vec2(0, 0);
+		m_Collision = false;
 		break;
 		
 	case BUILDING_DOOR1:
@@ -199,6 +220,14 @@ void CBuilding::UpdateStatus()
 	if (m_Mirror)
 		m_aStatus[BSTATUS_MIRROR] = 1;
 	
+	if (m_Type == BUILDING_REACTOR)
+	{
+		if (m_Life < 200)
+			m_aStatus[BSTATUS_REPAIR] = 1;
+		else
+			m_aStatus[BSTATUS_REPAIR] = 0;
+	}
+	
 	m_Status = 0;
 	
 	for (int i = 0; i < NUM_BSTATUS; i++)
@@ -232,7 +261,7 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon)
 	if (m_Life >= 5000)
 		return;
 	
-	if (m_Type == BUILDING_TURRET && GameServer()->m_pController->IsCoop())
+	if ((m_Type == BUILDING_TURRET || m_Type == BUILDING_TESLACOIL) && GameServer()->m_pController->IsCoop())
 	{
 		if (Owner >= 0 && Owner < MAX_CLIENTS)
 		{
@@ -253,6 +282,9 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon)
 		return;
 	
 	int Dmg = Damage / 2;
+	
+	if (Damage > 0 && Dmg == 0)
+		Dmg = 1;
 	
 	m_Life -= Dmg;
 	
@@ -303,6 +335,16 @@ void CBuilding::Destroy()
 		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
 		GameServer()->CreateExplosion(m_Pos, m_DamageOwner, DEATHTYPE_POWERBARREL, 2, false, false);
 		GameServer()->m_World.DestroyEntity(this);
+	}
+	else if (m_Type == BUILDING_REACTOR)
+	{
+		new CBuilding(&GameServer()->m_World, m_Pos, BUILDING_REACTOR_DESTROYED, TEAM_NEUTRAL);
+		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
+		GameServer()->CreateExplosion(m_Pos, m_DamageOwner, DEATHTYPE_EMPTY, 2, false, false);
+		GameServer()->m_World.DestroyEntity(this);
+		
+		GameServer()->SendBroadcast("Reactor lost", -1);
+		GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
 	}
 	else if (m_Type == BUILDING_FLAMETRAP)
 	{
