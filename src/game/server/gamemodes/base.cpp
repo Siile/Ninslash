@@ -31,6 +31,7 @@ CGameControllerBase::CGameControllerBase(class CGameContext *pGameServer) : IGam
 	
 	m_RoundOverTick = 0;
 	m_RoundWinTick = 0;
+	m_NoPlayersTick = 0;
 	
 	m_GameOverBroadcast = false;
 	m_RoundWin = false;
@@ -306,6 +307,17 @@ void CGameControllerBase::Tick()
 {
 	IGameController::Tick();
 	
+	if (m_Wave > 0 && !m_NoPlayersTick && CountHumans() <= 0)
+	{
+		m_NoPlayersTick = Server()->Tick() + Server()->TickSpeed() * 10.0f;
+	}
+	
+	if (m_NoPlayersTick && m_NoPlayersTick < Server()->Tick())
+	{
+		m_NoPlayersTick = 0;
+		EndRound();
+		CycleMap();
+	}
 	
 	// 
 	if (m_GameState == STATE_STARTING)

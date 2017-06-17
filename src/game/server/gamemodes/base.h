@@ -31,6 +31,8 @@ private:
 	int m_RoundWinTick;
 	int m_RoundOverTick;
 	
+	int m_NoPlayersTick;
+	
 	bool m_GameOverBroadcast;
 	
 	// hordes of enemies
