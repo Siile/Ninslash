@@ -85,6 +85,7 @@ public:
 	class IStorage *Storage() { return m_pStorage; }
 
 	class CPlayerData *PlayerData(int ClientID);
+	void ResetPlayerData();
 	
 	enum
 	{

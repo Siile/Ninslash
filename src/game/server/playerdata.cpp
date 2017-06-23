@@ -2,10 +2,14 @@
 
 CPlayerData::CPlayerData()
 {
-	Die();
+	Reset();
 }
 
 void CPlayerData::Die()
+{
+}
+
+void CPlayerData::Reset()
 {
 	for (int i = 0; i < 99; i++)
 	{
@@ -15,4 +19,5 @@ void CPlayerData::Die()
 	
 	m_Weapon = 0;
 	m_Kits = 0;
+	m_Score = 0;
 }

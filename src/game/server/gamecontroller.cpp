@@ -1053,6 +1053,8 @@ void IGameController::FirstMap()
 	g_Config.m_SvMapGenLevel = 1;
 	g_Config.m_SvInvFails = 0;
 	
+	Server()->ResetPlayerData();
+	
 	if(m_aMapWish[0] != 0)
 	{
 		char aBuf[256];

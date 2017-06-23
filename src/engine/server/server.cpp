@@ -307,6 +307,13 @@ CPlayerData *CServer::PlayerData(int ClientID)
 }
 
 
+void CServer::ResetPlayerData()
+{
+	for (int i = 0; i < MAX_CLIENTS; i++)
+		if (m_apPlayerData[i])
+			m_apPlayerData[i]->Reset();
+}
+
 
 int CServer::TrySetClientName(int ClientID, const char *pName)
 {

@@ -1797,7 +1797,7 @@ void CGameContext::OnClientDrop(int ClientID, const char *pReason)
 			m_apPlayers[i]->m_SpectatorID = SPEC_FREEVIEW;
 	}
 	
-	Server()->PlayerData(ClientID)->Die();
+	Server()->PlayerData(ClientID)->Reset();
 }
 
 void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)

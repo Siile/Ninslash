@@ -13,12 +13,14 @@
 
 #include <game/server/playerdata.h>
 #include <game/server/ai.h>
-#include <game/server/ai/robot1_ai.h>
-#include <game/server/ai/robot2_ai.h>
-#include <game/server/ai/alien1_ai.h>
-#include <game/server/ai/alien2_ai.h>
-#include <game/server/ai/bunny1_ai.h>
-#include <game/server/ai/bunny2_ai.h>
+#include <game/server/ai/inv/robot1_ai.h>
+#include <game/server/ai/inv/robot2_ai.h>
+#include <game/server/ai/inv/alien1_ai.h>
+#include <game/server/ai/inv/alien2_ai.h>
+#include <game/server/ai/inv/bunny1_ai.h>
+#include <game/server/ai/inv/bunny2_ai.h>
+#include <game/server/ai/inv/pyro1_ai.h>
+#include <game/server/ai/inv/pyro2_ai.h>
 
 
 
@@ -119,17 +121,21 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			if (g_Config.m_SvMapGenLevel > 10 && frandom() < 0.35f)
 				i = ENEMY_ROBOT1;
 			
-			if (g_Config.m_SvMapGenLevel > 20 && frandom() < 0.35f)
+			if (g_Config.m_SvMapGenLevel > 15 && frandom() < 0.35f)
 				i = ENEMY_ROBOT2;
 			
 			if (m_EnemyCount >= 12)
 			{
 				i = ENEMY_ALIEN2;
 				
-				if (g_Config.m_SvMapGenLevel > 30 && frandom() < 0.35f)
+				if (g_Config.m_SvMapGenLevel > 20 && frandom() < 0.35f)
 						i = ENEMY_BUNNY1;
-				if (g_Config.m_SvMapGenLevel > 35 && frandom() < 0.35f)
+				if (g_Config.m_SvMapGenLevel > 25 && frandom() < 0.35f)
 						i = ENEMY_BUNNY2;
+				if (g_Config.m_SvMapGenLevel > 30 && frandom() < 0.35f)
+						i = ENEMY_PYRO1;
+				if (g_Config.m_SvMapGenLevel > 35 && frandom() < 0.15f)
+						i = ENEMY_PYRO2;
 			}
 			
 			switch (i)
@@ -158,12 +164,22 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 				pChr->GetPlayer()->m_pAI = new CAIbunny2(GameServer(), pChr->GetPlayer());
 				break;
 				
+			case ENEMY_PYRO1:
+				pChr->GetPlayer()->m_pAI = new CAIpyro1(GameServer(), pChr->GetPlayer());
+				break;
+				
+			case ENEMY_PYRO2:
+				pChr->GetPlayer()->m_pAI = new CAIpyro2(GameServer(), pChr->GetPlayer());
+				break;
+				
 			default:
 				pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer());
 				break;
 			};
 				
 			m_EnemyCount++;
+			
+			pChr->m_SkipPickups = 999;
 		}
 		
 		if (!Found)

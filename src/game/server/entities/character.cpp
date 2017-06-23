@@ -208,12 +208,13 @@ void CCharacter::SaveData()
 
 	pData->m_Weapon = GetActiveWeapon();
 	pData->m_Kits = m_Kits;
+	pData->m_Score = GetPlayer()->m_Score;
 	
 	for (int i = 0; i < NUM_WEAPONS; i++)
 	{
 		if (GotWeapon(i))
 		{
-			pData->m_aAmmo[i] = m_aWeapon[i].m_Ammo;
+			pData->m_aAmmo[i] = max(0, m_aWeapon[i].m_Ammo);
 			pData->m_aPowerLevel[i] = m_aWeapon[i].m_PowerLevel;
 		}
 		else
@@ -1155,6 +1156,7 @@ void CCharacter::GiveStartWeapon()
 		
 		m_aWeapon[1].m_PowerLevel = pData->m_aPowerLevel[1];
 		m_Kits = pData->m_Kits;
+		GetPlayer()->m_Score = pData->m_Score;
 		
 		//GiveAllWeapons();
 		
