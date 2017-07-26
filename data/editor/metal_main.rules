@@ -160,6 +160,95 @@ Pos 1 1 FULL
 Pos 1 2 EMPTY
 
 
+# single slope left
+Index 20
+Pos 0 -1 EMPTY
+Pos 1 0 EMPTY
+Pos 0 -2 EMPTY
+
+Pos -1 0 FULL
+Pos 0 1 FULL
+Pos 1 1 FULL
+
+# single slope right
+Index 20 XFLIP
+Pos 0 -1 EMPTY
+Pos -1 0 EMPTY
+Pos 0 -2 EMPTY
+
+Pos 1 0 FULL
+Pos 0 1 FULL
+Pos -1 1 FULL
+
+
+# single slope left
+Index 20 YFLIP
+Pos 0 1 EMPTY
+Pos 1 0 EMPTY
+Pos 0 2 EMPTY
+
+Pos -1 0 FULL
+Pos 0 -1 FULL
+Pos 1 -1 FULL
+
+# single slope right
+Index 20 XYFLIP
+Pos 0 1 EMPTY
+Pos -1 0 EMPTY
+Pos 0 2 EMPTY
+
+Pos 1 0 FULL
+Pos 0 -1 FULL
+Pos -1 -1 FULL
+
+
+
+
+
+# single wall slope right
+Index 20 XFLIP
+Pos 0 -1 EMPTY
+Pos -1 0 EMPTY
+Pos -1 1 EMPTY
+
+Pos 1 0 FULL
+Pos 1 -1 FULL
+Pos 0 1 FULL
+
+# single wall slope right 2
+Index 20 XYFLIP
+Pos 0 1 EMPTY
+Pos -1 0 EMPTY
+Pos -1 -1 EMPTY
+
+Pos 1 0 FULL
+Pos 1 1 FULL
+Pos 0 -1 FULL
+
+
+# single wall slope left
+Index 20
+Pos 0 -1 EMPTY
+Pos 1 0 EMPTY
+Pos 1 1 EMPTY
+
+Pos -1 0 FULL
+Pos -1 -1 FULL
+Pos 0 1 FULL
+
+# single wall slope left 2
+Index 20 YFLIP
+Pos 0 1 EMPTY
+Pos 1 0 EMPTY
+Pos 1 -1 EMPTY
+
+Pos -1 0 FULL
+Pos -1 1 FULL
+Pos 0 -1 FULL
+
+
+
+
 #slope bot-right 1
 Index 20 YFLIP
 Pos 0 1 EMPTY
@@ -241,6 +330,42 @@ Pos 1 0 FULL
 Pos -1 0 FULL
 Pos 0 -1 EMPTY
 Pos -1 1 EMPTY
+
+
+
+#corner combine 2 top-left
+Index 17
+Pos 0 -1 FULL
+Pos 0 1 FULL
+Pos 1 0 FULL
+Pos -1 0 EMPTY
+Pos 1 -1 EMPTY
+
+#corner combine 2 top-right
+Index 17 XFLIP
+Pos 0 -1 FULL
+Pos 0 1 FULL
+Pos -1 0 FULL
+Pos 1 0 EMPTY
+Pos -1 -1 EMPTY
+
+#corner combine 2 bot-left
+Index 17 YFLIP
+Pos 0 1 FULL
+Pos 0 -1 FULL
+Pos 1 0 FULL
+Pos -1 0 EMPTY
+Pos 1 1 EMPTY
+
+#corner combine 2 bot-right
+Index 17 XYFLIP
+Pos 0 1 FULL
+Pos 0 -1 FULL
+Pos -1 0 FULL
+Pos 1 0 EMPTY
+Pos -1 1 EMPTY
+
+
 
 
 #chain top

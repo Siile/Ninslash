@@ -179,7 +179,7 @@ protected:
 	
 	void RandomlyStopShooting();
 	
-	// kf
+	
 	bool SeekRandomHuman();
 	void ShootAtClosestHuman();
 	bool SeekClosestHumanInSight();
@@ -204,6 +204,10 @@ protected:
 	
 	int m_PowerLevel;
 	int m_DispersionTick;
+	
+	// invasion
+	int m_TriggerLevel;
+	bool m_Triggered;
 	
 public:
 	CAI(class CGameContext *pGameServer, class CPlayer *pPlayer);
@@ -242,6 +246,8 @@ public:
 	{
 		return m_EventTriggerTick[EventNum];
 	}
+	
+	void Trigger(int TriggerLevel);
 	
 	int GetMove(){ return m_Move; }
 };

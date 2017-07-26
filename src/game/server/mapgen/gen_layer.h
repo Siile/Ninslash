@@ -10,14 +10,21 @@ class CGenLayer
 private:
 	int *m_pTiles;
 	int *m_pBGTiles;
+	int *m_pDoodadsTiles;
+	int *m_pObjectTiles;
 	int *m_pFlags;
 	int *m_pBGFlags;
+	int *m_pDoodadsFlags;
+	int *m_pObjectFlags;
 	int m_Width;
 	int m_Height;
 	int m_Size;
 
 	ivec2 m_aPlatform[GEN_MAX];
 	int m_NumPlatforms;
+	
+	ivec2 m_aOpenArea[GEN_MAX];
+	int m_NumOpenAreas;
 	
 	// inner top corners
 	ivec2 m_aTopCorner[GEN_MAX];
@@ -53,7 +60,9 @@ public:
 	enum Layer
 	{
 		FOREGROUND,
-		BACKGROUND
+		BACKGROUND,
+		DOODADS,
+		FGOBJECTS,
 	};
 	
 	void Set(int Tile, int x, int y, int Flags = 0, int Layer = FOREGROUND);
@@ -62,6 +71,8 @@ public:
 	int GetFlags(int x, int y, int Layer = FOREGROUND);
 	bool Used(int x, int y);
 	
+	bool IsFloor(int x, int y);
+	
 	void Use(int x, int y);
 	
 	int Width() { return m_Width; }
@@ -69,23 +80,33 @@ public:
 	
 	int NumPlatforms() { return m_NumPlatforms; }
 	int NumTopCorners() { return m_NumTopCorners; }
-	
+
 	void GenerateSlopes();
+	void RemoveSingles();
+	void GenerateBoxes();
 	void GenerateBackground();
 	void GenerateAirPlatforms(int Num);
 	void Scan();
 	int Size();
 	
 	ivec2 GetPlayerSpawn();
+	ivec2 GetOpenArea();
+	ivec2 GetLeftPlatform();
+	ivec2 GetRightPlatform();
 	ivec2 GetPlatform();
 	ivec2 GetCeiling();
+	ivec2 GetLeftCeiling();
 	ivec2 GetWall();
 	ivec2 GetTopCorner();
 	ivec2 GetSharpCorner();
 	ivec4 GetPit();
 	
+	bool IsNearSlope(int x, int y);
+	
 	ivec3 GetLongPlatform();
 	ivec3 GetLongCeiling();
+	
+	ivec2 m_EndPos;
 };
 
 #endif

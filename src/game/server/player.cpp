@@ -28,6 +28,7 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	m_TeamChangeTick = Server()->Tick();
 	
 	m_Spectate = false;
+	m_ActionSpectator = true;
 	
 	m_Score = 0;
 	
@@ -204,6 +205,7 @@ void CPlayer::Tick()
 			if(m_pCharacter->IsAlive())
 			{
 				m_ViewPos = m_pCharacter->m_Pos;
+				m_ActionSpectator = true;
 			}
 			else
 			{
@@ -371,7 +373,7 @@ void CPlayer::Snap(int SnappingClient)
 	//if(m_ClientID == SnappingClient && m_Team == TEAM_SPECTATORS)
 	if(m_ClientID == SnappingClient && Spectating())
 	{
-		pPlayerInfo->m_Team = TEAM_SPECTATORS;
+		//pPlayerInfo->m_Team = TEAM_SPECTATORS;
 		pPlayerInfo->m_Spectating = 1;
 		
 		CNetObj_SpectatorInfo *pSpectatorInfo = static_cast<CNetObj_SpectatorInfo *>(Server()->SnapNewItem(NETOBJTYPE_SPECTATORINFO, m_ClientID, sizeof(CNetObj_SpectatorInfo)));
@@ -797,12 +799,14 @@ void CPlayer::SetCustomSkin(int Type)
 	}
 	
 	// alien
-	if (Type == 4)
+	if (Type == 4 || Type == 11)
 	{
 		m_TeeInfos.m_BloodColor = 1;
 		str_copy(m_TeeInfos.m_TopperName, "none", 64);
 		
-		if (frandom() < 0.5f)
+		if (Type == 11)
+			str_copy(m_TeeInfos.m_EyeName, "hole", 64);
+		else if (frandom() < 0.5f)
 			str_copy(m_TeeInfos.m_EyeName, "alien", 64);
 		else
 			str_copy(m_TeeInfos.m_EyeName, "alien2", 64);
@@ -812,6 +816,36 @@ void CPlayer::SetCustomSkin(int Type)
 		m_TeeInfos.m_ColorSkin = 5682688;
 		m_TeeInfos.m_ColorBody = 8847104;
 		m_TeeInfos.m_ColorFeet = 8847104;
+		
+		// skin
+		
+		if (Type == 11)
+			m_TeeInfos.m_ColorSkin = 14184192;
+		else
+		{
+			switch (rand()%3)
+			{
+				case 0: m_TeeInfos.m_ColorSkin = 3276552; break;
+				case 1: m_TeeInfos.m_ColorSkin = 7985483; break;
+				default: break;
+			};
+		}
+		
+		// body
+		switch (rand()%3)
+		{
+			case 0: m_TeeInfos.m_ColorBody = 4849408; break;
+			case 1: m_TeeInfos.m_ColorBody = 3079936; break;
+			default: break;
+		};
+		
+		// feet
+		switch (rand()%3)
+		{
+			case 0: m_TeeInfos.m_ColorFeet = 4772096; break;
+			case 1: m_TeeInfos.m_ColorFeet = 2752256; break;
+			default: break;
+		};
 		
 		if (!GameServer()->m_pController->IsCoop())
 		{
@@ -899,7 +933,7 @@ void CPlayer::SetCustomSkin(int Type)
 		m_TeeInfos.m_ColorBody = m_TeeInfos.m_ColorTopper;
 		m_TeeInfos.m_ColorFeet = m_TeeInfos.m_ColorTopper;
 		str_copy(m_TeeInfos.m_TopperName, "none", 64);
-		str_copy(m_TeeInfos.m_EyeName, "robo1", 64);
+		str_copy(m_TeeInfos.m_EyeName, "robo4", 64);
 		
 		if (!GameServer()->m_pController->IsCoop())
 		{

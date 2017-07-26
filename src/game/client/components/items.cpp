@@ -77,10 +77,15 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 		Curvature = m_pClient->m_Tuning.m_WalkerCurvature;
 		Speed = m_pClient->m_Tuning.m_WalkerSpeed;
 	}
-	else if(pCurrent->m_Type == W_WALKER)
+	else if(pCurrent->m_Type == W_DROID_WALKER)
 	{
 		Curvature = m_pClient->m_Tuning.m_WalkerCurvature;
 		Speed = m_pClient->m_Tuning.m_WalkerSpeed;
+	}
+	else if(pCurrent->m_Type == W_DROID_STAR)
+	{
+		Curvature = m_pClient->m_Tuning.m_StarDroidCurvature;
+		Speed = m_pClient->m_Tuning.m_StarDroidSpeed;
 	}
 
 	static float s_LastGameTickTime = Client()->GameTickTime();
@@ -94,13 +99,36 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 		
 	vec2 StartPos(pCurrent->m_X, pCurrent->m_Y);
 	vec2 StartVel(pCurrent->m_VelX/100.0f, pCurrent->m_VelY/100.0f);
-	vec2 Pos = CalcPos(StartPos, StartVel, Curvature, Speed, Ct);
-	vec2 PrevPos = CalcPos(StartPos, StartVel, Curvature, Speed, Ct-0.001f);
 	
-	vec2 TrailPos1 = CalcPos(StartPos, StartVel, Curvature, Speed, Ct+0.008f);
-	vec2 TrailPos2 = CalcPos(StartPos, StartVel, Curvature, Speed, Ct-0.009f);
+
+	vec2 Pos;
+	vec2 PrevPos;
+		
+	vec2 TrailPos1;
+	vec2 TrailPos2;
+		
+	vec2 PredictPos;
 	
-	vec2 PredictPos = CalcPos(StartPos, StartVel, Curvature, Speed, Ct+0.01f);
+	if (pCurrent->m_Type == W_DROID_STAR)
+	{
+		Pos = CalcLogPos(StartPos, StartVel, Curvature, Speed, Ct);
+		PrevPos = CalcLogPos(StartPos, StartVel, Curvature, Speed, Ct-0.001f);
+		
+		TrailPos1 = CalcLogPos(StartPos, StartVel, Curvature, Speed, Ct+0.008f);
+		TrailPos2 = CalcLogPos(StartPos, StartVel, Curvature, Speed, Ct-0.009f);
+		
+		PredictPos = CalcLogPos(StartPos, StartVel, Curvature, Speed, Ct+0.01f);
+	}
+	else
+	{
+		Pos = CalcPos(StartPos, StartVel, Curvature, Speed, Ct);
+		PrevPos = CalcPos(StartPos, StartVel, Curvature, Speed, Ct-0.001f);
+		
+		TrailPos1 = CalcPos(StartPos, StartVel, Curvature, Speed, Ct+0.008f);
+		TrailPos2 = CalcPos(StartPos, StartVel, Curvature, Speed, Ct-0.009f);
+		
+		PredictPos = CalcPos(StartPos, StartVel, Curvature, Speed, Ct+0.01f);
+	}
 	
 	/*
 	if(pCurrent->m_Type == WEAPON_GRENADE || pCurrent->m_Type == WEAPON_FLAMER)
@@ -126,8 +154,10 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	{
 		RenderTools()->SelectSprite(SPRITE_FIREBALL1 + CustomStuff()->GetSpriteFrame(10, 3));
 	}
-	else if (pCurrent->m_Type == W_WALKER)
+	else if (pCurrent->m_Type == W_DROID_WALKER)
 		RenderTools()->SelectSprite(SPRITE_WALKER_PROJ);
+	else if (pCurrent->m_Type == W_DROID_STAR)
+		RenderTools()->SelectSprite(SPRITE_GREEN_CHARGE1 + CustomStuff()->GetSpriteFrame(6, 7));
 	else if (pCurrent->m_Type == WEAPON_RIFLE && pCurrent->m_PowerLevel > 1)
 		RenderTools()->SelectSprite(SPRITE_WEAPON_RIFLE_PROJ2);
 	else
@@ -189,9 +219,9 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	else if(pCurrent->m_Type == WEAPON_ELECTRIC)
 	{
 		if (pCurrent->m_PowerLevel == 1)
-			m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.5f, 0.5f, 1.0f, 0.75f));
+			m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.5f, 0.5f, 1.0f, 0.75f), 2.0f);
 		else if (pCurrent->m_PowerLevel > 1)
-			m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.5f, 1.0f, 0.5f, 0.75f));
+			m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.5f, 1.0f, 0.5f, 0.75f), 2.0f);
 		
 		//m_pClient->m_pEffects->BulletTrail(Pos);
 		m_pClient->m_pEffects->Electrospark(Pos, 16, Vel * 100.0f);
@@ -227,7 +257,7 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.7f, 0.5f, 0.3f, 0.75f));
 		}
 		
-		if(pCurrent->m_Type == WEAPON_RIFLE || pCurrent->m_Type == W_WALKER)
+		if(pCurrent->m_Type == WEAPON_RIFLE || pCurrent->m_Type == W_DROID_WALKER)
 		{
 			if (pCurrent->m_PowerLevel == 0)
 				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.2f, 0.2f, 1.0f, 0.75f));
@@ -235,6 +265,11 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.2f, 1.0f, 0.5f, 0.75f));
 			else
 				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.5f, 0.5f, 1.0f, 0.75f));
+		}
+		
+		if(pCurrent->m_Type == W_DROID_STAR)
+		{
+			m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.4f, 1.0f, 0.4f, 0.5f), 6*(1.0f + Ct*3.0f));
 		}
 		
 		if (Collision()->GetCollisionAt(PredictPos.x, PredictPos.y)&1 ||  // solid
@@ -258,6 +293,9 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	
 	if(pCurrent->m_Type == WEAPON_FLAMER)
 		Size = vec2(64, 32) * 0.65f;
+	
+	if(pCurrent->m_Type == W_DROID_STAR)
+		Size = vec2(18, 18) * (1.0f + Ct*3.0f);
 	
 	IGraphics::CQuadItem QuadItem(Pos.x, Pos.y, Size.x, Size.y);
 	// draw projectile

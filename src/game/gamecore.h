@@ -114,6 +114,16 @@ inline vec2 CalcPos(vec2 Pos, vec2 Velocity, float Curvature, float Speed, float
 	return n;
 }
 
+inline vec2 CalcLogPos(vec2 Pos, vec2 Velocity, float Curvature, float Speed, float Time)
+{
+	vec2 n;
+	Time *= Speed;
+	float T = log(1.0f + Time)*150.0f;
+	n.x = Pos.x + Velocity.x*T;
+	n.y = Pos.y + Velocity.y*T + Curvature/10000*(T*T);
+	return n;
+}
+
 
 template<typename T>
 inline T SaturatedAdd(T Min, T Max, T Current, T Modifier)
@@ -182,13 +192,13 @@ public:
 	{
 		m_Monster = 0;
 		
-		for (int i = 0; i < MAX_MONSTERS; i++)
+		for (int i = 0; i < MAX_DROIDS; i++)
 			m_aMonsterPos[i] = vec2(0, 0);
 	}
 	
 	void AddMonster(vec2 Pos)
 	{
-		if (m_Monster < MAX_MONSTERS)
+		if (m_Monster < MAX_DROIDS)
 			m_aMonsterPos[m_Monster] = Pos;
 	
 		m_Monster++;
@@ -198,7 +208,7 @@ public:
 	class CCharacterCore *m_apCharacters[MAX_CLIENTS];
 
 	int m_Monster;
-	vec2 m_aMonsterPos[MAX_MONSTERS];
+	vec2 m_aMonsterPos[MAX_DROIDS];
 	
 	// jumppad impact to gore
 	int m_Impact;

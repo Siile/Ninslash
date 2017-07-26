@@ -200,6 +200,20 @@ void CEffects::Spark(vec2 Pos)
 	m_pClient->m_pSpark->Add(CSpark::GROUP_SPARKS, &b);
 }
 
+void CEffects::GreenSpark(vec2 Pos)
+{
+	CSinglespark b;
+	b.SetDefault();
+	b.m_Pos = Pos;
+	b.m_LifeSpan = 0.1f + frandom()*0.2f;
+	b.m_Rotspeed = frandom()*12.0f - frandom()*12.0f;
+	b.m_Vel = RandomDir() * ((frandom()+0.165f)*700.0f);
+	b.m_Rot = GetAngle(b.m_Vel);
+	
+	b.m_Color = vec4(0.2f, 0.5f + frandom()*0.5f, 0.2f, 1.0f);
+	m_pClient->m_pSpark->Add(CSpark::GROUP_SPARKS, &b);
+}
+
 
 void CEffects::DamageIndicator(vec2 Pos, vec2 Dir)
 {
@@ -316,7 +330,7 @@ void CEffects::SmokeTrail(vec2 Pos, vec2 Vel)
 	p.m_StartSize = 12.0f + frandom()*8;
 	p.m_EndSize = 0;
 	p.m_Friction = 0.7f;
-	p.m_Gravity = frandom()*-500.0f;
+	p.m_Gravity = frandom()*-300.0f;
 	p.m_Color = vec4(1,1,1, 0.75f);
 	m_pClient->m_pParticles->Add(CParticles::GROUP_PROJECTILE_TRAIL, &p);
 }
@@ -403,7 +417,7 @@ void CEffects::BulletTrail(vec2 Pos)
 	m_pClient->m_pParticles->Add(CParticles::GROUP_PROJECTILE_TRAIL, &p);
 }
 
-void CEffects::BulletTrail(vec2 Start, vec2 End, vec4 Color)
+void CEffects::BulletTrail(vec2 Start, vec2 End, vec4 Color, float Size)
 {
 	if(!m_Add100hz)
 		return;
@@ -414,6 +428,7 @@ void CEffects::BulletTrail(vec2 Start, vec2 End, vec4 Color)
 	p.m_StartPos = Start;
 	p.m_EndPos = End;
 	p.m_TrailDir = normalize(Start - End);
+	p.m_StartSize = Size;
 	
 	p.m_LifeSpan = 0.2f;
 	p.m_Color = Color;
@@ -698,6 +713,24 @@ void CEffects::SpriteSheet(int FX, vec2 Pos)
 			
 			for (int i = 0; i < 4; i++)
 				Electrospark(Pos+vec2(frandom()-frandom(), frandom()-frandom())*120.0f, 64);
+		}
+		break;
+		
+	case FX_GREEN_EXPLOSION:
+		{
+			CParticle p;
+			p.SetDefault();
+			p.m_Spr = SPRITE_GREEN_EXPLOSION1;
+			p.m_Frames = 8;
+			p.m_Pos = Pos;
+			p.m_LifeSpan = 0.22f;
+			p.m_StartSize = 200;
+			p.m_EndSize = 200;
+			p.m_Rot = frandom()*pi*2;
+			m_pClient->m_pParticles->Add(CParticles::GROUP_GREEN_EXPLOSION, &p);
+			
+			for (int i = 0; i < 24; i++)
+				GreenSpark(Pos);
 		}
 		break;
 		

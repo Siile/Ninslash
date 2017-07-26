@@ -11,7 +11,7 @@
 #include "laser.h"
 #include "projectile.h"
 #include "superexplosion.h"
-#include "monster.h"
+#include "droid.h"
 #include "laserfail.h"
 #include "staticlaser.h"
 
@@ -442,24 +442,6 @@ void CCharacter::SetCustomWeapon(int CustomWeapon)
 	m_PrevWeapon = m_ActiveCustomWeapon;
 	m_ActiveCustomWeapon = CustomWeapon;
 	GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
-	
-
-
-	/*
-	if (!m_IsBot && GetPlayer()->m_EnableWeaponInfo == 1)
-	{
-		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Using: %s", aCustomWeapon[CustomWeapon].m_Name);
-		GameServer()->SendChatTarget(GetPlayer()->GetCID(), aBuf);
-	}
-	
-	if (!m_IsBot && GetPlayer()->m_EnableWeaponInfo == 2 && GameServer()->m_BroadcastLockTick < Server()->Tick())
-	{
-		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "Using: %s", aCustomWeapon[CustomWeapon].m_Name);
-		GameServer()->SendBroadcast(aBuf, GetPlayer()->GetCID());
-	}
-	*/
 }
 
 
@@ -860,7 +842,7 @@ void CCharacter::FireWeapon()
 	int Sound = m_ActiveCustomWeapon;
 	
 	if (m_ActiveCustomWeapon == WEAPON_RIFLE && m_Type == CCharacter::ROBOT)
-		Sound = W_WALKER;
+		Sound = W_DROID_WALKER;
 	
 	if (aCustomWeapon[Sound].m_Sound >= 0)
 		GameServer()->CreateSound(m_Pos, aCustomWeapon[Sound].m_Sound);
@@ -947,13 +929,13 @@ void CCharacter::FireWeapon()
 			
 			// monster collision
 			{
-				CMonster *apEnts[MAX_CLIENTS];
+				CDroid *apEnts[MAX_CLIENTS];
 				int Num = GameServer()->m_World.FindEntities(ProjStartPos, m_ProximityRadius*2.5f, (CEntity**)apEnts,
-															MAX_CLIENTS, CGameWorld::ENTTYPE_MONSTER);
+															MAX_CLIENTS, CGameWorld::ENTTYPE_DROID);
 
 				for (int i = 0; i < Num; ++i)
 				{
-					CMonster *pTarget = apEnts[i];
+					CDroid *pTarget = apEnts[i];
 
 					if (pTarget->m_Health <= 0)
 						continue;
@@ -1014,7 +996,7 @@ void CCharacter::FireWeapon()
 			}
 			
 			if (m_ActiveCustomWeapon == WEAPON_RIFLE && m_Type == CCharacter::ROBOT)
-				GameServer()->CreateProjectile(m_pPlayer->GetCID(), W_WALKER, 0, ProjStartPos, Direction);
+				GameServer()->CreateProjectile(m_pPlayer->GetCID(), W_DROID_WALKER, 0, ProjStartPos, Direction);
 			else
 				GameServer()->CreateProjectile(m_pPlayer->GetCID(), m_ActiveCustomWeapon, PowerLevel, ProjStartPos, Direction);
 			
@@ -1130,7 +1112,8 @@ void CCharacter::AutoWeaponChange()
 
 void CCharacter::GiveStartWeapon()
 {
-	if (GameServer()->m_pController->IsCoop())
+	//if (GameServer()->m_pController->IsCoop())
+	if (str_comp(g_Config.m_SvGametype, "coop") == 0)
 	{
 		if (m_IsBot)
 			return;
@@ -1256,30 +1239,24 @@ void CCharacter::UpgradeWeapon()
 		if (m_aWeapon[w].m_PowerLevel < 2)
 		{
 			m_aWeapon[w].m_PowerLevel++;
-			// sound here
 			return;
 		}
-		else
-		{
-			w = m_PrevWeapon;
-			if (w >= 1 && w < NUM_WEAPONS && GotWeapon(w) && m_aWeapon[w].m_PowerLevel < 2)
+	}
+	
+	w = m_PrevWeapon;
+	if (w >= 1 && w < NUM_WEAPONS && GotWeapon(w) && m_aWeapon[w].m_PowerLevel < 2)
+	{
+		m_aWeapon[w].m_PowerLevel++;
+		return;
+	}
+	else
+	{
+		for (w = 1; w < NUM_WEAPONS; w++)
+			if (GotWeapon(w) && m_aWeapon[w].m_PowerLevel < 2)
 			{
 				m_aWeapon[w].m_PowerLevel++;
-				// sound here
 				return;
 			}
-			else
-			{
-				for (w = 1; w < NUM_WEAPONS; w++)
-					if (GotWeapon(w) && m_aWeapon[w].m_PowerLevel < 2)
-					{
-						m_aWeapon[w].m_PowerLevel++;
-						// sound here
-						return;
-					}
-			}
-		}
-		
 	}
 }
 
@@ -1409,10 +1386,10 @@ bool CCharacter::Invisible()
 	if (m_aStatus[STATUS_SPAWNING] > 0)
 		return true;
 		
-	if (m_DamageTakenTick > Server()->Tick() - Server()->TickSpeed() * 1.0f)
+	if (m_DamageTakenTick > Server()->Tick() - Server()->TickSpeed() * 1.0f && frandom() < 0.4f)
 		return false;
 		
-	if (m_AttackTick > Server()->Tick() - Server()->TickSpeed() * 1.0f)
+	if (m_AttackTick > Server()->Tick() - Server()->TickSpeed() * 1.0f && frandom() < 0.4f)
 		return false;
 	
 	if (m_aStatus[STATUS_INVISIBILITY] > 0 && m_aStatus[STATUS_SHIELD] <= 0)
@@ -1618,7 +1595,8 @@ void CCharacter::Tick()
 	
 	m_Core.m_Input = m_Input;
 
-	float RecoilCap = 20.0f;
+	float RecoilCap = 15.0f;
+	
 	if ((m_Core.m_Vel.x < RecoilCap && m_Recoil.x > 0) || (m_Core.m_Vel.x > -RecoilCap && m_Recoil.x < 0))
 		m_Core.m_Vel.x += m_Recoil.x*0.7f;
 	
@@ -1647,7 +1625,7 @@ void CCharacter::Tick()
 	
 	// monster damage
 	if (m_Core.m_MonsterDamage)
-		TakeDamage(normalize(m_Core.m_Vel), 10, -1, DEATHTYPE_MONSTER, vec2(0, 0));
+		TakeDamage(normalize(m_Core.m_Vel), 10, -1, DEATHTYPE_DROID_WALKER, vec2(0, 0));
 	
 	if (m_Core.m_FluidDamage)
 		TakeDamage(normalize(m_Core.m_Vel), 2, -1, WEAPON_WORLD, vec2(0, 0), DAMAGETYPE_FLUID);
@@ -1928,6 +1906,12 @@ void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage, bool IsTurret
 	
 	if (Killer == NEUTRAL_BASE)
 		Killer = GetPlayer()->GetCID();
+	
+	if (Weapon == W_DROID_STAR && Killer >= 0 && Killer != GetPlayer()->GetCID())
+		Weapon = DEATHTYPE_DROID_STAR;
+	
+	if (Weapon == W_DROID_WALKER && Killer >= 0 && Killer != GetPlayer()->GetCID())
+		Weapon = DEATHTYPE_DROID_WALKER;
 	
 	if (!SkipKillMessage && Killer >= 0)
 	{

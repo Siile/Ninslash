@@ -90,6 +90,8 @@ public:
 	
 	bool m_BroadcastingCaptureStatus;
 
+	bool m_ActionSpectator;
+	
 	//
 	int m_Vote;
 	int m_VotePos;

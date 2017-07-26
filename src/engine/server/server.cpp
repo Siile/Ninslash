@@ -1445,7 +1445,8 @@ int CServer::Run()
 							continue;
 
 						// don't send map generation template files
-						if (!g_Config.m_SvMapGen || str_comp(g_Config.m_SvGametype, "coop") != 0 || str_comp(g_Config.m_SvMap, "generated") == 0)
+						//if (!g_Config.m_SvMapGen || str_comp(g_Config.m_SvGametype, "coop") != 0 || str_comp(g_Config.m_SvMap, "generated") == 0)
+						if (!g_Config.m_SvMapGen ||  str_comp(g_Config.m_SvMap, "generated") == 0)
 							SendMap(c);
 						
 						m_aClients[c].Reset();

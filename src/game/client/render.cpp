@@ -13,7 +13,9 @@
 #include "skelebank.h"
 #include "animdata.h"
 
+#include <game/client/customstuff.h>
 #include <game/client/customstuff/playerinfo.h>
+#include <game/client/customstuff/droidanim.h>
 
 static float gs_SpriteWScale;
 static float gs_SpriteHScale;
@@ -42,7 +44,7 @@ CAnimSkeletonInfo::~CAnimSkeletonInfo()
 	// TODO: free skin map
 }
 
-void CAnimSkeletonInfo::UpdateBones(float Time, CSpineAnimation *pAnimation, CSkeletonAnimation *pAnimData, int WeaponAngle)
+void CAnimSkeletonInfo::UpdateBones(float Time, CSpineAnimation *pAnimation, CSkeletonAnimation *pAnimData, int WeaponAngle, CDroidAnim *pDroidAnim)
 {
 	// we assume, that the bones are ordered by their place in the skeleton hierarchy, important!
 	for(int i = 0; i < m_lBones.size(); i++)
@@ -84,6 +86,34 @@ void CAnimSkeletonInfo::UpdateBones(float Time, CSpineAnimation *pAnimation, CSk
 				Rotation = WeaponAngle*pi/180.0f;
 			}
 			
+
+			
+			// star droids
+			if (pDroidAnim)
+			{
+				if (strcmp(pBone->m_Name, "thrust1") == 0 || strcmp(pBone->m_Name, "thrust2") == 0)
+				{
+					Rotation += pDroidAnim->m_aValue[CDroidAnim::VEL_X] - pDroidAnim->m_aValue[CDroidAnim::BODY_ANGLE];
+
+					if (strcmp(pBone->m_Name, "thrust1") == 0)
+					{
+						//pDroidAnim->m_aVectorValue[CDroidAnim::THRUST1_POS] = Position;
+						pDroidAnim->m_aVectorValue[CDroidAnim::THRUST1_VEL] = vec2(sin(Rotation), cos(Rotation));
+					}
+					else if (strcmp(pBone->m_Name, "thrust2") == 0)
+					{
+						//pDroidAnim->m_aVectorValue[CDroidAnim::THRUST2_POS] = Position;
+						pDroidAnim->m_aVectorValue[CDroidAnim::THRUST2_VEL] = vec2(sin(Rotation), cos(Rotation));
+					}
+				}
+				
+				if (strcmp(pBone->m_Name, "body") == 0)
+					Rotation += pDroidAnim->m_aValue[CDroidAnim::BODY_ANGLE];
+				
+				if (strcmp(pBone->m_Name, "weapon0") == 0 || strcmp(pBone->m_Name, "weapon1") == 0 || strcmp(pBone->m_Name, "weapon2") == 0)
+					Rotation = pDroidAnim->m_aValue[CDroidAnim::TURRET_ANGLE]*pi/180.0f  - pDroidAnim->m_aValue[CDroidAnim::BODY_ANGLE];
+			}
+			else
 			// walkers
 			if (strcmp(pBone->m_Name, "weapon0") == 0 || strcmp(pBone->m_Name, "weapon1") == 0 || strcmp(pBone->m_Name, "weapon2") == 0)
 			{
@@ -895,7 +925,7 @@ void CRenderTools::RenderSkeleton(vec2 Pos, int Atlas, const char *Anim, float T
 void CRenderTools::RenderWalker(vec2 Pos, int Anim, float Time, int Dir, float Angle, int Status)
 {
 	vec2 Position = Pos;
-	int Atlas = ATLAS_MONSTER1;
+	int Atlas = ATLAS_DROID_WALKER;
 	
 	if (Anim > 2)
 		Atlas = ATLAS_DRONE;
@@ -1030,6 +1060,389 @@ void CRenderTools::RenderWalker(vec2 Pos, int Anim, float Time, int Dir, float A
 }
 
 
+void CRenderTools::RenderStarDroid(vec2 Pos, int Anim, float Time, int Dir, float Angle, int Status, CDroidAnim *pDroidAnim)
+{
+	vec2 Position = Pos;
+	int Atlas = ATLAS_DROID_STAR;
+
+	CAnimSkeletonInfo *pSkeleton = Skelebank()->m_lSkeletons[Atlas];
+	CTextureAtlas *pAtlas = Skelebank()->m_lAtlases[Atlas];
+		
+	dbg_assert(pSkeleton != 0x0, "missing skeleton information");
+	
+	vec2 Scale = vec2(1.0f, 1.0f) * 0.6f;
+	
+	if (Dir == 1)
+		Scale.x *= -1;
+	
+	mat33 TransformationWorld = CalcTransformationMatrix(Position, Scale, 0.0f);
+	
+	CSpineAnimation *pAnimation = 0x0;
+	
+	// ugly
+	if (Anim == 0)
+	{
+		auto AnimIter = pSkeleton->m_lAnimations.find("idle");
+		if(AnimIter != pSkeleton->m_lAnimations.end())
+			pAnimation = &AnimIter->second;
+	}
+	else if (Anim == 1)
+	{
+		auto AnimIter = pSkeleton->m_lAnimations.find("shoot");
+		if(AnimIter != pSkeleton->m_lAnimations.end())
+			pAnimation = &AnimIter->second;
+	}
+	
+	pSkeleton->UpdateBones(Time, pAnimation, NULL, Angle, pDroidAnim);
+	
+
+	if(pAtlas)
+	{
+		int NumSlots = pSkeleton->m_lSlots.size();
+		for(int i = 0; i < NumSlots; i++)
+		{
+			CAnimAttachmentSlot *pSlot = pSkeleton->m_lSlots[i];
+			CAnimBone *pBone = pSlot->m_pBone;
+
+			string Attachment = pSlot->m_AttachmentSetup; // default attachment
+
+			// evaluate animations
+			if(pAnimation)
+			{
+				CSpineSlotTimeline *pSlotTimeline = 0x0;
+
+				// find timelines
+				{
+					auto SlotTimelineIter = pAnimation->m_lSlotTimeline.find(pSlot->m_Name);
+					if(SlotTimelineIter != pAnimation->m_lSlotTimeline.end())
+						pSlotTimeline = &SlotTimelineIter->second;	
+				}
+			}
+
+			// find attachment
+			auto SlotIter = pSkeleton->m_lSkins["default"].find(pSlot->m_Name);
+			if (SlotIter == pSkeleton->m_lSkins["default"].end())
+				continue;
+
+			auto AttachmentIter = pSkeleton->m_lSkins["default"][pSlot->m_Name].find(Attachment);
+			if (AttachmentIter == pSkeleton->m_lSkins["default"][pSlot->m_Name].end())
+				continue;
+
+			CAnimAttachment *pAttachmentBase = pSkeleton->m_lSkins["default"][pSlot->m_Name][Attachment];
+
+			switch(pAttachmentBase->m_Type)
+			{
+			case ATTACHMENT_SPRITE:
+				{
+					CAnimAttachmentSprite *pAttachment = (CAnimAttachmentSprite *) pAttachmentBase;
+					
+					CTextureAtlasSprite *pSprite = &pAtlas->m_lSprites[pAttachment->m_Name];
+					if(!pSprite)
+						continue;
+
+					CTextureAtlasPage *pPage = &pAtlas->m_lPages[pSprite->m_PageId];
+					if(!pPage)
+						continue;
+
+					mat33 AttachmentParent = CalcTransformationMatrix(pAttachment->m_Position, pAttachment->m_Scale, pAttachment->m_Rotation);
+
+					//if (strcmp(pAttachment->m_Name, "jet1") == 0 || strcmp(pAttachment->m_Name, "jet2") == 0 || strcmp(pAttachment->m_Name, "jet") == 0)
+					//	pAttachment->m_Scale = vec2(1, 1) * (frandom() * 0.2f + 0.5f);
+					
+					vec3 p0, p1, p2, p3;
+					p0 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(-pAttachment->m_Width/2.0f, -pAttachment->m_Height/2.0f, 1.0f);
+					p1 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(pAttachment->m_Width/2.0f, -pAttachment->m_Height/2.0f, 1.0f);
+					p2 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(-pAttachment->m_Width/2.0f, pAttachment->m_Height/2.0f, 1.0f);
+					p3 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(pAttachment->m_Width/2.0f, pAttachment->m_Height/2.0f, 1.0f);
+
+
+					int SybsetType = 0;
+					
+					if (strcmp(pAttachment->m_Name, "jet1") == 0 || strcmp(pAttachment->m_Name, "jet2") == 0 || strcmp(pAttachment->m_Name, "jet") == 0)
+					{
+						if (Status != DROIDSTATUS_TERMINATED)
+						{
+							Graphics()->TextureSet(g_pData->m_aImages[IMAGE_JET].m_Id);
+							SybsetType = 2;
+							
+							vec3 p = (p0+p1+p2+p3)/4.0f;
+							
+							
+							if (strcmp(pSlot->m_Name, "jet1") == 0)
+							{
+								pDroidAnim->m_aVectorValue[CDroidAnim::THRUST1_POS] = vec2(p.x, p.y);
+								pDroidAnim->m_aVectorValue[CDroidAnim::THRUST1_VEL] = normalize(vec2(p1.x-p0.x, p1.y-p0.y));
+							}
+							else if (strcmp(pSlot->m_Name, "jet2") == 0)
+							{
+								pDroidAnim->m_aVectorValue[CDroidAnim::THRUST2_POS] = vec2(p.x, p.y);
+								pDroidAnim->m_aVectorValue[CDroidAnim::THRUST2_VEL] = normalize(vec2(p1.x-p0.x, p1.y-p0.y));
+							}
+						}
+					}
+					else
+						Graphics()->TextureSet(pPage->m_TexId);
+
+					Graphics()->QuadsBegin();
+					
+					
+					if (SybsetType == 1)
+					{
+						Graphics()->QuadsSetSubsetFree(0, 0,1, 0, 0, 1, 1, 1);
+					}
+					else if (SybsetType == 2)
+					{
+						int i = rand()%3;
+						float t0 = i / 4.0f;
+						float t1 = (i+1) / 4.0f;
+						Graphics()->QuadsSetSubsetFree(t0, 0, t1, 0, t0, 1, t1, 1);
+					}
+					else
+					{
+						vec2 t0, t1, t2, t3;
+						t0 = vec2(pSprite->m_X / pPage->m_Width, pSprite->m_Y / pPage->m_Height);
+						t1 = vec2((pSprite->m_X + pSprite->m_Width) / pPage->m_Width, pSprite->m_Y / pPage->m_Height);
+						t2 = vec2(pSprite->m_X / pPage->m_Width, (pSprite->m_Y + pSprite->m_Height) / pPage->m_Height);
+						t3 = vec2((pSprite->m_X + pSprite->m_Width) / pPage->m_Width, (pSprite->m_Y + pSprite->m_Height) / pPage->m_Height);
+
+						if(pSprite->m_Rotate)
+							Graphics()->QuadsSetSubsetFree(t2.x, t2.y, t0.x, t0.y, t3.x, t3.y, t1.x, t1.y);
+						else
+							Graphics()->QuadsSetSubsetFree(t0.x, t0.y, t1.x, t1.y, t2.x, t2.y, t3.x, t3.y);
+					}
+
+					IGraphics::CFreeformItem FreeFormItem(
+							p0.x, p0.y,
+							p1.x, p1.y,
+							p2.x, p2.y,
+							p3.x, p3.y
+						);
+
+					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+					Graphics()->QuadsEnd();
+				} break;
+			}
+		}
+	}
+}
+
+
+
+void CRenderTools::RenderCrawlerDroid(vec2 Pos, int Anim, float Time, int Dir, float Angle, int Status, CDroidAnim *pDroidAnim, bool Render)
+{
+	vec2 Position = Pos;
+	int Atlas = ATLAS_DROID_CRAWLER;
+
+	CAnimSkeletonInfo *pSkeleton = Skelebank()->m_lSkeletons[Atlas];
+	CTextureAtlas *pAtlas = Skelebank()->m_lAtlases[Atlas];
+		
+	dbg_assert(pSkeleton != 0x0, "missing skeleton information");
+	
+	vec2 Scale = vec2(1.0f, 1.0f) * 0.4f;
+	
+	if (Dir == 1)
+		Scale.x *= -1;
+	
+	mat33 TransformationWorld = CalcTransformationMatrix(Position, Scale, 0.0f);
+	
+	CSpineAnimation *pAnimation = 0x0;
+	
+	// ugly
+	if (Anim == 0)
+	{
+		auto AnimIter = pSkeleton->m_lAnimations.find("idle");
+		if(AnimIter != pSkeleton->m_lAnimations.end())
+			pAnimation = &AnimIter->second;
+	}
+	
+	pSkeleton->UpdateBones(Time, pAnimation, NULL, Angle, pDroidAnim);
+	
+
+	if(pAtlas)
+	{
+		int NumSlots = pSkeleton->m_lSlots.size();
+		for(int i = 0; i < NumSlots; i++)
+		{
+			CAnimAttachmentSlot *pSlot = pSkeleton->m_lSlots[i];
+			CAnimBone *pBone = pSlot->m_pBone;
+
+			string Attachment = pSlot->m_AttachmentSetup; // default attachment
+
+			// evaluate animations
+			if(pAnimation)
+			{
+				CSpineSlotTimeline *pSlotTimeline = 0x0;
+
+				// find timelines
+				{
+					auto SlotTimelineIter = pAnimation->m_lSlotTimeline.find(pSlot->m_Name);
+					if(SlotTimelineIter != pAnimation->m_lSlotTimeline.end())
+						pSlotTimeline = &SlotTimelineIter->second;	
+				}
+			}
+
+			// find attachment
+			auto SlotIter = pSkeleton->m_lSkins["default"].find(pSlot->m_Name);
+			if (SlotIter == pSkeleton->m_lSkins["default"].end())
+				continue;
+
+			auto AttachmentIter = pSkeleton->m_lSkins["default"][pSlot->m_Name].find(Attachment);
+			if (AttachmentIter == pSkeleton->m_lSkins["default"][pSlot->m_Name].end())
+				continue;
+
+			CAnimAttachment *pAttachmentBase = pSkeleton->m_lSkins["default"][pSlot->m_Name][Attachment];
+
+			switch(pAttachmentBase->m_Type)
+			{
+			case ATTACHMENT_SPRITE:
+				{
+					CAnimAttachmentSprite *pAttachment = (CAnimAttachmentSprite *) pAttachmentBase;
+					
+					CTextureAtlasSprite *pSprite = &pAtlas->m_lSprites[pAttachment->m_Name];
+					if(!pSprite)
+						continue;
+
+					CTextureAtlasPage *pPage = &pAtlas->m_lPages[pSprite->m_PageId];
+					if(!pPage)
+						continue;
+
+					mat33 AttachmentParent = CalcTransformationMatrix(pAttachment->m_Position, pAttachment->m_Scale, pAttachment->m_Rotation);
+
+					//if (strcmp(pAttachment->m_Name, "jet1") == 0 || strcmp(pAttachment->m_Name, "jet2") == 0 || strcmp(pAttachment->m_Name, "jet") == 0)
+					//	pAttachment->m_Scale = vec2(1, 1) * (frandom() * 0.2f + 0.5f);
+					
+					vec3 p0, p1, p2, p3;
+					p0 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(-pAttachment->m_Width/2.0f, -pAttachment->m_Height/2.0f, 1.0f);
+					p1 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(pAttachment->m_Width/2.0f, -pAttachment->m_Height/2.0f, 1.0f);
+					p2 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(-pAttachment->m_Width/2.0f, pAttachment->m_Height/2.0f, 1.0f);
+					p3 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(pAttachment->m_Width/2.0f, pAttachment->m_Height/2.0f, 1.0f);
+
+
+					int SybsetType = 0;
+					
+					vec3 p = (p0+p1+p2+p3)/4.0f;
+					
+					if (strcmp(pSlot->m_Name, "body_attach_1") == 0)
+						pDroidAnim->m_aVectorValue[CDroidAnim::ATTACH1_POS] = vec2(p.x, p.y);
+						
+					if (strcmp(pSlot->m_Name, "body_attach_2") == 0)
+						pDroidAnim->m_aVectorValue[CDroidAnim::ATTACH2_POS] = vec2(p.x, p.y);
+					
+					
+					if (Render)
+					{
+						Graphics()->TextureSet(pPage->m_TexId);
+						Graphics()->QuadsBegin();
+						
+						if (SybsetType == 1)
+						{
+							Graphics()->QuadsSetSubsetFree(0, 0,1, 0, 0, 1, 1, 1);
+						}
+						else if (SybsetType == 2)
+						{
+							int i = rand()%3;
+							float t0 = i / 4.0f;
+							float t1 = (i+1) / 4.0f;
+							Graphics()->QuadsSetSubsetFree(t0, 0, t1, 0, t0, 1, t1, 1);
+						}
+						else
+						{
+							vec2 t0, t1, t2, t3;
+							t0 = vec2(pSprite->m_X / pPage->m_Width, pSprite->m_Y / pPage->m_Height);
+							t1 = vec2((pSprite->m_X + pSprite->m_Width) / pPage->m_Width, pSprite->m_Y / pPage->m_Height);
+							t2 = vec2(pSprite->m_X / pPage->m_Width, (pSprite->m_Y + pSprite->m_Height) / pPage->m_Height);
+							t3 = vec2((pSprite->m_X + pSprite->m_Width) / pPage->m_Width, (pSprite->m_Y + pSprite->m_Height) / pPage->m_Height);
+
+							if(pSprite->m_Rotate)
+								Graphics()->QuadsSetSubsetFree(t2.x, t2.y, t0.x, t0.y, t3.x, t3.y, t1.x, t1.y);
+							else
+								Graphics()->QuadsSetSubsetFree(t0.x, t0.y, t1.x, t1.y, t2.x, t2.y, t3.x, t3.y);
+						}
+
+						IGraphics::CFreeformItem FreeFormItem(
+								p0.x, p0.y,
+								p1.x, p1.y,
+								p2.x, p2.y,
+								p3.x, p3.y
+							);
+
+						Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+						Graphics()->QuadsEnd();
+					}
+				} break;
+			}
+		}
+	}
+}
+
+
+void CRenderTools::RenderCrawlerLegs(CDroidAnim *pDroidAnim)
+{
+	vec2 Pos = pDroidAnim->m_Pos;
+	int Dir = pDroidAnim->m_Dir;
+	
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_CRAWLER_LEG2].m_Id);
+	Graphics()->QuadsBegin();
+	Graphics()->SetColor(1, 1, 1, 1);
+	
+	for (int i = 0; i < 4; i++)
+	{
+		vec2 LegPos = pDroidAnim->m_aLegPos[i];
+
+		vec2 p;
+
+		if ((i < 2 && Dir > 0) || (i >= 2 && Dir < 0))
+			p = pDroidAnim->m_aVectorValue[CDroidAnim::ATTACH1_POS];
+		else
+			p = pDroidAnim->m_aVectorValue[CDroidAnim::ATTACH2_POS];
+		
+		float a = GetAngle(normalize(LegPos - p));
+		
+		float a1 = a-pi/2.0f;
+		float a2 = a-pi/2.0f;
+		float a3 = a+pi/2.0f;
+		float a4 = a+pi/2.0f;
+
+		float s1 = 4.0f;
+
+		vec2 p1 = LegPos+vec2(cos(a1), sin(a1))*s1;
+		vec2 p2 = p+vec2(cos(a2), sin(a2))*s1;
+		vec2 p3 = LegPos+vec2(cos(a3), sin(a3))*s1;
+		vec2 p4 = p+vec2(cos(a4), sin(a4))*s1;
+		
+		Graphics()->QuadsSetSubsetFree(0, 0, 1, 0, 0, 1, 1, 1);
+		
+		IGraphics::CFreeformItem FreeFormItem(
+			p1.x, p1.y,
+			p2.x, p2.y,
+			p3.x, p3.y,
+			p4.x, p4.y);
+							
+		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+	}
+	
+	Graphics()->QuadsEnd();
+	
+	
+	// render leg tips
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_CRAWLER_LEG1].m_Id);
+	Graphics()->QuadsBegin();
+		
+	vec2 Size = vec2(64, 256)*0.5f;
+		
+	for (int i = 0; i < 4; i++)
+	{
+		Graphics()->QuadsSetRotation(pDroidAnim->m_aLegAngle[i]);
+		SelectSprite(SPRITE_CRAWLER_LEG, i < 2 ? SPRITE_FLAG_FLIP_X : 0);
+		
+		vec2 p = pDroidAnim->m_aLegPos[i];
+	
+		IGraphics::CQuadItem QuadItem(p.x, p.y, Size.x, Size.y);
+		Graphics()->QuadsDraw(&QuadItem, 1);
+	}
+	
+	Graphics()->QuadsEnd();
+}
 
 
 

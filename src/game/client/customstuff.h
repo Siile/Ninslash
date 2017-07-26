@@ -8,6 +8,7 @@
 #include <game/client/gameclient.h>
 #include <game/weapons.h>
 #include "customstuff/playerinfo.h"
+#include "customstuff/droidanim.h"
 
 #define MAX_BG_SOUNDS 64
 
@@ -17,6 +18,8 @@ enum Pickers
 	PICKER_TOOL,
 	PICKER_EMOTICON,
 };
+
+
 
 class CCustomStuff
 {
@@ -28,6 +31,13 @@ private:
 	
 	vec2 m_CameraTargetCenter;
 	vec2 m_CameraCenter;
+	
+	CDroidAnim *m_apDroidAnim[MAX_DROIDS];
+	
+	
+	//friend class CGameClient;
+	CGameClient *m_pClient;
+	class CCollision *Collision() const { return m_pClient->Collision(); }
 	
 public:
 	// client prediction for jump pads
@@ -52,6 +62,8 @@ public:
 
 	vec4 BloodColor(int ClientID);
 	bool IsBot(int ClientID);
+	
+	CDroidAnim *GetDroidAnim(int Index);
 	
 	void ClearImpacts()
 	{
@@ -152,8 +164,9 @@ public:
 	
 	bool m_BuildMode;
 	
-	float m_MonsterDamageIntensity[MAX_MONSTERS];
-	float m_MonsterDamageType[MAX_MONSTERS];
+	// Droids
+	float m_DroidDamageIntensity[MAX_DROIDS];
+	float m_DroidDamageType[MAX_DROIDS];
 	
 	int m_FlametrapState[64];
 	int m_FlametrapSoundTick[64];
@@ -189,7 +202,8 @@ public:
 	void SetCameraTarget(vec2 Center){ m_CameraTargetCenter = Center; }
 	vec2 GetCameraCenter(){ return m_CameraCenter; }
 	
-	CCustomStuff();
+	CCustomStuff(CGameClient *pClient);
+	~CCustomStuff();
 	
 	void Reset();
 	

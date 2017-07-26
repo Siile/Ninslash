@@ -17,6 +17,7 @@ CParticles::CParticles()
 	m_RenderTrail.m_pParts = this;
 	m_RenderColorTrail.m_pParts = this;
 	m_RenderExplosions.m_pParts = this;
+	m_RenderGreenExplosion.m_pParts = this;
 	m_RenderHitEffects.m_pParts = this;
 	m_RenderGeneral.m_pParts = this;
 	m_RenderTriangles.m_pParts = this;
@@ -625,6 +626,30 @@ void CParticles::RenderGroup(int Group)
 		}
 		Graphics()->QuadsEnd();
 	}
+	else if (Group == GROUP_GREEN_EXPLOSION)
+	{
+		Graphics()->BlendNormal();
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GREEN_EXPLOSION].m_Id);
+		//Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ELECTRIC].m_Id);
+		Graphics()->QuadsBegin();
+		
+		int i = m_aFirstPart[Group];
+		while(i != -1)
+		{
+			float a = m_aParticles[i].m_Life / m_aParticles[i].m_LifeSpan;
+			vec2 p = m_aParticles[i].m_Pos;
+
+			float Size = mix(m_aParticles[i].m_StartSize, m_aParticles[i].m_EndSize*1.0f, a);
+			RenderTools()->SelectSprite(m_aParticles[i].m_Spr + a*m_aParticles[i].m_Frames);
+			Graphics()->QuadsSetRotation(m_aParticles[i].m_Rot);
+			Graphics()->SetColor(m_aParticles[i].m_Color.r, m_aParticles[i].m_Color.g, m_aParticles[i].m_Color.b, 1);
+			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
+			Graphics()->QuadsDraw(&QuadItem, 1);
+
+			i = m_aParticles[i].m_NextPart;
+		}
+		Graphics()->QuadsEnd();
+	}
 	else if (Group == GROUP_SPARKS)
 	{
 		Graphics()->BlendNormal();
@@ -797,7 +822,7 @@ void CParticles::RenderGroup(int Group)
 			float a = m_aParticles[i].m_Life / m_aParticles[i].m_LifeSpan;
 			Graphics()->SetColor(m_aParticles[i].m_Color.x, m_aParticles[i].m_Color.y, m_aParticles[i].m_Color.z, m_aParticles[i].m_Color.w * (1.0f - a));
 		
-			Out = vec2(m_aParticles[i].m_TrailDir.y, -m_aParticles[i].m_TrailDir.x) * 1.5f;
+			Out = vec2(m_aParticles[i].m_TrailDir.y, -m_aParticles[i].m_TrailDir.x) * m_aParticles[i].m_StartSize;
 			
 			IGraphics::CFreeformItem Freeform1(
 					m_aParticles[i].m_StartPos.x-Out.x, m_aParticles[i].m_StartPos.y-Out.y,

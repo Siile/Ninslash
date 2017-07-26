@@ -30,7 +30,7 @@ void CAIctf::OnCharacterSpawn(CCharacter *pChr)
 void CAIctf::DoBehavior()
 {
 	// power level
-	m_PowerLevel = 12;
+	m_PowerLevel = 8;
 	
 	if (g_Config.m_SvGodBots)
 		m_PowerLevel = 20;

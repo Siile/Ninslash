@@ -15,6 +15,7 @@ CLayers::CLayers()
 	m_pTiles = 0;
 	//m_pGenerator = new CGenerator();
 	m_pBackgrounLayer = 0x0;
+	m_pDoodadsLayer = 0x0;
 	m_pForegroundLayer = 0x0;
 	m_GameGroupIndex = -1;
 	m_GameLayerIndex = -1;
@@ -31,6 +32,8 @@ void CLayers::Init(class IKernel *pKernel)
 	// BackgroundLayer & ForegroundLayer can exists or not... need reset to null
 	m_pBackgrounLayer = 0x0;
 	m_BackgrounLayerIndex = -1;
+	m_pDoodadsLayer = 0x0;
+	m_DoodadsLayerIndex = -1;
 	m_pForegroundLayer = 0x0;
 	m_ForegroundLayerIndex = -1;
 
@@ -52,6 +55,11 @@ void CLayers::Init(class IKernel *pKernel)
 				{
 					m_pBackgrounLayer = pTilemap;
 					m_BackgrounLayerIndex = l;
+				}
+				else if (!m_pDoodadsLayer && str_comp_nocase(layerName, "doodads") == 0)
+				{
+					m_pDoodadsLayer = pTilemap;
+					m_DoodadsLayerIndex = l;
 				}
 				else if (!m_pForegroundLayer && str_comp_nocase(layerName, "foreground") == 0)
 				{

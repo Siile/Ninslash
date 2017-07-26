@@ -33,8 +33,14 @@ private:
 	int m_EnemyCount;
 	int m_EnemiesLeft;
 	
+	int m_BossesLeft;
+	
 	int m_NumEnemySpawnPos;
 	int m_SpawnPosRotation;
+	
+	int m_TriggerLevel;
+	
+	void Trigger(bool IncreaseLevel);
 	
 public:
 	CGameControllerCoop(class CGameContext *pGameServer);

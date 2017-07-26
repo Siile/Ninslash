@@ -1,13 +1,13 @@
 #include <engine/shared/config.h>
 #include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
-#include "monster.h"
+#include "droid_walker.h"
 
 
-CMonster::CMonster(CGameWorld *pGameWorld, vec2 Pos)
-: CEntity(pGameWorld, CGameWorld::ENTTYPE_MONSTER)
+CWalker::CWalker(CGameWorld *pGameWorld, vec2 Pos)
+: CDroid(pGameWorld, Pos, DROIDTYPE_WALKER)
 {
-	m_ProximityRadius = MonsterPhysSize;
+	m_ProximityRadius = DroidPhysSize;
 
 	m_StartPos = Pos;
 	
@@ -16,15 +16,15 @@ CMonster::CMonster(CGameWorld *pGameWorld, vec2 Pos)
 
 }
 
-void CMonster::Reset()
+void CWalker::Reset()
 {
 	m_Center = vec2(0, -50);
 	m_Health = 100;
 	m_Pos = m_StartPos;
-	m_Status = MONSTERSTATUS_IDLE;
+	m_Status = DROIDSTATUS_IDLE;
 	m_Dir = -1;
 	m_DeathTick = 0;
-	SetState(CMonster::IDLE);
+	SetState(CWalker::IDLE);
 	m_TargetIndex = -1;
 	m_ReloadTimer = 0;
 	m_AttackTick = 0;
@@ -33,8 +33,8 @@ void CMonster::Reset()
 	m_NewTarget = vec2(0, 0);
 	m_Vel = vec2(0, 0);
 	m_FlyTargetTick = 0;
-	m_Mode = CMonster::WALKER;
-	m_ProximityRadius = MonsterPhysSize;
+	m_Mode = CWalker::WALKER;
+	m_ProximityRadius = DroidPhysSize;
 	m_FireDelay = 0;
 	m_FireCount = 0;
 	m_AttackTimer = 0;
@@ -42,7 +42,7 @@ void CMonster::Reset()
 
 
 
-void CMonster::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type)
+void CWalker::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type)
 {
 	// skip everything while spawning
 	//if (m_aStatus[STATUS_SPAWNING] > 0.0f)
@@ -55,7 +55,7 @@ void CMonster::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type)
 	
 	if (m_TargetIndex < 0 && frandom() < 0.3f)
 	{
-		SetState(CMonster::TURN);
+		SetState(CWalker::TURN);
 		
 		if (m_AttackTimer > 0)
 			m_AttackTimer = 20;
@@ -72,16 +72,16 @@ void CMonster::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type)
 		
 		GameServer()->CreateBuildingHit(DmgPos);
 
-		m_Status = MONSTERSTATUS_HURT;
+		m_Status = DROIDSTATUS_HURT;
 	}
 	else
 	if (Type == DAMAGETYPE_ELECTRIC)
 	{
 		//GameServer()->SendEffect(m_pPlayer->GetCID(), EFFECT_ELECTRODAMAGE);
-		m_Status = MONSTERSTATUS_ELECTRIC;
+		m_Status = DROIDSTATUS_ELECTRIC;
 	}
 	else if (Type == DAMAGETYPE_FLAME)
-		m_Status = MONSTERSTATUS_HURT;
+		m_Status = DROIDSTATUS_HURT;
 	
 	GameServer()->CreateDamageInd(DmgPos, GetAngle(-Force), -Dmg, -1);
 	
@@ -106,15 +106,19 @@ void CMonster::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type)
 		m_DeathTick = Server()->Tick();
 		
 		// random pickup drop
-		if (frandom()*10 < 4)
-			GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_ARMOR, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
-		else if (frandom()*10 < 4)
-			GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_HEALTH, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
-		else if (frandom()*10 < 4)
-			GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_MINE, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);			
-		else
-			GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_KIT, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);			
+		for (int i = 0; i < 3; i++)
+		{
+			if (frandom() < 0.5f)
+				GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_ARMOR, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
+			else if (frandom() < 0.4f)
+				GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_HEALTH, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
+			else
+				GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_KIT, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);			
+		}
 		
+		m_DeathTick = Server()->Tick();
+		GameServer()->m_World.DestroyEntity(this);
+				
 		return;
 	}
 
@@ -123,7 +127,7 @@ void CMonster::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type)
 
 
 
-void CMonster::Tick()
+void CWalker::Tick()
 {
 	if (m_Health <= 0)
 	{
@@ -162,7 +166,7 @@ void CMonster::Tick()
 				m_TargetTimer = 50 + frandom()*100;
 				//m_Target = vec2((frandom()-frandom())*150, frandom()*50-frandom()*100);
 				//m_Target = m_OriginalDirection;
-				if (m_Mode == CMonster::WALKER)
+				if (m_Mode == CWalker::WALKER)
 					m_NewTarget = vec2(m_Dir * 50, 0);
 			}
 		}
@@ -189,9 +193,9 @@ void CMonster::Tick()
 		
 		// takeoff
 		/*
-		if (m_Mode == CMonster::WALKER && m_FlyTargetTick > 0 && m_FlyTargetTick < Server()->Tick())
+		if (m_Mode == CWalker::WALKER && m_FlyTargetTick > 0 && m_FlyTargetTick < Server()->Tick())
 		{
-			m_Mode = CMonster::DRONE;
+			m_Mode = CWalker::DRONE;
 			m_Pos.y -= 54;
 			m_Vel = vec2(0, -8);
 			m_Center = vec2(0, 0);
@@ -207,14 +211,14 @@ void CMonster::Tick()
 		SetState(m_NextState);
 	
 	// get moving
-	if (m_State == CMonster::IDLE && m_State == m_NextState && m_StateChangeTick < Server()->Tick())
-		SetState(CMonster::MOVE);
+	if (m_State == CWalker::IDLE && m_State == m_NextState && m_StateChangeTick < Server()->Tick())
+		SetState(CWalker::MOVE);
 	
 	
 	m_Anim = 0;
 	
 	// fly
-	if (m_Mode == CMonster::DRONE)
+	if (m_Mode == CWalker::DRONE)
 	{
 		m_Anim = 3;
 
@@ -254,7 +258,7 @@ void CMonster::Tick()
 	
 	
 	// move
-	if (m_State == CMonster::MOVE && m_Mode == CMonster::WALKER)
+	if (m_State == CWalker::MOVE && m_Mode == CWalker::WALKER)
 	{
 		m_Anim = 1;
 		
@@ -263,7 +267,7 @@ void CMonster::Tick()
 		if (m_AttackTimer-- < -40)
 		{
 			m_AttackTimer = 10+rand()%20;
-			m_State = CMonster::IDLE;
+			m_State = CWalker::IDLE;
 			m_StateChangeTick = Server()->Tick() + Server()->TickSpeed() * (2 + frandom());
 		}
 		else if (m_Dir == -1)
@@ -273,13 +277,13 @@ void CMonster::Tick()
 			// wall
 			if (GameServer()->Collision()->IsTileSolid(m_Pos.x-46, m_Pos.y-8))
 			{
-				SetState(CMonster::TURN);
+				SetState(CWalker::TURN);
 			}
 			// pit
 			else if (!GameServer()->Collision()->IsTileSolid(m_Pos.x-55, m_Pos.y+18))
 			{
-				m_State = CMonster::IDLE;
-				m_NextState = CMonster::TURN;
+				m_State = CWalker::IDLE;
+				m_NextState = CWalker::TURN;
 				m_StateChangeTick = Server()->Tick() + Server()->TickSpeed() * (1 + frandom());
 			}
 		}
@@ -290,36 +294,36 @@ void CMonster::Tick()
 			// wall
 			if (GameServer()->Collision()->IsTileSolid(m_Pos.x+46, m_Pos.y-8))
 			{
-				SetState(CMonster::TURN);
+				SetState(CWalker::TURN);
 			}
 			// pit
 			else if (!GameServer()->Collision()->IsTileSolid(m_Pos.x+55, m_Pos.y+18))
 			{
-				m_State = CMonster::IDLE;
-				m_NextState = CMonster::TURN;
+				m_State = CWalker::IDLE;
+				m_NextState = CWalker::TURN;
 				m_StateChangeTick = Server()->Tick() + Server()->TickSpeed() * (1 + frandom());
 			}
 		}
 	}
 	
 	// turn
-	if (m_State == CMonster::TURN)
+	if (m_State == CWalker::TURN)
 	{
 		m_Dir *= -1;
-		m_State = CMonster::MOVE;
-		m_NextState = CMonster::MOVE;
+		m_State = CWalker::MOVE;
+		m_NextState = CWalker::MOVE;
 	}
 	
 	
 	if(Server()->Tick() > m_DamageTakenTick+15)
-		m_Status = MONSTERSTATUS_IDLE;
+		m_Status = DROIDSTATUS_IDLE;
 	
 	GameServer()->m_World.m_Core.AddMonster(m_Pos);
 }
 
 
 
-void CMonster::Fire()
+void CWalker::Fire()
 {
 	if (m_ReloadTimer-- < 0)
 	{
@@ -331,14 +335,14 @@ void CMonster::Fire()
 
 		//vec2 Dir = vec2(cosf(Angle), sinf(Angle));
 		
-		GameServer()->CreateSound(m_Pos, aCustomWeapon[W_WALKER].m_Sound);
+		GameServer()->CreateSound(m_Pos, aCustomWeapon[W_DROID_WALKER].m_Sound);
 		
-		GameServer()->CreateProjectile(NEUTRAL_BASE, W_WALKER, 0, TurretPos+normalize(m_Target*-1)*32.0f, m_Target*-1);
-		GameServer()->CreateProjectile(NEUTRAL_BASE, W_WALKER, 0, TurretPos+normalize(m_Target*-1)*32.0f+vec2(m_Dir * 4, -8), m_Target*-1);
+		GameServer()->CreateProjectile(NEUTRAL_BASE, W_DROID_WALKER, 0, TurretPos+normalize(m_Target*-1)*32.0f, m_Target*-1);
+		GameServer()->CreateProjectile(NEUTRAL_BASE, W_DROID_WALKER, 0, TurretPos+normalize(m_Target*-1)*32.0f+vec2(m_Dir * 4, -8), m_Target*-1);
 		
 		m_AttackTick = Server()->Tick();
 		
-		if (m_Mode == CMonster::DRONE)
+		if (m_Mode == CWalker::DRONE)
 			m_Vel += normalize(m_Target)*4.0f;
 	}
 	
@@ -351,7 +355,7 @@ void CMonster::Fire()
 
 
 
-bool CMonster::Target()
+bool CWalker::Target()
 {
 	vec2 TurretPos = m_Pos+m_Center;
 	
@@ -365,14 +369,14 @@ bool CMonster::Target()
 		if (!pCharacter)
 			return false;
 		
-		if (!pCharacter->IsAlive())
+		if (!pCharacter->IsAlive() || pCharacter->Invisible())
 			return false;
 		
 		if ((m_Dir < 0 && pCharacter->m_Pos.x > m_Pos.x) || 
 			(m_Dir > 0 && pCharacter->m_Pos.x < m_Pos.x))
 		{
 			m_Dir *= -1;
-			m_State = CMonster::IDLE;
+			m_State = CWalker::IDLE;
 			m_StateChangeTick = Server()->Tick() + Server()->TickSpeed() * (1 + frandom());
 		}
 
@@ -391,7 +395,7 @@ bool CMonster::Target()
 }
 
 
-bool CMonster::FindTarget()
+bool CWalker::FindTarget()
 {
 	m_TargetIndex = -1;
 	CCharacter *pClosestCharacter = NULL;
@@ -411,7 +415,7 @@ bool CMonster::FindTarget()
 		if (!pCharacter)
 			continue;
 		
-		if (!pCharacter->IsAlive())
+		if (!pCharacter->IsAlive() || pCharacter->Invisible())
 			continue;
 		
 		if (GameServer()->m_pController->IsCoop() && pCharacter->m_IsBot)
@@ -440,34 +444,8 @@ bool CMonster::FindTarget()
 }
 
 
-void CMonster::SetState(int State)
-{
-	m_State = State;
-	m_NextState = State;
-	m_StateChangeTick = Server()->Tick();
-	
-}
-
-void CMonster::TickPaused()
+void CWalker::TickPaused()
 {
 	//if(m_SpawnTick != -1)
 	//	++m_SpawnTick;
-}
-
-void CMonster::Snap(int SnappingClient)
-{
-	if(NetworkClipped(SnappingClient) || m_Health <= 0)
-		return;
-
-	CNetObj_Monster *pP = static_cast<CNetObj_Monster *>(Server()->SnapNewItem(NETOBJTYPE_MONSTER, m_ID, sizeof(CNetObj_Monster)));
-	if(!pP)
-		return;
-
-	pP->m_X = (int)m_Pos.x;
-	pP->m_Y = (int)m_Pos.y;
-	pP->m_Status = m_Status;
-	pP->m_AttackTick = m_AttackTick;
-	pP->m_Anim = m_Anim;
-	pP->m_Dir = m_Dir;
-	pP->m_Angle = GetAngle(vec2(abs(m_Target.x), m_Target.y*-1)) * (180/pi);
 }

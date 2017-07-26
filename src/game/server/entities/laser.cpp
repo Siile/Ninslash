@@ -2,7 +2,7 @@
 #include <game/server/gamecontext.h>
 #include "laser.h"
 #include "building.h"
-#include "monster.h"
+#include "droid.h"
 #include "superexplosion.h"
 
 CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Damage, int PowerLevel, CBuilding *OwnerBuilding)
@@ -84,7 +84,7 @@ bool CLaser::HitMonster(vec2 From, vec2 To)
 	if (!pOwnerChar)
 		return false;
 	
-	CMonster *pHit = GameServer()->m_World.IntersectWalker(m_Pos, To, 8.0f, At);
+	CDroid *pHit = GameServer()->m_World.IntersectWalker(m_Pos, To, 8.0f, At);
 	if(!pHit)
 		return false;
 	

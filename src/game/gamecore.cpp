@@ -261,7 +261,7 @@ void CCharacterCore::Tick(bool UseInput)
 	float AirJumpPower = m_pWorld->m_Tuning.m_AirJumpImpulse;
 	float WallrunPower = m_pWorld->m_Tuning.m_WallrunImpulse;
 	
-	float HandJetpackControlSpeed = 14.0f;
+	float HandJetpackControlSpeed = 12.5f;
 	
 	m_OnWall = false;
 	
@@ -306,17 +306,17 @@ void CCharacterCore::Tick(bool UseInput)
 		int Dir = m_ActionState > 0 ? 1 : -1;
 		int State = abs(m_ActionState);
 		
-		if (State < 3)
+		if (State < 4)
 		{
 			m_Vel.y = 0.0f;
 		}
-		else if (State == 3)
+		else if (State == 4)
 		{
 			m_Vel.y = -AirJumpPower;
-			m_Vel.x = 10.0f * Dir;
-			m_LockDirection = 2 * Dir;
+			m_Vel.x = 6.0f * Dir;
+			m_LockDirection = 1 * Dir;
 		}
-		else if (State < 6)
+		else if (State < 8)
 		{
 			// no gravity
 		}
@@ -370,6 +370,11 @@ void CCharacterCore::Tick(bool UseInput)
 		// sliding
 		Slide();
 		
+		// go down faster while holding down (default key: s)
+		//if (!Grounded && m_Down && m_Vel.y < MaxSpeed*1.0f)
+		//	m_Vel.y += 0.4f;
+		
+		
 		if (m_LockDirection > 0)
 		{
 			m_LockDirection--;
@@ -385,7 +390,7 @@ void CCharacterCore::Tick(bool UseInput)
 		if (!Grounded && m_Jetpack == 0)
 		{
 			// falling down
-			if (m_Vel.y > 0)
+			if (m_Vel.y > -2.5f || m_Direction == 0)
 			{
 				if (m_Wallrun > 10 && m_Wallrun < 25)
 					m_Wallrun++;
@@ -400,7 +405,7 @@ void CCharacterCore::Tick(bool UseInput)
 					if ((m_Input.m_Hook && m_JetpackPower > 0 && TargetDirection.y > 0) || m_Input.m_Down)
 						m_Vel.y *= 0.97f;
 					else
-						m_Vel.y *= 0.7f;
+						m_Vel.y *= 0.8f;
 					
 					m_Anim = 1;
 					
@@ -414,7 +419,7 @@ void CCharacterCore::Tick(bool UseInput)
 					if ((m_Input.m_Hook && m_JetpackPower > 0 && TargetDirection.y > 0) || m_Input.m_Down)
 						m_Vel.y *= 0.97f;
 					else
-						m_Vel.y *= 0.7f;
+						m_Vel.y *= 0.8f;
 					
 					m_Anim = -1;
 					
@@ -479,10 +484,10 @@ void CCharacterCore::Tick(bool UseInput)
 					if(m_Input.m_Jump && !(m_Jumped&1))
 					{
 						//m_TriggeredEvents |= COREEVENT_AIR_JUMP;
-						m_Vel.y = -(AirJumpPower+3.0f);
-						m_Vel.x = 10.0f+2.0f;
+						m_Vel.y = -(AirJumpPower+1.0f);
+						m_Vel.x = 7.0f;
 						m_Jumped |= 1;
-						m_LockDirection = 2;
+						m_LockDirection = 1;
 						m_Wallrun = 11;
 					}
 				}
@@ -507,10 +512,10 @@ void CCharacterCore::Tick(bool UseInput)
 					if(m_Input.m_Jump && !(m_Jumped&1))
 					{
 						//m_TriggeredEvents |= COREEVENT_AIR_JUMP;
-						m_Vel.y = -(AirJumpPower+3.0f);
-						m_Vel.x = -(10.0f+2.0f);
+						m_Vel.y = -(AirJumpPower+1.0f);
+						m_Vel.x = -7.0f;
 						m_Jumped |= 1;
-						m_LockDirection = -2;
+						m_LockDirection = -1;
 						m_Wallrun = -11;
 					}
 				}
@@ -548,16 +553,34 @@ void CCharacterCore::Tick(bool UseInput)
 				//if (--m_JetpackPower <= 0)
 				//	m_Jetpack = 0;
 				
-				if (m_Vel.y > -12.0f)
-					m_Vel.y -= m_pWorld->m_Tuning.m_Gravity*2.6f;
+				float JetpackControlSpeed = 1.0f;
+				float JetpackMaxSpeed = -10.0f;
 				
-				if (m_Direction == 1 && m_Vel.x < 14.0f)
-					m_Vel.x += 0.7f;
-				
-				if (m_Direction == -1 && m_Vel.x > -14.0f)
-					m_Vel.x -= 0.7f;
-				
-				m_JetpackPower -= 2;
+				if (m_Input.m_Down)
+				{
+					if (m_Vel.y > 2.0f)
+						m_Vel.y -= m_pWorld->m_Tuning.m_Gravity*1.5f;
+					
+					m_JetpackPower -= 1;
+				}
+				else
+				{
+					if (m_Vel.y > JetpackControlSpeed)
+						m_Vel.y -= m_pWorld->m_Tuning.m_Gravity*2.6f;
+					else if (m_Vel.y > JetpackMaxSpeed)
+						m_Vel.y = max(m_Vel.y - m_pWorld->m_Tuning.m_Gravity*1.55f, JetpackMaxSpeed);
+					
+					if (m_Direction == 1 && m_Vel.x < 11.0f)
+						m_Vel.x += 0.7f;
+					
+					if (m_Direction == -1 && m_Vel.x > -11.0f)
+						m_Vel.x -= 0.7f;
+					
+					if (m_Vel.y < 0.0f)
+						m_JetpackPower -= 1;
+					else
+						m_JetpackPower -= 2;
+				}
 			}
 			
 			
@@ -628,11 +651,13 @@ void CCharacterCore::Tick(bool UseInput)
 		
 		if(m_Input.m_Hook && m_JetpackPower > 0 && !IsInFluid())
 		{
+			float HandJetpackImpulse = 1.1f;
+			
 			if ((TargetDirection.x > 0 && m_Vel.x < HandJetpackControlSpeed + ForceTileStatus) || (TargetDirection.x < 0 && m_Vel.x > -HandJetpackControlSpeed + ForceTileStatus))
-				m_Vel.x += TargetDirection.x*1.4f;
+				m_Vel.x += TargetDirection.x*HandJetpackImpulse;
 				
 			if ((TargetDirection.y > 0 && m_Vel.y < HandJetpackControlSpeed) || (TargetDirection.y < 0 && m_Vel.y > -HandJetpackControlSpeed))
-				m_Vel.y += TargetDirection.y*1.4f;
+				m_Vel.y += TargetDirection.y*HandJetpackImpulse;
 				
 			if (TargetDirection.y > 0 && m_Vel.y < 0.0f && m_Wallrun != 0 && m_Wallrun <= 10 && m_Wallrun >= -10)
 			{
@@ -640,7 +665,7 @@ void CCharacterCore::Tick(bool UseInput)
 				m_Vel.y = 0.0f;
 			}
 				
-			m_JetpackPower -= 2;
+			m_JetpackPower -= 1;
 			m_HandJetpack = true;
 		}
 	}
@@ -748,6 +773,10 @@ void CCharacterCore::Tick(bool UseInput)
 	}
 
 	
+	// limit falling speed
+	if (m_Vel.y > MaxSpeed*2.5f)
+		m_Vel.y = MaxSpeed*2.5f;
+	
 	
 	if (m_Roll > 0)
 		m_Roll++;
@@ -757,17 +786,25 @@ void CCharacterCore::Tick(bool UseInput)
 	{
 		if (m_Vel.x < -2.0f)
 		{
-			if (m_Roll < 16)
+			if (m_Roll < 15)
 				m_Anim = -2;
 			else
-				m_Roll = -0;
+			{
+				m_Roll = 0;
+				m_Slide = 5;
+				m_Anim = -3;
+			}
 		}
 		else if (m_Vel.x > 2.0f)
 		{
-			if (m_Roll < 16)
+			if (m_Roll < 15)
 				m_Anim = 2;
 			else
-				m_Roll = -0;
+			{
+				m_Roll = 0;
+				m_Slide = 5;
+				m_Anim = 3;
+			}
 		}
 		else
 		{
@@ -830,7 +867,7 @@ void CCharacterCore::Tick(bool UseInput)
 		/*
 		if (m_Roll == 0 && m_Slide == 0)
 		{
-			for(int i = 0; i < MAX_MONSTERS; i++)
+			for(int i = 0; i < MAX_DROIDS; i++)
 			{
 				vec2 MonsterPos = m_pWorld->m_aMonsterPos[i];
 					
@@ -853,7 +890,7 @@ void CCharacterCore::Tick(bool UseInput)
 		// jumppads
 		if (m_Action != COREACTION_JUMPPAD || (m_Action == COREACTION_JUMPPAD && m_ActionState > 12))
 		{
-			for(int i = 0; i < MAX_MONSTERS; i++)
+			for(int i = 0; i < MAX_DROIDS; i++)
 			{
 				vec4 ImpactPos = m_pWorld->m_aImpactPos[i];
 						
@@ -981,12 +1018,14 @@ void CCharacterCore::Roll()
 	if (m_Roll > 0)
 		return;
 	
-	if (m_Vel.x < -2.5f && !m_pCollision->CheckPoint(m_Pos.x-(PhysSize+32), m_Pos.y+PhysSize/2))
+	vec2 TargetDirection = normalize(vec2(m_Input.m_TargetX, m_Input.m_TargetY));
+	
+	if (m_Vel.x < -2.5f && !m_pCollision->CheckPoint(m_Pos.x-(PhysSize+32), m_Pos.y+PhysSize/2) && TargetDirection.x < 0.0f)
 	{
 		m_Roll++;
 		m_LockDirection = -8;
 	}
-	else if (m_Vel.x > 2.5f && !m_pCollision->CheckPoint(m_Pos.x+(PhysSize+32), m_Pos.y+PhysSize/2))
+	else if (m_Vel.x > 2.5f && !m_pCollision->CheckPoint(m_Pos.x+(PhysSize+32), m_Pos.y+PhysSize/2) && TargetDirection.x > 0.0f)
 	{
 		m_Roll++;
 		m_LockDirection = 8;
@@ -1123,7 +1162,7 @@ void CCharacterCore::Move()
 		NewPos.y += 10;
 	}
 	
-	if (VelY > 20.0f && abs(m_Vel.y) < 2.0f) // && m_Input.m_Down)
+	if (VelY > 15.0f && abs(m_Vel.y) < 2.0f && m_Input.m_Down)
 		Roll();
 	
 	m_Vel.x = m_Vel.x*(1.0f/RampValue);
@@ -1245,7 +1284,7 @@ void CCharacterCore::Move()
 		{
 			float a = i/Distance;
 			vec2 Pos = mix(m_Pos, NewPos, a);
-			for(int p = 0; p < MAX_MONSTERS; p++)
+			for(int p = 0; p < MAX_DROIDS; p++)
 			{
 				vec2 MonsterPos = m_pWorld->m_aMonsterPos[p];
 				

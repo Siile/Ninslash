@@ -20,13 +20,17 @@ CRoom::CRoom(int x, int y, int w, int h)
 	
 	int i = 0;
 	
-	int RoomSize = 10+rand()%7;
+	int RoomSize = 6+rand()%4;
 	
 	while (!(m_pChild1 || TooSmall() || i++ > 24))
 	{
-		if (m_H + rand()%5 < m_W + rand()%5)
+		//RoomSize = 8 + min(20, x/5);
+		
+		//if (m_H + rand()%5 < m_W + rand()%5)
+		//if (m_H*(1.0f + frandom()) < m_W*(1.0f + frandom()))
+		if (m_H < m_W)
 		{
-			if (m_W > RoomSize)
+			if (m_W > RoomSize+3)
 				Split(false);
 			if (m_H > RoomSize)
 				Split(true);
@@ -35,7 +39,7 @@ CRoom::CRoom(int x, int y, int w, int h)
 		{
 			if (m_H > RoomSize)
 				Split(true);
-			if (m_W > RoomSize)
+			if (m_W > RoomSize+3)
 				Split(false);
 		}
 	}

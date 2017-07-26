@@ -14,7 +14,9 @@
 #include "entities/building.h"
 #include "entities/deathray.h"
 #include "entities/powerupper.h"
-#include "entities/monster.h"
+#include "entities/droid_walker.h"
+#include "entities/droid_star.h"
+#include "entities/droid_crawler.h"
 #include "gamecontroller.h"
 #include "gamecontext.h"
 
@@ -644,6 +646,21 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 	{
 		if (g_Config.m_SvEnableBuilding)
 			new CBuilding(&GameServer()->m_World, Pos+vec2(0, -10), BUILDING_STAND, TEAM_NEUTRAL);
+			
+		/*
+		if (str_comp(g_Config.m_SvGametype, "coop") == 0)
+		{
+			CTurret *pTurret = new CTurret(&GameServer()->m_World, Pos+vec2(0, -10), TEAM_BLUE, W_RIFLE);
+			pTurret->m_OwnerPlayer = -1;
+			pTurret->SetAngle(vec2(-1, 0));
+			pTurret->m_Ammo = 0;
+		}
+		else
+		{
+			if (g_Config.m_SvEnableBuilding)
+				new CBuilding(&GameServer()->m_World, Pos+vec2(0, -10), BUILDING_STAND, TEAM_NEUTRAL);
+		}
+		*/
 		return true;
 	}
 	else if (Index == ENTITY_SWITCH)
@@ -674,9 +691,19 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 			pFlametrap->m_Mirror = true;
 		return true;
 	}
-	else if (Index == ENTITY_MONSTER1)
+	else if (Index == ENTITY_DROID_WALKER)
 	{
-		new CMonster(&GameServer()->m_World, Pos+vec2(0, 16));
+		new CWalker(&GameServer()->m_World, Pos+vec2(0, 16));
+		return true;
+	}
+	else if (Index == ENTITY_DROID_STAR)
+	{
+		new CStar(&GameServer()->m_World, Pos+vec2(0, -80));
+		return true;
+	}
+	else if (Index == ENTITY_DROID_CRAWLER)
+	{
+		new CCrawler(&GameServer()->m_World, Pos+vec2(0, -40));
 		return true;
 	}
 	
@@ -1182,7 +1209,10 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 		for(int i = 0; i < MAX_CLIENTS; ++i)
 		{
 			if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->m_SpectatorID == pVictim->GetPlayer()->GetCID())
+			{
+				GameServer()->m_apPlayers[i]->m_LastSetSpectatorMode = Server()->Tick() - Server()->TickSpeed()*(g_Config.m_SvSpectatorUpdateTime-1);
 				GameServer()->m_apPlayers[i]->m_SpectatorID = SPEC_FREEVIEW;
+			}
 		}
 	}
 	
@@ -1208,7 +1238,7 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 	}
 	
 	// pickup drops
-	if (g_Config.m_SvPickupDrops)
+	if (g_Config.m_SvPickupDrops && Weapon != WEAPON_GAME)
 	{
 		for (int i = 0; i < 2; i++)
 		{
@@ -1697,13 +1727,17 @@ int IGameController::GetAutoTeam(int NotThisID)
 		return TEAM_RED;
 		
 	int aNumplayers[2] = {0,0};
+	int aNumbots[2] = {0,0};
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if(GameServer()->m_apPlayers[i] && i != NotThisID)
 		{
-			//if(GameServer()->m_apPlayers[i]->GetTeam() >= TEAM_RED && GameServer()->m_apPlayers[i]->GetTeam() <= TEAM_BLUE)
 			if(GameServer()->m_apPlayers[i]->GetTeam() >= TEAM_RED && GameServer()->m_apPlayers[i]->GetTeam() <= TEAM_BLUE)
+			{
 				aNumplayers[GameServer()->m_apPlayers[i]->GetTeam()]++;
+				if (GameServer()->m_apPlayers[i]->m_IsBot)
+					aNumbots[GameServer()->m_apPlayers[i]->GetTeam()]++;
+			}
 		}
 	}
 
@@ -1717,7 +1751,18 @@ int IGameController::GetAutoTeam(int NotThisID)
 	
 	int Team = 0;
 	if(IsTeamplay())
-		Team = aNumplayers[TEAM_RED] > aNumplayers[TEAM_BLUE] ? TEAM_BLUE : TEAM_RED;
+	{
+		if (aNumplayers[TEAM_RED] == aNumplayers[TEAM_BLUE])
+		{
+			if (aNumbots[TEAM_RED] == aNumbots[TEAM_BLUE])
+				Team = rand()%2 == 0 ? TEAM_BLUE : TEAM_RED;
+			else
+				Team = aNumbots[TEAM_RED] < aNumbots[TEAM_BLUE] ? TEAM_BLUE : TEAM_RED;
+			
+		}
+		else
+			Team = aNumplayers[TEAM_RED] > aNumplayers[TEAM_BLUE] ? TEAM_BLUE : TEAM_RED;
+	}
 
 	if(CanJoinTeam(Team, NotThisID))
 		return Team;
