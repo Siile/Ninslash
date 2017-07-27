@@ -732,34 +732,23 @@ void CGenLayer::Scan()
 					x1++;
 				}
 				
-				if (!Get(x-1, y-1) && Used(x-1, y) && Get(x-1, y+1))
-				{
-					x++;
-					x1--;
-				}
-				
-				if (!Get(x+x1+1, y-1) && Used(x+x1+1, y) && Get(x+x1+1, y+1))
-				{
-					x1--;
-				}
-				
 				// avoid ramps
-				/*
-				if (!Get(x-1, y-1) && Get(x-1, y))
+				if (!Get(x-1, y-1) && !Get(x-1, y) && Get(x-1, y+1))
+				{
 					x++;
-				if (!Get(x+x1, y-1) && Get(x+x1, y))
 					x1--;
-				if (!Get(x+x1, y-1) && Get(x+x1, y))
-					x1--;
-				*/
+				}
 				
+				while (!Get(x+x1+1, y-1) && !Get(x+x1+1, y) && Get(x+x1+1, y+1) && x1 > 0)
+					x1--;
+
 				if (x1 > 6 && Valid)
 				{
 					if (m_NumLongPlatforms < GEN_MAX)
 					{
-						m_aLongPlatform[m_NumLongPlatforms++] = ivec3(x, y, x+x1);
 						Set(-1, x, y-1);
 						Use(x, y);
+						m_aLongPlatform[m_NumLongPlatforms++] = ivec3(x, y, x+x1);
 					}
 				}
 			}

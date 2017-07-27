@@ -819,22 +819,31 @@ void CCharacterCore::Tick(bool UseInput)
 			float Distance = distance(m_Pos, pCharCore->m_Pos);
 			vec2 Dir = normalize(m_Pos - pCharCore->m_Pos);
 			
-			if(m_pWorld->m_Tuning.m_PlayerCollision && m_Roll == 0 && m_Slide == 0 && 
-				pCharCore->m_Slide == 0 && pCharCore->m_Roll == 0 && 
-				Distance < PhysSize*1.35f && Distance > 12.0f)
+			if (m_pWorld->m_Tuning.m_PlayerCollision && m_Roll == 0)
 			{
-				m_PlayerCollision = true;
-					
-				float a = (PhysSize*1.45f - Distance);
-				float Velocity = 0.5f;
+				if(m_Slide == 0 && 
+					pCharCore->m_Slide == 0 && pCharCore->m_Roll == 0 && 
+					Distance < PhysSize*1.35f && Distance > 12.0f)
+				{
+					m_PlayerCollision = true;
+						
+					float a = (PhysSize*1.45f - Distance);
+					float Velocity = 0.5f;
 
-				// make sure that we don't add excess force by checking the
-				// direction against the current velocity. if not zero.
-				if (length(m_Vel) > 0.0001)
-					Velocity = 1-(dot(normalize(m_Vel), Dir)+1)/2;
+					// make sure that we don't add excess force by checking the
+					// direction against the current velocity. if not zero.
+					if (length(m_Vel) > 0.0001)
+						Velocity = 1-(dot(normalize(m_Vel), Dir)+1)/2;
 
-				m_Vel += Dir*a*(Velocity*0.75f);
-				m_Vel *= 0.85f;
+					m_Vel += Dir*a*(Velocity*0.75f);
+					m_Vel *= 0.85f;
+				}
+				
+				if (abs(m_Vel.x) < 1.0f && abs(m_Vel.y) < 1.0f && Distance < PhysSize && m_Pos.y <= pCharCore->m_Pos.y)
+				{
+					m_Vel.y -= 1.0f;
+					m_Pos.y -= 1.0f;
+				}
 			}
 		}
 		

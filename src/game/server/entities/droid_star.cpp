@@ -104,25 +104,6 @@ void CStar::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type)
 			if (pChr)
 				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + Server()->TickSpeed());
 		}
-
-		m_DamageTakenTick = Server()->Tick();
-		
-		/*
-		GameServer()->CreateExplosion(m_Pos+m_Center, NEUTRAL_BASE, WEAPON_HAMMER, 0, false, false);
-		GameServer()->CreateSound(m_Pos+m_Center, SOUND_GRENADE_EXPLODE);
-		m_DeathTick = Server()->Tick();
-		
-		// random pickup drop
-		if (frandom()*10 < 4)
-			GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_ARMOR, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
-		else if (frandom()*10 < 4)
-			GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_HEALTH, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
-		else if (frandom()*10 < 4)
-			GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_MINE, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);			
-		else
-			GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_KIT, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);			
-		*/
-		return;
 	}
 
 	m_DamageTakenTick = Server()->Tick();
@@ -144,7 +125,7 @@ void CStar::Tick()
 		
 		if (Server()->Tick() > m_DamageTakenTick+30 || OldVelY > 12.0f)
 		{
-			if (abs(m_Vel.y) < 0.2f)
+			if (Server()->Tick() > m_DamageTakenTick+200 || abs(m_Vel.y) < 0.2f)
 			{
 				GameServer()->CreateExplosion(m_Pos+m_Center, NEUTRAL_BASE, DEATHTYPE_DROID_STAR, 0, false, false);
 				GameServer()->CreateSound(m_Pos+m_Center, SOUND_GRENADE_EXPLODE);
