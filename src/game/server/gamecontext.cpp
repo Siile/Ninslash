@@ -1283,6 +1283,10 @@ void CGameContext::SendBuff(int Buff, int StartTick, int ClientID)
 //
 void CGameContext::StartVote(const char *pDesc, const char *pCommand, const char *pReason)
 {
+	// check if vote time has expired or is invalid
+	if (time_get() > m_VoteCloseTime || m_VoteCloseTime < time_get() - time_freq()*25)
+		m_VoteCloseTime = 0;
+	
 	// check if a vote is already running
 	if(m_VoteCloseTime)
 		return;

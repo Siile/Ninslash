@@ -590,7 +590,12 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 					}
 				}
 				else
-					m_Move = 0;
+				{
+					if (m_WaypointPos.y < m_Pos.y)
+						m_Jump = 1;
+					else
+						m_Move = 0;
+				}
 				
 				if (Player()->GetCharacter()->IsGrounded() && m_EnemyInLine && abs(Player()->GetCharacter()->GetCore().m_Vel.x) > 9)
 					m_Down = 1;
@@ -619,7 +624,12 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 					}
 				}
 				else
-					m_Move = 0;
+				{
+					if (m_WaypointPos.y < m_Pos.y)
+						m_Jump = 1;
+					else
+						m_Move = 0;
+				}
 				
 				if (Player()->GetCharacter()->IsGrounded() && m_EnemyInLine && abs(Player()->GetCharacter()->GetCore().m_Vel.x) > 9)
 					m_Down = 1;

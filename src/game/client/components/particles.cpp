@@ -698,9 +698,9 @@ void CParticles::RenderGroup(int Group)
 				
 			switch (m_aParticles[i].m_Special)
 			{
-				case 1: Graphics()->SetColor(0, 1, 0, 1-alpha); break;
-				case 2: Graphics()->SetColor(0, 0, 0, 1-alpha); break;
-				default: Graphics()->SetColor(1, 0, 0, 1-alpha); break;
+				case 1: Graphics()->SetColor(0, 1, 0, alpha); break;
+				case 2: Graphics()->SetColor(0, 0, 0, alpha); break;
+				default: Graphics()->SetColor(1, 0, 0, alpha); break;
 			};
 			
 			//Graphics()->SetColor(1, 1, 1, 1-a);
