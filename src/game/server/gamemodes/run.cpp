@@ -43,12 +43,12 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	bool Defend = (g_Config.m_SvMapGenLevel > 1 && g_Config.m_SvMapGenLevel%5 == 0);
 	int e = 3 + log(float(1 + g_Config.m_SvMapGenLevel/3)) * 4;
 	e += rand()%(1+g_Config.m_SvMapGenLevel/6);
-	e += g_Config.m_SvMapGenLevel/4;
+	e += g_Config.m_SvMapGenLevel/3;
 
 	if (Defend)
 		e *= 2;
 	
-	e = min(e, 140);
+	e = min(e, 160);
 	
 	m_EnemyCount = 0;
 	m_EnemiesLeft = e;

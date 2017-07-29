@@ -73,10 +73,12 @@ void CAIalien1::OnCharacterSpawn(CCharacter *pChr)
 
 void CAIalien1::ReceiveDamage(int CID, int Dmg)
 {
-	//if (CID >= 0)
-	//	m_Triggered = true;
+	if (CID >= 0 && frandom() < Dmg*0.02f)
+		m_Triggered = true;
 
-	m_ShockTimer = 2 + Dmg/2;
+	if (frandom() < Dmg*0.03f)
+		m_ShockTimer = 2 + Dmg/2;
+	
 	m_Attack = 0;
 }
 

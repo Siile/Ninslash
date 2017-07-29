@@ -475,7 +475,7 @@ void CGameContext::CreateFlamethrowerHit(int DamageOwner, int Weapon, int PowerL
 	
 	{
 		CCharacter *apEnts[MAX_CLIENTS];
-		int Num = m_World.FindEntities(ProjPos, ProximityRadius*0.75f, (CEntity**)apEnts,
+		int Num = m_World.FindEntities(ProjPos, ProximityRadius*0.9f, (CEntity**)apEnts,
 														MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
 
 		for (int i = 0; i < Num; ++i)

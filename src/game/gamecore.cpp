@@ -553,9 +553,9 @@ void CCharacterCore::Tick(bool UseInput)
 					if (m_Direction == -1 && m_Vel.x > -JetpackControlSpeed)
 						m_Vel.x -= 0.5f;
 					
-					if (m_Vel.y < 0.0f)
+					/*if (m_Vel.y < 0.0f)
 						m_JetpackPower -= 1;
-					else
+					else*/
 						m_JetpackPower -= 2;
 				}
 			}
@@ -640,7 +640,7 @@ void CCharacterCore::Tick(bool UseInput)
 				m_Vel.y = 0.0f;
 			}
 				
-			m_JetpackPower -= 1;
+			m_JetpackPower -= 2;
 			m_HandJetpack = true;
 		}
 	}

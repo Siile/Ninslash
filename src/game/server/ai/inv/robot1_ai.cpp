@@ -73,7 +73,8 @@ void CAIrobot1::OnCharacterSpawn(CCharacter *pChr)
 
 void CAIrobot1::ReceiveDamage(int CID, int Dmg)
 {
-	
+	if (CID >= 0 && frandom() < Dmg*0.01f)
+		m_Triggered = true;
 }
 
 
