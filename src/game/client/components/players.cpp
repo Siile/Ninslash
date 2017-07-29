@@ -943,7 +943,8 @@ void CPlayers::RenderPlayer(
 	{
 		WantedAnimation = PANIM_ROLL;
 		pCustomPlayerInfo->Animation()->m_Flip = false;
-		AnimationSpeed = 0.022f;
+		//AnimationSpeed = 0.022f;
+		AnimationSpeed = 0.06f;
 		
 		//if (Direction.x < 0)
 		//	pCustomPlayerInfo->Animation()->m_FlipBody = true;
@@ -953,7 +954,8 @@ void CPlayers::RenderPlayer(
 	{
 		WantedAnimation = PANIM_ROLL;
 		pCustomPlayerInfo->Animation()->m_Flip = true;
-		AnimationSpeed = 0.022f;
+		//AnimationSpeed = 0.022f;
+		AnimationSpeed = 0.06f;
 		
 		//if (Direction.x > 0)
 		//	pCustomPlayerInfo->Animation()->m_FlipBody = true;

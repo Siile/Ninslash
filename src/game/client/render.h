@@ -145,7 +145,7 @@ public:
 	CAnimSkeletonInfo() {}
 	virtual ~CAnimSkeletonInfo();
 
-	void UpdateBones(float Time = 0.0f, CSpineAnimation *pAnimation = 0x0, class CSkeletonAnimation *pAnimData = 0x0, int WeaponAngle = 0);
+	void UpdateBones(float Time = 0.0f, CSpineAnimation *pAnimation = 0x0, class CSkeletonAnimation *pAnimData = 0x0, int WeaponAngle = 0, struct CDroidAnim *pDroidAnim = 0x0);
 };
 
 // texture atlas
@@ -238,6 +238,11 @@ public:
 	void RenderPortrait(CTeeRenderInfo *pInfo, vec2 Position, int EyeType);
 
 	void RenderWalker(vec2 Pos, int Anim, float Time, int Dir, float Angle, int Status);
+	void RenderStarDroid(vec2 Pos, int Anim, float Time, int Dir, float Angle, int Status, struct CDroidAnim *pDroidAnim = 0x0);
+	void RenderCrawlerDroid(vec2 Pos, int Anim, float Time, int Dir, float Angle, int Status, class CDroidAnim *pDroidAnim = 0x0, bool Render = true);
+
+	void RenderCrawlerLegs(class CDroidAnim *pDroidAnim);
+
 
 	// skeleton render methods
 	void RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, class CSkeletonAnimation *AnimData, float Rotation, CAnimSkeletonInfo *pSkeleton, CTextureAtlas *pAtlas, class CPlayerInfo *PlayerInfo = NULL);

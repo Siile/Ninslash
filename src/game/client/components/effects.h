@@ -13,7 +13,7 @@ public:
 
 	virtual void OnRender();
 
-	void BulletTrail(vec2 Start, vec2 End, vec4 Color);
+	void BulletTrail(vec2 Start, vec2 End, vec4 Color, float Size = 1.5f);
 	void BulletTrail(vec2 Pos);
 	void SmokeTrail(vec2 Pos, vec2 Vel);
 	void SkidTrail(vec2 Pos, vec2 Vel);
@@ -31,6 +31,7 @@ public:
 	void Flame(vec2 Pos, vec2 Vel, float Alpha = 1.0f, bool IgnoreCollision = false);
 	void Splatter(vec2 Pos, float Angle, float Size = -1, vec4 Color = vec4(1, 0, 0, 1));
 	void Spark(vec2 Pos);
+	void GreenSpark(vec2 Pos);
 	void DamageIndicator(vec2 Pos, vec2 Dir);
 	void DamageInd(vec2 Pos, vec2 Dir, int Damage, vec4 Color);
 	void PlayerSpawn(vec2 Pos);

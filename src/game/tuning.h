@@ -5,19 +5,19 @@
 #undef GAME_TUNING_H // this file will be included several times
 
 // physics tuning
-MACRO_TUNING_PARAM(GroundControlSpeed, ground_control_speed, 11.0f)
-MACRO_TUNING_PARAM(GroundControlAccel, ground_control_accel, 100.0f / TicksPerSecond)
+MACRO_TUNING_PARAM(ControlSpeed, control_speed, 1.0f)
+MACRO_TUNING_PARAM(JumpPower, jump_power, 12.2f)
+
+
+
+MACRO_TUNING_PARAM(GroundControlSpeed, ground_control_speed, 540.0f / TicksPerSecond) // 11 = fast
+MACRO_TUNING_PARAM(GroundControlAccel, ground_control_accel, 85.0f / TicksPerSecond)
 MACRO_TUNING_PARAM(GroundFriction, ground_friction, 0.5f)
-MACRO_TUNING_PARAM(GroundJumpImpulse, ground_jump_impulse, 13.2f)
-MACRO_TUNING_PARAM(AirJumpImpulse, air_jump_impulse, 13.0f)
-MACRO_TUNING_PARAM(WallrunImpulse, wall_run_impulse, 11.0f)
-MACRO_TUNING_PARAM(AirControlSpeed, air_control_speed, 500.0f / TicksPerSecond) //  250.0f
-MACRO_TUNING_PARAM(AirControlAccel, air_control_accel, 1.5f)
+MACRO_TUNING_PARAM(GroundJumpImpulse, ground_jump_impulse, 12.2f)
+MACRO_TUNING_PARAM(WallrunImpulse, wall_run_impulse, 10.0f)
+MACRO_TUNING_PARAM(AirControlSpeed, air_control_speed, 525.0f / TicksPerSecond) //  250.0f
+MACRO_TUNING_PARAM(AirControlAccel, air_control_accel, 70.0f / TicksPerSecond) // 1.5f
 MACRO_TUNING_PARAM(AirFriction, air_friction, 0.95f)
-MACRO_TUNING_PARAM(HookLength, hook_length, 380.0f)
-MACRO_TUNING_PARAM(HookFireSpeed, hook_fire_speed, 80.0f)
-MACRO_TUNING_PARAM(HookDragAccel, hook_drag_accel, 3.0f)
-MACRO_TUNING_PARAM(HookDragSpeed, hook_drag_speed, 15.0f)
 MACRO_TUNING_PARAM(Gravity, gravity, 0.7f) // 0.5f
 
 MACRO_TUNING_PARAM(SlideFriction, slide_friction, 0.8f)
@@ -25,7 +25,7 @@ MACRO_TUNING_PARAM(SlideSlopeAcceleration, slide_slope_acceleration, 0.4f)
 MACRO_TUNING_PARAM(SlopeDeceleration, slope_deceleration, 0.0f)
 MACRO_TUNING_PARAM(SlopeAscendingControlSpeed, slope_ascending_control_speed, 10.0f)
 MACRO_TUNING_PARAM(SlopeDescendingControlSpeed, slope_descending_control_speed, 10.0f)
-MACRO_TUNING_PARAM(SlideControlSpeed, slide_control_speed, 30.0f)
+MACRO_TUNING_PARAM(SlideControlSpeed, slide_control_speed, 17.0f)
 MACRO_TUNING_PARAM(SlideActivationSpeed, slide_activation_speed, 8.0f)
 
 MACRO_TUNING_PARAM(VelrampStart, velramp_start, 550)
@@ -37,9 +37,13 @@ MACRO_TUNING_PARAM(GunCurvature, gun_curvature, 1.25f)
 MACRO_TUNING_PARAM(GunSpeed, gun_speed, 3200.0f)
 MACRO_TUNING_PARAM(GunLifetime, gun_lifetime, 2.0f)
 
-MACRO_TUNING_PARAM(WalkerCurvature, gun_curvature, 0.3f)
-MACRO_TUNING_PARAM(WalkerSpeed, gun_speed, 2200.0f)
-MACRO_TUNING_PARAM(WalkerLifetime, gun_lifetime, 2.0f)
+MACRO_TUNING_PARAM(WalkerCurvature, walker_curvature, 0.3f)
+MACRO_TUNING_PARAM(WalkerSpeed, walker_speed, 2200.0f)
+MACRO_TUNING_PARAM(WalkerLifetime, walker_lifetime, 2.0f)
+
+MACRO_TUNING_PARAM(StarDroidCurvature, droid_star_curvature, 0.0f)
+MACRO_TUNING_PARAM(StarDroidSpeed, droid_star_speed, 20.0f)
+MACRO_TUNING_PARAM(StarDroidLifetime, droid_star_lifetime, 2.0f)
 
 MACRO_TUNING_PARAM(ShotgunCurvature, shotgun_curvature, 1.25f)
 MACRO_TUNING_PARAM(ShotgunSpeed, shotgun_speed, 2750.0f)
@@ -65,5 +69,4 @@ MACRO_TUNING_PARAM(LaserBounceCost, laser_bounce_cost, -100)
 MACRO_TUNING_PARAM(LaserDamage, laser_damage, 5)
 
 MACRO_TUNING_PARAM(PlayerCollision, player_collision, 1)
-MACRO_TUNING_PARAM(PlayerHooking, player_hooking, 1)
 #endif

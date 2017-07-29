@@ -155,7 +155,7 @@ public:
 
 		// monster positions
 		int m_MonsterCount;
-		vec2 m_aMonsterPos[MAX_MONSTERS];
+		vec2 m_aMonsterPos[MAX_DROIDS];
 		
 		// jumppad positions
 		int m_ImpactCount;
@@ -286,7 +286,7 @@ public:
 	class CVoting *m_pVoting;
 	class CScoreboard *m_pScoreboard;
 	class CItems *m_pItems;
-	class CMonsters *m_pMonsters;
+	class CDroids *m_pDroids;
 	class CBuildings *m_pBuildings;
 	class CBuildings2 *m_pBuildings2;
 	class CMapLayers *m_pMapLayersBackGround;

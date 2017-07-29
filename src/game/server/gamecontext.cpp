@@ -24,7 +24,7 @@
 #include <game/server/entities/building.h>
 #include <game/server/entities/turret.h>
 #include <game/server/entities/teslacoil.h>
-#include <game/server/entities/monster.h>
+#include <game/server/entities/droid.h>
 #include <game/server/entities/superexplosion.h>
 
 #include <game/server/playerdata.h>
@@ -326,13 +326,13 @@ void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, int PowerLevel
 		
 	// monsters
 	{
-		CMonster *apEnts[MAX_CLIENTS];
+		CDroid *apEnts[MAX_CLIENTS];
 		int Num = m_World.FindEntities(ProjPos, ProximityRadius, (CEntity**)apEnts,
-														MAX_CLIENTS, CGameWorld::ENTTYPE_MONSTER);
+														MAX_CLIENTS, CGameWorld::ENTTYPE_DROID);
 
 		for (int i = 0; i < Num; ++i)
 		{
-			CMonster *pTarget = apEnts[i];
+			CDroid *pTarget = apEnts[i];
 
 			if (pTarget->m_Health <= 0)
 				continue;
@@ -405,13 +405,13 @@ void CGameContext::CreateScytheHit(int DamageOwner, int Weapon, int PowerLevel, 
 		
 	// monsters
 	{
-		CMonster *apEnts[MAX_CLIENTS];
+		CDroid *apEnts[MAX_CLIENTS];
 		int Num = m_World.FindEntities(ProjPos, ProximityRadius, (CEntity**)apEnts,
-														MAX_CLIENTS, CGameWorld::ENTTYPE_MONSTER);
+														MAX_CLIENTS, CGameWorld::ENTTYPE_DROID);
 
 		for (int i = 0; i < Num; ++i)
 		{
-			CMonster *pTarget = apEnts[i];
+			CDroid *pTarget = apEnts[i];
 
 			if (pTarget->m_Health <= 0)
 				continue;
@@ -475,7 +475,7 @@ void CGameContext::CreateFlamethrowerHit(int DamageOwner, int Weapon, int PowerL
 	
 	{
 		CCharacter *apEnts[MAX_CLIENTS];
-		int Num = m_World.FindEntities(ProjPos, ProximityRadius*0.75f, (CEntity**)apEnts,
+		int Num = m_World.FindEntities(ProjPos, ProximityRadius*0.9f, (CEntity**)apEnts,
 														MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
 
 		for (int i = 0; i < Num; ++i)
@@ -503,13 +503,13 @@ void CGameContext::CreateFlamethrowerHit(int DamageOwner, int Weapon, int PowerL
 		
 	// monsters
 	{
-		CMonster *apEnts[MAX_CLIENTS];
+		CDroid *apEnts[MAX_CLIENTS];
 		int Num = m_World.FindEntities(ProjPos, ProximityRadius*0.75f, (CEntity**)apEnts,
-														MAX_CLIENTS, CGameWorld::ENTTYPE_MONSTER);
+														MAX_CLIENTS, CGameWorld::ENTTYPE_DROID);
 
 		for (int i = 0; i < Num; ++i)
 		{
-			CMonster *pTarget = apEnts[i];
+			CDroid *pTarget = apEnts[i];
 
 			if (pTarget->m_Health <= 0)
 				continue;
@@ -675,12 +675,19 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, int PowerLev
 	
 	// create the event
 	
-	CNetEvent_Explosion *pEvent = (CNetEvent_Explosion *)m_Events.Create(NETEVENTTYPE_EXPLOSION, sizeof(CNetEvent_Explosion));
-	if(pEvent)
+	if (PowerLevel < 0)
 	{
-		pEvent->m_X = (int)Pos.x;
-		pEvent->m_Y = (int)Pos.y;
-		pEvent->m_PowerLevel = PowerLevel;
+		CreateEffect(FX_GREEN_EXPLOSION, Pos);
+	}
+	else
+	{
+		CNetEvent_Explosion *pEvent = (CNetEvent_Explosion *)m_Events.Create(NETEVENTTYPE_EXPLOSION, sizeof(CNetEvent_Explosion));
+		if(pEvent)
+		{
+			pEvent->m_X = (int)Pos.x;
+			pEvent->m_Y = (int)Pos.y;
+			pEvent->m_PowerLevel = PowerLevel;
+		}
 	}
 
 	if (!NoDamage)
@@ -701,6 +708,12 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, int PowerLev
 			Radius *= 1.5f;
 			InnerRadius *= 1.5f;
 			Dmg2 *= 1.8f;
+		}
+		else if (-PowerLevel == 1)
+		{
+			Radius *= 0.95f;
+			InnerRadius *= 0.95f;
+			Dmg2 *= 0.5f;
 		}
 		
 		int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
@@ -746,8 +759,8 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, int PowerLev
 		
 		// monsters
 		{
-			CMonster *apMonsters[9];
-			Num = m_World.FindEntities(Pos, Radius, (CEntity**)apMonsters, 9, CGameWorld::ENTTYPE_MONSTER);
+			CDroid *apMonsters[9];
+			Num = m_World.FindEntities(Pos, Radius, (CEntity**)apMonsters, 9, CGameWorld::ENTTYPE_DROID);
 
 			for(int i = 0; i < Num; i++)
 			{
@@ -852,8 +865,8 @@ void CGameContext::CreateElectromineExplosion(vec2 Pos, int Owner, int Weapon, b
 		
 		// monsters
 		{
-			CMonster *apMonsters[9];
-			int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apMonsters, 9, CGameWorld::ENTTYPE_MONSTER);
+			CDroid *apMonsters[9];
+			int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apMonsters, 9, CGameWorld::ENTTYPE_DROID);
 
 			for(int i = 0; i < Num; i++)
 			{
@@ -935,8 +948,8 @@ void CGameContext::CreateFlameExplosion(vec2 Pos, int Owner, int Weapon, bool No
 		
 		// monsters
 		{
-			CMonster *apMonsters[9];
-			int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apMonsters, 9, CGameWorld::ENTTYPE_MONSTER);
+			CDroid *apMonsters[9];
+			int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apMonsters, 9, CGameWorld::ENTTYPE_DROID);
 
 			for(int i = 0; i < Num; i++)
 			{
@@ -1053,8 +1066,8 @@ void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, int 
 		
 		// monsters
 		{
-			CMonster *apMonsters[9];
-			int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apMonsters, 9, CGameWorld::ENTTYPE_MONSTER);
+			CDroid *apMonsters[9];
+			int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apMonsters, 9, CGameWorld::ENTTYPE_DROID);
 
 			for(int i = 0; i < Num; i++)
 			{
@@ -1270,6 +1283,10 @@ void CGameContext::SendBuff(int Buff, int StartTick, int ClientID)
 //
 void CGameContext::StartVote(const char *pDesc, const char *pCommand, const char *pReason)
 {
+	// check if vote time has expired or is invalid
+	if (time_get() > m_VoteCloseTime || m_VoteCloseTime < time_get() - time_freq()*25)
+		m_VoteCloseTime = 0;
+	
 	// check if a vote is already running
 	if(m_VoteCloseTime)
 		return;
@@ -1377,7 +1394,7 @@ void CGameContext::SendTuningParams(int ClientID)
 void CGameContext::UpdateSpectators()
 {
 	// SKIP
-	return;
+	//return;
 	
 	
 	bool Found[2] = {false, false};
@@ -1395,7 +1412,7 @@ void CGameContext::UpdateSpectators()
 			else
 			{
 				// player is a spectator
-				if (m_apPlayers[m_aMostInterestingPlayer[i]]->GetTeam() == TEAM_SPECTATORS)
+				if (m_apPlayers[m_aMostInterestingPlayer[i]]->Spectating())
 					m_aMostInterestingPlayer[i] = -1;
 			}
 		}
@@ -1405,6 +1422,7 @@ void CGameContext::UpdateSpectators()
 	// find the most interesting player of both teams
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
+		
 		// player and character exists
 		if (m_apPlayers[i] && m_apPlayers[i]->m_EnableAutoSpectating && m_apPlayers[i]->GetCharacter() && m_apPlayers[i]->GetCharacter()->IsAlive() &&
 			(!m_apPlayers[i] || !g_Config.m_SvSpectateOnlyHumans))
@@ -1418,6 +1436,8 @@ void CGameContext::UpdateSpectators()
 				
 				int Points = -1;
 				int Player = m_aMostInterestingPlayer[Team];
+				
+				m_apPlayers[i]->m_InterestPoints += frandom();
 				
 				if (Player >= 0)
 					if (m_apPlayers[Player] && m_apPlayers[Player]->GetCharacter())
@@ -1460,8 +1480,8 @@ void CGameContext::UpdateSpectators()
 	// update the spectator views
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
-		//if(m_apPlayers[i] && m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && !m_apPlayers[i]->m_IsBot)
-		if(m_apPlayers[i] && (m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS || !m_apPlayers[i]->GetCharacter()) && !m_apPlayers[i]->m_IsBot)
+		//if(m_apPlayers[i] && (m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS || !m_apPlayers[i]->GetCharacter()) && !m_apPlayers[i]->m_IsBot)
+		if(m_apPlayers[i] && !m_apPlayers[i]->m_IsBot && m_apPlayers[i]->m_ActionSpectator && m_apPlayers[i]->Spectating())
 		{
 			if (!m_apPlayers[i]->m_LastSetSpectatorMode)
 				m_apPlayers[i]->m_LastSetSpectatorMode = Server()->Tick() - Server()->TickSpeed()*g_Config.m_SvSpectatorUpdateTime;
@@ -2162,6 +2182,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		{
 			CNetMsg_Cl_SetSpectatorMode *pMsg = (CNetMsg_Cl_SetSpectatorMode *)pRawMsg;
 
+			pPlayer->m_ActionSpectator = false;
+			
 			if((pPlayer->GetTeam() != TEAM_SPECTATORS && !g_Config.m_SvSurvivalMode) || 
 				pPlayer->m_SpectatorID == pMsg->m_SpectatorID || ClientID == pMsg->m_SpectatorID ||
 				(g_Config.m_SvSpamprotection && pPlayer->m_LastSetSpectatorMode && pPlayer->m_LastSetSpectatorMode+Server()->TickSpeed()*1 > Server()->Tick()))
@@ -2261,8 +2283,8 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 		if(MsgID == NETMSGTYPE_CL_STARTINFO)
 		{
 			// limit players to 4 in invasion
-			if (m_pController->IsCoop() && m_pController->CountHumans() > 4)
-				Server()->Kick(ClientID, "Server full - max 4 players in co-op modes");
+			if (m_pController->IsCoop() && m_pController->CountHumans() > 16)
+				Server()->Kick(ClientID, "Server full - max 16 players in co-op modes");
 			
 			if(pPlayer->m_IsReady)
 				return;
@@ -2857,9 +2879,14 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		m_pController = new CGameControllerCoop(this);
 	else
 		m_pController = new CGameControllerDM(this);
+	
+	if (str_comp(g_Config.m_SvGametype, "coop") != 0)
+		Server()->ResetPlayerData();
+		
 
 	// MapGen
-	if (str_comp(g_Config.m_SvGametype, "coop") == 0 && g_Config.m_SvMapGen && !m_pServer->m_MapGenerated)
+	//if (str_comp(g_Config.m_SvGametype, "coop") == 0 && g_Config.m_SvMapGen && !m_pServer->m_MapGenerated)
+	if (g_Config.m_SvMapGen && !m_pServer->m_MapGenerated)
 	{
 		m_MapGen.FillMap();
 		SaveMap("");
@@ -2922,10 +2949,16 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 void CGameContext::OnShutdown()
 {
 	KickBots();
-	for (int i = 0; i < MAX_CLIENTS; i++)
-		if (m_apPlayers[i])
-			m_apPlayers[i]->SaveData();
 	
+	if (str_comp(m_pController->m_pGameType, "INV") == 0)
+	{
+		for (int i = 0; i < MAX_CLIENTS; i++)
+			if (m_apPlayers[i])
+				m_apPlayers[i]->SaveData();
+	}
+	else
+		Server()->ResetPlayerData();
+		
 	delete m_pController;
 	m_pController = 0;
 	Clear();

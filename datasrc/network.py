@@ -13,7 +13,8 @@ Statuses = ["EMPTY", "SPAWNING", "AFLAME", "SLOWED", "ELECTRIC", "DEATHRAY", "SH
 
 Damagetypes = ["NORMAL", "FLAME", "ELECTRIC", "FLUID"]
 
-Monsterstatus = ["IDLE", "HURT", "ELECTRIC"]
+Droidstatus = ["IDLE", "HURT", "ELECTRIC", "TERMINATED"]
+Droidtype = ["WALKER", "STAR", "CRAWLER", "FLY"]
 
 CoreAction = ["IDLE", "JUMP", "WALLJUMP", "ROLL", "SLIDE", "SLIDEKICK", "FALL", "JUMPPAD", "HANG"]
 
@@ -78,6 +79,7 @@ enum
 	FX_SMALLELECTRIC,
 	FX_ELECTRIC,
 	FX_SUPERELECTRIC,
+	FX_GREEN_EXPLOSION,
 	FX_ELECTROHIT,
 	FX_ELECTROMINE,
 	FX_SHIELDHIT,
@@ -117,12 +119,13 @@ enum
 	DEATHTYPE_ELECTROMINE,
 	DEATHTYPE_BARREL,
 	DEATHTYPE_DEATHRAY,
-	DEATHTYPE_MONSTER,
+	DEATHTYPE_DROID_WALKER,
 	DEATHTYPE_FLAMETRAP,
 	DEATHTYPE_TURRETADDITION,
 	DEATHTYPE_POWERBARREL,
 	DEATHTYPE_LIGHTNINGWALL,
 	DEATHTYPE_TESLACOIL,
+	DEATHTYPE_DROID_STAR,
 	NUM_DEATHTYPES,
 	
 	NUM_BODIES=7,
@@ -143,7 +146,8 @@ Enums = [
 	Enum("EMOTICON", Emoticons),
 	Enum("STATUS", Statuses),
 	Enum("DAMAGETYPE", Damagetypes),
-	Enum("MONSTERSTATUS", Monsterstatus),
+	Enum("DROIDSTATUS", Droidstatus),
+	Enum("DROIDTYPE", Droidtype),
 	Enum("COREACTION", CoreAction)
 ]
 
@@ -212,13 +216,13 @@ Objects = [
 		NetIntRange("m_Subtype", 0, 'max_int'),
 	]),
 	
-	NetObject("Monster", [
+	NetObject("Droid", [
 		NetIntAny("m_X"),
 		NetIntAny("m_Y"),
 		NetIntAny("m_Angle"),
 		NetIntRange("m_AttackTick", 0, 'max_int'),
 
-		#NetIntRange("m_Type", 0, 'max_int'),
+		NetIntRange("m_Type", 0, 16),
 		NetIntRange("m_Status", 0, 16),
 		NetIntRange("m_Anim", 0, 8),
 		NetIntRange("m_Dir", -1, 1),

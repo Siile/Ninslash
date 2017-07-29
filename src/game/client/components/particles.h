@@ -81,6 +81,7 @@ public:
 		GROUP_PROJECTILE_TRAIL=0,
 		GROUP_COLORTRAIL,
 		GROUP_EXPLOSIONS,
+		GROUP_GREEN_EXPLOSION,
 		GROUP_HITEFFECTS,
 		GROUP_SMOKE1,
 		GROUP_MINE1,
@@ -138,6 +139,7 @@ private:
 	CRenderGroup<GROUP_PROJECTILE_TRAIL> m_RenderTrail;
 	CRenderGroup<GROUP_COLORTRAIL> m_RenderColorTrail;
 	CRenderGroup<GROUP_EXPLOSIONS> m_RenderExplosions;
+	CRenderGroup<GROUP_GREEN_EXPLOSION> m_RenderGreenExplosion;
 	CRenderGroup<GROUP_HITEFFECTS> m_RenderHitEffects;
 	CRenderGroup<GROUP_SMOKE1> m_RenderSmoke1;
 	CRenderGroup<GROUP_MINE1> m_RenderMine1;

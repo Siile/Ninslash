@@ -2,7 +2,7 @@
 #include <game/server/gamecontext.h>
 #include "projectile.h"
 #include "building.h"
-#include "monster.h"
+#include "droid.h"
 #include "electro.h"
 #include "superexplosion.h"
 #include "smokescreen.h"
@@ -30,6 +30,9 @@ CProjectile::CProjectile(CGameWorld *pGameWorld, int Weapon, int Owner, vec2 Pos
 	
 	m_OwnerBuilding = NULL;
 	BounceTick = 0;
+	
+	if (Weapon == W_DROID_STAR)
+		m_Explosive = EXPLOSION_GREEN;
 	
 	GameWorld()->InsertEntity(this);
 }
@@ -95,19 +98,27 @@ vec2 CProjectile::GetPos(float Time)
 			//Speed = GameServer()->Tuning()->m_GunSpeed;
 			//break;
 			
-		case W_WALKER:
+		case W_DROID_WALKER:
 			Curvature = GameServer()->Tuning()->m_WalkerCurvature;
 			Speed = GameServer()->Tuning()->m_WalkerSpeed;
 			break;
+			
+		case W_DROID_STAR:
+			Curvature = GameServer()->Tuning()->m_StarDroidCurvature;
+			Speed = GameServer()->Tuning()->m_StarDroidSpeed;
+			break;
 	}
 
+	if (m_Weapon == W_DROID_STAR)
+		return CalcLogPos(m_Pos, m_Direction, Curvature, Speed, Time);
+	
 	return CalcPos(m_Pos, m_Direction, Curvature, Speed, Time);
 }
 
 
 bool CProjectile::Bounce(vec2 Pos)
 {
-	if (m_Weapon == WEAPON_ELECTRIC || m_Bouncy)
+	if (m_Bouncy)
 	{
 		BounceTick = Server()->Tick();
 	
@@ -148,10 +159,18 @@ void CProjectile::Tick()
 	float Ct = (Server()->Tick()-m_StartTick)/(float)Server()->TickSpeed();
 	vec2 PrevPos = GetPos(Pt);
 	vec2 CurPos = GetPos(Ct);
-	int Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &CurPos, 0);
+	int Collide = 0;
 	CCharacter *OwnerChar = GameServer()->GetPlayerChar(m_Owner);
-	CCharacter *TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, 6.0f, CurPos, OwnerChar);
-	CCharacter *ReflectChr = GameServer()->m_World.IntersectScythe(PrevPos, CurPos, 50.0f, CurPos, OwnerChar);
+	CCharacter *TargetChr = NULL;
+	CCharacter *ReflectChr = NULL;
+	
+	Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &CurPos, 0);
+		
+	if (m_Weapon != W_DROID_STAR)
+	{
+		TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, 6.0f, CurPos, OwnerChar);
+		ReflectChr = GameServer()->m_World.IntersectScythe(PrevPos, CurPos, 50.0f, CurPos, OwnerChar);
+	}
 	
 	int Team = -1;
 	if (m_Owner == RED_BASE)
@@ -161,12 +180,20 @@ void CProjectile::Tick()
 	else if (OwnerChar)
 		Team = OwnerChar->GetPlayer()->GetTeam();
 	
-	CBuilding *TargetBuilding = GameServer()->m_World.IntersectBuilding(PrevPos, CurPos, 6.0f, CurPos, Team);
+	CBuilding *TargetBuilding = NULL;
+	
+	if (m_Weapon != W_DROID_STAR)
+		TargetBuilding = GameServer()->m_World.IntersectBuilding(PrevPos, CurPos, 6.0f, CurPos, Team);
+	
+	
 	
 	if (m_OwnerBuilding == TargetBuilding)
 		TargetBuilding = NULL;
 	
-	CMonster *TargetMonster = GameServer()->m_World.IntersectWalker(PrevPos, CurPos, 6.0f, CurPos);
+	CDroid *TargetMonster = NULL;
+	
+	if (m_Weapon != W_DROID_STAR)
+		TargetMonster = GameServer()->m_World.IntersectWalker(PrevPos, CurPos, 6.0f, CurPos);
 	
 	if (m_Owner == NEUTRAL_BASE)
 		TargetMonster = NULL;
@@ -210,6 +237,11 @@ void CProjectile::Tick()
 			GameServer()->CreateElectricExplosion(CurPos, m_Owner, m_Weapon, m_PowerLevel, false, m_OwnerBuilding ? true : false);
 		}
 	
+		else if(m_Explosive == EXPLOSION_GREEN)
+		{
+			GameServer()->CreateExplosion(CurPos, m_Owner, m_Weapon, -1, false, m_OwnerBuilding ? true : false);
+			GameServer()->CreateSound(CurPos, SOUND_GREEN_EXPLOSION);
+		}
 		else if(m_Explosive == EXPLOSION_EXPLOSION)
 		{
 			GameServer()->CreateExplosion(CurPos, m_Owner, m_Weapon, m_PowerLevel, false, m_OwnerBuilding ? true : false);

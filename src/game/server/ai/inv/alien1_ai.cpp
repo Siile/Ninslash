@@ -12,16 +12,27 @@ CAIalien1::CAIalien1(CGameContext *pGameServer, CPlayer *pPlayer)
 : CAI(pGameServer, pPlayer)
 {
 	m_SkipMoveUpdate = 0;
-	Player()->SetCustomSkin(4);
 	m_StartPos = vec2(0, 0);
 	m_ShockTimer = 0;
+	m_Triggered = false;
+	m_TriggerLevel = 5 + rand()%5;
+	
+	// "boss"
+	if (frandom() < 0.5f && g_Config.m_SvInvBosses > 0)
+	{
+		m_Skin = 11;
+		g_Config.m_SvInvBosses--;
+	}
+	else
+		m_Skin = 4;
+
+	Player()->SetCustomSkin(m_Skin);
 }
 
 
 void CAIalien1::OnCharacterSpawn(CCharacter *pChr)
 {
 	CAI::OnCharacterSpawn(pChr);
-	
 	
 	m_WaypointDir = vec2(0, 0);
 	//Player()->SetRandomSkin();
@@ -30,29 +41,44 @@ void CAIalien1::OnCharacterSpawn(CCharacter *pChr)
 	
 	m_StartPos = Player()->GetCharacter()->m_Pos;
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
-	m_Triggered = false;
 	
-	if (frandom() < 0.4f)
-		pChr->GiveCustomWeapon(WEAPON_RIFLE);
-	else if (frandom() < 0.4f)
-		pChr->GiveCustomWeapon(WEAPON_CHAINSAW);
-	else if (frandom() < 0.5f)
-		pChr->GiveCustomWeapon(WEAPON_LASER);
+	if (m_Skin == 11)
+	{
+		pChr->GiveCustomWeapon(WEAPON_CHAINSAW, 1, 2);
+		pChr->SetCustomWeapon(WEAPON_CHAINSAW);
+		pChr->SetHealth(80);
+		m_PowerLevel = 8;
+		m_TriggerLevel = 15 + rand()%5;
+	}
 	else
-		pChr->GiveCustomWeapon(WEAPON_ELECTRIC);
+	{
+		if (frandom() < 0.4f)
+			pChr->GiveCustomWeapon(WEAPON_RIFLE);
+		else if (frandom() < 0.4f)
+			pChr->GiveCustomWeapon(WEAPON_CHAINSAW);
+		else if (frandom() < 0.5f)
+			pChr->GiveCustomWeapon(WEAPON_LASER);
+		else
+			pChr->GiveCustomWeapon(WEAPON_ELECTRIC);
+			pChr->SetHealth(60);
+	}
 	
-	pChr->SetHealth(60);
 	
 	m_ShockTimer = 10;
-	
-	m_ReactionTime = 150;
+		
+	if (!m_Triggered)
+		m_ReactionTime = 150;
 }
 
 
 void CAIalien1::ReceiveDamage(int CID, int Dmg)
 {
-	m_Triggered = true;
-	m_ShockTimer = 2 + Dmg/2;
+	if (CID >= 0 && frandom() < Dmg*0.02f)
+		m_Triggered = true;
+
+	if (frandom() < Dmg*0.03f)
+		m_ShockTimer = 2 + Dmg/2;
+	
 	m_Attack = 0;
 }
 
@@ -61,26 +87,21 @@ void CAIalien1::DoBehavior()
 {
 	m_Attack = 0;
 	
-
 	if (m_ShockTimer > 0 && m_ShockTimer--)
 	{
 		m_ReactionTime = 1 + frandom()*3;
 		return;
 	}
 	
-	
 	HeadToMovingDirection();
-
 	SeekClosestEnemyInSight();
-
 	bool Shooting = false;
 	
 	// if we see a player
 	if (m_EnemiesInSight > 0)
 	{
 		ReactToPlayer();
-		
-		m_Triggered = true;
+		//m_Triggered = true;
 		
 		if (!m_MoveReactTime)
 			m_MoveReactTime++;
@@ -106,19 +127,12 @@ void CAIalien1::DoBehavior()
 	}
 	else
 	{
-		// seen enemy, but enemies in sight
-		
+		// triggered, but no enemies in sight
 		ShootAtClosestBuilding();
 		
 		if (SeekClosestEnemy())
 			m_TargetPos = m_PlayerPos;
-		else
-		{
-			//m_Triggered = false;
-			//m_TargetPos = m_StartPos;
-		}
 	}
-
 
 	if ((Shooting && Player()->GetCharacter()->IsGrounded()) || (abs(m_Pos.x - m_TargetPos.x) < 40 && abs(m_Pos.y - m_TargetPos.y) < 40))
 	{
@@ -144,12 +158,8 @@ void CAIalien1::DoBehavior()
 	}
 	
 	Player()->GetCharacter()->m_SkipPickups = 999;
-
 	RandomlyStopShooting();
 	
-	//m_Attack = 0;
-	
 	// next reaction in
-	m_ReactionTime = 1 + frandom()*3;
-	
+	m_ReactionTime = 1 + rand()%3;
 }

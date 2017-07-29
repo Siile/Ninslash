@@ -2,12 +2,24 @@
 
 
 
-CCustomStuff::CCustomStuff()
+CCustomStuff::CCustomStuff(CGameClient *pClient)
 {
+	m_pClient = pClient;
+	
+	for (int i = 0; i < MAX_DROIDS; i++)
+		m_apDroidAnim[i] = NULL;
+	
 	Reset();
 	m_CameraTargetCenter = vec2(0, 0);
 	m_CameraCenter = vec2(0, 0);
 	m_SelectedGroup = 0;
+}
+
+CCustomStuff::~CCustomStuff()
+{
+	for (int i = 0; i < MAX_DROIDS; i++)
+		if (m_apDroidAnim[i])
+			delete m_apDroidAnim[i];
 }
 
 
@@ -47,14 +59,18 @@ void CCustomStuff::Reset()
 	for (int i = 0; i < MAX_CLIENTS; i++)
 		m_aPlayerInfo[i].Reset();
 	
+	for (int i = 0; i < MAX_DROIDS; i++)
+		if (m_apDroidAnim[i])
+			m_apDroidAnim[i]->Reset();
+	
 	m_WantedWeapon = 1;
 	m_SawbladeAngle = 0;
 	m_MonsterAnim = 0;
 	
-	for (int i = 0; i < MAX_MONSTERS; i++)
+	for (int i = 0; i < MAX_DROIDS; i++)
 	{
-		m_MonsterDamageIntensity[i] = 0.0f;
-		m_MonsterDamageType[i] = 0;
+		m_DroidDamageIntensity[i] = 0.0f;
+		m_DroidDamageType[i] = 0;
 	}
 	
 	for (int i = 0; i < 512; i++)
@@ -89,6 +105,17 @@ void CCustomStuff::Reset()
 	m_BuildPos = vec2(0, 0);
 	m_BuildPosValid = false;
 	m_FlipBuilding = false;
+}
+
+
+
+CDroidAnim *CCustomStuff::GetDroidAnim(int Index)
+{
+	int i = Index%MAX_DROIDS;
+	if (!m_apDroidAnim[i])
+		m_apDroidAnim[i] = new CDroidAnim(m_pClient);
+	
+	return m_apDroidAnim[i];
 }
 
 
@@ -162,9 +189,13 @@ void CCustomStuff::Tick(bool Paused)
 		for (int i = 0; i < MAX_CLIENTS; i++)
 			m_aPlayerInfo[i].Tick();
 		
-		for (int i = 0; i < MAX_MONSTERS; i++)
-			if (m_MonsterDamageIntensity[i] > 0.0f)
-				m_MonsterDamageIntensity[i] -= 0.05f;
+		for (int i = 0; i < MAX_DROIDS; i++)
+			if (m_apDroidAnim[i])
+				m_apDroidAnim[i]->Tick();
+		
+		for (int i = 0; i < MAX_DROIDS; i++)
+			if (m_DroidDamageIntensity[i] > 0.0f)
+				m_DroidDamageIntensity[i] -= 0.05f;
 			
 		for (int i = 0; i < 64; i++)
 		{

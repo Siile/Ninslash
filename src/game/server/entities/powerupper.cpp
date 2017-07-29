@@ -12,6 +12,7 @@ CPowerupper::CPowerupper(CGameWorld *pGameWorld, vec2 Pos)
 	m_ProximityRadius = PowerupperPhysSize;
 	m_Life = 100;
 
+	m_Collision = false;
 	m_Item = -1;
 	m_ItemTakenTick = 0;
 }

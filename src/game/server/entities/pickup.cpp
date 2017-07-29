@@ -21,7 +21,14 @@ CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType, int Ammo)
 	GameWorld()->InsertEntity(this);
 	
 	if (g_Config.m_SvSurvivalMode)
+	{
 		m_SkipAutoRespawn = true;
+		
+		if (m_Type == POWERUP_WEAPON && frandom() < 0.14f)
+			m_PowerLevel = 1;
+		else if (m_Type == POWERUP_WEAPON && frandom() < 0.07f)
+			m_PowerLevel = 2;
+	}
 	else
 		m_SkipAutoRespawn = false;
 	
@@ -300,6 +307,34 @@ void CPickup::Tick()
 		}
 	}
 }
+
+	
+void CPickup::SurvivalReset()
+{
+	if (!m_Dropable || m_ResetableDropable)
+	{
+		m_SpawnTick = -1;
+		m_Flashing = false;
+		m_FlashTimer = 0;
+		
+		m_PowerLevel = 0;
+
+		if (m_Type == POWERUP_WEAPON && frandom() < 0.15f)
+			m_PowerLevel = 1;
+		else if (m_Type == POWERUP_WEAPON && frandom() < 0.08f)
+			m_PowerLevel = 2;
+			
+		if (m_ResetableDropable)
+		{
+			m_Pos = m_SpawnPos;
+			m_Dropable = false;
+		}
+	}
+		
+	if (m_Dropable)
+		m_SpawnTick = 999;
+}
+
 
 void CPickup::TickPaused()
 {

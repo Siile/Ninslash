@@ -20,8 +20,10 @@ class CLayers
 	int m_GameGroupIndex;
 	int m_GameLayerIndex;
 	int m_BackgrounLayerIndex;
+	int m_DoodadsLayerIndex;
 	int m_ForegroundLayerIndex;
 	CMapItemLayerTilemap *m_pBackgrounLayer;
+	CMapItemLayerTilemap *m_pDoodadsLayer;
 	CMapItemLayerTilemap *m_pForegroundLayer;
 
 	// for generating layers
@@ -46,6 +48,8 @@ public:
 	int GetGameLayerIndex() const { return m_GameLayerIndex; }
 	CMapItemLayerTilemap *BackgroundLayer() const { return m_pBackgrounLayer; };
 	int GetBackgroundLayerIndex() const { return m_BackgrounLayerIndex; }
+	CMapItemLayerTilemap *DoodadsLayer() const { return m_pDoodadsLayer; };
+	int GetDoodadsLayerIndex() const { return m_DoodadsLayerIndex; }
 	CMapItemLayerTilemap *ForegroundLayer() const { return m_pForegroundLayer; };
 	int GetForegroundLayerIndex() const { return m_ForegroundLayerIndex; }
 };

@@ -5,7 +5,7 @@
 
 #include <game/server/player.h>
 #include "character.h"
-#include "monster.h"
+#include "droid.h"
 
 #include "building.h"
 #include "projectile.h"
@@ -443,13 +443,13 @@ void CBuilding::Tick()
 			pChr->TakeSawbladeDamage(m_Pos);
 		
 		// walker / drone collision
-		CMonster *apEnts[MAX_CLIENTS];
+		CDroid *apEnts[MAX_CLIENTS];
 		int Num = GameServer()->m_World.FindEntities(m_Pos, m_ProximityRadius*1.5f, (CEntity**)apEnts,
-													MAX_CLIENTS, CGameWorld::ENTTYPE_MONSTER);
+													MAX_CLIENTS, CGameWorld::ENTTYPE_DROID);
 
 		for (int i = 0; i < Num; ++i)
 		{
-			CMonster *pTarget = apEnts[i];
+			CDroid *pTarget = apEnts[i];
 
 			if (pTarget->m_Health <= 0)
 				continue;

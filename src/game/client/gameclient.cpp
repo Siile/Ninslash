@@ -44,7 +44,7 @@
 #include "components/cbelt.h"
 #include "components/buildings.h"
 #include "components/buildings2.h"
-#include "components/monsters.h"
+#include "components/droids.h"
 #include "components/killmessages.h"
 #include "components/mapimages.h"
 #include "components/maplayers.h"
@@ -97,7 +97,7 @@ static CDamageInd gsDamageInd;
 static CVoting gs_Voting;
 static CSpectator gs_Spectator;
 
-static CMonsters gs_Monsters;
+static CDroids gs_Droids;
 static CPlayers gs_Players;
 static CNamePlates gs_NamePlates;
 static CItems gs_Items;
@@ -158,7 +158,7 @@ void CGameClient::OnConsoleInit()
 	m_pItems = &::gs_Items;
 	m_pBuildings = &::gs_Buildings;
 	m_pBuildings2 = &::gs_Buildings2;
-	m_pMonsters = &::gs_Monsters;
+	m_pDroids = &::gs_Droids;
 	m_pMapLayersBackGround = &::gs_MapLayersBackGround;
 	m_pMapLayersForeGround = &::gs_MapLayersForeGround;
 
@@ -188,9 +188,9 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderLazerload); // works
 	m_All.Add(m_pBuildings);
 	m_All.Add(&m_pParticles->m_RenderCrafting);
+	m_All.Add(&gs_Droids);
 	m_All.Add(m_pItems);
 	m_All.Add(&m_pParticles->m_RenderPlayerSpawn);
-	m_All.Add(&gs_Monsters);
 	m_All.Add(&m_pParticles->m_RenderMonsterSpawn);
 	m_All.Add(&m_pParticles->m_RenderTakeoff);
 	m_All.Add(&gs_Players);
@@ -205,6 +205,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderDeath);
 	m_All.Add(&m_pParticles->m_RenderHitEffects);
 	m_All.Add(&m_pParticles->m_RenderExplosions);
+	m_All.Add(&m_pParticles->m_RenderGreenExplosion);
 	m_All.Add(&m_pParticles->m_RenderElectromine);
 	m_All.Add(&m_pParticles->m_RenderElectric);
 	m_All.Add(&m_pParticles->m_RenderMine2);
@@ -271,7 +272,7 @@ void CGameClient::OnConsoleInit()
 	for(int i = 0; i < m_All.m_Num; i++)
 		m_All.m_paComponents[i]->m_pClient = this;
 
-	m_pCustomStuff = new CCustomStuff();
+	m_pCustomStuff = new CCustomStuff(this);
 	
 	// let all the other components register their console commands
 	for(int i = 0; i < m_All.m_Num; i++)
@@ -808,9 +809,9 @@ void CGameClient::ProcessEvents()
 			float d = distance(CustomStuff()->m_LocalPos, vec2(ev->m_X, ev->m_Y));
 			
 			if (d < 80 + ev->m_PowerLevel * 40)
-				CustomStuff()->SetScreenshake(10.0f + ev->m_PowerLevel * 2);
+				CustomStuff()->SetScreenshake(8.0f + ev->m_PowerLevel * 2);
 			else if (d < 140 + ev->m_PowerLevel * 40)
-				CustomStuff()->SetScreenshake(6.0f + ev->m_PowerLevel * 2);
+				CustomStuff()->SetScreenshake(4.0f + ev->m_PowerLevel * 2);
 		}
 		else if(Item.m_Type == NETEVENTTYPE_REPAIR)
 		{
@@ -1014,7 +1015,7 @@ void CGameClient::OnNewSnapshot()
 					m_Snap.m_LocalClientID = Item.m_ID;
 					m_Snap.m_pLocalInfo = pInfo;
 
-					if(pInfo->m_Team == TEAM_SPECTATORS)
+					if(pInfo->m_Team == TEAM_SPECTATORS || pInfo->m_Spectating)
 					{
 						m_Snap.m_SpecInfo.m_Active = true;
 						m_Snap.m_SpecInfo.m_SpectatorID = SPEC_FREEVIEW;
@@ -1081,10 +1082,10 @@ void CGameClient::OnNewSnapshot()
 			{
 				m_Snap.m_paFlags[Item.m_ID%2] = (const CNetObj_Flag *)pData;
 			}
-			else if(Item.m_Type == NETOBJTYPE_MONSTER)
+			else if(Item.m_Type == NETOBJTYPE_DROID)
 			{
-				const CNetObj_Monster *pMonster = (const CNetObj_Monster *)pData;
-				if (m_Snap.m_MonsterCount < MAX_MONSTERS)
+				const CNetObj_Droid *pMonster = (const CNetObj_Droid *)pData;
+				if (m_Snap.m_MonsterCount < MAX_DROIDS)
 					m_Snap.m_aMonsterPos[m_Snap.m_MonsterCount] = vec2(pMonster->m_X, pMonster->m_Y);
 				
 				m_Snap.m_MonsterCount++;
@@ -1235,7 +1236,7 @@ void CGameClient::OnPredict()
 	}
 	
 	// search for monsters
-	for(int i = 0; i < MAX_MONSTERS; i++)
+	for(int i = 0; i < MAX_DROIDS; i++)
 	{
 		if(m_Snap.m_aMonsterPos[i].x == 0)
 			continue;

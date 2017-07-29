@@ -92,7 +92,8 @@ enum CustomWeapons
 	W_FLAMER,
 	W_CHAINSAW,
 	W_SCYTHE,
-	W_WALKER,
+	W_DROID_WALKER,
+	W_DROID_STAR,
 	W_ROBOT1,
 	NUM_CUSTOMWEAPONS
 };
@@ -288,7 +289,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 	CWeapon(
 		"Scythe",
 		-1,
-		4, // damage
+		3, // damage
 		true, // autofire
 		0, // bullet spread
 		1, // shot spread
@@ -314,6 +315,21 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		3.5f, // bullet knockback
 		1.5f, // self knockback
 		780 // ai attack range
+		),
+	CWeapon(
+		"Star Droid weapon",
+		SOUND_STAR_FIRE,
+		0, // damage
+		true, // autofire
+		0.3f, // bullet spread
+		1, // shot spread
+		10, // powerup size
+		0, // max ammo
+		0.8f, // bullet life
+		400, // bullet reload time
+		3.5f, // bullet knockback
+		1.5f, // self knockback
+		500 // ai attack range
 		),
 	CWeapon(
 		"Robot1",

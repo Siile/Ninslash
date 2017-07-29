@@ -323,11 +323,13 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 	m_Hand.m_Vel.y += (((PrevVel.y-PlayerVel.y)/2000)*((PrevVel.y-PlayerVel.y)/2000))/2.0f;
 	m_Hand.m_Vel += (-m_Hand.m_Offset)/14.0f;
 	
+	if (!m_Hang && length(m_Hand.m_Vel) > 3.0f)
+		m_Hand.m_Vel = normalize(m_Hand.m_Vel) * 3.0f;
+	
 	m_Hand.m_Offset += m_Hand.m_Vel;
 	
-	if (!m_Hang && length(m_Hand.m_Offset) > 40.0f)
-		m_Hand.m_Offset = normalize(m_Hand.m_Offset) * 40.0f;
-	
+	if (!m_Hang && length(m_Hand.m_Offset) > 20.0f)
+		m_Hand.m_Offset = normalize(m_Hand.m_Offset) * 20.0f;
 	
 	// spinning melee weapon
 	float TurnSpeedCap = 0.15f;

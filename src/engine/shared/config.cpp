@@ -19,7 +19,7 @@ class CConfig : public IConfig
 
 	enum
 	{
-		MAX_CALLBACKS = 16
+		MAX_CALLBACKS = 64
 	};
 
 	CCallback m_aCallbacks[MAX_CALLBACKS];

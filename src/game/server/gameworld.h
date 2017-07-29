@@ -29,7 +29,7 @@ public:
 		ENTTYPE_SMOKESCREEN,
 		ENTTYPE_TURRET,
 		ENTTYPE_BUILDING,
-		ENTTYPE_MONSTER,
+		ENTTYPE_DROID,
 		ENTTYPE_CHARACTER,
 		NUM_ENTTYPES
 	};
@@ -96,7 +96,7 @@ public:
 	
 	class CBuilding *IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, int Team, class CEntity *pNotThis = 0);
 	
-	class CMonster *IntersectWalker(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos);
+	class CDroid *IntersectWalker(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos);
 
 	/*
 		Function: closest_CCharacter

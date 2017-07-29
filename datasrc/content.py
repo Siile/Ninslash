@@ -281,6 +281,9 @@ container.sounds.Add(SoundSet("walker_takeoff", ["audio/walker_takeoff.wv"]))
 
 container.sounds.Add(SoundSet("build", FileList("audio/build-%02d.wv", 2)))
 
+container.sounds.Add(SoundSet("star_fire", FileList("audio/wp_star_fire-%02d.wv", 3)))
+container.sounds.Add(SoundSet("green_explosion", FileList("audio/sfx_green_explosion-%02d.wv", 3)))
+
 container.sounds.Add(SoundSet("menu", ["audio/music_menu.wv"]))
 
 container.sounds.Add(SoundSet("bg1", ["audio/bg1.wv"]))
@@ -349,6 +352,11 @@ image_flame = Image("flame", "fx/flame.png")
 image_flame1 = Image("flame1", "fx/flame1.png")
 image_cbelt = Image("cbelt", "cbelt.png")
 image_muzzle = Image("muzzle", "muzzle.png")
+image_jet = Image("jet", "anim/jet.png")
+#image_green_charge = Image("green_charge", "fx/green_charge.png")
+image_green_explosion = Image("green_explosion", "fx/green_explosion.png")
+image_crawler_leg1 = Image("crawler_leg1", "anim/crawler_leg1.png")
+image_crawler_leg2 = Image("crawler_leg2", "anim/crawler_leg2.png")
 
 image_hp = Image("hp", "gui/hp.png")
 image_fuel = Image("fuel", "gui/fuel.png")
@@ -414,6 +422,11 @@ container.images.Add(image_hp)
 container.images.Add(image_fuel)
 container.images.Add(image_circular)
 container.images.Add(image_muzzle)
+container.images.Add(image_jet)
+#container.images.Add(image_green_charge)
+container.images.Add(image_green_explosion)
+container.images.Add(image_crawler_leg1)
+container.images.Add(image_crawler_leg2)
 
 container.pickups.Add(Pickup("health"))
 container.pickups.Add(Pickup("armor"))
@@ -469,6 +482,10 @@ set_takeoff = SpriteSet("takeoff", image_takeoff, 8, 1)
 set_flame = SpriteSet("flame", image_flame, 4, 4)
 set_flame1 = SpriteSet("flame1", image_flame1, 8, 1)
 set_muzzle = SpriteSet("muzzle", image_muzzle, 4, 1)
+set_jet = SpriteSet("jet", image_jet, 4, 1)
+#set_green_charge = SpriteSet("green_charge", image_green_charge, 8, 1)
+set_green_explosion = SpriteSet("green_explosion", image_green_explosion, 4, 2)
+set_crawler_leg = SpriteSet("crawler_leg", image_crawler_leg1, 1, 1)
 
 set_hud = SpriteSet("hud", image_hp, 1, 2)
 
@@ -521,6 +538,10 @@ container.spritesets.Add(set_flame)
 container.spritesets.Add(set_flame1)
 container.spritesets.Add(set_hud)
 container.spritesets.Add(set_muzzle)
+container.spritesets.Add(set_jet)
+#container.spritesets.Add(set_green_charge)
+container.spritesets.Add(set_green_explosion)
+container.spritesets.Add(set_crawler_leg)
 
 
 container.sprites.Add(Sprite("shield1", set_shield, 0,0,1,1))
@@ -564,6 +585,10 @@ for i in range(1, 5):
 	
 for i in range(1, 5):
 	container.sprites.Add(Sprite("sword3_"+str(i), set_sword, i-1, 2, 1, 1))
+	
+	
+for i in range(1, 5):
+	container.sprites.Add(Sprite("jet_"+str(i), set_jet, i-1, 0, 1, 1))
 	
 	
 for i in range(1, 5):
@@ -654,12 +679,23 @@ for i in range(1, 12):
 for i in range(1, 17):
 	container.sprites.Add(Sprite("lazer"+str(i), set_lazer, i-1, 0, 1, 1))
 	
-# 4 x 4
+# 4 x 3
 for y in range(1, 4):
 	for x in range(1, 5):
 		container.sprites.Add(Sprite("smoke1_"+str((y-1)*4 + x-1), set_smoke1, x-1, y-1, 1, 1))
 
+# 4 x 2
+for y in range(1, 3):
+	for x in range(1, 5):
+		container.sprites.Add(Sprite("green_explosion"+str((y-1)*4 + x-1), set_green_explosion, x-1, y-1, 1, 1))
 		
+for y in range(1, 3):
+	for x in range(1, 5):
+		container.sprites.Add(Sprite("green_charge"+str((y-1)*4 + x-1), set_game, 24 + (x-1)*2, 12 + (y-1)*2, 2, 2))
+
+#for i in range(1, 9):
+#	container.sprites.Add(Sprite("green_charge"+str(i), set_game, i-1, 12+y, 2, 2))
+	
 
 for i in range(1, 5):
 	container.sprites.Add(Sprite("hand1_"+str(i), set_hands, i-1, 0, 1, 1))
@@ -677,6 +713,8 @@ for i in range(1, 5):
 	container.sprites.Add(Sprite("hand7_"+str(i), set_hands, i-1, 6, 1, 1))
 
 		
+container.sprites.Add(Sprite("crawler_leg", set_crawler_leg, 0,0,1,1))
+
 container.sprites.Add(Sprite("reactor_damage", set_reactor_damage, 0,0,1,1))
 
 container.sprites.Add(Sprite("hp_frame", set_hud, 0,0,1,1))

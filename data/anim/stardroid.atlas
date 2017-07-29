@@ -1,0 +1,41 @@
+
+stardroid.png
+size: 512,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+back_bot
+  rotate: false
+  xy: 158, 99
+  size: 79, 88
+  orig: 79, 88
+  offset: 0, 0
+  index: -1
+body
+  rotate: false
+  xy: 2, 60
+  size: 154, 193
+  orig: 154, 193
+  offset: 0, 0
+  index: -1
+front_bot
+  rotate: true
+  xy: 288, 175
+  size: 78, 86
+  orig: 78, 86
+  offset: 0, 0
+  index: -1
+jet
+  rotate: false
+  xy: 158, 189
+  size: 128, 64
+  orig: 128, 64
+  offset: 0, 0
+  index: -1
+turret
+  rotate: false
+  xy: 2, 2
+  size: 96, 56
+  orig: 96, 56
+  offset: 0, 0
+  index: -1

@@ -1,28 +1,25 @@
-#ifndef GAME_SERVER_ENTITIES_MONSTER_H
-#define GAME_SERVER_ENTITIES_MONSTER_H
+#ifndef GAME_SERVER_ENTITIES_DROID_H
+#define GAME_SERVER_ENTITIES_DROID_H
 
 #include <game/server/entity.h>
 
-const int MonsterPhysSize = 60;
+const int DroidPhysSize = 60;
 
-class CMonster : public CEntity
+class CDroid : public CEntity
 {
 public:
-	CMonster(CGameWorld *pGameWorld, vec2 Pos);
+	CDroid(CGameWorld *pGameWorld, vec2 Pos, int Type);
 
 	virtual void Reset();
 	virtual void Tick();
 	virtual void TickPaused();
 	virtual void Snap(int SnappingClient);
 
-	void TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type = DAMAGETYPE_NORMAL);
+	virtual void TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type = DAMAGETYPE_NORMAL);
 	int m_Health;
 	
-	enum Mode
-	{
-		WALKER,
-		DRONE,
-	};
+	vec2 m_Center;
+	int m_Type;
 	
 	enum State
 	{
@@ -33,15 +30,12 @@ public:
 		FLY,
 	};
 	
-	vec2 m_Center;
-	
-private:
+protected:
 	int m_State;
 	int m_NextState;
 	int m_StateChangeTick;
 	
 	int m_Anim;
-	
 	int m_Mode;
 	
 	int m_AttackTimer;
@@ -66,9 +60,10 @@ private:
 	
 	void SetState(int State);
 
-	bool FindTarget();
-	bool Target();
-	void Fire();
+	virtual bool FindTarget();
+	virtual bool Target();
+	virtual void Fire();
+	
 	int m_TargetIndex;
 	int m_AttackTick;
 	int m_TargetTimer;

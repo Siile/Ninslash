@@ -41,14 +41,33 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	
 	// hordes of enemies
 	bool Defend = (g_Config.m_SvMapGenLevel > 1 && g_Config.m_SvMapGenLevel%5 == 0);
-	int e = 3 + log(float(1 + g_Config.m_SvMapGenLevel/3)) * 5;
-	e += rand()%(1+g_Config.m_SvMapGenLevel/4);
+	int e = 3 + log(float(1 + g_Config.m_SvMapGenLevel/3)) * 4;
+	e += rand()%(1+g_Config.m_SvMapGenLevel/6);
+	e += g_Config.m_SvMapGenLevel/3;
 
 	if (Defend)
 		e *= 2;
 	
+	e = min(e, 160);
+	
 	m_EnemyCount = 0;
 	m_EnemiesLeft = e;
+	
+	m_BossesLeft = 0;
+	
+	m_TriggerLevel = 0;
+	
+	/*
+	if (g_Config.m_SvMapGenLevel > 40)
+		m_BossesLeft = 1 + (g_Config.m_SvMapGenLevel-40)/8;
+	
+	if (m_BossesLeft > 3)
+		m_BossesLeft = 3;
+	*/
+	
+	if (g_Config.m_SvMapGenLevel > 40)
+		g_Config.m_SvInvBosses = min(16, 1 + (g_Config.m_SvMapGenLevel-30)/7);
+	
 	m_Deaths = m_EnemiesLeft;
 	m_NumEnemySpawnPos = 0;
 	m_SpawnPosRotation = 0;
@@ -121,22 +140,6 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			if (g_Config.m_SvMapGenLevel > 10 && frandom() < 0.35f)
 				i = ENEMY_ROBOT1;
 			
-			if (g_Config.m_SvMapGenLevel > 15 && frandom() < 0.35f)
-				i = ENEMY_ROBOT2;
-			
-			if (m_EnemyCount >= 12)
-			{
-				i = ENEMY_ALIEN2;
-				
-				if (g_Config.m_SvMapGenLevel > 20 && frandom() < 0.35f)
-						i = ENEMY_BUNNY1;
-				if (g_Config.m_SvMapGenLevel > 25 && frandom() < 0.35f)
-						i = ENEMY_BUNNY2;
-				if (g_Config.m_SvMapGenLevel > 30 && frandom() < 0.35f)
-						i = ENEMY_PYRO1;
-				if (g_Config.m_SvMapGenLevel > 35 && frandom() < 0.15f)
-						i = ENEMY_PYRO2;
-			}
 			
 			switch (i)
 			{
@@ -178,14 +181,15 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			};
 				
 			m_EnemyCount++;
-			
 			pChr->m_SkipPickups = 999;
+			Trigger(false);
 		}
 		
 		if (!Found)
 		{
 			pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer());
 			pChr->GetPlayer()->m_ToBeKicked = true;
+			Trigger(false);
 		}
 	}
 	else
@@ -198,6 +202,21 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 	}
 }
 
+void CGameControllerCoop::Trigger(bool IncreaseLevel)
+{
+	if (IncreaseLevel)
+		m_TriggerLevel++;
+	
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CPlayer *pPlayer = GameServer()->m_apPlayers[i];
+		if (!pPlayer)
+			continue;
+		
+		if (pPlayer->m_pAI)
+			pPlayer->m_pAI->Trigger(m_TriggerLevel);
+	}
+}
 
 int CGameControllerCoop::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
 {
@@ -217,6 +236,9 @@ int CGameControllerCoop::OnCharacterDeath(class CCharacter *pVictim, class CPlay
 				
 		if (m_EnemiesLeft <= 0)
 			pVictim->GetPlayer()->m_ToBeKicked = true;
+		
+		if (pKiller)
+			Trigger(true);
 	}
 	
 	if (g_Config.m_SvSurvivalMode && !pVictim->m_IsBot && CountPlayersAlive(-1, true) <= 1)
@@ -268,7 +290,7 @@ void CGameControllerCoop::Tick()
 			GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "inv", aBuf);
 			
 			m_GameState = STATE_GAME;
-			for (int i = 0; i < m_EnemiesLeft && GameServer()->m_pController->CountBots() < 12; i++)
+			for (int i = 0; i < m_EnemiesLeft && GameServer()->m_pController->CountBots() < 32; i++)
 				GameServer()->AddBot();
 		}
 		// reset to first map if there's no players for 60 seconds

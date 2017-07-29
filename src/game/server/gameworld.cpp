@@ -6,7 +6,7 @@
 #include "gamecontext.h"
 #include "entities/turret.h"
 #include "entities/building.h"
-#include "entities/monster.h"
+#include "entities/droid.h"
 
 #include <engine/shared/config.h>
 
@@ -55,7 +55,7 @@ int CGameWorld::FindEntities(vec2 Pos, float Radius, CEntity **ppEnts, int Max, 
 	int Num = 0;
 	for(CEntity *pEnt = m_apFirstEntityTypes[Type];	pEnt; pEnt = pEnt->m_pNextTypeEntity)
 	{
-		if (Type == CGameWorld::ENTTYPE_MONSTER)
+		if (Type == CGameWorld::ENTTYPE_DROID)
 			Pos = OPos + pEnt->m_Center;
 		
 		// circle body collision
@@ -264,13 +264,13 @@ CBuilding *CGameWorld::IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec
 }
 
 
-CMonster *CGameWorld::IntersectWalker(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos)
+CDroid *CGameWorld::IntersectWalker(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos)
 {
 	float ClosestLen = distance(Pos0, Pos1) * 100.0f;
-	CMonster *pClosest = 0;
+	CDroid *pClosest = 0;
 
-	CMonster *p = (CMonster *)FindFirst(ENTTYPE_MONSTER);
-	for(; p; p = (CMonster *)p->TypeNext())
+	CDroid *p = (CDroid *)FindFirst(ENTTYPE_DROID);
+	for(; p; p = (CDroid *)p->TypeNext())
  	{
 		if (p->m_Health <= 0)
 			continue;

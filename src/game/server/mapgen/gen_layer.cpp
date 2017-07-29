@@ -1,3 +1,6 @@
+#include <base/system.h>
+#include <engine/shared/config.h>
+
 #include "gen_layer.h"
 
 CGenLayer::CGenLayer(int w, int h)
@@ -5,6 +8,7 @@ CGenLayer::CGenLayer(int w, int h)
 	m_Width = w;
 	m_Height = h;
 	m_Size = 0;
+	m_EndPos = ivec2(0, 0);
 	
 	m_pTiles = new int[w*h];
 	for (int i = 0; i < w*h; i++)
@@ -14,6 +18,14 @@ CGenLayer::CGenLayer(int w, int h)
 	for (int i = 0; i < w*h; i++)
 		m_pBGTiles[i] = 0;
 	
+	m_pDoodadsTiles = new int[w*h];
+	for (int i = 0; i < w*h; i++)
+		m_pDoodadsTiles[i] = 0;
+	
+	m_pObjectTiles = new int[w*h];
+	for (int i = 0; i < w*h; i++)
+		m_pObjectTiles[i] = 0;
+	
 	m_pFlags = new int[w*h];
 	for (int i = 0; i < w*h; i++)
 		m_pFlags[i] = 1;
@@ -22,9 +34,21 @@ CGenLayer::CGenLayer(int w, int h)
 	for (int i = 0; i < w*h; i++)
 		m_pBGFlags[i] = 1;
 	
+	m_pDoodadsFlags = new int[w*h];
+	for (int i = 0; i < w*h; i++)
+		m_pDoodadsFlags[i] = 1;
+	
+	m_pObjectFlags = new int[w*h];
+	for (int i = 0; i < w*h; i++)
+		m_pObjectFlags[i] = 1;
+	
 	m_NumPlatforms = 0;
 	for (int i = 0; i < GEN_MAX; i++)
 		m_aPlatform[i] = ivec2(0, 0);
+	
+	m_NumOpenAreas = 0;
+	for (int i = 0; i < GEN_MAX; i++)
+		m_aOpenArea[i] = ivec2(0, 0);
 	
 	m_NumPits = 0;
 	for (int i = 0; i < GEN_MAX; i++)
@@ -67,39 +91,177 @@ CGenLayer::~CGenLayer()
 	if (m_pBGTiles)
 		delete m_pBGTiles;
 	
+	if (m_pDoodadsTiles)
+		delete m_pDoodadsTiles;
+	
+	if (m_pObjectTiles)
+		delete m_pObjectTiles;
+	
 	if (m_pFlags)
 		delete m_pFlags;
 	
 	if (m_pBGFlags)
 		delete m_pBGFlags;
+	
+	if (m_pDoodadsFlags)
+		delete m_pDoodadsFlags;
+	
+	if (m_pObjectFlags)
+		delete m_pObjectFlags;
 }
+
+
+void CGenLayer::GenerateBoxes()
+{
+	int n = 3 + rand()%14;
+		
+	for (int k = 0; k < 10000; k++)
+	{
+		int wx = 10 + rand()%(m_Width - 20);
+		int wy = 10 + rand()%(m_Height - 20);
+		
+		int i = 100;
+		
+		if (!n)
+			break;
+		
+		if (Used(wx, wy))
+			continue;
+		
+		int b = n;
+		
+		while (i-- > 0 && n > 0)
+		{
+			int x = wx + rand()%20 - rand()%20;
+			int y = wy + rand()%20 - rand()%20;
+			
+			int l = 5;
+			// to the floor
+			while (!Get(x, y+1) && !Get(x, y+1, FGOBJECTS) && l-- > 0)
+				y++;
+			
+			bool Valid = true;
+		
+			int s = 2;
+			int p = 44;
+			
+			if (b < n+3 || frandom() < 0.5f)
+			{
+				s = 3;
+				p = 25;
+			}
+			
+			// empty area for the box
+			for (int xx = x; xx < x+s; xx++)
+				for (int yy = y; yy < y-s; yy++)
+					if (Used(xx, yy))
+						Valid = false;
+					
+			// floor
+			for (int xx = x; xx < x+s; xx++)
+				if (!Get(xx, y+1) && !Get(xx, y+1, FGOBJECTS))
+					Valid = false;
+			
+			for (int xx = x; xx < x+s; xx++)
+				if (Used(xx, y))
+					Valid = false;
+			
+			// ceiling not too close
+			for (int xx = x-1; xx < x+s+1; xx++)
+				for (int yy = y-(s+3); yy < y-s; yy++)
+					if (Used(xx, yy))
+						Valid = false;
+
+			// avoid ramps
+			if (!Get(x-1, y) && !Get(x-1, y+1) && Get(x-1, y+2))
+				Valid = false;
+			if (!Get(x+s, y) && !Get(x+s, y+1) && Get(x+s, y+2))
+				Valid = false;
+					
+			if (Valid)
+			{
+				ivec2 ts = ivec2(s, s);
+				
+				y -= ts.y-1;
+				
+				bool Flip = false;
+				
+				if (frandom() < 0.5f)
+					Flip = !Flip;
+				
+				//for (int xx = 0; xx < ts.x; xx++)
+				//	for (int yy = 0; yy < ts.y; yy++)
+				//		Use(x+xx, y+yy);
+				
+				if (Flip)
+					for (int xx = 0; xx < ts.x; xx++)
+						for (int yy = 0; yy < ts.y; yy++)
+							Set(p+ts.x-1-xx+yy*16, x+xx, y+yy, 1, FGOBJECTS); // TILEFLAG_VFLIP
+				else
+					for (int xx = 0; xx < ts.x; xx++)
+						for (int yy = 0; yy < ts.y; yy++)
+							Set(p+xx+yy*16, x+xx, y+yy, 0, FGOBJECTS);
+				n--;
+			}
+		}
+	}
+}
+
 
 void CGenLayer::GenerateBackground()
 {
 	if (m_Width < 30)
 		return;
 
-	int n = 4;
+	int n = m_Width/30;
 
 	while (n-- > 0)
 	{
 		int nx = 10 + rand()%(m_Width - 20);
 		
-		int s = 5 + rand()%6;
+		int s = 4 + rand()%4;
 		
 		bool Valid = true;
 		
+		/*
 		// check if the area is empty first
 		for (int x = nx - s; x < nx + s; x++)
 			for (int y = 0; y < m_Height; y++)
 				if (Get(x, y, BACKGROUND))
 					Valid = false;
+				*/
 				
 		// fill the area
 		if (Valid)
 		{
 			for (int x = nx - s; x < nx + s; x++)
 				for (int y = 0; y < m_Height; y++)
+					Set(1, x, y, 0, BACKGROUND);
+		}
+	}
+	
+	n = m_Height/40;
+	while (n-- > 0)
+	{
+		int ny = 10 + rand()%(m_Height - 20);
+		
+		int s = 4 + rand()%3;
+		
+		bool Valid = true;
+		
+		/*
+		// check if the area is empty first
+		for (int x = 0; x < m_Width; x++)
+			for (int y = ny - s; y < ny + s; y++)
+				if (Get(x, y, BACKGROUND))
+					Valid = false;
+				*/
+				
+		// fill the area
+		if (Valid)
+		{
+			for (int x = 0; x < m_Width; x++)
+				for (int y = ny - s; y < ny + s; y++)
 					Set(1, x, y, 0, BACKGROUND);
 		}
 	}
@@ -123,7 +285,7 @@ void CGenLayer::GenerateAirPlatforms(int Num)
 		x = b+rand()%(m_Width-b*2);
 		y = b+rand()%(m_Height-b*2);
 		
-		if (!Used(x, y))
+		if (!Used(x, y) && (abs(m_EndPos.x - x) > 10 || x+10 < m_EndPos.y))
 		{
 			bool Valid = true;
 			for (int xx = -7; xx < 7; xx++)
@@ -152,33 +314,60 @@ void CGenLayer::GenerateAirPlatforms(int Num)
 				// chains
 				int Sanity = 0;
 				int yy = y-1;
-				if (!Get(x-s, yy+1, BACKGROUND))
+				if (!Get(x-s, yy+1, DOODADS))
 				{
 					while (!Get(x-s, yy) && Sanity++ < 500)
 					{
-						Set(1, x-s, yy, 0, BACKGROUND);
+						Set(1, x-s, yy, 0, DOODADS);
 						yy--;
 					}
 					
-					Set(1, x-s, yy, 0, BACKGROUND);
+					Set(1, x-s, yy, 0, DOODADS);
 				}
 				
 				Sanity = 0;
 				yy = y-1;
-				if (!Get(x+s-2, yy+1, BACKGROUND) && !Get(x+s-1, yy+2, BACKGROUND))
+				if (!Get(x+s-2, yy+1, DOODADS) && !Get(x+s-1, yy+2, DOODADS))
 				{
 					while (!Get(x+s-2, yy) && Sanity++ < 500)
 					{
-						Set(1, x+s-2, yy, 0, BACKGROUND);
+						Set(1, x+s-2, yy, 0, DOODADS);
 						yy--;
 					}
 					
-					Set(1, x+s-2, yy, 0, BACKGROUND);
+					Set(1, x+s-2, yy, 0, DOODADS);
 				}
 			}
 		}
 		
 	}
+}
+
+
+void CGenLayer::RemoveSingles()
+{
+	for (int x = 2; x < m_Width-2; x++)
+		for (int y = 2; y < m_Height-2; y++)
+		{
+			if (Get(x, y) && !Get(x-1, y) && !Get(x+1, y))
+				Set(0, x, y);
+			
+			if (Get(x, y) && !Get(x, y-1) && !Get(x, y+1) && 
+				((!Get(x-1, y) && Get(x+1, y) && Get(x+1, y-1) && Get(x+1, y+1)) || ((!Get(x+1, y) && Get(x-1, y) && Get(x-1, y-1) && Get(x-1, y+1)))))
+				Set(0, x, y);
+		}
+}
+
+
+bool CGenLayer::IsNearSlope(int x, int y)
+{
+	if (Get(x, y) && Get(x-1, y) && Get(x-1, y+1) && !Get(x-2, y) && Get(x-2, y+1))
+		return true;
+	
+	if (Get(x, y) && Get(x+1, y) && Get(x+1, y+1) && !Get(x+2, y) && Get(x+2, y+1))
+		return true;
+	
+	return false;
 }
 
 
@@ -188,19 +377,29 @@ void CGenLayer::GenerateSlopes()
 	for (int x = 2; x < m_Width-2; x++)
 		for (int y = 6; y < m_Height-2; y++)
 		{
+			bool Valid = true;
+			bool Found = false;
+			
 			if (Get(x, y) && frandom() < 0.5f)
 			{
-				bool Valid = true;
-				
-				int s = 3+rand()%3;
-				
-				for (int xx = x; xx < x + s; xx++)
-					if (!Get(xx, y) || Get(xx, y+1))
-						Valid = false;
-				
-				for (int yy = y-s; yy < y; yy++)
-					if (!Get(x, yy) || Get(x-1, yy))
-						Valid = false;
+				int s = 0;
+				int MaxSize = 7 + rand()%8;
+
+				for (int i = 0; i < MaxSize-1; i++)
+				{
+					Valid = true;
+					s = MaxSize-i;
+					for (int xx = x; xx < x + s; xx++)
+						if (!Get(xx, y) || Get(xx, y+1))
+							Valid = false;
+						
+					for (int yy = y-s; yy < y; yy++)
+						if (!Get(x, yy) || Get(x-1, yy))
+							Valid = false;
+						
+					if (Valid)
+						break;
+				}
 				
 				if (Valid)
 					for (int xx = x; xx < x + s; xx++)
@@ -222,20 +421,31 @@ void CGenLayer::GenerateSlopes()
 					for (int xx = 0; xx <= s; xx++)
 						for (int yy = 0; yy < xx; yy++)
 							Set(-1, x+s-xx, y-yy);
+						
+				if (Valid)
+					Found = true;
 			}
-			else if (Get(x, y) && frandom() < 0.5f)
+			
+			if (!Found && Get(x, y) && frandom() < 0.75f)
 			{
-				bool Valid = true;
-				
-				int s = 3+rand()%3;
-				
-				for (int xx = x-s; xx < x; xx++)
-					if (!Get(xx, y) || Get(xx, y+1))
-						Valid = false;
-				
-				for (int yy = y-s; yy < y; yy++)
-					if (!Get(x, yy) || Get(x+1, yy))
-						Valid = false;
+				int s = 0;
+				int MaxSize = 7 + rand()%8;
+
+				for (int i = 0; i < MaxSize-1; i++)
+				{
+					Valid = true;
+					s = MaxSize-i;
+					for (int xx = x-s; xx < x; xx++)
+						if (!Get(xx, y) || Get(xx, y+1))
+							Valid = false;
+					
+					for (int yy = y-s; yy < y; yy++)
+						if (!Get(x, yy) || Get(x+1, yy))
+							Valid = false;
+						
+					if (Valid)
+						break;
+				}
 				
 				if (Valid)
 					for (int xx = x-s; xx < x; xx++)
@@ -261,23 +471,34 @@ void CGenLayer::GenerateSlopes()
 			
 		}
 	
+	
+	
 	// bottom ramp
 	for (int x = 2; x < m_Width-2; x++)
 		for (int y = 2; y < m_Height-2; y++)
 		{
-			if (Get(x, y) && frandom() < 0.5f)
+			bool Found = false;
+			bool Valid = true;
+			if (Get(x, y) && frandom() < 0.75f)
 			{
-				bool Valid = true;
-				
-				int s = 3+rand()%3;
-				
-				for (int xx = x; xx < x + s; xx++)
-					if (!Get(xx, y) || Get(xx, y-1))
-						Valid = false;
-				
-				for (int yy = y; yy < y + s; yy++)
-					if (!Get(x, yy) || Get(x-1, yy))
-						Valid = false;
+				int s = 0;
+				int MaxSize = 7 + rand()%8;
+
+				for (int i = 0; i < MaxSize-1; i++)
+				{
+					Valid = true;
+					s = MaxSize-i;
+					for (int xx = x; xx < x + s; xx++)
+						if (!Get(xx, y) || Get(xx, y-1))
+							Valid = false;
+					
+					for (int yy = y; yy < y + s; yy++)
+						if (!Get(x, yy) || Get(x-1, yy))
+							Valid = false;
+						
+					if (Valid)
+						break;
+				}
 				
 				if (Valid)
 					for (int xx = x; xx < x + s; xx++)
@@ -299,13 +520,33 @@ void CGenLayer::GenerateSlopes()
 					for (int xx = 0; xx <= s; xx++)
 						for (int yy = 0; yy < xx; yy++)
 							Set(-1, x+s-xx, y+yy);
+
+				if (Valid)
+					Found = true;
 			}
-			else if (Get(x, y) && frandom() < 0.5f)
+			
+			if (!Found && Get(x, y) && frandom() < 0.75f)
 			{
-				bool Valid = true;
+				int s = 0;
+				int MaxSize = 7 + rand()%8;
+
+				for (int i = 0; i < MaxSize-1; i++)
+				{
+					Valid = true;
+					s = MaxSize-i;
+					for (int xx = x-s; xx < x; xx++)
+						if (!Get(xx, y) || Get(xx, y-1))
+							Valid = false;
+					
+					for (int yy = y; yy < y + s; yy++)
+						if (!Get(x, yy) || Get(x+1, yy))
+							Valid = false;
+						
+					if (Valid)
+						break;
+				}
 				
-				int s = 3+rand()%3;
-				
+				/*
 				for (int xx = x-s; xx < x; xx++)
 					if (!Get(xx, y) || Get(xx, y-1))
 						Valid = false;
@@ -313,6 +554,7 @@ void CGenLayer::GenerateSlopes()
 				for (int yy = y; yy < y + s; yy++)
 					if (!Get(x, yy) || Get(x+1, yy))
 						Valid = false;
+					*/
 				
 				if (Valid)
 					for (int xx = x-s; xx < x; xx++)
@@ -375,23 +617,24 @@ void CGenLayer::Scan()
 		}
 	
 	// find player spawn spots
-	for (int x = 2; x < m_Width-2; x++)
-		for (int y = 2; y < m_Height-2; y++)
-		{
-			if (m_NumPlayerSpawns < 4)
+	if (str_comp(g_Config.m_SvGametype, "coop") == 0)
+		for (int x = 2; x < m_Width-2; x++)
+			for (int y = 2; y < m_Height-2; y++)
 			{
-				if (!Used(x-1, y) && !Used(x, y) && !Used(x+1, y) &&
-					Get(x-1, y+1) && Get(x, y+1) && Get(x+1, y+1))
+				if (m_NumPlayerSpawns < 4)
 				{
-					m_aPlayerSpawn[m_NumPlayerSpawns++] = ivec2(x, y);
-					Set(-1, x-1, y);
-					Set(-1, x, y);
-					Set(-1, x+1, y);
+					if (!Used(x-1, y) && !Used(x, y) && !Used(x+1, y) &&
+						Get(x-1, y+1) && Get(x, y+1) && Get(x+1, y+1))
+					{
+						m_aPlayerSpawn[m_NumPlayerSpawns++] = ivec2(x, y);
+						Set(-1, x-1, y);
+						Set(-1, x, y);
+						Set(-1, x+1, y);
+					}
 				}
+				else
+					break;
 			}
-			else
-				break;
-		}
 		
 	// safe zonens
 	for (int i = 0; i < m_NumPlayerSpawns; i++)
@@ -468,7 +711,7 @@ void CGenLayer::Scan()
 	for (int x = 2; x < m_Width-2; x++)
 		for (int y = 2; y < m_Height-2; y++)
 		{
-			if (!Get(x, y-1) && Get(x, y) && Get(x, y+1) && (!Get(x-1, y)))
+			if (!Used(x, y-1) && Get(x, y) && Get(x, y+1) && (!Get(x-1, y)))
 			{
 				int x1 = 1;
 				bool Valid = false;
@@ -477,7 +720,7 @@ void CGenLayer::Scan()
 				{
 					//if (Used(x+x1, y-1) || !Get(x+x1, y))
 					
-					if (Get(x+x1, y-1))
+					if (Used(x+x1, y-1))
 						break;
 					
 					if (!Get(x+x1, y))
@@ -489,14 +732,23 @@ void CGenLayer::Scan()
 					x1++;
 				}
 				
+				// avoid ramps
+				if (!Get(x-1, y-1) && !Get(x-1, y) && Get(x-1, y+1))
+				{
+					x++;
+					x1--;
+				}
 				
-				if (x1 > 7 && Valid)
+				while (!Get(x+x1+1, y-1) && !Get(x+x1+1, y) && Get(x+x1+1, y+1) && x1 > 0)
+					x1--;
+
+				if (x1 > 6 && Valid)
 				{
 					if (m_NumLongPlatforms < GEN_MAX)
 					{
-						m_aLongPlatform[m_NumLongPlatforms++] = ivec3(x, y, x+x1);
 						Set(-1, x, y-1);
 						Use(x, y);
+						m_aLongPlatform[m_NumLongPlatforms++] = ivec3(x, y, x+x1);
 					}
 				}
 			}
@@ -508,7 +760,7 @@ void CGenLayer::Scan()
 		for (int y = 2; y < m_Height-2; y++)
 		{
 			if (!Used(x-1, y) && !Used(x, y) && !Used(x+1, y) &&
-				Get(x-1, y+1) && Get(x, y+1) && Get(x+1, y+1))
+				Get(x-1, y+1) && Get(x, y+1) && Get(x+1, y+1) && !IsNearSlope(x, y+1))
 			{
 				if (m_NumPlatforms < GEN_MAX)
 				{
@@ -625,6 +877,29 @@ void CGenLayer::Scan()
 				}
 			}
 		}
+		
+	// find open areas
+	for (int x = 7; x < m_Width-7; x++)
+		for (int y = 7; y < m_Height-7; y++)
+		{
+			bool Valid = true;
+			for (int xx = -3; xx <= 3 && Valid; xx++)
+				for (int yy = -3; yy <= 3 && Valid; yy++)
+					if (Used(x+xx, y+yy))
+						Valid = false;
+		
+			if (Valid)
+			{
+				if (m_NumOpenAreas < GEN_MAX)
+				{
+					m_aOpenArea[m_NumOpenAreas++] = ivec2(x, y);
+					
+					for (int xx = -2; xx <= 2; xx++)
+						for (int yy = -2; yy <= 2; yy++)
+							Set(-1, x+xx, y+yy);
+				}
+			}
+		}
 }
 
 ivec2 CGenLayer::GetPlayerSpawn()
@@ -647,6 +922,9 @@ ivec3 CGenLayer::GetLongPlatform()
 	
 	while (m_aLongPlatform[i].x == 0 && n++ < 9999)
 		i = rand()%m_NumLongPlatforms;
+	
+	if (n >= 9999)
+		return ivec3(0, 0, 0);
 	
 	ivec3 p = m_aLongPlatform[i];
 	
@@ -672,8 +950,72 @@ ivec2 CGenLayer::GetPlatform()
 	while (m_aPlatform[i].x == 0 && n++ < 9999)
 		i = rand()%m_NumPlatforms;
 	
+	if (n >= 9999)
+		return ivec2(0, 0);
+	
 	ivec2 p = m_aPlatform[i];
 	m_aPlatform[i] = ivec2(0, 0);
+	
+	return p;
+}
+
+ivec2 CGenLayer::GetLeftPlatform()
+{
+	if (m_NumPlatforms <= 0)
+		return ivec2(0, 0);
+	
+	int n = 0;
+	
+	for (int i = 0; i < m_NumPlatforms; i++)
+	{
+		if (m_aPlatform[i].x != 0)
+			if (m_aPlatform[n].x == 0 || m_aPlatform[i].x < m_aPlatform[n].x)
+				n = i;
+	}
+
+	ivec2 p = m_aPlatform[n];
+	m_aPlatform[n] = ivec2(0, 0);
+	
+	return p;
+}
+
+
+ivec2 CGenLayer::GetRightPlatform()
+{
+	if (m_NumPlatforms <= 0)
+		return ivec2(0, 0);
+	
+	int n = 0;
+	
+	for (int i = 0; i < m_NumPlatforms; i++)
+	{
+		if (m_aPlatform[i].x != 0)
+			if (m_aPlatform[n].x == 0 || m_aPlatform[i].x > m_aPlatform[n].x)
+				n = i;
+	}
+
+	ivec2 p = m_aPlatform[n];
+	m_aPlatform[n] = ivec2(0, 0);
+	
+	return p;
+}
+
+ivec2 CGenLayer::GetOpenArea()
+{
+	if (m_NumOpenAreas <= 0)
+		return ivec2(0, 0);
+	
+	int n = 0;
+	int i = rand()%m_NumOpenAreas;
+	
+	while (m_aOpenArea[i].x == 0 && n++ < 9999)
+		i = rand()%m_NumOpenAreas;
+	
+	if (n >= 9999)
+		return ivec2(0, 0);
+	
+	ivec2 p = m_aOpenArea[i];
+	m_aOpenArea[i] = ivec2(0, 0);
 	
 	return p;
 }
@@ -688,6 +1030,9 @@ ivec3 CGenLayer::GetLongCeiling()
 	
 	while (m_aLongCeiling[i].x == 0 && n++ < 9999)
 		i = rand()%m_NumLongCeilings;
+	
+	if (n >= 9999)
+		return ivec3(0, 0, 0);
 	
 	ivec3 p = m_aLongCeiling[i];
 	
@@ -711,11 +1056,34 @@ ivec2 CGenLayer::GetCeiling()
 	int n = 0;
 	int i = rand()%m_NumCeilings;
 	
-	while (m_aPlatform[i].x == 0 && n++ < 9999)
+	while (m_aCeiling[i].x == 0 && n++ < 9999)
 		i = rand()%m_NumCeilings;
+	
+	if (n >= 9999)
+		return ivec2(0, 0);
 	
 	ivec2 p = m_aCeiling[i];
 	m_aCeiling[i] = ivec2(0, 0);
+	
+	return p;
+}
+
+ivec2 CGenLayer::GetLeftCeiling()
+{
+	if (m_NumCeilings <= 0)
+		return ivec2(0, 0);
+	
+	int n = 0;
+	
+	for (int i = 0; i < m_NumCeilings; i++)
+	{
+		if (m_aCeiling[i].x != 0)
+			if (m_aCeiling[n].x == 0 || m_aCeiling[i].x < m_aCeiling[n].x)
+				n = i;
+	}
+	
+	ivec2 p = m_aCeiling[n];
+	m_aCeiling[n] = ivec2(0, 0);
 	
 	return p;
 }
@@ -731,6 +1099,9 @@ ivec2 CGenLayer::GetWall()
 	while (m_aWall[i].x == 0 && n++ < 9999)
 		i = rand()%m_NumWalls;
 	
+	if (n >= 9999)
+		return ivec2(0, 0);
+	
 	ivec2 p = m_aWall[i];
 	m_aWall[i] = ivec2(0, 0);
 	
@@ -745,13 +1116,28 @@ ivec4 CGenLayer::GetPit()
 	int n = 0;
 	int i = rand()%m_NumPits;
 	
-	while (m_aPit[i].x == 0 && n++ < 9999)
+	// try random
+	while (m_aPit[i].x == 0 && n++ < 99)
 		i = rand()%m_NumPits;
 	
-	ivec4 p = m_aPit[i];
-	m_aPit[i] = ivec4(0, 0, 0, 0);
+	if (m_aPit[i].x == 0)
+	{
+		ivec4 p = m_aPit[i];
+		m_aPit[i] = ivec4(0, 0, 0, 0);
+		return p;
+	}
 	
-	return p;
+	// try every pit if random failed
+	for (int l = 0; l < m_NumPits; l++)
+		if (m_aPit[l].x != 0)
+		{
+			ivec4 p = m_aPit[l];
+			m_aPit[l] = ivec4(0, 0, 0, 0);
+			return p;
+		}
+	
+	// :(
+	return ivec4(0, 0, 0, 0);
 }
 
 ivec2 CGenLayer::GetTopCorner()
@@ -764,6 +1150,9 @@ ivec2 CGenLayer::GetTopCorner()
 	
 	while (m_aTopCorner[i].x == 0 && n++ < 9999)
 		i = rand()%m_NumTopCorners;
+	
+	if (n >= 9999)
+		return ivec2(0, 0);
 	
 	ivec2 p = m_aTopCorner[i];
 	m_aTopCorner[i] = ivec2(0, 0);
@@ -782,6 +1171,9 @@ ivec2 CGenLayer::GetSharpCorner()
 	
 	while (m_aTopCorner[i].x == 0 && n++ < 9999)
 		i = rand()%m_NumCorners;
+	
+	if (n >= 9999)
+		return ivec2(0, 0);
 	
 	ivec2 p = m_aCorner[i];
 	m_aCorner[i] = ivec2(0, 0);
@@ -805,6 +1197,16 @@ void CGenLayer::Set(int Tile, int x, int y, int Flags, int Layer)
 		m_pBGTiles[x + y*m_Width] = Tile;
 		m_pBGFlags[x + y*m_Width] = Flags;
 	}
+	else if (Layer == FGOBJECTS)
+	{
+		m_pObjectTiles[x + y*m_Width] = Tile;
+		m_pObjectFlags[x + y*m_Width] = Flags;
+	}
+	else if (Layer == DOODADS)
+	{
+		m_pDoodadsTiles[x + y*m_Width] = Tile;
+		m_pDoodadsFlags[x + y*m_Width] = Flags;
+	}
 }
 
 int CGenLayer::Get(int x, int y, int Layer)
@@ -818,6 +1220,10 @@ int CGenLayer::Get(int x, int y, int Layer)
 		i = m_pTiles[x + y*m_Width];
 	else if (Layer == BACKGROUND)
 		i = m_pBGTiles[x + y*m_Width];
+	else if (Layer == FGOBJECTS)
+		i = m_pObjectTiles[x + y*m_Width];
+	else if (Layer == DOODADS)
+		i = m_pDoodadsTiles[x + y*m_Width];
 	
 	if (i < 0)
 		i = 0;
@@ -834,6 +1240,10 @@ int CGenLayer::GetFlags(int x, int y, int Layer)
 		return m_pFlags[x + y*m_Width];
 	else if (Layer == BACKGROUND)
 		return m_pBGFlags[x + y*m_Width];
+	else if (Layer == FGOBJECTS)
+		return m_pObjectFlags[x + y*m_Width];
+	else if (Layer == DOODADS)
+		return m_pDoodadsFlags[x + y*m_Width];
 	
 	return 0;
 }
@@ -849,6 +1259,10 @@ int CGenLayer::GetByIndex(int Index, int Layer)
 		i = m_pTiles[Index];
 	else if (Layer == BACKGROUND)
 		i = m_pBGTiles[Index];
+	else if (Layer == FGOBJECTS)
+		i = m_pObjectTiles[Index];
+	else if (Layer == DOODADS)
+		i = m_pDoodadsTiles[Index];
 	
 	if (i < 0)
 		i = 0;
@@ -861,7 +1275,7 @@ bool CGenLayer::Used(int x, int y)
 	if (x < 0 || y < 0 || x >= m_Width || y >= m_Height)
 		return true;
 	
-	if (m_pTiles[x + y*m_Width] != 0)
+	if (m_pTiles[x + y*m_Width] != 0 || m_pObjectTiles[x + y*m_Width] != 0)
 		return true;
 	
 	return false;

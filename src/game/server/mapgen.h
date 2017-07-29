@@ -16,8 +16,9 @@ class CMapGen
 	CCollision *m_pCollision;
 
 	void GenerateLevel();
+	void GeneratePVPLevel();
 	
-	void GenerateRooms(class CRoom *pRoom, int Type, int w, int h);
+	void WriteLayers(class CGenLayer *pTiles);
 	
 	void GenerateEnd(class CGenLayer *pTiles);
 	
@@ -29,6 +30,8 @@ class CMapGen
 	void GenerateLightningWall(class CGenLayer *pTiles);
 	void GenerateMine(class CGenLayer *pTiles);
 	void GenerateWalker(class CGenLayer *pTiles);
+	void GenerateStarDroid(class CGenLayer *pTiles);
+	void GenerateCrawlerDroid(class CGenLayer *pTiles);
 	void GenerateEnemySpawn(class CGenLayer *pTiles);
 	void GenerateHearts(class CGenLayer *pTiles);
 	void GenerateAmmo(class CGenLayer *pTiles);
