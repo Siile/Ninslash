@@ -594,7 +594,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 					if (m_WaypointPos.y < m_Pos.y)
 						m_Jump = 1;
 					else
-						m_Move = 0;
+						m_Down = 1;
 				}
 				
 				if (Player()->GetCharacter()->IsGrounded() && m_EnemyInLine && abs(Player()->GetCharacter()->GetCore().m_Vel.x) > 9)
@@ -628,7 +628,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 					if (m_WaypointPos.y < m_Pos.y)
 						m_Jump = 1;
 					else
-						m_Move = 0;
+						m_Down = 1;
 				}
 				
 				if (Player()->GetCharacter()->IsGrounded() && m_EnemyInLine && abs(Player()->GetCharacter()->GetCore().m_Vel.x) > 9)
@@ -1201,13 +1201,15 @@ bool CAI::ShootAtClosestEnemy()
 				pClosestCharacter = pCharacter;
 				ClosestDistance = Distance;
 				
-				float t = m_DispersionTick*0.05f;
+				float t = m_DispersionTick*0.1f;
 				vec2 Dispersion = vec2( 11*cos(t)-6*cos(11.0f/6 * t),
 										11*sin(t)-6*sin(11.0f/6 * t));
 				
 				// range 64 - 0, power level range 20
 				Dispersion *= 3.765f - m_PowerLevel*0.188f;
 				Dispersion *= 2.0f;
+				
+				Dispersion *= Distance*0.005f;
 				
 				m_PlayerDirection = pCharacter->m_Pos - m_LastPos + Dispersion;
 				m_PlayerPos = pCharacter->m_Pos + Dispersion;
@@ -1880,9 +1882,7 @@ void CAI::Tick()
 		m_Attack = 0;
 	}
 	m_InputChanged = true;
-	
 
-	
 	m_DisplayDirection.x += (m_Direction.x - m_DisplayDirection.x) / max(1.0f, 14.0f - m_PowerLevel*0.75f);
 	m_DisplayDirection.y += (m_Direction.y - m_DisplayDirection.y) / max(1.0f, 14.0f - m_PowerLevel*0.75f);
 }
