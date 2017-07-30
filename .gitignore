@@ -25,3 +25,6 @@ other/icons/*.res
 /tileset_border*
 /versionsrv*
 Thumbs.db
+BuildTeeworlds.bat
+SDL2.dll
+glew32.dll

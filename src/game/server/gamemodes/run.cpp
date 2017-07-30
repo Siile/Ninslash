@@ -67,6 +67,8 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	
 	if (g_Config.m_SvMapGenLevel > 40)
 		g_Config.m_SvInvBosses = min(16, 1 + (g_Config.m_SvMapGenLevel-30)/7);
+	else
+		g_Config.m_SvInvBosses = 0;
 	
 	m_Deaths = m_EnemiesLeft;
 	m_NumEnemySpawnPos = 0;
