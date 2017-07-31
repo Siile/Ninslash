@@ -77,7 +77,7 @@ void CMaze::Generate()
 		if (Level <= 15)
 			GenerateLinear(min(40+Level*5, 70), Level);
 		// Z
-		else if (Level%10 == 7)
+		else if (Level%10 == 8)
 		{
 			int r = min(20, Level/3);
 
@@ -104,6 +104,30 @@ void CMaze::Generate()
 				ConnectRandomRooms();
 			*/
 			
+			
+			ConnectRooms();
+			ConnectEverything();
+		}
+		else if (Level%10 == 6)
+		{
+			int r = min(14, Level/3);
+
+			float s = 0.12f+frandom()*0.15f;
+			float sy = 0.4f+frandom()*0.15f;
+			
+			Connect(vec2(m_W*(0.3f-s), m_H*(0.5f+s*sy)), vec2(m_W*(0.5f+s), m_H*(0.5f+s*sy)));
+			Connect(vec2(m_W*(0.5f+s), m_H*(0.5f+s*sy)), vec2(m_W*(0.5f+s), m_H*(0.5f))); // W
+			Connect(vec2(m_W*(0.5f-s), m_H*(0.5f)), vec2(m_W*(0.5f+s), m_H*(0.5f)));
+			Connect(vec2(m_W*(0.5f-s), m_H*(0.5f)), vec2(m_W*(0.5f-s), m_H*(0.5f-s*sy))); // w
+			Connect(vec2(m_W*(0.5f-s), m_H*(0.5f-s*sy)), vec2(m_W*(0.5f+s), m_H*(0.5f-s*sy)));
+			Connect(vec2(m_W*(0.5f), m_H*(0.5f-s*sy)), vec2(m_W*(0.5f), m_H*(0.5f-s*sy*2)));
+			Connect(vec2(m_W*(0.5f), m_H*(0.5f-s*sy*2)), vec2(m_W*(0.8f+s), m_H*(0.5f-s*sy*2)));
+	
+			// create random rooms
+			for (int i = 0; i < r; i++)
+				GenerateRoom();
+			
+			int c = min(1+r/4, 5);
 			
 			ConnectRooms();
 			ConnectEverything();

@@ -48,7 +48,7 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	if (Defend)
 		e *= 2;
 	
-	e = min(e, 160);
+	e = min(e, 160+g_Config.m_SvMapGenLevel/10);
 	
 	m_EnemyCount = 0;
 	m_EnemiesLeft = e;
