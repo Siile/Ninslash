@@ -90,6 +90,8 @@ bool CCollision::AStar(vec2 Start, vec2 End)
 			if (ChildWP->m_Closed)
 				continue;
 			
+			if (m_GlobalAcid && GetGlobalAcidLevel() < ChildWP->m_Pos.y)
+				continue;
 
 			// If it's already in the openList
 			if (ChildWP->m_Opened)

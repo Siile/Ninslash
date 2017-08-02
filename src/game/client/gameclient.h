@@ -99,7 +99,7 @@ public:
 	bool m_NewTick;
 	bool m_NewPredictedTick;
 	int m_FlagDropTick[2];
-
+	
 	// TODO: move this
 	CTuningParams m_Tuning;
 
@@ -121,6 +121,7 @@ public:
 	bool IsLocalUndead();
 	bool BuildingEnabled();
 	bool Survival();
+	bool SurvivalAcid();
 	bool IsCoop();
 	
 	void AddFluidForce(vec2 Pos, vec2 Vel);

@@ -40,6 +40,10 @@ void CCollision::Init(class CLayers *pLayers)
 	m_Height = m_pLayers->GameLayer()->m_Height;
 	m_pTiles = static_cast<CTile *>(m_pLayers->Map()->GetData(m_pLayers->GameLayer()->m_Data));
 	
+	m_LowestPoint = 0;
+	m_Time = 0;
+	m_GlobalAcid = true;
+	
 	for(int i = 0; i < m_Width*m_Height; i++)
 	{
 		int Index = m_pTiles[i].m_Index;
@@ -447,7 +451,9 @@ CWaypoint *CCollision::GetClosestWaypoint(vec2 Pos)
 	{
 		if (m_apWaypoint[i])
 		{
-			//int d = abs(m_apWaypoint[i]->m_Pos.x-Pos.x)+abs(m_apWaypoint[i]->m_Pos.y-Pos.y);
+			if (m_GlobalAcid && GetGlobalAcidLevel() < Pos.y)
+				continue;
+			
 			int d = distance(m_apWaypoint[i]->m_Pos, Pos);
 			
 			if (d < Dist && d < 800)
@@ -503,6 +509,29 @@ int CCollision::GetTile(int x, int y)
 		return COLFLAG_SOLID;
 	
 	return m_pTiles[Ny*m_Width+Nx].m_Index > 128 ? 0 : m_pTiles[Ny*m_Width+Nx].m_Index;
+}
+
+
+int CCollision::GetLowestPoint()
+{
+	if (!m_LowestPoint)
+		for (int y = m_Height-1; y > 0; y--)
+			for (int x = 0; x < m_Width; x++)
+			{
+				if (!IsTileSolid(x*32, y*32))
+				{
+					m_LowestPoint = (y+1)*32;
+					return m_LowestPoint;
+				}
+			}
+		
+	return m_LowestPoint;
+}
+	
+
+float CCollision::GetGlobalAcidLevel()
+{
+	return GetLowestPoint() + m_Time;
 }
 
 
@@ -585,6 +614,14 @@ bool CCollision::IsTileSolid(int x, int y, bool IncludeDeath)
 }
 
 
+
+int CCollision::IsInFluid(float x, float y)
+{
+	if (m_GlobalAcid && y > GetGlobalAcidLevel())
+		return true;
+	
+	return GetTile(round_to_int(x), round_to_int(y)) == CCollision::COLFLAG_DAMAGEFLUID;
+}
 
 int CCollision::FastIntersectLine(vec2 Pos0, vec2 Pos1)
 {

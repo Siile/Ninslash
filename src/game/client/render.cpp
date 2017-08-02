@@ -482,17 +482,52 @@ void CRenderTools::DrawUIRect(const CUIRect *r, vec4 Color, int Corners, float R
 
 
 
-void CRenderTools::RenderFullScreenLayer()
+
+void CRenderTools::RenderFullScreenLayer(vec2 Center)
 {
 	if (!g_Config.m_GfxMultiBuffering)
 		return;
 	
+	vec2 s = vec2(Graphics()->ScreenWidth(), Graphics()->ScreenHeight());
 	Graphics()->MapScreen(0,0,Graphics()->ScreenWidth(),Graphics()->ScreenHeight());
 	
 	
 	
 	// render blood splatter to tiles
 	Graphics()->RenderToTexture(RENDERBUFFER_TILES);
+	
+	// test, embed image to texture buffer
+	//Graphics()->ShaderBegin(SHADER_GROUND);
+	/*
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_METAL].m_Id);
+	
+	Graphics()->BlendBuffer();
+
+	Graphics()->QuadsBegin();
+	Graphics()->QuadsSetRotation(0);
+	Graphics()->SetColor(0.25f, 0.25f, 0.25f, 0.5f);
+	
+	vec2 BGSize = vec2(s.x/2*Graphics()->ScreenAspect(), s.y/2*Graphics()->ScreenAspect());
+	
+	{
+		vec2 Size = vec2(1, 1/Graphics()->ScreenAspect())*2.5f;
+		BGSize /= Size;
+	
+		vec2 Scroll = Center/BGSize;
+		
+		Graphics()->QuadsSetSubsetFree(	0.0f+Scroll.x, 0.0f+Scroll.y,
+										Size.x+Scroll.x, 0.0f+Scroll.y,
+										0.0f+Scroll.x, Size.y+Scroll.y,
+										Size.x+Scroll.x, Size.y+Scroll.y);
+									
+		IGraphics::CFreeformItem Freeform(0, 0, s.x, 0, 0, s.y, s.x, s.y);
+		Graphics()->QuadsDrawFreeform(&Freeform, 1);
+	}
+	
+	Graphics()->QuadsEnd();
+	Graphics()->ShaderEnd();
+	*/
+	
 	Graphics()->ShaderBegin(SHADER_BLOOD);
 	Graphics()->TextureSet(-2, RENDERBUFFER_SPLATTER);
 	

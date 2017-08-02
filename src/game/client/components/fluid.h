@@ -8,8 +8,8 @@ struct CPool
 	vec2 m_Pos;
 	vec2 m_Size;
 	
-	float m_aSurfaceY[4*32];
-	float m_aSurfaceVel[4*32];
+	float m_aSurfaceY[128];
+	float m_aSurfaceVel[128];
 	
 	float m_Wave;
 	
@@ -20,7 +20,7 @@ struct CPool
 	
 	void Reset()
 	{
-		for (int i = 0; i < 4*32; i++)
+		for (int i = 0; i < 128; i++)
 		{
 			m_aSurfaceY[i] = 0.0f;
 			m_aSurfaceVel[i] = 0.0f;
@@ -39,23 +39,28 @@ struct CPool
 		
 		m_Wave += (frandom()-frandom())*0.75f;
 		
-		for (int i = 0; i <= m_Size.x/16; i++)
+		for (int i = 0; i < 128; i++)
 		{
-			if (i >= 4*32)
-				break;
+			//if (i >= 128)
+			//	break;
 			
 			m_aSurfaceVel[i] -= (m_aSurfaceY[i]-sin(m_Wave+i*0.6f)+cos((m_Wave+i*0.6f)/7.0f)*6.0f*frandom()) * C;
 			m_aSurfaceVel[i] *= B;
 			
+			m_aSurfaceVel[i] += (m_aSurfaceY[abs(i-1)%128] - m_aSurfaceY[i]) * A;
+			m_aSurfaceVel[i] += (m_aSurfaceY[(i+1)%128] - m_aSurfaceY[i]) * A;
+				
+			/*
 			if (i > 0)
-				m_aSurfaceVel[i] += (m_aSurfaceY[i-1] - m_aSurfaceY[i]) * A;
+				m_aSurfaceVel[i] += (m_aSurfaceY[(i-1)%128] - m_aSurfaceY[i]) * A;
 			else
 				m_aSurfaceVel[i] += (- m_aSurfaceY[i]) * A;
 			
 			if (i < m_Size.x/16)
-				m_aSurfaceVel[i] += (m_aSurfaceY[i+1] - m_aSurfaceY[i]) * A;
+				m_aSurfaceVel[i] += (m_aSurfaceY[(i+1)%128] - m_aSurfaceY[i]) * A;
 			else
 				m_aSurfaceVel[i] += (- m_aSurfaceY[i]) * A;
+			*/
 				
 			
 			m_aSurfaceVel[i] = clamp(m_aSurfaceVel[i], -15.0f, 15.0f);
@@ -64,11 +69,21 @@ struct CPool
 	
 	void UpdateSurface()
 	{
-		for (int i = 0; i <= m_Size.x/16; i++)
+		for (int i = 0; i < 128; i++)
 		{
+			//if (i >= 128)
+			//	break;
+
 			m_aSurfaceY[i] += m_aSurfaceVel[i];
 			m_aSurfaceY[i] = clamp(m_aSurfaceY[i], -32.0f, 32.0f);
 		}
+		
+		/*
+		m_aSurfaceY[0] = 0.0f;
+		m_aSurfaceVel[0] = 0.0f;
+		m_aSurfaceY[127] = 0.0f;
+		m_aSurfaceVel[127] = 0.0f;
+		*/
 	}
 };
 
@@ -79,7 +94,7 @@ class CFluid : public CComponent
 public:
 	CFluid();
 	
-	enum { MAX_POOLS = 9 };
+	enum { MAX_POOLS = 19 };
 
 	void Add(vec2 Pos);
 
@@ -94,7 +109,12 @@ private:
 	int m_PoolCount;
 	CPool m_aPool[MAX_POOLS];
 	
+	CPool m_GlobalPool;
+	
 	void RenderPool(int i);
+	void RenderGlobalAcid();
+	
+	float m_GlobalAcidLevel;
  
 	void Update(float TimePassed);
 };

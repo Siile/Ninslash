@@ -48,6 +48,9 @@ void CHud::RenderGameTimer()
 		else
 			Time = (Client()->GameTick()-m_pClient->m_Snap.m_pGameInfoObj->m_RoundStartTick)/Client()->GameTickSpeed();
 
+		if (Time < 0)
+			Time = 0;
+		
 		str_format(Buf, sizeof(Buf), "%d:%02d", Time/60, Time%60);
 		float FontSize = 10.0f;
 		float w = TextRender()->TextWidth(0, FontSize, Buf, -1);

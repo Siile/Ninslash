@@ -38,6 +38,8 @@ class CCollision
 	
 	CWaypointPath *m_pPath;
 	
+	int m_LowestPoint;
+	
 public:
 	enum
 	{
@@ -81,6 +83,12 @@ public:
 	
 	vec2 GetRandomWaypointPos();
 	
+	int m_Time;
+	bool m_GlobalAcid;
+	
+	int GetLowestPoint();
+	float GetGlobalAcidLevel();
+	
 	//CWaypointPath *AStar(vec2 Start, vec2 End);
 	bool AStar(vec2 Start, vec2 End);
 	
@@ -108,6 +116,9 @@ public:
 	int CheckPoint(float x, float y, bool IncludeDeath = false) { return SolidState(round_to_int(x), round_to_int(y), IncludeDeath); }
 	bool CheckPoint(vec2 Pos) { return CheckPoint(Pos.x, Pos.y); }
 	int GetCollisionAt(float x, float y) { return GetTile(round_to_int(x), round_to_int(y)); }
+	
+	int IsInFluid(float x, float y);
+	
 	int GetWidth() { return m_Width; };
 	int GetHeight() { return m_Height; };
 	int FastIntersectLine(vec2 Pos0, vec2 Pos1);

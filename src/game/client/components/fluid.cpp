@@ -6,6 +6,7 @@
 
 #include <game/generated/client_data.h>
 #include <game/client/render.h>
+#include <game/client/components/camera.h>
 #include <game/client/components/effects.h>
 #include <game/client/customstuff.h>
 #include "fluid.h"
@@ -20,9 +21,12 @@ CFluid::CFluid()
 void CFluid::OnReset()
 {
 	m_PoolCount = 0;
+	m_GlobalAcidLevel = 0.0f;
 	
 	for (int i = 0; i < MAX_POOLS; i++)
 		m_aPool[i].Reset();
+	
+	m_GlobalPool.Reset();
 }
 
 
@@ -114,6 +118,42 @@ void CFluid::AddForce(vec2 Pos, vec2 Vel)
 			}
 		}
 	}
+	
+	vec2 Center = m_pClient->m_pCamera->m_Center;
+	vec2 Screen = vec2(Graphics()->ScreenWidth(), Graphics()->ScreenHeight());
+	
+	vec2 GPos = Center;
+	GPos.x -= Screen.x/2;
+	
+	// global acid pool
+	//if (Pos.x > m_GlobalPool.m_Pos.x && Pos.x < m_GlobalPool.m_Pos.x + m_GlobalPool.m_Size.x)
+	{
+		if (Pos.y > m_GlobalPool.m_Pos.y - 60 && Pos.y < m_GlobalPool.m_Pos.y + m_GlobalPool.m_Size.y)
+		{
+			int x = Pos.x - m_GlobalPool.m_Pos.x;
+			x /= 16;
+			
+			x = int(x+GPos.x/16)%128;
+				
+			//if (x >= 0 && x < m_GlobalPool.m_Size.x/16)
+			{
+				if (abs(Pos.y - m_GlobalPool.m_Pos.y+m_GlobalPool.m_aSurfaceY[x]) < 16)
+				{
+					m_GlobalPool.m_aSurfaceVel[x] = (m_GlobalPool.m_aSurfaceVel[x] + Vel.y) / 3.0f;
+						
+					/*
+					if (x > 0)
+						m_GlobalPool.m_aSurfaceVel[x-1] = (-m_GlobalPool.m_aSurfaceVel[x-1] + Vel.y) / 6.0f;
+					if (x < 32*4-1)
+						m_GlobalPool.m_aSurfaceVel[x+1] = (-m_GlobalPool.m_aSurfaceVel[x+1] + Vel.y) / 6.0f;
+					*/
+						
+					if (abs(m_GlobalPool.m_aSurfaceVel[x] - Vel.y) > 3.0f)
+						m_pClient->m_pEffects->Acid(vec2(Pos.x, m_GlobalPool.m_Pos.y+m_GlobalPool.m_aSurfaceY[x]), vec2((frandom()-frandom())*0.4f, -frandom()*0.7f));
+				}
+			}
+		}
+	}
 }
 
 
@@ -126,15 +166,18 @@ void CFluid::OnRender()
 	for (int i = 0; i < m_PoolCount; i++)
 		RenderPool(i);
 	
+	if (m_pClient->SurvivalAcid())
+		RenderGlobalAcid();
+	
 	Graphics()->RenderToScreen();
 	
-	if(Client()->State() < IClient::STATE_ONLINE)
+	if (Client()->State() < IClient::STATE_ONLINE)
 		return;
 
 	static int64 LastTime = 0;
 	int64 t = time_get();
 
-	if(m_pClient->m_Snap.m_pGameInfoObj && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
+	if (m_pClient->m_Snap.m_pGameInfoObj && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
 	{
 		if ((float)((t-LastTime)/(double)time_freq()) > 0.01f)
 		{
@@ -143,6 +186,89 @@ void CFluid::OnRender()
 		}
 	}
 
+}
+
+
+
+void CFluid::RenderGlobalAcid()
+{
+	float AcidLevel = Collision()->GetGlobalAcidLevel();
+	
+	if (AcidLevel == 0.0f)
+		return;
+
+	vec2 Center = m_pClient->m_pCamera->m_Center;
+	vec2 Screen = vec2(Graphics()->ScreenWidth(), Graphics()->ScreenHeight());
+	
+	vec2 Pos = Center;
+	Pos.x -= Screen.x/2 + fmod(Center.x, 16.0f);
+	
+	Pos.y = AcidLevel;
+	
+	float StepX = 16;
+	vec2 Size = vec2(Screen.x+StepX, Screen.y);
+	
+	Size.y = 900000;
+	
+	m_GlobalPool.m_Pos = Pos;
+	m_GlobalPool.m_Size = Size;
+	
+	Graphics()->TextureSet(-1);
+	Graphics()->QuadsBegin();
+	
+	if (g_Config.m_GfxMultiBuffering)
+		Graphics()->SetColor(1,1,1,1);
+	else
+		Graphics()->SetColor(0, 0.8f, 0, 0.6f);
+
+	
+	// fluid
+	for (int f = 0; f < Size.x / 16; f++)
+	{
+		//if (f >= 32*4-1)
+		//	break;
+		
+		int a = abs(int(f+Pos.x/16))%128;
+		
+		float y1 = Pos.y + m_GlobalPool.m_aSurfaceY[a];
+		float y2 = Pos.y + m_GlobalPool.m_aSurfaceY[(a+1)%128];
+		
+		
+		
+		IGraphics::CFreeformItem Freeform(
+			Pos.x+f*StepX, y1,
+			Pos.x+(f+1)*StepX+1, y2,
+			Pos.x+f*StepX, Pos.y+Size.y,
+			Pos.x+(f+1)*StepX+1, Pos.y+Size.y);
+			
+		Graphics()->QuadsDrawFreeform(&Freeform, 1);
+	}
+	
+	// top outline
+	/*
+	if (!g_Config.m_GfxMultiBuffering)
+	{
+		Graphics()->SetColor(0, 0, 0, 0.4f);
+		for (int f = 0; f < Size.x / 16; f++)
+		{
+			if (f >= 32*4-1)
+				break;
+			
+			float y1 = Pos.y + m_GlobalPool.m_aSurfaceY[f];
+			float y2 = Pos.y + m_GlobalPool.m_aSurfaceY[f+1];
+			
+			IGraphics::CFreeformItem Freeform(
+				Pos.x+f*StepX, y1,
+				Pos.x+(f+1)*StepX, y2,
+				Pos.x+f*StepX, y1+2,
+				Pos.x+(f+1)*StepX, y2+2);
+				
+			Graphics()->QuadsDrawFreeform(&Freeform, 1);
+		}
+	}
+	*/
+	
+	Graphics()->QuadsEnd();
 }
 
 
@@ -212,6 +338,9 @@ void CFluid::Update(float TimePassed)
 		m_aPool[i].UpdateTension();
 		m_aPool[i].UpdateSurface();
 	}
+	
+	m_GlobalPool.UpdateTension();
+	m_GlobalPool.UpdateSurface();
 }
 
 

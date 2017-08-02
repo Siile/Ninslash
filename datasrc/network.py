@@ -2,7 +2,7 @@ from datatypes import *
 
 Emotes = ["NORMAL", "PAIN", "HAPPY", "SURPRISE", "ANGRY", "BLINK"]
 PlayerFlags = ["PLAYING", "IN_MENU", "CHATTING", "SCOREBOARD"]
-GameFlags = ["TEAMS", "INFECTION", "COOP", "SURVIVAL", "BUILD", "FLAGS"]
+GameFlags = ["TEAMS", "INFECTION", "COOP", "SURVIVAL", "BUILD", "FLAGS", "ACID"]
 GameStateFlags = ["GAMEOVER", "SUDDENDEATH", "PAUSED"]
 
 Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY", "GHOST", "SUSHI", "SPLATTEE", "DEVILTEE", "ZOMG", "ZZZ", "WTF", "EYES", "QUESTION"]

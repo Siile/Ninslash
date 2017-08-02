@@ -1521,12 +1521,21 @@ void IGameController::Tick()
 		g_Config.m_SvSurvivalMode = 0;
 	
 	// check for round time ending
-	if (g_Config.m_SvSurvivalTime && g_Config.m_SvSurvivalMode && m_SurvivalStartTick < Server()->Tick() - Server()->TickSpeed() * g_Config.m_SvSurvivalTime)
+	if (!g_Config.m_SvSurvivalAcid && g_Config.m_SvSurvivalTime && g_Config.m_SvSurvivalMode && m_SurvivalStartTick < Server()->Tick() - Server()->TickSpeed() * g_Config.m_SvSurvivalTime)
 	{
 		GameServer()->SendBroadcast("Draw", -1);
 		ResetSurvivalRound();
 	}
 	
+	// global acid level
+	if (g_Config.m_SvSurvivalAcid && g_Config.m_SvSurvivalMode && g_Config.m_SvSurvivalTime && !m_Warmup)
+	{
+		GameServer()->Collision()->m_GlobalAcid = true;
+		GameServer()->Collision()->m_Time = g_Config.m_SvSurvivalTime*Server()->TickSpeed() - ((Server()->Tick()-m_SurvivalStartTick));
+	}
+	else 
+		GameServer()->Collision()->m_GlobalAcid = false;
+				
 	// check for winning conditions
 	if (!IsCoop() && g_Config.m_SvSurvivalMode && m_SurvivalStatus == SURVIVAL_NOCANDO && m_SurvivalDeathTick < Server()->Tick())
 	{
@@ -1873,13 +1882,26 @@ void IGameController::DoWincheck()
 		if(IsTeamplay())
 		{
 			// check score win condition
-			if((g_Config.m_SvScorelimit > 0 && (m_aTeamscore[TEAM_RED] >= g_Config.m_SvScorelimit || m_aTeamscore[TEAM_BLUE] >= g_Config.m_SvScorelimit)) ||
-				(g_Config.m_SvTimelimit > 0 && (Server()->Tick()-m_RoundStartTick) >= g_Config.m_SvTimelimit*Server()->TickSpeed()*60))
+			if (g_Config.m_SvSurvivalMode && !g_Config.m_SvSurvivalAcid)
 			{
-				if(m_aTeamscore[TEAM_RED] != m_aTeamscore[TEAM_BLUE])
-					EndRound();
-				else
-					m_SuddenDeath = 1;
+				if((g_Config.m_SvScorelimit > 0 && (m_aTeamscore[TEAM_RED] >= g_Config.m_SvScorelimit || m_aTeamscore[TEAM_BLUE] >= g_Config.m_SvScorelimit)))
+				{
+					if(m_aTeamscore[TEAM_RED] != m_aTeamscore[TEAM_BLUE])
+						EndRound();
+					else
+						m_SuddenDeath = 1;
+				}
+			}
+			else
+			{
+				if((g_Config.m_SvScorelimit > 0 && (m_aTeamscore[TEAM_RED] >= g_Config.m_SvScorelimit || m_aTeamscore[TEAM_BLUE] >= g_Config.m_SvScorelimit)) ||
+					(g_Config.m_SvTimelimit > 0 && (Server()->Tick()-m_RoundStartTick) >= g_Config.m_SvTimelimit*Server()->TickSpeed()*60))
+				{
+					if(m_aTeamscore[TEAM_RED] != m_aTeamscore[TEAM_BLUE])
+						EndRound();
+					else
+						m_SuddenDeath = 1;
+				}
 			}
 		}
 		else
@@ -1902,13 +1924,26 @@ void IGameController::DoWincheck()
 			}
 
 			// check score win condition
-			if((g_Config.m_SvScorelimit > 0 && Topscore >= g_Config.m_SvScorelimit) ||
-				(g_Config.m_SvTimelimit > 0 && (Server()->Tick()-m_RoundStartTick) >= g_Config.m_SvTimelimit*Server()->TickSpeed()*60))
+			if (g_Config.m_SvSurvivalMode && !g_Config.m_SvSurvivalAcid)
 			{
-				if(TopscoreCount == 1)
-					EndRound();
-				else
-					m_SuddenDeath = 1;
+				if (g_Config.m_SvScorelimit > 0 && Topscore >= g_Config.m_SvScorelimit)
+				{
+					if(TopscoreCount == 1)
+						EndRound();
+					else
+						m_SuddenDeath = 1;
+				}
+			}
+			else
+			{
+				if((g_Config.m_SvScorelimit > 0 && Topscore >= g_Config.m_SvScorelimit) ||
+					(g_Config.m_SvTimelimit > 0 && (Server()->Tick()-m_RoundStartTick) >= g_Config.m_SvTimelimit*Server()->TickSpeed()*60))
+				{
+					if(TopscoreCount == 1)
+						EndRound();
+					else
+						m_SuddenDeath = 1;
+				}
 			}
 		}
 	}

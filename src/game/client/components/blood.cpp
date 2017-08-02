@@ -315,7 +315,7 @@ void CBlood::RenderGroup(int Group)
 		Graphics()->RenderToScreen();
 		Graphics()->BlendNormal();
 			
-		// blood
+		// acid
 		Graphics()->ShaderBegin(SHADER_ACID, CustomStuff()->m_SawbladeAngle*0.1f);
 		Graphics()->TextureSet(-2, RENDERBUFFER_ACID);
 
