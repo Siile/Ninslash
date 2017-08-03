@@ -95,14 +95,9 @@ public:
 	bool Remove();
 	
 	void Teleport(vec2 Pos);
-
-	// ability STORE_HEALTH
-	int m_HealthStored;
-	
-	bool m_UseMedkit;
-	int m_MedkitTimer;
 	
 	bool IncreaseHealth(int Amount);
+	bool IncreaseAmmo(int Amount);
 	bool IncreaseArmor(int Amount);
 	
 	bool AddMine();
@@ -189,15 +184,7 @@ public:
 	void AutoWeaponChange();
 	
 	void GiveStartWeapon();
-	
-	void ShowArmor();
-	
-	void ScanWeapons();
-	int GetFirstWeapon(int ParentType);
-	int GetWeapon(int ParentType);
-	int GetNextWeapon(int ParentType);
-	int GetPrevWeapon(int ParentType);
-	
+
 	// next that shares a parent
 	int m_aNextWeapon[NUM_WEAPONS];
 

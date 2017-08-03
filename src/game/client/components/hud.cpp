@@ -500,24 +500,126 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	}
 
 	
-	// new health bar
+	// new health bar, healthbar, render health
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HP].m_Id);
 	Graphics()->QuadsBegin();
 	
 	vec2 HpSize = vec2(120, 12);
 	
+	float hpf = min(pCharacter->m_Health, 100) / 100.0f;
+		
 	{ // hp fill
-		float f = min(pCharacter->m_Health, 100) / 100.0f;
 		Graphics()->SetColor(1, 0, 0, 1);
-		Graphics()->QuadsSetSubsetFree(0, 0.5f, 1*f, 0.5f, 0, 1, 1*f, 1);
+		Graphics()->QuadsSetSubsetFree(0, 0.5f, 1*hpf, 0.5f, 0, 1, 1*hpf, 1);
 
 		IGraphics::CFreeformItem FreeFormItem(
 			x, y,
-			x+f*HpSize.x, y,
+			x+hpf*HpSize.x, y,
 			x, y+HpSize.y,
-			x+f*HpSize.x, y+HpSize.y);
+			x+hpf*HpSize.x, y+HpSize.y);
 
 		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+	}
+	
+	{ // armor fill
+		float armorf = min(pCharacter->m_Armor, 100) / 100.0f;
+		
+		if (armorf + hpf <= 1.0f)
+		{
+			Graphics()->SetColor(1.0f, 1.0f, 0.0f, 1.0f);
+			Graphics()->QuadsSetSubsetFree(	hpf, 0.5f,
+											hpf+armorf, 0.5f,
+											hpf, 1,
+											hpf+armorf, 1);
+
+			IGraphics::CFreeformItem FreeFormItem(
+				x+hpf*HpSize.x, y,
+				x+(hpf+armorf)*HpSize.x, y,
+				x+hpf*HpSize.x, y+HpSize.y,
+				x+(hpf+armorf)*HpSize.x, y+HpSize.y);
+
+			Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+		}
+		else
+		{
+			{
+				Graphics()->SetColor(0.9f, 0.9f, 0.0f, 1.0f);
+				Graphics()->QuadsSetSubsetFree(	hpf, 0.5f, 
+												1, 0.5f, 
+												hpf, 1, 
+												1, 1);
+
+				IGraphics::CFreeformItem FreeFormItem(
+					x+(hpf)*HpSize.x, y,
+					x+1*HpSize.x, y,
+					x+(hpf)*HpSize.x, y+HpSize.y,
+					x+1*HpSize.x, y+HpSize.y);
+
+				Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+			}
+			
+			{
+				Graphics()->SetColor(0.0f, 0.7f, 0.0f, 1.0f);
+				Graphics()->QuadsSetSubsetFree(	1-armorf, 0.5f, 
+												hpf, 0.5f, 
+												1-armorf, 1, 
+												hpf, 1);
+
+				IGraphics::CFreeformItem FreeFormItem(
+					x+(1-armorf)*HpSize.x, y,
+					x+hpf*HpSize.x, y,
+					x+(1-armorf)*HpSize.x, y+HpSize.y,
+					x+hpf*HpSize.x, y+HpSize.y);
+
+				Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+			}
+			
+			/*
+			Graphics()->SetColor(0.7f, 0.7f, 0.0f, 1.0f);
+			Graphics()->QuadsSetSubsetFree(	1-armorf, 0.5f, 
+											1, 0.5f, 
+											1-armorf, 1, 
+											1, 1);
+
+			IGraphics::CFreeformItem FreeFormItem(
+				x+(1-armorf)*HpSize.x, y,
+				x+1*HpSize.x, y,
+				x+(1-armorf)*HpSize.x, y+HpSize.y,
+				x+1*HpSize.x, y+HpSize.y);
+
+			Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+			*/
+		}
+		
+		/*
+		if (armorf > hpf)
+		{
+			Graphics()->QuadsSetSubsetFree(0, 0.5f, 1*armorf, 0.5f, 0, 1, 1*armorf, 1);
+
+			IGraphics::CFreeformItem FreeFormItem(
+				x, y,
+				x+armorf*HpSize.x, y,
+				x, y+HpSize.y,
+				x+armorf*HpSize.x, y+HpSize.y);
+
+			Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+		}
+		else
+		{
+			Graphics()->QuadsSetSubsetFree(	hpf-armorf, 0.5f,
+											hpf, 0.5f,
+											hpf-armorf, 1,
+											hpf, 1);
+
+			IGraphics::CFreeformItem FreeFormItem(
+				x+(hpf-armorf)*HpSize.x, y,
+				x+hpf*HpSize.x, y,
+				x+(hpf-armorf)*HpSize.x, y+HpSize.y,
+				x+hpf*HpSize.x, y+HpSize.y);
+
+			Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+		}
+		*/
 	}
 	
 	{ // hp frame

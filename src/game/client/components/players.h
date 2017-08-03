@@ -15,8 +15,6 @@ class CPlayers : public CComponent
 	
 	vec3 GetColorV3(int v);
 	
-	void RenderHealthBar();
-	
 public:
 	virtual void OnRender();
 };

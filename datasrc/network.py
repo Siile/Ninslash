@@ -7,7 +7,7 @@ GameStateFlags = ["GAMEOVER", "SUDDENDEATH", "PAUSED"]
 
 Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY", "GHOST", "SUSHI", "SPLATTEE", "DEVILTEE", "ZOMG", "ZZZ", "WTF", "EYES", "QUESTION"]
 
-Powerups = ["HEALTH", "ARMOR", "WEAPON", "MINE", "KIT"]
+Powerups = ["HEALTH", "AMMO", "WEAPON", "ARMOR", "KIT"]
 
 Statuses = ["EMPTY", "SPAWNING", "AFLAME", "SLOWED", "ELECTRIC", "DEATHRAY", "SHIELD", "RAGE", "INVISIBILITY", "HEAL", "FUEL"]
 
@@ -314,7 +314,7 @@ Objects = [
 
 	NetObject("Character:CharacterCore", [
 		NetIntRange("m_PlayerFlags", 0, 256),
-		NetIntRange("m_Armor", 0, 10),
+		NetIntRange("m_Armor", 0, 50),
 		NetIntRange("m_AmmoCount", 0, 30),
 		NetIntRange("m_Weapon", -1, 'NUM_WEAPONS-1'),
 		NetIntRange("m_WeaponPowerLevel", 0, 9),

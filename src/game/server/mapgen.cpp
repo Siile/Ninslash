@@ -606,6 +606,52 @@ void CMapGen::GenerateAmmo(CGenLayer *pTiles)
 	
 	if (p.x != 0)
 	{
+		ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_AMMO_1);
+		ModifTile(p+ivec2(0, 1), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_AMMO_1);
+		ModifTile(p+ivec2(0, 2), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_AMMO_1);
+	}
+	else
+	{
+		p = pTiles->GetCeiling();
+		
+		if (p.x != 0)
+		{
+			ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_AMMO_1);
+			ModifTile(p+ivec2(-1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_AMMO_1);
+			ModifTile(p+ivec2(1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_AMMO_1);
+		}
+		else
+		{
+			p = pTiles->GetWall();
+		
+			if (p.x != 0)
+			{
+				ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_AMMO_1);
+				ModifTile(p+ivec2(0, -1), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_AMMO_1);
+			}
+			else
+			{
+				ivec2 p = pTiles->GetPlatform();
+				
+				if (p.x == 0)
+					return;
+				
+				ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_AMMO_1);
+				ModifTile(p+ivec2(1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_AMMO_1);
+				ModifTile(p+ivec2(-1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_AMMO_1);
+			}
+		}
+	}
+}
+
+
+
+void CMapGen::GenerateArmor(CGenLayer *pTiles)
+{
+	ivec2 p = pTiles->GetTopCorner();
+	
+	if (p.x != 0)
+	{
 		ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_ARMOR_1);
 		ModifTile(p+ivec2(0, 1), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_ARMOR_1);
 		ModifTile(p+ivec2(0, 2), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_ARMOR_1);
@@ -868,6 +914,9 @@ void CMapGen::GenerateLevel()
 	for (int i = 0; i < (pTiles->Size())/1100; i++)
 		GenerateAmmo(pTiles);
 	
+	for (int i = 0; i < (pTiles->Size())/1400; i++)
+		GenerateArmor(pTiles);
+	
 	// power upper(s)
 	if (Level > 15 && frandom() < 0.15f)
 		GeneratePowerupper(pTiles);
@@ -1103,6 +1152,9 @@ void CMapGen::GeneratePVPLevel()
 	
 	for (int i = 0; i < (pTiles->Size())/800; i++)
 		GenerateAmmo(pTiles);
+	
+	for (int i = 0; i < (pTiles->Size())/1200; i++)
+		GenerateArmor(pTiles);
 	
 	
 	GeneratePowerupper(pTiles);

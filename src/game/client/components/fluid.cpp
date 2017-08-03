@@ -201,14 +201,15 @@ void CFluid::RenderGlobalAcid()
 	vec2 Screen = vec2(Graphics()->ScreenWidth(), Graphics()->ScreenHeight());
 	
 	vec2 Pos = Center;
-	Pos.x -= Screen.x/2 + fmod(Center.x, 16.0f);
+	Pos.x -= Screen.x/2;
+	//Pos.x -= Screen.x/2 + fmod(Center.x, 16.0f);
 	
 	Pos.y = AcidLevel;
 	
 	float StepX = 16;
-	vec2 Size = vec2(Screen.x+StepX, Screen.y);
+	vec2 Size = vec2(Screen.x+StepX*2, Screen.y);
 	
-	Size.y = 900000;
+	Size.y = AcidLevel-Screen.y;
 	
 	m_GlobalPool.m_Pos = Pos;
 	m_GlobalPool.m_Size = Size;
@@ -221,52 +222,46 @@ void CFluid::RenderGlobalAcid()
 	else
 		Graphics()->SetColor(0, 0.8f, 0, 0.6f);
 
+	int offX = fmod(abs(Center.x), 16.0f);
 	
 	// fluid
-	for (int f = 0; f < Size.x / 16; f++)
+	for (int f = -3; f < Size.x / 16; f++)
 	{
-		//if (f >= 32*4-1)
-		//	break;
-		
 		int a = abs(int(f+Pos.x/16))%128;
 		
 		float y1 = Pos.y + m_GlobalPool.m_aSurfaceY[a];
 		float y2 = Pos.y + m_GlobalPool.m_aSurfaceY[(a+1)%128];
 		
-		
-		
 		IGraphics::CFreeformItem Freeform(
-			Pos.x+f*StepX, y1,
-			Pos.x+(f+1)*StepX+1, y2,
-			Pos.x+f*StepX, Pos.y+Size.y,
-			Pos.x+(f+1)*StepX+1, Pos.y+Size.y);
+			Pos.x+f*StepX+offX, y1,
+			Pos.x+(f+1)*StepX+offX, y2,
+			Pos.x+f*StepX+offX, Pos.y+Size.y,
+			Pos.x+(f+1)*StepX+offX, Pos.y+Size.y);
 			
 		Graphics()->QuadsDrawFreeform(&Freeform, 1);
 	}
 	
 	// top outline
-	/*
 	if (!g_Config.m_GfxMultiBuffering)
 	{
 		Graphics()->SetColor(0, 0, 0, 0.4f);
+
 		for (int f = 0; f < Size.x / 16; f++)
 		{
-			if (f >= 32*4-1)
-				break;
+			int a = abs(int(f+Pos.x/16))%128;
 			
-			float y1 = Pos.y + m_GlobalPool.m_aSurfaceY[f];
-			float y2 = Pos.y + m_GlobalPool.m_aSurfaceY[f+1];
+			float y1 = Pos.y + m_GlobalPool.m_aSurfaceY[a];
+			float y2 = Pos.y + m_GlobalPool.m_aSurfaceY[(a+1)%128];
 			
 			IGraphics::CFreeformItem Freeform(
-				Pos.x+f*StepX, y1,
-				Pos.x+(f+1)*StepX, y2,
-				Pos.x+f*StepX, y1+2,
-				Pos.x+(f+1)*StepX, y2+2);
+				Pos.x+f*StepX+offX, y1,
+				Pos.x+(f+1)*StepX+offX, y2,
+				Pos.x+f*StepX+offX, y1+2,
+				Pos.x+(f+1)*StepX+offX, y2+2);
 				
 			Graphics()->QuadsDrawFreeform(&Freeform, 1);
 		}
 	}
-	*/
 	
 	Graphics()->QuadsEnd();
 }

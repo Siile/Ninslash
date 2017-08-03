@@ -338,7 +338,7 @@ void CItems::RenderPickup(const CNetObj_Pickup *pPrev, const CNetObj_Pickup *pCu
 	}
 	else
 	{
-		if (pCurrent->m_Type == POWERUP_ARMOR || pCurrent->m_Type == POWERUP_MINE || pCurrent->m_Type == POWERUP_KIT)
+		if (pCurrent->m_Type == POWERUP_AMMO || pCurrent->m_Type == POWERUP_KIT)
 			SkipOffset = true;
 		
 		const int c[] = {

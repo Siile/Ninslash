@@ -133,10 +133,14 @@ void CStar::Tick()
 				
 				for (int i = 0; i < 3; i++)
 				{
-					if (frandom() < 0.4f)
+					if (frandom() < 0.3f)
+						GameServer()->m_pController->DropPickup(m_Pos + vec2(0, 0), POWERUP_AMMO, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), 0);
+					else if (frandom() < 0.3f)
+						GameServer()->m_pController->DropPickup(m_Pos + vec2(0, 0), POWERUP_HEALTH, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), 0);
+					else if (frandom() < 0.3f)
 						GameServer()->m_pController->DropPickup(m_Pos + vec2(0, 0), POWERUP_ARMOR, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), 0);
 					else
-						GameServer()->m_pController->DropPickup(m_Pos + vec2(0, 0), POWERUP_HEALTH, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), 0);
+						GameServer()->m_pController->DropPickup(m_Pos + vec2(0, 0), POWERUP_KIT, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), 0);
 				}
 				
 				GameServer()->m_World.DestroyEntity(this);

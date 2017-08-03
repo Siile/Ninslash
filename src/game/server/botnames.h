@@ -21,6 +21,11 @@ const char *aBotName1[] = {
 	"Termi",
 	"Destro",
 	"Proto",
+	"Bot",
+	"Spurdo",
+	"Mech",
+	"Turbo",
+	"Mega",
 };
 
 const char *aBotName2[] = {
@@ -44,7 +49,8 @@ const char *aBotName2[] = {
 	"trix",
 	"x",
 	"nator",
-	"yer",
+	"bot",
+	"-x",
 };
 
 

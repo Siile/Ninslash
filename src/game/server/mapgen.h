@@ -35,6 +35,7 @@ class CMapGen
 	void GenerateEnemySpawn(class CGenLayer *pTiles);
 	void GenerateHearts(class CGenLayer *pTiles);
 	void GenerateAmmo(class CGenLayer *pTiles);
+	void GenerateArmor(class CGenLayer *pTiles);
 	void GenerateAcid(class CGenLayer *pTiles);
 	
 	void GenerateConveyorBelt(class CGenLayer *pTiles);

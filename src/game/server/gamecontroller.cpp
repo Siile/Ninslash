@@ -490,13 +490,13 @@ void IGameController::CreateDroppables()
 		m_PickupCount++;
 
 		// armors
-		m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_ARMOR, 0);
+		m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_AMMO, 0);
 		m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
 		m_apPickup[m_PickupCount]->m_Dropable = true;
 		m_PickupCount++;
 		
 		// mines
-		m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_MINE, 0);
+		m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_ARMOR, 0);
 		m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
 		m_apPickup[m_PickupCount]->m_Dropable = true;
 		m_PickupCount++;
@@ -716,18 +716,18 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 	else
 	if (g_Config.m_SvVanillaPickups)
 	{
-		if(Index == ENTITY_ARMOR_1)
-			Type = POWERUP_ARMOR;
+		if(Index == ENTITY_AMMO_1)
+			Type = POWERUP_AMMO;
 		else if(Index == ENTITY_HEALTH_1)
 			Type = POWERUP_HEALTH;
-		else if(Index == ENTITY_MINE_1)
-			Type = POWERUP_MINE;
+		else if(Index == ENTITY_ARMOR_1)
+			Type = POWERUP_ARMOR;
 		else if(Index == ENTITY_KIT)
 		{
 			if (g_Config.m_SvEnableBuilding)
 				Type = POWERUP_KIT;
 			else
-				Type = POWERUP_ARMOR;
+				Type = POWERUP_AMMO;
 		}
 		else if(Index == ENTITY_WEAPON_CHAINSAW)
 		{
@@ -775,7 +775,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 	{
 		if (g_Config.m_SvForceWeapon)
 		{
-			if (Type == POWERUP_WEAPON || Type == POWERUP_ARMOR)
+			if (Type == POWERUP_WEAPON || Type == POWERUP_AMMO)
 				return true;
 		}
 		
@@ -1248,7 +1248,7 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 				DropPickup(pVictim->m_Pos, POWERUP_KIT, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 			}
 			else if (frandom()*10 < 4)
-				DropPickup(pVictim->m_Pos, POWERUP_ARMOR, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
+				DropPickup(pVictim->m_Pos, POWERUP_AMMO, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 			else
 				DropPickup(pVictim->m_Pos, POWERUP_HEALTH, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 		}

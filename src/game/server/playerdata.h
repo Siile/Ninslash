@@ -14,6 +14,7 @@ public:
 	int m_aAmmo[99];
 	int m_aPowerLevel[99];
 	int m_Weapon;
+	int m_Armor;
 	int m_Kits;
 	int m_Score;
 };

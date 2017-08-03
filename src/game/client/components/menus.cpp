@@ -591,7 +591,7 @@ int CMenus::RenderMenubar(CUIRect r)
 		
 		Box.VSplitRight(180.0f, &Box, &Button);
 		static int s_MenuButton=0;
-		if(DoButton_MenuTab(&s_MenuButton, Localize("Main menu"), m_ActivePage==PAGE_FRONT, &Button, CUI::CORNER_T))
+		if(DoButton_MenuTab(&s_MenuButton, Localize("Main menu"), m_ActivePage==PAGE_FRONT, &Button, CUI::CORNER_T) || m_EscapePressed)
 			NewPage = PAGE_FRONT;
 	}
 	else

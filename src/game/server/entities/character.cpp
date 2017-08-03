@@ -110,7 +110,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_Recoil = vec2(0, 0);
 	
 	m_SkipPickups = 0;
-	m_HealthStored = 0;
 	
 	m_CryTimer = 0;
 	m_CryState = 0;
@@ -202,6 +201,7 @@ void CCharacter::SaveData()
 
 	pData->m_Weapon = GetActiveWeapon();
 	pData->m_Kits = m_Kits;
+	pData->m_Armor = m_Armor;
 	pData->m_Score = GetPlayer()->m_Score;
 	
 	for (int i = 0; i < NUM_WEAPONS; i++)
@@ -500,101 +500,6 @@ void CCharacter::HandleWeaponSwitch()
 		m_QueuedCustomWeapon = WantedWeapon;
 	
 	DoWeaponSwitch();
-}
-
-
-
-
-
-int CCharacter::GetWeapon(int ParentType)
-{
-	if (m_aNextWeapon[ParentType] < 0 || m_aNextWeapon[ParentType] > NUM_WEAPONS)
-	{
-		m_aNextWeapon[ParentType] = 0;
-		return GetNextWeapon(ParentType);
-	}
-	
-	if (m_aNextWeapon[ParentType] == ParentType)
-		return m_aNextWeapon[ParentType];
-		
-	else
-		return GetNextWeapon(ParentType);
-}
-
-int CCharacter::GetPrevWeapon(int ParentType)
-{
-	int w = m_aNextWeapon[ParentType];
-	
-	for (int i = 0; i < NUM_WEAPONS+1; i++)
-	{
-		if (--w < 0)
-			w = NUM_WEAPONS-1;
-			
-		if (w == ParentType && m_aWeapon[w].m_Got && !m_aWeapon[w].m_Disabled)
-		{
-			m_aNextWeapon[ParentType] = w;
-			return w;
-		}
-	}
-	
-	return -1;
-}
-
-int CCharacter::GetNextWeapon(int ParentType)
-{
-	int w = m_aNextWeapon[ParentType];
-	
-	for (int i = 0; i < NUM_WEAPONS+1; i++)
-	{
-		if (++w >= NUM_WEAPONS)
-			w = 0;
-			
-		if (w == ParentType && m_aWeapon[w].m_Got && !m_aWeapon[w].m_Disabled)
-		{
-			m_aNextWeapon[ParentType] = w;
-			return w;
-		}
-	}
-	
-	return -1;
-}
-
-
-int CCharacter::GetFirstWeapon(int ParentType)
-{
-	for (int i = 0; i < NUM_WEAPONS; i++)
-	{
-		if (i == ParentType && m_aWeapon[i].m_Got && !m_aWeapon[i].m_Disabled)
-		{
-			return i;
-		}
-	}
-	
-	return -1;
-}
-
-
-void CCharacter::ScanWeapons()
-{
-	for (int i = 0; i < NUM_WEAPONS; i++)
-	{
-		int w = m_aNextWeapon[i];
-		if (w < 0 || w >= NUM_WEAPONS)
-		{
-			m_aNextWeapon[i] = GetFirstWeapon(i);
-			continue;
-		}
-		
-		if (m_aWeapon[m_aNextWeapon[i]].m_Got && !m_aWeapon[m_aNextWeapon[i]].m_Disabled)
-		{
-			continue;
-		}
-		else
-		{
-			m_aNextWeapon[i] = GetFirstWeapon(i);
-			continue;
-		}
-	}
 }
 
 
@@ -981,10 +886,7 @@ void CCharacter::DelayedFire()
 	
 	
 void CCharacter::HandleWeapons()
-{	
-	ShowArmor();
-
-	
+{
 	if(m_ReloadTimer > 0)
 	{
 		m_ReloadTimer--;
@@ -996,18 +898,6 @@ void CCharacter::HandleWeapons()
 
 	return;
 }
-
-
-
-void CCharacter::ShowArmor()
-{
-	m_Armor = 0;
-}
-
-
-
-
-
 
 
 void CCharacter::AutoWeaponChange()
@@ -1060,6 +950,7 @@ void CCharacter::GiveStartWeapon()
 		
 		m_aWeapon[1].m_PowerLevel = pData->m_aPowerLevel[1];
 		m_Kits = pData->m_Kits;
+		m_Armor = pData->m_Armor;
 		GetPlayer()->m_Score = pData->m_Score;
 		
 		//GiveAllWeapons();
@@ -1184,9 +1075,6 @@ bool CCharacter::GiveCustomWeapon(int CustomWeapon, float AmmoFill, int PowerLev
 				
 		// ammo fill
 		m_aWeapon[CustomWeapon].m_Ammo = aCustomWeapon[CustomWeapon].m_MaxAmmo * AmmoFill;
-		
-		
-		ScanWeapons();
 
 		return true;
 	}
@@ -1773,9 +1661,7 @@ bool CCharacter::AddClip(int Weapon)
 	return false;
 }
 
-
-// use armor points as clips
-bool CCharacter::IncreaseArmor(int Amount)
+bool CCharacter::IncreaseAmmo(int Amount)
 {
 	if (AddClip())
 		return true;
@@ -1790,6 +1676,16 @@ bool CCharacter::IncreaseArmor(int Amount)
 	}
 	
 	return false;
+}
+
+
+bool CCharacter::IncreaseArmor(int Amount)
+{
+	if(m_Armor >= 50)
+		return false;
+	
+	m_Armor = clamp(m_Armor+Amount, 0, 50);
+	return true;
 }
 
 
@@ -2013,6 +1909,14 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos,
 		}
 		else
 		{
+			// block damage with armor
+			if (m_Armor > 0 && !g_Config.m_SvOneHitKill)
+			{
+				int ArmorDmg = min(Dmg / 2, m_Armor);
+				m_Armor -= ArmorDmg;
+				Dmg -= ArmorDmg;
+			}
+			
 			m_HiddenHealth -= Dmg + (g_Config.m_SvOneHitKill ? 1000 : 0);
 			
 			if (Type == DAMAGETYPE_NORMAL)
@@ -2236,7 +2140,7 @@ void CCharacter::Snap(int SnappingClient)
 	{
 
 		pCharacter->m_Armor = m_Armor;
-			
+
 		if(m_aWeapon[m_ActiveWeapon].m_Ammo > 0)
 		{
 			//pCharacter->m_AmmoCount = (m_aWeapon[m_ActiveWeapon].m_Ammo * (10.0f / aCustomWeapon[m_ActiveWeapon].m_MaxAmmo));
