@@ -1055,7 +1055,7 @@ void CAI::ClearEmotions()
 
 int CAI::WeaponShootRange()
 {
-	int Weapon = Player()->GetCharacter()->m_ActiveCustomWeapon;
+	int Weapon = Player()->GetCharacter()->m_ActiveWeapon;
 	int Range = 40;
 		
 	if (Weapon >= 0 && Weapon < NUM_WEAPONS)
@@ -1385,7 +1385,7 @@ bool CAI::ShootAtClosestBuilding()
 
 void CAI::RandomlyStopShooting()
 {
-	if (Player()->GetCharacter()->m_ActiveCustomWeapon == W_SCYTHE)
+	if (Player()->GetCharacter()->m_ActiveWeapon == W_SCYTHE)
 		return;
 	
 	if (frandom()*20 < 4 && m_Attack == 1)

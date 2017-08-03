@@ -62,7 +62,7 @@ void CGameControllerGunGame::Tick()
 /*	for(int i = 0; i < MAX_CLIENTS; i++)
 		if(GameServer()->m_apPlayers[i])
 			if(GameServer()->m_apPlayers[i]->GetCharacter())
-				if(GameServer()->m_apPlayers[i]->GetCharacter()->m_ActiveCustomWeapon != GetWeaponID(GameServer()->m_apPlayers[i]->m_Score))
+				if(GameServer()->m_apPlayers[i]->GetCharacter()->m_ActiveWeapon != GetWeaponID(GameServer()->m_apPlayers[i]->m_Score))
 					UpdateWeapon(GameServer()->m_apPlayers[i]->GetCharacter());*/
 }
 

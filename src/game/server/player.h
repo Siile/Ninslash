@@ -163,11 +163,9 @@ public:
 	int m_BroadcastLockTick;
 	
 	// custom
-	void SelectWeapon(int Weapon, int Group);
 	void SelectItem(int Item);
 	void UseKit(int Kit, vec2 Pos);
 	void DropWeapon();
-	void SwitchGroup();
 	
 	void JoinTeam();
 	
@@ -176,9 +174,7 @@ public:
 	//int m_WantedTeam;
 	
 	// settings
-	int m_EnableWeaponInfo; // 0 = disabled, 1 = chat, 2 = broadcast
 	bool m_EnableAutoSpectating;
-	bool m_EnableEmoticonGrenades;
 	
 	// warm welcome
 	bool m_Welcomed;

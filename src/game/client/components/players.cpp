@@ -486,7 +486,7 @@ void CPlayers::RenderPlayer(
 	
 	
 	// render weapon
-	if (Player.m_Weapon != WEAPON_TOOL && Player.m_Weapon != WEAPON_HAMMER && Player.m_Weapon != WEAPON_SCYTHE)
+	if (Player.m_Weapon > WEAPON_NONE && Player.m_Weapon != WEAPON_TOOL && Player.m_Weapon != WEAPON_HAMMER && Player.m_Weapon != WEAPON_SCYTHE)
 	{
 		float ColorSwap = 0.0f;
 		

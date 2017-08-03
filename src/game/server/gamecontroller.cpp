@@ -1230,7 +1230,7 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 	{
 		pVictim->DropWeapon();
 		
-		//int DropWeapon = pVictim->m_ActiveCustomWeapon;
+		//int DropWeapon = pVictim->m_ActiveWeapon;
 		
 		//if (!(GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE) && 
 		//	DropWeapon != W_HAMMER && DropWeapon != W_PISTOL && DropWeapon != W_TOOL)

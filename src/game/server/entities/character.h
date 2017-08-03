@@ -38,9 +38,6 @@ class CCharacter : public CEntity
 	MACRO_ALLOC_POOL_ID()
 
 public:
-	// weapon system
-	int m_ActiveWeaponGroup;
-
 	//character's size
 	static const int ms_PhysSize = 28;
 
@@ -78,8 +75,8 @@ public:
 
 	bool UsingMeleeWeapon()
 	{
-		if (m_ActiveCustomWeapon == WEAPON_HAMMER ||
-			m_ActiveCustomWeapon == WEAPON_TOOL)
+		if (m_ActiveWeapon == WEAPON_HAMMER ||
+			m_ActiveWeapon == WEAPON_TOOL)
 			return true;
 		
 		return false;
@@ -129,7 +126,7 @@ public:
 	
 	bool m_WeaponPicked;
 	
-	int GetActiveWeapon(){ return m_ActiveCustomWeapon; }
+	int GetActiveWeapon(){ return m_ActiveWeapon; }
 	
 	void SaveData();
 	
@@ -145,7 +142,7 @@ public:
 	}
 	
 	// custom weapon system
-	int m_ActiveCustomWeapon;
+	int m_ActiveWeapon;
 	
 	struct CustomWeaponStat
 	{
@@ -161,8 +158,8 @@ public:
 	// for pickup drops, easy access
 	bool HasAmmo()
 	{
-		if (m_aWeapon[m_ActiveCustomWeapon].m_Ammo > 0 ||
-			aCustomWeapon[m_ActiveCustomWeapon].m_MaxAmmo == 0)
+		if (m_aWeapon[m_ActiveWeapon].m_Ammo > 0 ||
+			aCustomWeapon[m_ActiveWeapon].m_MaxAmmo == 0)
 			return true;
 		
 		return false;
@@ -216,7 +213,6 @@ public:
 	bool SetElectromine();
 
 	void DropWeapon();
-	void SwitchGroup();
 	
 	int m_CryTimer;
 	int m_CryState;
@@ -233,9 +229,6 @@ public:
 	vec2 m_LatestHitVel;
 	
 	int m_QueuedCustomWeapon;
-	
-	void SelectWeapon(int Weapon, int Group);
-	int m_WeaponGroup;
 	
 	int m_aItem[NUM_PLAYERITEMS];
 	
@@ -319,8 +312,6 @@ private:
 	// weapon info
 	CEntity *m_apHitObjects[10];
 	int m_NumObjectsHit;
-
-	int m_aSelectedWeapon[3];
 
 	int m_ReloadTimer;
 

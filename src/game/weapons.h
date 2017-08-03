@@ -82,7 +82,9 @@ struct CWeapon
 
 enum CustomWeapons
 {
-	W_TOOL,
+	WEAPON_NONE = -1,
+	W_NONE = -1,
+	W_TOOL = 0,
 	W_HAMMER,
 	W_SHOTGUN,
 	W_RIFLE,

@@ -477,9 +477,6 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	
 	float x = Area2Pos.x; // 16
 	float y = 5;
-
-	
-	CustomStuff()->m_SelectedGroup = pCharacter->m_SelectedGroup+1;
 	
 	// render ammo count
 	// render gui stuff
@@ -731,7 +728,7 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	
 	// weapons
 	float Size = 0.2f;
-	int iw = pCharacter->m_WeaponGroup1;
+	int iw = pCharacter->m_Weapon;
 
 	if (m_pClient->m_pControls->m_SignalWeapon >= 0)
 	{

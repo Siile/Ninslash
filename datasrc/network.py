@@ -302,10 +302,8 @@ Objects = [
 		NetIntAny("m_Status"),
 		NetIntAny("m_DamageTick"),
 		
-		
 		NetIntRange("m_Action", 0, 64),
 		NetIntAny("m_ActionState"),
-		
 		
 		NetIntRange("m_Jumped", 0, 3),
 		
@@ -318,11 +316,8 @@ Objects = [
 		NetIntRange("m_PlayerFlags", 0, 256),
 		NetIntRange("m_Armor", 0, 10),
 		NetIntRange("m_AmmoCount", 0, 30),
-		NetIntRange("m_SelectedGroup", 0, 3),
-		NetIntRange("m_Weapon", 0, 'NUM_WEAPONS-1'),
+		NetIntRange("m_Weapon", -1, 'NUM_WEAPONS-1'),
 		NetIntRange("m_WeaponPowerLevel", 0, 9),
-		NetIntRange("m_WeaponGroup1", 0, 'NUM_WEAPONS-1'),
-		NetIntRange("m_WeaponGroup2", 0, 'NUM_WEAPONS-1'),
 		NetIntRange("m_Emote", 0, len(Emotes)),
 		NetIntRange("m_AttackTick", 0, 'max_int'),
 	]),
@@ -577,11 +572,6 @@ Messages = [
 	NetMessage("Cl_DropWeapon", []),
 	
 	#NetMessage("Cl_SwitchGroup", []),
-	
-	NetMessage("Cl_SelectWeapon", [
-		NetIntRange("m_Weapon", 0, 99),
-		NetIntRange("m_Group", 0, 9),
-	]),
 	
 	NetMessage("Cl_SelectItem", [
 		NetIntRange("m_Item", 0, 99),

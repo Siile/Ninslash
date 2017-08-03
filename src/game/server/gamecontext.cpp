@@ -2236,28 +2236,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			
 			SendEmoticon(ClientID, pMsg->m_Emoticon);
 		}
-		else if (MsgID == NETMSGTYPE_CL_SELECTWEAPON && !m_World.m_Paused)
-		{
-			CNetMsg_Cl_SelectWeapon *pMsg = (CNetMsg_Cl_SelectWeapon *)pRawMsg;
-
-			// TODO: spam protection
-			
-			pPlayer->SelectWeapon(pMsg->m_Weapon, pMsg->m_Group);
-		}
 		else if (MsgID == NETMSGTYPE_CL_DROPWEAPON && !m_World.m_Paused)
 		{
-			// TODO: spam protection
-			
 			pPlayer->DropWeapon();
 		}
-		/*
-		else if (MsgID == NETMSGTYPE_CL_SWITCHGROUP && !m_World.m_Paused)
-		{
-			// TODO: spam protection
-			
-			pPlayer->SwitchGroup();
-		}
-		*/
 		else if (MsgID == NETMSGTYPE_CL_SELECTITEM && !m_World.m_Paused)
 		{
 			CNetMsg_Cl_SelectItem *pMsg = (CNetMsg_Cl_SelectItem *)pRawMsg;

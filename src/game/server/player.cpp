@@ -37,8 +37,6 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	m_InterestPoints = 0;
 	m_BroadcastingCaptureStatus = false;
 	
-	m_EnableEmoticonGrenades = true;
-	m_EnableWeaponInfo = 2;
 	m_EnableAutoSpectating = true;
 	
 	m_IsBot = false;
@@ -78,12 +76,6 @@ void CPlayer::NewRound()
 	m_InterestPoints = 0;
 }
 
-void CPlayer::SelectWeapon(int Weapon, int Group)
-{
-	if (GetCharacter() && Weapon >= 0 && Weapon < NUM_WEAPONS && Group >= 0 && Group < 3)
-		GetCharacter()->SelectWeapon(Weapon, Group);
-}
-
 void CPlayer::SelectItem(int Item)
 {
 	if (GetCharacter() && Item >= 0 && Item < NUM_PLAYERITEMS)
@@ -104,13 +96,6 @@ void CPlayer::DropWeapon()
 	if (GetCharacter())
 		GetCharacter()->DropWeapon();
 }
-	
-void CPlayer::SwitchGroup()
-{
-	if (GetCharacter())
-		GetCharacter()->SwitchGroup();
-}
-	
 
 int CPlayer::GetTeam()
 {
