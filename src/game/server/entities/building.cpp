@@ -251,7 +251,7 @@ void CBuilding::Trigger()
 
 void CBuilding::TakeDamage(int Damage, int Owner, int Weapon)
 {
-	if (m_Type == BUILDING_SWITCH)
+	if (m_Type == BUILDING_SWITCH && !m_aStatus[BSTATUS_ON])
 	{
 		m_aStatus[BSTATUS_ON] = 1;
 		GameServer()->m_pController->TriggerSwitch(m_Pos);

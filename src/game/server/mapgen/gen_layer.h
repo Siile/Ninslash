@@ -93,6 +93,8 @@ public:
 	ivec2 GetOpenArea();
 	ivec2 GetLeftPlatform();
 	ivec2 GetRightPlatform();
+	ivec2 GetBotPlatform();
+	ivec2 GetTopPlatform();
 	ivec2 GetPlatform();
 	ivec2 GetCeiling();
 	ivec2 GetLeftCeiling();

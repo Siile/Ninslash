@@ -541,6 +541,13 @@ void IGameController::TriggerSwitch(vec2 Pos)
 {
 	TriggerEscape();
 	
+	if (str_comp(g_Config.m_SvGametype, "coop") == 0 && g_Config.m_SvMapGenLevel%10 == 9)
+	{
+		m_SurvivalStartTick = Server()->Tick();
+		g_Config.m_SvSurvivalTime = 10;
+	}
+		
+	
 	/*
 	float Radius = 1000;
 	

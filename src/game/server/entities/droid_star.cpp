@@ -154,6 +154,9 @@ void CStar::Tick()
 	{
 		m_AngleTimer += 0.025f;
 
+		if (GameServer()->Collision()->IsInFluid(m_Pos.x, m_Pos.y))
+			TakeDamage(vec2(0, -0.5f), 2, -1, vec2(0, 0), DAMAGETYPE_FLUID);
+	
 		To += vec2(sin(m_AngleTimer), cos(m_AngleTimer))*100.0f;
 		
 		if (GameServer()->Collision()->IntersectLine(m_Pos, To, 0x0, &To))

@@ -501,14 +501,22 @@ void CGameClient::UpdatePositions()
 		Paused = true;
 	
 	CustomStuff()->Update(Paused);
-	
+
+
+	Collision()->m_GlobalAcid = SurvivalAcid();
 	
 	// global acid level timer
 	if (m_Snap.m_pGameInfoObj)
 		if(m_Snap.m_pGameInfoObj->m_TimeLimit && !m_Snap.m_pGameInfoObj->m_WarmupTimer)
-			Collision()->m_Time = m_Snap.m_pGameInfoObj->m_TimeLimit*60*Client()->GameTickSpeed() - ((Client()->GameTick()-m_Snap.m_pGameInfoObj->m_RoundStartTick));
+		{
+			if (m_Snap.m_pGameInfoObj->m_TimeLimit != 0)
+				Collision()->m_Time = m_Snap.m_pGameInfoObj->m_TimeLimit*60*Client()->GameTickSpeed() - ((Client()->GameTick()-m_Snap.m_pGameInfoObj->m_RoundStartTick));
+			else
+				Collision()->m_GlobalAcid = false;
+		}
+		else
+			Collision()->m_GlobalAcid = false;
 
-	Collision()->m_GlobalAcid = SurvivalAcid();
 }
 
 
@@ -1519,6 +1527,9 @@ bool CGameClient::SurvivalAcid()
 	{
 		int Flags = m_Snap.m_pGameInfoObj->m_GameFlags;
 	
+		if (m_Snap.m_pGameInfoObj->m_TimeLimit == 0)
+			return false;
+				
 		if (Flags & GAMEFLAG_ACID)
 			return true;
 	}

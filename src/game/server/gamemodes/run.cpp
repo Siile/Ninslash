@@ -90,6 +90,8 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	
 	if (g_Config.m_SvSurvivalMode)
 		m_GameFlags |= GAMEFLAG_SURVIVAL;
+	
+	m_GameFlags |= GAMEFLAG_ACID;
 }
 
 

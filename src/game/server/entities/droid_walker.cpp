@@ -144,7 +144,8 @@ void CWalker::Tick()
 		return;
 	}
 	
-	
+	if (GameServer()->Collision()->IsInFluid(m_Pos.x, m_Pos.y))
+		TakeDamage(vec2(0, 0), 2, -1, vec2(0, 0), DAMAGETYPE_FLUID);
 	
 	bool WillFire = false;
 	

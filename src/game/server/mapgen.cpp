@@ -211,36 +211,72 @@ void CMapGen::GenerateEnd(CGenLayer *pTiles)
 	int h = pTiles->Height();
 	
 	// find a platform
-	for(int x = w-3; x > 3; x--)
+	if (g_Config.m_SvMapGenLevel%10 == 9)
+	{
 		for(int y = 3; y < h-3; y++)
-		{
-			if (!pTiles->Get(x-2, y) && !pTiles->Get(x-1, y) && !pTiles->Get(x, y) && !pTiles->Get(x+1, y) && !pTiles->Get(x+2, y) && !pTiles->Get(x+3, y) && 
-				pTiles->Get(x-3, y+1) && pTiles->Get(x-2, y+1) && pTiles->Get(x-1, y+1) && pTiles->Get(x, y+1) && pTiles->Get(x+1, y+1) && pTiles->Get(x+2, y+1) && pTiles->Get(x+3, y+1) &&
-				!pTiles->Get(x, y-2) && !pTiles->Get(x, y-3) && !pTiles->Get(x, y-4) && !pTiles->Get(x, y-5))
+			for(int x = w-3; x > 3; x--)
 			{
-				ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_DOOR1);
-				
-				pTiles->m_EndPos = ivec2(x, y);
-				
-				pTiles->Set(-1, x-2, y);
-				pTiles->Set(-1, x-1, y);
-				pTiles->Set(-1, x, y);
-				pTiles->Set(-1, x+1, y);
-				pTiles->Set(-1, x+2, y);
-				
-				// clear
-				for (int xx = -2; xx < 3; xx++)
-					for (int yy = -4; yy < 0; yy++)
-						pTiles->Set(-1, x+xx, y+yy);
+				if (!pTiles->Get(x-2, y) && !pTiles->Get(x-1, y) && !pTiles->Get(x, y) && !pTiles->Get(x+1, y) && !pTiles->Get(x+2, y) && !pTiles->Get(x+3, y) && 
+					pTiles->Get(x-3, y+1) && pTiles->Get(x-2, y+1) && pTiles->Get(x-1, y+1) && pTiles->Get(x, y+1) && pTiles->Get(x+1, y+1) && pTiles->Get(x+2, y+1) && pTiles->Get(x+3, y+1) &&
+					!pTiles->Get(x, y-2) && !pTiles->Get(x, y-3) && !pTiles->Get(x, y-4) && !pTiles->Get(x, y-5))
+				{
+					ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_DOOR1);
 					
-				// background
-				for (int xx = -5; xx < 6; xx++)
-					for (int yy = -7; yy < 500; yy++)
-						pTiles->Set(1, x+xx, y+yy, 0, CGenLayer::BACKGROUND);
-				
-				return;
+					pTiles->m_EndPos = ivec2(x, y);
+					
+					pTiles->Set(-1, x-2, y);
+					pTiles->Set(-1, x-1, y);
+					pTiles->Set(-1, x, y);
+					pTiles->Set(-1, x+1, y);
+					pTiles->Set(-1, x+2, y);
+					
+					// clear
+					for (int xx = -2; xx < 3; xx++)
+						for (int yy = -4; yy < 0; yy++)
+							pTiles->Set(-1, x+xx, y+yy);
+						
+					// background
+					for (int xx = -5; xx < 6; xx++)
+						for (int yy = -7; yy < 500; yy++)
+							pTiles->Set(1, x+xx, y+yy, 0, CGenLayer::BACKGROUND);
+					
+					return;
+				}
 			}
-		}
+	}
+	else
+	{
+		for(int x = w-3; x > 3; x--)
+			for(int y = 3; y < h-3; y++)
+			{
+				if (!pTiles->Get(x-2, y) && !pTiles->Get(x-1, y) && !pTiles->Get(x, y) && !pTiles->Get(x+1, y) && !pTiles->Get(x+2, y) && !pTiles->Get(x+3, y) && 
+					pTiles->Get(x-3, y+1) && pTiles->Get(x-2, y+1) && pTiles->Get(x-1, y+1) && pTiles->Get(x, y+1) && pTiles->Get(x+1, y+1) && pTiles->Get(x+2, y+1) && pTiles->Get(x+3, y+1) &&
+					!pTiles->Get(x, y-2) && !pTiles->Get(x, y-3) && !pTiles->Get(x, y-4) && !pTiles->Get(x, y-5))
+				{
+					ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_DOOR1);
+					
+					pTiles->m_EndPos = ivec2(x, y);
+					
+					pTiles->Set(-1, x-2, y);
+					pTiles->Set(-1, x-1, y);
+					pTiles->Set(-1, x, y);
+					pTiles->Set(-1, x+1, y);
+					pTiles->Set(-1, x+2, y);
+					
+					// clear
+					for (int xx = -2; xx < 3; xx++)
+						for (int yy = -4; yy < 0; yy++)
+							pTiles->Set(-1, x+xx, y+yy);
+						
+					// background
+					for (int xx = -5; xx < 6; xx++)
+						for (int yy = -7; yy < 500; yy++)
+							pTiles->Set(1, x+xx, y+yy, 0, CGenLayer::BACKGROUND);
+					
+					return;
+				}
+			}
+	}
 }
 
 
@@ -446,7 +482,12 @@ void CMapGen::GenerateCrawlerDroid(CGenLayer *pTiles)
 
 void CMapGen::GenerateSwitch(CGenLayer *pTiles)
 {
-	ivec2 p = pTiles->GetPlatform();
+	ivec2 p = ivec2(0, 0);
+	
+	if (g_Config.m_SvMapGenLevel%10 == 9)
+		p = pTiles->GetBotPlatform();
+	else
+		p = pTiles->GetPlatform();
 	
 	if (p.x == 0)
 		return;

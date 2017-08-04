@@ -618,24 +618,47 @@ void CGenLayer::Scan()
 	
 	// find player spawn spots
 	if (str_comp(g_Config.m_SvGametype, "coop") == 0)
-		for (int x = 2; x < m_Width-2; x++)
-			for (int y = 2; y < m_Height-2; y++)
-			{
-				if (m_NumPlayerSpawns < 4)
+		if (g_Config.m_SvMapGenLevel%10 == 9)
+		{
+			for (int y = m_Height-2; y > 2; y--)
+				for (int x = 2; x < m_Width-2; x++)
 				{
-					if (!Used(x-1, y) && !Used(x, y) && !Used(x+1, y) &&
-						Get(x-1, y+1) && Get(x, y+1) && Get(x+1, y+1))
+					if (m_NumPlayerSpawns < 4)
 					{
-						m_aPlayerSpawn[m_NumPlayerSpawns++] = ivec2(x, y);
-						Set(-1, x-1, y);
-						Set(-1, x, y);
-						Set(-1, x+1, y);
+						if (!Used(x-1, y) && !Used(x, y) && !Used(x+1, y) &&
+							Get(x-1, y+1) && Get(x, y+1) && Get(x+1, y+1))
+						{
+							m_aPlayerSpawn[m_NumPlayerSpawns++] = ivec2(x, y);
+							Set(-1, x-1, y);
+							Set(-1, x, y);
+							Set(-1, x+1, y);
+						}
 					}
+					else
+						break;
 				}
-				else
-					break;
-			}
-		
+		}
+		else
+		{
+			for (int x = 2; x < m_Width-2; x++)
+				for (int y = 2; y < m_Height-2; y++)
+				{
+					if (m_NumPlayerSpawns < 4)
+					{
+						if (!Used(x-1, y) && !Used(x, y) && !Used(x+1, y) &&
+							Get(x-1, y+1) && Get(x, y+1) && Get(x+1, y+1))
+						{
+							m_aPlayerSpawn[m_NumPlayerSpawns++] = ivec2(x, y);
+							Set(-1, x-1, y);
+							Set(-1, x, y);
+							Set(-1, x+1, y);
+						}
+					}
+					else
+						break;
+				}
+		}
+			
 	// safe zonens
 	for (int i = 0; i < m_NumPlayerSpawns; i++)
 	{
@@ -991,6 +1014,46 @@ ivec2 CGenLayer::GetRightPlatform()
 	{
 		if (m_aPlatform[i].x != 0)
 			if (m_aPlatform[n].x == 0 || m_aPlatform[i].x > m_aPlatform[n].x)
+				n = i;
+	}
+
+	ivec2 p = m_aPlatform[n];
+	m_aPlatform[n] = ivec2(0, 0);
+	
+	return p;
+}
+
+ivec2 CGenLayer::GetTopPlatform()
+{
+	if (m_NumPlatforms <= 0)
+		return ivec2(0, 0);
+	
+	int n = 0;
+	
+	for (int i = 0; i < m_NumPlatforms; i++)
+	{
+		if (m_aPlatform[i].x != 0)
+			if (m_aPlatform[n].y == 0 || m_aPlatform[i].y < m_aPlatform[n].y)
+				n = i;
+	}
+
+	ivec2 p = m_aPlatform[n];
+	m_aPlatform[n] = ivec2(0, 0);
+	
+	return p;
+}
+
+ivec2 CGenLayer::GetBotPlatform()
+{
+	if (m_NumPlatforms <= 0)
+		return ivec2(0, 0);
+	
+	int n = 0;
+	
+	for (int i = 0; i < m_NumPlatforms; i++)
+	{
+		if (m_aPlatform[i].x != 0)
+			if (m_aPlatform[n].y == 0 || m_aPlatform[i].y > m_aPlatform[n].y)
 				n = i;
 	}
 
