@@ -2234,6 +2234,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			pPlayer->m_LastEmote = Server()->Tick();
 			
+			if ((pMsg->m_Emoticon == EMOTICON_EYES || pMsg->m_Emoticon == EMOTICON_HEARTS) && pPlayer->GetCharacter())
+				pPlayer->GetCharacter()->SetEmote(EMOTE_HAPPY, Server()->Tick() + Server()->TickSpeed());
+			
+			if ((pMsg->m_Emoticon == EMOTICON_SPLATTEE || pMsg->m_Emoticon == EMOTICON_DEVILTEE || pMsg->m_Emoticon == EMOTICON_ZOMG) && pPlayer->GetCharacter())
+				pPlayer->GetCharacter()->SetEmote(EMOTE_ANGRY, Server()->Tick() + Server()->TickSpeed());
+			
 			SendEmoticon(ClientID, pMsg->m_Emoticon);
 		}
 		else if (MsgID == NETMSGTYPE_CL_DROPWEAPON && !m_World.m_Paused)

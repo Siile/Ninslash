@@ -821,9 +821,10 @@ void CCharacter::FireWeapon()
 				PowerLevel = 1;
 			}
 			
-			if (m_ActiveWeapon == WEAPON_RIFLE && m_Type == CCharacter::ROBOT)
+			/*if (m_ActiveWeapon == WEAPON_RIFLE && m_Type == CCharacter::ROBOT)
 				GameServer()->CreateProjectile(m_pPlayer->GetCID(), W_DROID_WALKER, 0, ProjStartPos, Direction);
 			else
+				*/
 				GameServer()->CreateProjectile(m_pPlayer->GetCID(), m_ActiveWeapon, PowerLevel, ProjStartPos, Direction);
 			
 		} break;

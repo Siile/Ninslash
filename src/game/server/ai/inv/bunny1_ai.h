@@ -14,10 +14,10 @@ public:
 
 private:
 	int m_SkipMoveUpdate;
-	bool m_Triggered;
 	vec2 m_StartPos;
 	
 	int m_ShockTimer;
+	int m_Skin;
 };
 
 #endif
