@@ -118,6 +118,11 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		m_Collision = false;
 		break;
 		
+	case BUILDING_SCREEN:
+		m_Life = 9000;
+		m_Collision = false;
+		break;
+		
 	case BUILDING_JUMPPAD:
 		m_ProximityRadius = JumppadPhysSize;
 		m_Life = 9000;

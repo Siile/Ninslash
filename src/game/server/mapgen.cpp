@@ -585,6 +585,17 @@ void CMapGen::GenerateDeathray(CGenLayer *pTiles)
 }
 
 
+void CMapGen::GenerateScreen(CGenLayer *pTiles)
+{
+	ivec3 p = pTiles->GetLongPlatform();
+	
+	if (p.x == 0)
+		return;
+	
+	ModifTile(ivec2((p.x+p.z)/2, p.y-1), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SCREEN);
+	pTiles->Use((p.x+p.z)/2, p.y-1);
+}
+
 void CMapGen::GenerateSpeaker(CGenLayer *pTiles)
 {
 	ivec2 p = pTiles->GetTopCorner();
@@ -993,7 +1004,10 @@ void CMapGen::GenerateLevel()
 	for (int i = 0; i < 2; i++)
 		GenerateCrawlerDroid(pTiles);
 	*/
-		
+	
+	for (int i = 0; i < 2; i++)
+		GenerateScreen(pTiles);
+	
 	// obstacles
 	int Obs = Level/3 - 4;
 	
@@ -1202,7 +1216,10 @@ void CMapGen::GeneratePVPLevel()
 	
 	if (frandom() < 0.3f)
 		GeneratePowerupper(pTiles);
-		
+
+	for (int i = 0; i < 2; i++)
+		GenerateScreen(pTiles);
+
 	// obstacles
 	int Obs = 2 + rand()%4;
 	

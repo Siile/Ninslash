@@ -910,13 +910,44 @@ void CRenderTools::RenderSkeleton(vec2 Pos, int Atlas, const char *Anim, float T
 					p2 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(-pAttachment->m_Width/2.0f, pAttachment->m_Height/2.0f, 1.0f);
 					p3 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(pAttachment->m_Width/2.0f, pAttachment->m_Height/2.0f, 1.0f);
 
+					bool Screen = false;
+					
+					if (strlen(pSlot->m_Name) > 3 &&
+						pSlot->m_Name[0] == '_' &&
+						pSlot->m_Name[1] == 's' &&
+						pSlot->m_Name[2] == 'c')
+					{
+						//Graphics()->ShaderBegin(SHADER_SPAWN, 0.05f);
+						Screen = true;
+					}
+					else if (strlen(pSlot->m_Name) > 3 &&
+						pSlot->m_Name[0] == 's' &&
+						pSlot->m_Name[1] == 'c' &&
+						pSlot->m_Name[2] == 'r')
+					{
+						Graphics()->ShaderBegin(SHADER_ELECTRIC, 1.0f);
+						Screen = true;
+					}
 
 					Graphics()->TextureSet(pPage->m_TexId);
 					Graphics()->QuadsBegin();
 					Graphics()->SetColor(1, 1, 1, 1);
 					
 					
-					if (strcmp(pAttachment->m_Name, "team") == 0)
+					if (Screen)
+					{
+						switch (int(Pos.x/32)%5)
+						{
+							case 0: Graphics()->SetColor(0.5f, 0.7f, 1.0f, 1); break;
+							case 1: Graphics()->SetColor(0.4f, 1.0f, 0.4f, 1); break;
+							case 2: Graphics()->SetColor(1.0f, 0.5f, 0.5f, 1); break;
+							case 3: Graphics()->SetColor(0.2f, 1.0f, 1.0f, 1); break;
+							case 4: Graphics()->SetColor(1.0f, 1.0f, 0.4f, 1); break;
+							default: Graphics()->SetColor(0.5f, 0.7f, 1.0f, 1); break;
+						}
+					}
+					
+					else if (strcmp(pAttachment->m_Name, "team") == 0)
 					{
 						if (Team == TEAM_RED)
 							Graphics()->SetColor(1.0f, 0.3f, 0.0f, 1);
@@ -947,6 +978,10 @@ void CRenderTools::RenderSkeleton(vec2 Pos, int Atlas, const char *Anim, float T
 
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 					Graphics()->QuadsEnd();
+					
+					if (Screen)
+						Graphics()->ShaderEnd();
+					
 				} break;
 			}
 		}

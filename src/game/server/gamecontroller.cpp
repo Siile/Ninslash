@@ -639,6 +639,11 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		new CTeslacoil(&GameServer()->m_World, Pos, TEAM_NEUTRAL);
 		return true;
 	}
+	else if (Index == ENTITY_SCREEN)
+	{
+		new CBuilding(&GameServer()->m_World, Pos, BUILDING_SCREEN, TEAM_NEUTRAL);
+		return true;
+	}
 	else if (Index == ENTITY_LAZER)
 	{
 		new CDeathray(&GameServer()->m_World, Pos+vec2(0, -20));
@@ -1087,7 +1092,7 @@ void IGameController::FirstMap()
 	g_Config.m_SvMapGenLevel = 1;
 	g_Config.m_SvInvFails = 0;
 	
-	Server()->ResetPlayerData();
+	//Server()->ResetPlayerData();
 	
 	if(m_aMapWish[0] != 0)
 	{

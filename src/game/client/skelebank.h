@@ -25,6 +25,7 @@ enum Skeletons
 	SKELETON_JUMPPAD,
 	SKELETON_REACTOR,
 	SKELETON_TESLACOIL,
+	SKELETON_SCREEN,
 	SKELETON_DROID_STAR,
 	SKELETON_DROID_CRAWLER,
 	NUM_SKELETONS
@@ -46,6 +47,7 @@ enum Atlases
 	ATLAS_JUMPPAD,
 	ATLAS_REACTOR,
 	ATLAS_TESLACOIL,
+	ATLAS_SCREEN,
 	ATLAS_DROID_STAR,
 	ATLAS_DROID_CRAWLER,
 	NUM_ATLASES
@@ -54,6 +56,11 @@ enum Atlases
 enum AnimList
 {
 	ANIM_IDLE,
+	ANIM_IDLE1,
+	ANIM_IDLE2,
+	ANIM_IDLE3,
+	ANIM_IDLE4,
+	ANIM_IDLE5,
 	ANIM_OPEN,
 	ANIM_OPENED,
 	ANIM_CLOSED,
@@ -65,6 +72,11 @@ enum AnimList
 static const char *aAnimList[NUM_ANIMS] = 
 {
 	"idle",
+	"idle1",
+	"idle2",
+	"idle3",
+	"idle4",
+	"idle5",
 	"open",
 	"opened",
 	"closed",

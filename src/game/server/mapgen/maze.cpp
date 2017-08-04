@@ -134,7 +134,7 @@ void CMaze::Generate()
 		}
 		// first rounds
 		else if (Level <= 15)
-			GenerateLinear(min(40+Level*5, 70), Level);
+			GenerateLinear(min(50+Level*5, 90), Level);
 		// Z
 		else if (Level%10 == 8)
 		{
