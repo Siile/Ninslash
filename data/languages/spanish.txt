@@ -583,8 +583,8 @@ Team
 Team chat
 == En equipo
 
-Teeworlds %s is out! Download it at www.teeworlds.com!
-== ¡Teeworlds %s ha salido! ¡Descárgalo desde www.teeworlds.com!
+Ninslash %s is out! Download it at www.ninslash.com!
+== ¡Ninslash %s ha salido! ¡Descárgalo desde www.ninslash.com!
 
 Texture Compression
 == Compresión de texturas
@@ -658,8 +658,8 @@ Warmup
 Weapon
 == Arma
 
-Welcome to Teeworlds
-== ¡Bienvenido/a a Teeworlds!
+Welcome to Ninslash
+== ¡Bienvenido/a a Ninslash!
 
 Yes
 == Sí

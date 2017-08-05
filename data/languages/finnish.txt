@@ -583,8 +583,8 @@ Team
 Team chat
 == Joukkuechatti
 
-Teeworlds %s is out! Download it at www.teeworlds.com!
-== Teeworlds %s on julkaistu! Lataa se osoitteesta www.teeworlds.com!
+Ninslash %s is out! Download it at www.ninslash.com!
+== Ninslash %s on julkaistu! Lataa se osoitteesta www.ninslash.com!
 
 Texture Compression
 == Tekstuuripakkaus
@@ -658,8 +658,8 @@ Warmup
 Weapon
 == Ase
 
-Welcome to Teeworlds
-== Tervetuloa Teeworldsiin
+Welcome to Ninslash
+== Tervetuloa Ninslashiin
 
 Yes
 == Kyllä

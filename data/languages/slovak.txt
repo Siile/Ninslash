@@ -583,8 +583,8 @@ Team
 Team chat
 == Týmový chat
 
-Teeworlds %s is out! Download it at www.teeworlds.com!
-== Vyšla nová verzia hry: %s! Stiahnite si ju na www.teeworlds.com!
+Ninslash %s is out! Download it at www.ninslash.com!
+== Vyšla nová verzia hry: %s! Stiahnite si ju na www.ninslash.com!
 
 Texture Compression
 == Kompresia textúr
@@ -658,8 +658,8 @@ Warmup
 Weapon
 == Zbrane
 
-Welcome to Teeworlds
-== Vitajte v hre Teeworlds!
+Welcome to Ninslash
+== Vitajte v hre Ninslash!
 
 Yes
 == Áno

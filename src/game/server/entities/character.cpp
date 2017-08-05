@@ -464,6 +464,9 @@ void CCharacter::HandleWeaponSwitch()
 	if(m_QueuedCustomWeapon != -1)
 		WantedWeapon = m_QueuedCustomWeapon;
 	
+	if (WantedWeapon < 0)
+		return;
+	
 	// mouse scroll
 	int Next = CountInput(m_LatestPrevInput.m_NextWeapon, m_LatestInput.m_NextWeapon).m_Presses;
 	int Prev = CountInput(m_LatestPrevInput.m_PrevWeapon, m_LatestInput.m_PrevWeapon).m_Presses;
@@ -1347,7 +1350,6 @@ void CCharacter::UpdateCoreStatus()
 
 void CCharacter::Tick()
 {
-
 	if (g_Config.m_SvForceWeapon)
 		m_aWeapon[m_ActiveWeapon].m_Ammo = 0;
 	
@@ -1366,7 +1368,6 @@ void CCharacter::Tick()
 		vec2 WpPos = GameServer()->Collision()->GetClosestWaypointPos(m_Pos);
 		new CStaticlaser(&GameServer()->m_World, m_Pos, WpPos, 2);
 	}
-	
 	
 	/*
 	if(m_pPlayer->m_ForceBalanced)
@@ -1396,7 +1397,6 @@ void CCharacter::Tick()
 	
 	if ((m_Core.m_Vel.y < RecoilCap && m_Recoil.y > 0) || (m_Core.m_Vel.y > -RecoilCap && m_Recoil.y < 0))
 		m_Core.m_Vel.y += m_Recoil.y*0.7f;
-	//m_Core.m_Vel += m_Recoil*0.7f;
 	
 	m_Recoil *= 0.5f;
 	

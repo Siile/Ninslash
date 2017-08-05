@@ -184,6 +184,8 @@ class CClient : public IClient, public CDemoPlayer::IListner
 	static void GraphicsThreadProxy(void *pThis) { ((CClient*)pThis)->GraphicsThread(); }
 	void GraphicsThread();
 
+	bool m_Loaded;
+	
 	int64 TickStartTime(int Tick);
 public:
 	IEngine *Engine() { return m_pEngine; }
@@ -233,7 +235,10 @@ public:
 	// called when the map is loaded and we should init for a new round
 	void OnEnterGame();
 	virtual void EnterGame();
-
+	
+	virtual bool Loaded();
+	virtual void LoadReady();
+	
 	virtual void Connect(const char *pAddress);
 	void DisconnectWithReason(const char *pReason);
 	virtual void Disconnect();

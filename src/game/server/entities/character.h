@@ -153,6 +153,9 @@ public:
 	// for pickup drops, easy access
 	bool HasAmmo()
 	{
+		if (m_ActiveWeapon < 0)
+			return false;
+		
 		if (m_aWeapon[m_ActiveWeapon].m_Ammo > 0 ||
 			aCustomWeapon[m_ActiveWeapon].m_MaxAmmo == 0)
 			return true;
@@ -160,15 +163,22 @@ public:
 		return false;
 	}
 	
-	int WeaponPowerLevel(int CustomWeapon){
-		if (CustomWeapon < 0 || CustomWeapon >= NUM_CUSTOMWEAPONS)
+	int WeaponPowerLevel(int Weapon){
+		if (Weapon < 0 || Weapon >= NUM_CUSTOMWEAPONS)
 			return 0;
 		
-		return m_aWeapon[CustomWeapon].m_PowerLevel;
+		return m_aWeapon[Weapon].m_PowerLevel;
 	}
 	
 	
-	bool GotWeapon(int CustomWeapon){ return m_aWeapon[CustomWeapon].m_Got; }
+	bool GotWeapon(int Weapon)
+	{
+		if (Weapon < 0)
+			return true;
+		
+		return m_aWeapon[Weapon].m_Got; 
+	}
+		
 	bool WeaponDisabled(int CustomWeapon){ return m_aWeapon[CustomWeapon].m_Disabled; }
 	void DisableWeapon(int CustomWeapon){ m_aWeapon[CustomWeapon].m_Disabled = true; }
 	

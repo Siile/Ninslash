@@ -81,6 +81,7 @@ public:
 	int NumPlatforms() { return m_NumPlatforms; }
 	int NumTopCorners() { return m_NumTopCorners; }
 
+	void GenerateFences();
 	void GenerateSlopes();
 	void RemoveSingles();
 	void GenerateBoxes();

@@ -366,6 +366,8 @@ void CGameClient::OnInit()
 		Graphics()->CreateTextureBuffer(Graphics()->ScreenWidth(),Graphics()->ScreenHeight());
 		Graphics()->ClearBufferTexture();
 	}
+	
+	Client()->LoadReady();
 }
 
 void CGameClient::DispatchInput()

@@ -582,8 +582,8 @@ Team
 Team chat
 == Команда маеги
 
-Teeworlds %s is out! Download it at www.teeworlds.com!
-== Teeworlds %s чыкты! www.teeworlds.com сайтынан жүктөп алыңыз!
+Ninslash %s is out! Download it at www.ninslash.com!
+== Ninslash %s чыкты! www.ninslash.com сайтынан жүктөп алыңыз!
 
 Texture Compression
 == Текстура кысылышы
@@ -657,8 +657,8 @@ Warmup
 Weapon
 == Курал
 
-Welcome to Teeworlds
-== Teeworlds'ко кош келиңиз!
+Welcome to Ninslash
+== Ninslash'ко кош келиңиз!
 
 Yes
 == Ооба

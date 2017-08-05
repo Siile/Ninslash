@@ -244,6 +244,7 @@ void CSmoothTime::Update(CGraph *pGraph, int64 Target, int TimeLeft, int AdjustD
 
 CClient::CClient() : m_DemoPlayer(&m_SnapshotDelta), m_DemoRecorder(&m_SnapshotDelta)
 {
+	m_Loaded = false;
 	m_pEditor = 0;
 	m_pInput = 0;
 	m_pGraphics = 0;
@@ -479,6 +480,16 @@ void CClient::SetState(int s)
 	m_State = s;
 	if(Old != s)
 		GameClient()->OnStateChange(m_State, Old);
+}
+
+bool CClient::Loaded()
+{
+	return m_Loaded;
+}
+
+void CClient::LoadReady()
+{
+	m_Loaded = true;
 }
 
 // called when the map is loaded and we should init for a new round

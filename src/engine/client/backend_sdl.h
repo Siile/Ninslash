@@ -109,6 +109,8 @@ class CCommandProcessorFragment_OpenGL
 	int m_CameraX;
 	int m_CameraY;
 	
+	bool m_ShadersLoaded;
+	
 	class CShader
 	{
 		struct CUniformLocation

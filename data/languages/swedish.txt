@@ -583,8 +583,8 @@ Team
 Team chat
 == Lagchatt
 
-Teeworlds %s is out! Download it at www.teeworlds.com!
-== Teeworlds %s är ute nu! Ladda ner det från www.teeworlds.com.
+Ninslash %s is out! Download it at www.ninslash.com!
+== Ninslash %s är ute nu! Ladda ner det från www.ninslash.com.
 
 Texture Compression
 == Texturkompression
@@ -658,8 +658,8 @@ Warmup
 Weapon
 == Vapen
 
-Welcome to Teeworlds
-== Välkommen till Teeworlds
+Welcome to Ninslash
+== Välkommen till Ninslash
 
 Yes
 == Ja

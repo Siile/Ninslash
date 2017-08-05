@@ -266,6 +266,75 @@ void CGenLayer::GenerateBackground()
 		}
 	}
 }
+
+
+void CGenLayer::GenerateFences()
+{
+	for (int x = 4; x < m_Width-4; x++)
+	{
+		if (frandom() < 0.5f)
+			continue;
+		
+		for (int y = 4; y < m_Height-4; y++)
+		{
+			// start pos
+			if (!Get(x, y) && Get(x, y+1))
+			{
+				// boundaries
+				int i = 0;
+				int x1 = 1;
+				while (!Get(x-x1, y) && Get(x-x1, y+1) && i++ < 15)
+					x1++;
+				
+				int x2 = 1;
+				while (!Get(x+x2, y) && Get(x+x2, y+1) && i++ < 15)
+					x2++;
+				
+				x1 -= 2;
+				x2 -= 2;
+				
+				// correct size
+				if (x1+x2 >= 4 && (x1+x2)%2 == 0)
+				{
+					bool Valid = true;
+					
+					// area empty?
+					for (int yy = -2; yy < 1; yy++)
+						for (int xx = -(x1+1); xx <= x2+1; xx++)
+							if (Get(x+xx, y+yy, DOODADS) || Get(x+xx, y+yy, FGOBJECTS))
+								Valid = false;
+
+					if (frandom() < 0.5f)
+						Valid = false;
+					
+					// avoid door
+					if (x - (x1+1) < m_EndPos.x && m_EndPos.x < x + x2+1 &&
+						abs(m_EndPos.y - y) < 2)
+						Valid = false;
+						
+					if (Valid)
+					{
+						Set(192-16, x-x1, y-1, 0, DOODADS);
+						Set(192, x-x1, y, 0, DOODADS);
+						
+						int r = (x-x1)%2;
+
+						for (int xx = x-(x1-1); xx < x+x2; xx++)
+						{
+							int t = 193 + ((xx%2 == r) ? 1 : 0);
+							Set(t-16, xx, y-1, 0, DOODADS);
+							Set(t, xx, y, 0, DOODADS);
+						}
+						
+						Set(195-16, x+x2-1, y-1, 0, DOODADS);
+						Set(195, x+x2-1, y, 0, DOODADS);
+					}
+				}
+			}
+		}
+	}
+}
+
 	
 void CGenLayer::GenerateAirPlatforms(int Num)
 {

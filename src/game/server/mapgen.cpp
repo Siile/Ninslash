@@ -591,9 +591,16 @@ void CMapGen::GenerateScreen(CGenLayer *pTiles)
 	
 	if (p.x == 0)
 		return;
+	int x = (p.x+p.z)/2;
 	
-	ModifTile(ivec2((p.x+p.z)/2, p.y-1), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SCREEN);
-	pTiles->Use((p.x+p.z)/2, p.y-1);
+	for (int y = 1; y < 5; y++)
+		if (pTiles->Get(x, p.y-y))
+			return;
+	
+	
+	
+	ModifTile(ivec2(x, p.y-1), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SCREEN);
+	pTiles->Use(x, p.y-1);
 }
 
 void CMapGen::GenerateSpeaker(CGenLayer *pTiles)
@@ -813,6 +820,7 @@ void CMapGen::GenerateLevel()
 	
 	pTiles->GenerateBoxes();
 	
+	pTiles->GenerateFences();
 	
 	// write to layers; foreground
 	for(int x = 0; x < w; x++)
@@ -909,6 +917,11 @@ void CMapGen::GenerateLevel()
 	for (int i = 0; i < min(5+Level,14) ; i++)
 		GenerateEnemySpawn(pTiles);
 	
+	
+	for (int i = 0; i < 2; i++)
+		GenerateScreen(pTiles);
+	
+	
 	// barrels
 	int b = max(4, 15 - Level/3)+rand()%3;
 	
@@ -1004,9 +1017,6 @@ void CMapGen::GenerateLevel()
 	for (int i = 0; i < 2; i++)
 		GenerateCrawlerDroid(pTiles);
 	*/
-	
-	for (int i = 0; i < 2; i++)
-		GenerateScreen(pTiles);
 	
 	// obstacles
 	int Obs = Level/3 - 4;
@@ -1183,6 +1193,9 @@ void CMapGen::GeneratePVPLevel()
 	for (int i = 0; i < c; i++)
 		GenerateHangables(pTiles);
 		
+	for (int i = 0; i < 2; i++)
+		GenerateScreen(pTiles);
+	
 	// barrels
 	int b = 5 + rand()%3;
 	
@@ -1216,9 +1229,6 @@ void CMapGen::GeneratePVPLevel()
 	
 	if (frandom() < 0.3f)
 		GeneratePowerupper(pTiles);
-
-	for (int i = 0; i < 2; i++)
-		GenerateScreen(pTiles);
 
 	// obstacles
 	int Obs = 2 + rand()%4;

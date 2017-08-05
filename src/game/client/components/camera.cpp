@@ -15,6 +15,7 @@
 CCamera::CCamera()
 {
 	m_CamType = CAMTYPE_UNDEFINED;
+	m_LastUpdate = 0;
 }
 
 

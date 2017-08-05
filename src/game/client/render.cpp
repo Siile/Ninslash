@@ -936,13 +936,13 @@ void CRenderTools::RenderSkeleton(vec2 Pos, int Atlas, const char *Anim, float T
 					
 					if (Screen)
 					{
-						switch (int(Pos.x/32)%5)
+						switch (int(Pos.x/32)%4)
 						{
 							case 0: Graphics()->SetColor(0.5f, 0.7f, 1.0f, 1); break;
 							case 1: Graphics()->SetColor(0.4f, 1.0f, 0.4f, 1); break;
 							case 2: Graphics()->SetColor(1.0f, 0.5f, 0.5f, 1); break;
 							case 3: Graphics()->SetColor(0.2f, 1.0f, 1.0f, 1); break;
-							case 4: Graphics()->SetColor(1.0f, 1.0f, 0.4f, 1); break;
+							//case 4: Graphics()->SetColor(1.0f, 1.0f, 0.4f, 1); break;
 							default: Graphics()->SetColor(0.5f, 0.7f, 1.0f, 1); break;
 						}
 					}
