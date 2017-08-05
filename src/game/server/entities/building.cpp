@@ -94,7 +94,15 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		
 	case BUILDING_REACTOR:
 		m_ProximityRadius = ReactorPhysSize;
-		m_Life = 400;
+		
+		if(str_comp(g_Config.m_SvGametype, "base") == 0)
+			m_Life = 400;
+		else
+		{
+			m_Life = 9000;
+			m_Collision = false;
+		}
+		
 		m_Center = vec2(0, 0);
 		Pos += vec2(0, -50);
 		break;

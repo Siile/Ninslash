@@ -674,7 +674,8 @@ void CMenus::RenderLoading()
 
 	// need up date this here to get correct
 	vec3 Rgb = HslToRgb(vec3(g_Config.m_UiColorHue/255.0f, g_Config.m_UiColorSat/255.0f, g_Config.m_UiColorLht/255.0f));
-	ms_GuiColor = vec4(Rgb.r, Rgb.g, Rgb.b, g_Config.m_UiColorAlpha/255.0f);
+	//ms_GuiColor = vec4(Rgb.r, Rgb.g, Rgb.b, g_Config.m_UiColorAlpha/255.0f);
+	ms_GuiColor = vec4(0.2f, 0.25f, 0.3f, 0.75f);
 
 	CUIRect Screen = *UI()->Screen();
 	Graphics()->MapScreen(Screen.x, Screen.y, Screen.w, Screen.h);
@@ -1651,7 +1652,8 @@ void CMenus::OnRender()
 
 	// update colors
 	vec3 Rgb = HslToRgb(vec3(g_Config.m_UiColorHue/255.0f, g_Config.m_UiColorSat/255.0f, g_Config.m_UiColorLht/255.0f));
-	ms_GuiColor = vec4(Rgb.r, Rgb.g, Rgb.b, g_Config.m_UiColorAlpha/255.0f);
+	//ms_GuiColor = vec4(Rgb.r, Rgb.g, Rgb.b, g_Config.m_UiColorAlpha/255.0f);
+	ms_GuiColor = vec4(0.2f, 0.25f, 0.3f, 0.75f);
 
 	ms_ColorTabbarInactiveOutgame = vec4(0,0,0,0.25f);
 	ms_ColorTabbarActiveOutgame = vec4(0,0,0,0.5f);
@@ -1716,7 +1718,7 @@ void CMenus::OnRender()
 	m_NumInputEvents = 0;
 }
 
-static float s_ShaderIntensity = 0.0f;
+static float s_ShaderIntensity = 0.1f;
 
 void CMenus::RenderBackground()
 {
@@ -1735,7 +1737,8 @@ void CMenus::RenderBackground()
 	
 	for (;m_LastUpdate < currentTime; m_LastUpdate += step)
 	{
-		s_ShaderIntensity += 0.025f;
+		if (Client()->Loaded())
+			s_ShaderIntensity += 0.025f;
 		
 		if (i++ > 1)
 		{

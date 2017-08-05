@@ -598,8 +598,11 @@ void CMapGen::GenerateScreen(CGenLayer *pTiles)
 			return;
 	
 	
+	if (frandom() < 0.55f)
+		ModifTile(ivec2(x, p.y-1), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SCREEN);
+	else
+		ModifTile(ivec2(x, p.y-1), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_REACTOR);
 	
-	ModifTile(ivec2(x, p.y-1), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SCREEN);
 	pTiles->Use(x, p.y-1);
 }
 

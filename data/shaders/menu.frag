@@ -44,10 +44,8 @@ float iqnoise( in vec2 x, float u, float v )
 }
 
 vec3 color(vec2 pt, float size) {
-    float rInv = min(size, intensity*size/40.0f)/length(pt);
+    float rInv = min(size, intensity*size/45.0f)/length(pt);
     pt = pt * rInv - vec2(rInv+2.*mod(intensity,6000.),0.0);
-	
-	float v = min(0.5f, 0.0f+intensity*0.05f);
 	
 	return vec3(iqnoise(0.5f*pt, 2.0f, 1.0f)+0.240*rInv);
 }
@@ -57,5 +55,11 @@ void main (void)
 	vec2 scale = vec2(35.0f, 27.0f);
 	vec3 c = color(vec2(gl_FragCoord.x*4/scale.x-screenwidth/(scale.x*2), gl_FragCoord.y*4/scale.y-screenheight/(scale.y*2)), screenwidth/50);
 	
-	gl_FragColor = vec4(0, 0.4f-c.g*0.4f, 1.0f-c.b*1.0f, 0.6f) * gl_Color;	
+	float s = 1.0f-c.b*1.0f;
+	
+	float a = min(1.0f, intensity*0.05f);
+	s *= a;
+	
+	gl_FragColor = vec4(0, s*(0.55f+cos(intensity*0.15f)*0.2f), s, 0.6f*a) * gl_Color;
+	//gl_FragColor = vec4(0, 0.4f-c.g*0.4f, 1.0f-c.b*1.0f, 0.6f) * gl_Color;
 }
