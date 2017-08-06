@@ -921,7 +921,7 @@ void CMapGen::GenerateLevel()
 		GenerateEnemySpawn(pTiles);
 	
 	
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < 4; i++)
 		GenerateScreen(pTiles);
 	
 	
@@ -1196,7 +1196,7 @@ void CMapGen::GeneratePVPLevel()
 	for (int i = 0; i < c; i++)
 		GenerateHangables(pTiles);
 		
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < 4; i++)
 		GenerateScreen(pTiles);
 	
 	// barrels

@@ -19,6 +19,9 @@ CAIrobot1::CAIrobot1(CGameContext *pGameServer, CPlayer *pPlayer)
 	if (frandom() < min(0.4f, Level*0.006f))
 		m_Skin = 3;
 	
+	if (frandom() < min(0.2f, Level*0.004f))
+		m_Skin = 1;
+	
 	// "boss"
 	if (frandom() < 0.5f && g_Config.m_SvInvBosses > 0)
 	{
@@ -58,6 +61,13 @@ void CAIrobot1::OnCharacterSpawn(CCharacter *pChr)
 		pChr->GiveCustomWeapon(WEAPON_CHAINSAW);
 		pChr->SetCustomWeapon(WEAPON_CHAINSAW);
 	}
+	else if (m_Skin == 1)
+	{
+		m_PowerLevel = 6;
+		pChr->SetHealth(100);
+		pChr->GiveCustomWeapon(WEAPON_SHOTGUN);
+		pChr->SetCustomWeapon(WEAPON_SHOTGUN);
+	}
 	else if (m_Skin == 8)
 	{
 		m_PowerLevel = 8;
@@ -67,7 +77,7 @@ void CAIrobot1::OnCharacterSpawn(CCharacter *pChr)
 	}
 	
 	if (!m_Triggered)
-		m_ReactionTime = 150;
+		m_ReactionTime = 100;
 }
 
 
@@ -98,6 +108,12 @@ void CAIrobot1::DoBehavior()
 		if (ShootAtClosestEnemy())
 		{
 			Shooting = true;
+			
+			if (m_Skin == 1 && WeaponShootRange() - m_PlayerDistance > 100)
+			{
+				m_TargetPos = normalize(m_Pos - m_PlayerPos) * WeaponShootRange();
+				GameServer()->Collision()->IntersectLine(m_Pos, m_TargetPos, 0x0, &m_TargetPos);
+			}
 		}
 		else
 		{

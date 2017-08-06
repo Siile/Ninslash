@@ -732,10 +732,34 @@ void CPlayer::SetRandomSkin()
 }
 
 
+
 void CPlayer::SetCustomSkin(int Type)
 {
 	if (GetCharacter())
 		GetCharacter()->m_Type = CCharacter::PLAYER;
+	
+	// red robo
+	if (Type == 1)
+	{
+		m_TeeInfos.m_Body = 2;
+		m_TeeInfos.m_BloodColor = 2;
+		m_TeeInfos.m_ColorTopper = 65280;
+		m_TeeInfos.m_ColorSkin = m_TeeInfos.m_ColorTopper;
+		m_TeeInfos.m_ColorBody = m_TeeInfos.m_ColorTopper;
+		m_TeeInfos.m_ColorFeet = m_TeeInfos.m_ColorTopper;
+		str_copy(m_TeeInfos.m_TopperName, "none", 64);
+		str_copy(m_TeeInfos.m_EyeName, "robo4", 64);
+		
+		if (!GameServer()->m_pController->IsCoop())
+		{
+			char aBotName[128];
+			str_format(aBotName, sizeof(aBotName), "%u%u%u%u%u%u%u%u", rand()%2, rand()%2, rand()%2, rand()%2, rand()%2, rand()%2, rand()%2, rand()%2);
+			GameServer()->Server()->SetClientName(GetCID(), aBotName);
+		}
+		
+		if (GetCharacter())
+			GetCharacter()->m_Type = CCharacter::ROBOT;
+	}
 	
 	// robo
 	if (Type == 2)
