@@ -1108,6 +1108,8 @@ void CMapGen::GeneratePVPLevel()
 	
 	pTiles->GenerateBoxes();
 	
+	pTiles->GenerateFences();
+	
 	WriteLayers(pTiles);
 	
 	
