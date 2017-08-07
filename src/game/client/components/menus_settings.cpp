@@ -1085,6 +1085,8 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 	MainView.HSplitTop(20.0f, 0, &MainView);
 	MainView.HSplitTop(20.0f, &Text, &MainView);
 	//text.VSplitLeft(15.0f, 0, &text);
+	
+	/*
 	UI()->DoLabelScaled(&Text, Localize("UI Color"), 14.0f, -1);
 
 	const char *paLabels[] = {
@@ -1107,6 +1109,7 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 		*pColorSlider[s] = (int)(k*255.0f);
 		UI()->DoLabelScaled(&Text, paLabels[s], 15.0f, -1);
 	}
+	*/
 }
 
 void CMenus::RenderSettingsSound(CUIRect MainView)

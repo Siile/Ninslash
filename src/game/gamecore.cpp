@@ -138,12 +138,7 @@ int CCharacterCore::IsOnForceTile()
 
 bool CCharacterCore::IsInFluid()
 {
-	int C = m_pCollision->GetCollisionAt(m_Pos.x, m_Pos.y);
-	
-	if (C == CCollision::COLFLAG_DAMAGEFLUID)
-		return true;
-	
-	return false;
+	return m_pCollision->IsInFluid(m_Pos.x, m_Pos.y);
 }
 
 

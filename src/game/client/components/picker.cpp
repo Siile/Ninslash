@@ -554,9 +554,6 @@ void CPicker::Weaponpick(int Weapon)
 	
 	if (Weapon < 0 || Weapon >= NUM_WEAPONS)
 		return;
-	
-	if (Group < 0 || Group > 1)
-		return;
 
 	int w = CustomStuff()->m_LocalWeapons;
 	if (!(w & (1<<(Weapon+1))))
@@ -566,13 +563,6 @@ void CPicker::Weaponpick(int Weapon)
 	}
 	
 	m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_POSITIVE, 0);
-	
-	/*
-	CNetMsg_Cl_SelectWeapon Msg;
-	Msg.m_Weapon = Weapon+1;
-	Msg.m_Group = Group;
-	Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
-	*/
 
 	m_pClient->m_pControls->m_PickedWeapon = Weapon+2;
 }

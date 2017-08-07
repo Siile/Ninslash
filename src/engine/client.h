@@ -82,6 +82,9 @@ public:
 	virtual void AutoScreenshot_Start() = 0;
 	virtual void ServerBrowserUpdate() = 0;
 
+	virtual bool Loaded() = 0;
+	virtual void LoadReady() = 0;
+	
 	// networking
 	virtual void EnterGame() = 0;
 

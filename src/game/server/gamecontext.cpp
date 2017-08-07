@@ -2234,30 +2234,18 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			pPlayer->m_LastEmote = Server()->Tick();
 			
-			SendEmoticon(ClientID, pMsg->m_Emoticon);
-		}
-		else if (MsgID == NETMSGTYPE_CL_SELECTWEAPON && !m_World.m_Paused)
-		{
-			CNetMsg_Cl_SelectWeapon *pMsg = (CNetMsg_Cl_SelectWeapon *)pRawMsg;
-
-			// TODO: spam protection
+			if ((pMsg->m_Emoticon == EMOTICON_EYES || pMsg->m_Emoticon == EMOTICON_HEARTS) && pPlayer->GetCharacter())
+				pPlayer->GetCharacter()->SetEmote(EMOTE_HAPPY, Server()->Tick() + Server()->TickSpeed());
 			
-			pPlayer->SelectWeapon(pMsg->m_Weapon, pMsg->m_Group);
+			if ((pMsg->m_Emoticon == EMOTICON_SPLATTEE || pMsg->m_Emoticon == EMOTICON_DEVILTEE || pMsg->m_Emoticon == EMOTICON_ZOMG) && pPlayer->GetCharacter())
+				pPlayer->GetCharacter()->SetEmote(EMOTE_ANGRY, Server()->Tick() + Server()->TickSpeed());
+			
+			SendEmoticon(ClientID, pMsg->m_Emoticon);
 		}
 		else if (MsgID == NETMSGTYPE_CL_DROPWEAPON && !m_World.m_Paused)
 		{
-			// TODO: spam protection
-			
 			pPlayer->DropWeapon();
 		}
-		/*
-		else if (MsgID == NETMSGTYPE_CL_SWITCHGROUP && !m_World.m_Paused)
-		{
-			// TODO: spam protection
-			
-			pPlayer->SwitchGroup();
-		}
-		*/
 		else if (MsgID == NETMSGTYPE_CL_SELECTITEM && !m_World.m_Paused)
 		{
 			CNetMsg_Cl_SelectItem *pMsg = (CNetMsg_Cl_SelectItem *)pRawMsg;

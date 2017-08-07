@@ -56,7 +56,7 @@ Are you sure that you want to delete the demo?
 == Opravdu chcete smazat tento záznam?
 
 Are you sure that you want to quit?
-== Opravdu chcete ukončit Teeworlds?
+== Opravdu chcete ukončit Ninslash?
 
 Are you sure that you want to remove the player from your friends list?
 == Chcete odebrat tohoto hráče ze seznamu přátel?
@@ -583,8 +583,8 @@ Team
 Team chat
 == Týmový chat
 
-Teeworlds %s is out! Download it at www.teeworlds.com!
-== Stáhněte si nové Teeworlds %s na www.teeworlds.com!
+Ninslash %s is out! Download it at www.ninslash.com!
+== Stáhněte si nové Ninslash %s na www.ninslash.com!
 
 Texture Compression
 == Komprimované textury
@@ -658,8 +658,8 @@ Warmup
 Weapon
 == Zbraně
 
-Welcome to Teeworlds
-== Vítejte v Teeworlds
+Welcome to Ninslash
+== Vítejte v Ninslash
 
 Yes
 == Ano

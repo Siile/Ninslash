@@ -565,8 +565,8 @@ Team
 Team chat
 == Csapat chat
 
-Teeworlds %s is out! Download it at www.teeworlds.com!
-== Teeworlds %s kint van! Töltsd le www.teeworlds.com oldalon!
+Ninslash %s is out! Download it at www.ninslash.com!
+== Ninslash %s kint van! Töltsd le www.ninslash.com oldalon!
 
 Texture Compression
 == Textúra tömörítés
@@ -640,8 +640,8 @@ Warmup
 Weapon
 == Fegyver
 
-Welcome to Teeworlds
-== Üdvözöljük a Teeworlds-ben
+Welcome to Ninslash
+== Üdvözöljük a Ninslash-ben
 
 Yes
 == Igen

@@ -583,8 +583,8 @@ Team
 Team chat
 == Holdchat
 
-Teeworlds %s is out! Download it at www.teeworlds.com!
-== Teeworld %s er ude nu! Download den på www.teeworlds.com!
+Ninslash %s is out! Download it at www.ninslash.com!
+== Teeworld %s er ude nu! Download den på www.ninslash.com!
 
 Texture Compression
 == Teksturkompression
@@ -658,8 +658,8 @@ Warmup
 Weapon
 == Våben
 
-Welcome to Teeworlds
-== Velkommen til Teeworlds
+Welcome to Ninslash
+== Velkommen til Ninslash
 
 Yes
 == Ja

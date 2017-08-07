@@ -184,7 +184,7 @@ void editor_load_old(DATAFILE *df, MAP *map)
 					if(e->data[0] == ITEM_WEAPON_SHOTGUN) id = ENTITY_WEAPON_SHOTGUN;
 					else if(e->data[0] == ITEM_WEAPON_ROCKET) id = ENTITY_WEAPON_GRENADE;
 					else if(e->data[0] == ITEM_NINJA) id = ENTITY_POWERUP_NINJA;
-					else if(e->data[0] == ITEM_ARMOR) id = ENTITY_ARMOR_1;
+					else if(e->data[0] == ITEM_ARMOR) id = ENTITY_AMMO_1;
 					else if(e->data[0] == ITEM_HEALTH) id = ENTITY_HEALTH_1;
 				}
 

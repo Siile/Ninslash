@@ -74,6 +74,7 @@ CMenus::CMenus()
 	m_aCallvoteReason[0] = 0;
 
 	m_FriendlistSelectedIndex = -1;
+	m_LastUpdate = 0;
 }
 
 vec4 CMenus::ButtonColorMul(const void *pID)
@@ -591,7 +592,7 @@ int CMenus::RenderMenubar(CUIRect r)
 		
 		Box.VSplitRight(180.0f, &Box, &Button);
 		static int s_MenuButton=0;
-		if(DoButton_MenuTab(&s_MenuButton, Localize("Main menu"), m_ActivePage==PAGE_FRONT, &Button, CUI::CORNER_T))
+		if(DoButton_MenuTab(&s_MenuButton, Localize("Main menu"), m_ActivePage==PAGE_FRONT, &Button, CUI::CORNER_T) || m_EscapePressed)
 			NewPage = PAGE_FRONT;
 	}
 	else
@@ -673,7 +674,8 @@ void CMenus::RenderLoading()
 
 	// need up date this here to get correct
 	vec3 Rgb = HslToRgb(vec3(g_Config.m_UiColorHue/255.0f, g_Config.m_UiColorSat/255.0f, g_Config.m_UiColorLht/255.0f));
-	ms_GuiColor = vec4(Rgb.r, Rgb.g, Rgb.b, g_Config.m_UiColorAlpha/255.0f);
+	//ms_GuiColor = vec4(Rgb.r, Rgb.g, Rgb.b, g_Config.m_UiColorAlpha/255.0f);
+	ms_GuiColor = vec4(0.2f, 0.25f, 0.3f, 0.75f);
 
 	CUIRect Screen = *UI()->Screen();
 	Graphics()->MapScreen(Screen.x, Screen.y, Screen.w, Screen.h);
@@ -816,11 +818,12 @@ void CMenus::RenderFront(CUIRect MainView)
 	Graphics()->QuadsDrawTL(&QuadItem, 1);
 	Graphics()->QuadsEnd();
 	
+	/*
 	s_ReactorTime += 0.01f;
 	
 	RenderTools()->RenderSkeleton(vec2(250, Screen.h/1.35f), ATLAS_REACTOR, "idle", s_ReactorTime, vec2(1.0f, 1.0f)*0.8f, 1, 0);
 	RenderTools()->RenderSkeleton(vec2(Screen.w-250, Screen.h/1.35f), ATLAS_REACTOR, "idle", s_ReactorTime, vec2(1.0f, 1.0f)*0.8f, 1, 0);
-
+	*/
 	
 	
 	
@@ -1649,7 +1652,8 @@ void CMenus::OnRender()
 
 	// update colors
 	vec3 Rgb = HslToRgb(vec3(g_Config.m_UiColorHue/255.0f, g_Config.m_UiColorSat/255.0f, g_Config.m_UiColorLht/255.0f));
-	ms_GuiColor = vec4(Rgb.r, Rgb.g, Rgb.b, g_Config.m_UiColorAlpha/255.0f);
+	//ms_GuiColor = vec4(Rgb.r, Rgb.g, Rgb.b, g_Config.m_UiColorAlpha/255.0f);
+	ms_GuiColor = vec4(0.2f, 0.25f, 0.3f, 0.75f);
 
 	ms_ColorTabbarInactiveOutgame = vec4(0,0,0,0.25f);
 	ms_ColorTabbarActiveOutgame = vec4(0,0,0,0.5f);
@@ -1714,63 +1718,86 @@ void CMenus::OnRender()
 	m_NumInputEvents = 0;
 }
 
-static int gs_TextureBlob = -1;
+static float s_ShaderIntensity = 0.1f;
 
 void CMenus::RenderBackground()
 {
-	//Graphics()->Clear(1,1,1);
-	//render_sunrays(0,0);
-	if(gs_TextureBlob == -1)
-		gs_TextureBlob = Graphics()->LoadTexture("blob.png", IStorage::TYPE_ALL, CImageInfo::FORMAT_AUTO, 0);
-
-
-	float sw = 300*Graphics()->ScreenAspect();
-	float sh = 300;
-	Graphics()->MapScreen(0, 0, sw, sh);
+	// menu timestep
+	
+	int64 currentTime = time_get();
+	if ((currentTime-m_LastUpdate > time_freq()) || (m_LastUpdate == 0))
+		m_LastUpdate = currentTime;
+		
+	int step = time_freq()/60;
+	
+	if (step <= 0)
+		step = 1;
+	
+	int i = 0;
+	
+	for (;m_LastUpdate < currentTime; m_LastUpdate += step)
+	{
+		if (Client()->Loaded())
+			s_ShaderIntensity += 0.025f;
+		
+		if (i++ > 1)
+		{
+			m_LastUpdate = currentTime;
+			break;
+		}
+	}
+	
+	
+	// menu background effect
+	vec2 s = vec2(Graphics()->ScreenWidth(), Graphics()->ScreenHeight())/8;
+	Graphics()->MapScreen(0, 0, s.x, s.y);
+	
+	if (g_Config.m_GfxMultiBuffering && Client()->Loaded())
+	{
+		// render background shader
+		Graphics()->RenderToTexture(RENDERBUFFER_MENU);
+		Graphics()->ShaderBegin(SHADER_MENU, s_ShaderIntensity);
+		Graphics()->TextureSet(-1);
+		Graphics()->QuadsBegin();
+			Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+			IGraphics::CQuadItem QuadItem = IGraphics::CQuadItem(0, 0, s.x, s.y);
+			Graphics()->QuadsDrawTL(&QuadItem, 1);
+		Graphics()->QuadsEnd();
+		Graphics()->ShaderEnd();
+		Graphics()->RenderToScreen();
+	}
 
 	// render background color
 	Graphics()->TextureSet(-1);
 	Graphics()->QuadsBegin();
-		//vec4 bottom(gui_color.r*0.3f, gui_color.g*0.3f, gui_color.b*0.3f, 1.0f);
-		//vec4 bottom(0, 0, 0, 1.0f);
-		vec4 Bottom(ms_GuiColor.r, ms_GuiColor.g, ms_GuiColor.b, 1.0f);
-		vec4 Top(ms_GuiColor.r, ms_GuiColor.g, ms_GuiColor.b, 1.0f);
+		//vec4 Bottom(ms_GuiColor.r, ms_GuiColor.g, ms_GuiColor.b, 1.0f);
+		//vec4 Top(ms_GuiColor.r, ms_GuiColor.g, ms_GuiColor.b, 1.0f);
+		
+		/*
+		vec4 Bottom(0.2f, 0.25f, 0.3f, 1.0f);
+		vec4 Top(0.2f, 0.25f, 0.3f, 1.0f);
 		IGraphics::CColorVertex Array[4] = {
 			IGraphics::CColorVertex(0, Top.r, Top.g, Top.b, Top.a),
 			IGraphics::CColorVertex(1, Top.r, Top.g, Top.b, Top.a),
 			IGraphics::CColorVertex(2, Bottom.r, Bottom.g, Bottom.b, Bottom.a),
 			IGraphics::CColorVertex(3, Bottom.r, Bottom.g, Bottom.b, Bottom.a)};
 		Graphics()->SetColorVertex(Array, 4);
-		IGraphics::CQuadItem QuadItem(0, 0, sw, sh);
+			*/
+			
+		Graphics()->SetColor(0.2f, 0.25f, 0.3f, 1.0f);
+		IGraphics::CQuadItem QuadItem(0, 0, s.x, s.y);
 		Graphics()->QuadsDrawTL(&QuadItem, 1);
 	Graphics()->QuadsEnd();
 
-	// render the tiles
-	/*
-	Graphics()->TextureSet(-1);
-	Graphics()->QuadsBegin();
-		float Size = 15.0f;
-		float OffsetTime = fmod(Client()->LocalTime()*0.15f, 2.0f);
-		for(int y = -2; y < (int)(sw/Size); y++)
-			for(int x = -2; x < (int)(sh/Size); x++)
-			{
-				Graphics()->SetColor(0,0,0,0.045f);
-				IGraphics::CQuadItem QuadItem((x-OffsetTime)*Size*2+(y&1)*Size, (y+OffsetTime)*Size, Size, Size);
-				Graphics()->QuadsDrawTL(&QuadItem, 1);
-			}
-	Graphics()->QuadsEnd();
-	*/
-
-	// render background image
-	/*
-	Graphics()->TextureSet(gs_TextureBlob);
-	Graphics()->QuadsBegin();
-		Graphics()->SetColor(0.2f, 0.2f, 0.2f, 0.5f);
-		//QuadItem = IGraphics::CQuadItem(-100, -100, sw+200, sh+200);
-		QuadItem = IGraphics::CQuadItem(100, 100, sw-200, sh-200);
-		Graphics()->QuadsDrawTL(&QuadItem, 1);
-	Graphics()->QuadsEnd();
-	*/
+	if (g_Config.m_GfxMultiBuffering && Client()->Loaded())
+	{
+		Graphics()->TextureSet(-2, RENDERBUFFER_MENU);
+		Graphics()->QuadsBegin();
+			Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+			QuadItem = IGraphics::CQuadItem(0, 0, s.x, s.y);
+			Graphics()->QuadsDrawTL(&QuadItem, 1);
+		Graphics()->QuadsEnd();
+	}
 	
 	// restore screen
 	{CUIRect Screen = *UI()->Screen();

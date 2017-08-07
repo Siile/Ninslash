@@ -266,7 +266,7 @@ public:
 	vec3 GetColorV3(int v);
 
 
-	void RenderFullScreenLayer();
+	void RenderFullScreenLayer(vec2 Center);
 };
 
 #include "render_anim.inl"

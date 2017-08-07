@@ -67,7 +67,7 @@ void CAIalien1::OnCharacterSpawn(CCharacter *pChr)
 	m_ShockTimer = 10;
 		
 	if (!m_Triggered)
-		m_ReactionTime = 150;
+		m_ReactionTime = 100;
 }
 
 

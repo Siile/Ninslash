@@ -482,17 +482,52 @@ void CRenderTools::DrawUIRect(const CUIRect *r, vec4 Color, int Corners, float R
 
 
 
-void CRenderTools::RenderFullScreenLayer()
+
+void CRenderTools::RenderFullScreenLayer(vec2 Center)
 {
 	if (!g_Config.m_GfxMultiBuffering)
 		return;
 	
+	vec2 s = vec2(Graphics()->ScreenWidth(), Graphics()->ScreenHeight());
 	Graphics()->MapScreen(0,0,Graphics()->ScreenWidth(),Graphics()->ScreenHeight());
 	
 	
 	
 	// render blood splatter to tiles
 	Graphics()->RenderToTexture(RENDERBUFFER_TILES);
+	
+	// test, embed image to texture buffer
+	//Graphics()->ShaderBegin(SHADER_GROUND);
+	/*
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_METAL].m_Id);
+	
+	Graphics()->BlendBuffer();
+
+	Graphics()->QuadsBegin();
+	Graphics()->QuadsSetRotation(0);
+	Graphics()->SetColor(0.25f, 0.25f, 0.25f, 0.5f);
+	
+	vec2 BGSize = vec2(s.x/2*Graphics()->ScreenAspect(), s.y/2*Graphics()->ScreenAspect());
+	
+	{
+		vec2 Size = vec2(1, 1/Graphics()->ScreenAspect())*2.5f;
+		BGSize /= Size;
+	
+		vec2 Scroll = Center/BGSize;
+		
+		Graphics()->QuadsSetSubsetFree(	0.0f+Scroll.x, 0.0f+Scroll.y,
+										Size.x+Scroll.x, 0.0f+Scroll.y,
+										0.0f+Scroll.x, Size.y+Scroll.y,
+										Size.x+Scroll.x, Size.y+Scroll.y);
+									
+		IGraphics::CFreeformItem Freeform(0, 0, s.x, 0, 0, s.y, s.x, s.y);
+		Graphics()->QuadsDrawFreeform(&Freeform, 1);
+	}
+	
+	Graphics()->QuadsEnd();
+	Graphics()->ShaderEnd();
+	*/
+	
 	Graphics()->ShaderBegin(SHADER_BLOOD);
 	Graphics()->TextureSet(-2, RENDERBUFFER_SPLATTER);
 	
@@ -875,13 +910,44 @@ void CRenderTools::RenderSkeleton(vec2 Pos, int Atlas, const char *Anim, float T
 					p2 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(-pAttachment->m_Width/2.0f, pAttachment->m_Height/2.0f, 1.0f);
 					p3 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(pAttachment->m_Width/2.0f, pAttachment->m_Height/2.0f, 1.0f);
 
+					bool Screen = false;
+					
+					if (strlen(pSlot->m_Name) > 3 &&
+						pSlot->m_Name[0] == '_' &&
+						pSlot->m_Name[1] == 's' &&
+						pSlot->m_Name[2] == 'c')
+					{
+						//Graphics()->ShaderBegin(SHADER_SPAWN, 0.05f);
+						Screen = true;
+					}
+					else if (strlen(pSlot->m_Name) > 3 &&
+						pSlot->m_Name[0] == 's' &&
+						pSlot->m_Name[1] == 'c' &&
+						pSlot->m_Name[2] == 'r')
+					{
+						Graphics()->ShaderBegin(SHADER_ELECTRIC, 1.0f);
+						Screen = true;
+					}
 
 					Graphics()->TextureSet(pPage->m_TexId);
 					Graphics()->QuadsBegin();
 					Graphics()->SetColor(1, 1, 1, 1);
 					
 					
-					if (strcmp(pAttachment->m_Name, "team") == 0)
+					if (Screen)
+					{
+						switch (int(Pos.x/32)%4)
+						{
+							case 0: Graphics()->SetColor(0.5f, 0.7f, 1.0f, 1); break;
+							case 1: Graphics()->SetColor(0.4f, 1.0f, 0.4f, 1); break;
+							case 2: Graphics()->SetColor(1.0f, 0.5f, 0.5f, 1); break;
+							case 3: Graphics()->SetColor(0.2f, 1.0f, 1.0f, 1); break;
+							//case 4: Graphics()->SetColor(1.0f, 1.0f, 0.4f, 1); break;
+							default: Graphics()->SetColor(0.5f, 0.7f, 1.0f, 1); break;
+						}
+					}
+					
+					else if (strcmp(pAttachment->m_Name, "team") == 0)
 					{
 						if (Team == TEAM_RED)
 							Graphics()->SetColor(1.0f, 0.3f, 0.0f, 1);
@@ -912,6 +978,10 @@ void CRenderTools::RenderSkeleton(vec2 Pos, int Atlas, const char *Anim, float T
 
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 					Graphics()->QuadsEnd();
+					
+					if (Screen)
+						Graphics()->ShaderEnd();
+					
 				} break;
 			}
 		}

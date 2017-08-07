@@ -580,8 +580,8 @@ Team
 Team chat
 == Takım sohbeti
 
-Teeworlds %s is out! Download it at www.teeworlds.com!
-== Teeworlds %s çıktı! www.teeworlds.com dan indirin!
+Ninslash %s is out! Download it at www.ninslash.com!
+== Ninslash %s çıktı! www.ninslash.com dan indirin!
 
 Texture Compression
 == Dolgu sıkıştırması
@@ -655,8 +655,8 @@ Warmup
 Weapon
 == Silah
 
-Welcome to Teeworlds
-== Teeworlds'e hoşgeldiniz
+Welcome to Ninslash
+== Ninslash'e hoşgeldiniz
 
 Yes
 == Evet

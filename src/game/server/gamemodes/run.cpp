@@ -48,7 +48,7 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	if (Defend)
 		e *= 2;
 	
-	e = min(e, 160);
+	e = min(e, 160+g_Config.m_SvMapGenLevel/10);
 	
 	m_EnemyCount = 0;
 	m_EnemiesLeft = e;
@@ -90,6 +90,8 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	
 	if (g_Config.m_SvSurvivalMode)
 		m_GameFlags |= GAMEFLAG_SURVIVAL;
+	
+	m_GameFlags |= GAMEFLAG_ACID;
 }
 
 
@@ -141,6 +143,9 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			
 			if (g_Config.m_SvMapGenLevel > 10 && frandom() < 0.35f)
 				i = ENEMY_ROBOT1;
+			
+			if (g_Config.m_SvMapGenLevel > 30 && frandom() < 0.3f)
+				i = ENEMY_BUNNY1;
 			
 			
 			switch (i)

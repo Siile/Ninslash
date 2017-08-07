@@ -490,13 +490,13 @@ void IGameController::CreateDroppables()
 		m_PickupCount++;
 
 		// armors
-		m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_ARMOR, 0);
+		m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_AMMO, 0);
 		m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
 		m_apPickup[m_PickupCount]->m_Dropable = true;
 		m_PickupCount++;
 		
 		// mines
-		m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_MINE, 0);
+		m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_ARMOR, 0);
 		m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
 		m_apPickup[m_PickupCount]->m_Dropable = true;
 		m_PickupCount++;
@@ -540,6 +540,13 @@ void IGameController::DeathMessage()
 void IGameController::TriggerSwitch(vec2 Pos)
 {
 	TriggerEscape();
+	
+	if (str_comp(g_Config.m_SvGametype, "coop") == 0 && g_Config.m_SvMapGenLevel%10 == 9)
+	{
+		m_SurvivalStartTick = Server()->Tick();
+		g_Config.m_SvSurvivalTime = 10;
+	}
+		
 	
 	/*
 	float Radius = 1000;
@@ -632,6 +639,11 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		new CTeslacoil(&GameServer()->m_World, Pos, TEAM_NEUTRAL);
 		return true;
 	}
+	else if (Index == ENTITY_SCREEN)
+	{
+		new CBuilding(&GameServer()->m_World, Pos, BUILDING_SCREEN, TEAM_NEUTRAL);
+		return true;
+	}
 	else if (Index == ENTITY_LAZER)
 	{
 		new CDeathray(&GameServer()->m_World, Pos+vec2(0, -20));
@@ -716,18 +728,18 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 	else
 	if (g_Config.m_SvVanillaPickups)
 	{
-		if(Index == ENTITY_ARMOR_1)
-			Type = POWERUP_ARMOR;
+		if(Index == ENTITY_AMMO_1)
+			Type = POWERUP_AMMO;
 		else if(Index == ENTITY_HEALTH_1)
 			Type = POWERUP_HEALTH;
-		else if(Index == ENTITY_MINE_1)
-			Type = POWERUP_MINE;
+		else if(Index == ENTITY_ARMOR_1)
+			Type = POWERUP_ARMOR;
 		else if(Index == ENTITY_KIT)
 		{
 			if (g_Config.m_SvEnableBuilding)
 				Type = POWERUP_KIT;
 			else
-				Type = POWERUP_ARMOR;
+				Type = POWERUP_AMMO;
 		}
 		else if(Index == ENTITY_WEAPON_CHAINSAW)
 		{
@@ -775,7 +787,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 	{
 		if (g_Config.m_SvForceWeapon)
 		{
-			if (Type == POWERUP_WEAPON || Type == POWERUP_ARMOR)
+			if (Type == POWERUP_WEAPON || Type == POWERUP_AMMO)
 				return true;
 		}
 		
@@ -1080,7 +1092,7 @@ void IGameController::FirstMap()
 	g_Config.m_SvMapGenLevel = 1;
 	g_Config.m_SvInvFails = 0;
 	
-	Server()->ResetPlayerData();
+	//Server()->ResetPlayerData();
 	
 	if(m_aMapWish[0] != 0)
 	{
@@ -1230,7 +1242,7 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 	{
 		pVictim->DropWeapon();
 		
-		//int DropWeapon = pVictim->m_ActiveCustomWeapon;
+		//int DropWeapon = pVictim->m_ActiveWeapon;
 		
 		//if (!(GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE) && 
 		//	DropWeapon != W_HAMMER && DropWeapon != W_PISTOL && DropWeapon != W_TOOL)
@@ -1248,7 +1260,7 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 				DropPickup(pVictim->m_Pos, POWERUP_KIT, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 			}
 			else if (frandom()*10 < 4)
-				DropPickup(pVictim->m_Pos, POWERUP_ARMOR, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
+				DropPickup(pVictim->m_Pos, POWERUP_AMMO, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 			else
 				DropPickup(pVictim->m_Pos, POWERUP_HEALTH, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 		}
@@ -1521,12 +1533,21 @@ void IGameController::Tick()
 		g_Config.m_SvSurvivalMode = 0;
 	
 	// check for round time ending
-	if (g_Config.m_SvSurvivalTime && g_Config.m_SvSurvivalMode && m_SurvivalStartTick < Server()->Tick() - Server()->TickSpeed() * g_Config.m_SvSurvivalTime)
+	if (!g_Config.m_SvSurvivalAcid && g_Config.m_SvSurvivalTime && g_Config.m_SvSurvivalMode && m_SurvivalStartTick < Server()->Tick() - Server()->TickSpeed() * g_Config.m_SvSurvivalTime)
 	{
 		GameServer()->SendBroadcast("Draw", -1);
 		ResetSurvivalRound();
 	}
 	
+	// global acid level
+	if (g_Config.m_SvSurvivalAcid && g_Config.m_SvSurvivalMode && g_Config.m_SvSurvivalTime && !m_Warmup)
+	{
+		GameServer()->Collision()->m_GlobalAcid = true;
+		GameServer()->Collision()->m_Time = g_Config.m_SvSurvivalTime*Server()->TickSpeed() - ((Server()->Tick()-m_SurvivalStartTick));
+	}
+	else 
+		GameServer()->Collision()->m_GlobalAcid = false;
+				
 	// check for winning conditions
 	if (!IsCoop() && g_Config.m_SvSurvivalMode && m_SurvivalStatus == SURVIVAL_NOCANDO && m_SurvivalDeathTick < Server()->Tick())
 	{
@@ -1873,13 +1894,26 @@ void IGameController::DoWincheck()
 		if(IsTeamplay())
 		{
 			// check score win condition
-			if((g_Config.m_SvScorelimit > 0 && (m_aTeamscore[TEAM_RED] >= g_Config.m_SvScorelimit || m_aTeamscore[TEAM_BLUE] >= g_Config.m_SvScorelimit)) ||
-				(g_Config.m_SvTimelimit > 0 && (Server()->Tick()-m_RoundStartTick) >= g_Config.m_SvTimelimit*Server()->TickSpeed()*60))
+			if (g_Config.m_SvSurvivalMode && !g_Config.m_SvSurvivalAcid)
 			{
-				if(m_aTeamscore[TEAM_RED] != m_aTeamscore[TEAM_BLUE])
-					EndRound();
-				else
-					m_SuddenDeath = 1;
+				if((g_Config.m_SvScorelimit > 0 && (m_aTeamscore[TEAM_RED] >= g_Config.m_SvScorelimit || m_aTeamscore[TEAM_BLUE] >= g_Config.m_SvScorelimit)))
+				{
+					if(m_aTeamscore[TEAM_RED] != m_aTeamscore[TEAM_BLUE])
+						EndRound();
+					else
+						m_SuddenDeath = 1;
+				}
+			}
+			else
+			{
+				if((g_Config.m_SvScorelimit > 0 && (m_aTeamscore[TEAM_RED] >= g_Config.m_SvScorelimit || m_aTeamscore[TEAM_BLUE] >= g_Config.m_SvScorelimit)) ||
+					(g_Config.m_SvTimelimit > 0 && (Server()->Tick()-m_RoundStartTick) >= g_Config.m_SvTimelimit*Server()->TickSpeed()*60))
+				{
+					if(m_aTeamscore[TEAM_RED] != m_aTeamscore[TEAM_BLUE])
+						EndRound();
+					else
+						m_SuddenDeath = 1;
+				}
 			}
 		}
 		else
@@ -1902,13 +1936,26 @@ void IGameController::DoWincheck()
 			}
 
 			// check score win condition
-			if((g_Config.m_SvScorelimit > 0 && Topscore >= g_Config.m_SvScorelimit) ||
-				(g_Config.m_SvTimelimit > 0 && (Server()->Tick()-m_RoundStartTick) >= g_Config.m_SvTimelimit*Server()->TickSpeed()*60))
+			if (g_Config.m_SvSurvivalMode && !g_Config.m_SvSurvivalAcid)
 			{
-				if(TopscoreCount == 1)
-					EndRound();
-				else
-					m_SuddenDeath = 1;
+				if (g_Config.m_SvScorelimit > 0 && Topscore >= g_Config.m_SvScorelimit)
+				{
+					if(TopscoreCount == 1)
+						EndRound();
+					else
+						m_SuddenDeath = 1;
+				}
+			}
+			else
+			{
+				if((g_Config.m_SvScorelimit > 0 && Topscore >= g_Config.m_SvScorelimit) ||
+					(g_Config.m_SvTimelimit > 0 && (Server()->Tick()-m_RoundStartTick) >= g_Config.m_SvTimelimit*Server()->TickSpeed()*60))
+				{
+					if(TopscoreCount == 1)
+						EndRound();
+					else
+						m_SuddenDeath = 1;
+				}
 			}
 		}
 	}

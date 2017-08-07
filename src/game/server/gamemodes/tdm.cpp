@@ -22,6 +22,9 @@ CGameControllerTDM::CGameControllerTDM(class CGameContext *pGameServer) : IGameC
 	if (g_Config.m_SvSurvivalMode)
 		m_GameFlags |= GAMEFLAG_SURVIVAL;
 	
+	if (g_Config.m_SvSurvivalMode && g_Config.m_SvSurvivalTime && g_Config.m_SvSurvivalAcid)
+		m_GameFlags |= GAMEFLAG_ACID;
+	
 	if (g_Config.m_SvEnableBuilding)
 		m_GameFlags |= GAMEFLAG_BUILD;
 }

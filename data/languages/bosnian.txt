@@ -583,8 +583,8 @@ Team
 Team chat
 == Timski chat
 
-Teeworlds %s is out! Download it at www.teeworlds.com!
-== Teeworld %s je objavljen! Preuzmi ga na www.teeworlds.com!
+Ninslash %s is out! Download it at www.ninslash.com!
+== Teeworld %s je objavljen! Preuzmi ga na www.ninslash.com!
 
 Texture Compression
 == Kompresija tekstura
@@ -658,8 +658,8 @@ Warmup
 Weapon
 == Oružje
 
-Welcome to Teeworlds
-== Dobrodošli u Teeworlds
+Welcome to Ninslash
+== Dobrodošli u Ninslash
 
 Yes
 == Da

@@ -1,0 +1,76 @@
+
+screen.png
+size: 1024,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+bot
+  rotate: false
+  xy: 575, 121
+  size: 106, 57
+  orig: 106, 57
+  offset: 0, 0
+  index: -1
+left
+  rotate: true
+  xy: 2, 43
+  size: 71, 153
+  orig: 71, 153
+  offset: 0, 0
+  index: -1
+mid
+  rotate: false
+  xy: 2, 116
+  size: 208, 135
+  orig: 208, 135
+  offset: 0, 0
+  index: -1
+right
+  rotate: true
+  xy: 575, 180
+  size: 71, 153
+  orig: 71, 153
+  offset: 0, 0
+  index: -1
+screen
+  rotate: false
+  xy: 212, 113
+  size: 194, 138
+  orig: 194, 138
+  offset: 0, 0
+  index: -1
+screen2
+  rotate: false
+  xy: 408, 113
+  size: 165, 138
+  orig: 165, 138
+  offset: 0, 0
+  index: -1
+screen_circle
+  rotate: false
+  xy: 2, 2
+  size: 38, 39
+  orig: 38, 39
+  offset: 0, 0
+  index: -1
+screen_circle_inside
+  rotate: false
+  xy: 575, 116
+  size: 17, 3
+  orig: 17, 3
+  offset: 0, 0
+  index: -1
+screen_dot
+  rotate: false
+  xy: 157, 103
+  size: 11, 11
+  orig: 11, 11
+  offset: 0, 0
+  index: -1
+screen_line
+  rotate: false
+  xy: 730, 247
+  size: 72, 4
+  orig: 72, 4
+  offset: 0, 0
+  index: -1

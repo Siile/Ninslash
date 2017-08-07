@@ -266,6 +266,79 @@ void CGenLayer::GenerateBackground()
 		}
 	}
 }
+
+
+void CGenLayer::GenerateFences()
+{
+	for (int x = 4; x < m_Width-4; x++)
+	{
+		if (frandom() < 0.75f)
+			continue;
+		
+		for (int y = 4; y < m_Height-4; y++)
+		{
+			// start pos
+			if (!Get(x, y) && Get(x, y+1))
+			{
+				// boundaries
+				int i = 0;
+				int x1 = 1;
+				while (!Get(x-x1, y) && Get(x-x1, y+1) && i++ < 20)
+					x1++;
+				
+				int x2 = 1;
+				while (!Get(x+x2, y) && Get(x+x2, y+1) && i++ < 20)
+					x2++;
+				
+				x1 -= 2;
+				x2 -= 2;
+				
+				// correct size
+				if (x1+x2 >= 6)
+				{
+					bool Valid = true;
+					
+					// area empty?
+					for (int yy = -2; yy < 1; yy++)
+						for (int xx = -(x1+1); xx <= x2+1; xx++)
+							if (Get(x+xx, y+yy, DOODADS) || Get(x+xx, y+yy, FGOBJECTS))
+								Valid = false;
+
+					if (frandom() < 0.75f)
+						Valid = false;
+					
+					// avoid door
+					if (x - (x1+1) < m_EndPos.x && m_EndPos.x < x + x2+1 &&
+						abs(m_EndPos.y - y) < 2)
+						Valid = false;
+						
+					if (Valid)
+					{
+						Set(10*16+9-16, x-x1, y-1, 0, DOODADS);
+						Set(10*16+9, x-x1, y, 0, DOODADS);
+						
+						int r = (x-x1)%2;
+
+						for (int xx = x-(x1-1); xx < x+x2; xx++)
+						{
+							int t = 10*16+11;
+							
+							if (xx == x+(-x1+x2)/2 && frandom() < 0.25f)
+								t--;
+							
+							Set(t-16, xx, y-1, 0, DOODADS);
+							Set(t, xx, y, 0, DOODADS);
+						}
+						
+						Set(10*16+9-16, x+x2-1, y-1, 1, DOODADS);
+						Set(10*16+9, x+x2-1, y, 1, DOODADS);
+					}
+				}
+			}
+		}
+	}
+}
+
 	
 void CGenLayer::GenerateAirPlatforms(int Num)
 {
@@ -618,24 +691,47 @@ void CGenLayer::Scan()
 	
 	// find player spawn spots
 	if (str_comp(g_Config.m_SvGametype, "coop") == 0)
-		for (int x = 2; x < m_Width-2; x++)
-			for (int y = 2; y < m_Height-2; y++)
-			{
-				if (m_NumPlayerSpawns < 4)
+		if (g_Config.m_SvMapGenLevel%10 == 9)
+		{
+			for (int y = m_Height-2; y > 2; y--)
+				for (int x = 2; x < m_Width-2; x++)
 				{
-					if (!Used(x-1, y) && !Used(x, y) && !Used(x+1, y) &&
-						Get(x-1, y+1) && Get(x, y+1) && Get(x+1, y+1))
+					if (m_NumPlayerSpawns < 4)
 					{
-						m_aPlayerSpawn[m_NumPlayerSpawns++] = ivec2(x, y);
-						Set(-1, x-1, y);
-						Set(-1, x, y);
-						Set(-1, x+1, y);
+						if (!Used(x-1, y) && !Used(x, y) && !Used(x+1, y) &&
+							Get(x-1, y+1) && Get(x, y+1) && Get(x+1, y+1))
+						{
+							m_aPlayerSpawn[m_NumPlayerSpawns++] = ivec2(x, y);
+							Set(-1, x-1, y);
+							Set(-1, x, y);
+							Set(-1, x+1, y);
+						}
 					}
+					else
+						break;
 				}
-				else
-					break;
-			}
-		
+		}
+		else
+		{
+			for (int x = 2; x < m_Width-2; x++)
+				for (int y = 2; y < m_Height-2; y++)
+				{
+					if (m_NumPlayerSpawns < 4)
+					{
+						if (!Used(x-1, y) && !Used(x, y) && !Used(x+1, y) &&
+							Get(x-1, y+1) && Get(x, y+1) && Get(x+1, y+1))
+						{
+							m_aPlayerSpawn[m_NumPlayerSpawns++] = ivec2(x, y);
+							Set(-1, x-1, y);
+							Set(-1, x, y);
+							Set(-1, x+1, y);
+						}
+					}
+					else
+						break;
+				}
+		}
+			
 	// safe zonens
 	for (int i = 0; i < m_NumPlayerSpawns; i++)
 	{
@@ -991,6 +1087,46 @@ ivec2 CGenLayer::GetRightPlatform()
 	{
 		if (m_aPlatform[i].x != 0)
 			if (m_aPlatform[n].x == 0 || m_aPlatform[i].x > m_aPlatform[n].x)
+				n = i;
+	}
+
+	ivec2 p = m_aPlatform[n];
+	m_aPlatform[n] = ivec2(0, 0);
+	
+	return p;
+}
+
+ivec2 CGenLayer::GetTopPlatform()
+{
+	if (m_NumPlatforms <= 0)
+		return ivec2(0, 0);
+	
+	int n = 0;
+	
+	for (int i = 0; i < m_NumPlatforms; i++)
+	{
+		if (m_aPlatform[i].x != 0)
+			if (m_aPlatform[n].y == 0 || m_aPlatform[i].y < m_aPlatform[n].y)
+				n = i;
+	}
+
+	ivec2 p = m_aPlatform[n];
+	m_aPlatform[n] = ivec2(0, 0);
+	
+	return p;
+}
+
+ivec2 CGenLayer::GetBotPlatform()
+{
+	if (m_NumPlatforms <= 0)
+		return ivec2(0, 0);
+	
+	int n = 0;
+	
+	for (int i = 0; i < m_NumPlatforms; i++)
+	{
+		if (m_aPlatform[i].x != 0)
+			if (m_aPlatform[n].y == 0 || m_aPlatform[i].y > m_aPlatform[n].y)
 				n = i;
 	}
 

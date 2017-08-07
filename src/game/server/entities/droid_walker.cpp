@@ -108,10 +108,12 @@ void CWalker::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type)
 		// random pickup drop
 		for (int i = 0; i < 3; i++)
 		{
-			if (frandom() < 0.5f)
-				GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_ARMOR, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
-			else if (frandom() < 0.4f)
+			if (frandom() < 0.3f)
+				GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_AMMO, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
+			else if (frandom() < 0.3f)
 				GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_HEALTH, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
+			else if (frandom() < 0.3f)
+				GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_ARMOR, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 			else
 				GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_KIT, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);			
 		}
@@ -142,7 +144,8 @@ void CWalker::Tick()
 		return;
 	}
 	
-	
+	if (GameServer()->Collision()->IsInFluid(m_Pos.x, m_Pos.y))
+		TakeDamage(vec2(0, 0), 2, -1, vec2(0, 0), DAMAGETYPE_FLUID);
 	
 	bool WillFire = false;
 	

@@ -37,8 +37,6 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	m_InterestPoints = 0;
 	m_BroadcastingCaptureStatus = false;
 	
-	m_EnableEmoticonGrenades = true;
-	m_EnableWeaponInfo = 2;
 	m_EnableAutoSpectating = true;
 	
 	m_IsBot = false;
@@ -78,12 +76,6 @@ void CPlayer::NewRound()
 	m_InterestPoints = 0;
 }
 
-void CPlayer::SelectWeapon(int Weapon, int Group)
-{
-	if (GetCharacter() && Weapon >= 0 && Weapon < NUM_WEAPONS && Group >= 0 && Group < 3)
-		GetCharacter()->SelectWeapon(Weapon, Group);
-}
-
 void CPlayer::SelectItem(int Item)
 {
 	if (GetCharacter() && Item >= 0 && Item < NUM_PLAYERITEMS)
@@ -104,13 +96,6 @@ void CPlayer::DropWeapon()
 	if (GetCharacter())
 		GetCharacter()->DropWeapon();
 }
-	
-void CPlayer::SwitchGroup()
-{
-	if (GetCharacter())
-		GetCharacter()->SwitchGroup();
-}
-	
 
 int CPlayer::GetTeam()
 {
@@ -747,10 +732,34 @@ void CPlayer::SetRandomSkin()
 }
 
 
+
 void CPlayer::SetCustomSkin(int Type)
 {
 	if (GetCharacter())
 		GetCharacter()->m_Type = CCharacter::PLAYER;
+	
+	// red robo
+	if (Type == 1)
+	{
+		m_TeeInfos.m_Body = 2;
+		m_TeeInfos.m_BloodColor = 2;
+		m_TeeInfos.m_ColorTopper = 65280;
+		m_TeeInfos.m_ColorSkin = m_TeeInfos.m_ColorTopper;
+		m_TeeInfos.m_ColorBody = m_TeeInfos.m_ColorTopper;
+		m_TeeInfos.m_ColorFeet = m_TeeInfos.m_ColorTopper;
+		str_copy(m_TeeInfos.m_TopperName, "none", 64);
+		str_copy(m_TeeInfos.m_EyeName, "robo4", 64);
+		
+		if (!GameServer()->m_pController->IsCoop())
+		{
+			char aBotName[128];
+			str_format(aBotName, sizeof(aBotName), "%u%u%u%u%u%u%u%u", rand()%2, rand()%2, rand()%2, rand()%2, rand()%2, rand()%2, rand()%2, rand()%2);
+			GameServer()->Server()->SetClientName(GetCID(), aBotName);
+		}
+		
+		if (GetCharacter())
+			GetCharacter()->m_Type = CCharacter::ROBOT;
+	}
 	
 	// robo
 	if (Type == 2)

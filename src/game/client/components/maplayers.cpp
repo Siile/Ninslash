@@ -146,7 +146,7 @@ void CMapLayers::OnRender()
 			RenderBufferRendered = true;
 			
 			// render tile buffer
-			RenderTools()->RenderFullScreenLayer();
+			RenderTools()->RenderFullScreenLayer(Center);
 		}
 			
 		if(!g_Config.m_GfxNoclip && pGroup->m_Version >= 2 && pGroup->m_UseClipping)
@@ -279,7 +279,7 @@ void CMapLayers::OnRender()
 		RenderBufferRendered = true;
 			
 		// render tile buffer
-		RenderTools()->RenderFullScreenLayer();
+		RenderTools()->RenderFullScreenLayer(Center);
 	}
 
 	if(!g_Config.m_GfxNoclip)

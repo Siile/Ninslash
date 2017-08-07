@@ -133,10 +133,14 @@ void CStar::Tick()
 				
 				for (int i = 0; i < 3; i++)
 				{
-					if (frandom() < 0.4f)
+					if (frandom() < 0.3f)
+						GameServer()->m_pController->DropPickup(m_Pos + vec2(0, 0), POWERUP_AMMO, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), 0);
+					else if (frandom() < 0.3f)
+						GameServer()->m_pController->DropPickup(m_Pos + vec2(0, 0), POWERUP_HEALTH, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), 0);
+					else if (frandom() < 0.3f)
 						GameServer()->m_pController->DropPickup(m_Pos + vec2(0, 0), POWERUP_ARMOR, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), 0);
 					else
-						GameServer()->m_pController->DropPickup(m_Pos + vec2(0, 0), POWERUP_HEALTH, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), 0);
+						GameServer()->m_pController->DropPickup(m_Pos + vec2(0, 0), POWERUP_KIT, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), 0);
 				}
 				
 				GameServer()->m_World.DestroyEntity(this);
@@ -150,6 +154,9 @@ void CStar::Tick()
 	{
 		m_AngleTimer += 0.025f;
 
+		if (GameServer()->Collision()->IsInFluid(m_Pos.x, m_Pos.y))
+			TakeDamage(vec2(0, -0.5f), 2, -1, vec2(0, 0), DAMAGETYPE_FLUID);
+	
 		To += vec2(sin(m_AngleTimer), cos(m_AngleTimer))*100.0f;
 		
 		if (GameServer()->Collision()->IntersectLine(m_Pos, To, 0x0, &To))

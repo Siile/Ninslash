@@ -81,6 +81,7 @@ public:
 	int NumPlatforms() { return m_NumPlatforms; }
 	int NumTopCorners() { return m_NumTopCorners; }
 
+	void GenerateFences();
 	void GenerateSlopes();
 	void RemoveSingles();
 	void GenerateBoxes();
@@ -93,6 +94,8 @@ public:
 	ivec2 GetOpenArea();
 	ivec2 GetLeftPlatform();
 	ivec2 GetRightPlatform();
+	ivec2 GetBotPlatform();
+	ivec2 GetTopPlatform();
 	ivec2 GetPlatform();
 	ivec2 GetCeiling();
 	ivec2 GetLeftCeiling();

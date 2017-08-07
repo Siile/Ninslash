@@ -583,8 +583,8 @@ Team
 Team chat
 == Командный чат
 
-Teeworlds %s is out! Download it at www.teeworlds.com!
-== Вышла Teeworlds %s! Скачивайте на www.teeworlds.com!
+Ninslash %s is out! Download it at www.ninslash.com!
+== Вышла Ninslash %s! Скачивайте на www.ninslash.com!
 
 Texture Compression
 == Сжатие текстур
@@ -658,8 +658,8 @@ Warmup
 Weapon
 == Оружие
 
-Welcome to Teeworlds
-== Добро пожаловать в Teeworlds!
+Welcome to Ninslash
+== Добро пожаловать в Ninslash!
 
 Yes
 == Да

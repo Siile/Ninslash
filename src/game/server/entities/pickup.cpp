@@ -182,8 +182,8 @@ void CPickup::Tick()
 				}
 				break;
 
-			case POWERUP_ARMOR:
-				if(pChr->IncreaseArmor(1))
+			case POWERUP_AMMO:
+				if(pChr->IncreaseAmmo(1))
 				{
 					GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR);
 					RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
@@ -192,8 +192,10 @@ void CPickup::Tick()
 				}
 				break;
 				
-			case POWERUP_MINE:
-				if(pChr->AddMine())
+			case POWERUP_ARMOR:
+				//if(pChr->AddMine())
+				
+				if(pChr->IncreaseArmor(10))
 				{
 					GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR);
 					RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
