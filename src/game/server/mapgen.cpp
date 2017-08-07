@@ -593,12 +593,12 @@ void CMapGen::GenerateScreen(CGenLayer *pTiles)
 		return;
 	int x = (p.x+p.z)/2;
 	
-	for (int y = 1; y < 5; y++)
+	for (int y = 1; y < 6; y++)
 		if (pTiles->Get(x, p.y-y))
 			return;
 	
 	
-	if (frandom() < 0.55f)
+	if (frandom() < 0.7f)
 		ModifTile(ivec2(x, p.y-1), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SCREEN);
 	else
 		ModifTile(ivec2(x, p.y-1), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_REACTOR);

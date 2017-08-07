@@ -120,7 +120,7 @@ void CBuildings::RenderScreen(const struct CNetObj_Building *pCurrent)
 	
 	int Anim = ANIM_IDLE1+(pCurrent->m_X/32)%3;
 	
-	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y+18), ATLAS_SCREEN, aAnimList[Anim], Time, vec2(1.0f, 1.0f)*0.6f, 0, 0);
+	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y+18), ATLAS_SCREEN, aAnimList[Anim], Time, vec2(1.0f, 1.0f)*0.7f, 0, 0);
 }
 
 

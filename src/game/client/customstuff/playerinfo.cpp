@@ -374,16 +374,21 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 
 
 	// adjust skeleton a bit
-	if (Animation()->m_Flip)
+	int Anim = Animation()->GetAnimation();
+	
+	if (Anim != PANIM_SLIDE && Anim != PANIM_SLIDEDOWN && Anim != PANIM_SLIDEUP && Anim != PANIM_SLIDEKICK)
 	{
-		Animation()->m_BodyTilt = -PlayerVel.x*0.000075f;
-		Animation()->m_HeadTiltCorrect = +PlayerVel.x*0.000035f;
-	}
-	else
-	{
-		Animation()->m_BodyTilt = PlayerVel.x*0.000075f;
-		Animation()->m_HeadTiltCorrect = -PlayerVel.x*0.000035f;
-	}
+		if (Animation()->m_Flip)
+		{
+			Animation()->m_BodyTilt = -PlayerVel.x*0.000075f;
+			Animation()->m_HeadTiltCorrect = +PlayerVel.x*0.000035f;
+		}
+		else
+		{
+			Animation()->m_BodyTilt = PlayerVel.x*0.000075f;
+			Animation()->m_HeadTiltCorrect = -PlayerVel.x*0.000035f;
+		}
+}
 	
 	// flame motion
 	m_aFlameAngle[0] = m_Angle;
