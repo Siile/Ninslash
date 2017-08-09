@@ -14,7 +14,12 @@ enum MeleeState
 	MELEE_DOWN,
 };
 
-
+enum Hand
+{
+	HAND_WEAPON,
+	HAND_FREE
+};
+	
 class CPlayerInfo
 {
 private:
@@ -50,7 +55,6 @@ private:
 	
 	CMelee m_Melee;
 	
-	
 	struct CHand
 	{
 		bool m_Front;
@@ -73,7 +77,7 @@ private:
 		}
 	};
 	
-	CHand m_Hand;
+	CHand m_Hand[2];
 	
 public:
 	CPlayerInfo();
@@ -84,9 +88,9 @@ public:
 	vec2 m_ArmPos;
 	
 	bool m_Turbo;
-	vec2 HandOffset();
-	void SetHandTarget(vec3 Pos);
-	int HandFrame();
+	vec2 HandOffset(int Hand);
+	void SetHandTarget(int Hand, vec3 Pos);
+	int HandFrame(int Hand);
 	
 	bool m_Hang;
 	

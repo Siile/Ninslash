@@ -109,7 +109,8 @@ void CPlayerInfo::Reset()
 	
 	m_pAnimation->Reset();
 	m_Melee.Reset();
-	m_Hand.Reset();
+	m_Hand[HAND_WEAPON].Reset();
+	m_Hand[HAND_FREE].Reset();
 }
 
 
@@ -268,39 +269,31 @@ void CPlayerInfo::FireMelee()
 }
 
 
-
-
-vec2 CPlayerInfo::HandOffset()
+vec2 CPlayerInfo::HandOffset(int Hand)
 {
-	vec2 p = m_Hand.m_Pos + m_Hand.m_Offset + vec2(0, 16);
-	
-	
-	
-	/*
-	p.x += (MeleeFlip() ? -1 : 1)*(10.0f+((m_Melee.m_FireTimer > 0) ? 6 : 0));
-	p.x += sin(m_Melee.m_Angle*1.0f)*8.0f*(MeleeFlip() ? 1 : -1);
-	//p.x *= m_Melee.m_Flip ? -1.0f : 1.0f;
-	
-	p.y += (m_Melee.m_FireTimer > 0) ? -4 : 0;
-	p.y += cos(m_Melee.m_Angle)*4.0f*(MeleeFlip() ? -1.0f : 1.0f);//*(m_Melee.m_Flip ? -1.0f : 1.0f);
-	*/
+	vec2 p = m_Hand[Hand].m_Pos + m_Hand[Hand].m_Offset + vec2(0, 16);
 	
 	return p;
 }
 
-void CPlayerInfo::SetHandTarget(vec3 Pos)
+void CPlayerInfo::SetHandTarget(int Hand, vec3 Pos)
 {
-	if (!m_Turbo)
-		m_Hand.m_TargetPos = vec2(Pos.x, Pos.y);
-	
-	if (m_Hang)
-		m_Hand.m_TargetPos = vec2(0, -46);
+	if (Hand == HAND_FREE)
+	{
+		if (!m_Turbo)
+			m_Hand[Hand].m_TargetPos = vec2(Pos.x, Pos.y);
+		
+		if (m_Hang)
+			m_Hand[Hand].m_TargetPos = vec2(0, -46);
+	}
+	else
+		m_Hand[Hand].m_TargetPos = vec2(Pos.x, Pos.y);
 }
 
 
-int CPlayerInfo::HandFrame()
+int CPlayerInfo::HandFrame(int Hand)
 {
-	if (m_Turbo)
+	if (m_Turbo && Hand == HAND_FREE)
 		return 2;
 	
 	return 0;
@@ -309,27 +302,30 @@ int CPlayerInfo::HandFrame()
 
 void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 {
-	// free hand
-	m_Hand.m_Pos += (m_Hand.m_TargetPos - m_Hand.m_Pos) / 3.0f;
-	
-	if (m_Turbo)
+	// hands
+	for (int i = 0; i < 2; i++)
 	{
-		m_Hand.m_TargetPos = -vec2(cos(m_Angle), sin(m_Angle)) * 20.0f;
-		m_Hand.m_TargetPos += m_ArmPos + vec2(0, -16);
+		m_Hand[i].m_Pos += (m_Hand[i].m_TargetPos - m_Hand[i].m_Pos) / 3.0f;
+		
+		if (m_Turbo && i == HAND_FREE)
+		{
+			m_Hand[i].m_TargetPos = -vec2(cos(m_Angle), sin(m_Angle)) * 20.0f;
+			m_Hand[i].m_TargetPos += m_ArmPos + vec2(0, -16);
+		}
+		
+		m_Hand[i].m_Vel *= 0.9f;
+		m_Hand[i].m_Vel.x -= (((PrevVel.x-PlayerVel.x)/2000)*((PrevVel.x-PlayerVel.x)/2000))/2.0f;
+		m_Hand[i].m_Vel.y += (((PrevVel.y-PlayerVel.y)/2000)*((PrevVel.y-PlayerVel.y)/2000))/2.0f;
+		m_Hand[i].m_Vel += (-m_Hand[i].m_Offset)/14.0f;
+		
+		if ((!m_Hang || i == HAND_WEAPON) && length(m_Hand[i].m_Vel) > 3.0f)
+			m_Hand[i].m_Vel = normalize(m_Hand[i].m_Vel) * 3.0f;
+		
+		m_Hand[i].m_Offset += m_Hand[i].m_Vel;
+		
+		if ((!m_Hang || i == HAND_WEAPON) && length(m_Hand[i].m_Offset) > 20.0f)
+			m_Hand[i].m_Offset = normalize(m_Hand[i].m_Offset) * 20.0f;
 	}
-	
-	m_Hand.m_Vel *= 0.9f;
-	m_Hand.m_Vel.x -= (((PrevVel.x-PlayerVel.x)/2000)*((PrevVel.x-PlayerVel.x)/2000))/2.0f;
-	m_Hand.m_Vel.y += (((PrevVel.y-PlayerVel.y)/2000)*((PrevVel.y-PlayerVel.y)/2000))/2.0f;
-	m_Hand.m_Vel += (-m_Hand.m_Offset)/14.0f;
-	
-	if (!m_Hang && length(m_Hand.m_Vel) > 3.0f)
-		m_Hand.m_Vel = normalize(m_Hand.m_Vel) * 3.0f;
-	
-	m_Hand.m_Offset += m_Hand.m_Vel;
-	
-	if (!m_Hang && length(m_Hand.m_Offset) > 20.0f)
-		m_Hand.m_Offset = normalize(m_Hand.m_Offset) * 20.0f;
 	
 	// spinning melee weapon
 	float TurnSpeedCap = 0.15f;

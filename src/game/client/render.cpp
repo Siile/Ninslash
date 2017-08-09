@@ -1831,7 +1831,7 @@ void CRenderTools::RenderForegroundHand(CPlayerInfo *PlayerInfo)
 		return;
 	
 	bool FlipY = false;
-	vec2 p = PlayerInfo->m_FGHandPos + PlayerInfo->HandOffset();
+	vec2 p = PlayerInfo->m_FGHandPos + PlayerInfo->HandOffset(HAND_FREE);
 	
 	// render hand
 	float HandBaseSize = 16.0f;		
@@ -1861,10 +1861,10 @@ void CRenderTools::RenderForegroundHand(CPlayerInfo *PlayerInfo)
 }
 
 
-void CRenderTools::RenderFreeHand(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec2 Dir, vec2 Pos, bool Behind)
+void CRenderTools::RenderFreeHand(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, int Hand, vec2 Dir, vec2 Pos, bool Behind)
 {
 	bool FlipY = false;
-	vec2 p = Pos + PlayerInfo->HandOffset();
+	vec2 p = Pos + PlayerInfo->HandOffset(Hand);
 	
 	// hax
 	PlayerInfo->m_FGHandPos = Pos;
@@ -1938,7 +1938,7 @@ void CRenderTools::RenderFreeHand(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo
 	
 	
 	// turbo effect to hand
-	if (PlayerInfo->m_Turbo)
+	if (PlayerInfo->m_Turbo && Hand == HAND_FREE)
 	{
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_MUZZLE].m_Id);
 		Graphics()->QuadsBegin();
@@ -1961,7 +1961,7 @@ void CRenderTools::RenderFreeHand(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo
 	Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, pInfo->m_ColorSkin.a);
 
 	
-	int Frame = SPRITE_HAND1_1+PlayerInfo->HandFrame();
+	int Frame = SPRITE_HAND1_1+PlayerInfo->HandFrame(Hand);
 	
 	if (Frame == SPRITE_HAND1_1 && Behind)
 		Frame++;
@@ -2028,8 +2028,10 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 	if (PlayerInfo->m_Weapon == WEAPON_SCYTHE && (PlayerInfo->m_Hang || !PlayerInfo->MeleeFront()))
 		RenderScythe(PlayerInfo, pInfo, Dir, Position);
 	
-	if (!HandFront)
-		RenderFreeHand(PlayerInfo, pInfo, Dir, Position, true);
+	if (PlayerInfo->m_Weapon == WEAPON_NONE)
+		RenderFreeHand(PlayerInfo, pInfo, HAND_WEAPON, Dir, Position, true);
+	else if (!HandFront)
+		RenderFreeHand(PlayerInfo, pInfo, HAND_FREE, Dir, Position, true);
 	
 	if (PlayerInfo->m_Hang)
 		RenderMelee(PlayerInfo, pInfo, Dir, Position);
@@ -2044,8 +2046,10 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 	if (PlayerInfo->m_Weapon == WEAPON_SCYTHE && (!PlayerInfo->m_Hang && PlayerInfo->MeleeFront()))
 		RenderScythe(PlayerInfo, pInfo, Dir, Position);
 	
-	if (HandFront)
-		RenderFreeHand(PlayerInfo, pInfo, Dir, Position);
+	if (PlayerInfo->m_Weapon == WEAPON_NONE)
+		RenderFreeHand(PlayerInfo, pInfo, HAND_FREE, Dir, Position, true);
+	else if (HandFront)
+		RenderFreeHand(PlayerInfo, pInfo, HAND_FREE, Dir, Position);
 }
 
 
@@ -2226,7 +2230,8 @@ void CRenderTools::RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, CSkeleto
 					
 					if (strcmp(pAttachment->m_Name, "hand") == 0)
 					{
-						PlayerInfo->SetHandTarget((p0+p1+p2+p3) / 4.0f - vec3(Position.x, Position.y, 0));
+						PlayerInfo->SetHandTarget(HAND_FREE, (p0+p1+p2+p3) / 4.0f - vec3(Position.x, Position.y, 0));
+						PlayerInfo->SetHandTarget(HAND_WEAPON, vec3(0, -4, 0) + (p0+p1+p2+p3) / 4.0f - vec3(Position.x, Position.y, 0));
 						Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, 0);
 					}
 
