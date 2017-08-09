@@ -176,8 +176,8 @@ void CMenus::RenderPlayers(CUIRect MainView)
 
 		// player info
 		Player.VSplitLeft(28.0f, &Button, &Player);
-		CTeeRenderInfo Info = m_pClient->m_aClients[Index].m_RenderInfo;
-		Info.m_Size = Button.h;
+		//CTeeRenderInfo Info = m_pClient->m_aClients[Index].m_RenderInfo;
+		//Info.m_Size = Button.h;
 		//RenderTools()->RenderTee(CAnimState::GetIdle(), &Info, EMOTE_NORMAL, vec2(1.0f, 0.0f), vec2(Button.x+Button.h/2, Button.y+Button.h/2));
 
 		Player.HSplitTop(1.5f, 0, &Player);

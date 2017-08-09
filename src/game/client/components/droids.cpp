@@ -146,8 +146,6 @@ void CDroids::RenderStar(const CNetObj_Droid *pPrev, const CNetObj_Droid *pCurre
 	RenderTools()->RenderStarDroid(Pos, Anim, Time, pCurrent->m_Dir*-1, pCurrent->m_Angle, pCurrent->m_Status, &DroidAnim);
 	RenderTools()->Graphics()->ShaderEnd();
 	
-	int Dir = pCurrent->m_Dir;
-	
 	// effects
 	if (pCurrent->m_Status == DROIDSTATUS_TERMINATED)
 		m_pClient->m_pEffects->Electrospark(Pos + vec2(frandom()-frandom(), frandom()-frandom())*frandom()*90, 32 + frandom()*32, vec2(frandom()-frandom(), frandom()-frandom()) * 10.0f);
@@ -181,7 +179,7 @@ void CDroids::RenderCrawler(const CNetObj_Droid *pPrev, const CNetObj_Droid *pCu
 	static float s_LastGameTickTime = Client()->GameTickTime();
 	if(m_pClient->m_Snap.m_pGameInfoObj && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
 		s_LastGameTickTime = Client()->GameTickTime();
-	float Ct = (Client()->PrevGameTick()-pCurrent->m_AttackTick)/(float)SERVER_TICK_SPEED + s_LastGameTickTime;
+	//float Ct = (Client()->PrevGameTick()-pCurrent->m_AttackTick)/(float)SERVER_TICK_SPEED + s_LastGameTickTime;
 
 	int Anim = 0;
 	float Time = 0.0f;

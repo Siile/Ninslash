@@ -297,7 +297,7 @@ CServer::CServer() : m_DemoRecorder(&m_SnapshotDelta)
 
 CPlayerData *CServer::PlayerData(int ClientID)
 {
-	if (ClientID < 0 | ClientID >= MAX_CLIENTS)
+	if (ClientID < 0 || ClientID >= MAX_CLIENTS)
 		return NULL;
 	
 	if (!m_apPlayerData[ClientID])

@@ -94,7 +94,7 @@ void CAIrobot1::DoBehavior()
 	
 	HeadToMovingDirection();
 	SeekClosestEnemyInSight();
-	bool Shooting = false;
+	//bool Shooting = false;
 	
 	// if we see a player
 	if (m_EnemiesInSight > 0)
@@ -107,7 +107,7 @@ void CAIrobot1::DoBehavior()
 		
 		if (ShootAtClosestEnemy())
 		{
-			Shooting = true;
+			//Shooting = true;
 			
 			if (m_Skin == 1 && WeaponShootRange() - m_PlayerDistance > 100)
 			{

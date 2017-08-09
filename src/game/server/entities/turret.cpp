@@ -144,12 +144,6 @@ void CTurret::Tick()
 	
 	if (m_Chainsaw >= Server()->Tick())
 	{
-		int Owner = NEUTRAL_BASE;
-		if (m_Team == TEAM_RED)
-			Owner = RED_BASE;
-		else if (m_Team == TEAM_BLUE)
-			Owner = BLUE_BASE;
-		
 		float Angle = (m_Angle + 90) / (180/pi);
 		vec2 Dir = vec2(cosf(Angle), sinf(Angle));
 		
@@ -206,7 +200,7 @@ void CTurret::Fire()
 		
 		if (m_Weapon == WEAPON_LASER)
 		{
-			CLaser *pLaser = new CLaser(GameWorld(), TurretPos+Dir*40, Dir, GameServer()->Tuning()->m_LaserReach, m_OwnerPlayer, aCustomWeapon[m_Weapon].m_Damage*(1.0f + m_PowerLevel*0.35f), m_PowerLevel, this);
+			new CLaser(GameWorld(), TurretPos+Dir*40, Dir, GameServer()->Tuning()->m_LaserReach, m_OwnerPlayer, aCustomWeapon[m_Weapon].m_Damage*(1.0f + m_PowerLevel*0.35f), m_PowerLevel, this);
 		}
 		else if (m_Weapon == WEAPON_CHAINSAW)
 			m_Chainsaw = Server()->Tick() + 500 * Server()->TickSpeed()/1000;

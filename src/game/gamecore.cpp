@@ -1128,7 +1128,7 @@ void CCharacterCore::Move()
 	
 	vec2 NewPos = m_Pos;
 	
-	if (m_Slide == 0 && m_Roll == 0 || m_Wallrun != 0)
+	if ((m_Slide == 0 && m_Roll == 0) || m_Wallrun != 0)
 	{
 		NewPos.y -= 18;
 		m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(28.0f, 64.0f), 0, !m_Sliding);

@@ -334,9 +334,6 @@ bool CAI::UpdateWaypoint()
 			m_WaypointPos = m_pPath->m_Pos;
 			m_WaypointDir = m_WaypointPos - m_Pos;
 			
-			vec2 LastPos = m_Pos;
-			CWaypointPath *Next = m_pPath;
-			
 			m_WaypointUpdateNeeded = false;
 			m_WayPointUpdateTick = GameServer()->Server()->Tick();
 		}

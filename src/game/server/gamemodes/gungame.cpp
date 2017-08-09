@@ -112,7 +112,7 @@ int CGameControllerGunGame::OnCharacterDeath(CCharacter *pVictim, CPlayer *pKill
 		else
 		{
 			// normal kill
-			if(IncreaseScore(pKiller)); // advance the weapon stage...
+			if(IncreaseScore(pKiller)) // advance the weapon stage...
 				if(pKiller->GetCharacter()) // (a dead killer? - yes, this can indeed happen!)
 					pKiller->GetCharacter()->RefillHealth(); // ...and refill the health points
 			pKiller->m_Statistics.m_Kills++;

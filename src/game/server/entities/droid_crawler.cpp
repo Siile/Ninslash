@@ -189,7 +189,7 @@ void CCrawler::Tick()
 		m_Vel *= 0.97f;
 		GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(96.0f, 128.0f), 0, false);
 	
-		bool WillFire = false;
+		//bool WillFire = false;
 		
 		if (!Target())
 			FindTarget();
@@ -203,7 +203,7 @@ void CCrawler::Tick()
 				m_MoveTarget += (vec2(To.x, m_Pos.y)-m_MoveTarget) / 10.0f;
 			}
 			
-			WillFire = true;
+			//WillFire = true;
 		}
 		
 		m_Target = (m_NewTarget+m_Target)/3;

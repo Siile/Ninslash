@@ -92,7 +92,7 @@ void CAIbunny1::DoBehavior()
 	
 	HeadToMovingDirection();
 	SeekClosestEnemyInSight();
-	bool Shooting = false;
+	//bool Shooting = false;
 	
 	// if we see a player
 	if (m_EnemiesInSight > 0)
@@ -105,7 +105,7 @@ void CAIbunny1::DoBehavior()
 		
 		if (ShootAtClosestEnemy())
 		{
-			Shooting = true;
+			//Shooting = true;
 			
 			if (WeaponShootRange() - m_PlayerDistance > 200)
 			{

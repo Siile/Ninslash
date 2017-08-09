@@ -316,8 +316,6 @@ void CGenLayer::GenerateFences()
 					{
 						Set(10*16+9-16, x-x1, y-1, 0, DOODADS);
 						Set(10*16+9, x-x1, y, 0, DOODADS);
-						
-						int r = (x-x1)%2;
 
 						for (int xx = x-(x1-1); xx < x+x2; xx++)
 						{
@@ -691,6 +689,7 @@ void CGenLayer::Scan()
 	
 	// find player spawn spots
 	if (str_comp(g_Config.m_SvGametype, "coop") == 0)
+	{
 		if (g_Config.m_SvMapGenLevel%10 == 9)
 		{
 			for (int y = m_Height-2; y > 2; y--)
@@ -731,6 +730,7 @@ void CGenLayer::Scan()
 						break;
 				}
 		}
+	}
 			
 	// safe zonens
 	for (int i = 0; i < m_NumPlayerSpawns; i++)

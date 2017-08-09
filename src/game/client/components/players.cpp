@@ -287,10 +287,10 @@ void CPlayers::RenderPlayer(
 		
 	bool Paused = true;
 		
-	static float s_LastGameTickTime = Client()->GameTickTime();
+	//static float s_LastGameTickTime = Client()->GameTickTime();
 	if(m_pClient->m_Snap.m_pGameInfoObj && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
 	{
-		s_LastGameTickTime = Client()->GameTickTime();
+		//s_LastGameTickTime = Client()->GameTickTime();
 		Paused = false;
 	}
 	
@@ -412,7 +412,7 @@ void CPlayers::RenderPlayer(
 			Graphics()->SetColor(1.0f, 0.2f, 0.2f, 0.3f*a);
 		else if (Player.m_Weapon == WEAPON_LASER || Player.m_Weapon == WEAPON_ELECTRIC)
 			Graphics()->SetColor(0.2f, 0.2f, 1.0f, 0.3f*a);
-		else if (Player.m_Weapon == WEAPON_CHAINSAW || Player.m_Weapon == WEAPON_HAMMER || Player.m_Weapon == WEAPON_SCYTHE)
+		else if (Player.m_Weapon == WEAPON_NONE || Player.m_Weapon == WEAPON_CHAINSAW || Player.m_Weapon == WEAPON_HAMMER || Player.m_Weapon == WEAPON_SCYTHE)
 			Graphics()->SetColor(1.0f, 0.2f, 0.2f, 0.0f);
 		else
 			Graphics()->SetColor(0.2f, 1.0f, 0.2f, 0.3f*a);
@@ -1321,15 +1321,13 @@ void CPlayers::OnRender()
 {
 	CustomStuff()->ClearImpacts();
 	
-	const int aTeamColors[2] = {2555648, 8912640};
-	const int aTeamFeetColors[2] = {65280, 10354432};
+	//const int aTeamColors[2] = {2555648, 8912640};
+	//const int aTeamFeetColors[2] = {65280, 10354432};
 	
 	// update RenderInfo for ninja
 	for(int i = 0; i < MAX_CLIENTS; ++i)
 	{
 		m_aRenderInfo[i] = m_pClient->m_aClients[i].m_RenderInfo;
-		
-		vec3 TeamColor = GetColorV3(aTeamColors[TEAM_RED]);
 	}
 
 	CustomStuff()->m_LocalAlive = false;

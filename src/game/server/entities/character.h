@@ -144,7 +144,7 @@ public:
 		int m_Ammo;
 		int m_PowerLevel;
 		bool m_Got;
-		bool m_Disabled;
+		bool m_Disabled; // gungame
 		bool m_Ready;
 	} m_aWeapon[NUM_WEAPONS];
 	
@@ -195,8 +195,6 @@ public:
 	
 	void GiveStartWeapon();
 
-	// next that shares a parent
-	int m_aNextWeapon[NUM_WEAPONS];
 
 	int m_Type;
 	

@@ -105,7 +105,7 @@ void CEffects::Blood(vec2 Pos, vec2 Dir, vec4 Color)
 	
 	//b.m_Gravity = 1600.0f;
 	//b.m_Friction *= 0.95f;
-	float c = frandom()*0.3f + 0.7f;
+	//float c = frandom()*0.3f + 0.7f;
 	//b.m_Color = vec4(c, c, c, 1.0f);
 	b.m_Color = Color;
 	m_pClient->m_pBlood->Add(CBlood::GROUP_BLOOD, &b);

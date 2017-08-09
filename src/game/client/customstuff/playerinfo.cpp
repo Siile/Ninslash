@@ -207,7 +207,7 @@ vec2 CPlayerInfo::MeleeOffset()
 	//p.x *= m_Melee.m_Flip ? -1.0f : 1.0f;
 	
 	p.y += (m_Melee.m_FireTimer > 0) ? -4 : 0;
-	p.y += cos(m_Melee.m_Angle)*4.0f*(MeleeFlip() ? -1.0f : 1.0f);//*(m_Melee.m_Flip ? -1.0f : 1.0f);
+	p.y += cos(m_Melee.m_Angle)*4.0f*(MeleeFlip() ? -1.0f : 1.0f);
 	
 	return p;
 }

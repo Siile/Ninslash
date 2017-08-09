@@ -115,12 +115,7 @@ void CLayers::GenerateLayers()
 				if(!(pTilemap->m_Flags&TILESLAYERFLAG_GAME))
 				{
 					// do something
-					
-					int Width = pTilemap->m_Width;
-					int Height = pTilemap->m_Height;
 					m_pTiles = static_cast<CTile *>(Map()->GetData(pTilemap->m_Data));
-
-					
 				}
 			}
 		}

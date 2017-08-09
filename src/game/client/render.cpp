@@ -488,7 +488,6 @@ void CRenderTools::RenderFullScreenLayer(vec2 Center)
 	if (!g_Config.m_GfxMultiBuffering)
 		return;
 	
-	vec2 s = vec2(Graphics()->ScreenWidth(), Graphics()->ScreenHeight());
 	Graphics()->MapScreen(0,0,Graphics()->ScreenWidth(),Graphics()->ScreenHeight());
 	
 	
@@ -499,6 +498,7 @@ void CRenderTools::RenderFullScreenLayer(vec2 Center)
 	// test, embed image to texture buffer
 	//Graphics()->ShaderBegin(SHADER_GROUND);
 	/*
+	vec2 s = vec2(Graphics()->ScreenWidth(), Graphics()->ScreenHeight());
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_METAL].m_Id);
 	
 	Graphics()->BlendBuffer();
@@ -704,7 +704,7 @@ void CRenderTools::RenderPortrait(CTeeRenderInfo *pInfo, vec2 Pos, int EyeType)
 
 				// find timelines
 				{
-					auto SlotTimelineIter = pAnimation->m_lSlotTimeline.find(pSlot->m_Name);
+					//auto SlotTimelineIter = pAnimation->m_lSlotTimeline.find(pSlot->m_Name);
 					//if(SlotTimelineIter != pAnimation->m_lSlotTimeline.end())
 					//	pSlotTimeline = &SlotTimelineIter->second;	
 				}
@@ -865,6 +865,7 @@ void CRenderTools::RenderSkeleton(vec2 Pos, int Atlas, const char *Anim, float T
 			string Attachment = pSlot->m_AttachmentSetup; // default attachment
 
 			// evaluate animations
+			/*
 			if(pAnimation)
 			{
 				CSpineSlotTimeline *pSlotTimeline = 0x0;
@@ -876,6 +877,7 @@ void CRenderTools::RenderSkeleton(vec2 Pos, int Atlas, const char *Anim, float T
 						pSlotTimeline = &SlotTimelineIter->second;	
 				}
 			}
+			*/
 
 			// find attachment
 			auto SlotIter = pSkeleton->m_lSkins["default"].find(pSlot->m_Name);
@@ -1051,6 +1053,7 @@ void CRenderTools::RenderWalker(vec2 Pos, int Anim, float Time, int Dir, float A
 			string Attachment = pSlot->m_AttachmentSetup; // default attachment
 
 			// evaluate animations
+			/*
 			if(pAnimation)
 			{
 				CSpineSlotTimeline *pSlotTimeline = 0x0;
@@ -1062,6 +1065,7 @@ void CRenderTools::RenderWalker(vec2 Pos, int Anim, float Time, int Dir, float A
 						pSlotTimeline = &SlotTimelineIter->second;	
 				}
 			}
+			*/
 
 			// find attachment
 			auto SlotIter = pSkeleton->m_lSkins["default"].find(pSlot->m_Name);
@@ -1177,6 +1181,7 @@ void CRenderTools::RenderStarDroid(vec2 Pos, int Anim, float Time, int Dir, floa
 			string Attachment = pSlot->m_AttachmentSetup; // default attachment
 
 			// evaluate animations
+			/*
 			if(pAnimation)
 			{
 				CSpineSlotTimeline *pSlotTimeline = 0x0;
@@ -1188,6 +1193,7 @@ void CRenderTools::RenderStarDroid(vec2 Pos, int Anim, float Time, int Dir, floa
 						pSlotTimeline = &SlotTimelineIter->second;	
 				}
 			}
+			*/
 
 			// find attachment
 			auto SlotIter = pSkeleton->m_lSkins["default"].find(pSlot->m_Name);
@@ -1339,6 +1345,7 @@ void CRenderTools::RenderCrawlerDroid(vec2 Pos, int Anim, float Time, int Dir, f
 			string Attachment = pSlot->m_AttachmentSetup; // default attachment
 
 			// evaluate animations
+			/*
 			if(pAnimation)
 			{
 				CSpineSlotTimeline *pSlotTimeline = 0x0;
@@ -1350,6 +1357,7 @@ void CRenderTools::RenderCrawlerDroid(vec2 Pos, int Anim, float Time, int Dir, f
 						pSlotTimeline = &SlotTimelineIter->second;	
 				}
 			}
+			*/
 
 			// find attachment
 			auto SlotIter = pSkeleton->m_lSkins["default"].find(pSlot->m_Name);
@@ -1448,7 +1456,7 @@ void CRenderTools::RenderCrawlerDroid(vec2 Pos, int Anim, float Time, int Dir, f
 
 void CRenderTools::RenderCrawlerLegs(CDroidAnim *pDroidAnim)
 {
-	vec2 Pos = pDroidAnim->m_Pos;
+	//vec2 Pos = pDroidAnim->m_Pos;
 	int Dir = pDroidAnim->m_Dir;
 	
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_CRAWLER_LEG2].m_Id);
@@ -1974,8 +1982,7 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 {
 	if (!PlayerInfo)
 		return;
-	
-	vec2 Direction = Dir;
+
 	vec2 Position = Pos;
 
 	bool HandFront = true;
@@ -2068,7 +2075,7 @@ void CRenderTools::RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, CSkeleto
 
 	pSkeleton->UpdateBones(Time, pAnimation, AnimData);
 	
-	int Foot = 0;
+	//int Foot = 0;
 
 	if(pAtlas)
 	{

@@ -187,8 +187,6 @@ void CBuildings::RenderSwitch(const struct CNetObj_Building *pCurrent)
 	RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y-14, 96);
 	Graphics()->QuadsEnd();
 	
-	int s = pCurrent->m_Status;
-	
 	Graphics()->ShaderBegin(SHADER_ELECTRIC, frandom());
 	Graphics()->QuadsBegin();
 	
@@ -357,7 +355,7 @@ void CBuildings::RenderReactor(const struct CNetObj_Building *pCurrent)
 		Graphics()->QuadsEnd();
 	}
 	
-	int f = CustomStuff()->m_SawbladeAngle * 100;
+	//int f = CustomStuff()->m_SawbladeAngle * 100;
 	
 	
 	if (Repair && frandom() < 0.15f)
@@ -406,7 +404,7 @@ void CBuildings::RenderTeslacoil(const struct CNetObj_Building *pCurrent)
 		Graphics()->QuadsEnd();
 	}
 	
-	int f = CustomStuff()->m_SawbladeAngle * 100;
+	//int f = CustomStuff()->m_SawbladeAngle * 100;
 	
 	
 	if (Repair && frandom() < 0.15f)
@@ -575,7 +573,7 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 	// render chainsaw effect
 	if (iw == WEAPON_CHAINSAW && pCurrent->m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)
 	{
-		float WeaponScale = 1.07f;
+		//float WeaponScale = 1.07f;
 		
 		if (pCurrent->m_PowerLevel == 1)
 			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_CHAINSAW2].m_Id);

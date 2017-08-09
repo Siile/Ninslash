@@ -60,7 +60,8 @@ void CAIalien1::OnCharacterSpawn(CCharacter *pChr)
 			pChr->GiveCustomWeapon(WEAPON_LASER);
 		else
 			pChr->GiveCustomWeapon(WEAPON_ELECTRIC);
-			pChr->SetHealth(60);
+		
+		pChr->SetHealth(60);
 	}
 	
 	

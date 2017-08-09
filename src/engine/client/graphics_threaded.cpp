@@ -755,8 +755,8 @@ void CGraphics_Threaded::QuadsDrawTL(const CQuadItem *pArray, int Num)
 void CGraphics_Threaded::QuadsDrawFreeform(const CFreeformItem *pArray, int Num)
 {
 
-	CCommandBuffer::SPoint Center;
-	Center.z = 0;
+	//CCommandBuffer::SPoint Center;
+	//Center.z = 0;
 	
 	dbg_assert(m_Drawing == DRAWING_QUADS, "called Graphics()->QuadsDrawFreeform without begin");
 

@@ -61,7 +61,7 @@ void CAIdefbunny1::DoBehavior()
 	SeekClosestEnemyInSight();
 
 	bool Jump = false;
-	bool Shooting = false;
+	//bool Shooting = false;
 	
 	// if we see a player
 	if (m_EnemiesInSight > 0)
@@ -70,7 +70,7 @@ void CAIdefbunny1::DoBehavior()
 		
 		if (ShootAtClosestEnemy())
 		{
-			Shooting = true;
+			//Shooting = true;
 			
 			if (SeekClosestEnemy())
 				m_TargetPos = m_PlayerPos;

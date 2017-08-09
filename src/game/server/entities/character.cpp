@@ -190,7 +190,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	
 	if (g_Config.m_SvRandomBuff)
 		GiveRandomBuff();
-	
+
 	return true;
 }
 
@@ -274,7 +274,10 @@ void CCharacter::Destroy()
 
 void CCharacter::DropWeapon()
 {
-	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE ||
+	if (m_ActiveWeapon == WEAPON_NONE)
+		return;
+	
+	if ((GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE) ||
 		!GameServer()->m_pController->CanDropWeapon(this))
 		return;
 		
@@ -282,7 +285,7 @@ void CCharacter::DropWeapon()
 		return;
 		
 	// check if using dropable weapon
-	if (m_ActiveWeapon != W_HAMMER && m_ActiveWeapon != W_TOOL && m_aWeapon[m_ActiveWeapon].m_Got)
+	if (m_ActiveWeapon != W_TOOL && m_aWeapon[m_ActiveWeapon].m_Got)
 	{
 		vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
 		
@@ -320,7 +323,7 @@ void CCharacter::DropWeapon()
 			}
 		}
 		
-		if (m_ActiveWeapon != W_SCYTHE && pNear)
+		if (m_ActiveWeapon != W_HAMMER && m_ActiveWeapon != W_SCYTHE && pNear)
 		{
 			vec2 p = pNear->m_Pos;
 			GameServer()->m_World.DestroyEntity(pNear);
@@ -353,7 +356,7 @@ void CCharacter::DropWeapon()
 				}
 			}
 			
-			if (m_ActiveWeapon != W_SCYTHE && pTurret &&
+			if (m_ActiveWeapon != W_HAMMER && m_ActiveWeapon != W_SCYTHE && pTurret &&
 				(GameServer()->m_pController->IsCoop() || (GameServer()->m_pController->IsTeamplay() && pTurret->m_Team == GetPlayer()->GetTeam()) ||
 				(!GameServer()->m_pController->IsTeamplay() && pTurret->m_OwnerPlayer == GetPlayer()->GetCID())))
 			{
@@ -396,11 +399,20 @@ void CCharacter::DropWeapon()
 			if (m_aWeapon[m_PrevWeapon].m_Got)
 				SetCustomWeapon(m_PrevWeapon);
 			else
-				SetCustomWeapon(W_HAMMER);
+			{
+				if (m_aWeapon[W_HAMMER].m_Got)
+					SetCustomWeapon(W_HAMMER);
+				else
+					SetCustomWeapon(WEAPON_NONE);
+			}
 		}
 		else
-			SetCustomWeapon(W_HAMMER);
-		
+		{
+			if (m_aWeapon[W_HAMMER].m_Got)
+				SetCustomWeapon(W_HAMMER);
+			else
+				SetCustomWeapon(WEAPON_NONE);
+		}
 	}
 }
 
@@ -409,7 +421,7 @@ void CCharacter::DropWeapon()
 
 void CCharacter::SetCustomWeapon(int CustomWeapon)
 {
-	if(CustomWeapon < 0 || CustomWeapon >= NUM_WEAPONS)
+	if(CustomWeapon >= NUM_WEAPONS)
 		return;
 	
 	if(CustomWeapon == m_ActiveWeapon)
@@ -453,7 +465,6 @@ void CCharacter::DoWeaponSwitch()
 	// switch Weapon
 	SetCustomWeapon(m_QueuedCustomWeapon);
 	m_ReloadTimer = 0;
-	m_aNextWeapon[m_ActiveWeapon] = m_ActiveWeapon;
 }
 
 
@@ -464,42 +475,47 @@ void CCharacter::HandleWeaponSwitch()
 	if(m_QueuedCustomWeapon != -1)
 		WantedWeapon = m_QueuedCustomWeapon;
 	
-	if (WantedWeapon < 0)
-		return;
+	//if (WantedWeapon < 0)
+	//	return;
 	
 	// mouse scroll
-	int Next = CountInput(m_LatestPrevInput.m_NextWeapon, m_LatestInput.m_NextWeapon).m_Presses;
-	int Prev = CountInput(m_LatestPrevInput.m_PrevWeapon, m_LatestInput.m_PrevWeapon).m_Presses;
-
-	if(Next < 128) // make sure we only try sane stuff
-	{
-		while(Next) // Next Weapon selection
-		{
-			WantedWeapon = (WantedWeapon+1)%NUM_WEAPONS;
-			if(WantedWeapon != WEAPON_TOOL && m_aWeapon[WantedWeapon].m_Got && !m_aWeapon[WantedWeapon].m_Disabled)
-				Next--;
-		}
-	}
-
-	if(Prev < 128) // make sure we only try sane stuff
-	{
-		while(Prev) // Prev Weapon selection
-		{
-			WantedWeapon = (WantedWeapon-1)<0?NUM_WEAPONS-1:WantedWeapon-1;
-			if(WantedWeapon != WEAPON_TOOL && m_aWeapon[WantedWeapon].m_Got && !m_aWeapon[WantedWeapon].m_Disabled)
-				Prev--;
-		}
-	}
 	
-	if (!m_aWeapon[WantedWeapon].m_Got)
-		WantedWeapon = WEAPON_HAMMER;
+	//if (WantedWeapon >= 0)
+	{
+		int Next = CountInput(m_LatestPrevInput.m_NextWeapon, m_LatestInput.m_NextWeapon).m_Presses;
+		int Prev = CountInput(m_LatestPrevInput.m_PrevWeapon, m_LatestInput.m_PrevWeapon).m_Presses;
 
+		if(Next < 128) // make sure we only try sane stuff
+		{
+			int i = 100;
+			while(Next && i-- > 0) // Next Weapon selection
+			{
+				WantedWeapon = (WantedWeapon+1)%NUM_WEAPONS;
+				if(WantedWeapon != WEAPON_TOOL && m_aWeapon[WantedWeapon].m_Got && !m_aWeapon[WantedWeapon].m_Disabled)
+					Next--;
+			}
+		}
+
+		if(Prev < 128) // make sure we only try sane stuff
+		{
+			int i = 100;
+			while(Prev && i-- > 0) // Prev Weapon selection
+			{
+				WantedWeapon = (WantedWeapon-1)<0?NUM_WEAPONS-1:WantedWeapon-1;
+				if(WantedWeapon != WEAPON_TOOL && m_aWeapon[WantedWeapon].m_Got && !m_aWeapon[WantedWeapon].m_Disabled)
+					Prev--;
+			}
+		}
+		
+		if (WantedWeapon >= 0 && !m_aWeapon[WantedWeapon].m_Got)
+			WantedWeapon = WEAPON_HAMMER;
+	}
 
 	// Direct Weapon selection
 	if(m_LatestInput.m_WantedWeapon)
 		WantedWeapon = m_Input.m_WantedWeapon-1;
 
-	if (m_aWeapon[WantedWeapon].m_Got)
+	if (WantedWeapon >= 0 && WantedWeapon != WEAPON_TOOL && m_aWeapon[WantedWeapon].m_Got)
 		m_QueuedCustomWeapon = WantedWeapon;
 	
 	DoWeaponSwitch();
@@ -612,15 +628,22 @@ void CCharacter::Flamethrower()
 
 void CCharacter::FireWeapon()
 {
-	if (m_aStatus[STATUS_SPAWNING] > 0.0f || m_ActiveWeapon < 0)
+	if (m_aStatus[STATUS_SPAWNING] > 0.0f)
 		return;
 	
-	DelayedFire();
-	Chainsaw();
-	Scythe();
-	Flamethrower();
+	if (m_ActiveWeapon != WEAPON_NONE)
+	{
+		DelayedFire();
+		Chainsaw();
+		Scythe();
+		Flamethrower();
+	}
+	
 	DoWeaponSwitch();
 	
+	if (m_ActiveWeapon == WEAPON_NONE)
+		return;
+		
 	if(m_ReloadTimer > 0)
 		return;
 	
@@ -934,7 +957,7 @@ void CCharacter::GiveStartWeapon()
 			return;
 		
 		GiveCustomWeapon(W_TOOL);
-		GiveCustomWeapon(W_HAMMER);
+		//GiveCustomWeapon(W_HAMMER);
 		//SetCustomWeapon(W_HAMMER);
 		
 		// load saved weapons
@@ -950,7 +973,15 @@ void CCharacter::GiveStartWeapon()
 		if (pData->m_Weapon > 0)
 			SetCustomWeapon(pData->m_Weapon);
 		else
-			SetCustomWeapon(W_HAMMER);
+		{
+			if (pData->m_Weapon == 0)
+			{
+				GiveCustomWeapon(W_HAMMER);
+				SetCustomWeapon(W_HAMMER);
+			}
+			else
+				SetCustomWeapon(WEAPON_NONE);
+		}
 		
 		m_aWeapon[1].m_PowerLevel = pData->m_aPowerLevel[1];
 		m_Kits = pData->m_Kits;

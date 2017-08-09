@@ -509,6 +509,7 @@ void CGameClient::UpdatePositions()
 	
 	// global acid level timer
 	if (m_Snap.m_pGameInfoObj)
+	{
 		if(m_Snap.m_pGameInfoObj->m_TimeLimit && !m_Snap.m_pGameInfoObj->m_WarmupTimer)
 		{
 			if (m_Snap.m_pGameInfoObj->m_TimeLimit != 0)
@@ -518,6 +519,9 @@ void CGameClient::UpdatePositions()
 		}
 		else
 			Collision()->m_GlobalAcid = false;
+	}
+	else
+		Collision()->m_GlobalAcid = false;
 
 }
 

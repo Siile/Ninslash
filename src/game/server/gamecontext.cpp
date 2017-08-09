@@ -3251,30 +3251,6 @@ void CGameContext::SaveMap(const char *path)
     char aMapFile[512];
 	//str_format(aMapFile, sizeof(aMapFile), "maps/%s_%d.map", Server()->GetMapName(), g_Config.m_SvMapGenSeed);
 	str_format(aMapFile, sizeof(aMapFile), "maps/generated.map");
-	
-	/*
-    if (path[0] == 0)
-    {
-    	// FIXME: Do this for not write&read in the same file... and yeah, is ugly :/
-    	char aMapFileCopy[512];
-    	str_format(aMapFileCopy, sizeof(aMapFileCopy), "maps/%s__.map", Server()->GetMapName());
-    	if (fileWrite.SaveMap(Storage(), pMap->GetFileReader(), aMapFileCopy))
-    	{
-    		// Really hackish :(
-    		//IOHANDLE *pTempFile = pMap->GetFileReader()->GetFile();
-    		//io_close(*pTempFile);
-    		Storage()->RemoveFile(aMapFile, IStorage::TYPE_SAVE);
-    		Storage()->RenameFile(aMapFileCopy, aMapFile, IStorage::TYPE_SAVE);
-
-			//char aMapsPath[512];
-			//Storage()->GetCompletePath(IStorage::TYPE_SAVE, "worlds", aMapsPath, sizeof(aMapsPath));
-			//str_format(aMapFileCopy, sizeof(aMapFileCopy), "%s%s/%s.map", aMapsPath, Server()->GetMapName(), Server()->GetMapName());
-			//*pTempFile = io_open(aMapFileCopy, IOFLAG_READ);
-    	}
-    }
-    else
-    	fileWrite.SaveMap(Storage(), pMap->GetFileReader(), aMapFile);
-		*/
 		
 	// Map will be saved to current dir, not to ~/.ninslash/maps or to data/maps, so we need to create a dir for it
 	Storage()->CreateFolder("maps", IStorage::TYPE_SAVE);

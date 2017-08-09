@@ -550,8 +550,6 @@ void CPicker::LastWeaponpick()
 	
 void CPicker::Weaponpick(int Weapon)
 {
-	int Group = CustomStuff()->m_SelectedGroup-1;
-	
 	if (Weapon < 0 || Weapon >= NUM_WEAPONS)
 		return;
 

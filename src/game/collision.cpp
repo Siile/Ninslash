@@ -28,6 +28,8 @@ CCollision::CCollision()
 	m_PathLen = 0;
 	m_pPath = 0;
 	m_pCenterWaypoint = 0;
+	m_GlobalAcid = true;
+	m_Time = 0;
 	
 	for (int i = 0; i < MAX_WAYPOINTS; i++)
 		m_apWaypoint[i] = 0;
@@ -514,6 +516,9 @@ int CCollision::GetTile(int x, int y)
 
 int CCollision::GetLowestPoint()
 {
+	if (!m_pLayers || !m_Height)
+		return 0;
+	
 	if (!m_LowestPoint)
 		for (int y = m_Height-1; y > 0; y--)
 			for (int x = 0; x < m_Width; x++)

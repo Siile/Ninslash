@@ -172,8 +172,8 @@ void CHud::RenderScoreHud()
 						TextRender()->Text(0, min(Whole-w-1.0f, Whole-ScoreWidthMax-ImageSize-2*Split), StartY+(t+1)*20.0f-3.0f, 8.0f, pName, -1);
 
 						// draw tee of the flag holder
-						CTeeRenderInfo Info = m_pClient->m_aClients[ID].m_RenderInfo;
-						Info.m_Size = 18.0f;
+						//CTeeRenderInfo Info = m_pClient->m_aClients[ID].m_RenderInfo;
+						//Info.m_Size = 18.0f;
 						//RenderTools()->RenderTee(CAnimState::GetIdle(), &Info, EMOTE_NORMAL, vec2(1,0),
 						//	vec2(Whole-ScoreWidthMax-Info.m_Size/2-Split, StartY+1.0f+Info.m_Size/2+t*20));
 					}
@@ -404,7 +404,9 @@ void CHud::RenderCursor()
 	Graphics()->QuadsBegin();
 
 	// render cursor
-	RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[m_pClient->m_Snap.m_pLocalCharacter->m_Weapon%NUM_WEAPONS].m_pSpriteCursor);
+	int Weapon = max(m_pClient->m_Snap.m_pLocalCharacter->m_Weapon, 0);
+	
+	RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[Weapon%NUM_WEAPONS].m_pSpriteCursor);
 	float CursorSize = 64;
 	RenderTools()->DrawSprite(m_pClient->m_pControls->m_TargetPos.x, m_pClient->m_pControls->m_TargetPos.y, CursorSize);
 	Graphics()->QuadsEnd();
@@ -469,18 +471,17 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	if(!pCharacter)
 		return;
 
-	//mapscreen_to_group(gacenter_x, center_y, layers_game_group());
-
-	
 	vec2 Area1Pos = vec2(0, 0);
 	vec2 Area2Pos = vec2(38, 5);
 	
 	float x = Area2Pos.x; // 16
 	float y = 5;
 	
+	int Weapon = pCharacter->m_Weapon;
+	
 	// render ammo count
 	// render gui stuff
-	if (aCustomWeapon[pCharacter->m_Weapon%NUM_WEAPONS].m_MaxAmmo > 0)
+	if (Weapon >= 0 && aCustomWeapon[Weapon%NUM_WEAPONS].m_MaxAmmo > 0)
 	{
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_PICKUPS].m_Id);
 
@@ -491,7 +492,7 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		IGraphics::CQuadItem Array[30];
 		int i;
 		
-		float d = 30.0f / aCustomWeapon[pCharacter->m_Weapon%NUM_WEAPONS].m_MaxAmmo;
+		float d = 30.0f / aCustomWeapon[Weapon%NUM_WEAPONS].m_MaxAmmo;
 		
 		for (i = 0; i < min(pCharacter->m_AmmoCount, 30); i++)
 			Array[i] = IGraphics::CQuadItem(x+i*4*d,y+12, 6,12);
