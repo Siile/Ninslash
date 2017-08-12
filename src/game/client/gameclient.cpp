@@ -53,6 +53,7 @@
 #include "components/particles.h"
 #include "components/light.h"
 #include "components/blood.h"
+#include "components/guts.h"
 #include "components/splatter.h"
 #include "components/spark.h"
 #include "components/players.h"
@@ -77,6 +78,7 @@ static CGameConsole gs_GameConsole;
 static CBinds gs_Binds;
 static CParticles gs_Particles;
 static CBlood gs_Blood;
+static CGuts gs_Guts;
 static CSplatter gs_Splatter;
 static CSpark gs_Spark;
 static CFluid gs_Fluid;
@@ -136,6 +138,7 @@ void CGameClient::OnConsoleInit()
 	m_pGameConsole = &::gs_GameConsole;
 	m_pParticles = &::gs_Particles;
 	m_pBlood = &::gs_Blood;
+	m_pGuts = &::gs_Guts;
 	m_pSplatter = &::gs_Splatter;
 	m_pSpark = &::gs_Spark;
 	m_pFluid = &::gs_Fluid;
@@ -169,6 +172,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(m_pEffects); // doesn't render anything, just updates effects
 	m_All.Add(m_pParticles);
 	m_All.Add(m_pBlood);
+	m_All.Add(m_pGuts);
 	m_All.Add(m_pSplatter);
 	m_All.Add(m_pSpark);
 	m_All.Add(m_pLight);
@@ -195,6 +199,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderTakeoff);
 	m_All.Add(&gs_Players);
 	m_All.Add(m_pBuildings2);
+	m_All.Add(&m_pGuts->m_RenderGuts);
 	m_All.Add(&m_pParticles->m_RenderMeat);
 	m_All.Add(&m_pBlood->m_RenderBlood);
 	m_All.Add(&m_pBlood->m_RenderAcid);

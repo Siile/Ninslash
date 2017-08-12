@@ -18,6 +18,7 @@
 #include "effects.h"
 
 #include <game/client/components/blood.h>
+#include <game/client/components/guts.h>
 #include <game/client/components/splatter.h>
 #include <game/client/components/spark.h>
 
@@ -109,6 +110,29 @@ void CEffects::Blood(vec2 Pos, vec2 Dir, vec4 Color)
 	//b.m_Color = vec4(c, c, c, 1.0f);
 	b.m_Color = Color;
 	m_pClient->m_pBlood->Add(CBlood::GROUP_BLOOD, &b);
+}
+
+void CEffects::Guts(vec2 Pos, vec2 Dir, vec4 Color)
+{
+	CGutSpill b;
+	b.SetDefault();
+	b.m_Pos = Pos;
+	
+	b.m_Spr = SPRITE_BLOOD01 + (rand()%6);
+	b.m_LifeSpan = 6.0f + frandom()*6.0f;
+	b.m_Rotspeed = 0.0f;
+	b.m_StartSize = 32.0f + frandom()*32;
+	b.m_EndSize = 24.0f;
+	b.m_Gravity = 1400.0f + frandom()*300;
+	
+	b.m_Friction = 0.85f+frandom()*0.075f;
+	
+	b.m_Vel = Dir * ((frandom()+0.50f)*1200.0f);
+
+	b.m_Rot = GetAngle(b.m_Vel);
+	
+	b.m_Color = Color;
+	m_pClient->m_pGuts->Add(CGuts::GROUP_GUTS, &b);
 }
 
 void CEffects::Acid(vec2 Pos, vec2 Dir)

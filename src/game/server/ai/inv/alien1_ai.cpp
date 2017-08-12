@@ -110,6 +110,12 @@ void CAIalien1::DoBehavior()
 		if (ShootAtClosestEnemy())
 		{
 			Shooting = true;
+			
+			if (WeaponShootRange() - m_PlayerDistance > 200)
+			{
+				m_TargetPos = normalize(m_Pos - m_PlayerPos) * WeaponShootRange();
+				GameServer()->Collision()->IntersectLine(m_Pos, m_TargetPos, 0x0, &m_TargetPos);
+			}
 		}
 		else
 		{

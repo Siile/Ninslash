@@ -528,8 +528,9 @@ void CCharacterCore::Tick(bool UseInput)
 		if(m_Input.m_Jump)
 		{
 			// jetpack physics
-			if (m_Jetpack == 1 && m_JetpackPower > 0 && m_Wallrun == 0)
+			if (m_Jetpack == 1 && m_JetpackPower > 0 && m_Wallrun == 0 && !(m_Action == COREACTION_SLIDEKICK && m_ActionState < 6))
 			{
+				/*
 				if (m_Input.m_Down)
 				{
 					if (m_Vel.y > 2.0f)
@@ -538,6 +539,7 @@ void CCharacterCore::Tick(bool UseInput)
 					m_JetpackPower -= 1;
 				}
 				else
+					*/
 				{
 					if (m_Vel.y > -JetpackControlSpeed)
 						m_Vel.y -= m_pWorld->m_Tuning.m_Gravity*JetpackControlAccel;
@@ -551,14 +553,14 @@ void CCharacterCore::Tick(bool UseInput)
 					/*if (m_Vel.y < 0.0f)
 						m_JetpackPower -= 1;
 					else*/
-						m_JetpackPower -= 2;
+						m_JetpackPower -= 1;
 				}
 			}
 			
 			
-			if(!(m_Jumped&1) && !m_Roll) // && m_LockDirection == 0)
+			if (Grounded)
 			{
-				if(Grounded)
+				if (!(m_Jumped&1) && !m_Roll)
 				{
 					if (!m_pCollision->CheckPoint(m_Pos.x, m_Pos.y-64))
 					{
@@ -591,26 +593,33 @@ void CCharacterCore::Tick(bool UseInput)
 						}
 					}
 				}
-				// launch jetpack
-				else if(!(m_Jumped&2) && m_JetpackPower > 0)
+			}
+			else
+			{
+				if(m_JetpackPower > 0)
 				{
 					m_Jetpack = 1;
-				}			
-				
-				/*
-				// air jump
-				else if(!(m_Jumped&2))
-				{
-					m_TriggeredEvents |= COREEVENT_AIR_JUMP;
-					m_Vel.y = -AirJumpPower;
-					m_Jumped |= 3;
 				}
-				*/
+					
+				// slidekick on air
+				if (!(m_Jumped&2) && !m_Roll)
+				{
+					if (m_Slide > 0 && m_Slide < 12)
+					{
+						m_Jumped |= 3;
+						m_Action = COREACTION_SLIDEKICK;
+						m_ActionState = 0;
+						m_TriggeredEvents |= COREEVENT_SLIDEKICK;
+						m_Vel.y = -JumpPower * 0.7f;
+					}
+				}
 			}
 		}
 		else
 		{
-			m_Jumped &= ~1;
+			if (Grounded || m_OnWall)
+				m_Jumped = 0;
+			//	m_Jumped &= ~1;
 			m_Jetpack = 0;
 		}
 
@@ -635,7 +644,7 @@ void CCharacterCore::Tick(bool UseInput)
 				m_Vel.y = 0.0f;
 			}
 				
-			m_JetpackPower -= 2;
+			m_JetpackPower -= 1;
 			m_HandJetpack = true;
 		}
 	}
@@ -730,8 +739,8 @@ void CCharacterCore::Tick(bool UseInput)
 	// handle jumping
 	// 1 bit = to keep track if a jump has been made on this input
 	// 2 bit = to keep track if a air-jump has been made
-	if(Grounded)
-		m_Jumped &= ~2;
+	//if(Grounded)
+	//	m_Jumped &= ~2;
 	
 	
 	if (LoadJetpack)
@@ -1016,7 +1025,8 @@ void CCharacterCore::Slide()
 {
 	float PhysSize = 28.0f;
 	
-	if (IsGrounded() && m_Input.m_Down && m_Slide == 0 && m_Roll == 0)
+	//if (IsGrounded() && m_Input.m_Down && m_Slide == 0 && m_Roll == 0)
+	if (m_Input.m_Down && m_Slide == 0 && m_Roll == 0)
 	{
 		vec2 TargetDirection = normalize(vec2(m_Input.m_TargetX, m_Input.m_TargetY));
 		if ((m_Vel.x < -7.0f && TargetDirection.x < 0) ||
@@ -1048,9 +1058,10 @@ void CCharacterCore::Slide()
 		
 		if (m_Slide > 0)
 		{
-			if (IsGrounded())
+			//if (IsGrounded())
 			{
-				m_Vel.x *= 0.98f;
+				if (IsGrounded())
+					m_Vel.x *= 0.98f;
 			
 				if (m_Vel.x < -3.5f && !m_pCollision->CheckPoint(m_Pos.x-(PhysSize+32), m_Pos.y+PhysSize/2))
 				{
@@ -1067,8 +1078,8 @@ void CCharacterCore::Slide()
 					m_Slide = -4;
 				}
 			}
-			else
-				m_Slide = -4;
+			//else
+			//	m_Slide = -4;
 		}
 		
 		// stand up animation after slide

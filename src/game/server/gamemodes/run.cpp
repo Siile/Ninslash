@@ -31,6 +31,8 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	m_GameFlags = GAMEFLAG_COOP;
 	m_GameState = STATE_STARTING;
 	
+	srand(g_Config.m_SvMapGenLevel + g_Config.m_SvMapGenSeed);
+	
 	for (int i = 0; i < MAX_ENEMIES; i++)
 		m_aEnemySpawnPos[i] = vec2(0, 0);
 	
@@ -303,6 +305,8 @@ void CGameControllerCoop::Tick()
 		// reset to first map if there's no players for 60 seconds
 		else if (Server()->Tick() > Server()->TickSpeed()*60.0f)
 		{
+			if (g_Config.m_SvMapGenRandSeed)
+				g_Config.m_SvMapGenSeed = rand()%32767;
 			FirstMap();
 		}
 	}

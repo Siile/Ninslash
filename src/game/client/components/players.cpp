@@ -168,14 +168,14 @@ void CPlayers::RenderPlayer(
 
 	m_pClient->m_pFlow->Add(Position, Vel*100.0f, 10.0f);
 
-	RenderInfo.m_GotAirJump = Player.m_Jumped&2?0:1;
+	//RenderInfo.m_GotAirJump = Player.m_Jumped&2?0:1;
 
 	// detect events
 	if(NewTick)
 	{
 		// detect air jump
-		if(!RenderInfo.m_GotAirJump && !(Prev.m_Jumped&2))
-			m_pClient->m_pEffects->AirJump(Position);
+		//if(!RenderInfo.m_GotAirJump && !(Prev.m_Jumped&2))
+		//	m_pClient->m_pEffects->AirJump(Position);
 	}
 	
 	// Player.IsOnForceTile()
@@ -371,6 +371,9 @@ void CPlayers::RenderPlayer(
 	// store some data to customstuff for easy access
 	if (pInfo.m_Local)
 	{
+		//if (rand()%10 == 1)
+		//	m_pClient->m_pEffects->Guts(Position, vec2(frandom()-frandom(), frandom()-frandom()) * 0.2f);
+		
 		CustomStuff()->m_LocalAlive = true;
 		CustomStuff()->m_LocalColor = RenderInfo.m_ColorBody;
 		CustomStuff()->m_LocalWeapon = Player.m_Weapon;
