@@ -191,6 +191,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderColorTrail);
 	m_All.Add(&m_pParticles->m_RenderLazerload); // works
 	m_All.Add(m_pBuildings);
+	m_All.Add(&m_pGuts->m_RenderGuts);
 	m_All.Add(&m_pParticles->m_RenderCrafting);
 	m_All.Add(&gs_Droids);
 	m_All.Add(m_pItems);
@@ -199,7 +200,6 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderTakeoff);
 	m_All.Add(&gs_Players);
 	m_All.Add(m_pBuildings2);
-	m_All.Add(&m_pGuts->m_RenderGuts);
 	m_All.Add(&m_pParticles->m_RenderMeat);
 	m_All.Add(&m_pBlood->m_RenderBlood);
 	m_All.Add(&m_pBlood->m_RenderAcid);

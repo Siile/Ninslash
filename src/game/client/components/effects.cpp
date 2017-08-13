@@ -116,20 +116,20 @@ void CEffects::Guts(vec2 Pos, vec2 Dir, vec4 Color)
 {
 	CGutSpill b;
 	b.SetDefault();
-	b.m_Pos = Pos;
 	
 	b.m_Spr = SPRITE_BLOOD01 + (rand()%6);
-	b.m_LifeSpan = 6.0f + frandom()*6.0f;
-	b.m_Rotspeed = 0.0f;
+	b.m_LifeSpan = 4.0f + frandom()*2.0f;
 	b.m_StartSize = 32.0f + frandom()*32;
 	b.m_EndSize = 24.0f;
 	b.m_Gravity = 1400.0f + frandom()*300;
 	
-	b.m_Friction = 0.85f+frandom()*0.075f;
+	b.m_Friction = 0.85f;
 	
-	b.m_Vel = Dir * ((frandom()+0.50f)*1200.0f);
-
-	b.m_Rot = GetAngle(b.m_Vel);
+	for (int i = 0; i < 5; i++)
+	{
+		b.m_aPos[i] = Pos + RandomDir()*(frandom()*4.0f);
+		b.m_aVel[i] = (Dir + RandomDir()) * ((frandom()+0.50f)*250.0f);
+	}
 	
 	b.m_Color = Color;
 	m_pClient->m_pGuts->Add(CGuts::GROUP_GUTS, &b);
@@ -521,6 +521,9 @@ void CEffects::PlayerDeath(vec2 Pos, int ClientID)
 	
 	if (ClientID < 0 || ClientID >= MAX_CLIENTS)
 		return;
+	
+	Guts(Pos, vec2((frandom()-frandom())*1.5f, -1-frandom()*1.7f), p.m_Color);
+	Guts(Pos, vec2((frandom()-frandom())*1.5f, -1-frandom()*1.7f), p.m_Color);
 	
 	// body
 	for (int i = 0; i < 4; i++)

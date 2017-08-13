@@ -1781,7 +1781,8 @@ void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage, bool IsTurret
 	GameServer()->m_World.RemoveEntity(this);
 	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCID()] = 0;
 	
-	GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID());
+	if ((Killer >= 0 && Weapon != WEAPON_GAME) || !m_IsBot)
+		GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID());
 	
 
 	if (m_ExplodeOnDeath && Killer >= 0)

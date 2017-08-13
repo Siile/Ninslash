@@ -9,12 +9,9 @@ struct CGutSpill
 {
 	void SetDefault()
 	{
-		m_Vel = vec2(0,0);
 		m_LifeSpan = 0;
 		m_StartSize = 32;
 		m_EndSize = 32;
-		m_Rot = 0;
-		m_Rotspeed = 0;
 		m_Gravity = 0;
 		m_Friction = 0;
 		m_FlowAffected = 1.0f;
@@ -22,8 +19,8 @@ struct CGutSpill
 		m_Freeze = false;
 	}
 
-	vec2 m_Pos;
-	vec2 m_Vel;
+	vec2 m_aPos[5];
+	vec2 m_aVel[5];
 
 	bool m_Freeze;
 	
@@ -35,9 +32,6 @@ struct CGutSpill
 
 	float m_StartSize;
 	float m_EndSize;
-
-	float m_Rot;
-	float m_Rotspeed;
 
 	float m_Gravity;
 	float m_Friction;
