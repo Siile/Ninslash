@@ -100,6 +100,7 @@ void CBinds::SetDefaults()
 	Bind(KEY_MOUSE_1, "+fire");
 	Bind(KEY_MOUSE_2, "+turbo");
 	Bind(KEY_E, "+picker");
+	Bind(KEY_W, "+charge");
 	Bind(KEY_Q, "+build");
 	Bind(KEY_MOUSE_3, "+lastweapon");
 	//Bind(KEY_MOUSE_3, "+switch");

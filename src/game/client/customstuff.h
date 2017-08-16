@@ -115,6 +115,7 @@ public:
 		return false;
 	}
 	
+	float ChargeIntensity(int Charge);
 	
 	int GetSpriteFrame(int Speed, int Range)
 	{
@@ -179,6 +180,8 @@ public:
 	int m_WantedWeapon;
 	int m_SelectedGroup;
 	
+	int m_WeaponSlot;
+	int m_aSnapWeapon[4];
 	int m_LocalWeapons;
 	int m_LocalUpgrades;
 	int m_LocalUpgrades2;

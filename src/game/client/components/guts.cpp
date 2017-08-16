@@ -171,6 +171,9 @@ void CGuts::Update(float TimePassed)
 					
 					if (d > 20)
 						m_aGuts[i].m_aVel[p] -= n*0.5f;
+					
+					if (frandom() < TimePassed*10 && m_aGuts[i].m_Life < 1.0f)
+						m_pClient->m_pEffects->Blood(m_aGuts[i].m_aPos[p], normalize(n)*4.0f + m_aGuts[i].m_aVel[p]/2, m_aGuts[i].m_Color);
 				}
 				else if (p == 4)
 				{
@@ -317,7 +320,7 @@ void CGuts::RenderGroup(int Group)
 			vec2 aPos[9];
 			
 			for (int f = 0; f < 5; f++)
-				aPos[f*2] = m_aGuts[i].m_aPos[f];
+				aPos[f*2] = m_aGuts[i].m_aPos[f]+vec2(0, 6);
 			
 			for (int f = 0; f < 4; f++)
 				aPos[1+f*2] = (aPos[f*2] + aPos[2+f*2]) / 2;

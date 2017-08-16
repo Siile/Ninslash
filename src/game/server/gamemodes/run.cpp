@@ -31,6 +31,11 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	m_GameFlags = GAMEFLAG_COOP;
 	m_GameState = STATE_STARTING;
 	
+	if (g_Config.m_SvMapGenSeed == 0 && g_Config.m_SvMapGenRandSeed)
+	{
+		g_Config.m_SvMapGenSeed = rand();
+	}
+	
 	srand(g_Config.m_SvMapGenLevel + g_Config.m_SvMapGenSeed);
 	
 	for (int i = 0; i < MAX_ENEMIES; i++)

@@ -47,6 +47,12 @@ void CCustomStuff::Reset()
 	m_SwitchTick = 0;
 	m_SelectedWeapon = 0;
 	m_LocalWeapons = 0;
+	
+	m_WeaponSlot = 0;
+	for (int i = 0; i < 4; i++)
+		m_aSnapWeapon[i] = -1;
+	
+	m_LocalWeapons = 0;
 	m_LocalUpgrades = 0;
 	m_LocalUpgrades2 = 0;
 	m_LocalKits = 0;
@@ -107,6 +113,12 @@ void CCustomStuff::Reset()
 	m_FlipBuilding = false;
 }
 
+
+
+float CCustomStuff::ChargeIntensity(int Charge)
+{
+	return (0.6f+sin(m_SawbladeAngle*3.0f)*0.35f)*min(1.0f, Charge*0.01f);
+}
 
 
 CDroidAnim *CCustomStuff::GetDroidAnim(int Index)

@@ -1664,24 +1664,40 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 		{
 			if (PlayerInfo->m_MeleeState == MELEE_UP)
 			{
-				WeaponAngle -= 140*RAD;
+				if (PlayerInfo->m_MeleeAnimState > 0.0f)
+				{
+					WeaponAngle += 140*RAD - min(140*2*RAD , PlayerInfo->m_MeleeAnimState*3.0f);
+					FlipY = true;
+				}
+				else
+				{
+					WeaponAngle -= 140*RAD;
+					FlipY = false;
+				}
 			}
 			else
 			{
-				WeaponAngle += 140*RAD;
-				FlipY = true;
+				if (PlayerInfo->m_MeleeAnimState > 0.0f)
+				{
+					WeaponAngle -= 140*RAD - min(140*2*RAD , PlayerInfo->m_MeleeAnimState*3.0f);
+					FlipY = false;
+				}
+				else
+				{
+					WeaponAngle += 140*RAD;
+					FlipY = true;
+				}
 			}
 		}
 		
+		vec2 Offset = vec2(0, 0);
+
 		WeaponPos.x += sin(-WeaponAngle*WeaponDir+90*RAD)*Radius*WeaponDir;
 		WeaponPos.y += cos(-WeaponAngle*WeaponDir+90*RAD)*Radius*WeaponDir;
 		
-		
-		vec2 Offset = vec2(0, 0);
-
 		Offset.x = sin(-WeaponAngle*WeaponDir-90*RAD)*BladeLen*WeaponDir;
 		Offset.y = cos(-WeaponAngle*WeaponDir-90*RAD)*BladeLen*WeaponDir;
-
+	
 		RenderArm(PlayerInfo, pInfo, WeaponPos, Pos);
 		
 		// render sword

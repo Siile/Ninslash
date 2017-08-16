@@ -301,20 +301,28 @@ void CPlayers::RenderPlayer(
 		{
 			pCustomPlayerInfo->m_MeleeTick = Player.m_AttackTick;
 			
+			bool Flip = false;
+			
 			if (pCustomPlayerInfo->m_MeleeState == MELEE_UP)
 			{
+				if (Direction.x < 0.0f)
+					Flip = !Flip;
+				
 				pCustomPlayerInfo->m_MeleeAnimState = 1.0f;
 				pCustomPlayerInfo->m_MeleeState = MELEE_DOWN;
-				m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), false, Player.m_WeaponPowerLevel);
+				m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), Flip, Player.m_WeaponPowerLevel);
 				pCustomPlayerInfo->m_Weapon2Recoil += Direction * 15;
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*95, vec2(frandom()-frandom(), frandom()-frandom())*30);
 			}
 			else
 			{
+				if (Direction.x < 0.0f)
+					Flip = !Flip;
+				
 				pCustomPlayerInfo->m_MeleeAnimState = 1.0f;
 				pCustomPlayerInfo->m_MeleeState = MELEE_UP;
-				m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), true, Player.m_WeaponPowerLevel);
+				m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), !Flip, Player.m_WeaponPowerLevel);
 				pCustomPlayerInfo->m_Weapon2Recoil += Direction * 15;
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*95, vec2(frandom()-frandom(), frandom()-frandom())*30);
@@ -498,6 +506,8 @@ void CPlayers::RenderPlayer(
 		if (Player.m_WeaponPowerLevel == 2)
 			ColorSwap = 0.5f;
 		
+		ColorSwap = CustomStuff()->ChargeIntensity(Player.m_ChargeLevel);
+		
 		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DEATHRAY] > 0.0f)
 			Graphics()->ShaderBegin(SHADER_DEATHRAY);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE] > 0.0f)
@@ -512,7 +522,7 @@ void CPlayers::RenderPlayer(
 			Graphics()->ShaderBegin(SHADER_RAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE], ColorSwap);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] > 0.0f)
 			Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL], ColorSwap);
-		else if (Player.m_WeaponPowerLevel > 0)
+		else // if (Player.m_WeaponPowerLevel > 0)
 			Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, ColorSwap);
 		
 		//Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
@@ -789,7 +799,7 @@ void CPlayers::RenderPlayer(
 			}
 		}
 		
-		
+		/*
 		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DEATHRAY] > 0.0f)
 			Graphics()->ShaderBegin(SHADER_DEATHRAY);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE] > 0.0f)
@@ -804,7 +814,28 @@ void CPlayers::RenderPlayer(
 			Graphics()->ShaderBegin(SHADER_RAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE]);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] > 0.0f)
 			Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL]);
+		*/
 		
+		ColorSwap = CustomStuff()->ChargeIntensity(Player.m_ChargeLevel);
+		
+		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DEATHRAY] > 0.0f)
+			Graphics()->ShaderBegin(SHADER_DEATHRAY);
+		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE] > 0.0f)
+			Graphics()->ShaderBegin(SHADER_ELECTRIC, pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE], ColorSwap);
+		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING] > 0.0f)
+			Graphics()->ShaderBegin(SHADER_SPAWN, pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING], ColorSwap);
+		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE] > 0.0f)
+			Graphics()->ShaderBegin(SHADER_DAMAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE], ColorSwap);
+		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY] > 0.0f)
+			Graphics()->ShaderBegin(SHADER_INVISIBILITY, pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY], ColorSwap);
+		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] > 0.0f)
+			Graphics()->ShaderBegin(SHADER_RAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE], ColorSwap);
+		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] > 0.0f)
+			Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL], ColorSwap);
+		else // if (Player.m_WeaponPowerLevel > 0)
+			Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, ColorSwap);
+			
+			
 		switch (Player.m_Weapon)
 		{
 			//case WEAPON_GUN: RenderHand(&RenderInfo, p, Direction, -3*pi/4, vec2(-15, 4)); break;
@@ -1381,6 +1412,13 @@ void CPlayers::OnRender()
 					CustomStuff()->m_aLocalItems[3] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item4;
 					CustomStuff()->m_aLocalItems[4] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item5;
 					CustomStuff()->m_aLocalItems[5] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item6;
+					
+					CustomStuff()->m_WeaponSlot = ((const CNetObj_PlayerInfo *)pInfo)->m_WeaponSlot;
+					
+					CustomStuff()->m_aSnapWeapon[0] = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapon1;
+					CustomStuff()->m_aSnapWeapon[1] = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapon2;
+					CustomStuff()->m_aSnapWeapon[2] = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapon3;
+					CustomStuff()->m_aSnapWeapon[3] = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapon4;
 				}
 
 				CNetObj_Character PrevChar = m_pClient->m_Snap.m_aCharacters[i].m_Prev;

@@ -840,7 +840,99 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		m_pClient->m_pControls->m_SignalWeapon = -1;
 	}
 	
+	// weapons 1 - 4
 	
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
+	
+	x += 60*Size;
+
+	for (int i = 0; i < 4; i++)
+	{
+		int w = CustomStuff()->m_aSnapWeapon[i];
+		
+		if (w >= 0)
+		{
+			// pickup icon
+			if (CustomStuff()->m_WeaponpickTimer > 0.0f)
+			{
+				int pw = clamp(CustomStuff()->m_WeaponpickWeapon, 0, NUM_WEAPONS-1);
+				if (i == pw)
+				{
+					Graphics()->QuadsBegin();
+					float a = sin(CustomStuff()->m_WeaponpickTimer*pi)*sin(CustomStuff()->m_WeaponpickTimer*pi);
+					
+					Graphics()->SetColor(1, 1, 1, a);
+					
+					RenderTools()->SelectSprite(SPRITE_WEAPON_PICKUP);
+					RenderTools()->DrawSprite(x, y, 32);
+					Graphics()->QuadsEnd();
+				}
+			}
+			
+			// upgrade icon
+			bool Upgraded = true;
+			bool Upgraded2 = true;
+
+			int u = CustomStuff()->m_LocalUpgrades;
+			if (!(u & (1<<i)))
+				Upgraded = false;
+			
+			u = CustomStuff()->m_LocalUpgrades2;
+			if (!(u & (1<<i)))
+				Upgraded2 = false;
+			
+			
+			if (Upgraded)
+			{
+				Graphics()->QuadsBegin();
+				Graphics()->SetColor(1, 1, 1, 0.5f);
+				
+				if (Upgraded2)
+					RenderTools()->SelectSprite(SPRITE_WEAPON_UPGRADED2);
+				else
+					RenderTools()->SelectSprite(SPRITE_WEAPON_UPGRADED1);
+				
+				RenderTools()->DrawSprite(x, y, 18);
+				Graphics()->QuadsEnd();
+			}
+			
+			
+			// weapon
+			Graphics()->QuadsBegin();
+			
+			bool Got = true;
+			
+			if (!Got)
+				Graphics()->SetColor(1, 1, 1, 0.5f);
+			else
+				Graphics()->SetColor(1, 1, 1, 1);
+			
+			
+			RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[w].m_pSpriteBody);
+			RenderTools()->DrawSprite(x, y, g_pData->m_Weapons.m_aId[w].m_VisualSize * Size);
+
+			Graphics()->QuadsEnd();
+			
+			if (i == CustomStuff()->m_WeaponSlot)
+			{
+				Graphics()->ShaderBegin(SHADER_GRAYSCALE, 0.0f);
+				Graphics()->QuadsBegin();
+			
+				Graphics()->SetColor(0.0f, 1.0f, 0.0f, 0.5f);
+				
+				RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[w].m_pSpriteBody);
+				RenderTools()->DrawSprite(x, y, g_pData->m_Weapons.m_aId[w].m_VisualSize * Size);
+
+				Graphics()->QuadsEnd();
+				Graphics()->ShaderEnd();
+			}
+		}
+		
+		x += 140*Size;
+	}
+		
+	
+	/*
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 	
 	for (int i = 1; i < NUM_WEAPONS; i++)
@@ -985,6 +1077,7 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		TextRender()->Text(0, x+7, y+2, 8, aBuf, -1);
 		TextRender()->TextColor(1, 1, 1, 1);
 	}
+	*/
 }
 
 void CHud::RenderSpectatorHud()

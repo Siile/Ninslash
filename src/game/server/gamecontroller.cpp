@@ -8,6 +8,7 @@
 #include "entities/bomb.h"
 #include "entities/flag.h"
 #include "entities/pickup.h"
+#include "entities/weapon.h"
 #include "entities/character.h"
 #include "entities/turret.h"
 #include "entities/teslacoil.h"
@@ -91,6 +92,27 @@ void IGameController::DropPickup(vec2 Pos, int PickupType, vec2 Force, int Picku
 			
 			if (Ammo >= 0.0f)
 				m_apPickup[i]->m_Ammo = Ammo;
+			return;
+		}
+	}
+}
+
+void IGameController::DropWeapon(vec2 Pos, vec2 Force, CWeapon *pWeapon)
+{
+	if (!pWeapon)
+		return;
+	
+	for (int i = 0; i < m_PickupCount; i++)
+	{
+		if (m_apPickup[i] && m_apPickup[i]->m_Dropable && m_apPickup[i]->m_Life <= 0 && m_apPickup[i]->GetType() == POWERUP_WEAPON)
+		{
+			m_apPickup[i]->m_Pos = Pos;
+			m_apPickup[i]->RespawnDropable();
+			m_apPickup[i]->m_pWeapon = pWeapon;
+			m_apPickup[i]->SetSubtype(pWeapon->GetWeaponType());
+			m_apPickup[i]->m_PowerLevel = pWeapon->GetPowerLevel();
+			
+			m_apPickup[i]->m_Vel = Force;
 			return;
 		}
 	}
@@ -1237,21 +1259,10 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 		m_SurvivalDeathTick = Server()->Tick() + Server()->TickSpeed()*1.0f;
 	}
 	
-	// weapon drops
-	if (g_Config.m_SvWeaponDrops)
-	{
-		pVictim->DropWeapon();
-		
-		//int DropWeapon = pVictim->m_ActiveWeapon;
-		
-		//if (!(GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE) && 
-		//	DropWeapon != W_HAMMER && DropWeapon != W_PISTOL && DropWeapon != W_TOOL)
-			//DropPickup(pVictim->m_Pos, POWERUP_WEAPON, pVictim->m_LatestHitVel, DropWeapon);
-	}
-	
 	// pickup drops
 	if (g_Config.m_SvPickupDrops && Weapon != WEAPON_GAME)
 	{
+		/*
 		for (int i = 0; i < 2; i++)
 		{
 			if (pVictim->m_Kits > 0 && frandom()*10 < 4)
@@ -1264,8 +1275,30 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 			else
 				DropPickup(pVictim->m_Pos, POWERUP_HEALTH, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 		}
+		*/
+		
+		// drop stuff on death
+		DropPickup(pVictim->m_Pos, POWERUP_HEALTH, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
+
+		if (pVictim->m_Kits > 0)
+			DropPickup(pVictim->m_Pos, POWERUP_KIT, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
+
+		
+		if (pVictim->HasAmmo())
+			DropPickup(pVictim->m_Pos, POWERUP_AMMO, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
+
+		
+		if (pVictim->GetArmor() > 0)
+			DropPickup(pVictim->m_Pos, POWERUP_ARMOR, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
+
 	}
 	
+
+	// weapon drops
+	if (g_Config.m_SvWeaponDrops)
+		pVictim->DropWeapon();
+	
+	// for active spectator mode
 	if(pKiller && (pKiller->GetTeam() != pVictim->GetPlayer()->GetTeam() || !IsTeamplay()))
 	{
 		//pKiller->m_Score++;

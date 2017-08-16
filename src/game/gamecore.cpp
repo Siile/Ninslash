@@ -98,6 +98,8 @@ void CCharacterCore::Reset()
 	
 	m_Direction = 0;
 	m_Down = 0;
+	m_Charge = 0;
+	m_ChargeLevel = 0;
 	m_Angle = 0;
 	m_Anim = 0;
 	m_LockDirection = 0;
@@ -355,6 +357,17 @@ void CCharacterCore::Tick(bool UseInput)
 		m_Direction = m_Input.m_Direction;
 		m_Down = m_Input.m_Down;
 		
+		m_Charge = m_Input.m_Charge;
+		
+		if (m_ChargeLevel < 0)
+			m_ChargeLevel++;
+		else
+		{
+			if (m_Charge)
+				m_ChargeLevel = min(m_ChargeLevel+3, 100);
+			else
+				m_ChargeLevel = max(m_ChargeLevel-5, 0);
+		}
 		
 		// sliding
 		Slide();
@@ -528,7 +541,7 @@ void CCharacterCore::Tick(bool UseInput)
 		if(m_Input.m_Jump)
 		{
 			// jetpack physics
-			if (m_Jetpack == 1 && m_JetpackPower > 0 && m_Wallrun == 0 && !(m_Action == COREACTION_SLIDEKICK && m_ActionState < 6))
+			if (m_Jetpack == 1 && m_JetpackPower > 0 && (m_Wallrun == 0 || abs(m_Wallrun) > 15) && !(m_Action == COREACTION_SLIDEKICK && m_ActionState < 6))
 			{
 				/*
 				if (m_Input.m_Down)
@@ -541,6 +554,8 @@ void CCharacterCore::Tick(bool UseInput)
 				else
 					*/
 				{
+					m_Wallrun = 0;
+					
 					if (m_Vel.y > -JetpackControlSpeed)
 						m_Vel.y -= m_pWorld->m_Tuning.m_Gravity*JetpackControlAccel;
 					
@@ -1323,6 +1338,8 @@ void CCharacterCore::Write(CNetObj_CharacterCore *pObjCore)
 	pObjCore->m_JumpTimer = m_JumpTimer;
 	pObjCore->m_Direction = m_Direction;
 	pObjCore->m_Down = m_Down;
+	pObjCore->m_Charge = m_Charge;
+	pObjCore->m_ChargeLevel = m_ChargeLevel;
 	pObjCore->m_Sliding = m_Sliding;
 	pObjCore->m_Grounded = IsGrounded();
 	pObjCore->m_Angle = m_Angle;
@@ -1353,6 +1370,8 @@ void CCharacterCore::Read(const CNetObj_CharacterCore *pObjCore)
 	m_JumpTimer = pObjCore->m_JumpTimer;
 	m_Direction = pObjCore->m_Direction;
 	m_Down = pObjCore->m_Down;
+	m_Charge = pObjCore->m_Charge;
+	m_ChargeLevel = pObjCore->m_ChargeLevel;
 	m_Sliding = pObjCore->m_Sliding;
 	m_Angle = pObjCore->m_Angle;
 	m_Anim = pObjCore->m_Anim;

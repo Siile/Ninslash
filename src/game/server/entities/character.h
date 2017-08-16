@@ -111,7 +111,8 @@ public:
 
 	bool IsAlive() const { return m_Alive; }
 	class CPlayer *GetPlayer() { return m_pPlayer; }
-
+	
+	class CWeapon *GetWeapon() { return m_apWeapon[clamp(m_WeaponSlot, 0, 3)]; }
 	
 	bool m_IsBot;
 	int m_HiddenHealth;
@@ -139,6 +140,9 @@ public:
 	// custom weapon system
 	int m_ActiveWeapon;
 	
+	int m_WeaponSlot;
+	int m_WantedSlot;
+	
 	struct CustomWeaponStat
 	{
 		int m_Ammo;
@@ -151,24 +155,16 @@ public:
 	bool AddClip(int Weapon = -1);
 	
 	// for pickup drops, easy access
-	bool HasAmmo()
-	{
-		if (m_ActiveWeapon < 0)
-			return false;
-		
-		if (m_aWeapon[m_ActiveWeapon].m_Ammo > 0 ||
-			aCustomWeapon[m_ActiveWeapon].m_MaxAmmo == 0)
-			return true;
-		
-		return false;
-	}
+	bool HasAmmo();
 	
+	/*
 	int WeaponPowerLevel(int Weapon){
 		if (Weapon < 0 || Weapon >= NUM_CUSTOMWEAPONS)
 			return 0;
 		
 		return m_aWeapon[Weapon].m_PowerLevel;
 	}
+	*/
 	
 	
 	bool GotWeapon(int Weapon)
@@ -184,6 +180,13 @@ public:
 	
 	void UpgradeWeapon();
 	
+	bool GiveWeapon(class CWeapon *pWeapon);
+	int GetWeaponType(int Slot = -1);
+	int GetWeaponSlot(){ return clamp(m_WeaponSlot, 0, 3);}
+	int GetWeaponPowerLevel(int WeaponSlot = -1);
+	
+	bool PickWeapon(class CWeapon *pWeapon);
+	
 	bool GiveCustomWeapon(int CustomWeapon, float AmmoFill = 1.0f, int PowerLevel = 0);
 	void GiveRandomWeapon(int WeaponLevel = -1);
 	void GiveAllWeapons();
@@ -194,6 +197,8 @@ public:
 	void AutoWeaponChange();
 	
 	void GiveStartWeapon();
+	
+	int m_PickedWeaponSlot;
 
 
 	int m_Type;
@@ -261,9 +266,13 @@ public:
 	
 	bool ScytheReflect();
 	
+	int GetArmor() { return m_Armor; }
+	
 private:
 	// player controlling this character
 	class CPlayer *m_pPlayer;
+	
+	class CWeapon *m_apWeapon[4];
 
 	bool m_IgnoreCollision;
 	

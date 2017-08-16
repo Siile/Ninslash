@@ -1041,7 +1041,7 @@ void CEffects::SwordHit(vec2 Pos, float Angle, bool Flip, int PowerLevel)
 	p.m_Spr = SPRITE_SWORDHIT1;
 	p.m_Frames = 3;
 	p.m_Pos = Pos;
-	p.m_LifeSpan = 0.15f;
+	p.m_LifeSpan = 0.12f;
 	p.m_StartSize = 170;
 	p.m_EndSize = 170;
 	p.m_Rot = Angle;

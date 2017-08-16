@@ -262,6 +262,12 @@ public:
 	int m_Roll;
 	int m_Slide;
 	
+	int m_Charge;
+	int m_ChargeLevel;
+	
+	bool FullCharge() { return m_ChargeLevel == 100; }
+	void EmptyCharge() { m_ChargeLevel = 0; m_Charge = 0; }
+	
 	int m_DamageTick;
 			
 	int m_Action;

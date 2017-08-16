@@ -168,6 +168,7 @@ Objects = [
 		NetIntAny("m_Jump"),
 		NetIntAny("m_Fire"),
 		NetIntAny("m_Hook"),
+		NetIntAny("m_Charge"),
 		NetIntAny("m_Down"),
 
 		NetIntRange("m_PlayerFlags", 0, 256),
@@ -215,6 +216,15 @@ Objects = [
 		NetIntRange("m_PowerLevel", 0, 9),
 		NetIntRange("m_Type", 0, 'max_int'),
 		NetIntRange("m_Subtype", 0, 'max_int'),
+	]),
+	
+	NetObject("Weapon", [
+		#NetIntAny("m_X"),
+		#NetIntAny("m_Y"),
+
+		#NetIntRange("m_PowerLevel", 0, 9),
+		#NetIntRange("m_Type", 0, 'max_int'),
+		#NetIntRange("m_Subtype", 0, 'max_int'),
 	]),
 	
 	NetObject("Droid", [
@@ -299,6 +309,9 @@ Objects = [
 		NetIntRange("m_Slide", -10, 32),
 		
 		NetIntRange("m_JumpTimer", -10, 10),
+
+		NetIntRange("m_Charge", 0, 1),
+		NetIntRange("m_ChargeLevel", -50, 100),
 		
 		NetIntAny("m_Status"),
 		NetIntAny("m_DamageTick"),
@@ -331,6 +344,12 @@ Objects = [
 
 		NetIntAny("m_Score"),
 		NetIntAny("m_Latency"),
+		
+		NetIntRange("m_WeaponSlot", 0, 3),
+		NetIntRange("m_Weapon1", -1, 'NUM_WEAPONS-1'),
+		NetIntRange("m_Weapon2", -1, 'NUM_WEAPONS-1'),
+		NetIntRange("m_Weapon3", -1, 'NUM_WEAPONS-1'),
+		NetIntRange("m_Weapon4", -1, 'NUM_WEAPONS-1'),
 		
 		NetIntAny("m_Weapons"),
 		NetIntAny("m_Upgrades"),

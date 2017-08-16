@@ -666,21 +666,20 @@ static CKeyInfo gs_aKeys[] =
 	{ "Slide / down", "+down", 0 },
 	{ "Jump", "+jump", 0 },
 	{ "Fire", "+fire", 0 },
+	{ "Charge", "+charge", 0 },
 	{ "Turbo", "+turbo", 0 },
-	{ "Build", "+build", 0 },
+	//{ "Build", "+build", 0 },
 	
 	// weapons
 	//{ "Tool", "+weapon1", 0 },
-	{ "Sword", "+weapon2", 0 },
-	{ "Shotgun", "+weapon3", 0 },
-	{ "Assault rifle", "+weapon4", 0 },
-	{ "Laser", "+weapon5", 0 },
-	{ "Electro launcher", "+weapon6", 0 },
-	{ "Grenade launcher", "+weapon7", 0 },
-	{ "Flame launcher", "+weapon8", 0 },
-	{ "Chainsaw", "+weapon9", 0 },
-	{ "Slime Sweeper", "+weapon10", 0 },
-	{ "Weapon picker", "+picker", 0 },
+	{ "Weapon 1", "+weapon2", 0 },
+	{ "Weapon 2", "+weapon3", 0 },
+	{ "Weapon 3", "+weapon4", 0 },
+	{ "Tool (repair & build)", "+weapon5", 0 },
+	
+	
+	//{ "Weapon picker", "+picker", 0 },
+	
 	{ "Select picked weapon", "+lastweapon", 0 },
 	//{ "Switch weapon", "+switch", 0 },
 	{ "Next weapon", "+nextweapon", 0 },
@@ -852,7 +851,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, WeaponSettings.x, WeaponSettings.y, 14.0f*UI()->Scale(), Localize("Weapon"), -1);
 
 			WeaponSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &WeaponSettings);
-			UiDoGetButtons(7, 20, WeaponSettings);
+			UiDoGetButtons(7, 15, WeaponSettings);
 		}
 	}
 	else
@@ -876,7 +875,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, VotingSettings.x, VotingSettings.y, 14.0f*UI()->Scale(), Localize("Voting"), -1);
 
 			VotingSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &VotingSettings);
-			UiDoGetButtons(20, 22, VotingSettings);
+			UiDoGetButtons(15, 17, VotingSettings);
 		}
 
 		// chat settings
@@ -889,7 +888,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, ChatSettings.x, ChatSettings.y, 14.0f*UI()->Scale(), Localize("Chat"), -1);
 
 			ChatSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &ChatSettings);
-			UiDoGetButtons(22, 25, ChatSettings);
+			UiDoGetButtons(17, 20, ChatSettings);
 		}
 
 		// misc settings
@@ -902,7 +901,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, MiscSettings.x, MiscSettings.y, 14.0f*UI()->Scale(), Localize("Miscellaneous"), -1);
 
 			MiscSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &MiscSettings);
-			UiDoGetButtons(25, 33, MiscSettings);
+			UiDoGetButtons(20, 28, MiscSettings);
 		}
 	}
 	

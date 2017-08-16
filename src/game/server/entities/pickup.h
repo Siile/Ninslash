@@ -17,6 +17,8 @@ public:
 	virtual void TickPaused();
 	virtual void Snap(int SnappingClient);
 
+	class CWeapon *m_pWeapon;
+	
 	float m_Ammo;
 	int m_PowerLevel;
 	
@@ -27,6 +29,7 @@ public:
 			m_SpawnTick = -1;
 			m_Flashing = false;
 			m_FlashTimer = 0;
+			ClearWeapon();
 		}
 	}
 	
@@ -41,6 +44,7 @@ public:
 		m_FlashTimer = 0;
 		m_Subtype = 0;
 		m_Treasure = false;
+		ClearWeapon();
 	}
 	
 	void RespawnTreasure()
@@ -53,6 +57,7 @@ public:
 		m_Subtype = 0;
 		m_Treasure = true;
 		m_SkipAutoRespawn = true;
+		ClearWeapon();
 	}
 	
 	void Hide()
@@ -63,6 +68,8 @@ public:
 		m_FlashTimer = 0;
 		m_Subtype = 0;
 	}
+	
+	void ClearWeapon();
 	
 	bool m_SkipAutoRespawn;
 	

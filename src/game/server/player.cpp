@@ -308,6 +308,7 @@ void CPlayer::Snap(int SnappingClient)
 	
 	if (GetCharacter())
 	{
+		/*
 		for (int i = 0; i < NUM_WEAPONS; i++)
 		{
 			if (GetCharacter()->GotWeapon(i))
@@ -320,6 +321,15 @@ void CPlayer::Snap(int SnappingClient)
 					pPlayerInfo->m_Upgrades2 |= 1 << i;
 			}
 		}
+		*/
+		
+		for (int i = 0; i < 3; i++)
+		{
+			if (GetCharacter()->GetWeaponPowerLevel(i) > 0)
+				pPlayerInfo->m_Upgrades |= 1 << i;
+			if (GetCharacter()->GetWeaponPowerLevel(i) > 1)
+				pPlayerInfo->m_Upgrades2 |= 1 << i;
+		}
 		
 		pPlayerInfo->m_Kits = GetCharacter()->m_Kits;
 		
@@ -329,6 +339,13 @@ void CPlayer::Snap(int SnappingClient)
 		pPlayerInfo->m_Item4 = GetCharacter()->m_aItem[3];
 		pPlayerInfo->m_Item5 = GetCharacter()->m_aItem[4];
 		pPlayerInfo->m_Item6 = GetCharacter()->m_aItem[5];
+		
+		pPlayerInfo->m_WeaponSlot = GetCharacter()->GetWeaponSlot();
+		
+		pPlayerInfo->m_Weapon1 = GetCharacter()->GetWeaponType(0);
+		pPlayerInfo->m_Weapon2 = GetCharacter()->GetWeaponType(1);
+		pPlayerInfo->m_Weapon3 = GetCharacter()->GetWeaponType(2);
+		pPlayerInfo->m_Weapon4 = GetCharacter()->GetWeaponType(3);
 	}
 	
 	

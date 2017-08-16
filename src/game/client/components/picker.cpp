@@ -541,7 +541,7 @@ void CPicker::LastWeaponpick()
 {
 	if (CustomStuff()->m_WeaponpickTimer > 0.0f)
 	{
-		Weaponpick(CustomStuff()->m_WeaponpickWeapon-1);
+		Weaponpick(CustomStuff()->m_WeaponpickWeapon);
 		CustomStuff()->m_LastWeaponPicked = true;
 	}
 }
@@ -553,16 +553,18 @@ void CPicker::Weaponpick(int Weapon)
 	if (Weapon < 0 || Weapon >= NUM_WEAPONS)
 		return;
 
+	/*
 	int w = CustomStuff()->m_LocalWeapons;
 	if (!(w & (1<<(Weapon+1))))
 	{
 		m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_NEGATIVE, 0);
 		return;
 	}
+	*/
 	
 	m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_POSITIVE, 0);
 
-	m_pClient->m_pControls->m_PickedWeapon = Weapon+2;
+	m_pClient->m_pControls->m_PickedWeapon = Weapon+1;
 }
 
 void CPicker::DropWeapon()
@@ -577,6 +579,8 @@ void CPicker::DropWeapon()
 	
 	CNetMsg_Cl_DropWeapon Msg;
 	Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+	
+	m_pClient->m_pControls->m_InputData.m_WantedWeapon = 0;
 }
 
 

@@ -31,7 +31,7 @@ static const char *aPlayerItemName[NUM_PLAYERITEMS] =
 */
 
 
-struct CWeapon
+struct CWeaponStat
 {
 	char m_Name[64];
 	int m_Sprite;
@@ -50,7 +50,7 @@ struct CWeapon
 	int m_AiAttackRange;
 
 
-	CWeapon(const char *Name,
+	CWeaponStat(const char *Name,
 			int Sound,
 			int Damage,
 			bool FullAuto,
@@ -134,9 +134,9 @@ const int TurretAttackRange[NUM_CUSTOMWEAPONS] =
 
 
 
-const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
+const CWeaponStat aCustomWeapon[NUM_CUSTOMWEAPONS] =
 {	
-	CWeapon(
+	CWeaponStat(
 		"Tool",
 		SOUND_TOOL_FIRE,
 		5, // damage
@@ -151,7 +151,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		0.0f, // self knockback
 		0 // ai attack range
 		),
-	CWeapon(
+	CWeaponStat(
 		"Hammer",
 		SOUND_HAMMER_FIRE,
 		20, // damage
@@ -166,7 +166,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		0.0f, // self knockback
 		270 // ai attack range
 		),
-	CWeapon(
+	CWeaponStat(
 		"Shotgun",
 		SOUND_SHOTGUN_FIRE,
 		7, // damage
@@ -182,7 +182,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		440 // ai attack range
 		),
 		/*
-	CWeapon(
+	CWeaponStat(
 		"Assault rifle",
 		SOUND_RIFLE_FIRE,
 		13, // damage
@@ -198,7 +198,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		780 // ai attack range
 		),
 		*/
-	CWeapon(
+	CWeaponStat(
 		"Robot rifle",
 		SOUND_WALKER_FIRE,
 		6, // damage
@@ -213,7 +213,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		0.5f, // self knockback
 		780 // ai attack range
 		),
-	CWeapon(
+	CWeaponStat(
 		"Laser rifle",
 		SOUND_LASER_FIRE,
 		40, // damage
@@ -228,7 +228,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		0.0f, // self knockback
 		740 // ai attack range
 		),
-	CWeapon(
+	CWeaponStat(
 		"Electro launcher",
 		SOUND_ELECTRO_FIRE,
 		10, // damage
@@ -243,7 +243,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		2.5f, // self knockback
 		780 // ai attack range
 		),
-	CWeapon(
+	CWeaponStat(
 		"Grenade launcher",
 		SOUND_GRENADE_FIRE,
 		12, // damage
@@ -258,7 +258,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		3.0f, // self knockback
 		650 // ai attack range
 		),
-	CWeapon(
+	CWeaponStat(
 		"Flame thrower",
 		SOUND_JETPACK1,
 		3, // damage
@@ -273,7 +273,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		0.0f, // self knockback
 		400 // ai attack range
 		),
-	CWeapon(
+	CWeaponStat(
 		"Chainsaw",
 		SOUND_CHAINSAW_FIRE,
 		12, // damage
@@ -288,7 +288,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		0.0f, // self knockback
 		180 // ai attack range
 		),
-	CWeapon(
+	CWeaponStat(
 		"Scythe",
 		-1,
 		3, // damage
@@ -303,7 +303,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		0.0f, // self knockback
 		750 // ai attack range
 		),
-	CWeapon(
+	CWeaponStat(
 		"Walker weapon",
 		SOUND_WALKER_FIRE,
 		3, // damage
@@ -318,7 +318,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		1.5f, // self knockback
 		780 // ai attack range
 		),
-	CWeapon(
+	CWeaponStat(
 		"Star Droid weapon",
 		SOUND_STAR_FIRE,
 		0, // damage
@@ -333,7 +333,7 @@ const CWeapon aCustomWeapon[NUM_CUSTOMWEAPONS] =
 		1.5f, // self knockback
 		500 // ai attack range
 		),
-	CWeapon(
+	CWeaponStat(
 		"Robot1",
 		SOUND_WALKER_FIRE,
 		3, // damage

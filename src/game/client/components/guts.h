@@ -51,6 +51,7 @@ public:
 	enum
 	{
 		GROUP_GUTS=0,
+		GROUP_BRAINS,
 		NUM_GROUPS
 	};
 
@@ -66,6 +67,7 @@ private:
 	enum
 	{
 		MAX_GUTS=128,
+		MAX_BRAINS=128,
 	};
 
 	void Bounce(vec2 Pos, vec2 Dir, int Group, vec4 Color);
