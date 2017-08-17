@@ -364,9 +364,9 @@ void CCharacterCore::Tick(bool UseInput)
 		else
 		{
 			if (m_Charge)
-				m_ChargeLevel = min(m_ChargeLevel+3, 100);
+				m_ChargeLevel = min(m_ChargeLevel+2, 100);
 			else
-				m_ChargeLevel = max(m_ChargeLevel-5, 0);
+				m_ChargeLevel = max(m_ChargeLevel-3, 0);
 		}
 		
 		// sliding

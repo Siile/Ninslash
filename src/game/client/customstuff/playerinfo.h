@@ -79,6 +79,9 @@ private:
 	
 	CHand m_Hand[2];
 	
+	float m_ChargeAngle;
+	int m_Charge;
+	
 public:
 	CPlayerInfo();
 	
@@ -91,6 +94,11 @@ public:
 	vec2 HandOffset(int Hand);
 	void SetHandTarget(int Hand, vec3 Pos);
 	int HandFrame(int Hand);
+	
+	float ChargeIntensity(int Charge);
+	float ChargeIntensity();
+	
+	float m_WeaponColorSwap;
 	
 	bool m_Hang;
 	

@@ -114,13 +114,6 @@ void CCustomStuff::Reset()
 }
 
 
-
-float CCustomStuff::ChargeIntensity(int Charge)
-{
-	return (0.6f+sin(m_SawbladeAngle*3.0f)*0.35f)*min(1.0f, Charge*0.01f);
-}
-
-
 CDroidAnim *CCustomStuff::GetDroidAnim(int Index)
 {
 	int i = Index%MAX_DROIDS;

@@ -49,6 +49,7 @@ void CPlayerInfo::Reset()
 	m_Jetpack = false;
 	m_Hang = false;
 	
+	m_WeaponColorSwap = 0.0f;
 	m_WeaponPowerLevel = 0;
 	
 	m_ArmPos = vec2(0, 0);
@@ -107,13 +108,33 @@ void CPlayerInfo::Reset()
 	
 	m_LoadInvisibility = false;
 	
+	// weapon charge
+	m_ChargeAngle = 0.0f;
+	m_Charge = 0;
+	
 	m_pAnimation->Reset();
 	m_Melee.Reset();
 	m_Hand[HAND_WEAPON].Reset();
 	m_Hand[HAND_FREE].Reset();
 }
 
+float CPlayerInfo::ChargeIntensity(int Charge)
+{
+	m_Charge = Charge;
+	
+	if (Charge < 100)
+	{
+		m_ChargeAngle = 0;
+		return Charge*0.01f;
+	}
+	
+	return (0.8f+cos(m_ChargeAngle*3.0f)*0.15f)*min(1.0f, Charge*0.01f);
+}
 
+float CPlayerInfo::ChargeIntensity()
+{
+	return ChargeIntensity(m_Charge);
+}
 
 void CPlayerInfo::Update(vec2 Pos)
 {
@@ -302,6 +323,11 @@ int CPlayerInfo::HandFrame(int Hand)
 
 void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 {
+	// weapon charge
+	if (m_Charge > 0)
+		m_ChargeAngle += 0.1f;
+	
+	
 	// hands
 	for (int i = 0; i < 2; i++)
 	{

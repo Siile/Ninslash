@@ -250,6 +250,7 @@ public:
 		int m_Shader;
 		float m_Intensity;
 		float m_ColorSwap;
+		float m_WeaponCharge;
 	};
 	
 	struct SCommand_ShaderEnd : public SCommand
@@ -467,7 +468,7 @@ public:
 	virtual void CreateTextureBuffer(int Width, int Height);
 	
 	virtual void LoadShaders();
-	virtual void ShaderBegin(int Shader, float Intensity = 1.0f, float ColorSwap = 0.0f);
+	virtual void ShaderBegin(int Shader, float Intensity = 1.0f, float ColorSwap = 0.0f, float WeaponCharge = 0.0f);
 	virtual void ShaderEnd();
 	
 	virtual void CameraToShaders(int ScreenWidth, int ScreenHeight, int CameraX, int CameraY);

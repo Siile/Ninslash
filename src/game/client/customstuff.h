@@ -115,8 +115,6 @@ public:
 		return false;
 	}
 	
-	float ChargeIntensity(int Charge);
-	
 	int GetSpriteFrame(int Speed, int Range)
 	{
 		return (m_Tick / Speed)%Range;

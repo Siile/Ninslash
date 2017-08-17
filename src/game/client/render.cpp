@@ -1638,6 +1638,12 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 {
 	if (PlayerInfo->m_Weapon == WEAPON_HAMMER || PlayerInfo->m_Weapon == WEAPON_TOOL)
 	{
+		/*float ChargeLevel = PlayerInfo->ChargeIntensity();
+		
+		if (ChargeLevel > 0.0f)
+			Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 0.0f, ChargeLevel);
+		*/
+		
 		float WeaponAngle = pi/2.0f - abs(GetAngle(Dir)-pi/2.0f);
 		
 		vec2 WeaponPos = Pos + PlayerInfo->m_Weapon2Recoil;
@@ -1699,6 +1705,7 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 		Offset.y = cos(-WeaponAngle*WeaponDir-90*RAD)*BladeLen*WeaponDir;
 	
 		RenderArm(PlayerInfo, pInfo, WeaponPos, Pos);
+		SetShadersForWeapon(PlayerInfo);
 		
 		// render sword
 		int Sprite = SPRITE_SWORD1_1 + int(PlayerInfo->m_MeleeAnimState);
@@ -1755,7 +1762,54 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 		
 		Graphics()->QuadsSetRotation(0);
 		Graphics()->QuadsEnd();
+		
+		/*if (ChargeLevel > 0.0f)
+			Graphics()->ShaderEnd();
+		*/
 	}
+}
+
+void CRenderTools::SetShadersForPlayer(CPlayerInfo *pCustomPlayerInfo)
+{
+	if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DEATHRAY] > 0.0f)
+		Graphics()->ShaderBegin(SHADER_DEATHRAY);
+	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE] > 0.0f)
+		Graphics()->ShaderBegin(SHADER_ELECTRIC, pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE]);
+	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING] > 0.0f)
+		Graphics()->ShaderBegin(SHADER_SPAWN, pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING]);
+	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE] > 0.0f)
+		Graphics()->ShaderBegin(SHADER_DAMAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE]);
+	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY] > 0.0f)
+		Graphics()->ShaderBegin(SHADER_INVISIBILITY, pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY]);
+	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] > 0.0f)
+		Graphics()->ShaderBegin(SHADER_RAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE]);
+	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] > 0.0f)
+		Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL]);
+	else
+		Graphics()->ShaderEnd();
+}
+
+void CRenderTools::SetShadersForWeapon(CPlayerInfo *pCustomPlayerInfo)
+{
+	float ColorSwap = pCustomPlayerInfo->m_WeaponColorSwap;
+	float ChargeLevel = pCustomPlayerInfo->ChargeIntensity();
+	
+	if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DEATHRAY] > 0.0f)
+		Graphics()->ShaderBegin(SHADER_DEATHRAY);
+	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE] > 0.0f)
+		Graphics()->ShaderBegin(SHADER_ELECTRIC, pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE], ColorSwap, ChargeLevel);
+	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING] > 0.0f)
+		Graphics()->ShaderBegin(SHADER_SPAWN, pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING], ColorSwap);
+	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE] > 0.0f)
+		Graphics()->ShaderBegin(SHADER_DAMAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE], ColorSwap, ChargeLevel);
+	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY] > 0.0f)
+		Graphics()->ShaderBegin(SHADER_INVISIBILITY, pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY], ColorSwap, ChargeLevel);
+	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] > 0.0f)
+		Graphics()->ShaderBegin(SHADER_RAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE], ColorSwap, ChargeLevel);
+	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] > 0.0f)
+		Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL], ColorSwap, ChargeLevel);
+	else
+		Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, ColorSwap, ChargeLevel);
 }
 
 void CRenderTools::RenderScythe(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec2 Dir, vec2 Pos)
@@ -1767,6 +1821,8 @@ void CRenderTools::RenderScythe(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 	
 	vec2 WeaponPos = Pos + PlayerInfo->m_Weapon2Recoil;
 	vec2 Offset = vec2(0, 0) + PlayerInfo->MeleeOffset();
+	
+	SetShadersForWeapon(PlayerInfo);
 	
 	// render effect
 	/*
@@ -2039,10 +2095,11 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 	if (Atlas > NUM_BODIES-1)
 		Atlas = NUM_BODIES-1;
 	
-	
 	// check render order with some weapons & free hand
 	if (PlayerInfo->m_Weapon == WEAPON_SCYTHE && (PlayerInfo->m_Hang || !PlayerInfo->MeleeFront()))
 		RenderScythe(PlayerInfo, pInfo, Dir, Position);
+	
+	SetShadersForPlayer(PlayerInfo);
 	
 	if (PlayerInfo->m_Weapon == WEAPON_NONE)
 		RenderFreeHand(PlayerInfo, pInfo, HAND_WEAPON, Dir, Position, true);
@@ -2051,6 +2108,8 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 	
 	if (PlayerInfo->m_Hang)
 		RenderMelee(PlayerInfo, pInfo, Dir, Position);
+	
+	SetShadersForPlayer(PlayerInfo);
 	
 	// main body
 	RenderSkeleton(Position+vec2(0, 16), pInfo, PlayerInfo->Animation(), 0, Skelebank()->m_lSkeletons[Atlas], Skelebank()->m_lAtlases[Atlas], PlayerInfo);
@@ -2061,6 +2120,8 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 	// render melee weapons
 	if (PlayerInfo->m_Weapon == WEAPON_SCYTHE && (!PlayerInfo->m_Hang && PlayerInfo->MeleeFront()))
 		RenderScythe(PlayerInfo, pInfo, Dir, Position);
+	
+	SetShadersForPlayer(PlayerInfo);
 	
 	if (PlayerInfo->m_Weapon == WEAPON_NONE)
 		RenderFreeHand(PlayerInfo, pInfo, HAND_FREE, Dir, Position, true);

@@ -452,6 +452,8 @@ void CPlayers::RenderPlayer(
 	
 	float WeaponScale = 1.0f;
 	
+	float ChargeLevel = pCustomPlayerInfo->ChargeIntensity(Player.m_ChargeLevel);
+	
 	// render chainsaw effect
 	if (!Paused && Player.m_Weapon == WEAPON_CHAINSAW && Player.m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)
 	{
@@ -495,35 +497,36 @@ void CPlayers::RenderPlayer(
 		WeaponScale *= 1.15f;
 	
 	
+	pCustomPlayerInfo->m_WeaponColorSwap = 0.0f;
 	
 	// render weapon
 	if (Player.m_Weapon > WEAPON_NONE && Player.m_Weapon != WEAPON_TOOL && Player.m_Weapon != WEAPON_HAMMER && Player.m_Weapon != WEAPON_SCYTHE)
 	{
-		float ColorSwap = 0.0f;
-		
 		if (Player.m_WeaponPowerLevel == 1)
-			ColorSwap = 1.0f;
+			pCustomPlayerInfo->m_WeaponColorSwap = 1.0f;
 		if (Player.m_WeaponPowerLevel == 2)
-			ColorSwap = 0.5f;
+			pCustomPlayerInfo->m_WeaponColorSwap = 0.5f;
 		
-		ColorSwap = CustomStuff()->ChargeIntensity(Player.m_ChargeLevel);
-		
+		/*
 		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DEATHRAY] > 0.0f)
 			Graphics()->ShaderBegin(SHADER_DEATHRAY);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_ELECTRIC, pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE], ColorSwap);
+			Graphics()->ShaderBegin(SHADER_ELECTRIC, pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE], ColorSwap, ChargeLevel);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING] > 0.0f)
 			Graphics()->ShaderBegin(SHADER_SPAWN, pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING], ColorSwap);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_DAMAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE], ColorSwap);
+			Graphics()->ShaderBegin(SHADER_DAMAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE], ColorSwap, ChargeLevel);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_INVISIBILITY, pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY], ColorSwap);
+			Graphics()->ShaderBegin(SHADER_INVISIBILITY, pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY], ColorSwap, ChargeLevel);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_RAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE], ColorSwap);
+			Graphics()->ShaderBegin(SHADER_RAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE], ColorSwap, ChargeLevel);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL], ColorSwap);
+			Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL], ColorSwap, ChargeLevel);
 		else // if (Player.m_WeaponPowerLevel > 0)
-			Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, ColorSwap);
+			Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, ColorSwap, ChargeLevel);
+			*/
+			
+		RenderTools()->SetShadersForWeapon(pCustomPlayerInfo);
 		
 		//Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
@@ -816,25 +819,28 @@ void CPlayers::RenderPlayer(
 			Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL]);
 		*/
 		
-		ColorSwap = CustomStuff()->ChargeIntensity(Player.m_ChargeLevel);
+		//float ChargeLevel = pCustomPlayerInfo->ChargeIntensity(Player.m_ChargeLevel);
 		
+		/*
 		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DEATHRAY] > 0.0f)
 			Graphics()->ShaderBegin(SHADER_DEATHRAY);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_ELECTRIC, pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE], ColorSwap);
+			Graphics()->ShaderBegin(SHADER_ELECTRIC, pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE], ColorSwap, ChargeLevel);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING] > 0.0f)
 			Graphics()->ShaderBegin(SHADER_SPAWN, pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING], ColorSwap);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_DAMAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE], ColorSwap);
+			Graphics()->ShaderBegin(SHADER_DAMAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE], ColorSwap, ChargeLevel);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_INVISIBILITY, pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY], ColorSwap);
+			Graphics()->ShaderBegin(SHADER_INVISIBILITY, pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY], ColorSwap, ChargeLevel);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_RAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE], ColorSwap);
+			Graphics()->ShaderBegin(SHADER_RAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE], ColorSwap, ChargeLevel);
 		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL], ColorSwap);
+			Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL], ColorSwap, ChargeLevel);
 		else // if (Player.m_WeaponPowerLevel > 0)
-			Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, ColorSwap);
+			Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, ColorSwap, ChargeLevel);
+			*/
 			
+		RenderTools()->SetShadersForWeapon(pCustomPlayerInfo);
 			
 		switch (Player.m_Weapon)
 		{
@@ -1186,6 +1192,7 @@ void CPlayers::RenderPlayer(
 	//pCustomPlayerInfo->UpdatePhysics(vec2(Player.m_VelX, Player.m_VelY), vec2(Prev.m_VelX, Prev.m_VelY));
 	
 	// set correct shader
+	/*
 	if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DEATHRAY] > 0.0f)
 		Graphics()->ShaderBegin(SHADER_DEATHRAY);
 	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE] > 0.0f)
@@ -1200,9 +1207,11 @@ void CPlayers::RenderPlayer(
 		Graphics()->ShaderBegin(SHADER_RAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE]);
 	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] > 0.0f)
 		Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL]);
+	*/
 	
 	//Graphics()->ShaderBegin(SHADER_ELECTRIC, 1.0f);
 	
+	RenderTools()->SetShadersForPlayer(pCustomPlayerInfo);
 	RenderTools()->RenderPlayer(&CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID], &RenderInfo, Player.m_Weapon, Player.m_Emote, Direction, Position);
 	
 	

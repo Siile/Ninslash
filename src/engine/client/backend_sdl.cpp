@@ -481,6 +481,10 @@ void CCommandProcessorFragment_OpenGL::Cmd_ShaderBegin(const CCommandBuffer::SCo
 	if (location >= 0)
 		glUniform1fARB(location, GLfloat(pCommand->m_ColorSwap));
 	
+	location = pShader->getUniformLocation("weaponcharge");
+	if (location >= 0)
+		glUniform1fARB(location, GLfloat(pCommand->m_WeaponCharge));
+	
 	location = pShader->getUniformLocation("screenwidth");
 	if (location >= 0)
 		glUniform1iARB(location, GLint(m_ScreenWidth));

@@ -253,6 +253,8 @@ public:
 	template<typename TKeyframe>
 	static void RenderEvalSkeletonAnim(TKeyframe *pKeyFrame, int NumKeyframes, float Time, typename TKeyframe::KeyframeReturnType *pResult);
 
+	void SetShadersForPlayer(class CPlayerInfo *pCustomPlayerInfo);
+	void SetShadersForWeapon(class CPlayerInfo *pCustomPlayerInfo);
 
 	// map render methods (gc_render_map.cpp)
 	static void RenderEvalEnvelope(CEnvPoint *pPoints, int NumPoints, int Channels, float Time, float *pResult);
