@@ -235,7 +235,7 @@ void CPickup::Tick()
 				{
 					if (!m_pWeapon)
 					{
-						m_pWeapon = new CWeapon(GameWorld(), m_Subtype);
+						m_pWeapon = GameServer()->NewWeapon(m_Subtype);
 						m_pWeapon->m_PowerLevel = m_PowerLevel;
 					}
 					

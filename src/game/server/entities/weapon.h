@@ -14,6 +14,7 @@ public:
 	virtual void Tick();
 	virtual void TickPaused();
 	virtual void Snap(int SnappingClient);
+	virtual void CreateProjectile();
 	
 	const int GetWeaponType() { return m_Type; }
 	const int GetPowerLevel() { return m_PowerLevel; }
@@ -25,10 +26,19 @@ public:
 	
 	void Clear();
 	
+	bool Fire(float *pKnockback = NULL);
+	
+	
 	bool Drop();
 	bool Upgrade();
 	bool CanSwitch();
 	bool AddClip();
+	
+	void SetOwner(int CID);
+	
+	void SetPos(vec2 Pos, vec2 Direction, float Radius);
+	
+	bool FullAuto(){ return m_FullAuto; }
 	
 	bool UsesAmmo(){ return m_MaxAmmo > 0 ? true : false; }
 	int GetAmmo(){ return m_Ammo; }
@@ -37,8 +47,17 @@ public:
 	int m_MaxAmmo;
 	int m_PowerLevel;
 	
-private:
+protected:
+	vec2 m_Pos;
+	vec2 m_Direction;
+	
 	int m_Type;
+	int m_ReloadTimer;
+	bool m_FullAuto;
+	int m_Owner;
+	
+private:
+
 };
 
 #endif

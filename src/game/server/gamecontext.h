@@ -152,6 +152,8 @@ public:
 	void CreateSound(vec2 Pos, int Sound, int Mask=-1);
 	void CreateSoundGlobal(int Sound, int Target=-1);
 
+	class CWeapon *NewWeapon(int WeaponType);
+	
 	bool AddBuilding(int Kit, vec2 Pos, int Owner);
 	
 	void CreateChainsawHit(int DamageOwner, int Weapon, int PowerLevel, vec2 PlayerPos, vec2 ProjPos, class CCharacter *OwnerChr = NULL, class CBuilding *OwnerBuilding = NULL);

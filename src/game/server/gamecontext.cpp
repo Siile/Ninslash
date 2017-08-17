@@ -21,11 +21,19 @@
 #include "gamemodes/gungame.h"
 
 #include <game/server/entities/projectile.h>
+#include <game/server/entities/laser.h>
 #include <game/server/entities/building.h>
 #include <game/server/entities/turret.h>
 #include <game/server/entities/teslacoil.h>
 #include <game/server/entities/droid.h>
 #include <game/server/entities/superexplosion.h>
+
+#include <game/server/entities/weapon.h>
+#include <game/server/entities/weapons/shotgun.h>
+#include <game/server/entities/weapons/laser.h>
+#include <game/server/entities/weapons/rifle.h>
+#include <game/server/entities/weapons/grenadelauncher.h>
+#include <game/server/entities/weapons/electric.h>
 
 #include <game/server/playerdata.h>
 
@@ -205,6 +213,35 @@ void CGameContext::CreateEffect(int FX, vec2 Pos)
 	}
 }
 
+
+CWeapon *CGameContext::NewWeapon(int WeaponType)
+{
+	CWeapon *pWeapon = NULL;
+	switch (WeaponType)
+	{
+		case W_RIFLE:
+			pWeapon = new CRifle(&m_World);
+			break;
+		case W_ELECTRIC:
+			pWeapon = new CElectric(&m_World);
+			break;
+		case W_SHOTGUN:
+			pWeapon = new CShotgun(&m_World);
+			break;
+		case W_LASER:
+			pWeapon = new CLaserrifle(&m_World);
+			break;
+		case W_GRENADELAUNCHER:
+			pWeapon = new CGrenadelauncher(&m_World);
+			break;
+		
+		default:
+			pWeapon = new CWeapon(&m_World, WeaponType);
+			break;
+	};
+	
+	return pWeapon;
+}
 
 
 bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
@@ -577,6 +614,20 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int PowerLevel,
 		
 	default:;
 	};
+	
+	
+	if (Weapon == WEAPON_LASER)
+	{
+		Dmg += PowerLevel*0.35f;
+			
+		float a = GetAngle(Direction);
+		a += (frandom()-frandom())*aCustomWeapon[Weapon].m_BulletSpread;
+			
+		new CLaser(&m_World, Pos, vec2(cosf(a), sinf(a)), Tuning()->m_LaserReach, DamageOwner, aCustomWeapon[Weapon].m_Damage * Dmg, PowerLevel);
+
+		return;
+	}
+	
 	
 	int ShotSpread = aCustomWeapon[Weapon].m_ShotSpread;
 	

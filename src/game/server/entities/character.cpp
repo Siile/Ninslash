@@ -7,6 +7,7 @@
 
 #include "character.h"
 #include "weapon.h"
+#include "weapons/shotgun.h"
 #include "building.h"
 #include "turret.h"
 #include "laser.h"
@@ -201,8 +202,8 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		GiveRandomBuff();
 
 	//m_apWeapon[1] = new CWeapon(GameWorld(), W_GRENADELAUNCHER);
-	m_apWeapon[2] = new CWeapon(GameWorld(), W_HAMMER);
-	m_apWeapon[3] = new CWeapon(GameWorld(), W_TOOL);
+	m_apWeapon[2] = GameServer()->NewWeapon(W_SHOTGUN);
+	m_apWeapon[3] = GameServer()->NewWeapon(W_TOOL);
 	
 	return true;
 }
@@ -939,10 +940,37 @@ void CCharacter::FireWeapon()
 {
 	if (m_aStatus[STATUS_SPAWNING] > 0.0f)
 		return;
+
+	if (GetWeaponType() == WEAPON_NONE)
+		return;
+
+	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
+	GetWeapon()->SetPos(m_Pos, Direction, m_ProximityRadius);
+	GetWeapon()->SetOwner(GetPlayer()->GetCID());
 	
-	//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "debug", "FireWeapon");
-	//return;
+	// trigger finger
+	bool FullAuto = m_IsBot ? true : GetWeapon()->FullAuto();
 	
+	bool WillFire = false;
+	if(CountInput(m_LatestPrevInput.m_Fire, m_LatestInput.m_Fire).m_Presses)
+		WillFire = true;
+
+	if(FullAuto && (m_LatestInput.m_Fire&1))
+		WillFire = true;
+
+	if(!WillFire)
+		return;
+	
+	float Knockback = 0.0f;
+	
+	// fire
+	if (GetWeapon()->Fire(&Knockback))
+	{
+		m_Recoil -= Direction * Knockback;
+		m_AttackTick = Server()->Tick();
+	}
+	
+	/*
 	m_WeaponSlot = clamp(m_WeaponSlot, 0, 3);
 	m_ActiveWeapon = GetWeaponType();
 	
@@ -1165,11 +1193,7 @@ void CCharacter::FireWeapon()
 				PowerLevel = 1;
 			}
 			
-			/*if (m_ActiveWeapon == WEAPON_RIFLE && m_Type == CCharacter::ROBOT)
-				GameServer()->CreateProjectile(m_pPlayer->GetCID(), W_DROID_WALKER, 0, ProjStartPos, Direction);
-			else
-				*/
-				GameServer()->CreateProjectile(m_pPlayer->GetCID(), m_ActiveWeapon, PowerLevel, ProjStartPos, Direction);
+			GameServer()->CreateProjectile(m_pPlayer->GetCID(), m_ActiveWeapon, PowerLevel, ProjStartPos, Direction);
 			
 		} break;
 
@@ -1203,6 +1227,7 @@ void CCharacter::FireWeapon()
 		if (m_ActiveWeapon == WEAPON_RIFLE && m_Type == CCharacter::ROBOT)
 			m_aWeapon[m_ActiveWeapon].m_Ammo = 20;
 	}
+	*/
 }
 
 
@@ -1232,11 +1257,13 @@ void CCharacter::DelayedFire()
 	
 void CCharacter::HandleWeapons()
 {
+	/*
 	if(m_ReloadTimer > 0)
 	{
 		m_ReloadTimer--;
 		return;
 	}
+	*/
 	
 	// fire Weapon, if wanted
 	FireWeapon();
@@ -1336,7 +1363,7 @@ void CCharacter::GiveRandomWeapon(int WeaponLevel)
 	while (w == W_TOOL)
 		w = rand()%(NUM_WEAPONS);
 	
-	GiveWeapon(new CWeapon(GameWorld(), w));
+	GiveWeapon(GameServer()->NewWeapon(w));
 	
 	GiveCustomWeapon(w);
 	SetCustomWeapon(w);
