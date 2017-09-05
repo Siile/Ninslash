@@ -85,6 +85,9 @@ private:
 public:
 	CPlayerInfo();
 	
+	bool m_Charged;
+	bool m_ChargeFailed;
+	
 	vec2 m_FGHandPos;
 	
 	bool m_Jetpack;

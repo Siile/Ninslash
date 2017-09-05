@@ -85,7 +85,7 @@ enum CustomWeapons
 	WEAPON_NONE = -1,
 	W_NONE = -1,
 	W_TOOL = 0,
-	W_HAMMER,
+	W_SWORD,
 	W_SHOTGUN,
 	W_RIFLE,
 	W_LASER,
@@ -106,7 +106,7 @@ enum CustomWeapons
 const int BotAttackRange[NUM_CUSTOMWEAPONS] =
 {
 	120, // W_TOOL,
-	270, // W_HAMMER,
+	270, // W_SWORD,
 	440, // W_SHOTGUN,
 	780, // W_RIFLE,
 	740, // W_LASER,
@@ -119,7 +119,7 @@ const int BotAttackRange[NUM_CUSTOMWEAPONS] =
 const int TurretAttackRange[NUM_CUSTOMWEAPONS] =
 {
 	0, // W_TOOL,
-	0, // W_HAMMER,
+	0, // W_SWORD,
 	180, // W_CHAINSAW,
 	//750, // W_PISTOL,
 	440, // W_SHOTGUN,
@@ -154,13 +154,13 @@ const CWeaponStat aCustomWeapon[NUM_CUSTOMWEAPONS] =
 	CWeaponStat(
 		"Hammer",
 		SOUND_HAMMER_FIRE,
-		20, // damage
+		25, // damage
 		true, // autofire
 		0, // bullet spread
 		1, // shot spread
 		0, // powerup size
 		0, // max ammo
-		0, // bullet life
+		0.30f, // bullet life
 		350, // bullet reload time
 		1.0f, // knockback
 		0.0f, // self knockback

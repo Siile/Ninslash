@@ -313,6 +313,10 @@ Objects = [
 		NetIntRange("m_Charge", 0, 1),
 		NetIntRange("m_ChargeLevel", -50, 100),
 		
+		NetIntRange("m_Special", 0, 64),
+		NetIntAny("m_SpecialState1"),
+		NetIntAny("m_SpecialState2"),
+		
 		NetIntAny("m_Status"),
 		NetIntAny("m_DamageTick"),
 		

@@ -43,6 +43,9 @@ CPlayerInfo *CPlayerInfo::GetIdle()
 
 void CPlayerInfo::Reset()
 {
+	m_Charged = true;
+	m_ChargeFailed = false;
+	
 	m_FGHandPos = vec2(0, 0);
 	m_Angle = 0;
 	m_Turbo = false;
@@ -125,8 +128,13 @@ float CPlayerInfo::ChargeIntensity(int Charge)
 	if (Charge < 100)
 	{
 		m_ChargeAngle = 0;
+		
+		if (Charge < 0)
+			return -Charge*0.025f;
+			
 		return Charge*0.01f;
 	}
+
 	
 	return (0.8f+cos(m_ChargeAngle*3.0f)*0.15f)*min(1.0f, Charge*0.01f);
 }

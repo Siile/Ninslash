@@ -1740,7 +1740,9 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 		Graphics()->QuadsBegin();
 		Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, pInfo->m_ColorSkin.a);
 
-		Graphics()->QuadsSetRotation((WeaponAngle)*WeaponDir+pi/2 + (FlipY ? 0 : 0));
+		float Angle = (WeaponAngle)*WeaponDir+pi/2;
+		
+		Graphics()->QuadsSetRotation(Angle);
 		
 		int Frame = (FlipY ? 3 : 0);
 		

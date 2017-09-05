@@ -15,7 +15,7 @@ static const int GG_WEAPON_ORDER[] = {
 		W_FLAMER,
 		W_CHAINSAW,
 		W_RIFLE,
-		W_HAMMER, // knife
+		W_SWORD, // knife
 };
 static const int GG_NUM_USED_WEAPONS = sizeof(GG_WEAPON_ORDER)/sizeof(GG_WEAPON_ORDER[0]);
 

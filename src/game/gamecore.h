@@ -114,6 +114,15 @@ inline vec2 CalcPos(vec2 Pos, vec2 Velocity, float Curvature, float Speed, float
 	return n;
 }
 
+inline vec2 CalcTPos(vec2 Pos, vec2 Velocity, float Curvature, float Speed, float Time)
+{
+	vec2 n;
+	Time *= Speed;
+	n.x = Pos.x + Velocity.x*Time + sin(Time*0.03f)*min(Time*0.1f, 48.0f)*Velocity.y;
+	n.y = Pos.y + Velocity.y*Time + Curvature/10000*(Time*Time) + sin(Time*0.03f)*min(Time*0.1f, 48.0f)*Velocity.x;
+	return n;
+}
+
 inline vec2 CalcLogPos(vec2 Pos, vec2 Velocity, float Curvature, float Speed, float Time)
 {
 	vec2 n;
@@ -264,6 +273,10 @@ public:
 	
 	int m_Charge;
 	int m_ChargeLevel;
+	
+	int m_Special;
+	int m_SpecialState1;
+	int m_SpecialState2;
 	
 	bool FullCharge() { return m_ChargeLevel == 100; }
 	void EmptyCharge() { m_ChargeLevel = 0; m_Charge = 0; }

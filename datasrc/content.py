@@ -215,6 +215,11 @@ container.sounds.Add(SoundSet("player_spawn", FileList("audio/vo_teefault_spawn-
 container.sounds.Add(SoundSet("player_skid", FileList("audio/sfx_skid-%02d.wv", 4)))
 container.sounds.Add(SoundSet("tee_cry", FileList("audio/vo_teefault_cry-%02d.wv", 2)))
 
+
+container.sounds.Add(SoundSet("charge_up", ["audio/sfx_charge_up.wv"]))
+container.sounds.Add(SoundSet("charge_full", ["audio/sfx_charge_full.wv"]))
+container.sounds.Add(SoundSet("charge_down", ["audio/sfx_charge_down.wv"]))
+
 container.sounds.Add(SoundSet("hook_loop", FileList("audio/hook_loop-%02d.wv", 2)))
 
 container.sounds.Add(SoundSet("hook_attach_ground", FileList("audio/hook_attach-%02d.wv", 3)))
@@ -838,6 +843,9 @@ container.sprites.Add(Sprite("weapon_rifle_pickup", set_pickups, 2,0,1,1))
 container.sprites.Add(Sprite("weapon_rifle_cursor", set_game, 0,12,2,2))
 container.sprites.Add(Sprite("weapon_rifle_proj", set_game, 6,6,2,2))
 container.sprites.Add(Sprite("weapon_rifle_proj2", set_game, 6,8,2,2))
+container.sprites.Add(Sprite("weapon_rifle_proj3", set_game, 6,10,2,2))
+container.sprites.Add(Sprite("weapon_rifle_proj4", set_game, 6,12,2,2))
+container.sprites.Add(Sprite("weapon_rifle_proj5", set_game, 6,14,2,2))
 container.sprites.Add(Sprite("weapon_rifle_muzzle1", set_game, 8,4,3,2))
 container.sprites.Add(Sprite("weapon_rifle_muzzle2", set_game, 12,4,3,2))
 container.sprites.Add(Sprite("weapon_rifle_muzzle3", set_game, 16,4,3,2))

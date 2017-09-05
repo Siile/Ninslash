@@ -17,8 +17,13 @@ void CRifle::Reset()
 
 void CRifle::CreateProjectile()
 {
+	int PowerLevel = m_PowerLevel;
+	
+	if (m_Charge >= 100)
+		PowerLevel += 3;
+	
 	vec2 ProjStartPos = m_Pos+m_Direction*m_ProximityRadius*0.75f + vec2(0, -11);
-	GameServer()->CreateProjectile(m_Owner, m_Type, m_PowerLevel, ProjStartPos, m_Direction);
+	GameServer()->CreateProjectile(m_Owner, m_Type, PowerLevel, ProjStartPos, m_Direction);
 }
 
 

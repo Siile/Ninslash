@@ -202,7 +202,9 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		GiveRandomBuff();
 
 	//m_apWeapon[1] = new CWeapon(GameWorld(), W_GRENADELAUNCHER);
-	m_apWeapon[2] = GameServer()->NewWeapon(W_SHOTGUN);
+	m_apWeapon[0] = GameServer()->NewWeapon(W_SHOTGUN);
+	m_apWeapon[1] = GameServer()->NewWeapon(W_RIFLE);
+	m_apWeapon[2] = GameServer()->NewWeapon(W_SWORD);
 	m_apWeapon[3] = GameServer()->NewWeapon(W_TOOL);
 	
 	return true;
@@ -443,7 +445,7 @@ void CCharacter::DropWeapon()
 			}
 		}
 		
-		if (m_ActiveWeapon != W_HAMMER && m_ActiveWeapon != W_SCYTHE && pNear)
+		if (m_ActiveWeapon != W_SWORD && m_ActiveWeapon != W_SCYTHE && pNear)
 		{
 			vec2 p = pNear->m_Pos;
 			GameServer()->m_World.DestroyEntity(pNear);
@@ -476,7 +478,7 @@ void CCharacter::DropWeapon()
 				}
 			}
 			
-			if (m_ActiveWeapon != W_HAMMER && m_ActiveWeapon != W_SCYTHE && pTurret &&
+			if (m_ActiveWeapon != W_SWORD && m_ActiveWeapon != W_SCYTHE && pTurret &&
 				(GameServer()->m_pController->IsCoop() || (GameServer()->m_pController->IsTeamplay() && pTurret->m_Team == GetPlayer()->GetTeam()) ||
 				(!GameServer()->m_pController->IsTeamplay() && pTurret->m_OwnerPlayer == GetPlayer()->GetCID())))
 			{
@@ -520,16 +522,16 @@ void CCharacter::DropWeapon()
 				SetCustomWeapon(m_PrevWeapon);
 			else
 			{
-				if (m_aWeapon[W_HAMMER].m_Got)
-					SetCustomWeapon(W_HAMMER);
+				if (m_aWeapon[W_SWORD].m_Got)
+					SetCustomWeapon(W_SWORD);
 				else
 					SetCustomWeapon(WEAPON_NONE);
 			}
 		}
 		else
 		{
-			if (m_aWeapon[W_HAMMER].m_Got)
-				SetCustomWeapon(W_HAMMER);
+			if (m_aWeapon[W_SWORD].m_Got)
+				SetCustomWeapon(W_SWORD);
 			else
 				SetCustomWeapon(WEAPON_NONE);
 		}
@@ -576,7 +578,7 @@ void CCharacter::DropWeapon()
 			}
 		}
 		
-		if (m_ActiveWeapon != W_HAMMER && m_ActiveWeapon != W_SCYTHE && pNear)
+		if (m_ActiveWeapon != W_SWORD && m_ActiveWeapon != W_SCYTHE && pNear)
 		{
 			vec2 p = pNear->m_Pos;
 			GameServer()->m_World.DestroyEntity(pNear);
@@ -609,7 +611,7 @@ void CCharacter::DropWeapon()
 				}
 			}
 			
-			if (m_ActiveWeapon != W_HAMMER && m_ActiveWeapon != W_SCYTHE && pTurret &&
+			if (m_ActiveWeapon != W_SWORD && m_ActiveWeapon != W_SCYTHE && pTurret &&
 				(GameServer()->m_pController->IsCoop() || (GameServer()->m_pController->IsTeamplay() && pTurret->m_Team == GetPlayer()->GetTeam()) ||
 				(!GameServer()->m_pController->IsTeamplay() && pTurret->m_OwnerPlayer == GetPlayer()->GetCID())))
 			{
@@ -653,16 +655,16 @@ void CCharacter::DropWeapon()
 				SetCustomWeapon(m_PrevWeapon);
 			else
 			{
-				if (m_aWeapon[W_HAMMER].m_Got)
-					SetCustomWeapon(W_HAMMER);
+				if (m_aWeapon[W_SWORD].m_Got)
+					SetCustomWeapon(W_SWORD);
 				else
 					SetCustomWeapon(WEAPON_NONE);
 			}
 		}
 		else
 		{
-			if (m_aWeapon[W_HAMMER].m_Got)
-				SetCustomWeapon(W_HAMMER);
+			if (m_aWeapon[W_SWORD].m_Got)
+				SetCustomWeapon(W_SWORD);
 			else
 				SetCustomWeapon(WEAPON_NONE);
 		}
@@ -850,6 +852,7 @@ void CCharacter::Jumppad()
 
 void CCharacter::Chainsaw()
 {	
+/*
 	if (m_ActiveWeapon == WEAPON_CHAINSAW && m_Chainsaw >= Server()->Tick())
 	{
 		GetPlayer()->m_InterestPoints += 3;
@@ -866,6 +869,7 @@ void CCharacter::Chainsaw()
 	}
 	else
 		m_Chainsaw = 0;
+	*/
 }
 
 bool CCharacter::ScytheReflect()
@@ -936,6 +940,13 @@ void CCharacter::Flamethrower()
 }
 
 
+void CCharacter::TriggerSpecialAttack(int Type)
+{
+	m_Core.m_Special = 1;
+	m_Core.m_SpecialState1 = 20;
+}
+
+
 void CCharacter::FireWeapon()
 {
 	if (m_aStatus[STATUS_SPAWNING] > 0.0f)
@@ -947,6 +958,7 @@ void CCharacter::FireWeapon()
 	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
 	GetWeapon()->SetPos(m_Pos, Direction, m_ProximityRadius);
 	GetWeapon()->SetOwner(GetPlayer()->GetCID());
+	GetWeapon()->SetCharge(m_Core.m_ChargeLevel);
 	
 	// trigger finger
 	bool FullAuto = m_IsBot ? true : GetWeapon()->FullAuto();
@@ -958,6 +970,9 @@ void CCharacter::FireWeapon()
 	if(FullAuto && (m_LatestInput.m_Fire&1))
 		WillFire = true;
 
+	if (m_Core.m_ChargeLevel < 0)
+		WillFire = false;
+	
 	if(!WillFire)
 		return;
 	
@@ -968,6 +983,11 @@ void CCharacter::FireWeapon()
 	{
 		m_Recoil -= Direction * Knockback;
 		m_AttackTick = Server()->Tick();
+	}
+	else
+	{
+		
+		
 	}
 	
 	/*
@@ -1074,9 +1094,6 @@ void CCharacter::FireWeapon()
 		case WEAPON_HAMMER:
 		{
 			GetPlayer()->m_InterestPoints += 10;
-			
-			// reset objects Hit
-			m_NumObjectsHit = 0;
 
 			//vec2 ProjStartPos = m_Core.m_Vel*3 +m_Pos+Direction*m_ProximityRadius*2.5f + vec2(0, -20);
 			vec2 ProjStartPos = m_Pos+Direction*m_ProximityRadius*2.5f + vec2(0, -20);
@@ -1296,8 +1313,8 @@ void CCharacter::GiveStartWeapon()
 			return;
 		
 		GiveCustomWeapon(W_TOOL);
-		//GiveCustomWeapon(W_HAMMER);
-		//SetCustomWeapon(W_HAMMER);
+		//GiveCustomWeapon(W_SWORD);
+		//SetCustomWeapon(W_SWORD);
 		
 		// load saved weapons
 		CPlayerData *pData = GameServer()->Server()->PlayerData(GetPlayer()->GetCID());
@@ -1315,8 +1332,8 @@ void CCharacter::GiveStartWeapon()
 		{
 			if (pData->m_Weapon == 0)
 			{
-				GiveCustomWeapon(W_HAMMER);
-				SetCustomWeapon(W_HAMMER);
+				GiveCustomWeapon(W_SWORD);
+				SetCustomWeapon(W_SWORD);
 			}
 			else
 				SetCustomWeapon(WEAPON_NONE);
@@ -1343,8 +1360,8 @@ void CCharacter::GiveStartWeapon()
 	}
 	
 	GiveCustomWeapon(W_TOOL);
-	GiveCustomWeapon(W_HAMMER);
-	SetCustomWeapon(W_HAMMER);
+	GiveCustomWeapon(W_SWORD);
+	SetCustomWeapon(W_SWORD);
 	
 	if (g_Config.m_SvRandomWeapons)
 	{

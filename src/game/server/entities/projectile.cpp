@@ -34,6 +34,9 @@ CProjectile::CProjectile(CGameWorld *pGameWorld, int Weapon, int Owner, vec2 Pos
 	if (Weapon == W_DROID_STAR)
 		m_Explosive = EXPLOSION_GREEN;
 	
+	if (Weapon == W_SWORD)
+		m_Force = 2.0f;
+	
 	GameWorld()->InsertEntity(this);
 }
 
@@ -73,6 +76,11 @@ vec2 CProjectile::GetPos(float Time)
 
 	switch(m_Weapon)
 	{
+		case W_SWORD:
+			Curvature = 0;
+			Speed = GameServer()->Tuning()->m_SwordSpeed;
+			break;
+			
 		case WEAPON_GRENADE:
 			Curvature = GameServer()->Tuning()->m_GrenadeCurvature;
 			Speed = GameServer()->Tuning()->m_GrenadeSpeed;
@@ -101,6 +109,9 @@ vec2 CProjectile::GetPos(float Time)
 		case W_DROID_WALKER:
 			Curvature = GameServer()->Tuning()->m_WalkerCurvature;
 			Speed = GameServer()->Tuning()->m_WalkerSpeed;
+			
+			if (m_PowerLevel > 2)
+				Speed *= 0.5f;
 			break;
 			
 		case W_DROID_STAR:
@@ -111,6 +122,9 @@ vec2 CProjectile::GetPos(float Time)
 
 	if (m_Weapon == W_DROID_STAR)
 		return CalcLogPos(m_Pos, m_Direction, Curvature, Speed, Time);
+	
+	if (m_Weapon == W_RIFLE && m_PowerLevel == 3)
+		return CalcTPos(m_Pos, m_Direction, Curvature, Speed, Time);
 	
 	return CalcPos(m_Pos, m_Direction, Curvature, Speed, Time);
 }
@@ -165,11 +179,16 @@ void CProjectile::Tick()
 	CCharacter *ReflectChr = NULL;
 	
 	Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &CurPos, 0);
-		
+	
+	float r = 6.0f;
+	
+	if (m_Weapon == W_SWORD)
+		r = 64.0f;
+	
 	if (m_Weapon != W_DROID_STAR)
 	{
-		TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, 6.0f, CurPos, OwnerChar);
-		ReflectChr = GameServer()->m_World.IntersectScythe(PrevPos, CurPos, 50.0f, CurPos, OwnerChar);
+		TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, r, CurPos, OwnerChar);
+		ReflectChr = GameServer()->m_World.IntersectScythe(PrevPos, CurPos, r+45.0f, CurPos, OwnerChar);
 	}
 	
 	int Team = -1;
@@ -207,6 +226,9 @@ void CProjectile::Tick()
 		m_Pos = CurPos;
 		Collide = false;
 	}
+
+	if (m_Weapon == W_SWORD)
+		Collide = false;
 	
 	if (ReflectChr)
 	{
@@ -271,10 +293,11 @@ void CProjectile::Tick()
 		{
 			TargetMonster->TakeDamage(m_Direction * max(0.001f, m_Force), m_Damage, m_Owner, CurPos);
 			//GameServer()->CreateMonsterHit(CurPos);
-			GameServer()->m_World.DestroyEntity(this);
+			//GameServer()->m_World.DestroyEntity(this);
 		}
-
-		GameServer()->m_World.DestroyEntity(this);
+		
+		if (m_Weapon != W_SWORD || m_LifeSpan < 0)
+			GameServer()->m_World.DestroyEntity(this);
 	}
 	
 	// fluid kills the projectile

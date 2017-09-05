@@ -34,6 +34,10 @@
 #include <game/server/entities/weapons/rifle.h>
 #include <game/server/entities/weapons/grenadelauncher.h>
 #include <game/server/entities/weapons/electric.h>
+#include <game/server/entities/weapons/flamer.h>
+#include <game/server/entities/weapons/sweeper.h>
+#include <game/server/entities/weapons/sword.h>
+#include <game/server/entities/weapons/chainsaw.h>
 
 #include <game/server/playerdata.h>
 
@@ -214,6 +218,15 @@ void CGameContext::CreateEffect(int FX, vec2 Pos)
 }
 
 
+void CGameContext::TriggerSpecialAttack(int ClientID, int Type)
+{
+	CCharacter *Char = GetPlayerChar(ClientID);
+	
+	if (Char)
+		Char->TriggerSpecialAttack(Type);
+}
+
+
 CWeapon *CGameContext::NewWeapon(int WeaponType)
 {
 	CWeapon *pWeapon = NULL;
@@ -230,6 +243,18 @@ CWeapon *CGameContext::NewWeapon(int WeaponType)
 			break;
 		case W_LASER:
 			pWeapon = new CLaserrifle(&m_World);
+			break;
+		case W_FLAMER:
+			pWeapon = new CFlamer(&m_World);
+			break;
+		case W_SWORD:
+			pWeapon = new CSword(&m_World);
+			break;
+		case W_CHAINSAW:
+			pWeapon = new CChainsaw(&m_World);
+			break;
+		case W_SCYTHE:
+			pWeapon = new CSweeper(&m_World);
 			break;
 		case W_GRENADELAUNCHER:
 			pWeapon = new CGrenadelauncher(&m_World);
@@ -319,7 +344,7 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
 
 
 
-void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, int PowerLevel, vec2 PlayerPos, vec2 ProjPos, CCharacter *OwnerChr, CBuilding *OwnerBuilding)
+void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, int PowerLevel, vec2 PlayerPos, vec2 ProjPos, CBuilding *OwnerBuilding)
 {
 	float Dmg = 1.0f;
 	
@@ -346,9 +371,9 @@ void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, int PowerLevel
 		{
 			CCharacter *pTarget = apEnts[i];
 
-			if ((pTarget == OwnerChr) || Collision()->IntersectLine(ProjPos, pTarget->m_Pos, NULL, NULL))
+			if (pTarget->GetPlayer()->GetCID() == DamageOwner || pTarget->IgnoreCollision() || Collision()->IntersectLine(ProjPos, pTarget->m_Pos, NULL, NULL))
 				continue;
-
+			
 			vec2 Dir;
 			if (length(pTarget->m_Pos - PlayerPos) > 0.0f)
 				Dir = normalize(pTarget->m_Pos - PlayerPos);
@@ -409,6 +434,118 @@ void CGameContext::CreateChainsawHit(int DamageOwner, int Weapon, int PowerLevel
 		}
 	}
 }
+
+void CGameContext::CreateSwordHit(int DamageOwner, int Weapon, int PowerLevel, vec2 PlayerPos, vec2 ProjPos)
+{
+	float Dmg = 1.0f;
+	
+	if (m_pController->IsCoop() && IsBot(DamageOwner))
+		Dmg = 0.6f;
+	
+	if (PowerLevel > 0)
+		Dmg *= 1.25f;
+	
+	if (PowerLevel > 1)
+		Dmg *= 1.15f;
+	
+	int ProximityRadius = CCharacter::ms_PhysSize*2.5f;
+
+	//vec2 ProjStartPos = m_Pos+Direction*ProximityRadius + vec2(0, -20);
+			
+	// for testing the center pos
+	//GameServer()->CreateEffect(FX_ELECTROHIT, ProjStartPos);
+			
+	//m_Recoil += Direction * 5.0f;
+			
+	{
+		CCharacter *apEnts[MAX_CLIENTS];
+		int Num = m_World.FindEntities(ProjPos, ProximityRadius, (CEntity**)apEnts,
+														MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
+
+		for (int i = 0; i < Num; ++i)
+		{
+			CCharacter *pTarget = apEnts[i];
+
+			if (pTarget->GetPlayer()->GetCID() == DamageOwner || pTarget->IgnoreCollision())
+				continue;
+					
+			if(length(pTarget->m_Pos-ProjPos) > 0.0f)
+				CreateEffect(FX_BLOOD1, pTarget->m_Pos-normalize(pTarget->m_Pos-ProjPos)*ProximityRadius);
+			else
+				CreateEffect(FX_BLOOD1, ProjPos);
+			
+			vec2 Dir;
+			if (length(pTarget->m_Pos - PlayerPos) > 0.0f)
+				Dir = normalize(pTarget->m_Pos - PlayerPos);
+			else
+				Dir = vec2(0.f, 0.f);
+
+			vec2 KnockBack = (Dir + vec2(0, -0.2f)) * 10.0f * aCustomWeapon[Weapon].m_Knockback;
+			
+			if (PowerLevel > 0)
+				KnockBack *= 1.5f;
+			
+			pTarget->TakeDamage(KnockBack, aCustomWeapon[Weapon].m_Damage*Dmg,
+									DamageOwner, Weapon, vec2(0, 0), DAMAGETYPE_NORMAL, false); //OwnerBuilding ? true : false);
+		}
+	}
+		
+	// monsters
+	{
+		CDroid *apEnts[MAX_CLIENTS];
+		int Num = m_World.FindEntities(ProjPos, ProximityRadius, (CEntity**)apEnts,
+														MAX_CLIENTS, CGameWorld::ENTTYPE_DROID);
+
+		for (int i = 0; i < Num; ++i)
+		{
+			CDroid *pTarget = apEnts[i];
+
+			if (pTarget->m_Health <= 0)
+				continue;
+			
+			if(length(pTarget->m_Pos-ProjPos) > 0.0f)
+				CreateEffect(FX_BLOOD1, pTarget->m_Pos-normalize(pTarget->m_Pos-ProjPos)*ProximityRadius);
+			else
+				CreateEffect(FX_BLOOD1, ProjPos);
+			
+			vec2 Dir;
+			if (length(pTarget->m_Pos - PlayerPos) > 0.0f)
+				Dir = normalize(pTarget->m_Pos - PlayerPos);
+
+			vec2 KnockBack = (Dir + vec2(0, -0.2f)) * 10.0f * aCustomWeapon[Weapon].m_Knockback;
+			
+			pTarget->TakeDamage(KnockBack, aCustomWeapon[Weapon].m_Damage*Dmg, DamageOwner, vec2(0, 0));
+		}
+	}
+	
+	// buildings
+	{
+		CBuilding *apEnts[MAX_CLIENTS];
+		int Num = m_World.FindEntities(ProjPos, ProximityRadius, (CEntity**)apEnts,
+														MAX_CLIENTS, CGameWorld::ENTTYPE_BUILDING);
+
+		for (int i = 0; i < Num; ++i)
+		{
+			CBuilding *pTarget = apEnts[i];
+			
+			// skip own buildings in co-op
+			if (m_pController->IsCoop() && (pTarget->m_Type == BUILDING_TURRET || pTarget->m_Type == BUILDING_TESLACOIL || pTarget->m_Type == BUILDING_REACTOR))
+				if (DamageOwner >= 0 && DamageOwner < MAX_CLIENTS)
+				{
+					CPlayer *pPlayer = m_apPlayers[DamageOwner];
+					if(pPlayer && !pPlayer->m_IsBot)
+						continue;
+				}
+			
+			if (pTarget->m_Collision)
+			{
+				pTarget->TakeDamage(aCustomWeapon[Weapon].m_Damage*Dmg, DamageOwner, Weapon);
+				CreateBuildingHit((ProjPos+pTarget->m_Pos)/2);
+			}
+		}
+	}
+}
+
 
 void CGameContext::CreateScytheHit(int DamageOwner, int Weapon, int PowerLevel, vec2 PlayerPos, vec2 ProjPos, CCharacter *OwnerChr, CBuilding *OwnerBuilding)
 {
@@ -592,8 +729,20 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int PowerLevel,
 	
 	if (m_pController->IsCoop() && IsBot(DamageOwner))
 		Dmg = 0.6f;
+
+	if (Weapon == WEAPON_LASER)
+	{
+		Dmg += PowerLevel*0.35f;
+		float a = GetAngle(Direction);
+		a += (frandom()-frandom())*aCustomWeapon[Weapon].m_BulletSpread;
+		new CLaser(&m_World, Pos, vec2(cosf(a), sinf(a)), Tuning()->m_LaserReach, DamageOwner, aCustomWeapon[Weapon].m_Damage * Dmg, PowerLevel);
+
+		return;
+	}
 	
-	
+	if (Weapon == W_SWORD)
+		Dmg *= 0.3f;
+		
 	switch (Weapon)
 	{
 	case WEAPON_ELECTRIC:
@@ -614,20 +763,6 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int PowerLevel,
 		
 	default:;
 	};
-	
-	
-	if (Weapon == WEAPON_LASER)
-	{
-		Dmg += PowerLevel*0.35f;
-			
-		float a = GetAngle(Direction);
-		a += (frandom()-frandom())*aCustomWeapon[Weapon].m_BulletSpread;
-			
-		new CLaser(&m_World, Pos, vec2(cosf(a), sinf(a)), Tuning()->m_LaserReach, DamageOwner, aCustomWeapon[Weapon].m_Damage * Dmg, PowerLevel);
-
-		return;
-	}
-	
 	
 	int ShotSpread = aCustomWeapon[Weapon].m_ShotSpread;
 	

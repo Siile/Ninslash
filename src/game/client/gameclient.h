@@ -267,6 +267,8 @@ public:
 	class CParticles *m_pParticles;
 	class CBlood *m_pBlood;
 	class CGuts *m_pGuts;
+	class CBrains *m_pBrains;
+	class CTracer *m_pTracers;
 	class CSplatter *m_pSplatter;
 	class CSpark *m_pSpark;
 	class CFluid *m_pFluid;

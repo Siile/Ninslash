@@ -20,7 +20,7 @@ CRoom::CRoom(int x, int y, int w, int h)
 	
 	int i = 0;
 	
-	int RoomSize = 6+rand()%6;
+	int RoomSize = 6+rand()%10;
 	
 	while (!(m_pChild1 || TooSmall() || i++ > 24))
 	{

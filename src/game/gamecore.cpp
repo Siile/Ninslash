@@ -100,6 +100,9 @@ void CCharacterCore::Reset()
 	m_Down = 0;
 	m_Charge = 0;
 	m_ChargeLevel = 0;
+	m_Special = 0;
+	m_SpecialState1 = 0;
+	m_SpecialState2 = 0;
 	m_Angle = 0;
 	m_Anim = 0;
 	m_LockDirection = 0;
@@ -281,6 +284,22 @@ void CCharacterCore::Tick(bool UseInput)
 	if (m_Slide > 0)
 		HandJetpackControlSpeed *= 1.2f;
 	
+	
+	// sword dash
+	if (m_Special > 0)
+	{
+		if (m_SpecialState1-- <= 0)
+		{
+			m_Special = 0;
+			m_SpecialState1 = 0;
+		}
+		else
+		{
+			//m_Vel += normalize(TargetDirection)*2;
+		}
+	}
+	
+	
 	// gravity & jump physics
 	if (m_Action == COREACTION_JUMP)
 	{
@@ -365,8 +384,11 @@ void CCharacterCore::Tick(bool UseInput)
 		{
 			if (m_Charge)
 				m_ChargeLevel = min(m_ChargeLevel+2, 100);
+			else if (m_ChargeLevel > 80)
+				m_ChargeLevel = -m_ChargeLevel/2;
 			else
-				m_ChargeLevel = max(m_ChargeLevel-3, 0);
+				m_ChargeLevel = max(m_ChargeLevel-2, 0);
+				
 		}
 		
 		// sliding
@@ -1340,6 +1362,9 @@ void CCharacterCore::Write(CNetObj_CharacterCore *pObjCore)
 	pObjCore->m_Down = m_Down;
 	pObjCore->m_Charge = m_Charge;
 	pObjCore->m_ChargeLevel = m_ChargeLevel;
+	pObjCore->m_Special = m_Special;
+	pObjCore->m_SpecialState1 = m_SpecialState1;
+	pObjCore->m_SpecialState2 = m_SpecialState2;
 	pObjCore->m_Sliding = m_Sliding;
 	pObjCore->m_Grounded = IsGrounded();
 	pObjCore->m_Angle = m_Angle;
@@ -1372,6 +1397,9 @@ void CCharacterCore::Read(const CNetObj_CharacterCore *pObjCore)
 	m_Down = pObjCore->m_Down;
 	m_Charge = pObjCore->m_Charge;
 	m_ChargeLevel = pObjCore->m_ChargeLevel;
+	m_Special = pObjCore->m_Special;
+	m_SpecialState1 = pObjCore->m_SpecialState1;
+	m_SpecialState2 = pObjCore->m_SpecialState2;
 	m_Sliding = pObjCore->m_Sliding;
 	m_Angle = pObjCore->m_Angle;
 	m_Anim = pObjCore->m_Anim;

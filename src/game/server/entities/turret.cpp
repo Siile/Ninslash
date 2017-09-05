@@ -148,7 +148,7 @@ void CTurret::Tick()
 		vec2 Dir = vec2(cosf(Angle), sinf(Angle));
 		
 		vec2 TurretPos = m_Pos+vec2(0, -54*m_FlipY);
-		GameServer()->CreateChainsawHit(m_OwnerPlayer, m_Weapon, m_PowerLevel, TurretPos, TurretPos+Dir*40, NULL, this);
+		GameServer()->CreateChainsawHit(m_OwnerPlayer, m_Weapon, m_PowerLevel, TurretPos, TurretPos+Dir*40, this);
 	}
 	
 	Flamethrower();

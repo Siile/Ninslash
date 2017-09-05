@@ -1,5 +1,7 @@
 #include "customstuff.h"
 
+#include <game/client/components/tracer.h>
+
 
 
 CCustomStuff::CCustomStuff(CGameClient *pClient)
@@ -30,6 +32,8 @@ void CCustomStuff::Reset()
 		m_aBGSound[i] = 0;
 		m_aBGEffect[i] = 0;
 	}
+	
+	m_ChargeAngle = 0;
 	
 	m_Local.m_Buff = -1;
 	
@@ -113,6 +117,11 @@ void CCustomStuff::Reset()
 	m_FlipBuilding = false;
 }
 
+float CCustomStuff::ChargeIntensity(int Charge)
+{
+	return (0.8f+cos(m_ChargeAngle*4.0f)*0.2f)*min(1.0f, Charge*0.01f);
+}
+
 
 CDroidAnim *CCustomStuff::GetDroidAnim(int Index)
 {
@@ -174,6 +183,7 @@ void CCustomStuff::Tick(bool Paused)
 			m_WeaponpickTimer -= 0.0035f;
 	}
 	
+	m_ChargeAngle += 0.1f;
 	
 	if (m_DoorTimer > 0.0f)
 		m_DoorTimer += 0.01f;
@@ -226,6 +236,9 @@ void CCustomStuff::Tick(bool Paused)
 				m_aJumppad[i] += 0.1f;
 		}
 	}
+	
+	
+	m_pClient->m_pTracers->Tick();
 	
 	// Camera
 	

@@ -22,8 +22,17 @@ void CWeapon::Reset()
 	m_Pos = vec2(0, 0);
 	m_Direction = vec2(0, 0);
 	m_Owner = -1;
+	m_ChargeLocked = false;
+	m_Charge = 0;
+	m_LastNoAmmoSound = -1;
 }
 	
+void CWeapon::SetCharge(int Charge)
+{
+	if (!m_ChargeLocked)
+		m_Charge = Charge;
+}
+
 void CWeapon::SetOwner(int CID)
 {
 	m_Owner = CID;
@@ -67,8 +76,15 @@ bool CWeapon::Fire(float *pKnockback)
 		return false;
 	
 	// check for ammo
-
-	// weapon knockback to player
+	if (m_MaxAmmo > 0 && m_Ammo <= 0)
+	{
+		if(m_LastNoAmmoSound+Server()->TickSpeed() <= Server()->Tick())
+		{
+			GameServer()->CreateSound(m_Pos, SOUND_WEAPON_NOAMMO);
+			m_LastNoAmmoSound = Server()->Tick();
+		}
+		return false;
+	}
 	
 	// play sound
 	if (aCustomWeapon[m_Type].m_Sound >= 0)
@@ -84,6 +100,10 @@ bool CWeapon::Fire(float *pKnockback)
 	// set knockback
 	if (pKnockback)
 		*pKnockback = aCustomWeapon[m_Type].m_SelfKnockback;
+	
+	// reduce ammo
+	if (m_Ammo > 0)
+		m_Ammo--;
 	
 	return true;
 }

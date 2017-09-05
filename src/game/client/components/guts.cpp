@@ -75,46 +75,6 @@ void CGuts::Add(int Group, CGutSpill *pPart)
 	m_aGuts[Id].m_Life = 0;
 }
 
-
-void CGuts::Bounce(vec2 Pos, vec2 Dir, int Group, vec4 Color)
-{
-	/*
-	CGutSpill b;
-	b.SetDefault();
-	b.m_Pos = Pos;
-	
-	b.m_Spr = SPRITE_BLOOD01;
-	b.m_LifeSpan = 2.0f + frandom()*2.0f;
-	b.m_Rotspeed = 0.0f;
-	b.m_StartSize = (30.0f + frandom()*24) / 1.75f;
-	b.m_EndSize = 16.0f / 1.75f;
-	b.m_Gravity = 1500.0f + frandom()*400;
-	b.m_Friction = 0.7f+frandom()*0.075f;
-
-	if (g_Config.m_GfxMultiBuffering)
-	{
-		b.m_Rotspeed = 0.0f;
-		//b.m_StartSize *= 1.5f;
-		b.m_StartSize = 42.0f + frandom()*16;
-		b.m_EndSize = 4.0f;
-		b.m_LifeSpan = 4.0f;
-		b.m_Friction = 0.85f+frandom()*0.075f;
-	}
-	
-	b.m_Vel = Dir * ((frandom()+0.15f)*700.0f);
-	b.m_Rot = GetAngle(b.m_Vel);
-	
-	//float c = frandom()*0.3f + 0.7f;
-	//b.m_Color = vec4(c, c, c, 1.0f);
-	b.m_Color = Color;
-	m_pClient->m_pGuts->Add(Group, &b);
-	
-	if (g_Config.m_GfxMultiBuffering && frandom()*10 < 3 && Group == GROUP_GUTS)
-		m_pClient->m_pEffects->Splatter(b.m_Pos + Dir*frandom()*48.0f - Dir*frandom()*16.0f, b.m_Rot, b.m_StartSize * 2, Color);
-	*/
-}
-
-
 void CGuts::Update(float TimePassed)
 {
 	static float FrictionFraction = 0;
@@ -134,119 +94,124 @@ void CGuts::Update(float TimePassed)
 	for(int g = 0; g < NUM_GROUPS; g++)
 	{
 		int i = m_aFirstPart[g];
-		while(i != -1)
+		
+		if (g == GROUP_GUTS)
 		{
-			int Next = m_aGuts[i].m_NextPart;
-			//m_aGuts[i].vel += flow_get(m_aGuts[i].pos)*time_passed * m_aGuts[i].flow_affected;
-			
-			for (int p = 0; p < 5; p++)
+			while(i != -1)
 			{
-				m_aGuts[i].m_aVel[p].y += m_aGuts[i].m_Gravity*TimePassed;
-
-				// ugly way to force tiles to blood
-				int OnForceTile = Collision()->IsForceTile(m_aGuts[i].m_aPos[p].x, m_aGuts[i].m_aPos[p].y+4);
+				int Next = m_aGuts[i].m_NextPart;
+				//m_aGuts[i].vel += flow_get(m_aGuts[i].pos)*time_passed * m_aGuts[i].flow_affected;
 				
-				for(int f = 0; f < FrictionCount; f++) // apply friction
-					m_aGuts[i].m_aVel[p] *= m_aGuts[i].m_Friction;
+				int Parts = m_aGuts[i].m_Parts;
 				
-				if (OnForceTile != 0)
-					m_aGuts[i].m_aVel[p].x = OnForceTile*250;
-					
-				vec2 Force = m_aGuts[i].m_aVel[p];
-					
-				if (CustomStuff()->Impact(m_aGuts[i].m_aPos[p], &Force))
+				for (int p = 0; p < Parts; p++)
 				{
-					m_aGuts[i].m_aPos[p] += Force*10.0f;
-					m_aGuts[i].m_aVel[p] += Force*(700.0f+frandom()*700);
+					m_aGuts[i].m_aVel[p].y += m_aGuts[i].m_Gravity*TimePassed;
+
+					// ugly way to force tiles to blood
+					int OnForceTile = Collision()->IsForceTile(m_aGuts[i].m_aPos[p].x, m_aGuts[i].m_aPos[p].y+4);
 					
-					if (frandom()*20 < 2)
-						m_pClient->AddPlayerSplatter(m_aGuts[i].m_aPos[p], m_aGuts[i].m_Color);
-				}
-				
-				
-				if (p == 0)
-				{
-					vec2 n = m_aGuts[i].m_aPos[p] - m_aGuts[i].m_aPos[p+1];
-					float d = abs(length(n));
+					for(int f = 0; f < FrictionCount; f++) // apply friction
+						m_aGuts[i].m_aVel[p] *= m_aGuts[i].m_Friction;
 					
-					if (d > 20)
-						m_aGuts[i].m_aVel[p] -= n*0.5f;
+					if (OnForceTile != 0)
+						m_aGuts[i].m_aVel[p].x = OnForceTile*250;
+						
+					vec2 Force = m_aGuts[i].m_aVel[p];
+						
+					if (CustomStuff()->Impact(m_aGuts[i].m_aPos[p], &Force))
+					{
+						m_aGuts[i].m_aPos[p] += Force*10.0f;
+						m_aGuts[i].m_aVel[p] += Force*(700.0f+frandom()*700);
+						
+						if (frandom()*20 < 2)
+							m_pClient->AddPlayerSplatter(m_aGuts[i].m_aPos[p], m_aGuts[i].m_Color);
+					}
 					
-					if (frandom() < TimePassed*10 && m_aGuts[i].m_Life < 1.0f)
-						m_pClient->m_pEffects->Blood(m_aGuts[i].m_aPos[p], normalize(n)*4.0f + m_aGuts[i].m_aVel[p]/2, m_aGuts[i].m_Color);
-				}
-				else if (p == 4)
-				{
-					vec2 n = m_aGuts[i].m_aPos[p-1] - m_aGuts[i].m_aPos[p];
-					float d = abs(length(n));
+					if (p == 0)
+					{
+						vec2 n = m_aGuts[i].m_aPos[p] - m_aGuts[i].m_aPos[p+1];
+						float d = abs(length(n));
+						
+						if (d > m_aGuts[i].m_ControlDist)
+							m_aGuts[i].m_aVel[p] -= n*0.5f;
+						
+						//if (frandom() < TimePassed*10 && m_aGuts[i].m_Life < 1.0f)
+						//	m_pClient->m_pEffects->Blood(m_aGuts[i].m_aPos[p], normalize(n)*4.0f + m_aGuts[i].m_aVel[p]/2, m_aGuts[i].m_Color);
+					}
+					else if (p == Parts-1)
+					{
+						vec2 n = m_aGuts[i].m_aPos[p-1] - m_aGuts[i].m_aPos[p];
+						float d = abs(length(n));
+						
+						if (d > m_aGuts[i].m_ControlDist)
+							m_aGuts[i].m_aVel[p] += n*0.5f;
+					}
+					else
+					{
+						vec2 n = m_aGuts[i].m_aPos[p] - m_aGuts[i].m_aPos[p-1];
+						float d = abs(length(n));
+						
+						if (d > m_aGuts[i].m_ControlDist)
+							m_aGuts[i].m_aVel[p] -= n*0.5f;
+						
+						if (d < m_aGuts[i].m_ControlDist/2)
+							m_aGuts[i].m_aVel[p] += n*0.3f;
+						
+						n = m_aGuts[i].m_aPos[p+1] - m_aGuts[i].m_aPos[p];
+						d = abs(length(n));
+						
+						if (d > m_aGuts[i].m_ControlDist)
+							m_aGuts[i].m_aVel[p] += n*0.5f;
+						
+						if (d < m_aGuts[i].m_ControlDist/2)
+							m_aGuts[i].m_aVel[p] -= n*0.3f;
+					}
+
 					
-					if (d > 20)
-						m_aGuts[i].m_aVel[p] += n*0.5f;
-				}
-				else
-				{
-					vec2 n = m_aGuts[i].m_aPos[p] - m_aGuts[i].m_aPos[p-1];
-					float d = abs(length(n));
+					// move the point
+					vec2 Vel = m_aGuts[i].m_aVel[p]*TimePassed;
 					
-					if (d > 20)
-						m_aGuts[i].m_aVel[p] -= n*0.5f;
+					vec2 OldVel = Vel;
+					//Vel.x += OnForceTile*1;
+
+					if (OnForceTile != 0)
+						Collision()->MoveBox(&m_aGuts[i].m_aPos[p], &Vel, vec2(6, 6), 0.99f, false);
+					else
+						Collision()->MoveBox(&m_aGuts[i].m_aPos[p], &Vel, vec2(6, 6), 0.85f, false);
 					
-					if (d < 10)
-						m_aGuts[i].m_aVel[p] += n*0.3f;
+					// stick to walls and ceiling
+					vec2 P = m_aGuts[i].m_aPos[p];
 					
-					n = m_aGuts[i].m_aPos[p+1] - m_aGuts[i].m_aPos[p];
-					d = abs(length(n));
-					
-					if (d > 20)
-						m_aGuts[i].m_aVel[p] += n*0.5f;
-					
-					if (d < 10)
-						m_aGuts[i].m_aVel[p] -= n*0.3f;
+
+					m_aGuts[i].m_aVel[p] = Vel* (1.0f/TimePassed);
 				}
 
-				
-				// move the point
-				vec2 Vel = m_aGuts[i].m_aVel[p]*TimePassed;
-				
-				vec2 OldVel = Vel;
-				//Vel.x += OnForceTile*1;
+				m_aGuts[i].m_Life += TimePassed;
 
-				if (OnForceTile != 0)
-					Collision()->MoveBox(&m_aGuts[i].m_aPos[p], &Vel, vec2(6, 6), 0.99f, false);
-				else
-					Collision()->MoveBox(&m_aGuts[i].m_aPos[p], &Vel, vec2(6, 6), 0.85f, false);
-				
-				// stick to walls and ceiling
-				vec2 P = m_aGuts[i].m_aPos[p];
-				
+					
+				// check blood death
+				if(m_aGuts[i].m_Life > m_aGuts[i].m_LifeSpan)
+				{
+					// remove it from the group list
+					if(m_aGuts[i].m_PrevPart != -1)
+						m_aGuts[m_aGuts[i].m_PrevPart].m_NextPart = m_aGuts[i].m_NextPart;
+					else
+						m_aFirstPart[g] = m_aGuts[i].m_NextPart;
 
-				m_aGuts[i].m_aVel[p] = Vel* (1.0f/TimePassed);
+					if(m_aGuts[i].m_NextPart != -1)
+						m_aGuts[m_aGuts[i].m_NextPart].m_PrevPart = m_aGuts[i].m_PrevPart;
+
+					// insert to the free list
+					if(m_FirstFree != -1)
+						m_aGuts[m_FirstFree].m_PrevPart = i;
+					m_aGuts[i].m_PrevPart = -1;
+					m_aGuts[i].m_NextPart = m_FirstFree;
+					m_FirstFree = i;
+				}
+
+				i = Next;
 			}
-
-			m_aGuts[i].m_Life += TimePassed;
-
-				
-			// check blood death
-			if(m_aGuts[i].m_Life > m_aGuts[i].m_LifeSpan)
-			{
-				// remove it from the group list
-				if(m_aGuts[i].m_PrevPart != -1)
-					m_aGuts[m_aGuts[i].m_PrevPart].m_NextPart = m_aGuts[i].m_NextPart;
-				else
-					m_aFirstPart[g] = m_aGuts[i].m_NextPart;
-
-				if(m_aGuts[i].m_NextPart != -1)
-					m_aGuts[m_aGuts[i].m_NextPart].m_PrevPart = m_aGuts[i].m_PrevPart;
-
-				// insert to the free list
-				if(m_FirstFree != -1)
-					m_aGuts[m_FirstFree].m_PrevPart = i;
-				m_aGuts[i].m_PrevPart = -1;
-				m_aGuts[i].m_NextPart = m_FirstFree;
-				m_FirstFree = i;
-			}
-
-			i = Next;
 		}
 	}
 }
@@ -279,30 +244,6 @@ void CGuts::RenderGroup(int Group)
 {
 	if (Group == GROUP_GUTS)
 	{
-		/*
-		Graphics()->BlendNormal();
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GUTS].m_Id);
-		Graphics()->QuadsBegin();
-		
-		int i = m_aFirstPart[Group];
-		while(i != -1)
-		{
-			float a = m_aGuts[i].m_Life / m_aGuts[i].m_LifeSpan;
-			vec2 p = m_aGuts[i].m_Pos;
-
-			float Size = mix(m_aGuts[i].m_StartSize, m_aGuts[i].m_EndSize*1.0f, a);
-			//RenderTools()->SelectSprite(m_aGuts[i].m_Spr + a*m_aGuts[i].m_Frames);
-			Graphics()->QuadsSetRotation(m_aGuts[i].m_Rot);
-			//Graphics()->SetColor(m_aGuts[i].m_Color.r, m_aGuts[i].m_Color.g, m_aGuts[i].m_Color.b, 1);
-			Graphics()->SetColor(1, 1, 1, 1);
-			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
-			Graphics()->QuadsDraw(&QuadItem, 1);
-
-			i = m_aGuts[i].m_NextPart;
-		}
-		Graphics()->QuadsEnd();
-		*/
-		
 		Graphics()->BlendNormal();
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GUTS].m_Id);
 		//Graphics()->TextureSet(-1);
@@ -319,69 +260,52 @@ void CGuts::RenderGroup(int Group)
 			
 			vec2 aPos[9];
 			
-			for (int f = 0; f < 5; f++)
+			int Parts = m_aGuts[i].m_Parts;
+			
+			for (int f = 0; f < Parts; f++)
 				aPos[f*2] = m_aGuts[i].m_aPos[f]+vec2(0, 6);
 			
-			for (int f = 0; f < 4; f++)
+			for (int f = 0; f < Parts-1; f++)
 				aPos[1+f*2] = (aPos[f*2] + aPos[2+f*2]) / 2;
 			
-			for (int f = 1; f < 4; f++)
+			for (int f = 1; f < Parts-1; f++)
 				aPos[f*2] = (aPos[f*2] + (aPos[f*2-1]+aPos[f*2+1])/2) / 2;
-				
-			/*
-			aPos[1] = (aPos[0] + aPos[2]) / 2;
-			aPos[3] = (aPos[2] + aPos[4]) / 2;
 			
-			aPos[2] = (aPos[2] + (aPos[1]+aPos[3])/2) / 2;
-			*/
 			
-			vec2 p0 = aPos[0]-aPos[1];
-			float a0 = atan2(p0.y, p0.x);
-				
-			float Frames = 8.0f;
-				
-			for (int f = 0; f < 8; f++)
+			
+			vec2 p1 = aPos[0];
+			vec2 TrailDir = normalize(p1 - aPos[1]);
+			float s1 = 10.0f+m_aGuts[i].m_Spr*0.0f;
+			vec2 Out1 = vec2(TrailDir.y, -TrailDir.x) * s1;
+			
+			float Frames = (Parts-1)*2;
+			
+			for (int t = 1; t < (Parts-1)*2+1; t++)
 			{
-				//RenderTools()->SelectSprite(SPRITE_FLAME1+f, 0, 0, 0, x1, x2);
-			
-				p0 = aPos[f]-aPos[f+1];
-				
-				float a = atan2(p0.y, p0.x);
-				
-				float a1 = a0-pi/2.0f;
-				float a2 = a-pi/2.0f;
-				float a3 = a0+pi/2.0f;
-				float a4 = a+pi/2.0f;
-				
-				float s1 = 4.0f;
 						
-				vec2 p1 = aPos[f]+vec2(cos(a1), sin(a1))*s1;
-				vec2 p2 = aPos[f+1]+vec2(cos(a2), sin(a2))*s1;
-				vec2 p3 = aPos[f]+vec2(cos(a3), sin(a3))*s1;
-				vec2 p4 = aPos[f+1]+vec2(cos(a4), sin(a4))*s1;
-			
-			/*
-				vec2 p1 = aPos[f]+vec2(-4, 4);
-				vec2 p2 = aPos[f+1]+vec2(+4, -4);
-				vec2 p3 = aPos[f]+vec2(-4, 4);
-				vec2 p4 = aPos[f+1]+vec2(+4, 4);
-				*/
+				vec2 p2 = aPos[t];
 				
+				TrailDir = normalize(p1 - p2);
 				
-				Graphics()->QuadsSetSubsetFree(	f/Frames, 0, 
-												(f+1)/Frames, 0, 
-												f/Frames, 1, 
-												(f+1)/Frames, 1);
-			
-				IGraphics::CFreeformItem FreeFormItem(
-					p1.x, p1.y,
-					p2.x, p2.y,
-					p3.x, p3.y,
-					p4.x, p4.y);
-							
-				Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+				Graphics()->QuadsSetSubsetFree(	(t-1)/Frames, m_aGuts[i].m_Spr*0.5f, 
+												(t)/Frames, m_aGuts[i].m_Spr*0.5f, 
+												(t-1)/Frames, m_aGuts[i].m_Spr*0.5f+0.5f, 
+												(t)/Frames, m_aGuts[i].m_Spr*0.5f+0.5f);
+
 				
-				a0 = a;
+				vec2 Out2 = vec2(TrailDir.y, -TrailDir.x) * s1;
+								
+
+				IGraphics::CFreeformItem Freeform1(
+					p1.x-Out1.x, p1.y-Out1.y,
+					p2.x-Out2.x, p2.y-Out2.y,
+					p1.x+Out1.x, p1.y+Out1.y,
+					p2.x+Out2.x, p2.y+Out2.y);
+				
+				Graphics()->QuadsDrawFreeform(&Freeform1, 1);
+				
+				p1 = p2;
+				Out1 = Out2;
 			}
 			
 			i = m_aGuts[i].m_NextPart;

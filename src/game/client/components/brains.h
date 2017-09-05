@@ -1,11 +1,11 @@
-#ifndef GAME_CLIENT_COMPONENTS_GUTS_H
-#define GAME_CLIENT_COMPONENTS_GUTS_H
+#ifndef GAME_CLIENT_COMPONENTS_BRAINS_H
+#define GAME_CLIENT_COMPONENTS_BRAINS_H
 #include <base/vmath.h>
 #include <game/client/component.h>
 #include <game/client/components/effects.h>
 
-// gut particles
-struct CGutSpill
+// brain particles
+struct CBrainSpill
 {
 	void SetDefault()
 	{
@@ -16,17 +16,16 @@ struct CGutSpill
 		m_Friction = 0;
 		m_FlowAffected = 1.0f;
 		m_Color = vec4(1,1,1,1);
-		m_Parts = 5;
-		m_ControlDist = 20;
+		m_Freeze = false;
 	}
 
-	vec2 m_aPos[5];
-	vec2 m_aVel[5];
+	vec2 m_aPos[9];
+	vec2 m_aVel[9];
+
+	bool m_Freeze;
 	
 	int m_Spr;
-	int m_Parts;
-	float m_ControlDist;
-	
+
 	float m_FlowAffected;
 
 	float m_LifeSpan;
@@ -45,20 +44,19 @@ struct CGutSpill
 	int m_NextPart;
 };
 
-
-class CGuts : public CComponent
+class CBrains : public CComponent
 {
 	friend class CGameClient;
 public:
 	enum
 	{
-		GROUP_GUTS=0,
+		GROUP_BRAINS=0,
 		NUM_GROUPS
 	};
 
-	CGuts();
+	CBrains();
 
-	void Add(int Group, CGutSpill *pPart);
+	void Add(int Group, CBrainSpill *pPart);
 
 	virtual void OnReset();
 	virtual void OnRender();
@@ -67,10 +65,10 @@ private:
  
 	enum
 	{
-		MAX_GUTS=128,
+		MAX_BRAINS=128,
 	};
-
-	CGutSpill m_aGuts[MAX_GUTS];
+	
+	CBrainSpill m_aBrains[MAX_BRAINS];
 	int m_FirstFree;
 	int m_aFirstPart[NUM_GROUPS];
 
@@ -81,10 +79,10 @@ private:
 	class CRenderGroup : public CComponent
 	{
 	public:
-		CGuts *m_pParts;
+		CBrains *m_pParts;
 		virtual void OnRender() { m_pParts->RenderGroup(TGROUP); }
 	};
 
-	CRenderGroup<GROUP_GUTS> m_RenderGuts;
+	CRenderGroup<GROUP_BRAINS> m_RenderBrains;
 };
 #endif

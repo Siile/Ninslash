@@ -93,7 +93,8 @@ void CAIdm::DoBehavior()
 			if (WeaponShootRange() - m_PlayerDistance > 200)
 			{
 				m_TargetPos = normalize(m_Pos - m_PlayerPos) * WeaponShootRange();
-				GameServer()->Collision()->IntersectLine(m_Pos, m_TargetPos, 0x0, &m_TargetPos);
+				if (GameServer()->Collision()->IntersectLine(m_Pos, m_TargetPos, 0x0, &m_TargetPos))
+					SeekRandomWaypoint();
 			}
 		}
 		
@@ -103,26 +104,25 @@ void CAIdm::DoBehavior()
 	{
 		if (!ShootAtClosestBuilding())
 			ShootAtClosestMonster();
-	}
 
-
-	//if (SeekClosestEnemy())
-	if (SeekRandomEnemy())
-	{
-		m_TargetPos = m_PlayerPos;
-				
-		if (m_EnemiesInSight > 0)
+		//if (SeekClosestEnemy())
+		if (SeekRandomEnemy())
 		{
-			if (WeaponShootRange() - m_PlayerDistance > 200)
-				SeekRandomWaypoint();
-			
-			/*
-			// distance to the player
-			if (m_PlayerPos.x < m_Pos.x)
-				m_TargetPos.x = m_PlayerPos.x + WeaponShootRange()/2*(0.5f+frandom()*1.0f);
-			else
-				m_TargetPos.x = m_PlayerPos.x - WeaponShootRange()/2*(0.5f+frandom()*1.0f);
-			*/
+			m_TargetPos = m_PlayerPos;
+					
+			if (m_EnemiesInSight > 0)
+			{
+				if (WeaponShootRange() - m_PlayerDistance > 200)
+					SeekRandomWaypoint();
+				
+				/*
+				// distance to the player
+				if (m_PlayerPos.x < m_Pos.x)
+					m_TargetPos.x = m_PlayerPos.x + WeaponShootRange()/2*(0.5f+frandom()*1.0f);
+				else
+					m_TargetPos.x = m_PlayerPos.x - WeaponShootRange()/2*(0.5f+frandom()*1.0f);
+				*/
+			}
 		}
 	}
 

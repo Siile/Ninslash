@@ -91,6 +91,8 @@ public:
 
 	vec2 m_SpawnPos;
 	
+	void TriggerSpecialAttack(int Type);
+	
 	bool Spawn(class CPlayer *pPlayer, vec2 Pos);
 	bool Remove();
 	
@@ -315,7 +317,6 @@ private:
 	
 	// weapon info
 	CEntity *m_apHitObjects[10];
-	int m_NumObjectsHit;
 
 	int m_ReloadTimer;
 

@@ -19,6 +19,7 @@
 
 #include <game/client/components/blood.h>
 #include <game/client/components/guts.h>
+#include <game/client/components/brains.h>
 #include <game/client/components/splatter.h>
 #include <game/client/components/spark.h>
 
@@ -114,10 +115,13 @@ void CEffects::Blood(vec2 Pos, vec2 Dir, vec4 Color)
 
 void CEffects::Guts(vec2 Pos, vec2 Dir, vec4 Color)
 {
+	// gut
+	{
 	CGutSpill b;
 	b.SetDefault();
 	
-	b.m_Spr = SPRITE_BLOOD01 + (rand()%6);
+	b.m_Spr = 0;
+	b.m_Parts = 5;
 	b.m_LifeSpan = 4.0f + frandom()*2.0f;
 	b.m_StartSize = 32.0f + frandom()*32;
 	b.m_EndSize = 24.0f;
@@ -133,6 +137,57 @@ void CEffects::Guts(vec2 Pos, vec2 Dir, vec4 Color)
 	
 	b.m_Color = Color;
 	m_pClient->m_pGuts->Add(CGuts::GROUP_GUTS, &b);
+	}
+	
+	// something else
+	{
+	CGutSpill b;
+	b.SetDefault();
+	
+	b.m_Spr = 1;
+	b.m_Parts = 5;
+	b.m_LifeSpan = 4.0f + frandom()*2.0f;
+	b.m_StartSize = 32.0f + frandom()*32;
+	b.m_EndSize = 24.0f;
+	b.m_ControlDist = 12.0f;
+	b.m_Gravity = 1400.0f + frandom()*300;
+	
+	b.m_Friction = 0.85f;
+	
+	vec2 Vel = (Dir + RandomDir()) * ((frandom()+0.50f)*250.0f);
+	for (int i = 0; i < 5; i++)
+	{
+		b.m_aPos[i] = Pos + RandomDir()*(frandom()*4.0f);
+		b.m_aVel[i] = Vel + RandomDir() * ((frandom()+0.50f)*150.0f);
+	}
+	
+	b.m_Color = Color/3;
+	b.m_Color.a = Color.a;
+	m_pClient->m_pGuts->Add(CGuts::GROUP_GUTS, &b);
+	}
+	
+	/*
+	{
+	CBrainSpill b;
+	b.SetDefault();
+	
+	b.m_LifeSpan = 4.0f + frandom()*2.0f;
+	b.m_StartSize = 32.0f + frandom()*32;
+	b.m_EndSize = 24.0f;
+	b.m_Gravity = 1400.0f + frandom()*300;
+	
+	b.m_Friction = 0.85f;
+	
+	for (int i = 0; i < 9; i++)
+	{
+		b.m_aPos[i] = Pos + RandomDir()*(frandom()*8.0f);
+		b.m_aVel[i] = (Dir + RandomDir()) * ((frandom()+0.50f)*250.0f);
+	}
+	
+	b.m_Color = Color;
+	m_pClient->m_pBrains->Add(CBrains::GROUP_BRAINS, &b);
+	}
+	*/
 }
 
 void CEffects::Acid(vec2 Pos, vec2 Dir)
@@ -1048,8 +1103,10 @@ void CEffects::SwordHit(vec2 Pos, float Angle, bool Flip, int PowerLevel)
 	p.m_Flip = Flip;
 	if (PowerLevel == 1)
 		p.m_Color = vec4(0.5f, 1.0f, 0.5f, 1.0f);
-	else if (PowerLevel > 1)
+	else if (PowerLevel == 2)
 		p.m_Color = vec4(0.5f, 0.5f, 1.0f, 1.0f);
+	//else if (PowerLevel == 3)
+		p.m_Color = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	m_pClient->m_pParticles->Add(CParticles::GROUP_SWORDHITS, &p);
 }
 

@@ -34,6 +34,7 @@ private:
 	
 	CDroidAnim *m_apDroidAnim[MAX_DROIDS];
 	
+	float m_ChargeAngle;
 	
 	//friend class CGameClient;
 	CGameClient *m_pClient;
@@ -62,6 +63,8 @@ public:
 
 	vec4 BloodColor(int ClientID);
 	bool IsBot(int ClientID);
+	
+	float ChargeIntensity(int Charge);
 	
 	CDroidAnim *GetDroidAnim(int Index);
 	

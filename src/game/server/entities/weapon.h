@@ -36,6 +36,7 @@ public:
 	
 	void SetOwner(int CID);
 	
+	void SetCharge(int Charge);
 	void SetPos(vec2 Pos, vec2 Direction, float Radius);
 	
 	bool FullAuto(){ return m_FullAuto; }
@@ -56,8 +57,11 @@ protected:
 	bool m_FullAuto;
 	int m_Owner;
 	
+	int m_Charge;
+	bool m_ChargeLocked;
+	
 private:
-
+	int m_LastNoAmmoSound;
 };
 
 #endif

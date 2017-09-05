@@ -106,7 +106,7 @@ void CAI::Reset()
 
 void CAI::OnCharacterSpawn(class CCharacter *pChr)
 {
-	pChr->SetCustomWeapon(W_HAMMER);
+	pChr->SetCustomWeapon(W_SWORD);
 	Reset();
 	m_WaypointPos = pChr->m_Pos;
 	m_TargetPos = pChr->m_Pos;
@@ -1052,10 +1052,10 @@ void CAI::ClearEmotions()
 
 int CAI::WeaponShootRange()
 {
-	int Weapon = Player()->GetCharacter()->m_ActiveWeapon;
+	int Weapon = Player()->GetCharacter()->GetWeaponType();
 	int Range = 40;
 		
-	if (Weapon >= 0 && Weapon < NUM_WEAPONS)
+	if (Weapon >= 0 && Weapon < NUM_CUSTOMWEAPONS)
 		Range = aCustomWeapon[Weapon].m_AiAttackRange;
 	
 	return Range;

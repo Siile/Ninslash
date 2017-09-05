@@ -20,6 +20,7 @@
 #include <game/client/components/flow.h>
 #include <game/client/components/skins.h>
 #include <game/client/components/effects.h>
+#include <game/client/components/tracer.h>
 #include <game/client/components/sounds.h>
 #include <game/client/components/controls.h>
 
@@ -379,8 +380,10 @@ void CPlayers::RenderPlayer(
 	// store some data to customstuff for easy access
 	if (pInfo.m_Local)
 	{
-		//if (rand()%10 == 1)
-		//	m_pClient->m_pEffects->Guts(Position, vec2(frandom()-frandom(), frandom()-frandom()) * 0.2f);
+		if (rand()%10 == 1)
+			m_pClient->m_pEffects->Guts(Position, vec2(frandom()-frandom(), frandom()-frandom()) * 0.2f);
+		
+		//m_pClient->m_pTracers->Add(-1, 0, Position+vec2(0, -6), 0, 0, Direction*10.0f);
 		
 		CustomStuff()->m_LocalAlive = true;
 		CustomStuff()->m_LocalColor = RenderInfo.m_ColorBody;
@@ -453,6 +456,28 @@ void CPlayers::RenderPlayer(
 	float WeaponScale = 1.0f;
 	
 	float ChargeLevel = pCustomPlayerInfo->ChargeIntensity(Player.m_ChargeLevel);
+	
+	if (Player.m_ChargeLevel == 100)
+	{
+		if (!pCustomPlayerInfo->m_Charged)
+		{
+			pCustomPlayerInfo->m_Charged = true;
+			m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_CHARGE_FULL, 1.0f, Position);
+		}
+	}
+	else if (Player.m_ChargeLevel < 0)
+	{
+		if (!pCustomPlayerInfo->m_ChargeFailed)
+		{
+			pCustomPlayerInfo->m_ChargeFailed = true;
+			m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_CHARGE_DOWN, 1.0f, Position);
+		}
+	}
+	else
+	{
+		pCustomPlayerInfo->m_ChargeFailed = false;
+		pCustomPlayerInfo->m_Charged = false;
+	}
 	
 	// render chainsaw effect
 	if (!Paused && Player.m_Weapon == WEAPON_CHAINSAW && Player.m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)

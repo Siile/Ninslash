@@ -15,6 +15,7 @@
 
 #include <game/client/components/flow.h>
 #include <game/client/components/effects.h>
+#include <game/client/components/tracer.h>
 
 #include "items.h"
 
@@ -43,7 +44,7 @@ void CItems::OnReset()
 
 
 
-
+// render projectiles
 void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 {
 	// get positions
@@ -76,6 +77,9 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 		
 		Curvature = m_pClient->m_Tuning.m_WalkerCurvature;
 		Speed = m_pClient->m_Tuning.m_WalkerSpeed;
+		
+		if (pCurrent->m_PowerLevel > 2)
+			Speed *= 0.5f;
 	}
 	else if(pCurrent->m_Type == W_DROID_WALKER)
 	{
@@ -86,6 +90,11 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	{
 		Curvature = m_pClient->m_Tuning.m_StarDroidCurvature;
 		Speed = m_pClient->m_Tuning.m_StarDroidSpeed;
+	}
+	else if(pCurrent->m_Type == W_SWORD)
+	{
+		Curvature = 0;
+		Speed = m_pClient->m_Tuning.m_SwordSpeed;
 	}
 
 	static float s_LastGameTickTime = Client()->GameTickTime();
@@ -114,17 +123,27 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 		Pos = CalcLogPos(StartPos, StartVel, Curvature, Speed, Ct);
 		PrevPos = CalcLogPos(StartPos, StartVel, Curvature, Speed, Ct-0.001f);
 		
-		TrailPos1 = CalcLogPos(StartPos, StartVel, Curvature, Speed, Ct+0.008f);
+		TrailPos1 = CalcLogPos(StartPos, StartVel, Curvature, Speed, Ct+0.015f);
 		TrailPos2 = CalcLogPos(StartPos, StartVel, Curvature, Speed, Ct-0.009f);
 		
 		PredictPos = CalcLogPos(StartPos, StartVel, Curvature, Speed, Ct+0.01f);
+	}
+	else if (pCurrent->m_Type == W_RIFLE && pCurrent->m_PowerLevel == 3)
+	{
+		Pos = CalcTPos(StartPos, StartVel, Curvature, Speed, Ct);
+		PrevPos = CalcTPos(StartPos, StartVel, Curvature, Speed, Ct-0.001f);
+		
+		TrailPos1 = CalcTPos(StartPos, StartVel, Curvature, Speed, Ct+0.015f);
+		TrailPos2 = CalcTPos(StartPos, StartVel, Curvature, Speed, Ct-0.009f);
+		
+		PredictPos = CalcTPos(StartPos, StartVel, Curvature, Speed, Ct+0.01f);
 	}
 	else
 	{
 		Pos = CalcPos(StartPos, StartVel, Curvature, Speed, Ct);
 		PrevPos = CalcPos(StartPos, StartVel, Curvature, Speed, Ct-0.001f);
 		
-		TrailPos1 = CalcPos(StartPos, StartVel, Curvature, Speed, Ct+0.008f);
+		TrailPos1 = CalcPos(StartPos, StartVel, Curvature, Speed, Ct+0.015f);
 		TrailPos2 = CalcPos(StartPos, StartVel, Curvature, Speed, Ct-0.009f);
 		
 		PredictPos = CalcPos(StartPos, StartVel, Curvature, Speed, Ct+0.01f);
@@ -144,22 +163,32 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 		else if (pCurrent->m_PowerLevel > 1)
 			Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 0.5f);
 	}
+	
 
 	
 	
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
+	if (pCurrent->m_Type == W_SWORD)
+	{
+		Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 0.0f, CustomStuff()->ChargeIntensity(100));
+		
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_SCYTHE].m_Id);
+	}
+	else
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
 	Graphics()->QuadsBegin();
 
 	if (pCurrent->m_Type == WEAPON_FLAMER)
 	{
 		RenderTools()->SelectSprite(SPRITE_FIREBALL1 + CustomStuff()->GetSpriteFrame(10, 3));
 	}
+	else if (pCurrent->m_Type == W_SWORD)
+		RenderTools()->SelectSprite(SPRITE_FLAME1_1 + Ct*25);
 	else if (pCurrent->m_Type == W_DROID_WALKER)
 		RenderTools()->SelectSprite(SPRITE_WALKER_PROJ);
 	else if (pCurrent->m_Type == W_DROID_STAR)
 		RenderTools()->SelectSprite(SPRITE_GREEN_CHARGE1 + CustomStuff()->GetSpriteFrame(6, 7));
 	else if (pCurrent->m_Type == WEAPON_RIFLE && pCurrent->m_PowerLevel > 1)
-		RenderTools()->SelectSprite(SPRITE_WEAPON_RIFLE_PROJ2);
+		RenderTools()->SelectSprite(SPRITE_WEAPON_RIFLE_PROJ2 + pCurrent->m_PowerLevel-2);
 	else
 		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[clamp(pCurrent->m_Type, 0, NUM_WEAPONS-1)].m_pSpriteProj);
 	
@@ -218,14 +247,19 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	}
 	else if(pCurrent->m_Type == WEAPON_ELECTRIC)
 	{
+		/*
 		if (pCurrent->m_PowerLevel == 1)
 			m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.5f, 0.5f, 1.0f, 0.75f), 2.0f);
 		else if (pCurrent->m_PowerLevel > 1)
 			m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.5f, 1.0f, 0.5f, 0.75f), 2.0f);
+		*/
 		
 		//m_pClient->m_pEffects->BulletTrail(Pos);
-		m_pClient->m_pEffects->Electrospark(Pos, 16, Vel * 100.0f);
 		
+		//m_pClient->m_pEffects->Electrospark(Pos, 16, Vel * 100.0f);
+		
+		m_pClient->m_pTracers->Add(pCurrent->m_Type, ItemID, TrailPos1, pCurrent->m_StartTick, pCurrent->m_PowerLevel);
+	
 		static float s_Time = 0.0f;
 		static float s_LastLocalTime = Client()->LocalTime();
 
@@ -249,27 +283,56 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	}
 	else
 	{
+		bool Rot = true;
 		if(pCurrent->m_Type == WEAPON_SHOTGUN && Ct > 0.01f)
 		{
-			if (pCurrent->m_PowerLevel == 0)
+			/*if (pCurrent->m_PowerLevel == 0)
 				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.6f, 0.6f, 0.3f, 0.75f));
 			else
-				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.7f, 0.5f, 0.3f, 0.75f));
+				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.7f, 0.5f, 0.3f, 0.75f));*/
+			
+			m_pClient->m_pTracers->Add(pCurrent->m_Type, ItemID, TrailPos1, pCurrent->m_StartTick, pCurrent->m_PowerLevel);
 		}
 		
 		if(pCurrent->m_Type == WEAPON_RIFLE || pCurrent->m_Type == W_DROID_WALKER)
 		{
+			/*
 			if (pCurrent->m_PowerLevel == 0)
 				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.2f, 0.2f, 1.0f, 0.75f));
 			else if (pCurrent->m_PowerLevel == 1)
 				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.2f, 1.0f, 0.5f, 0.75f));
 			else
 				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.5f, 0.5f, 1.0f, 0.75f));
+			*/
+			m_pClient->m_pTracers->Add(pCurrent->m_Type, ItemID, TrailPos1, pCurrent->m_StartTick, pCurrent->m_PowerLevel);
+			
+			if (pCurrent->m_PowerLevel > 4)
+			{
+				static float s_Time = 0.0f;
+				static float s_LastLocalTime = Client()->LocalTime();
+
+				if(Client()->State() == IClient::STATE_DEMOPLAYBACK)
+				{
+					const IDemoPlayer::CInfo *pInfo = DemoPlayer()->BaseInfo();
+					if(!pInfo->m_Paused)
+						s_Time += (Client()->LocalTime()-s_LastLocalTime)*pInfo->m_Speed;
+				}
+				else
+				{
+					if(m_pClient->m_Snap.m_pGameInfoObj && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
+						s_Time += Client()->LocalTime()-s_LastLocalTime;
+				}
+
+				Graphics()->QuadsSetRotation(s_Time*pi*2*8 + ItemID);
+				s_LastLocalTime = Client()->LocalTime();
+				Rot = false;
+			}
 		}
 		
 		if(pCurrent->m_Type == W_DROID_STAR)
 		{
-			m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.4f, 1.0f, 0.4f, 0.5f), 6*(1.0f + Ct*3.0f));
+			//m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.4f, 1.0f, 0.4f, 0.5f), 6*(1.0f + Ct*3.0f));
+			m_pClient->m_pTracers->Add(pCurrent->m_Type, ItemID, TrailPos1, pCurrent->m_StartTick, pCurrent->m_PowerLevel);
 		}
 		
 		if (Collision()->GetCollisionAt(PredictPos.x, PredictPos.y)&1 ||  // solid
@@ -279,18 +342,48 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 			m_pClient->m_pEffects->Spark(PredictPos);
 			m_pClient->m_pEffects->Spark(PredictPos);
 		}
-			
 		
-		
-		if(length(Vel) > 0.00001f)
-			Graphics()->QuadsSetRotation(GetAngle(Vel));
-		else
-			Graphics()->QuadsSetRotation(0);
+		if (Rot)
+		{
+			if(length(Vel) > 0.00001f)
+				Graphics()->QuadsSetRotation(GetAngle(Vel));
+			else
+				Graphics()->QuadsSetRotation(0);
+		}
 
 	}
 
 	vec2 Size = vec2(32, 32);
 	
+	if (pCurrent->m_Type == W_SWORD)
+	{
+		Size *= 7.0f;
+
+		static float s_Time = 0.0f;
+		static float s_LastLocalTime = Client()->LocalTime();
+	
+		if(Client()->State() == IClient::STATE_DEMOPLAYBACK)
+		{
+			const IDemoPlayer::CInfo *pInfo = DemoPlayer()->BaseInfo();
+			if(!pInfo->m_Paused)
+				s_Time += (Client()->LocalTime()-s_LastLocalTime)*pInfo->m_Speed;
+		}
+		else
+		{
+			if(m_pClient->m_Snap.m_pGameInfoObj && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
+				s_Time += Client()->LocalTime()-s_LastLocalTime;
+		}
+	
+		if(length(Vel) > 0.00001f)
+			Graphics()->QuadsSetRotation(GetAngle(-Vel));
+		/*
+		if (Vel.x > 0)
+			Graphics()->QuadsSetRotation(s_Time*pi*0.01f + GetAngle(-Vel));
+		else
+			Graphics()->QuadsSetRotation(-s_Time*pi*0.01f + GetAngle(-Vel));
+		*/
+	}
+		
 	if(pCurrent->m_Type == WEAPON_FLAMER)
 		Size = vec2(64, 32) * 0.65f;
 	

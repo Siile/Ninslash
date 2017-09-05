@@ -54,6 +54,8 @@
 #include "components/light.h"
 #include "components/blood.h"
 #include "components/guts.h"
+#include "components/brains.h"
+#include "components/tracer.h"
 #include "components/splatter.h"
 #include "components/spark.h"
 #include "components/players.h"
@@ -79,6 +81,8 @@ static CBinds gs_Binds;
 static CParticles gs_Particles;
 static CBlood gs_Blood;
 static CGuts gs_Guts;
+static CBrains gs_Brains;
+static CTracer gs_Tracers;
 static CSplatter gs_Splatter;
 static CSpark gs_Spark;
 static CFluid gs_Fluid;
@@ -139,6 +143,8 @@ void CGameClient::OnConsoleInit()
 	m_pParticles = &::gs_Particles;
 	m_pBlood = &::gs_Blood;
 	m_pGuts = &::gs_Guts;
+	m_pBrains = &::gs_Brains;
+	m_pTracers = &::gs_Tracers;
 	m_pSplatter = &::gs_Splatter;
 	m_pSpark = &::gs_Spark;
 	m_pFluid = &::gs_Fluid;
@@ -170,9 +176,11 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(m_pCountryFlags);
 	m_All.Add(m_pMapimages);
 	m_All.Add(m_pEffects); // doesn't render anything, just updates effects
+	m_All.Add(m_pTracers);
 	m_All.Add(m_pParticles);
 	m_All.Add(m_pBlood);
 	m_All.Add(m_pGuts);
+	m_All.Add(m_pBrains);
 	m_All.Add(m_pSplatter);
 	m_All.Add(m_pSpark);
 	m_All.Add(m_pLight);
@@ -191,7 +199,10 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderColorTrail);
 	m_All.Add(&m_pParticles->m_RenderLazerload); // works
 	m_All.Add(m_pBuildings);
+	m_All.Add(&m_pTracers->m_RenderTracers);
+	m_All.Add(&m_pTracers->m_RenderSpriteTracers);
 	m_All.Add(&m_pGuts->m_RenderGuts);
+	m_All.Add(&m_pBrains->m_RenderBrains);
 	m_All.Add(&m_pParticles->m_RenderCrafting);
 	m_All.Add(&gs_Droids);
 	m_All.Add(m_pItems);
