@@ -17,13 +17,29 @@ struct CBrainSpill
 		m_FlowAffected = 1.0f;
 		m_Color = vec4(1,1,1,1);
 		m_Freeze = false;
+		m_Parts = 6;
+		m_Angle = 0.0f;
 	}
 
-	vec2 m_aPos[9];
-	vec2 m_aVel[9];
+	void SetPosition(vec2 Pos)
+	{
+		m_aPos[0] = Pos;
+	
+		for (int p = 1; p < m_Parts+1; p++)
+		{
+			float a = 2*pi / float(m_Parts) * (p-1);
+			m_aPos[p] = Pos + vec2(sin(a), cos(a))*20;
+		}
+	}
+	
+	vec2 m_aPos[19];
+	vec2 m_aVel[19];
 
 	bool m_Freeze;
 	
+	float m_Angle;
+	
+	int m_Parts;
 	int m_Spr;
 
 	float m_FlowAffected;

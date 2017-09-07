@@ -26,7 +26,7 @@ public:
 	void SwordHit(vec2 Pos, float Angle, bool Flip, int PowerLevel);
 	void AirJump(vec2 Pos);
 	void Blood(vec2 Pos, vec2 Dir, vec4 Color = vec4(1, 0, 0, 1));
-	void Guts(vec2 Pos, vec2 Dir, vec4 Color = vec4(1, 0, 0, 1));
+	void Guts(vec2 Pos, vec4 Color = vec4(1, 0, 0, 1));
 	void Acid(vec2 Pos, vec2 Dir);
 	void Triangle(vec2 Pos, vec2 Vel);
 	void Flame(vec2 Pos, vec2 Vel, float Alpha = 1.0f, bool IgnoreCollision = false);

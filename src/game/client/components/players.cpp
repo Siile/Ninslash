@@ -381,7 +381,7 @@ void CPlayers::RenderPlayer(
 	if (pInfo.m_Local)
 	{
 		if (rand()%10 == 1)
-			m_pClient->m_pEffects->Guts(Position, vec2(frandom()-frandom(), frandom()-frandom()) * 0.2f);
+			m_pClient->m_pEffects->Guts(Position);
 		
 		//m_pClient->m_pTracers->Add(-1, 0, Position+vec2(0, -6), 0, 0, Direction*10.0f);
 		

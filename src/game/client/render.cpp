@@ -2774,3 +2774,26 @@ void CRenderTools::RenderTilemapGenerateSkip(class CLayers *pLayers)
 		}
 	}
 }
+
+
+
+void CRenderTools::RenderLine(vec2 p1, vec2 p2, float Size, vec4 Color)
+{
+	//Graphics()->BlendNormal();
+	//Graphics()->TextureSet(-1);
+	//Graphics()->QuadsBegin();
+
+	Graphics()->SetColor(Color.r, Color.g, Color.b, Color.a);
+
+	vec2 t = normalize(p2 - p1);
+	t = vec2(t.y, -t.x) * Size;
+	
+	IGraphics::CFreeformItem Freeform(
+		p1.x-t.x, p1.y-t.y,
+		p1.x+t.x, p1.y+t.y,
+		p2.x-t.x, p2.y-t.y,
+		p2.x+t.x, p2.y+t.y);
+	Graphics()->QuadsDrawFreeform(&Freeform, 1);
+		
+	//Graphics()->QuadsEnd();
+}

@@ -219,6 +219,7 @@ public:
 	void RenderTopper(CTeeRenderInfo *pInfo, vec2 Pos);
 	void RenderEye(CTeeRenderInfo *pInfo, vec2 Pos);
 
+	void RenderLine(vec2 p1, vec2 p2, float Size, vec4 Color);
 
 	void RenderShield(vec2 Pos, vec2 Size, float State);
 	void RenderHeal(vec2 Pos, vec2 Size, float State);

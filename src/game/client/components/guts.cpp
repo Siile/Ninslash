@@ -255,8 +255,9 @@ void CGuts::RenderGroup(int Group)
 		while(i != -1)
 		{
 			float a = m_aGuts[i].m_Life / m_aGuts[i].m_LifeSpan;
+			a = min(1.0f, (1-a)*2.5f);
 			//Graphics()->SetColor(1, 1, 1, 1-a);
-			Graphics()->SetColor(m_aGuts[i].m_Color.r*0.6f + 0.4f, m_aGuts[i].m_Color.g*0.6f + 0.4f, m_aGuts[i].m_Color.b*0.7f + 0.3f, 1-a);
+			Graphics()->SetColor(m_aGuts[i].m_Color.r*0.6f + 0.4f, m_aGuts[i].m_Color.g*0.6f + 0.4f, m_aGuts[i].m_Color.b*0.7f + 0.3f, a);
 			
 			vec2 aPos[9];
 			
@@ -275,7 +276,7 @@ void CGuts::RenderGroup(int Group)
 			
 			vec2 p1 = aPos[0];
 			vec2 TrailDir = normalize(p1 - aPos[1]);
-			float s1 = 10.0f+m_aGuts[i].m_Spr*0.0f;
+			float s1 = 10.0f-m_aGuts[i].m_Spr*2.0f;
 			vec2 Out1 = vec2(TrailDir.y, -TrailDir.x) * s1;
 			
 			float Frames = (Parts-1)*2;

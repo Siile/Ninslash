@@ -113,81 +113,89 @@ void CEffects::Blood(vec2 Pos, vec2 Dir, vec4 Color)
 	m_pClient->m_pBlood->Add(CBlood::GROUP_BLOOD, &b);
 }
 
-void CEffects::Guts(vec2 Pos, vec2 Dir, vec4 Color)
+void CEffects::Guts(vec2 Pos, vec4 Color)
 {
 	// gut
+	vec2 Dir = vec2((frandom()-frandom())*2.0f, -1-frandom()*1.7f);
+	/*
 	{
-	CGutSpill b;
-	b.SetDefault();
-	
-	b.m_Spr = 0;
-	b.m_Parts = 5;
-	b.m_LifeSpan = 4.0f + frandom()*2.0f;
-	b.m_StartSize = 32.0f + frandom()*32;
-	b.m_EndSize = 24.0f;
-	b.m_Gravity = 1400.0f + frandom()*300;
-	
-	b.m_Friction = 0.85f;
-	
-	for (int i = 0; i < 5; i++)
-	{
-		b.m_aPos[i] = Pos + RandomDir()*(frandom()*4.0f);
-		b.m_aVel[i] = (Dir + RandomDir()) * ((frandom()+0.50f)*250.0f);
-	}
-	
-	b.m_Color = Color;
-	m_pClient->m_pGuts->Add(CGuts::GROUP_GUTS, &b);
+		CGutSpill b;
+		b.SetDefault();
+		
+		b.m_Spr = 0;
+		b.m_Parts = 5;
+		b.m_LifeSpan = 4.0f + frandom()*2.0f;
+		b.m_StartSize = 32.0f + frandom()*32;
+		b.m_EndSize = 24.0f;
+		b.m_Gravity = 1400.0f + frandom()*300;
+		
+		b.m_Friction = 0.85f;
+		
+		for (int i = 0; i < 5; i++)
+		{
+			b.m_aPos[i] = Pos + RandomDir()*(frandom()*4.0f);
+			b.m_aVel[i] = (Dir + RandomDir()) * ((frandom()+0.50f)*250.0f);
+		}
+		
+		b.m_Color = Color;
+		m_pClient->m_pGuts->Add(CGuts::GROUP_GUTS, &b);
 	}
 	
 	// something else
+	Dir = vec2((frandom()-frandom())*2.0f, -1-frandom()*1.7f);
 	{
-	CGutSpill b;
-	b.SetDefault();
-	
-	b.m_Spr = 1;
-	b.m_Parts = 5;
-	b.m_LifeSpan = 4.0f + frandom()*2.0f;
-	b.m_StartSize = 32.0f + frandom()*32;
-	b.m_EndSize = 24.0f;
-	b.m_ControlDist = 12.0f;
-	b.m_Gravity = 1400.0f + frandom()*300;
-	
-	b.m_Friction = 0.85f;
-	
-	vec2 Vel = (Dir + RandomDir()) * ((frandom()+0.50f)*250.0f);
-	for (int i = 0; i < 5; i++)
-	{
-		b.m_aPos[i] = Pos + RandomDir()*(frandom()*4.0f);
-		b.m_aVel[i] = Vel + RandomDir() * ((frandom()+0.50f)*150.0f);
-	}
-	
-	b.m_Color = Color/3;
-	b.m_Color.a = Color.a;
-	m_pClient->m_pGuts->Add(CGuts::GROUP_GUTS, &b);
-	}
-	
-	/*
-	{
-	CBrainSpill b;
-	b.SetDefault();
-	
-	b.m_LifeSpan = 4.0f + frandom()*2.0f;
-	b.m_StartSize = 32.0f + frandom()*32;
-	b.m_EndSize = 24.0f;
-	b.m_Gravity = 1400.0f + frandom()*300;
-	
-	b.m_Friction = 0.85f;
-	
-	for (int i = 0; i < 9; i++)
-	{
-		b.m_aPos[i] = Pos + RandomDir()*(frandom()*8.0f);
-		b.m_aVel[i] = (Dir + RandomDir()) * ((frandom()+0.50f)*250.0f);
-	}
-	
-	b.m_Color = Color;
-	m_pClient->m_pBrains->Add(CBrains::GROUP_BRAINS, &b);
+		CGutSpill b;
+		b.SetDefault();
+		
+		b.m_Spr = 1;
+		b.m_Parts = 5;
+		b.m_LifeSpan = 4.0f + frandom()*2.0f;
+		b.m_StartSize = 32.0f + frandom()*32;
+		b.m_EndSize = 24.0f;
+		b.m_ControlDist = 12.0f;
+		b.m_Gravity = 1400.0f + frandom()*300;
+		
+		b.m_Friction = 0.85f;
+		
+		vec2 Vel = (Dir + RandomDir()) * ((frandom()+0.50f)*250.0f);
+		for (int i = 0; i < 5; i++)
+		{
+			b.m_aPos[i] = Pos + RandomDir()*(frandom()*4.0f);
+			b.m_aVel[i] = Vel + RandomDir() * ((frandom()+0.50f)*150.0f);
+		}
+		
+		b.m_Color = Color/3;
+		b.m_Color.a = Color.a;
+		m_pClient->m_pGuts->Add(CGuts::GROUP_GUTS, &b);
 	}
 	*/
+	// brain
+	Dir = vec2((frandom()-frandom())*4.0f, -1-frandom()*1.7f);
+	{
+		CBrainSpill b;
+		b.SetDefault();
+		
+		b.m_LifeSpan = 4.0f + frandom()*2.0f;
+		b.m_StartSize = 32.0f + frandom()*32;
+		b.m_EndSize = 24.0f;
+		b.m_Gravity = 1400.0f + frandom()*300;
+		
+		b.m_Friction = 0.85f;
+		
+		b.SetPosition(Pos);
+		
+		for (int i = 0; i < 9; i++)
+		{
+			//b.m_aPos[i] = Pos + RandomDir()*(frandom()*8.0f);
+			b.m_aVel[i] = (Dir + RandomDir()) * ((frandom()+0.50f)*250.0f);
+		}
+		
+		b.m_Color = Color/2;
+		b.m_Color.g *= 0.7f;
+		b.m_Color.b *= 0.7f;
+		b.m_Color.a = Color.a;
+		m_pClient->m_pBrains->Add(CBrains::GROUP_BRAINS, &b);
+	}
 }
 
 void CEffects::Acid(vec2 Pos, vec2 Dir)
@@ -577,8 +585,8 @@ void CEffects::PlayerDeath(vec2 Pos, int ClientID)
 	if (ClientID < 0 || ClientID >= MAX_CLIENTS)
 		return;
 	
-	Guts(Pos, vec2((frandom()-frandom())*1.5f, -1-frandom()*1.7f), p.m_Color);
-	Guts(Pos, vec2((frandom()-frandom())*1.5f, -1-frandom()*1.7f), p.m_Color);
+	Guts(Pos, p.m_Color);
+	//Guts(Pos, vec2((frandom()-frandom())*1.5f, -1-frandom()*1.7f), p.m_Color);
 	
 	// body
 	for (int i = 0; i < 4; i++)
