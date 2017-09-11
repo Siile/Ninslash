@@ -380,8 +380,8 @@ void CPlayers::RenderPlayer(
 	// store some data to customstuff for easy access
 	if (pInfo.m_Local)
 	{
-		if (rand()%10 == 1)
-			m_pClient->m_pEffects->Guts(Position);
+		//if (rand()%10 == 1)
+		//	m_pClient->m_pEffects->Guts(Position);
 		
 		//m_pClient->m_pTracers->Add(-1, 0, Position+vec2(0, -6), 0, 0, Direction*10.0f);
 		
@@ -402,7 +402,7 @@ void CPlayers::RenderPlayer(
 	CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_Color = RenderInfo.m_ColorBody;
 		
 	// draw aim line 
-	if (pPlayerInfo->m_Local && g_Config.m_GoreAimLine && pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING] < 0.9f)
+	if (!CustomStuff()->m_Inventory && pPlayerInfo->m_Local && g_Config.m_GoreAimLine && pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING] < 0.9f)
 	{
 		//vec2 Pos = Position + Direction * 400; //Position + Direction * 500.0f;
 		vec2 Pos = Position + m_pClient->m_pControls->m_MousePos; //Position + Direction * 500.0f;

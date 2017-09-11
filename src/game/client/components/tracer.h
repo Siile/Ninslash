@@ -75,7 +75,7 @@ struct CTrace
 				break;
 				
 			case W_SHOTGUN:
-				m_Color = vec4(0.5f, 0.3f, 0.2f, 0.3f);
+				m_Color = vec4(0.6f, 0.35f, 0.25f, 0.7f);
 				m_Speed = 8.0f;
 				m_Size1 = 4.0f; m_Size2 = 0.0f;
 				break;

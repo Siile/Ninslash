@@ -96,7 +96,7 @@ void CPicker::OnConsoleInit()
 	Console()->Register("+dropweapon", "", CFGFLAG_CLIENT, ConDropWeapon, this, "Drop weapon");
 	Console()->Register("+lastweapon", "", CFGFLAG_CLIENT, ConLastWeaponpick, this, "Select last picked weapon");
 	Console()->Register("+gamepadlastweapon", "", CFGFLAG_CLIENT, ConLastWeaponpick, this, "Select last picked weapon");
-	Console()->Register("+picker", "", CFGFLAG_CLIENT, ConKeyPicker, this, "Open weapon selector");
+	//Console()->Register("+picker", "", CFGFLAG_CLIENT, ConKeyPicker, this, "Open weapon selector");
 	Console()->Register("+gamepadpicker", "", CFGFLAG_CLIENT, ConKeyPicker, this, "Open weapon selector");
 	Console()->Register("weaponpick", "i", CFGFLAG_CLIENT, ConWeaponpick, this, "Use weapon");
 	

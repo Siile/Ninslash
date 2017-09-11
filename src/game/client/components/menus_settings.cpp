@@ -672,13 +672,13 @@ static CKeyInfo gs_aKeys[] =
 	
 	// weapons
 	//{ "Tool", "+weapon1", 0 },
-	{ "Weapon 1", "+weapon2", 0 },
-	{ "Weapon 2", "+weapon3", 0 },
-	{ "Weapon 3", "+weapon4", 0 },
-	{ "Tool (repair & build)", "+weapon5", 0 },
+	{ "Item slot 1", "+weapon2", 0 },
+	{ "Item slot 2", "+weapon3", 0 },
+	{ "Item slot 3", "+weapon4", 0 },
+	{ "Item slot 4", "+weapon5", 0 },
 	
 	
-	//{ "Weapon picker", "+picker", 0 },
+	{ "Inventory", "+inventory", 0 },
 	
 	{ "Select picked weapon", "+lastweapon", 0 },
 	//{ "Switch weapon", "+switch", 0 },

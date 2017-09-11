@@ -8,6 +8,7 @@
 #include <game/client/gameclient.h>
 #include <game/client/component.h>
 #include <game/client/components/picker.h>
+#include <game/client/components/inventory.h>
 #include <game/client/components/chat.h>
 #include <game/client/components/menus.h>
 #include <game/client/components/scoreboard.h>

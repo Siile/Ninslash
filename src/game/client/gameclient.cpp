@@ -37,6 +37,7 @@
 #include "components/debughud.h"
 #include "components/effects.h"
 #include "components/picker.h"
+#include "components/inventory.h"
 #include "components/flow.h"
 #include "components/hud.h"
 #include "components/items.h"
@@ -99,6 +100,7 @@ static CEffects gs_Effects;
 static CScoreboard gs_Scoreboard;
 static CSounds gs_Sounds;
 static CPicker gs_Picker;
+static CInventory gs_Inventory;
 static CDamageInd gsDamageInd;
 static CVoting gs_Voting;
 static CSpectator gs_Spectator;
@@ -151,6 +153,7 @@ void CGameClient::OnConsoleInit()
 	m_pCBelt = &::gs_CBelt;
 	m_pLight = &::gs_Light;
 	m_pMenus = &::gs_Menus;
+	m_pInventory = &::gs_Inventory;
 	m_pSkins = &::gs_Skins;
 	m_pCountryFlags = &::gs_CountryFlags;
 	m_pChat = &::gs_Chat;
@@ -238,6 +241,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderDamageInd);
 	m_All.Add(m_pDamageind);
 	m_All.Add(&m_pLight->m_RenderLight);
+	m_All.Add(m_pInventory);
 	m_All.Add(&gs_Hud);
 	m_All.Add(&gs_Spectator);
 	m_All.Add(&gs_Picker);
@@ -259,6 +263,7 @@ void CGameClient::OnConsoleInit()
 	m_Input.Add(m_pMenus);
 	m_Input.Add(&gs_Spectator);
 	m_Input.Add(&gs_Picker);
+	m_Input.Add(&gs_Inventory);
 	m_Input.Add(m_pControls);
 	m_Input.Add(m_pBinds);
 
@@ -520,8 +525,8 @@ void CGameClient::UpdatePositions()
 	
 	CustomStuff()->Update(Paused);
 
-
-	Collision()->m_GlobalAcid = SurvivalAcid();
+	if (Collision())
+		Collision()->m_GlobalAcid = SurvivalAcid();
 	
 	// global acid level timer
 	if (m_Snap.m_pGameInfoObj)

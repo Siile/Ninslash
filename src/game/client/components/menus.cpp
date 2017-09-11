@@ -1735,7 +1735,7 @@ void CMenus::RenderBackground()
 	for (;m_LastUpdate < currentTime; m_LastUpdate += step)
 	{
 		if (Client()->Loaded())
-			s_ShaderIntensity += 0.025f;
+			s_ShaderIntensity += 0.05f;
 		
 		if (i++ > 1)
 		{

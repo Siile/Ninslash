@@ -1,6 +1,7 @@
 #include "customstuff.h"
 
 #include <game/client/components/tracer.h>
+#include <game/client/components/inventory.h>
 
 
 
@@ -34,6 +35,15 @@ void CCustomStuff::Reset()
 	}
 	
 	m_ChargeAngle = 0;
+	m_Inventory = false;
+	
+	for (int i = 0; i < 12; i++)
+	{
+		if (i < NUM_WEAPONS)
+			m_aItem[i] = i+1;
+		else
+			m_aItem[i] = 0;
+	}
 	
 	m_Local.m_Buff = -1;
 	
@@ -237,8 +247,8 @@ void CCustomStuff::Tick(bool Paused)
 		}
 	}
 	
-	
 	m_pClient->m_pTracers->Tick();
+	m_pClient->m_pInventory->Tick();
 	
 	// Camera
 	

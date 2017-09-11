@@ -164,6 +164,9 @@ public:
 	int m_LocalWeapon;
 	vec4 m_LocalColor;
 	
+	bool m_Inventory;
+	int m_aItem[12];
+	
 	bool m_BuildMode;
 	
 	// Droids

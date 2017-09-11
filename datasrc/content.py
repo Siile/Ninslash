@@ -368,6 +368,7 @@ image_crawler_leg2 = Image("crawler_leg2", "anim/crawler_leg2.png")
 image_hp = Image("hp", "gui/hp.png")
 image_fuel = Image("fuel", "gui/fuel.png")
 image_circular = Image("circular", "gui/circular.png")
+image_gui_window1 = Image("gui_window1", "gui/window1.png")
 
 image_texasmask = Image("texasmask", "texasmask.png")
 
@@ -430,6 +431,7 @@ container.images.Add(image_texasmask)
 container.images.Add(image_hp)
 container.images.Add(image_fuel)
 container.images.Add(image_circular)
+container.images.Add(image_gui_window1)
 container.images.Add(image_muzzle)
 container.images.Add(image_jet)
 #container.images.Add(image_green_charge)
@@ -496,6 +498,7 @@ set_jet = SpriteSet("jet", image_jet, 4, 1)
 set_green_explosion = SpriteSet("green_explosion", image_green_explosion, 4, 2)
 set_crawler_leg = SpriteSet("crawler_leg", image_crawler_leg1, 1, 1)
 
+set_gui_window1 = SpriteSet("gui_window1", image_gui_window1, 4, 4)
 set_hud = SpriteSet("hud", image_hp, 1, 2)
 
 container.spritesets.Add(set_particles)
@@ -551,6 +554,8 @@ container.spritesets.Add(set_jet)
 #container.spritesets.Add(set_green_charge)
 container.spritesets.Add(set_green_explosion)
 container.spritesets.Add(set_crawler_leg)
+
+container.spritesets.Add(set_gui_window1)
 
 
 container.sprites.Add(Sprite("shield1", set_shield, 0,0,1,1))
@@ -991,6 +996,13 @@ container.sprites.Add(Sprite("guibutton_hover", set_guibuttons, 8,0,4,4))
 
 container.sprites.Add(Sprite("guiicon_mute", set_guiicons, 0,0,4,2))
 container.sprites.Add(Sprite("guiicon_friend", set_guiicons, 4,0,4,2))
+
+
+container.sprites.Add(Sprite("gui_exit", set_gui_window1, 3,0,1,1))
+container.sprites.Add(Sprite("gui_select", set_gui_window1, 3,1,1,1))
+
+
+
 
 
 

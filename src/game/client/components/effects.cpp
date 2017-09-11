@@ -117,7 +117,6 @@ void CEffects::Guts(vec2 Pos, vec4 Color)
 {
 	// gut
 	vec2 Dir = vec2((frandom()-frandom())*2.0f, -1-frandom()*1.7f);
-	/*
 	{
 		CGutSpill b;
 		b.SetDefault();
@@ -168,7 +167,7 @@ void CEffects::Guts(vec2 Pos, vec4 Color)
 		b.m_Color.a = Color.a;
 		m_pClient->m_pGuts->Add(CGuts::GROUP_GUTS, &b);
 	}
-	*/
+	
 	// brain
 	Dir = vec2((frandom()-frandom())*4.0f, -1-frandom()*1.7f);
 	{

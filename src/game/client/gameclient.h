@@ -275,6 +275,7 @@ public:
 	class CCBelt *m_pCBelt;
 	class CLight *m_pLight;
 	class CMenus *m_pMenus;
+	class CInventory *m_pInventory;
 	class CSkins *m_pSkins;
 	class CCountryFlags *m_pCountryFlags;
 	class CFlow *m_pFlow;
