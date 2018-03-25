@@ -32,8 +32,6 @@ void CAIbunny2::OnCharacterSpawn(CCharacter *pChr)
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	m_Triggered = true;
 	
-	pChr->GiveCustomWeapon(WEAPON_RIFLE);
-	
 	pChr->SetHealth(30);
 	//pChr->GiveBuff(PLAYERITEM_SHIELD);
 	

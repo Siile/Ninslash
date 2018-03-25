@@ -32,7 +32,6 @@ void CAIdefbunny2::OnCharacterSpawn(CCharacter *pChr)
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	m_Triggered = false;
 	
-	pChr->GiveCustomWeapon(WEAPON_RIFLE, 1, 1);
 
 	pChr->SetHealth(50);
 }

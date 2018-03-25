@@ -32,8 +32,6 @@ void CAIdefrobot1::OnCharacterSpawn(CCharacter *pChr)
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	m_Triggered = false;
 	
-	pChr->GiveCustomWeapon(WEAPON_RIFLE);
-	
 	pChr->SetHealth(110);
 	
 	m_ShockTimer = 10;

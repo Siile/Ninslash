@@ -204,14 +204,6 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			Trigger(false);
 		}
 	}
-	else
-	{
-		/*
-		CPlayerData *pData = GameServer()->Server()->PlayerData(pChr->GetPlayer()->GetCID());
-		pChr->GiveCustomWeapon(pData->m_Weapon);
-		pChr->SetCustomWeapon(pData->m_Weapon);
-		*/
-	}
 }
 
 void CGameControllerCoop::Trigger(bool IncreaseLevel)

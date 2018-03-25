@@ -32,12 +32,6 @@ void CAIdefalien1::OnCharacterSpawn(CCharacter *pChr)
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	m_Triggered = false;
 	
-	if (frandom() < 0.7f)
-		pChr->GiveCustomWeapon(WEAPON_RIFLE);
-	else if (frandom() < 0.5f)
-		pChr->GiveCustomWeapon(WEAPON_LASER);
-	else
-		pChr->GiveCustomWeapon(WEAPON_ELECTRIC);
 	
 	pChr->SetHealth(60);
 	

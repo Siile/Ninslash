@@ -31,8 +31,6 @@ void CAIdefrobot2::OnCharacterSpawn(CCharacter *pChr)
 	m_StartPos = Player()->GetCharacter()->m_Pos;
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	m_Triggered = false;
-	
-	pChr->GiveCustomWeapon(WEAPON_CHAINSAW);
 
 	pChr->SetHealth(130);
 	

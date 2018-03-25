@@ -141,7 +141,6 @@ public:
 	void CreateFlameHit(vec2 Pos);
 	void CreateBuildingHit(vec2 Pos);
 	void CreateDamageInd(vec2 Pos, float AngleMod, int Damage, int ClientID);
-	void CreateExplosion(vec2 Pos, int Owner, int Weapon, int PowerLevel, bool NoDamage, bool IsTurret = false);
 	void CreateExplosion(vec2 Pos, int Owner, int Weapon);
 	void CreateElectromineExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage);
 	void CreateMineExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage);
@@ -161,11 +160,6 @@ public:
 	
 	bool AddBuilding(int Kit, vec2 Pos, int Owner);
 	
-	void CreateChainsawHit(int DamageOwner, int Weapon, int PowerLevel, vec2 PlayerPos, vec2 ProjPos, class CBuilding *OwnerBuilding = NULL);
-	void CreateSwordHit(int DamageOwner, int Weapon, int PowerLevel, vec2 PlayerPos, vec2 ProjPos);
-	void CreateScytheHit(int DamageOwner, int Weapon, int PowerLevel, vec2 PlayerPos, vec2 ProjPos, class CCharacter *OwnerChr = NULL, class CBuilding *OwnerBuilding = NULL);
-	void CreateFlamethrowerHit(int DamageOwner, int Weapon, int PowerLevel, vec2 ProjPos, class CCharacter *OwnerChr = NULL, class CBuilding *OwnerBuilding = NULL);
-
 	void CreateProjectile(int DamageOwner, int Weapon, int Charge, vec2 Pos, vec2 Direction, class CBuilding *OwnerBuilding = NULL);
 	void CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 Pos, vec2 Direction);
 

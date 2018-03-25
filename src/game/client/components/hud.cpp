@@ -781,110 +781,6 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	x += 14;
 	//y += 6;
 	
-	/*
-	// buildings
-	if (m_pClient->m_pControls->m_BuildMode && m_pClient->BuildingEnabled())
-	{
-		float Size = 0.2f;
-		y += 24;
-		//x += 12;
-		
-		for (int i = 0; i < NUM_KITS; i++)
-		{
-			if (i != 0)
-				x += 140*Size;
-			
-			int Cost = BuildableCost[i];
-			
-			// draw building
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
-			Graphics()->QuadsBegin();
-	
-			Graphics()->SetColor(1, 1, 1, 1);
-			
-			RenderTools()->SelectSprite(SPRITE_KIT_BARREL+i);
-			RenderTools()->DrawSprite(x, y, 20);
-
-			Graphics()->QuadsEnd();
-			
-			
-			if (m_pClient->m_pControls->m_SelectedBuilding == i+1)
-			{
-				Graphics()->ShaderBegin(SHADER_GRAYSCALE, 0.0f);
-				Graphics()->QuadsBegin();
-				
-				if (Cost > CustomStuff()->m_LocalKits)
-					Graphics()->SetColor(1, 0, 0, 0.7f);
-				else
-					Graphics()->SetColor(0, 1, 0, 0.7f);
-				
-				RenderTools()->SelectSprite(SPRITE_KIT_BARREL+i);
-				RenderTools()->DrawSprite(x, y, 20);
-				
-				Graphics()->QuadsEnd();
-				Graphics()->ShaderEnd();
-			}
-			
-			// draw cost
-			char aBuf[8];
-			str_format(aBuf, sizeof(aBuf), "%d", Cost);
-			
-			if (Cost > CustomStuff()->m_LocalKits)
-				TextRender()->TextColor(1, 0, 0, 1);
-			else
-				TextRender()->TextColor(0, 1, 0, 1);
-			
-			TextRender()->Text(0, x+6, y+2, 6, aBuf, -1);
-			TextRender()->TextColor(1, 1, 1, 1);
-			
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
-			Graphics()->QuadsBegin();
-			Graphics()->SetColor(1, 1, 1, 1.0f);
-			RenderTools()->SelectSprite(SPRITE_PICKUP_KIT);
-			RenderTools()->DrawSprite(x+14, y+6.5f, 8);
-			Graphics()->QuadsEnd();
-		}
-		
-		x = Area2Pos.x + 134;
-		y = 16;
-		
-		// back to weapon helper
-		int iw = clamp(CustomStuff()->m_LatestWeapon, 0, NUM_WEAPONS-1);
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
-		Graphics()->QuadsBegin();
-
-		Graphics()->SetColor(1, 1, 1, 1);
-
-		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[iw].m_pSpriteBody);
-		RenderTools()->DrawSprite(x, y, 24);
-		Graphics()->QuadsEnd();
-		
-
-		TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
-		TextRender()->Text(0, x+9, y+1, 8, m_pClient->m_pBinds->GetKey("+build"), -1);
-		TextRender()->TextColor(1, 1, 1, 1);
-		
-		x = Area2Pos.x + 164;
-		y = 16;
-		
-		// number of contruction kits
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
-		Graphics()->QuadsBegin();
-		Graphics()->SetColor(1, 1, 1, 1.0f);
-		RenderTools()->SelectSprite(SPRITE_PICKUP_KIT);
-		RenderTools()->DrawSprite(x, y, 20);
-		Graphics()->QuadsEnd();
-		
-		char aBuf[8];
-		str_format(aBuf, sizeof(aBuf), "%d", clamp(CustomStuff()->m_LocalKits ,0, 9));
-		TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
-		TextRender()->Text(0, x+7, y+2, 8, aBuf, -1);
-		TextRender()->TextColor(1, 1, 1, 1);
-
-		return;
-	}
-	*/
-	
 	y += 24;
 	
 	
@@ -1002,6 +898,7 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 	Graphics()->QuadsBegin();
 	
+	Graphics()->SetColor(1.0f, 1.0f, 1.0f, 0.5f);
 	RenderTools()->SelectSprite(SPRITE_PICKUP_KIT);
 	RenderTools()->DrawSprite(x, y, 26);
 	

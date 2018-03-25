@@ -187,12 +187,6 @@ void CGameControllerBase::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 	}
 	else
 	{
-		/*
-		CPlayerData *pData = GameServer()->Server()->PlayerData(pChr->GetPlayer()->GetCID());
-		pChr->GiveCustomWeapon(pData->m_Weapon);
-		pChr->SetCustomWeapon(pData->m_Weapon);
-		*/
-		
 		if (!pChr->GetPlayer()->m_Welcomed)
 		{
 			pChr->GetPlayer()->m_Welcomed = true;

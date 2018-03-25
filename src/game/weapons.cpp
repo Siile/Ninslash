@@ -80,7 +80,6 @@ int GetProjectileTraceType(int Weapon)
 	
 	
 	int Part1 = GetPart(Weapon, 0);
-	int Part2 = GetPart(Weapon, 1);
 	
 	if (Part1 == 3) return -3;
 	if (Part1 == 2) return -1;
@@ -128,7 +127,6 @@ vec2 GetWeaponColorswap(int Weapon)
 	}
 	
 	int Part1 = GetPart(Weapon, 0);
-	int Part2 = GetPart(Weapon, 1);
 	
 	if (Part1 == 1) return vec2(0.0f, 0.0f);
 	if (Part1 == 2) return vec2(0.0f, 0.0f);
@@ -229,9 +227,6 @@ int GetExplosionSprite(int Weapon)
 		};
 	}
 	
-	int Part1 = GetPart(Weapon, 0);
-	int Part2 = GetPart(Weapon, 1);
-	
 	return SPRITE_EXPLOSION1_1;
 }
 
@@ -276,7 +271,6 @@ int GetExplosionSound(int Weapon)
 	}
 	
 	int Part1 = GetPart(Weapon, 0);
-	int Part2 = GetPart(Weapon, 1);
 	
 	if (Part1 == 2)
 		return SOUND_GRENADE_EXPLODE;
@@ -371,9 +365,6 @@ float GetExplosionSize(int Weapon)
 		return 0;
 	}
 	
-	int Part1 = GetPart(Weapon, 0);
-	int Part2 = GetPart(Weapon, 1);
-	
 	float Size = 120 * GetProjectileSize(Weapon);
 	
 	return Size;
@@ -419,7 +410,6 @@ float GetExplosionDamage(int Weapon)
 	}
 	
 	int Part1 = GetPart(Weapon, 0);
-	int Part2 = GetPart(Weapon, 1);
 	
 	if (Part1 != 2)
 		return 0;
@@ -882,7 +872,6 @@ float GetProjectileSpread(int Weapon)
 	if (GetStaticType(Weapon) == SW_BUBBLER)
 		return 0.04f;
 	
-	int Part1 = GetPart(Weapon, 0);
 	int Part2 = GetPart(Weapon, 1);
 	
 	float Spread = 0.05f;
@@ -1252,12 +1241,7 @@ float GetProjectileLife(int Weapon)
 		};
 	}
 	
-	int Part1 = GetPart(Weapon, 0);
-	int Part2 = GetPart(Weapon, 1);
-	
-	float v = 1.5f;
-	
-	v = 1100.0f / GetProjectileSpeed(Weapon) / ((GetShotSpread(Weapon)+2.0f)/3.0f);
+	float v = 1100.0f / GetProjectileSpeed(Weapon) / ((GetShotSpread(Weapon)+2.0f)/3.0f);
 	
 	return v;
 }
@@ -1394,22 +1378,11 @@ bool GetWeaponFullAuto(int Weapon)
 bool IsProjectileBouncy(int Weapon)
 {
 	return false;
-	
-	int Part1 = GetPart(Weapon, 0);
-	int Part2 = GetPart(Weapon, 1);
-	
-	if (Part1 == 3)
-		return true;
-	
-	return false;
 }
 
 
 bool IsExplosiveProjectile(int Weapon)
 {
-	int Part1 = GetPart(Weapon, 0);
-	int Part2 = GetPart(Weapon, 1);
-	
 	return true;
 }
 

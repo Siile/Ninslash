@@ -391,6 +391,7 @@ void CPlayers::RenderPlayer(
 			CustomStuff()->AddImpact(vec4(p.x-r, p.y-r, p.x+r, p.y+r), CCustomStuff::IMPACT_HIT, normalize(p-Position+vec2(0, -0.3f)));
 		}
 	}
+	/*
 	else if (Player.m_Weapon == WEAPON_TOOL)
 	{
 		// melee attack effect
@@ -410,6 +411,7 @@ void CPlayers::RenderPlayer(
 			pCustomPlayerInfo->FireMelee();
 		}
 	}
+	*/
 	else
 	{
 		pCustomPlayerInfo->m_MeleeTick = Player.m_AttackTick;

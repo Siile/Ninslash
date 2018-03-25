@@ -244,7 +244,7 @@ void CCrawler::Tick()
 		// body angle
 		m_Target.x = vec2(sin(m_AngleTimer), cos(m_AngleTimer)).x;
 		m_Target.y = -1;
-		
+		*/
 		/*
 		if (WillFire)
 		{

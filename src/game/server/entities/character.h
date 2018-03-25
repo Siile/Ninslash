@@ -115,6 +115,9 @@ public:
 		if (Slot < 0 && m_WeaponSlot >= 0 && m_WeaponSlot < NUM_SLOTS)
 			return m_apWeapon[m_WeaponSlot];
 		
+		if (Slot < 0)
+			return NULL;
+		
 		return m_apWeapon[Slot];
 	}
 	
@@ -179,9 +182,6 @@ public:
 	
 	bool PickWeapon(class CWeapon *pWeapon);
 	
-	bool GiveCustomWeapon(int CustomWeapon, float AmmoFill = 1.0f, int PowerLevel = 0);
-	void GiveRandomWeapon(int WeaponLevel = -1);
-	void GiveAllWeapons();
 	bool GiveAmmo(int *CustomWeapon, float AmmoFill);
 	
 	void SetCustomWeapon(int CustomWeapon);
@@ -299,25 +299,14 @@ private:
 	int m_AcidTimer;
 	
 	vec2 m_Recoil;
-	
-	// nonprojectile weirdos
-	int m_Chainsaw;
-	int m_Scythe;
-	
-	int m_ScytheTick;
+
 	int m_ChangeDirTick;
 	int m_LastDir;
 	
 	int m_ChargeTick;
 	
-	void Chainsaw();
-	void Scythe();
-	
 	int m_Flamethrower;
 	void Flamethrower();
-	
-	float m_DelayedShotgunTick;
-	void DelayedFire();
 	
 	CCharacter *m_LockedTo;
 	

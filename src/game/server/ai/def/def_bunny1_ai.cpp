@@ -32,7 +32,6 @@ void CAIdefbunny1::OnCharacterSpawn(CCharacter *pChr)
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	m_Triggered = false;
 	
-	pChr->GiveCustomWeapon(WEAPON_SCYTHE);
 	
 	pChr->SetHealth(40);
 	

@@ -1328,13 +1328,8 @@ void IGameController::OnCharacterSpawn(class CCharacter *pChr, bool RequestAI)
 	// default health
 	pChr->SetHealth(100);
 
-	//pChr->GiveCustomWeapon(W_PISTOL);
-	
 	if (pChr->GetPlayer()->m_pAI)
 		pChr->GetPlayer()->m_pAI->Reset();
-	
-	//pChr->GiveRandomWeapon();
-	//pChr->GiveCustomWeapon(W_FLAMER);
 }
 
 
