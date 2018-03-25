@@ -32,7 +32,10 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	m_GameState = STATE_STARTING;
 	
 	if (g_Config.m_SvMapGenRandSeed)
+	{
 		g_Config.m_SvMapGenSeed = rand()%32767;
+		g_Config.m_SvMapGenRandSeed = 0;
+	}
 	
 	srand(g_Config.m_SvMapGenLevel + g_Config.m_SvMapGenSeed);
 	

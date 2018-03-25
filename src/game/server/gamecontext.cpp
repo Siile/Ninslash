@@ -369,7 +369,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 				if (DamageOwner >= 0 && DamageOwner < MAX_CLIENTS)
 				{
 					CPlayer *pPlayer = m_apPlayers[DamageOwner];
-					if(pPlayer && !pPlayer->m_IsBot)
+					if(pTarget->m_Team >= 0 && pPlayer && !pPlayer->m_IsBot)
 						continue;
 				}
 			

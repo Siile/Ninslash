@@ -657,6 +657,7 @@ void CCharacter::DropWeapon()
 	if (UpgradeTurret(m_Pos, -Direction))
 	{
 		m_apWeapon[m_WeaponSlot] = 0;
+		SendInventory();
 		return;
 	}
 	

@@ -55,6 +55,7 @@ void CAI::Reset()
 	m_LastMove = 0;
 	m_Jump = 0;
 	m_Down = 0;
+	m_Attack = 0;
 	m_LastJump = 0;
 	m_LastAttack = 0;
 	m_Hook = 0;
