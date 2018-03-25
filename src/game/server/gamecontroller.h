@@ -127,9 +127,13 @@ public:
 	void DropPickup(vec2 Pos, int PickupType, vec2 Force, int PickupSubtype, float Ammo = -1.0f, int PowerLevel = 0);
 	void DropWeapon(vec2 Pos, vec2 Force, class CWeapon *pWeapon);
 	
+	void ReleaseWeapon(class CWeapon *pWeapon);
+	void TriggerWeapon(class CWeapon *pWeapon);
+	
 	int GetTimeLeft();
 	
-	int GetRandomWeapon(int WeaponLevel);
+	int GetRandomWeapon();
+	int GetRandomModularWeapon();
 	
 	//
 	const char *m_pGameType;

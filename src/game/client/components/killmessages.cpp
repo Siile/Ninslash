@@ -34,10 +34,6 @@ void CKillMessages::OnMessage(int MsgType, void *pRawMsg)
 		Kill.m_Weapon = pMsg->m_Weapon;
 		Kill.m_ModeSpecial = pMsg->m_ModeSpecial;
 		Kill.m_Tick = Client()->GameTick();
-		Kill.m_IsTurret = pMsg->m_IsTurret;
-
-		if (Kill.m_Weapon < 0)
-			Kill.m_Weapon = DEATHTYPE_EMPTY;
 		
 		// add the message
 		m_KillmsgCurrent = (m_KillmsgCurrent+1)%MAX_KILLMSGS;
@@ -114,6 +110,31 @@ void CKillMessages::OnRender()
 
 		// render weapon
 		x -= 48.0f;
+		
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
+		RenderTools()->SetShadersForWeapon(m_aKillmsgs[r].m_Weapon);
+		
+		RenderTools()->RenderWeapon(m_aKillmsgs[r].m_Weapon, vec2(x+5, y+30), vec2(1, 0), 16, true, 0, 1.0f, true);
+		Graphics()->ShaderEnd();
+		
+		/*
+		Graphics()->QuadsBegin();
+		RenderTools()->RenderWeapon(m_aKillmsgs[r].m_Weapon, vec2(x+5, y+30), vec2(1, 0), 16);
+		Graphics()->QuadsEnd();
+		Graphics()->ShaderEnd();
+		*/
+		
+		/*
+		if (IsTurret(m_aKillmsgs[r].m_Weapon))
+		{
+			Graphics()->QuadsBegin();
+			RenderTools()->SelectSprite(SPRITE_WEAPON_TURRET);
+			
+			Graphics()->QuadsEnd();
+		}
+		*/
+		
+		/*
 		if (m_aKillmsgs[r].m_Weapon >= 0)
 		{
 			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_DEATHTYPES].m_Id);
@@ -134,6 +155,7 @@ void CKillMessages::OnRender()
 			Graphics()->QuadsDraw(&QuadItem, 1);
 			Graphics()->QuadsEnd();
 		}
+		*/
 		x -= 56.0f;
 
 		if(m_aKillmsgs[r].m_VictimID != m_aKillmsgs[r].m_KillerID)

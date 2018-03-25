@@ -309,7 +309,6 @@ void CBlood::RenderGroup(int Group)
 
 		CUIRect Screen;
 		Graphics()->GetScreen(&Screen.x, &Screen.y, &Screen.w, &Screen.h);
-		
 		Graphics()->MapScreen(0,0,Graphics()->ScreenWidth(),Graphics()->ScreenHeight());
 		
 		Graphics()->RenderToScreen();

@@ -401,6 +401,21 @@ void CGraphics_Threaded::ShaderBegin(int Shader, float Intensity, float ColorSwa
 }
 
 
+void CGraphics_Threaded::PlayerShaderBegin(float colorG, float colorB, float Charge, float Visibility, float Electro, float Damage, float Deathray)
+{
+	CCommandBuffer::SCommand_ShaderBegin Cmd;
+	Cmd.m_Shader = SHADER_PLAYER;
+	Cmd.m_Intensity = colorB;
+	Cmd.m_ColorSwap = colorG;
+	Cmd.m_Visibility = Visibility;
+	Cmd.m_Electro = Electro;
+	Cmd.m_Damage = Damage;
+	Cmd.m_Deathray = Deathray;
+	Cmd.m_WeaponCharge = Charge;
+	m_pCommandBuffer->AddCommand(Cmd);
+}
+
+
 void CGraphics_Threaded::CameraToShaders(int ScreenWidth, int ScreenHeight, int CameraX, int CameraY)
 {
 	CCommandBuffer::SCommand_CameraToShaders Cmd;

@@ -13,6 +13,9 @@ void CPlayerData::Reset()
 {
 	for (int i = 0; i < 99; i++)
 	{
+		m_aWeaponType[i] = 0;
+		m_aWeaponAmmo[i] = 0;
+		
 		m_aAmmo[i] = -1;
 		m_aPowerLevel[i] = 0;
 	}

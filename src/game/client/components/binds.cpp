@@ -101,7 +101,7 @@ void CBinds::SetDefaults()
 	Bind(KEY_MOUSE_2, "+turbo");
 	Bind(KEY_E, "+inventory");
 	Bind(KEY_W, "+charge");
-	Bind(KEY_Q, "+build");
+	//Bind(KEY_Q, "+build");
 	Bind(KEY_MOUSE_3, "+lastweapon");
 	//Bind(KEY_MOUSE_3, "+switch");
 	Bind(KEY_F, "+dropweapon");

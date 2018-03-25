@@ -11,7 +11,7 @@ void CSkeletonAnimation::Reset()
 	m_Anim = 0;
 	m_Time = 0.0f;
 	m_Speed = 0.0f;
-	m_Scale = vec2(0.2f, 0.2f);
+	m_Scale = vec2(0.18f, 0.18f);
 	m_Flip = false;
 	m_FlipBody = false;
 	

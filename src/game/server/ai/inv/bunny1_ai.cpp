@@ -45,11 +45,13 @@ void CAIbunny1::OnCharacterSpawn(CCharacter *pChr)
 	{
 		if (frandom() < 0.5f)
 		{
-			pChr->GiveCustomWeapon(WEAPON_RIFLE, 1, 2);
-			pChr->SetCustomWeapon(WEAPON_RIFLE);
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 4)));
 		}
 		else
-			pChr->GiveCustomWeapon(WEAPON_HAMMER, 1, 2);
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(5, 6)));
+		
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE2)));
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE2)));
 		
 		pChr->SetHealth(100);
 		m_PowerLevel = 14;
@@ -58,11 +60,11 @@ void CAIbunny1::OnCharacterSpawn(CCharacter *pChr)
 	else
 	{
 		if (frandom() < 0.5f)
-		{
-			pChr->GiveCustomWeapon(WEAPON_RIFLE, 1, 1);
-			pChr->SetCustomWeapon(WEAPON_RIFLE);
-		}
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 4)));
+		else
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(5, 6)));
 		
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE2)));
 		pChr->SetHealth(50);
 	}
 	

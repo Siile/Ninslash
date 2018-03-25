@@ -1,6 +1,7 @@
 #include <engine/shared/config.h>
 #include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
+#include <game/weapons.h>
 #include "pickup.h"
 #include "weapon.h"
 #include "electro.h"
@@ -15,7 +16,6 @@ CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType, int Ammo)
 	m_ProximityRadius = PickupPhysSize;
 
 	m_ResetableDropable = false;
-	m_PowerLevel = 0;
 	m_pWeapon = NULL;
 	
 	Reset();
@@ -25,11 +25,6 @@ CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType, int Ammo)
 	if (g_Config.m_SvSurvivalMode)
 	{
 		m_SkipAutoRespawn = true;
-		
-		if (m_Type == POWERUP_WEAPON && frandom() < 0.14f)
-			m_PowerLevel = 1;
-		else if (m_Type == POWERUP_WEAPON && frandom() < 0.07f)
-			m_PowerLevel = 2;
 	}
 	else
 		m_SkipAutoRespawn = false;
@@ -51,9 +46,11 @@ void CPickup::Reset()
 			
 		m_Flashing = false;
 		m_FlashTimer = 0;
-		m_PowerLevel = 0;
 		
 		ClearWeapon();
+		
+		if (m_Type == POWERUP_WEAPON)
+			m_Subtype = GetRandomWeaponType();
 	}
 }
 
@@ -92,7 +89,10 @@ void CPickup::Tick()
 		{
 			// respawn
 			m_SpawnTick = -1;
-			m_PowerLevel = 0;
+			
+			
+			if (m_Type == POWERUP_WEAPON)
+				m_Subtype = GetRandomWeaponType();
 			
 			ClearWeapon();
 			
@@ -101,12 +101,6 @@ void CPickup::Tick()
 				m_Pos = m_SpawnPos;
 				m_Dropable = false;
 			}
-			
-			if (m_Type == POWERUP_WEAPON && frandom() < 0.14f)
-				m_PowerLevel = 1;
-			
-			if (m_Type == POWERUP_WEAPON && frandom() < 0.07f)
-				m_PowerLevel = 2;
 
 			if(m_Type == POWERUP_WEAPON)
 				GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SPAWN);
@@ -231,29 +225,23 @@ void CPickup::Tick()
 				break;
 
 			case POWERUP_WEAPON:
-				if(m_Subtype >= 0 && m_Subtype < NUM_WEAPONS)
-				{
-					if (!m_pWeapon)
-					{
-						m_pWeapon = GameServer()->NewWeapon(m_Subtype);
-						m_pWeapon->m_PowerLevel = m_PowerLevel;
-					}
+				if (!m_pWeapon)
+					m_pWeapon = GameServer()->NewWeapon(m_Subtype);
 					
-					if (pChr->PickWeapon(m_pWeapon))
-					{
-						if(m_Subtype == WEAPON_GRENADE)
-							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE);
-						else
-							GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN);
+				if (pChr->PickWeapon(m_pWeapon))
+				{
+					if(m_Subtype == WEAPON_GRENADE)
+						GameServer()->CreateSound(m_Pos, SOUND_PICKUP_GRENADE);
+					else
+						GameServer()->CreateSound(m_Pos, SOUND_PICKUP_SHOTGUN);
 						
-						m_pWeapon = NULL;
-						RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
-						m_Life = 0;
-						m_Flashing = false;
+					m_pWeapon = NULL;
+					RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
+					m_Life = 0;
+					m_Flashing = false;
 						
-						if(pChr->GetPlayer())
-							GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), pChr->m_PickedWeaponSlot);
-					}
+					if(pChr->GetPlayer())
+						GameServer()->SendWeaponPickup(pChr->GetPlayer()->GetCID(), pChr->m_PickedWeaponSlot);
 				}
 				break;
 				
@@ -286,13 +274,6 @@ void CPickup::SurvivalReset()
 		m_SpawnTick = -1;
 		m_Flashing = false;
 		m_FlashTimer = 0;
-		
-		m_PowerLevel = 0;
-
-		if (m_Type == POWERUP_WEAPON && frandom() < 0.15f)
-			m_PowerLevel = 1;
-		else if (m_Type == POWERUP_WEAPON && frandom() < 0.08f)
-			m_PowerLevel = 2;
 			
 		if (m_ResetableDropable)
 		{
@@ -327,15 +308,5 @@ void CPickup::Snap(int SnappingClient)
 	pP->m_X = (int)m_Pos.x;
 	pP->m_Y = (int)m_Pos.y;
 	pP->m_Type = m_Type;
-	pP->m_PowerLevel = m_PowerLevel;
-	
-	/*
-	if (m_Type == POWERUP_WEAPON && m_Subtype >= 0 && m_Subtype < NUM_WEAPONS)
-	{
-		//pP->m_Subtype = aCustomWeapon[m_Subtype].m_ParentWeapon;
-		pP->m_Subtype = m_Subtype;
-	}
-	else
-		*/
-		pP->m_Subtype = m_Subtype;
+	pP->m_Subtype = m_Subtype;
 }

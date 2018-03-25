@@ -167,6 +167,12 @@ public:
 	void UseKit(int Kit, vec2 Pos);
 	void DropWeapon();
 	
+	// inventory
+	void SwapItem(int Item1, int Item2);
+	void CombineItem(int Item1, int Item2);
+	void TakePart(int Item1, int Slot, int Item2);
+	void SendInventory();
+	
 	void JoinTeam();
 	
 	bool m_ForceToSpectators;

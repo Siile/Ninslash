@@ -6,7 +6,7 @@
 class CAIalien1 : public CAI
 {
 public:
-	CAIalien1(CGameContext *pGameServer, CPlayer *pPlayer);
+	CAIalien1(CGameContext *pGameServer, CPlayer *pPlayer, int Level);
 
 	virtual void DoBehavior();
 	void OnCharacterSpawn(class CCharacter *pChr);
@@ -18,6 +18,8 @@ private:
 	
 	int m_ShockTimer;
 	int m_Skin;
+	
+	int m_Level;
 };
 
 #endif

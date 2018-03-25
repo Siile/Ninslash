@@ -20,7 +20,6 @@ public:
 	class CWeapon *m_pWeapon;
 	
 	float m_Ammo;
-	int m_PowerLevel;
 	
 	void Respawn()
 	{

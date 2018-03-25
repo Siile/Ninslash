@@ -69,7 +69,7 @@ void CDroids::RenderWalker(const CNetObj_Droid *pPrev, const CNetObj_Droid *pCur
 		{
 			//vec2 Dir = GetDirection((int)(Angle*256));
 			
-			int Sprite = SPRITE_MUZZLE1;
+			int Sprite = SPRITE_MUZZLE5_1;
 			
 			float Alpha = 0.0f;
 			int Phase1Tick = (Client()->GameTick() - pCurrent->m_AttackTick);
@@ -80,21 +80,21 @@ void CDroids::RenderWalker(const CNetObj_Droid *pPrev, const CNetObj_Droid *pCur
 			}
 			
 			Sprite += Phase1Tick/2;
-			if (Sprite > SPRITE_MUZZLE1+2)
-				Sprite = SPRITE_MUZZLE1+2;
+			if (Sprite > SPRITE_MUZZLE5_1+3)
+				Sprite = SPRITE_MUZZLE5_1+3;
 			
 			if (Alpha > 0.0f)
 			{
-				RenderTools()->SelectSprite(Sprite, Dir < 0 ? SPRITE_FLAG_FLIP_Y : 0);
+				RenderTools()->SelectSprite(Sprite, SPRITE_FLAG_FLIP_X | (Dir < 0 ? SPRITE_FLAG_FLIP_Y : 0));
 				
 				float OffsetY = pCurrent->m_Anim < 3 ? -57 : 7;
 				
-				vec2 p = Pos + vec2(Dir*14, OffsetY) + vec2(cosf(Angle), sinf(Angle))*55;
-				RenderTools()->DrawSprite(p.x, p.y, 96);
+				vec2 p = Pos + vec2(Dir*14, OffsetY+2) + vec2(cosf(Angle), sinf(Angle))*37;
+				RenderTools()->DrawSprite(p.x, p.y, 54);
 				
-				p = Pos + vec2(Dir*28, OffsetY-7) + vec2(cosf(Angle), sinf(Angle))*64;
+				p = Pos + vec2(Dir*28, OffsetY-4) + vec2(cosf(Angle), sinf(Angle))*49;
 				p += vec2(sinf(Angle), 0)*6*Dir;
-				RenderTools()->DrawSprite(p.x, p.y, 96);
+				RenderTools()->DrawSprite(p.x, p.y, 54);
 			}
 		}
 		

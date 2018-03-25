@@ -38,12 +38,18 @@ void CCustomStuff::Reset()
 	m_Inventory = false;
 	
 	for (int i = 0; i < 12; i++)
-	{
-		if (i < NUM_WEAPONS)
-			m_aItem[i] = i+1;
-		else
-			m_aItem[i] = 0;
-	}
+		m_aItem[i] = 0;
+	
+	/*
+	int w = 1<<0 | 1<<5;
+	m_aItem[0] = w;
+	w = 0; w |= 1<<1; w |= 1<<6;
+	m_aItem[1] = w;
+	w = 0; w |= 1<<2; w |= 1<<7;
+	m_aItem[2] = w;
+	w = 0; w |= 1<<6;
+	m_aItem[3] = w;
+	*/
 	
 	m_Local.m_Buff = -1;
 	

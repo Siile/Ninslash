@@ -67,11 +67,15 @@ protected:
 	bool m_MarkedForDestroy;
 	int m_ID;
 	int m_ObjType;
+	bool m_Damageable;
+	
 public:
 	CEntity(CGameWorld *pGameWorld, int Objtype);
 	virtual ~CEntity();
 
 	int GetType() { return m_ObjType; }
+	
+	bool IsDamageable() { return m_Damageable; }
 	
 	class CGameWorld *GameWorld() { return m_pGameWorld; }
 	class CGameContext *GameServer() { return GameWorld()->GameServer(); }
@@ -101,6 +105,9 @@ public:
 			and moves the entity to it's new state and position.
 	*/
 	virtual void Tick() {}
+	
+	
+	virtual bool TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos) { return false; }
 
 	/*
 		Function: tick_defered

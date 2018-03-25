@@ -10,13 +10,13 @@ MACRO_TUNING_PARAM(JumpPower, jump_power, 12.2f)
 
 
 
-MACRO_TUNING_PARAM(GroundControlSpeed, ground_control_speed, 540.0f / TicksPerSecond) // 11 = fast
-MACRO_TUNING_PARAM(GroundControlAccel, ground_control_accel, 85.0f / TicksPerSecond)
+MACRO_TUNING_PARAM(GroundControlSpeed, ground_control_speed, 450.0f / TicksPerSecond) // 11 = fast
+MACRO_TUNING_PARAM(GroundControlAccel, ground_control_accel, 75.0f / TicksPerSecond)
 MACRO_TUNING_PARAM(GroundFriction, ground_friction, 0.5f)
-MACRO_TUNING_PARAM(GroundJumpImpulse, ground_jump_impulse, 12.2f)
-MACRO_TUNING_PARAM(WallrunImpulse, wall_run_impulse, 10.0f)
-MACRO_TUNING_PARAM(AirControlSpeed, air_control_speed, 525.0f / TicksPerSecond) //  250.0f
-MACRO_TUNING_PARAM(AirControlAccel, air_control_accel, 70.0f / TicksPerSecond) // 1.5f
+MACRO_TUNING_PARAM(GroundJumpImpulse, ground_jump_impulse, 11.2f)
+MACRO_TUNING_PARAM(WallrunImpulse, wall_run_impulse, 9.0f)
+MACRO_TUNING_PARAM(AirControlSpeed, air_control_speed, 450.0f / TicksPerSecond) //  250.0f
+MACRO_TUNING_PARAM(AirControlAccel, air_control_accel, 50.0f / TicksPerSecond) // 1.5f
 MACRO_TUNING_PARAM(AirFriction, air_friction, 0.95f)
 MACRO_TUNING_PARAM(Gravity, gravity, 0.7f) // 0.5f
 
@@ -25,8 +25,9 @@ MACRO_TUNING_PARAM(SlideSlopeAcceleration, slide_slope_acceleration, 0.4f)
 MACRO_TUNING_PARAM(SlopeDeceleration, slope_deceleration, 0.0f)
 MACRO_TUNING_PARAM(SlopeAscendingControlSpeed, slope_ascending_control_speed, 10.0f)
 MACRO_TUNING_PARAM(SlopeDescendingControlSpeed, slope_descending_control_speed, 10.0f)
-MACRO_TUNING_PARAM(SlideControlSpeed, slide_control_speed, 17.0f)
-MACRO_TUNING_PARAM(SlideActivationSpeed, slide_activation_speed, 8.0f)
+MACRO_TUNING_PARAM(SlideControlSpeed, slide_control_speed, 510.0f / TicksPerSecond) // 14
+MACRO_TUNING_PARAM(SlideActivationSpeed, slide_activation_speed, 7.0f)
+MACRO_TUNING_PARAM(DashPower, dash_power, 21.0f)
 
 MACRO_TUNING_PARAM(VelrampStart, velramp_start, 550)
 MACRO_TUNING_PARAM(VelrampRange, velramp_range, 2000)
@@ -67,7 +68,7 @@ MACRO_TUNING_PARAM(FlamerLifetime, flamer_lifetime, 2.0f)
 MACRO_TUNING_PARAM(LaserReach, laser_reach, 800.0f)
 MACRO_TUNING_PARAM(LaserBounceDelay, laser_bounce_delay, 150)
 MACRO_TUNING_PARAM(LaserBounceNum, laser_bounce_num, 1)
-MACRO_TUNING_PARAM(LaserBounceCost, laser_bounce_cost, -100)
+MACRO_TUNING_PARAM(LaserBounceCost, laser_bounce_cost, 0)
 MACRO_TUNING_PARAM(LaserDamage, laser_damage, 5)
 
 MACRO_TUNING_PARAM(PlayerCollision, player_collision, 1)

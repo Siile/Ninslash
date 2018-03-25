@@ -111,6 +111,17 @@ CGenLayer::~CGenLayer()
 }
 
 
+void CGenLayer::CleanTiles()
+{
+	for (int i = 0; i < m_Width*m_Height; i++)
+		m_pTiles[i] = 0;
+	
+	for (int i = 0; i < m_Width*m_Height; i++)
+		m_pFlags[i] = 0;
+}
+
+
+
 void CGenLayer::GenerateBoxes()
 {
 	int n = 3 + rand()%14;
@@ -208,11 +219,45 @@ void CGenLayer::GenerateBoxes()
 }
 
 
+bool CGenLayer::AddBackgroundTile(int x, int y)
+{
+	if ((Get(x-1, y, BACKGROUND) || Get(x+1, y, BACKGROUND)) && (Get(x, y-1, BACKGROUND) || Get(x, y+1, BACKGROUND)))
+		return true;
+	
+	return false;
+}
+	
+void CGenLayer::GenerateMoreBackground()
+{
+	for (int i = 0; i < 20; i++)
+	{
+		bool *apTiles = new bool[m_Width*m_Height];
+		for (int x = 0; x < m_Width; x++)
+			for (int y = 0; y < m_Height; y++)
+				apTiles[x + y*m_Width] = AddBackgroundTile(x, y);
+			
+		for (int x = 0; x < m_Width; x++)
+			for (int y = 0; y < m_Height; y++)
+				if (apTiles[x + y*m_Width])
+					Set(1, x, y, 0, BACKGROUND);
+
+		delete apTiles;
+	}
+}
+		
 void CGenLayer::GenerateBackground()
 {
-	if (m_Width < 30)
-		return;
+	for (int x = 0; x < m_Width; x++)
+		for (int y = 0; y < m_Height; y++)
+		{
+			if (Get(x, y) && frandom() < 0.35f)
+				Set(1, x, y, 0, BACKGROUND);
+			else
+				Set(0, x, y, 0, BACKGROUND);
+		}
 
+	return;
+		
 	int n = m_Width/30;
 
 	while (n-- > 0)
@@ -425,6 +470,20 @@ void CGenLayer::RemoveSingles()
 			
 			if (Get(x, y) && !Get(x, y-1) && !Get(x, y+1) && 
 				((!Get(x-1, y) && Get(x+1, y) && Get(x+1, y-1) && Get(x+1, y+1)) || ((!Get(x+1, y) && Get(x-1, y) && Get(x-1, y-1) && Get(x-1, y+1)))))
+				Set(0, x, y);
+		}
+}
+
+
+void CGenLayer::BaseCleanup()
+{
+	for (int x = 2; x < m_Width-2; x++)
+		for (int y = 2; y < m_Height-2; y++)
+		{
+			if (Get(x, y) && !Get(x-1, y) && !Get(x+1, y))
+				Set(0, x, y);
+			
+			if (Get(x, y) && !Get(x, y-1) && !Get(x, y+1))
 				Set(0, x, y);
 		}
 }
@@ -687,6 +746,71 @@ void CGenLayer::Scan()
 			}
 		}
 	
+	// find pits / pools
+	for (int x = 1; x < m_Width-1; x++)
+		for (int y = 1; y < m_Height-1; y++)
+		{
+			// bot left
+			if (!Used(x, y) && !Used(x+1, y) && !Used(x, y-1) &&
+				Get(x-1, y) && Get(x-1, y+1) && Get(x, y+1))
+			{
+				int px = x+1;
+				int py = y-1;
+				int py2 = y-1;
+				
+				// check to top from left
+				int n = 0;
+				while (!Used(x, py) && Get(x-1, py) && n++ < 10)
+					py--;
+				
+				// check to right
+				n = 0;
+				while (!Used(px, y) && Get(px, y+1) && n++ < 60)
+					px++;
+				
+				// check to top from right
+				n = 0;
+				while (!Used(px-1, py2) && Get(px+1-1, py2) && n++ < 10)
+					py2--;
+				
+				py = max(py, py2);			
+				
+				bool Valid = true;
+				
+				// check the whole area
+				for (int ax = x; ax < px; ax++)
+					for (int ay = py+1; ay < y; ay++)
+						if (Used(ax, ay))
+						{
+							Valid = false;
+							break;
+						}
+				
+				// check borders
+				/*
+				for (int ay = py; ay < y; ay++)
+				{
+					if (!Get(x-1, ay))
+						Valid = false;
+					else if (!Get(px+1, ay))
+						Valid = false;
+				}
+				*/
+				
+				if (abs(x-px) < 2 || abs(y-py) < 1)
+					Valid = false;
+				
+				if (Valid && m_NumPits < GEN_MAX)
+				{
+					for (int ax = x-1; ax < px+2; ax++)
+						for (int ay = py; ay < y+2; ay++)
+							Use(ax, ay);
+					
+					m_aPit[m_NumPits++] = ivec4(x, py+2, px, y+1);
+				}
+			}
+		}
+	
 	// find player spawn spots
 	if (str_comp(g_Config.m_SvGametype, "coop") == 0)
 	{
@@ -742,66 +866,7 @@ void CGenLayer::Scan()
 				if (!Used(p.x+x, p.y+y))
 					Set(-1, p.x+x, p.y+y);
 	}
-		
 	
-	// find pits / pools
-	for (int x = 1; x < m_Width-1; x++)
-		for (int y = 1; y < m_Height-1; y++)
-		{
-			// bot left
-			if (!Used(x, y) && !Used(x+1, y) && !Used(x, y-1) &&
-				Get(x-1, y) && Get(x-1, y+1) && Get(x, y+1))
-			{
-				int px = x+1;
-				int py = y-1;
-				int py2 = y-1;
-				
-				// check to top from left
-				int n = 0;
-				while (!Used(x, py) && Get(x-1, py) && n++ < 10)
-					py--;
-				
-				// check to right
-				n = 0;
-				while (!Used(px, y) && Get(px, y+1) && n++ < 60)
-					px++;
-				
-				// check to top from right
-				n = 0;
-				while (!Used(px-1, py2) && Get(px+1-1, py2) && n++ < 10)
-					py2--;
-				
-				py = max(py, py2);			
-				
-				bool Valid = true;
-				
-				// check the whole area
-				for (int ax = x; ax < px; ax++)
-					for (int ay = py-3; ay < y; ay++)
-						if (Used(ax, ay))
-						{
-							Valid = false;
-							break;
-						}
-				
-				// check borders
-				for (int ay = py; ay < y; ay++)
-				{
-					if (!Get(x-1, ay))
-						Valid = false;
-					else if (!Get(px+1, ay))
-						Valid = false;
-				}
-				
-				if (abs(x-px) < 3 || abs(y-py) < 2)
-					Valid = false;
-				
-				if (Valid && m_NumPits < GEN_MAX)
-				{
-					m_aPit[m_NumPits++] = ivec4(x, py+2, px, y+1);
-				}
-			}
-		}
 	
 	// find long platforms (conveyor belts)
 	for (int x = 2; x < m_Width-2; x++)
@@ -1215,6 +1280,26 @@ ivec2 CGenLayer::GetLeftCeiling()
 	{
 		if (m_aCeiling[i].x != 0)
 			if (m_aCeiling[n].x == 0 || m_aCeiling[i].x < m_aCeiling[n].x)
+				n = i;
+	}
+	
+	ivec2 p = m_aCeiling[n];
+	m_aCeiling[n] = ivec2(0, 0);
+	
+	return p;
+}
+
+ivec2 CGenLayer::GetRightCeiling()
+{
+	if (m_NumCeilings <= 0)
+		return ivec2(0, 0);
+	
+	int n = 0;
+	
+	for (int i = 0; i < m_NumCeilings; i++)
+	{
+		if (m_aCeiling[i].x != 0)
+			if (m_aCeiling[n].x == 0 || m_aCeiling[i].x > m_aCeiling[n].x)
 				n = i;
 	}
 	

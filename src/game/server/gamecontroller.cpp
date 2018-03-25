@@ -88,7 +88,6 @@ void IGameController::DropPickup(vec2 Pos, int PickupType, vec2 Force, int Picku
 				m_apPickup[i]->SetSubtype(PickupSubtype);
 			
 			m_apPickup[i]->m_Vel = Force;
-			m_apPickup[i]->m_PowerLevel = PowerLevel;
 			
 			if (Ammo >= 0.0f)
 				m_apPickup[i]->m_Ammo = Ammo;
@@ -110,7 +109,7 @@ void IGameController::DropWeapon(vec2 Pos, vec2 Force, CWeapon *pWeapon)
 			m_apPickup[i]->RespawnDropable();
 			m_apPickup[i]->m_pWeapon = pWeapon;
 			m_apPickup[i]->SetSubtype(pWeapon->GetWeaponType());
-			m_apPickup[i]->m_PowerLevel = pWeapon->GetPowerLevel();
+			pWeapon->m_Disabled = true;
 			
 			m_apPickup[i]->m_Vel = Force;
 			return;
@@ -162,26 +161,43 @@ void IGameController::SetPickup(vec2 Pos, int PickupType, int PickupSubtype, int
 	}
 }
 
-int IGameController::GetRandomWeapon(int WeaponLevel)
+int IGameController::GetRandomWeapon()
 {
-	int w = 0;
-	if (WeaponLevel == -1)
-		w = rand()%(NUM_WEAPONS-1);
-	else
-	{
-		int n = 0;
-		int w2 = rand()%(NUM_WEAPONS-1);
-		
-		if (n >= 50)
-			w = 0;
-		else
-			w = w2;
-	}
+	if (rand()%10 < 6)
+		return GetModularWeapon(1+rand()%4, 1+rand()%5);
 	
-	return w;
+	return GetStaticWeapon(1+rand()%5);
 }
 
+int IGameController::GetRandomModularWeapon()
+{
+	if (frandom() < 0.2f)
+		return GetModularWeapon(5, 6+rand()%2);
+	
+	return GetModularWeapon(1+rand()%4, 1+rand()%4);
+}
 
+void IGameController::TriggerWeapon(class CWeapon *pWeapon)
+{
+	if (!pWeapon)
+		return;
+	
+	CCharacter *p = GameServer()->GetPlayerChar(pWeapon->GetOwner());
+	
+	if (p)
+		p->TriggerWeapon(pWeapon);
+}
+
+void IGameController::ReleaseWeapon(class CWeapon *pWeapon)
+{
+	if (!pWeapon)
+		return;
+	
+	CCharacter *p = GameServer()->GetPlayerChar(pWeapon->GetOwner());
+	
+	if (p)
+		p->ReleaseWeapon(pWeapon);
+}
 
 void IGameController::ClearPickups()
 {
@@ -680,21 +696,11 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 	{
 		if (g_Config.m_SvEnableBuilding)
 			new CBuilding(&GameServer()->m_World, Pos+vec2(0, -10), BUILDING_STAND, TEAM_NEUTRAL);
-			
-		/*
-		if (str_comp(g_Config.m_SvGametype, "coop") == 0)
-		{
-			CTurret *pTurret = new CTurret(&GameServer()->m_World, Pos+vec2(0, -10), TEAM_BLUE, W_RIFLE);
-			pTurret->m_OwnerPlayer = -1;
-			pTurret->SetAngle(vec2(-1, 0));
-			pTurret->m_Ammo = 0;
-		}
-		else
-		{
-			if (g_Config.m_SvEnableBuilding)
-				new CBuilding(&GameServer()->m_World, Pos+vec2(0, -10), BUILDING_STAND, TEAM_NEUTRAL);
-		}
-		*/
+		return true;
+	}
+	else if (Index == ENTITY_TURRET)
+	{
+		new CTurret(&GameServer()->m_World, Pos+vec2(0, -10), TEAM_NEUTRAL, GameServer()->NewWeapon(GetModularWeapon(1, 1)));
 		return true;
 	}
 	else if (Index == ENTITY_SWITCH)
@@ -813,18 +819,11 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 				return true;
 		}
 		
+		if (Type == POWERUP_WEAPON)
+			SubType = GetRandomWeapon();
+		
 		CPickup *pPickup = new CPickup(&GameServer()->m_World, Type, SubType);
 		pPickup->m_Pos = Pos;
-		
-		// upgraded weapons on level 10+ to invasion
-		//if (Type == POWERUP_WEAPON && IsCoop() && ((g_Config.m_SvMapGenLevel >= 10 && frandom() < 0.15f) || (g_Config.m_SvMapGenLevel >= 20 && frandom() < 0.15f)))
-		
-		// ...or on random instead
-		if (Type == POWERUP_WEAPON && IsCoop() && frandom() < 0.14f)
-			pPickup->m_PowerLevel = 1;
-		
-		if (Type == POWERUP_WEAPON && IsCoop() && frandom() < min(0.14f, 0.07f + g_Config.m_SvMapGenLevel*0.002f))
-			pPickup->m_PowerLevel = 2;
 		
 		return true;
 	}
@@ -1262,41 +1261,31 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 	// pickup drops
 	if (g_Config.m_SvPickupDrops && Weapon != WEAPON_GAME)
 	{
-		/*
-		for (int i = 0; i < 2; i++)
-		{
-			if (pVictim->m_Kits > 0 && frandom()*10 < 4)
-			{
-				pVictim->m_Kits--;
-				DropPickup(pVictim->m_Pos, POWERUP_KIT, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
-			}
-			else if (frandom()*10 < 4)
-				DropPickup(pVictim->m_Pos, POWERUP_AMMO, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
-			else
-				DropPickup(pVictim->m_Pos, POWERUP_HEALTH, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
-		}
-		*/
-		
 		// drop stuff on death
 		DropPickup(pVictim->m_Pos, POWERUP_HEALTH, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 
 		if (pVictim->m_Kits > 0)
 			DropPickup(pVictim->m_Pos, POWERUP_KIT, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 
-		
 		if (pVictim->HasAmmo())
 			DropPickup(pVictim->m_Pos, POWERUP_AMMO, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 
-		
+		if (frandom() < 0.5f)
+			DropPickup(pVictim->m_Pos, POWERUP_AMMO, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
+			
 		if (pVictim->GetArmor() > 0)
 			DropPickup(pVictim->m_Pos, POWERUP_ARMOR, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 
 	}
 	
+	if (pVictim->GetWeapon())
+		pVictim->GetWeapon()->OnOwnerDeath(true);
 
 	// weapon drops
 	if (g_Config.m_SvWeaponDrops)
 		pVictim->DropWeapon();
+	
+	pVictim->ReleaseWeapons();
 	
 	// for active spectator mode
 	if(pKiller && (pKiller->GetTeam() != pVictim->GetPlayer()->GetTeam() || !IsTeamplay()))

@@ -8,21 +8,20 @@
 class CTurret : public CBuilding
 {
 public:
-	CTurret(CGameWorld *pGameWorld, vec2 Pos, int Team, int Weapon);
+	CTurret(CGameWorld *pGameWorld, vec2 Pos, int Team, class CWeapon *pWeapon);
 
 	virtual void Tick();
 	virtual void TickPaused();
 	virtual void Snap(int SnappingClient);
 
+	class CWeapon *m_pWeapon;
+	
 	int m_AttackTick;
 	int m_TargetTimer;
 	vec2 m_Target;
 	int m_Angle;
-	int m_Weapon;
-	int m_PowerLevel;
 	int m_Ammo;
-	
-	int m_Flamethrower;
+	int m_Team;
 	
 	vec2 m_OriginalDirection;
 	int m_OwnerPlayer;
@@ -34,14 +33,10 @@ private:
 
 	bool FindTarget();
 	bool Target();
-	void Fire();
-	void Flamethrower();
-	int m_TargetIndex;
+	bool Fire();
 	
+	int m_TargetIndex;
 	int m_ReloadTimer;
-	int m_Chainsaw;
-	float m_DelayedShotgunTick;
-	void DelayedFire();
 };
 
 #endif

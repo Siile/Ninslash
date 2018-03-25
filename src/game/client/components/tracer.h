@@ -1,5 +1,6 @@
 #ifndef GAME_CLIENT_COMPONENTS_TRACER_H
 #define GAME_CLIENT_COMPONENTS_TRACER_H
+#include <base/math.h>
 #include <base/vmath.h>
 #include <game/weapons.h>
 #include <game/client/component.h>
@@ -9,10 +10,10 @@
 // particles
 struct CTrace
 {
-	void Set(int ItemID, int Type, vec2 Pos, int StartTick, int PowerLevel, vec2 Vel)
+	void Set(int ItemID, int Type, vec2 Pos, vec2 StartPos, int StartTick, int Weapon, vec2 Vel)
 	{
 		// existing tracer
-		if (StartTick == m_StartTick && ItemID == m_ItemID && Type == m_Type)
+		if (abs(StartTick - m_StartTick) < 2 && ItemID == m_ItemID && Type == m_Type)
 		{
 			m_Life = 0.0f;
 			m_Pos[0] = Pos;
@@ -26,14 +27,14 @@ struct CTrace
 			
 			for (int i = 0; i < 99; i++)
 			{
-				m_Pos[i] = Pos;
+				m_Pos[i] = mix(Pos, StartPos, i*0.01f);
 				m_Vel[i] = Vel;
 			}
 			
 			m_DelayPos = Pos;
 			m_StartTick = StartTick;
 			
-			SetDefault(Type, PowerLevel);
+			SetDefault(Type, Weapon);
 		}
 	}
 	
@@ -44,67 +45,131 @@ struct CTrace
 		m_Life = 0.0f;
 	}
 	
-	void SetDefault(int Type, int PowerLevel)
+	void SetDefault(int Type, int Weapon)
 	{
 		m_Type = Type;
 		m_LifeSpan = 0.3f;
 		m_Special = 0;
-		m_Parts = 8;
+		m_Parts = 12;
 		
-		switch (Type)
+		if (Type == 1)
 		{
-			case W_RIFLE:
-				m_Speed = 4.0f;
-				m_Size1 = 3.0f+PowerLevel; m_Size2 = 0.0f;
-				
-				if (PowerLevel == 3)
-				{
-					m_Speed = 2.0f;
-					m_Parts = 24;
-					m_Size2 = m_Size1*2;
-				}
-				
-				if (PowerLevel > 4)
-				{
-					m_Special = 1;
-					m_Speed = 22.0f;
-					m_LifeSpan = 0.4f;
-				}
-				
-				m_Color = vec4(0, 0.4f+PowerLevel*0.1f, 1.0f, 0.3f);
-				break;
-				
-			case W_SHOTGUN:
-				m_Color = vec4(0.6f, 0.35f, 0.25f, 0.7f);
-				m_Speed = 8.0f;
-				m_Size1 = 4.0f; m_Size2 = 0.0f;
-				break;
-				
-			case W_ELECTRIC:
-				if (PowerLevel == 0)		m_Color = vec4(0.0f, 0.3f, 1.0f, 0.3f);
-				else if (PowerLevel == 1)	m_Color = vec4(0.0f, 0.6f, 1.0f, 0.3f);
-				else						m_Color = vec4(0.0f, 1.0f, 1.0f, 0.3f);
-				
-				m_Parts = 7;
-				m_Speed = 6.0f;
-				m_Size1 = 7.0f; m_Size2 = 4.0f;
-				break;
-			
-			case -1:
-				//m_Color = vec4(0, 1.0f, 0.5f, 0.2f);
-				m_Color = vec4(1, 1, 1, 1);
-				m_Parts = 20;
-				m_Speed = 6.0f;
-				m_Size1 = 100.0f; m_Size2 = 100.0f;
-				break;
-				
-			default:
-				m_Color = vec4(0, 0.5f, 1.0f, 0.3f);
-				m_Speed = 16.0f;
-				m_Size1 = 4.0f; m_Size2 = 0.0f;
-		};
+			m_Speed = 4.0f;
+			m_Size1 = 6.0f * GetProjectileSize(Weapon);
+			m_Size2 = 2.0f * GetProjectileSize(Weapon);
+			m_LifeSpan = 0.4f;
+			m_Color = vec4(0.6f, 0.4f, 0.2f, 0.8f);
+			return;
+		}
+		
+		if (Type == 4)
+		{
+			m_Speed = 3.0f;
+			m_Size1 = 10.0f * GetProjectileSize(Weapon);
+			m_Size2 = 0.0f * GetProjectileSize(Weapon);
+			m_LifeSpan = 0.4f;
+			m_Color = vec4(0.6f, 0.4f, 0.2f, 0.8f);
+			return;
+		}
+		
+		if (Type == 2)
+		{
+			m_Speed = 6.0f;
+			m_Size1 = 6.0f * GetProjectileSize(Weapon);
+			m_Size2 = 0.0f; // * GetProjectileSize(Weapon);
+			m_LifeSpan = 0.4f;
+			m_Color = vec4(0.2f, 1.0f, 0.2f, 0.5f);
+			return;
+		}
+		
+		if (Type == 3)
+		{
+			m_Parts = 24;
+			m_Speed = 8.0f;
+			m_Size1 = 6.0f * GetProjectileSize(Weapon);
+			m_Size2 = 0.0f; // * GetProjectileSize(Weapon);
+			m_LifeSpan = 0.5f;
+			m_Color = vec4(0.2f, 1.0f, 0.2f, 0.5f);
+			return;
+		}
+	
+		// grenade 1
+		if (Type == 4)
+		{
+			m_Parts = 24;
+			m_Speed = 3.0f;
+			m_Size1 = 8.0f;
+			m_Size2 = 0.0f;
+			m_LifeSpan = 1.5f;
+			m_Color = vec4(1.0f, 0.2f, 0.2f, 0.4f);
+			return;
+		}
+		
+		// grenade 2
+		if (Type == 5)
+		{
+			m_Parts = 24;
+			m_Speed = 3.0f;
+			m_Size1 = 8.0f;
+			m_Size2 = 0.0f;
+			m_LifeSpan = 1.5f;
+			m_Color = vec4(0.2f, 1.0f, 1.0f, 0.4f);
+			return;
+		}
+	
+		
+		if (Type == -1)
+		{
+			m_Scale = 2.0f;
+			m_RotSpeed = 0.5f;
+			m_Sprite = 0;
+			m_Color = vec4(1, 1, 1, 0.5f);
+			m_Parts = 30;
+			m_Speed = 3.0f;
+			m_Size1 = 20.0f * GetProjectileSize(Weapon);
+			m_Size2 = 10.0f * GetProjectileSize(Weapon);
+			return;
+		}
+		
+		if (Type == -3)
+		{
+			m_RotSpeed = 0.5f;
+			m_Scale = 2.0f;
+			m_Sprite = 2;
+			m_Color = vec4(1, 1, 1, 1.0f);
+			m_Parts = 30;
+			m_Speed = 3.0f;
+			m_Size1 = 20.0f * GetProjectileSize(Weapon);
+			m_Size2 = 10.0f * GetProjectileSize(Weapon);
+			return;
+		}
+		
+		if (Type == -2)
+		{
+			m_RotSpeed = 0.2f;
+			m_Scale = 1.0f;
+			m_LifeSpan = 0.3f;
+			m_Sprite = 1;
+			m_Color = vec4(1, 1, 1, 1.0f);
+			m_Parts = 30;
+			m_Speed = 6.0f;
+			m_Size1 = 80.0f; m_Size2 = 80.0f;
+		}
+		
+		if (Type == -4)
+		{
+			m_RotSpeed = 0.25f;
+			m_Scale = 1.0f;
+			m_LifeSpan = 1.0f;
+			m_Sprite = 2;
+			m_Color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+			m_Parts = 20;
+			m_Speed = 4.0f;
+			m_Size1 = 50.0f; m_Size2 = 20.0f;
+		}
 	}
 	
+	int m_Sprite;
 	int m_StartTick;
 	int m_Type;
 	int m_ItemID;
@@ -115,6 +180,9 @@ struct CTrace
 	
 	float m_Size1;
 	float m_Size2;
+	
+	float m_Scale;
+	float m_RotSpeed;
 	
 	int m_Parts;
 	
@@ -144,7 +212,8 @@ public:
 
 	CTracer();
 
-	void Add(int Type, int ItemID, vec2 Pos, int StartTick, int PowerLevel, vec2 Vel = vec2(0, 0));
+	void Add(int Type, int ItemID, vec2 Pos, vec2 StartPos, int StartTick, int Weapon, vec2 Vel = vec2(0, 0));
+	void UpdatePos(int ItemID, vec2 Pos);
 	void Tick();
 
 	virtual void OnReset();

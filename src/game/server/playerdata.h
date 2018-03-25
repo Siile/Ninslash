@@ -11,6 +11,9 @@ public:
 	void Die();
 	void Reset();
 	
+	int m_aWeaponType[99];
+	int m_aWeaponAmmo[99];
+	
 	int m_aAmmo[99];
 	int m_aPowerLevel[99];
 	int m_Weapon;

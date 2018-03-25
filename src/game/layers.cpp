@@ -17,10 +17,14 @@ CLayers::CLayers()
 	m_pBackgrounLayer = 0x0;
 	m_pDoodadsLayer = 0x0;
 	m_pForegroundLayer = 0x0;
+	m_pBase1Layer = 0x0;
+	m_pBase2Layer = 0x0;
 	m_GameGroupIndex = -1;
 	m_GameLayerIndex = -1;
 	m_BackgrounLayerIndex = -1;
 	m_ForegroundLayerIndex = -1;
+	m_Base1LayerIndex = -1;
+	m_Base2LayerIndex = -1;
 }
 
 void CLayers::Init(class IKernel *pKernel)
@@ -36,6 +40,10 @@ void CLayers::Init(class IKernel *pKernel)
 	m_DoodadsLayerIndex = -1;
 	m_pForegroundLayer = 0x0;
 	m_ForegroundLayerIndex = -1;
+	m_pBase1Layer = 0x0;
+	m_pBase2Layer = 0x0;
+	m_Base1LayerIndex = -1;
+	m_Base2LayerIndex = -1;
 
 	for(int g = 0; g < NumGroups(); g++)
 	{
@@ -61,11 +69,21 @@ void CLayers::Init(class IKernel *pKernel)
 					m_pDoodadsLayer = pTilemap;
 					m_DoodadsLayerIndex = l;
 				}
+				else if (!m_pBase1Layer && str_comp_nocase(layerName, "base1") == 0)
+				{
+					m_pBase1Layer = pTilemap;
+					m_Base1LayerIndex = l;
+				}
+				else if (!m_pBase2Layer && str_comp_nocase(layerName, "base2") == 0)
+				{
+					m_pBase2Layer = pTilemap;
+					m_Base2LayerIndex = l;
+					break; // Finish here... in not generated maps increase the CPU usage :/
+				}
 				else if (!m_pForegroundLayer && str_comp_nocase(layerName, "foreground") == 0)
 				{
 					m_pForegroundLayer = pTilemap;
 					m_ForegroundLayerIndex = l;
-					break; // Finish here... in not generated maps increase the CPU usage :/
 				}
 
 				if(pTilemap->m_Flags&TILESLAYERFLAG_GAME)

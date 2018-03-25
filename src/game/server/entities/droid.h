@@ -15,7 +15,7 @@ public:
 	virtual void TickPaused();
 	virtual void Snap(int SnappingClient);
 
-	virtual void TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type = DAMAGETYPE_NORMAL);
+	virtual void TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Weapon);
 	int m_Health;
 	
 	vec2 m_Center;

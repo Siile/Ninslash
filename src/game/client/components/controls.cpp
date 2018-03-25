@@ -106,7 +106,7 @@ void CControls::OnConsoleInit()
 	Console()->Register("+turbo", "", CFGFLAG_CLIENT, ConKeyInputState, &m_InputData.m_Hook, "Turbo");
 	Console()->Register("+charge", "", CFGFLAG_CLIENT, ConKeyInputState, &m_InputData.m_Charge, "Charge");
 	Console()->Register("+fire", "", CFGFLAG_CLIENT, ConKeyInputCounter, &m_InputData.m_Fire, "Fire");
-	Console()->Register("+build", "", CFGFLAG_CLIENT, ConKeyInputCounter, &m_Build, "Build");
+	//Console()->Register("+build", "", CFGFLAG_CLIENT, ConKeyInputCounter, &m_Build, "Build");
 
 	// gamepad
 	Console()->Register("+gamepadleft", "", CFGFLAG_CLIENT, ConKeyInputState, &m_InputDirectionLeft, "Move left");
@@ -266,7 +266,7 @@ int CControls::SnapInput(int *pData)
 			m_InputData.m_Hook = ((int)(t*2))&1;
 			m_InputData.m_Down = ((int)(t*3))&1;
 			m_InputData.m_Charge = ((int)(t*4))&1;
-			m_InputData.m_WantedWeapon = ((int)t)%NUM_WEAPONS;
+			m_InputData.m_WantedWeapon = ((int)t)%4;
 			m_InputData.m_TargetX = (int)(sinf(t*3)*100.0f);
 			m_InputData.m_TargetY = (int)(cosf(t*3)*100.0f);
 		}
@@ -283,12 +283,14 @@ int CControls::SnapInput(int *pData)
 			PrevWeapon = m_InputData.m_WantedWeapon;
 		}
 		
+		/*
 		if (WeaponChangeTime && time_get() > WeaponChangeTime + time_freq()/2)
 		{
 			WeaponChangeTime = 0;
 			m_InputData.m_WantedWeapon = 0;
 			PrevWeapon = 0;
 		}
+		*/
 		
 		// can't want a weapon you don't have to prevent weapon change on picking wanted weapon
 		int w = CustomStuff()->m_LocalWeapons;
@@ -300,6 +302,7 @@ int CControls::SnapInput(int *pData)
 		}
 		*/
 		
+		/*
 		if (m_Build == 0)
 			m_BuildReleased = true;
 		
@@ -325,8 +328,10 @@ int CControls::SnapInput(int *pData)
 			m_InputData.m_NextWeapon = 0;
 			m_InputData.m_PrevWeapon = 0;
 		}
+		*/
 		
 		// place buildings
+		/*
 		if (m_InputData.m_Fire&1)
 		{
 			if (m_BuildMode && m_SelectedBuilding >= 0 && CustomStuff()->m_BuildPosValid &&
@@ -339,6 +344,7 @@ int CControls::SnapInput(int *pData)
 				Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
 			}
 		}
+		*/
 		
 		
 		// check if we need to send input

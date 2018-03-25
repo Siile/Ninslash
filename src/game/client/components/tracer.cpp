@@ -7,6 +7,7 @@
 #include <game/client/render.h>
 #include <game/client/gameclient.h>
 #include <game/client/customstuff.h>
+#include "items.h"
 #include "tracer.h"
 
 
@@ -38,7 +39,24 @@ void CTracer::OnReset()
 		m_aFirstPart[i] = -1;
 }
 
-void CTracer::Add(int Type, int ItemID, vec2 Pos, int StartTick, int PowerLevel, vec2 Vel)
+
+void CTracer::UpdatePos(int ItemID, vec2 Pos)
+{
+	int i = m_aFirstPart[GROUP_SPRITETRACERS];
+	while(i != -1)
+	{
+		if (m_aTracer[i].m_ItemID == ItemID)
+		{
+			m_aTracer[i].m_Pos[0] = Pos;
+			return;
+		}
+		
+		i = m_aTracer[i].m_NextPart;
+	}
+}
+	
+	
+void CTracer::Add(int Type, int ItemID, vec2 Pos, vec2 StartPos, int StartTick, int Weapon, vec2 Vel)
 {
 	if(Client()->State() == IClient::STATE_DEMOPLAYBACK)
 	{
@@ -60,9 +78,9 @@ void CTracer::Add(int Type, int ItemID, vec2 Pos, int StartTick, int PowerLevel,
 	int i = m_aFirstPart[Group];
 	while(i != -1)
 	{
-		if (m_aTracer[i].m_ItemID == ItemID && m_aTracer[i].m_Type == Type)
+		if (abs(m_aTracer[i].m_StartTick - StartTick) < 2 && m_aTracer[i].m_ItemID == ItemID && m_aTracer[i].m_Type == Type)
 		{
-			m_aTracer[i].Set(ItemID, Type, Pos, StartTick, PowerLevel, Vel);
+			m_aTracer[i].Set(ItemID, Type, Pos, StartPos, StartTick, Weapon, Vel);
 			return;
 		}
 		
@@ -75,7 +93,7 @@ void CTracer::Add(int Type, int ItemID, vec2 Pos, int StartTick, int PowerLevel,
 		return;
 
 	CTrace Trace;
-	Trace.Set(ItemID, Type, Pos, StartTick, PowerLevel, Vel);
+	Trace.Set(ItemID, Type, Pos, StartPos, StartTick, Weapon, Vel);
 	
 	// remove from the free list
 	int Id = m_FirstFree;
@@ -186,6 +204,8 @@ void CTracer::RenderGroup(int Group)
 {
 	if (Group == GROUP_TRACERS)
 	{
+		m_pClient->m_pItems->UpdateTraces();
+		
 		// bullet tracers
 		vec2 Out, Border;
 		
@@ -219,7 +239,6 @@ void CTracer::RenderGroup(int Group)
 			Graphics()->QuadsDrawFreeform(&Freeform1, 1);
 			*/
 	
-	
 			vec2 p1 = m_aTracer[i].m_Pos[0];
 			vec2 TrailDir = normalize(p1 - m_aTracer[i].m_Pos[1]);
 			float o1 = m_aTracer[i].m_Size1;
@@ -244,20 +263,23 @@ void CTracer::RenderGroup(int Group)
 				float a1 = 0.9f-t1;
 				float a2 = 0.9f-t2;
 				
-				IGraphics::CColorVertex aColors[4] = {
-					IGraphics::CColorVertex(0, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a1),
-					IGraphics::CColorVertex(1, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a2),
-					IGraphics::CColorVertex(2, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a1),
-					IGraphics::CColorVertex(3, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a2)};
-				Graphics()->SetColorVertex(aColors, 4);
-			
-				IGraphics::CFreeformItem Freeform1(
-					p1.x-Out1.x, p1.y-Out1.y,
-					p2.x-Out2.x, p2.y-Out2.y,
-					p1.x+Out1.x, p1.y+Out1.y,
-					p2.x+Out2.x, p2.y+Out2.y);
+				if (distance(p1, p2) > 1.0f)
+				{
+					IGraphics::CColorVertex aColors[4] = {
+						IGraphics::CColorVertex(0, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a1),
+						IGraphics::CColorVertex(1, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a2),
+						IGraphics::CColorVertex(2, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a1),
+						IGraphics::CColorVertex(3, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a2)};
+					Graphics()->SetColorVertex(aColors, 4);
 				
-				Graphics()->QuadsDrawFreeform(&Freeform1, 1);
+					IGraphics::CFreeformItem Freeform1(
+						p1.x-Out1.x, p1.y-Out1.y,
+						p2.x-Out2.x, p2.y-Out2.y,
+						p1.x+Out1.x, p1.y+Out1.y,
+						p2.x+Out2.x, p2.y+Out2.y);
+					
+					Graphics()->QuadsDrawFreeform(&Freeform1, 1);
+				}
 				
 				p1 = p2;
 				Out1 = Out2;
@@ -279,14 +301,14 @@ void CTracer::RenderGroup(int Group)
 		//Graphics()->BlendAdditive();
 		//Graphics()->TextureSet(-1);	
 		//Graphics()->TextureSet(g_pData->m_aImages[IMAGE_SPARKS].m_Id);
-		Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 0.0f, CustomStuff()->ChargeIntensity(70));
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_CHAINSAW].m_Id);
+		//Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 0.0f, CustomStuff()->ChargeIntensity(70));
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_TRAILS].m_Id);
 		Graphics()->QuadsBegin();
 		
 		int i = m_aFirstPart[Group];
 		while(i != -1)
 		{
-			float a = 1.0f; //m_aTracer[i].m_Life / m_aTracer[i].m_LifeSpan;
+			float a = m_aTracer[i].m_Life / m_aTracer[i].m_LifeSpan;
 			
 			/*
 			IGraphics::CColorVertex aColors[4] = {
@@ -324,8 +346,11 @@ void CTracer::RenderGroup(int Group)
 				float t1 = (t-1)/float(m_aTracer[i].m_Parts-1);
 				float t2 = t/float(m_aTracer[i].m_Parts-1);
 				
-				//RenderTools()->SelectSprite(SPRITE_SPARK1_1+CustomStuff()->GetSpriteFrame(4, 6),  + (false ? SPRITE_FLAG_FLIP_Y : 0), 0, 0, t1, t2);
-				RenderTools()->SelectSprite(SPRITE_FX_CHAINSAW1+CustomStuff()->GetSpriteFrame(8, 3),  + (false ? SPRITE_FLAG_FLIP_Y : 0), 0, 0, 1-t1, 1-t2);
+				//RenderTools()->SelectSprite(SPRITE_FX_CHAINSAW1+(CustomStuff()->GetSpriteFrame(6, 4)+m_aTracer[i].m_ItemID)%4,  + (false ? SPRITE_FLAG_FLIP_Y : 0), 0, 0, 1-t1, 1-t2);
+				
+				float tt = CustomStuff()->m_SawbladeAngle*m_aTracer[i].m_RotSpeed;
+				
+				RenderTools()->SelectSprite(SPRITE_TRAIL1+m_aTracer[i].m_Sprite, 0, 0, 0, (1-t1)*m_aTracer[i].m_Scale + tt, (1-t2)*m_aTracer[i].m_Scale + tt);
 				
 				o1 = mix(m_aTracer[i].m_Size1, m_aTracer[i].m_Size2, t1);
 				float o2 = mix(m_aTracer[i].m_Size1, m_aTracer[i].m_Size2, t2);
@@ -336,8 +361,11 @@ void CTracer::RenderGroup(int Group)
 				float a1 = 0.9f-t1;
 				float a2 = 0.9f-t2;
 				
-				a1 = 1.0f;
-				a2 = 1.0f;
+				a1 *= 1.0f-a;
+				a2 *= 1.0f-a;
+				
+				//a1 = 1.0f;
+				//a2 = 1.0f;
 				
 				IGraphics::CColorVertex aColors[4] = {
 					IGraphics::CColorVertex(0, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a1),

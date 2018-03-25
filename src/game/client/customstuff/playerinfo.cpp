@@ -5,6 +5,7 @@
 #include <base/math.h>
 
 #include <engine/graphics.h>
+#include <game/weapons.h>
 #include <game/client/render.h>
 #include <engine/shared/config.h>
 
@@ -51,6 +52,9 @@ void CPlayerInfo::Reset()
 	m_Turbo = false;
 	m_Jetpack = false;
 	m_Hang = false;
+	m_SpinningAngle = 0.0f;
+	
+	m_RecoilTick = 0;
 	
 	m_WeaponColorSwap = 0.0f;
 	m_WeaponPowerLevel = 0;
@@ -72,6 +76,8 @@ void CPlayerInfo::Reset()
 	
 	m_LastJetpackSound = 0;
 	m_LastJetpackSoundTick = 0;
+	m_LastTurboSound = 0;
+	m_LastTurboSoundTick = 0;
 	m_LastChainsawSoundTick = 0;
 	
 	m_ToolAngleOffset = 0;
@@ -83,6 +89,16 @@ void CPlayerInfo::Reset()
 		m_aSplatter[i] = 0.0f;
 		m_aSplatterColor[i] = vec4();
 	}
+	
+	for (int i = 0; i < 4; i++)
+	{
+		m_aMuzzleTime[i] = 0.0f;
+		m_aMuzzleWeapon[i] = 0;
+		m_aMuzzleType[i] = 0;
+	}
+	
+	m_MuzzleTick = 0;
+	m_WeaponCharge = 0;
 	
 	// reset bounciness
 	
@@ -104,6 +120,9 @@ void CPlayerInfo::Reset()
 	m_MeleeTick = 0;
 	m_MeleeAnimState = 0;
 	
+	m_MuzzlePos = vec2(0, 0);
+	m_MuzzleDir = vec2(0, 0);
+	
 	m_Local = false;
 	
 	for (int i = 0; i < NUM_EFFECTS; i++)
@@ -121,6 +140,44 @@ void CPlayerInfo::Reset()
 	m_Hand[HAND_FREE].Reset();
 }
 
+void CPlayerInfo::AddMuzzle(int AttackTick, int Weapon)
+{
+	if (m_MuzzleTick == AttackTick || !AttackTick)
+		return;
+	
+	m_MuzzleTick = AttackTick;
+	
+	for (int i = 0; i < 4; i++)
+	{
+		if (!m_aMuzzleWeapon[i])
+		{
+			m_aMuzzleTime[i] = 0.0f;
+			m_aMuzzleWeapon[i] = Weapon;
+			//m_aMuzzleType[i] = rand()%4+GetMuzzleType(Weapon)*4;
+			m_aMuzzleType[i] = rand()%4;
+			return;
+		}
+	}
+}
+
+	
+float CPlayerInfo::GetWeaponCharge()
+{
+	float ChargeLevel = min(m_WeaponCharge*0.013f, 1.0f);
+	
+	if (ChargeLevel == 1.0f)
+		ChargeLevel = 0.7f+cos(m_WeaponCharge*0.4f)*0.3f;
+	
+	return ChargeLevel;
+	
+	/*
+	if (m_WeaponCharge < 100)
+		return m_WeaponCharge*0.01f;
+		
+	return 0.7f+cos(m_WeaponCharge*0.1f)*0.3f;
+	*/
+}
+	
 float CPlayerInfo::ChargeIntensity(int Charge)
 {
 	m_Charge = Charge;
@@ -315,8 +372,9 @@ void CPlayerInfo::SetHandTarget(int Hand, vec3 Pos)
 		if (m_Hang)
 			m_Hand[Hand].m_TargetPos = vec2(0, -46);
 	}
-	else
-		m_Hand[Hand].m_TargetPos = vec2(Pos.x, Pos.y);
+	else if (GetWeaponRenderType(m_Weapon) != WRT_WEAPON2 && GetWeaponRenderType(m_Weapon) != WRT_ITEM1)
+		m_Hand[Hand].m_TargetPos = (m_Hand[Hand].m_TargetPos + vec2(Pos.x, Pos.y)) / 2.0f;
+		//m_Hand[Hand].m_TargetPos = vec2(Pos.x, Pos.y);
 }
 
 
@@ -347,6 +405,30 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 			m_Hand[i].m_TargetPos += m_ArmPos + vec2(0, -16);
 		}
 		
+		// gun aim
+		if (i == HAND_WEAPON)
+		{
+			if (GetWeaponRenderType(m_Weapon) == WRT_WEAPON2)
+			{
+				m_Hand[i].m_TargetPos = vec2(cos(m_Angle), sin(m_Angle)) * 20.0f;
+				m_Hand[i].m_TargetPos += m_ArmPos + vec2(0, -16);
+				m_Hand[i].m_TargetPos += m_WeaponRecoil;
+				m_Hand[i].m_Pos += (m_Hand[i].m_TargetPos - m_Hand[i].m_Pos) / 2.0f;
+			}
+			else if (GetWeaponRenderType(m_Weapon) == WRT_ITEM1)
+			{
+				if (GetWeaponFiringType(m_Weapon) == WFT_THROW)
+					m_WeaponRecoil -= vec2(cos(m_Angle), sin(m_Angle)) * m_Charge * 0.12f;
+		
+				m_Hand[i].m_TargetPos = vec2(cos(m_Angle), sin(m_Angle)) * 13.0f;
+				m_Hand[i].m_TargetPos += m_ArmPos + vec2(0, -16);
+				m_Hand[i].m_TargetPos += m_WeaponRecoil;
+				m_Hand[i].m_Pos += (m_Hand[i].m_TargetPos - m_Hand[i].m_Pos) / 2.0f;
+			}
+			else
+				m_Hand[i].m_TargetPos += m_WeaponRecoil;
+		}
+		
 		m_Hand[i].m_Vel *= 0.9f;
 		m_Hand[i].m_Vel.x -= (((PrevVel.x-PlayerVel.x)/2000)*((PrevVel.x-PlayerVel.x)/2000))/2.0f;
 		m_Hand[i].m_Vel.y += (((PrevVel.y-PlayerVel.y)/2000)*((PrevVel.y-PlayerVel.y)/2000))/2.0f;
@@ -359,6 +441,8 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 		
 		if ((!m_Hang || i == HAND_WEAPON) && length(m_Hand[i].m_Offset) > 20.0f)
 			m_Hand[i].m_Offset = normalize(m_Hand[i].m_Offset) * 20.0f;
+		
+
 	}
 	
 	// spinning melee weapon
@@ -420,8 +504,8 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 		}
 }
 	
-	// flame motion
-	m_aFlameAngle[0] = m_Angle;
+	// flame motion, adjust the angle a bit
+	m_aFlameAngle[0] = m_Angle + (m_Angle < pi/2 ? 0.05f : -0.05f);
 	
 	for (int i = 1; i < 20; i++)
 		m_aFlameAngle[i] = CurveAngle(m_aFlameAngle[i], m_aFlameAngle[i-1], 1.7f);
@@ -430,17 +514,17 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 	// weapon recoil
  	m_WeaponRecoilVel.x -= m_WeaponRecoil.x / 6.0f;
 	m_WeaponRecoilVel.y -= m_WeaponRecoil.y / 6.0f;
-	m_WeaponRecoilVel *= 0.82f;
+	m_WeaponRecoilVel *= 0.7f;
 			
 	m_WeaponRecoil += m_WeaponRecoilVel;
 	
-	m_Weapon2RecoilVel.x += (PlayerVel.x-PrevVel.x)/2000.0f;
-	m_Weapon2RecoilVel.y += (PlayerVel.y-PrevVel.y)/2000.0f;
+	m_Weapon2RecoilVel.x -= (PlayerVel.x-PrevVel.x)/2000.0f;
+	m_Weapon2RecoilVel.y -= (PlayerVel.y-PrevVel.y)/2000.0f;
 		
-	m_Weapon2RecoilVel.x -= m_Weapon2Recoil.x / 12.0f;
-	m_Weapon2RecoilVel.y -= m_Weapon2Recoil.y / 12.0f;
+	m_Weapon2RecoilVel.x -= m_Weapon2Recoil.x / 16.0f;
+	m_Weapon2RecoilVel.y -= m_Weapon2Recoil.y / 16.0f;
 		
-	m_Weapon2RecoilVel *= 0.8f;
+	m_Weapon2RecoilVel *= 0.85f;
 
 	m_Weapon2Recoil += m_Weapon2RecoilVel;
 	
@@ -464,6 +548,19 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 	Animation()->m_HeadOffset = vec2(m_FeetRecoil.y, m_FeetRecoil.x) * 0.6f;
 	
 	//Animation()->m_HeadForce -= m_FeetRecoil.y * 0.002f;
+	
+	
+	// muzzle
+	for (int i = 0; i < 4; i++)
+	{
+		if (m_aMuzzleWeapon[i])
+		{
+			m_aMuzzleTime[i] += 0.15f;
+			
+			if (m_aMuzzleTime[i] > 1.0f)
+				m_aMuzzleWeapon[i] = 0;
+		}
+	}
 }
 	
 	
@@ -519,6 +616,11 @@ void CPlayerInfo::Tick()
 		if (m_EffectIntensity[i] < 0.0f)
 			m_EffectIntensity[i] = 0.0f;
 	}
+	
+	m_SpinningAngle += 1.5f * min(20, m_WeaponCharge);
+	
+	if (m_SpinningAngle > 2000.0f*pi)
+		m_SpinningAngle -= 2000.0f*pi;
 	
 	if (m_LoadInvisibility)
 	{

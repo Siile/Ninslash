@@ -13,12 +13,13 @@ private:
 	bool *m_aConnected;
 	
 	void Generate();
-	void GenerateRoom();
+	void GenerateRoom(bool AutoConnect = false, bool MirrorMode = false);
 	void ConnectRandomRooms();
 	void ConnectRooms();
 	void ConnectEverything();
 	void SetConnections(ivec2 Pos);
 	ivec2 GetClosestConnected(ivec2 Pos);
+	vec2 GetClosestRoom(vec2 Pos);
 	ivec2 GetUnconnected();
 	
 	void GenerateLinear(int Width, int Rooms = 0);

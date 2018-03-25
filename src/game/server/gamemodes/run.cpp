@@ -31,10 +31,8 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	m_GameFlags = GAMEFLAG_COOP;
 	m_GameState = STATE_STARTING;
 	
-	if (g_Config.m_SvMapGenSeed == 0 && g_Config.m_SvMapGenRandSeed)
-	{
-		g_Config.m_SvMapGenSeed = rand();
-	}
+	if (g_Config.m_SvMapGenRandSeed)
+		g_Config.m_SvMapGenSeed = rand()%32767;
 	
 	srand(g_Config.m_SvMapGenLevel + g_Config.m_SvMapGenSeed);
 	
@@ -48,7 +46,7 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	
 	// hordes of enemies
 	bool Defend = (g_Config.m_SvMapGenLevel > 1 && g_Config.m_SvMapGenLevel%5 == 0);
-	int e = 3 + log(float(1 + g_Config.m_SvMapGenLevel/3)) * 4;
+	int e = 6 + log(float(1 + g_Config.m_SvMapGenLevel/3)) * 4;
 	e += rand()%(1+g_Config.m_SvMapGenLevel/6);
 	e += g_Config.m_SvMapGenLevel/3;
 
@@ -158,7 +156,7 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			switch (i)
 			{
 			case ENEMY_ALIEN1:
-				pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer());
+				pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer(), g_Config.m_SvMapGenLevel);
 				break;
 					
 			case ENEMY_ALIEN2:
@@ -190,7 +188,7 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 				break;
 				
 			default:
-				pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer());
+				pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer(), g_Config.m_SvMapGenLevel);
 				break;
 			};
 				
@@ -201,7 +199,7 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 		
 		if (!Found)
 		{
-			pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer());
+			pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer(), g_Config.m_SvMapGenLevel);
 			pChr->GetPlayer()->m_ToBeKicked = true;
 			Trigger(false);
 		}

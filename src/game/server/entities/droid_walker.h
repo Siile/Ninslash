@@ -15,7 +15,7 @@ public:
 	virtual void Tick();
 	virtual void TickPaused();
 
-	virtual void TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type = DAMAGETYPE_NORMAL);
+	virtual void TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Weapon);
 
 	enum Mode
 	{

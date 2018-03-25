@@ -255,9 +255,21 @@ container.sounds.Add(SoundSet("ctf_capture", ["audio/sfx_ctf_cap_pl.wv"]))
 
 container.sounds.Add(SoundSet("metal_hit", FileList("audio/metal_hit-%02d.wv", 3)))
 
+container.sounds.Add(SoundSet("dash", FileList("audio/dash-%02d.wv", 3)))
+
 container.sounds.Add(SoundSet("jetpack", ["audio/jetpack.wv"]))
 container.sounds.Add(SoundSet("jetpack1", ["audio/jetpack1.wv"]))
 container.sounds.Add(SoundSet("jetpack2", ["audio/jetpack2.wv"]))
+container.sounds.Add(SoundSet("jetpack3", ["audio/jetpack3.wv"]))
+container.sounds.Add(SoundSet("jetpack4", ["audio/jetpack4.wv"]))
+
+container.sounds.Add(SoundSet("turbo1", ["audio/turbo1.wv"]))
+container.sounds.Add(SoundSet("turbo2", ["audio/turbo2.wv"]))
+container.sounds.Add(SoundSet("turbo3", ["audio/turbo3.wv"]))
+container.sounds.Add(SoundSet("turbo4", ["audio/turbo4.wv"]))
+
+container.sounds.Add(SoundSet("flamer1", ["audio/flamer1.wv"]))
+container.sounds.Add(SoundSet("flamer2", ["audio/flamer2.wv"]))
 
 container.sounds.Add(SoundSet("deathray", ["audio/deathray.wv"]))
 container.sounds.Add(SoundSet("electrodeath", ["audio/electrodeath.wv"]))
@@ -284,6 +296,8 @@ container.sounds.Add(SoundSet("door1", ["audio/door1.wv"]))
 
 container.sounds.Add(SoundSet("walker_takeoff", ["audio/walker_takeoff.wv"]))
 
+container.sounds.Add(SoundSet("grenade2_explode", ["audio/wp_grenade2_explode.wv"]))
+
 container.sounds.Add(SoundSet("build", FileList("audio/build-%02d.wv", 2)))
 
 container.sounds.Add(SoundSet("star_fire", FileList("audio/wp_star_fire-%02d.wv", 3)))
@@ -306,6 +320,28 @@ container.sounds.Add(SoundSet("bg12", ["audio/bg12.wv"]))
 container.sounds.Add(SoundSet("bg13", ["audio/bg13.wv"]))
 
 
+container.sounds.Add(SoundSet("rifle1_fire", ["audio/wp_rifle1_fire.wv"]))
+
+container.sounds.Add(SoundSet("base1_fire", FileList("audio/wp_base1_fire-%02d.wv", 1)))
+container.sounds.Add(SoundSet("base2_fire", FileList("audio/wp_base2_fire-%02d.wv", 1)))
+container.sounds.Add(SoundSet("base3_fire", FileList("audio/wp_base3_fire-%02d.wv", 1)))
+container.sounds.Add(SoundSet("base4_fire", FileList("audio/wp_base4_fire-%02d.wv", 1)))
+container.sounds.Add(SoundSet("barrel1_fire", FileList("audio/wp_barrel1_fire-%02d.wv", 1)))
+container.sounds.Add(SoundSet("barrel2_fire", FileList("audio/wp_barrel2_fire-%02d.wv", 1)))
+container.sounds.Add(SoundSet("barrel3_fire", FileList("audio/wp_barrel3_fire-%02d.wv", 1)))
+container.sounds.Add(SoundSet("barrel4_fire", FileList("audio/wp_barrel4_fire-%02d.wv", 1)))
+
+container.sounds.Add(SoundSet("sfx_bounce1", ["audio/sfx_bounce1.wv"]))
+
+container.sounds.Add(SoundSet("inv1", ["audio/inv1.wv"]))
+container.sounds.Add(SoundSet("inv2", ["audio/inv2.wv"]))
+container.sounds.Add(SoundSet("inv3", ["audio/inv3.wv"]))
+container.sounds.Add(SoundSet("inv4", ["audio/inv4.wv"]))
+
+for i in range(1, 10):
+	container.sounds.Add(SoundSet("weapon_charge1_" + str(i), ["audio/wp_charge1_0" + str(i) + ".wv"]))
+
+
 
 image_null = Image("null", "")
 image_particles = Image("particles", "particles.png")
@@ -317,6 +353,8 @@ image_splatter = Image("splatter", "splatter.png")
 image_game = Image("game", "game.png")
 image_flag = Image("flag", "flag.png")
 image_weapons = Image("weapons", "weapons.png")
+image_projectiles = Image("projectiles", "projectiles.png")
+image_trails = Image("trails", "trails.png")
 image_deathtypes = Image("deathtypes", "deathtypes.png")
 image_items = Image("items", "items.png")
 image_sword = Image("sword", "sword.png")
@@ -331,6 +369,7 @@ image_emoticons = Image("emoticons", "emoticons.png")
 image_demobuttons = Image("demobuttons", "demo_buttons.png")
 image_fileicons = Image("fileicons", "file_icons.png")
 image_guibuttons = Image("guibuttons", "gui_buttons.png")
+image_guinumbers = Image("guinumbers", "gui_numbers.png")
 image_guiicons = Image("guiicons", "gui_icons.png")
 image_lights = Image("lights", "light.png")
 image_shield = Image("shield", "shield.png")
@@ -347,6 +386,7 @@ image_lazerload = Image("lazerload", "fx/lazerload.png")
 image_sparks = Image("sparks", "fx/sparks.png")
 image_swordhit = Image("swordhit", "fx/swordhit.png")
 image_bloodfx = Image("bloodfx", "fx/bloodfx.png")
+image_fx_effect1 = Image("fx_effect1", "fx/effect1.png")
 image_fx_scythe = Image("fx_scythe", "fx/scythe.png")
 image_fx_chainsaw = Image("fx_chainsaw", "fx/chainsaw.png")
 image_fx_chainsaw2 = Image("fx_chainsaw2", "fx/chainsaw2.png")
@@ -358,7 +398,8 @@ image_takeoff = Image("takeoff", "fx/takeoff.png")
 image_flame = Image("flame", "fx/flame.png")
 image_flame1 = Image("flame1", "fx/flame1.png")
 image_cbelt = Image("cbelt", "cbelt.png")
-image_muzzle = Image("muzzle", "muzzle.png")
+image_muzzle = Image("muzzle", "fx/muzzle.png")
+image_jetpack = Image("jetpack", "fx/jetpack.png")
 image_jet = Image("jet", "anim/jet.png")
 #image_green_charge = Image("green_charge", "fx/green_charge.png")
 image_green_explosion = Image("green_explosion", "fx/green_explosion.png")
@@ -376,6 +417,8 @@ container.images.Add(image_null)
 container.images.Add(image_game)
 container.images.Add(image_flag)
 container.images.Add(image_weapons)
+container.images.Add(image_projectiles)
+container.images.Add(image_trails)
 container.images.Add(image_sword)
 container.images.Add(image_scythe)
 container.images.Add(image_items)
@@ -400,6 +443,7 @@ container.images.Add(Image("console_bar", "console_bar.png"))
 container.images.Add(image_demobuttons)
 container.images.Add(image_fileicons)
 container.images.Add(image_guibuttons)
+container.images.Add(image_guinumbers)
 container.images.Add(image_guiicons)
 container.images.Add(image_lights)
 container.images.Add(image_shield)
@@ -415,6 +459,7 @@ container.images.Add(image_lazer)
 container.images.Add(image_lazerload)
 container.images.Add(image_sparks)
 container.images.Add(image_swordhit)
+container.images.Add(image_fx_effect1)
 container.images.Add(image_fx_scythe)
 container.images.Add(image_fx_chainsaw)
 container.images.Add(image_fx_chainsaw2)
@@ -433,6 +478,7 @@ container.images.Add(image_fuel)
 container.images.Add(image_circular)
 container.images.Add(image_gui_window1)
 container.images.Add(image_muzzle)
+container.images.Add(image_jetpack)
 container.images.Add(image_jet)
 #container.images.Add(image_green_charge)
 container.images.Add(image_green_explosion)
@@ -451,7 +497,9 @@ set_meat = SpriteSet("meat", image_meat, 8, 2)
 set_splatter = SpriteSet("splatter", image_splatter, 4, 1)
 set_game = SpriteSet("game", image_game, 32, 16)
 set_flag = SpriteSet("flag", image_flag, 8, 2)
-set_weapons = SpriteSet("weapons", image_weapons, 16, 16)
+set_weapons = SpriteSet("weapons", image_weapons, 32, 32)
+set_projectiles = SpriteSet("projectiles", image_projectiles, 16, 8)
+set_trails = SpriteSet("trails", image_trails, 1, 4)
 set_sword = SpriteSet("sword", image_sword, 4, 4)
 set_scythe = SpriteSet("scythe", image_scythe, 4, 1)
 set_hands = SpriteSet("hands", image_hands, 4, 8)
@@ -467,6 +515,7 @@ set_emoticons = SpriteSet("emoticons", image_emoticons, 4, 4)
 set_demobuttons = SpriteSet("demobuttons", image_demobuttons, 5, 1)
 set_fileicons = SpriteSet("fileicons", image_fileicons, 8, 1)
 set_guibuttons = SpriteSet("guibuttons", image_guibuttons, 12, 4)
+set_guinumbers = SpriteSet("guinumbers", image_guinumbers, 8, 2)
 set_guiicons = SpriteSet("guiicons", image_guiicons, 8, 2)
 set_shield = SpriteSet("shield", image_shield, 4, 2)
 set_explosion = SpriteSet("explosion", image_explosion, 8, 2)
@@ -482,6 +531,7 @@ set_lazerload = SpriteSet("lazerload", image_lazerload, 8, 1)
 set_sparks = SpriteSet("sparks", image_sparks, 4, 2)
 set_swordhit = SpriteSet("swordhit", image_swordhit, 3, 1)
 set_bloodfx = SpriteSet("bloodfx", image_bloodfx, 8, 1)
+set_fx_dash = SpriteSet("fx_dash", image_fx_effect1, 8, 1)
 set_fx_scythe = SpriteSet("fx_scythe", image_fx_scythe, 8, 1)
 set_fx_chainsaw = SpriteSet("fx_chainsaw", image_fx_chainsaw, 4, 1)
 set_fx_chainsaw2 = SpriteSet("fx_chainsaw2", image_fx_chainsaw2, 4, 1)
@@ -492,13 +542,14 @@ set_heal = SpriteSet("heal", image_heal, 8, 2)
 set_takeoff = SpriteSet("takeoff", image_takeoff, 8, 1)
 set_flame = SpriteSet("flame", image_flame, 4, 4)
 set_flame1 = SpriteSet("flame1", image_flame1, 8, 1)
-set_muzzle = SpriteSet("muzzle", image_muzzle, 4, 1)
+set_muzzle = SpriteSet("muzzle", image_muzzle, 4, 8)
+set_jetpack = SpriteSet("jetpack", image_jetpack, 4, 1)
 set_jet = SpriteSet("jet", image_jet, 4, 1)
 #set_green_charge = SpriteSet("green_charge", image_green_charge, 8, 1)
 set_green_explosion = SpriteSet("green_explosion", image_green_explosion, 4, 2)
 set_crawler_leg = SpriteSet("crawler_leg", image_crawler_leg1, 1, 1)
 
-set_gui_window1 = SpriteSet("gui_window1", image_gui_window1, 4, 4)
+set_gui_window1 = SpriteSet("gui_window1", image_gui_window1, 8, 8)
 set_hud = SpriteSet("hud", image_hp, 1, 2)
 
 container.spritesets.Add(set_particles)
@@ -508,6 +559,8 @@ container.spritesets.Add(set_splatter)
 container.spritesets.Add(set_game)
 container.spritesets.Add(set_flag)
 container.spritesets.Add(set_weapons)
+container.spritesets.Add(set_projectiles)
+container.spritesets.Add(set_trails)
 container.spritesets.Add(set_items)
 container.spritesets.Add(set_sword)
 container.spritesets.Add(set_scythe)
@@ -523,6 +576,7 @@ container.spritesets.Add(set_emoticons)
 container.spritesets.Add(set_demobuttons)
 container.spritesets.Add(set_fileicons)
 container.spritesets.Add(set_guibuttons)
+container.spritesets.Add(set_guinumbers)
 container.spritesets.Add(set_guiicons)
 container.spritesets.Add(set_shield)
 container.spritesets.Add(set_explosion)
@@ -538,6 +592,7 @@ container.spritesets.Add(set_lazerload)
 container.spritesets.Add(set_sparks)
 container.spritesets.Add(set_swordhit)
 container.spritesets.Add(set_bloodfx)
+container.spritesets.Add(set_fx_dash)
 container.spritesets.Add(set_fx_scythe)
 container.spritesets.Add(set_fx_chainsaw)
 container.spritesets.Add(set_fx_chainsaw2)
@@ -550,6 +605,7 @@ container.spritesets.Add(set_flame)
 container.spritesets.Add(set_flame1)
 container.spritesets.Add(set_hud)
 container.spritesets.Add(set_muzzle)
+container.spritesets.Add(set_jetpack)
 container.spritesets.Add(set_jet)
 #container.spritesets.Add(set_green_charge)
 container.spritesets.Add(set_green_explosion)
@@ -569,6 +625,62 @@ container.sprites.Add(Sprite("shield8", set_shield, 3,1,1,1))
 
 
 
+# weapons.png
+
+for i in range(0, 4):
+	container.sprites.Add(Sprite("weapon_part1_"+str(i), set_weapons, 20, i*3, 4, 3))
+	
+# sword grips
+for i in range(0, 3):
+	container.sprites.Add(Sprite("weapon_part1_"+str(4+i), set_weapons, 18, 26+i*2, 3, 2))
+	
+# bg
+for i in range(0, 4):
+	container.sprites.Add(Sprite("weapon_part1_bg_"+str(i), set_weapons, 24, i*3, 4, 3))
+	
+# sword grip bgs
+for i in range(0, 3):
+	container.sprites.Add(Sprite("weapon_part1_bg_"+str(4+i), set_weapons, 21, 26+i*2, 3, 2))
+	
+
+for i in range(0, 5):
+	container.sprites.Add(Sprite("weapon_part2_"+str(i), set_weapons, 28, i*3, 4, 3))
+	
+# sword blades
+for i in range(0, 3):
+	container.sprites.Add(Sprite("weapon_part2_"+str(5+i), set_weapons, 24, 26+i*2, 8, 2))
+
+
+# tools & items / weapons - mind the order
+container.sprites.Add(Sprite("weapon_static1", set_weapons, 6, 0, 2, 4)) # tool
+container.sprites.Add(Sprite("weapon_static2", set_weapons, 2, 0, 4, 2)) # gun 1
+container.sprites.Add(Sprite("weapon_static3", set_weapons, 2, 2, 4, 2)) # gun 2
+container.sprites.Add(Sprite("weapon_static4", set_weapons, 0, 0, 2, 3)) # grenade 1
+container.sprites.Add(Sprite("weapon_static5", set_weapons, 0, 3, 2, 3)) # grenade 2
+container.sprites.Add(Sprite("weapon_static6", set_weapons, 0, 9, 7, 3)) # chainsaw
+container.sprites.Add(Sprite("weapon_static7", set_weapons, 0, 6, 7, 3)) # flamer
+container.sprites.Add(Sprite("weapon_static8", set_weapons, 7, 6, 7, 3)) # flame rifle / bubbler
+container.sprites.Add(Sprite("weapon_static9", set_weapons, 2, 12, 4, 4)) # shuriken
+
+# pickups
+container.sprites.Add(Sprite("pickup_kit", set_weapons, 10, 0, 2, 2))
+container.sprites.Add(Sprite("pickup_armor", set_weapons, 14,0,2,2))
+container.sprites.Add(Sprite("pickup_health", set_weapons, 12,0,2,2))
+container.sprites.Add(Sprite("pickup_ammo", set_weapons, 8,0,2,2))
+
+
+
+
+# projectiles
+for x in range(0, 4):
+	for y in range(0, 4):
+		container.sprites.Add(Sprite("projectile"+str(x+1)+"_"+str(y+1), set_projectiles, x*3, y*2, 3, 2))
+
+# trails
+for y in range(0, 4):
+	container.sprites.Add(Sprite("trail"+str(y+1), set_trails, 0, y, 1, 1))
+		
+
 # sprite sheets
 
 # 3 frames
@@ -581,7 +693,12 @@ for i in range(1, 4):
 	container.sprites.Add(Sprite("swordhit"+str(i), set_swordhit, i-1, 1, 1, 1))
 	
 for i in range(1, 4):
-	container.sprites.Add(Sprite("muzzle"+str(i), set_muzzle, i-1, 0, 1, 1))
+	container.sprites.Add(Sprite("jetpack"+str(i), set_jetpack, i-1, 1, 1, 1))
+	
+# 4 x 4
+for y in range(1, 9):
+	for x in range(1, 5):
+		container.sprites.Add(Sprite("muzzle"+str(y)+"_"+str(x), set_muzzle, x-1, y-1, 1, 1))
 
 # 4 frames
 	
@@ -662,6 +779,8 @@ for i in range(1, 9):
 	container.sprites.Add(Sprite("electric"+str(i), set_electric, i-1, 0, 1, 1))
 for i in range(1, 9):
 	container.sprites.Add(Sprite("lazerload"+str(i), set_lazerload, i-1, 0, 1, 1))
+for i in range(1, 9):
+	container.sprites.Add(Sprite("fx_dash"+str(i), set_fx_dash, i-1, 0, 1, 1))
 for i in range(1, 9):
 	container.sprites.Add(Sprite("fx_scythe"+str(i), set_fx_scythe, i-1, 0, 1, 1))
 for i in range(1, 9):
@@ -789,11 +908,16 @@ container.sprites.Add(Sprite("part8", set_game, 11,0,2,2))
 container.sprites.Add(Sprite("part9", set_game, 13,0,2,2))
 
 
+
+
 container.sprites.Add(Sprite("repair", set_pickups, 6,1,2,1))
 
-container.sprites.Add(Sprite("weapon_pickup", set_weapons, 8,12,4,4))
+container.sprites.Add(Sprite("weapon_pickup", set_weapons, 29, 11, 3, 3))
+
 container.sprites.Add(Sprite("weapon_upgraded1", set_weapons, 11,10,2,2))
 container.sprites.Add(Sprite("weapon_upgraded2", set_weapons, 14,0,2,2))
+
+container.sprites.Add(Sprite("weapon_slot", set_weapons, 16,12,4,4))
 
 container.sprites.Add(Sprite("walker_proj", set_game, 6,6,2,2))
 
@@ -875,11 +999,6 @@ container.sprites.Add(Sprite("weapon_flamer_proj", set_game, 6,0,1,1))
 
 container.sprites.Add(Sprite("hook_chain", set_game, 2,0,1,1))
 container.sprites.Add(Sprite("hook_head", set_game, 3,0,2,1))
-
-container.sprites.Add(Sprite("pickup_kit", set_weapons, 13,9,3,3))
-container.sprites.Add(Sprite("pickup_mine", set_weapons, 14,12,2,2))
-container.sprites.Add(Sprite("pickup_health", set_weapons, 12,14,2,2))
-container.sprites.Add(Sprite("pickup_armor", set_weapons, 14,14,2,2))
 container.sprites.Add(Sprite("pickup_weapon", set_game, 3,0,6,2))
 
 # buildings.png
@@ -998,10 +1117,37 @@ container.sprites.Add(Sprite("guiicon_mute", set_guiicons, 0,0,4,2))
 container.sprites.Add(Sprite("guiicon_friend", set_guiicons, 4,0,4,2))
 
 
-container.sprites.Add(Sprite("gui_exit", set_gui_window1, 3,0,1,1))
-container.sprites.Add(Sprite("gui_select", set_gui_window1, 3,1,1,1))
+container.sprites.Add(Sprite("gui_exit", set_gui_window1, 6,0,2,2))
+container.sprites.Add(Sprite("gui_select1", set_gui_window1, 6,2,2,2))
+container.sprites.Add(Sprite("gui_select2", set_gui_window1, 6,4,2,2))
+container.sprites.Add(Sprite("gui_select3", set_gui_window1, 6,6,2,2))
+container.sprites.Add(Sprite("gui_select4", set_gui_window1, 2,6,2,2))
+
+container.sprites.Add(Sprite("gui_num1", set_gui_window1, 0,6,1,1))
+container.sprites.Add(Sprite("gui_num2", set_gui_window1, 1,6,1,1))
+container.sprites.Add(Sprite("gui_num3", set_gui_window1, 0,7,1,1))
+container.sprites.Add(Sprite("gui_num4", set_gui_window1, 1,7,1,1))
+
+# numbers for hud
+for i in range(0, 10):
+	container.sprites.Add(Sprite("guinumber_"+str(i), set_weapons, 0, 12+i*2, 2, 2))
+	
+container.sprites.Add(Sprite("guinumber_infinite", set_weapons, 2, 30, 2, 2))
+container.sprites.Add(Sprite("guinumber_line", set_weapons, 4, 30, 2, 2))
 
 
+container.sprites.Add(Sprite("weapon_turret", set_weapons, 14, 28, 4, 4))
+
+
+
+
+#for i in range(0, 8):
+#	container.sprites.Add(Sprite("guinumber_"+str(i), set_guinumbers, i, 0, 1, 1))
+
+#container.sprites.Add(Sprite("guinumber_8", set_guinumbers, 0, 1, 1, 1))
+#container.sprites.Add(Sprite("guinumber_9", set_guinumbers, 1, 1, 1, 1))
+#container.sprites.Add(Sprite("guinumber_infinite", set_guinumbers, 2, 1, 1, 1))
+#container.sprites.Add(Sprite("guinumber_line", set_guinumbers, 3, 1, 1, 1))
 
 
 

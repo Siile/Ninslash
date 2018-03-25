@@ -10,5 +10,5 @@ void main (void)
 	
 	s = (s + (1.0f - intensity) + s * intensity) / 2.0f;
 	
-	gl_FragColor = vec4(s, s, s, c.a) * gl_Color;
+	gl_FragColor = vec4(1, 1, 1, c.a) * gl_Color;
 }

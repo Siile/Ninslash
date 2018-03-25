@@ -42,6 +42,7 @@ void CCrawler::Reset()
 	m_AttackTimer = 0;
 	m_AngleTimer = frandom()*pi;
 	m_DamageTakenTick = 0;
+	m_Move = 0;
 }
 
 
@@ -130,8 +131,39 @@ void CCrawler::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type)
 
 
 
+
+
+void CCrawler::MoveDead()
+{
+	
+	
+}
+
+
+void CCrawler::Move()
+{
+	m_Vel.y += 0.8f;
+	m_Vel *= 0.97f;
+	
+	GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(80.0f, 80.0f), 0, false);
+	
+	if (!m_Move)
+		m_Move = frandom() < 0.5f ? -1 : 1;
+	
+	m_Vel.x += m_Move * 1.0f;
+}
+
 void CCrawler::Tick()
 {
+
+	if (!Target())
+		FindTarget();
+		
+	m_Target = (m_NewTarget+m_Target)/3;
+	
+	Move();
+	
+	/*
 	vec2 To = m_Pos+vec2(frandom()-frandom(), frandom()-frandom())*500;
 		
 	if (m_Health <= 0)
@@ -213,7 +245,6 @@ void CCrawler::Tick()
 		m_Target.x = vec2(sin(m_AngleTimer), cos(m_AngleTimer)).x;
 		m_Target.y = -1;
 		
-		
 		/*
 		if (WillFire)
 		{
@@ -225,10 +256,11 @@ void CCrawler::Tick()
 		}
 		*/
 
-		
+		/*
 		if(Server()->Tick() > m_DamageTakenTick+15)
 			m_Status = DROIDSTATUS_IDLE;
 	}
+	*/
 }
 
 
@@ -274,11 +306,7 @@ bool CCrawler::Target()
 	
 	if (m_TargetIndex >= 0 && m_TargetIndex < MAX_CLIENTS)
 	{
-		CPlayer *pPlayer = GameServer()->m_apPlayers[m_TargetIndex];
-		if(!pPlayer)
-			return false;
-			
-		CCharacter *pCharacter = pPlayer->GetCharacter();
+		CCharacter *pCharacter = GameServer()->GetPlayerChar(m_TargetIndex);
 		if (!pCharacter)
 			return false;
 		
@@ -317,14 +345,7 @@ bool CCrawler::FindTarget()
 	
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
-		CPlayer *pPlayer = GameServer()->m_apPlayers[i];
-		if(!pPlayer)
-			continue;
-
-		//if (pPlayer->GetTeam() == m_Team && GameServer()->m_pController->IsTeamplay())
-		//	continue;
-
-		CCharacter *pCharacter = pPlayer->GetCharacter();
+		CCharacter *pCharacter = GameServer()->GetPlayerChar(i);
 		if (!pCharacter)
 			continue;
 		

@@ -666,7 +666,7 @@ static CKeyInfo gs_aKeys[] =
 	{ "Slide / down", "+down", 0 },
 	{ "Jump", "+jump", 0 },
 	{ "Fire", "+fire", 0 },
-	{ "Charge", "+charge", 0 },
+	//{ "Charge", "+charge", 0 },
 	{ "Turbo", "+turbo", 0 },
 	//{ "Build", "+build", 0 },
 	
@@ -680,7 +680,7 @@ static CKeyInfo gs_aKeys[] =
 	
 	{ "Inventory", "+inventory", 0 },
 	
-	{ "Select picked weapon", "+lastweapon", 0 },
+	//{ "Fast weapon change", "+lastweapon", 0 },
 	//{ "Switch weapon", "+switch", 0 },
 	{ "Next weapon", "+nextweapon", 0 },
 	{ "Prev. weapon", "+prevweapon", 0 },
@@ -837,7 +837,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 				MovementSettings.HSplitTop(20.0f, 0, &MovementSettings);
 			}
 
-			UiDoGetButtons(0, 7, MovementSettings);
+			UiDoGetButtons(0, 6, MovementSettings);
 
 		}
 
@@ -851,7 +851,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, WeaponSettings.x, WeaponSettings.y, 14.0f*UI()->Scale(), Localize("Weapon"), -1);
 
 			WeaponSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &WeaponSettings);
-			UiDoGetButtons(7, 15, WeaponSettings);
+			UiDoGetButtons(6, 14, WeaponSettings);
 		}
 	}
 	else
@@ -875,7 +875,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, VotingSettings.x, VotingSettings.y, 14.0f*UI()->Scale(), Localize("Voting"), -1);
 
 			VotingSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &VotingSettings);
-			UiDoGetButtons(15, 17, VotingSettings);
+			UiDoGetButtons(14, 16, VotingSettings);
 		}
 
 		// chat settings
@@ -888,7 +888,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, ChatSettings.x, ChatSettings.y, 14.0f*UI()->Scale(), Localize("Chat"), -1);
 
 			ChatSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &ChatSettings);
-			UiDoGetButtons(17, 20, ChatSettings);
+			UiDoGetButtons(16, 19, ChatSettings);
 		}
 
 		// misc settings
@@ -901,7 +901,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, MiscSettings.x, MiscSettings.y, 14.0f*UI()->Scale(), Localize("Miscellaneous"), -1);
 
 			MiscSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &MiscSettings);
-			UiDoGetButtons(20, 28, MiscSettings);
+			UiDoGetButtons(19, 27, MiscSettings);
 		}
 	}
 	
@@ -1253,8 +1253,8 @@ void CMenus::RenderSettingsCustom(CUIRect MainView)
 	//	g_Config.m_GoreWallSplatter ^= 1;
 
 	MainView.HSplitTop(20.0f, &Button, &MainView);
-	if(DoButton_CheckBox(&g_Config.m_GoreAimLine, Localize("Enable aim line"), g_Config.m_GoreAimLine, &Button))
-		g_Config.m_GoreAimLine ^= 1;
+	//if(DoButton_CheckBox(&g_Config.m_GoreAimLine, Localize("Enable aim line"), g_Config.m_GoreAimLine, &Button))
+	//	g_Config.m_GoreAimLine ^= 1;
 
 
 	// camera slider

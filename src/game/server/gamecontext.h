@@ -19,6 +19,9 @@
 #include "lastseen.h"
 
 
+//inline int GetPart(int Weapon, int Group){ return (Weapon & (15<<(2+Group*4)))>>(2+Group*4); }
+//inline int GetWeapon(int Part1, int Part2){ return Part1<<2 | Part2<<6 | 1<<0; }
+
 /*
 	Tick
 		Game Context (CGameContext::tick)
@@ -139,6 +142,7 @@ public:
 	void CreateBuildingHit(vec2 Pos);
 	void CreateDamageInd(vec2 Pos, float AngleMod, int Damage, int ClientID);
 	void CreateExplosion(vec2 Pos, int Owner, int Weapon, int PowerLevel, bool NoDamage, bool IsTurret = false);
+	void CreateExplosion(vec2 Pos, int Owner, int Weapon);
 	void CreateElectromineExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage);
 	void CreateMineExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage);
 	void CreateFlameExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool IsTurret = false);
@@ -151,10 +155,9 @@ public:
 	void CreateDeath(vec2 Pos, int Who);
 	void CreateSound(vec2 Pos, int Sound, int Mask=-1);
 	void CreateSoundGlobal(int Sound, int Target=-1);
-
-	void TriggerSpecialAttack(int ClientID, int Type);
 	
-	class CWeapon *NewWeapon(int WeaponType);
+	class CWeapon *NewWeapon(int Part1, int Part2);
+	class CWeapon *NewWeapon(int Weapon);
 	
 	bool AddBuilding(int Kit, vec2 Pos, int Owner);
 	
@@ -162,7 +165,9 @@ public:
 	void CreateSwordHit(int DamageOwner, int Weapon, int PowerLevel, vec2 PlayerPos, vec2 ProjPos);
 	void CreateScytheHit(int DamageOwner, int Weapon, int PowerLevel, vec2 PlayerPos, vec2 ProjPos, class CCharacter *OwnerChr = NULL, class CBuilding *OwnerBuilding = NULL);
 	void CreateFlamethrowerHit(int DamageOwner, int Weapon, int PowerLevel, vec2 ProjPos, class CCharacter *OwnerChr = NULL, class CBuilding *OwnerBuilding = NULL);
-	void CreateProjectile(int DamageOwner, int Weapon, int PowerLevel, vec2 Pos, vec2 Direction, class CBuilding *OwnerBuilding = NULL);
+
+	void CreateProjectile(int DamageOwner, int Weapon, int Charge, vec2 Pos, vec2 Direction, class CBuilding *OwnerBuilding = NULL);
+	void CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 Pos, vec2 Direction);
 
 	void ClearFlameHits();
 	

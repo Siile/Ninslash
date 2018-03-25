@@ -290,6 +290,7 @@ public:
 	class CVoting *m_pVoting;
 	class CScoreboard *m_pScoreboard;
 	class CItems *m_pItems;
+	class CWeapons *m_pWeapons;
 	class CDroids *m_pDroids;
 	class CBuildings *m_pBuildings;
 	class CBuildings2 *m_pBuildings2;

@@ -568,6 +568,69 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 	vec2 p = Pos + vec2(cosf(Angle)*12, sinf(Angle)*12+(-40-9)*FlipY); //+ vec2(cosf(Angle)*90, sinf(Angle)*90-71);
 	vec2 Dir = GetDirection((int)(Angle*256));
 	
+	
+	// render weapon
+	RenderTools()->SetShadersForWeapon(Weapon);
+		
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
+	Graphics()->QuadsBegin();
+	Graphics()->QuadsSetRotation(Angle);
+	
+	RenderTools()->RenderWeapon(Weapon, p, Dir, WEAPON_GAME_SIZE);
+	
+	Graphics()->QuadsEnd();
+	Graphics()->ShaderEnd();
+	
+	
+	
+	// render muzzle
+	if (GetWeaponFiringType(Weapon) != WFT_HOLD)
+	{
+		float Alpha = 0.0f;
+		//int Phase1Tick = (Client()->GameTick() - Player.m_AttackTick);
+					
+		//if (Phase1Tick < 10)
+		{
+			/*
+			if (Player.m_AttackTick && Player.m_AttackTick != pCustomPlayerInfo->m_MuzzleTick)
+						{
+							vec2 Moff = GetMuzzleRenderOffset(Player.m_Weapon);
+							vec2 DirY(-Dir.y,Dir.x);
+							vec2 MuzzlePos = p + Dir * Moff.x + DirY * Moff.y;
+							//vec2 MuzzlePos = p + Dir * 20;
+							m_pClient->m_pEffects->Muzzle(MuzzlePos, Dir, Player.m_Weapon);
+						}
+						
+						pCustomPlayerInfo->AddMuzzle(Player.m_AttackTick, Player.m_Weapon);
+					}
+						
+					
+					// render muzzles
+					for (int i = 0; i < 4; i++)
+					{
+						if (pCustomPlayerInfo->m_aMuzzleWeapon[i])
+						{
+							Graphics()->TextureSet(g_pData->m_aImages[IMAGE_MUZZLE].m_Id);
+							Graphics()->QuadsBegin();
+							Graphics()->QuadsSetRotation(Angle);
+							
+							vec2 Moff = GetMuzzleRenderOffset(Player.m_Weapon);
+							RenderTools()->SelectSprite(SPRITE_MUZZLE1_1 + pCustomPlayerInfo->m_aMuzzleType[i]*4 + pCustomPlayerInfo->m_aMuzzleTime[i]*4, SPRITE_FLAG_FLIP_X);
+
+							vec2 DirY(-Dir.y,Dir.x);
+							vec2 MuzzlePos = p + Dir * Moff.x + DirY * Moff.y;
+
+							RenderTools()->DrawSprite(MuzzlePos.x, MuzzlePos.y, 60);
+							
+							Graphics()->QuadsEnd();	
+						}
+			*/
+		}
+	}
+				
+				
+	
+	/*
 	int iw = clamp(Weapon, 0, NUM_WEAPONS-1);
 	
 	// render chainsaw effect
@@ -618,14 +681,16 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 	Graphics()->QuadsBegin();
 	Graphics()->QuadsSetRotation(Angle);
 	RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[iw].m_pSpriteBody, Dir.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
+	*/
 	
 	/*
 	p = Dir * g_pData->m_Weapons.m_aId[iw].m_Offsetx;
 	p.y += g_pData->m_Weapons.m_aId[iw].m_Offsety;
 	*/
-
+	
 	vec2 Offset = vec2(0, 0);
 	
+	/*
 	// chainsaw shake effects
 	if (iw == WEAPON_CHAINSAW)
 	{
@@ -751,7 +816,7 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 	}
 
 	Graphics()->ShaderEnd();
-	
+	*/
 	
 	// fastener
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
@@ -786,7 +851,7 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 	Graphics()->QuadsEnd();
 
 	
-		
+	/*
 	if (iw == WEAPON_RIFLE || iw == WEAPON_SHOTGUN)
 	{
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
@@ -845,12 +910,14 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 		Graphics()->QuadsEnd();
 	}
 	
+	*/
 	// no ammo & low health status
 	s = pCurrent->m_Status;
 	bool Repair = s & (1<<BSTATUS_REPAIR);
 	
-	s = pCurrent->m_Status;
-	bool NoAmmo = s & (1<<BSTATUS_NOPE);
+	//s = pCurrent->m_Status;
+	//bool NoAmmo = s & (1<<BSTATUS_NOPE);
+	bool NoAmmo = false;
 	
 	if (Repair && (CustomStuff()->LocalTick()/12+(pCurrent->m_X/8 + pCurrent->m_Y/32))%8 < 4)
 	{
@@ -865,6 +932,7 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 		Graphics()->QuadsEnd();
 	}
 	
+	/*
 	s = pCurrent->m_Status;
 	if (NoAmmo && (CustomStuff()->LocalTick()/12+(pCurrent->m_X/8 + pCurrent->m_Y/32))%8 >= 4)
 	{
@@ -890,6 +958,7 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 		Graphics()->QuadsDraw(&Ammo, 1);
 		Graphics()->QuadsEnd();
 	}
+	*/
 }
 
 

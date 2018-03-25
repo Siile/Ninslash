@@ -22,9 +22,13 @@ class CLayers
 	int m_BackgrounLayerIndex;
 	int m_DoodadsLayerIndex;
 	int m_ForegroundLayerIndex;
+	int m_Base1LayerIndex;
+	int m_Base2LayerIndex;
 	CMapItemLayerTilemap *m_pBackgrounLayer;
 	CMapItemLayerTilemap *m_pDoodadsLayer;
 	CMapItemLayerTilemap *m_pForegroundLayer;
+	CMapItemLayerTilemap *m_pBase1Layer;
+	CMapItemLayerTilemap *m_pBase2Layer;
 
 	// for generating layers
 	class CTile *m_pTiles;
@@ -52,6 +56,8 @@ public:
 	int GetDoodadsLayerIndex() const { return m_DoodadsLayerIndex; }
 	CMapItemLayerTilemap *ForegroundLayer() const { return m_pForegroundLayer; };
 	int GetForegroundLayerIndex() const { return m_ForegroundLayerIndex; }
+	int GetBase1LayerIndex() const { return m_Base1LayerIndex; }
+	int GetBase2LayerIndex() const { return m_Base2LayerIndex; }
 };
 
 #endif

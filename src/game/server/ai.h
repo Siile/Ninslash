@@ -202,6 +202,8 @@ protected:
 	
 	void UseItems();
 	
+	int m_ChargeStartTick;
+	
 	int m_PowerLevel;
 	int m_DispersionTick;
 	

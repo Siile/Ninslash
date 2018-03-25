@@ -87,7 +87,7 @@ void CMaze::Generate()
 		// first rounds
 		else if (Level <= 15)
 		{
-			GenerateLinear(min(50+Level*5, 90), Level);
+			GenerateLinear(min(80+Level*5, 90+Level*2), Level);
 		}
 		// Z
 		else if (Level%10 == 8)
@@ -205,106 +205,41 @@ void CMaze::Generate()
 			ConnectEverything();
 		}
 	}
-	else if (str_comp(g_Config.m_SvGametype, "dm") == 0)
-	// dm
-	{
-		vec2 Start = vec2(m_W*0.3f + frandom()* 0.4f, m_H*0.3f + frandom()* 0.4f);
-		
-		int r = 6 + rand()%9;
-		int s = 30 + rand()%20;
-	
-		// box shape
-		{
-			m_aRoom[m_Rooms++] = Start + vec2(-s*(0.5f+frandom()), -s*(0.5f+frandom())/2);
-			m_aRoom[m_Rooms++] = Start + vec2(+s*(0.5f+frandom()), -s*(0.5f+frandom())/2);
-			m_aRoom[m_Rooms++] = Start + vec2(+s*(0.5f+frandom()), +s*(0.5f+frandom())/2);
-			m_aRoom[m_Rooms++] = Start + vec2(-s*(0.5f+frandom()), +s*(0.5f+frandom())/2);
-			
-			Connect(m_aRoom[0], m_aRoom[1]);
-			Connect(m_aRoom[1], m_aRoom[2]);
-			Connect(m_aRoom[2], m_aRoom[3]);
-			Connect(m_aRoom[3], m_aRoom[0]);
-		}
-			
-		// create random rooms
-		for (int i = 0; i < r; i++)
-			GenerateRoom();
-		
-		int c = 2 + rand()%4;
-		for (int i = 0; i < c; i++)
-			
-		ConnectRooms();
-		ConnectEverything();
-	}
-	else if (str_comp(g_Config.m_SvGametype, "ctf") == 0)
-	// ctf
-	{
-		vec2 Start = vec2(m_W*0.5f, m_H*0.3f + frandom()* 0.4f);
-		
-		int r = 10 + rand()%10;
-		int s = 120 + rand()%20;
-		
-		r = 7;
-	
-		{
-			vec2 p1 = Start + vec2(-s, 0);
-			vec2 p2 = Start + vec2(0, -s*(0.5f+frandom()*0.5f)/3);
-			vec2 p3 = Start + vec2(s, 0);
-			vec2 p4 = Start + vec2(0, +s*(0.5f+frandom()*0.5f)/3);
-			
-			Connect(p1, p2);
-			Connect(p2, p3);
-			Connect(p3, p4);
-			Connect(p4, p1);
-			
-			m_aRoom[m_Rooms++] = Start;
-		}
-			
-		// create random rooms
-		for (int i = 0; i < 3; i++)
-			GenerateRoom();
-		
-		m_aRoom[m_Rooms++] = Start + vec2(-s, 0);
-		m_aRoom[m_Rooms++] = Start + vec2(s, 0);
-		
-		for (int i = 0; i < r; i++)
-			GenerateRoom();
-			
-		ConnectRooms();
-		ConnectEverything();
-	}
 	else
-	// tdm
+	// ctf, tdm, dm
 	{
-		vec2 Start = vec2(m_W*0.5f, m_H*0.3f + frandom()* 0.4f);
-		
-		int r = 9 + rand()%9;
-		int s = 80 + rand()%10;
-	
+		// dual way
 		{
-			m_aRoom[m_Rooms++] = Start + vec2(-s, 0);
-			m_aRoom[m_Rooms++] = Start + vec2(0, -s*(0.5f+frandom()*0.5f)/3);
-			m_aRoom[m_Rooms++] = Start + vec2(s, 0);
-			m_aRoom[m_Rooms++] = Start + vec2(0, +s*(0.5f+frandom()*0.5f)/3);
+			m_aRoom[m_Rooms++] = vec2(m_W*0.1f, m_H*(0.2f + frandom()*0.6f));
+			m_aRoom[m_Rooms++] = vec2(m_W*0.5f, m_H*0.15f);
+			m_aRoom[m_Rooms++] = vec2(m_W*0.5f, m_H*0.85f);
+			
+			if (m_aRoom[0].y > m_H*0.5f)
+			{
+				m_aRoom[m_Rooms++] = vec2(m_W*0.1f, m_H*0.1f);
+				Connect(m_aRoom[3], (m_aRoom[0]+m_aRoom[1])/2);
+			}
+			else
+			{
+				m_aRoom[m_Rooms++] = vec2(m_W*0.1f, m_H*0.9f);
+				Connect(m_aRoom[3], (m_aRoom[0]+m_aRoom[2])/2);
+			}
 			
 			Connect(m_aRoom[0], m_aRoom[1]);
-			Connect(m_aRoom[1], m_aRoom[2]);
-			Connect(m_aRoom[2], m_aRoom[3]);
-			Connect(m_aRoom[3], m_aRoom[0]);
+			Connect(m_aRoom[0], m_aRoom[2]);
 			
-			m_aRoom[m_Rooms++] = Start;
+			if (frandom() < 0.5f)
+				Connect(m_aRoom[1], m_aRoom[2]);
+			
+			if (frandom() < 0.5f)
+				GenerateRoom(true, true);
+			
+			if (m_W > 200)
+			{
+				GenerateRoom(true, true);
+				GenerateRoom(true, true);
+			}
 		}
-			
-		// create random rooms
-		for (int i = 0; i < r; i++)
-			GenerateRoom();
-		
-		int c = 1 + rand()%3;
-		for (int i = 0; i < c; i++)
-			ConnectRandomRooms();
-			
-		ConnectRooms();
-		ConnectEverything();
 	}
 }
 
@@ -328,17 +263,20 @@ void CMaze::GenerateLinear(int Width, int Rooms)
 
 
 
-void CMaze::GenerateRoom()
+void CMaze::GenerateRoom(bool AutoConnect, bool MirrorMode)
 {
 	// find a free spot to the room
 	
 	bool Valid = false;
 	int i = 0;
 	
-	while (!Valid && i++ < 100000)
+	while (!Valid && i++ < 10000)
 	{
 		Valid = true;
-		vec2 p = vec2(5 + frandom()*(m_W-10), 5 + frandom()*(m_H-10));
+		vec2 p = vec2(2 + frandom()*(m_W-4), 2 + frandom()*(m_H-4));
+		
+		if (MirrorMode)
+			p = vec2(2 + frandom()*(m_W*0.5f), 2 + frandom()*(m_H-4));
 		
 		if (m_Rooms > 0)
 		{
@@ -355,14 +293,19 @@ void CMaze::GenerateRoom()
 			if (abs(p.x - rp.x) > 8 && abs(p.y - rp.y) > 8)
 				Valid = false;
 			
-			if (d < 20.0f || d > 40.0f)
+			if (d < 20.0f || d > 60.0f) // || d > 40.0f)
 				Valid = false;
 		}
 				
 		if (Valid)
 		{
+			if (AutoConnect)
+				Connect(p, GetClosestRoom(p));
+			
 			m_aRoom[m_Rooms] = p;
 			Open(m_aRoom[m_Rooms], 1 + rand()%4);
+			
+			//	Connect(p, m_aRoom[rand()%m_Rooms]);
 			
 			m_Rooms++;
 			return;
@@ -414,7 +357,7 @@ void CMaze::ConnectEverything()
 	bool Looping = true;
 	int i = 0;
 	
-	while (Looping && i++ < 10000)
+	while (Looping && i++ < 1000)
 	{
 		ivec2 n = GetUnconnected();
 		
@@ -443,7 +386,7 @@ ivec2 CMaze::GetUnconnected()
 	int i = 0;
 	
 	// check random spots
-	while (Looping && i++ < 10000)
+	while (Looping && i++ < 1000)
 	{
 		ivec2 p = ivec2(1+rand()%(m_W-2), 1+rand()%(m_H-2));
 		if (m_aOpen[p.x + p.y*m_W] && !m_aConnected[p.x + p.y*m_W])
@@ -478,6 +421,31 @@ ivec2 CMaze::GetClosestConnected(ivec2 Pos)
 	return Closest;
 }
 
+vec2 CMaze::GetClosestRoom(vec2 Pos)
+{
+	if (m_Rooms < 1)
+		return Pos;
+	
+	if (m_Rooms == 1)
+		return m_aRoom[0];
+	
+	vec2 Closest = Pos;
+	float ClosestDist = 90000;
+	
+	for (int i = 0; i < m_Rooms; i++)
+	{
+		float d = distance(m_aRoom[i], Pos);
+		
+		if (d < ClosestDist)
+		{
+			Closest = m_aRoom[i];
+			ClosestDist = d;
+		}
+	}
+	
+	return Closest;
+}
+
 
 void CMaze::SetConnections(ivec2 Pos)
 {
@@ -501,7 +469,7 @@ void CMaze::SetConnections(ivec2 Pos)
 
 void CMaze::Connect(vec2 Pos0, vec2 Pos1)
 {
-	float Distance = distance(Pos0, Pos1);
+	float Distance = distance(Pos0, Pos1)*2;
 	int End(Distance+1);
 
 	for(int i = 0; i < End; i++)

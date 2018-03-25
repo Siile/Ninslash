@@ -82,7 +82,29 @@ void CPlayer::SelectItem(int Item)
 		GetCharacter()->SelectItem(Item);
 }
 
+void CPlayer::SendInventory()
+{
+	if (GetCharacter())
+		GetCharacter()->SendInventory();
+}
 
+void CPlayer::SwapItem(int Item1, int Item2)
+{
+	if (GetCharacter())
+		GetCharacter()->SwapItem(Item1, Item2);
+}
+
+void CPlayer::CombineItem(int Item1, int Item2)
+{
+	if (GetCharacter())
+		GetCharacter()->CombineItem(Item1, Item2);
+}
+
+void CPlayer::TakePart(int Item1, int Slot, int Item2)
+{
+	if (GetCharacter())
+		GetCharacter()->TakePart(Item1, Slot, Item2);
+}
 
 void CPlayer::UseKit(int Kit, vec2 Pos)
 {

@@ -22,6 +22,11 @@ private:
 	bool Target();
 	void Fire();
 	
+	void Move();
+	void MoveDead();
+	
+	int m_Move;
+	
 	vec2 m_MoveTarget;
 	float m_AngleTimer;
 };

@@ -8,7 +8,7 @@
 class CTeslacoil : public CBuilding
 {
 public:
-	CTeslacoil(CGameWorld *pGameWorld, vec2 Pos, int Team);
+	CTeslacoil(CGameWorld *pGameWorld, vec2 Pos, int Team, int OwnerPlayer = -1);
 
 	virtual void Tick();
 	virtual void TickPaused();

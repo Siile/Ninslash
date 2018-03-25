@@ -41,6 +41,7 @@
 #include "components/flow.h"
 #include "components/hud.h"
 #include "components/items.h"
+#include "components/weapons.h"
 #include "components/fluid.h"
 #include "components/cbelt.h"
 #include "components/buildings.h"
@@ -109,6 +110,7 @@ static CDroids gs_Droids;
 static CPlayers gs_Players;
 static CNamePlates gs_NamePlates;
 static CItems gs_Items;
+static CWeapons gs_Weapons;
 static CBuildings gs_Buildings;
 static CBuildings2 gs_Buildings2;
 static CMapImages gs_MapImages;
@@ -168,6 +170,7 @@ void CGameClient::OnConsoleInit()
 	m_pVoting = &::gs_Voting;
 	m_pScoreboard = &::gs_Scoreboard;
 	m_pItems = &::gs_Items;
+	m_pWeapons = &::gs_Weapons;
 	m_pBuildings = &::gs_Buildings;
 	m_pBuildings2 = &::gs_Buildings2;
 	m_pDroids = &::gs_Droids;
@@ -214,12 +217,14 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderTakeoff);
 	m_All.Add(&gs_Players);
 	m_All.Add(m_pBuildings2);
+	m_All.Add(m_pWeapons);
 	m_All.Add(&m_pParticles->m_RenderMeat);
 	m_All.Add(&m_pBlood->m_RenderBlood);
 	m_All.Add(&m_pBlood->m_RenderAcid);
 	m_All.Add(&m_pSplatter->m_RenderSplatter);
 	m_All.Add(&gs_MapLayersForeGround);
 	m_All.Add(m_pCBelt);
+	m_All.Add(&m_pParticles->m_RenderEffect1);
 	m_All.Add(&m_pParticles->m_RenderSparks);
 	m_All.Add(&m_pParticles->m_RenderDeath);
 	m_All.Add(&m_pParticles->m_RenderHitEffects);
@@ -234,6 +239,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderBloodFX);
 	m_All.Add(&m_pParticles->m_RenderLazer);
 	m_All.Add(&m_pSpark->m_RenderSpark);
+	m_All.Add(&m_pSpark->m_RenderArea1);
 	m_All.Add(m_pFluid);
 	m_All.Add(&m_pBlood->m_RenderAcidLayer);
 	m_All.Add(&gs_NamePlates);
@@ -701,6 +707,24 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker)
 		m_aClients[pMsg->m_ClientID].m_Emoticon = pMsg->m_Emoticon;
 		m_aClients[pMsg->m_ClientID].m_EmoticonStart = Client()->GameTick();
 	}
+	else if (MsgId == NETMSGTYPE_SV_INVENTORY)
+	{
+		CNetMsg_Sv_Inventory *pMsg = (CNetMsg_Sv_Inventory *)pRawMsg;
+
+		// apply
+		CustomStuff()->m_aItem[0] = pMsg->m_Item1;
+		CustomStuff()->m_aItem[1] = pMsg->m_Item2;
+		CustomStuff()->m_aItem[2] = pMsg->m_Item3;
+		CustomStuff()->m_aItem[3] = pMsg->m_Item4;
+		CustomStuff()->m_aItem[4] = pMsg->m_Item5;
+		CustomStuff()->m_aItem[5] = pMsg->m_Item6;
+		CustomStuff()->m_aItem[6] = pMsg->m_Item7;
+		CustomStuff()->m_aItem[7] = pMsg->m_Item8;
+		CustomStuff()->m_aItem[8] = pMsg->m_Item9;
+		CustomStuff()->m_aItem[9] = pMsg->m_Item10;
+		CustomStuff()->m_aItem[10] = pMsg->m_Item11;
+		CustomStuff()->m_aItem[11] = pMsg->m_Item12;
+	}
 	else if(MsgId == NETMSGTYPE_SV_SOUNDGLOBAL)
 	{
 		if(m_SuppressEvents)
@@ -846,15 +870,15 @@ void CGameClient::ProcessEvents()
 		else if(Item.m_Type == NETEVENTTYPE_EXPLOSION)
 		{
 			CNetEvent_Explosion *ev = (CNetEvent_Explosion *)pData;
-			g_GameClient.m_pEffects->Explosion(vec2(ev->m_X, ev->m_Y), ev->m_PowerLevel);
+			g_GameClient.m_pEffects->Explosion(vec2(ev->m_X, ev->m_Y), ev->m_Weapon);
 			
-			// add camera shake
+			// todo: readd camera shake
+			/*
 			float d = distance(CustomStuff()->m_LocalPos, vec2(ev->m_X, ev->m_Y));
 			
 			if (d < 80 + ev->m_PowerLevel * 40)
 				CustomStuff()->SetScreenshake(8.0f + ev->m_PowerLevel * 2);
-			else if (d < 140 + ev->m_PowerLevel * 40)
-				CustomStuff()->SetScreenshake(4.0f + ev->m_PowerLevel * 2);
+			*/
 		}
 		else if(Item.m_Type == NETEVENTTYPE_REPAIR)
 		{

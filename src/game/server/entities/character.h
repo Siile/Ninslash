@@ -25,13 +25,6 @@ enum BaseDamage
 	NEUTRAL_BASE = -1,
 };
 
-enum WeaponGroup
-{
-	WEAPONGROUP_PRIMARY,
-	WEAPONGROUP_SECONDARY,
-	WEAPONGROUP_TOOL,
-	
-};
 
 class CCharacter : public CEntity
 {
@@ -82,16 +75,17 @@ public:
 		return false;
 	}
 	
+	void ReleaseWeapons();
+	
 	void Die(int Killer, int Weapon, bool SkipKillMessage = false, bool IsTurret = false);
-	bool TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos, int Type = DAMAGETYPE_NORMAL, bool IsTurret = false);
+	//bool TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos, int Type = DAMAGETYPE_NORMAL, bool IsTurret = false);
+	bool TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos);
 	void SetAflame(float Duration, int From, int Weapon);
 	void TakeDeathtileDamage();
 	void TakeSawbladeDamage(vec2 SawbladePos);
 	void TakeDeathrayDamage();
 
 	vec2 m_SpawnPos;
-	
-	void TriggerSpecialAttack(int Type);
 	
 	bool Spawn(class CPlayer *pPlayer, vec2 Pos);
 	bool Remove();
@@ -114,7 +108,15 @@ public:
 	bool IsAlive() const { return m_Alive; }
 	class CPlayer *GetPlayer() { return m_pPlayer; }
 	
-	class CWeapon *GetWeapon() { return m_apWeapon[clamp(m_WeaponSlot, 0, 3)]; }
+	class CWeapon *GetWeapon(int Slot = -1) {
+		if (Slot >= NUM_SLOTS)
+			return NULL;
+		
+		if (Slot < 0 && m_WeaponSlot >= 0 && m_WeaponSlot < NUM_SLOTS)
+			return m_apWeapon[m_WeaponSlot];
+		
+		return m_apWeapon[Slot];
+	}
 	
 	bool m_IsBot;
 	int m_HiddenHealth;
@@ -159,16 +161,6 @@ public:
 	// for pickup drops, easy access
 	bool HasAmmo();
 	
-	/*
-	int WeaponPowerLevel(int Weapon){
-		if (Weapon < 0 || Weapon >= NUM_CUSTOMWEAPONS)
-			return 0;
-		
-		return m_aWeapon[Weapon].m_PowerLevel;
-	}
-	*/
-	
-	
 	bool GotWeapon(int Weapon)
 	{
 		if (Weapon < 0)
@@ -179,8 +171,6 @@ public:
 		
 	bool WeaponDisabled(int CustomWeapon){ return m_aWeapon[CustomWeapon].m_Disabled; }
 	void DisableWeapon(int CustomWeapon){ m_aWeapon[CustomWeapon].m_Disabled = true; }
-	
-	void UpgradeWeapon();
 	
 	bool GiveWeapon(class CWeapon *pWeapon);
 	int GetWeaponType(int Slot = -1);
@@ -195,6 +185,8 @@ public:
 	bool GiveAmmo(int *CustomWeapon, float AmmoFill);
 	
 	void SetCustomWeapon(int CustomWeapon);
+	
+	void RandomizeInventory();
 	
 	void AutoWeaponChange();
 	
@@ -270,11 +262,23 @@ public:
 	
 	int GetArmor() { return m_Armor; }
 	
+	// inventory
+	void SwapItem(int Item1, int Item2);
+	void CombineItem(int Item1, int Item2);
+	void TakePart(int Item1, int Slot, int Item2);
+	void SendInventory();
+	
+	void ReplaceWeapon(int Slot, int Part1, int Part2);
+	void ReleaseWeapon(class CWeapon *pWeapon = NULL);
+	void TriggerWeapon(class CWeapon *pWeapon = NULL);
+	
+	bool UpgradeTurret(vec2 Pos, vec2 Dir, int Slot = -1);
+	
 private:
 	// player controlling this character
 	class CPlayer *m_pPlayer;
 	
-	class CWeapon *m_apWeapon[4];
+	class CWeapon *m_apWeapon[12];
 
 	bool m_IgnoreCollision;
 	
@@ -292,6 +296,8 @@ private:
 	
 	bool m_Alive;
 	
+	int m_AcidTimer;
+	
 	vec2 m_Recoil;
 	
 	// nonprojectile weirdos
@@ -301,6 +307,8 @@ private:
 	int m_ScytheTick;
 	int m_ChangeDirTick;
 	int m_LastDir;
+	
+	int m_ChargeTick;
 	
 	void Chainsaw();
 	void Scythe();

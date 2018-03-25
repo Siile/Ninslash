@@ -5,7 +5,7 @@
 #include "droid.h"
 #include "superexplosion.h"
 
-CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Damage, int PowerLevel, CBuilding *OwnerBuilding)
+CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Weapon, int Damage, int Charge)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
 {
 	m_Damage = Damage;
@@ -13,12 +13,13 @@ CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEner
 	m_Owner = Owner;
 	m_Energy = StartEnergy;
 	m_Dir = Direction;
-	m_OwnerBuilding = OwnerBuilding;
-	m_PowerLevel = PowerLevel;
+	m_Weapon = Weapon;
+	//m_OwnerBuilding = OwnerBuilding;
+	m_Charge = Charge;
 	
-	//if (StartEnergy > 200)
-	//	m_Bounces = 2;
-	//else
+	if (m_Charge == -1)
+		m_Bounces = 99;
+	else
 		m_Bounces = 0;
 	m_EvalTick = 0;
 	m_IgnoreScythe = -1;
@@ -31,6 +32,10 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 {
 	vec2 At;
 	CCharacter *pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
+	
+	if (IsStaticWeapon(m_Weapon) && GetStaticType(m_Weapon) == SW_GRENADE2)
+		pOwnerChar = NULL;
+	
 	CCharacter *pHit = GameServer()->m_World.IntersectCharacter(m_Pos, To, 0.f, At, pOwnerChar);
 	if(!pHit)
 		return false;
@@ -39,14 +44,16 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 	m_Pos = At;
 	m_Energy = -1;
 	
-	
+	pHit->TakeDamage(m_Owner, m_Weapon, m_Damage, normalize(To-From)*0.1f, At);
+	/*
 	if (m_PowerLevel == 1)
 		pHit->TakeDamage(normalize(To-From)*0.1f, m_Damage, m_Owner, WEAPON_LASER, At, DAMAGETYPE_ELECTRIC, m_OwnerBuilding ? true : false);
 	else
 		pHit->TakeDamage(normalize(To-From)*0.1f, m_Damage, m_Owner, WEAPON_LASER, At, DAMAGETYPE_NORMAL, m_OwnerBuilding ? true : false);
-
-	if (m_PowerLevel > 1)
-		pHit->Deathray(false);
+	*/
+	
+	//if (m_PowerLevel > 1)
+	//	pHit->Deathray(false);
 	
 	return true;
 }
@@ -92,7 +99,7 @@ bool CLaser::HitMonster(vec2 From, vec2 To)
 	m_Pos = At;
 	m_Energy = -1;
 
-	pHit->TakeDamage(normalize(To-From)*0.1f, m_Damage, m_Owner, At);
+	pHit->TakeDamage(normalize(To-From)*0.1f, m_Damage, m_Owner, At, m_Weapon);
 	return true;
 }
 
@@ -111,7 +118,7 @@ bool CLaser::HitBuilding(vec2 From, vec2 To)
 	m_Pos = At;
 	m_Energy = -1;
 
-	pHit->TakeDamage(m_Damage, m_Owner, WEAPON_LASER);
+	pHit->TakeDamage(m_Damage, m_Owner, m_Weapon);
 	GameServer()->CreateBuildingHit(m_Pos);
 	return true;
 }
@@ -224,6 +231,7 @@ void CLaser::Snap(int SnappingClient)
 	pObj->m_Y = (int)m_Pos.y;
 	pObj->m_FromX = (int)m_From.x;
 	pObj->m_FromY = (int)m_From.y;
-	pObj->m_PowerLevel = m_PowerLevel;
+	pObj->m_Charge = m_Charge;
 	pObj->m_StartTick = m_EvalTick;
 }
+

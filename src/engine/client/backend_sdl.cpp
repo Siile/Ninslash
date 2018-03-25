@@ -433,6 +433,7 @@ void CCommandProcessorFragment_OpenGL::Cmd_CreateTextureBuffer(const CCommandBuf
 
 void CCommandProcessorFragment_OpenGL::Cmd_LoadShaders(const CCommandBuffer::SCommand_LoadShaders *pCommand)
 {
+	m_aShader[SHADER_PLAYER] = LoadShader("data/shaders/basic.vert", "data/shaders/player.frag");
 	m_aShader[SHADER_ELECTRIC] = LoadShader("data/shaders/basic.vert", "data/shaders/electric.frag");
 	m_aShader[SHADER_DEATHRAY] = LoadShader("data/shaders/basic.vert", "data/shaders/deathray.frag");
 	m_aShader[SHADER_COLORSWAP] = LoadShader("data/shaders/basic.vert", "data/shaders/colorswap.frag");
@@ -484,6 +485,22 @@ void CCommandProcessorFragment_OpenGL::Cmd_ShaderBegin(const CCommandBuffer::SCo
 	location = pShader->getUniformLocation("weaponcharge");
 	if (location >= 0)
 		glUniform1fARB(location, GLfloat(pCommand->m_WeaponCharge));
+	
+	location = pShader->getUniformLocation("visibility");
+	if (location >= 0)
+		glUniform1fARB(location, GLfloat(pCommand->m_Visibility));
+	
+	location = pShader->getUniformLocation("electro");
+	if (location >= 0)
+		glUniform1fARB(location, GLfloat(pCommand->m_Electro));
+	
+	location = pShader->getUniformLocation("damage");
+	if (location >= 0)
+		glUniform1fARB(location, GLfloat(pCommand->m_Damage));
+	
+	location = pShader->getUniformLocation("deathray");
+	if (location >= 0)
+		glUniform1fARB(location, GLfloat(pCommand->m_Deathray));
 	
 	location = pShader->getUniformLocation("screenwidth");
 	if (location >= 0)

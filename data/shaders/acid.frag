@@ -11,7 +11,7 @@ uniform int cameray;
 
 void main (void)
 {
-	float g = 0.7f;
+	float g = 0.5f;
 
 	float StepY = 2.0f / screenheight;
 	float SumGreen = (texture2D(texture, gl_TexCoord[0].st + vec2(0, +StepY)).g + texture2D(texture, gl_TexCoord[0].st).g)/2.0f;

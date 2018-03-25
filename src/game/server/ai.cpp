@@ -1,4 +1,5 @@
 #include <engine/shared/config.h>
+#include <game/weapons.h>
 
 #include "ai.h"
 #include "entities/character.h"
@@ -101,12 +102,12 @@ void CAI::Reset()
 	ClearEmotions();
 	
 	m_ItemUseTick = 0;
+	m_ChargeStartTick = 0;
 }
 
 
 void CAI::OnCharacterSpawn(class CCharacter *pChr)
 {
-	pChr->SetCustomWeapon(W_SWORD);
 	Reset();
 	m_WaypointPos = pChr->m_Pos;
 	m_TargetPos = pChr->m_Pos;
@@ -1053,10 +1054,11 @@ void CAI::ClearEmotions()
 int CAI::WeaponShootRange()
 {
 	int Weapon = Player()->GetCharacter()->GetWeaponType();
-	int Range = 40;
-		
-	if (Weapon >= 0 && Weapon < NUM_CUSTOMWEAPONS)
-		Range = aCustomWeapon[Weapon].m_AiAttackRange;
+	
+	if (GetWeaponFiringType(Weapon) == WFT_NONE)
+		return 1200;
+	
+	int Range = 700;
 	
 	return Range;
 }
@@ -1095,7 +1097,8 @@ void CAI::ReactToPlayer()
 void CAI::ShootAtClosestHuman()
 {
 	CCharacter *pClosestCharacter = NULL;
-	int ClosestDistance = 0;
+	int ClosestDistance = 0;	
+	int Weapon = Player()->GetCharacter()->GetWeaponType();
 	
 	// FIRST_BOT_ID, fix
 	for (int i = 0; i < MAX_CLIENTS; i++)
@@ -1118,7 +1121,7 @@ void CAI::ShootAtClosestHuman()
 			continue;
 			
 		int Distance = distance(pCharacter->m_Pos, m_LastPos);
-		if (Distance < 800 && 
+		if (Distance < AIAttackRange(Weapon) && 
 			!GameServer()->Collision()->FastIntersectLine(pCharacter->m_Pos, m_LastPos))
 		{
 			if (!pClosestCharacter || Distance < ClosestDistance)
@@ -1160,6 +1163,7 @@ bool CAI::ShootAtClosestEnemy()
 {
 	CCharacter *pClosestCharacter = NULL;
 	int ClosestDistance = 0;
+	int Weapon = Player()->GetCharacter()->GetWeaponType();
 	
 	m_EnemyInLine = false;
 	
@@ -1185,9 +1189,10 @@ bool CAI::ShootAtClosestEnemy()
 		
 		if (GameServer()->m_pController->IsCoop() && pCharacter->m_IsBot)
 			continue;
-			
+		
+		
 		int Distance = distance(pCharacter->m_Pos, m_LastPos);
-		if (Distance < 800 && 
+		if (Distance < AIAttackRange(Weapon) && 
 			!GameServer()->Collision()->FastIntersectLine(pCharacter->m_Pos, m_LastPos))
 		{
 			if (abs(pCharacter->m_Pos.x - m_LastPos.x) < 96 && abs(pCharacter->m_Pos.y - m_LastPos.y) < 22)
@@ -1214,33 +1219,43 @@ bool CAI::ShootAtClosestEnemy()
 		}
 	}
 	
-	if (pClosestCharacter && ClosestDistance < WeaponShootRange()*1.2f)
+	//if (GetWeaponFiringType(Weapon) != WFT_NONE)
 	{
-		vec2 AttackDirection = vec2(m_PlayerDirection.x+ClosestDistance*(frandom()*0.2f-frandom()*0.2f), m_PlayerDirection.y+ClosestDistance*(frandom()*0.2f-frandom()*0.2f));
-
-		m_Direction = AttackDirection;
-		m_Hook = 0;
-		
-		// shooting part
-		if (m_AttackTimer++ > max(0, 20-m_PowerLevel))
+		if (pClosestCharacter && ClosestDistance < WeaponShootRange()*1.2f)
 		{
-			if (ClosestDistance < WeaponShootRange() && abs(atan2(m_Direction.x, m_Direction.y) - atan2(AttackDirection.x, AttackDirection.y)) < PI / 4.0f)
+			vec2 AttackDirection = vec2(m_PlayerDirection.x+ClosestDistance*(frandom()*0.2f-frandom()*0.2f), m_PlayerDirection.y+ClosestDistance*(frandom()*0.2f-frandom()*0.2f));
+
+			m_Direction = AttackDirection;
+			m_Hook = 0;
+			
+			// shooting part
+			if (m_AttackTimer++ > max(0, 20-m_PowerLevel))
 			{
-				m_Attack = 1;
+				if (ClosestDistance < WeaponShootRange() && abs(atan2(m_Direction.x, m_Direction.y) - atan2(AttackDirection.x, AttackDirection.y)) < PI / 4.0f)
+				{
+					m_Attack = 1;
+					
+					if (m_PowerLevel < 10)
+					if (frandom()*30 < 2 && !Player()->GetCharacter()->UsingMeleeWeapon())
+						m_DontMoveTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed()*(1+frandom()-m_PowerLevel*0.1f);
+				}
 				
-				if (m_PowerLevel < 10)
-				if (frandom()*30 < 2 && !Player()->GetCharacter()->UsingMeleeWeapon())
-					m_DontMoveTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed()*(1+frandom()-m_PowerLevel*0.1f);
+				
+				if (WeaponShootRange() < 300 && m_PowerLevel >= 10)
+					m_Hook = 1;
 			}
 			
-			
-			if (WeaponShootRange() < 300 && m_PowerLevel >= 10)
-				m_Hook = 1;
+			return true;
 		}
-		
+	}
+	/*
+	else
+	{
+		//m_TargetPos = m_Pos + m_PlayerDirection * 20;
+		//GameServer()->Collision()->IntersectLine(m_Pos, m_TargetPos, 0x0, &m_TargetPos);
 		return true;
 	}
-	
+	*/
 	return false;
 }
 
@@ -1249,6 +1264,7 @@ bool CAI::ShootAtClosestMonster()
 {
 	CDroid *pClosestMonster = NULL;
 	int ClosestDistance = 0;
+	int Weapon = Player()->GetCharacter()->GetWeaponType();
 	
 	vec2 MonsterDir;
 	
@@ -1271,7 +1287,7 @@ bool CAI::ShootAtClosestMonster()
 			Dir = normalize(pMonster->m_Pos - m_LastPos);
 
 		int Distance = distance(pMonster->m_Pos, m_LastPos);
-		if (Distance < 800 && 
+		if (Distance < AIAttackRange(Weapon) && 
 			!GameServer()->Collision()->FastIntersectLine(pMonster->m_Pos + vec2(0, -20), m_LastPos))
 		{
 			//if (abs(pMonster->m_Pos.x - m_LastPos.x) < 96 && abs(pMonster->m_Pos.y - m_LastPos.y) < 24)
@@ -1797,11 +1813,17 @@ bool CAI::SeekClosestEnemyInSight()
 
 void CAI::UseItems()
 {
-	if (m_ItemUseTick < GameServer()->Server()->Tick() - GameServer()->Server()->TickSpeed() * 2)
+	if (m_ItemUseTick < GameServer()->Server()->Tick())
 	{
-		m_ItemUseTick = GameServer()->Server()->Tick();
-		m_pPlayer->SelectItem(rand()%NUM_PLAYERITEMS);
+		m_ItemUseTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed() * 5 * frandom();
+		//m_pPlayer->SelectItem(rand()%NUM_PLAYERITEMS);
+		
+		if (m_pPlayer->GetCharacter())
+			m_pPlayer->GetCharacter()->RandomizeInventory();
 	}
+	
+	if (m_pPlayer->GetCharacter() && !m_pPlayer->GetCharacter()->GetWeaponType())
+		m_ItemUseTick = min(0.0f + m_ItemUseTick, GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed() * 0.5f);
 }
 
 
@@ -1837,7 +1859,18 @@ void CAI::Tick()
 	HandleEmotions();
 	m_DispersionTick++;
 	
-	// stupid AI can't even react to events every frame
+	bool HoldAttack = false;
+	bool Charge = AIWeaponCharge(Player()->GetCharacter()->GetWeaponType());
+	
+	if (m_Attack && Charge)
+	{
+		HoldAttack = true;
+		
+		if (!m_ChargeStartTick)
+			m_ChargeStartTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed()*(0.2f+frandom()*2.5);
+	}
+	
+	// main logic
 	if (m_NextReaction <= 0)
 	{
 		m_NextReaction = m_ReactionTime;
@@ -1879,6 +1912,15 @@ void CAI::Tick()
 		m_Attack = 0;
 	}
 	m_InputChanged = true;
+	
+	if (HoldAttack)
+		m_Attack = 1;
+	
+	if (m_ChargeStartTick && m_ChargeStartTick < GameServer()->Server()->Tick())
+	{
+		m_Attack = 0;
+		m_ChargeStartTick = 0;
+	}
 
 	m_DisplayDirection.x += (m_Direction.x - m_DisplayDirection.x) / max(1.0f, 14.0f - m_PowerLevel*0.75f);
 	m_DisplayDirection.y += (m_Direction.y - m_DisplayDirection.y) / max(1.0f, 14.0f - m_PowerLevel*0.75f);

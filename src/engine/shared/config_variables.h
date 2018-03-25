@@ -68,8 +68,6 @@ MACRO_CONFIG_INT(GamepadID, gamepadid, -1, 9999, -1, CFGFLAG_SAVE|CFGFLAG_CLIENT
 MACRO_CONFIG_INT(GoreBlood, gore_blood, 10, 0, 100, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Blood amount")
 MACRO_CONFIG_INT(GoreWallSplatter, gore_wallsplatter, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Wall splatter enable")
 
-MACRO_CONFIG_INT(GoreAimLine, gore_aimline, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Aim line enable")
-
 
 MACRO_CONFIG_INT(GoreCameraDelay, gore_cameradelay, 0, 0, 24, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Camera delay")
 
