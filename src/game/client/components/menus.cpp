@@ -1631,12 +1631,14 @@ void CMenus::OnRender()
 		RenderDemoPlayer(Screen);
 	}
 
+	/*
 	if(Client()->State() == IClient::STATE_ONLINE && m_pClient->m_ServerMode == m_pClient->SERVERMODE_PUREMOD)
 	{
 		Client()->Disconnect();
 		SetActive(true);
 		m_Popup = POPUP_PURE;
 	}
+	*/
 
 	if(!IsActive())
 	{
