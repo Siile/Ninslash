@@ -186,8 +186,8 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		}
 	}
 	
-	m_apWeapon[2] = GameServer()->NewWeapon(GetStaticWeapon(SW_BAZOOKA));
-	m_apWeapon[3] = GameServer()->NewWeapon(GetStaticWeapon(SW_BOUNCER));
+	//m_apWeapon[2] = GameServer()->NewWeapon(GetStaticWeapon(SW_BAZOOKA));
+	//m_apWeapon[3] = GameServer()->NewWeapon(GetStaticWeapon(SW_BOUNCER));
 	
 	GiveStartWeapon();
 	SendInventory();

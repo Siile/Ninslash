@@ -1223,7 +1223,7 @@ int GetRandomWeaponType()
 	if (rand()%10 < 3)
 		return GetModularWeapon(5, 6+rand()%3);
 	
-	return GetStaticWeapon(1+rand()%(NUM_SW-2));
+	return GetStaticWeapon(1+rand()%(NUM_SW-3));
 }
 
 float GetProjectileKnockback(int Weapon)
