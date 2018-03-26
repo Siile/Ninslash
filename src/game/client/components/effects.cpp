@@ -528,7 +528,7 @@ void CEffects::Flame(vec2 Pos, vec2 Vel, float Alpha, bool IgnoreCollision)
 	CParticle p;
 	p.SetDefault();
 	//p.m_Spr = SPRITE_PART_PARTICLE1 + (rand()%3);
-	p.m_Spr = SPRITE_PART_SPLAT01 + (rand()%2);
+	p.m_Spr = SPRITE_PART_SPLAT01 + (rand()%3);
 	p.m_Pos = Pos;
 	//p.m_Vel = Vel + RandomDir()*750.0f;
 	p.m_Vel = Vel + RandomDir()*50.0f;
@@ -869,9 +869,9 @@ void CEffects::SpriteSheet(int FX, vec2 Pos)
 			p.m_Spr = SPRITE_GREEN_EXPLOSION1;
 			p.m_Frames = 8;
 			p.m_Pos = Pos;
-			p.m_LifeSpan = 0.22f;
-			p.m_StartSize = 200;
-			p.m_EndSize = 200;
+			p.m_LifeSpan = 0.26f;
+			p.m_StartSize = 140;
+			p.m_EndSize = 160;
 			p.m_Rot = frandom()*pi*2;
 			m_pClient->m_pParticles->Add(CParticles::GROUP_GREEN_EXPLOSION, &p);
 			
@@ -1279,7 +1279,7 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 				
 				break;
 			};
-			
+
 			case SW_GRENADE1:
 			{
 				// add explosion
@@ -1336,7 +1336,19 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 				}
 			} break;
 			
-			default: break;
+			case SW_BOUNCER:
+			{
+				SpriteSheet(FX_GREEN_EXPLOSION, Pos);
+				break;
+			}
+			
+			default:
+			{
+				if (GetExplosionSprite(Weapon))
+					SpriteExplosion(Pos, GetExplosionSize(Weapon), GetExplosionSprite(Weapon));
+				
+				break;
+			}
 		};
 		
 		return;

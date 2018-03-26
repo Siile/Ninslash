@@ -186,6 +186,8 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		}
 	}
 	
+	m_apWeapon[2] = GameServer()->NewWeapon(GetStaticWeapon(SW_BAZOOKA));
+	m_apWeapon[3] = GameServer()->NewWeapon(GetStaticWeapon(SW_BOUNCER));
 	
 	GiveStartWeapon();
 	SendInventory();
@@ -573,11 +575,11 @@ bool CCharacter::PickWeapon(CWeapon *pWeapon)
 	
 	bool Valid = true;
 	
-	for (int i = 0; i < NUM_SLOTS; i++)
+	for (int i = 0; i < 4; i++)
 		if (GetWeaponType(i) == pWeapon->GetWeaponType() && GetWeaponFiringType(GetWeaponType(i)) != WFT_THROW)
 			Valid = false;
 	
-	for (int i = 0; i < NUM_SLOTS; i++)
+	for (int i = 0; i < 4; i++)
 		if (!m_apWeapon[i])
 		{
 			if (Valid)
@@ -684,317 +686,7 @@ void CCharacter::DropWeapon()
 		SendInventory();
 		return;
 	}
-	
-	return;
-	
-	
-	
-	
-	
-	//
-	//int Weapon = GetWeaponType();
-	
-	if (Weapon == WEAPON_NONE)
-		return;
-	
-	if ((GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE) ||
-		!GameServer()->m_pController->CanDropWeapon(this))
-		return;
-		
-	if (g_Config.m_SvForceWeapon)
-		return;
-
-	// check if using dropable weapon
-	if (Weapon != W_TOOL)
-	{
-		vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
-		
-		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
-		
-		//int PowerLevel = m_ActiveWeapon >= 0 && m_ActiveWeapon < NUM_WEAPONS ? m_aWeapon[m_ActiveWeapon].m_PowerLevel : 0;
-		
-		if (!GetWeapon()->Drop())
-			return;
-		
-		// weapon drop on death
-		//if (m_HiddenHealth <= 0)
-		{
-			// throw weapon away
-			GameServer()->m_pController->DropWeapon(m_Pos+vec2(0, -16), m_Core.m_Vel/1.7f + Direction*8 + vec2(0, -3), GetWeapon());
-			m_SkipPickups = 20;
-			
-			m_apWeapon[GetWeaponSlot()] = NULL;
-			m_ActiveWeapon = WEAPON_NONE;
-			SendInventory();
-			return;
-		}
-		
-		/*
-		// check if near upgradeable buildings
-		float CheckRange = 48.0f;
-		CBuilding *pNear = NULL;
-		CBuilding *apEnts[16];
-		int Num = GameServer()->m_World.FindEntities(m_Pos+vec2(0, -20), 40, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
-
-		// check for turret stands
-		for (int i = 0; i < Num; ++i)
-		{
-			CBuilding *pTarget = apEnts[i];
-			
-			if (pTarget->m_Type == BUILDING_STAND && distance(pTarget->m_Pos, m_Pos+vec2(0, -20)) < CheckRange)
-			{
-				pNear = pTarget;
-				break;
-			}
-		}
-		
-		if (m_ActiveWeapon != W_SWORD && m_ActiveWeapon != W_SCYTHE && pNear)
-		{
-			vec2 p = pNear->m_Pos;
-			GameServer()->m_World.DestroyEntity(pNear);
-			
-			CTurret *pTurret = new CTurret(&GameServer()->m_World, p, GetPlayer()->GetTeam(), m_ActiveWeapon);
-			pTurret->m_OwnerPlayer = GetPlayer()->GetCID();
-			pTurret->SetAngle(-Direction);
-			pTurret->m_Ammo = m_aWeapon[m_ActiveWeapon].m_Ammo;
-			pTurret->m_PowerLevel = m_aWeapon[m_ActiveWeapon].m_PowerLevel;
-			
-			// sound
-			GameServer()->CreateSound(m_Pos, SOUND_BUILD_TURRET);
-		}
-		else
-		{
-			// check for turrets
-			CTurret *pTurret = NULL;
-			CTurret *apTurrets[16];
-			
-			Num = GameServer()->m_World.FindEntities(m_Pos+vec2(0, -20), 40, (CEntity**)apTurrets, 16, CGameWorld::ENTTYPE_BUILDING);
-			
-			for (int i = 0; i < Num; ++i)
-			{
-				CTurret *pTarget = apTurrets[i];
-				
-				if (pTarget->m_Type == BUILDING_TURRET && distance(pTarget->m_Pos, m_Pos+vec2(0, -20)) < CheckRange)
-				{
-					pTurret = pTarget;
-					break;
-				}
-			}
-			
-			if (m_ActiveWeapon != W_SWORD && m_ActiveWeapon != W_SCYTHE && pTurret &&
-				(GameServer()->m_pController->IsCoop() || (GameServer()->m_pController->IsTeamplay() && pTurret->m_Team == GetPlayer()->GetTeam()) ||
-				(!GameServer()->m_pController->IsTeamplay() && pTurret->m_OwnerPlayer == GetPlayer()->GetCID())))
-			{
-				// drop the old weapon
-				float AmmoFill = 0;
-				if (aCustomWeapon[pTurret->m_Weapon].m_MaxAmmo)
-					AmmoFill = float(pTurret->m_Ammo) / aCustomWeapon[pTurret->m_Weapon].m_MaxAmmo;
-				
-				GameServer()->m_pController->DropPickup(pTurret->m_Pos+vec2(0, -40*pTurret->m_FlipY), POWERUP_WEAPON, vec2(0, -3), pTurret->m_Weapon, AmmoFill, pTurret->m_PowerLevel);
-
-				if (pTurret->m_Weapon == m_ActiveWeapon && m_aWeapon[m_ActiveWeapon].m_Ammo > 0)
-					GameServer()->AmmoFill(pTurret->m_Pos+vec2(0, -50), m_ActiveWeapon);
-					
-				// put in the new one
-				pTurret->m_OwnerPlayer = GetPlayer()->GetCID();
-				pTurret->SetAngle(-Direction);
-				pTurret->m_Ammo = m_aWeapon[m_ActiveWeapon].m_Ammo;
-				pTurret->m_Weapon = m_ActiveWeapon;
-				pTurret->m_PowerLevel = m_aWeapon[m_ActiveWeapon].m_PowerLevel;
-				
-				// sound
-				GameServer()->CreateSound(m_Pos, SOUND_BUILD_TURRET);
-			}
-			else
-			{
-				// otherwise throw weapon away
-				float AmmoFill = 0;
-				if (aCustomWeapon[m_ActiveWeapon].m_MaxAmmo > 0)
-					AmmoFill = float(m_aWeapon[m_ActiveWeapon].m_Ammo) / aCustomWeapon[m_ActiveWeapon].m_MaxAmmo;
-				
-				GameServer()->m_pController->DropPickup(m_Pos+vec2(0, -16), POWERUP_WEAPON, m_Core.m_Vel/1.7f + Direction*8 + vec2(0, -3), m_ActiveWeapon, AmmoFill, PowerLevel);
-				m_SkipPickups = 20;
-			}
-		}
-		
-		// remove the weapon from character
-		m_aWeapon[m_ActiveWeapon].m_Got = false;
-		if (m_PrevWeapon > 0 && m_PrevWeapon < NUM_WEAPONS)
-		{
-			if (m_aWeapon[m_PrevWeapon].m_Got)
-				SetCustomWeapon(m_PrevWeapon);
-			else
-			{
-				if (m_aWeapon[W_SWORD].m_Got)
-					SetCustomWeapon(W_SWORD);
-				else
-					SetCustomWeapon(WEAPON_NONE);
-			}
-		}
-		else
-		{
-			if (m_aWeapon[W_SWORD].m_Got)
-				SetCustomWeapon(W_SWORD);
-			else
-				SetCustomWeapon(WEAPON_NONE);
-		}
-		*/
-	}
-	
-	/*
-	// check if using dropable weapon
-	if (m_ActiveWeapon != W_TOOL && m_aWeapon[m_ActiveWeapon].m_Got)
-	{
-		vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
-		
-		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
-		
-		int PowerLevel = m_ActiveWeapon >= 0 && m_ActiveWeapon < NUM_WEAPONS ? m_aWeapon[m_ActiveWeapon].m_PowerLevel : 0;
-		
-		// weapon drop on death
-		if (m_HiddenHealth <= 0)
-		{
-			// throw weapon away
-			float AmmoFill = float(m_aWeapon[m_ActiveWeapon].m_Ammo) / aCustomWeapon[m_ActiveWeapon].m_MaxAmmo;
-			GameServer()->m_pController->DropPickup(m_Pos+vec2(0, -16), POWERUP_WEAPON, m_Core.m_Vel/1.7f + Direction*8 + vec2(0, -3), m_ActiveWeapon, AmmoFill, PowerLevel);
-			m_SkipPickups = 20;
-			m_aWeapon[m_ActiveWeapon].m_Got = false;
-			return;
-		}
-		
-		
-		// check if near upgradeable buildings
-		float CheckRange = 48.0f;
-		CBuilding *pNear = NULL;
-		CBuilding *apEnts[16];
-		int Num = GameServer()->m_World.FindEntities(m_Pos+vec2(0, -20), 40, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
-
-		// check for turret stands
-		for (int i = 0; i < Num; ++i)
-		{
-			CBuilding *pTarget = apEnts[i];
-			
-			if (pTarget->m_Type == BUILDING_STAND && distance(pTarget->m_Pos, m_Pos+vec2(0, -20)) < CheckRange)
-			{
-				pNear = pTarget;
-				break;
-			}
-		}
-		
-		if (m_ActiveWeapon != W_SWORD && m_ActiveWeapon != W_SCYTHE && pNear)
-		{
-			vec2 p = pNear->m_Pos;
-			GameServer()->m_World.DestroyEntity(pNear);
-			
-			CTurret *pTurret = new CTurret(&GameServer()->m_World, p, GetPlayer()->GetTeam(), m_ActiveWeapon);
-			pTurret->m_OwnerPlayer = GetPlayer()->GetCID();
-			pTurret->SetAngle(-Direction);
-			pTurret->m_Ammo = m_aWeapon[m_ActiveWeapon].m_Ammo;
-			pTurret->m_PowerLevel = m_aWeapon[m_ActiveWeapon].m_PowerLevel;
-			
-			// sound
-			GameServer()->CreateSound(m_Pos, SOUND_BUILD_TURRET);
-		}
-		else
-		{
-			// check for turrets
-			CTurret *pTurret = NULL;
-			CTurret *apTurrets[16];
-			
-			Num = GameServer()->m_World.FindEntities(m_Pos+vec2(0, -20), 40, (CEntity**)apTurrets, 16, CGameWorld::ENTTYPE_BUILDING);
-			
-			for (int i = 0; i < Num; ++i)
-			{
-				CTurret *pTarget = apTurrets[i];
-				
-				if (pTarget->m_Type == BUILDING_TURRET && distance(pTarget->m_Pos, m_Pos+vec2(0, -20)) < CheckRange)
-				{
-					pTurret = pTarget;
-					break;
-				}
-			}
-			
-			if (m_ActiveWeapon != W_SWORD && m_ActiveWeapon != W_SCYTHE && pTurret &&
-				(GameServer()->m_pController->IsCoop() || (GameServer()->m_pController->IsTeamplay() && pTurret->m_Team == GetPlayer()->GetTeam()) ||
-				(!GameServer()->m_pController->IsTeamplay() && pTurret->m_OwnerPlayer == GetPlayer()->GetCID())))
-			{
-				// drop the old weapon
-				float AmmoFill = 0;
-				if (aCustomWeapon[pTurret->m_Weapon].m_MaxAmmo)
-					AmmoFill = float(pTurret->m_Ammo) / aCustomWeapon[pTurret->m_Weapon].m_MaxAmmo;
-				
-				GameServer()->m_pController->DropPickup(pTurret->m_Pos+vec2(0, -40*pTurret->m_FlipY), POWERUP_WEAPON, vec2(0, -3), pTurret->m_Weapon, AmmoFill, pTurret->m_PowerLevel);
-
-				if (pTurret->m_Weapon == m_ActiveWeapon && m_aWeapon[m_ActiveWeapon].m_Ammo > 0)
-					GameServer()->AmmoFill(pTurret->m_Pos+vec2(0, -50), m_ActiveWeapon);
-					
-				// put in the new one
-				pTurret->m_OwnerPlayer = GetPlayer()->GetCID();
-				pTurret->SetAngle(-Direction);
-				pTurret->m_Ammo = m_aWeapon[m_ActiveWeapon].m_Ammo;
-				pTurret->m_Weapon = m_ActiveWeapon;
-				pTurret->m_PowerLevel = m_aWeapon[m_ActiveWeapon].m_PowerLevel;
-				
-				// sound
-				GameServer()->CreateSound(m_Pos, SOUND_BUILD_TURRET);
-			}
-			else
-			{
-				// otherwise throw weapon away
-				float AmmoFill = 0;
-				if (aCustomWeapon[m_ActiveWeapon].m_MaxAmmo > 0)
-					AmmoFill = float(m_aWeapon[m_ActiveWeapon].m_Ammo) / aCustomWeapon[m_ActiveWeapon].m_MaxAmmo;
-				
-				GameServer()->m_pController->DropPickup(m_Pos+vec2(0, -16), POWERUP_WEAPON, m_Core.m_Vel/1.7f + Direction*8 + vec2(0, -3), m_ActiveWeapon, AmmoFill, PowerLevel);
-				m_SkipPickups = 20;
-			}
-		}
-		
-		// remove the weapon from character
-		m_aWeapon[m_ActiveWeapon].m_Got = false;
-		if (m_PrevWeapon > 0 && m_PrevWeapon < NUM_WEAPONS)
-		{
-			if (m_aWeapon[m_PrevWeapon].m_Got)
-				SetCustomWeapon(m_PrevWeapon);
-			else
-			{
-				if (m_aWeapon[W_SWORD].m_Got)
-					SetCustomWeapon(W_SWORD);
-				else
-					SetCustomWeapon(WEAPON_NONE);
-			}
-		}
-		else
-		{
-			if (m_aWeapon[W_SWORD].m_Got)
-				SetCustomWeapon(W_SWORD);
-			else
-				SetCustomWeapon(WEAPON_NONE);
-		}
-	}
-	*/
 }
-
-
-
-
-void CCharacter::SetCustomWeapon(int CustomWeapon)
-{
-	/*
-	if(CustomWeapon >= NUM_WEAPONS)
-		return;
-	
-	if(CustomWeapon == m_ActiveWeapon)
-		return;
-	
-	m_QueuedCustomWeapon = -1;
-	
-	m_PrevWeapon = m_ActiveWeapon;
-	m_ActiveWeapon = CustomWeapon;
-	*/
-	GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
-}
-
 
 	
 bool CCharacter::IsGrounded()
@@ -1044,16 +736,6 @@ void CCharacter::DoWeaponSwitch()
 		m_ActiveWeapon = GetWeaponType();
 		m_AttackTick = 0;
 	}
-	
-	/*
-	// make sure we can switch
-	if(m_ReloadTimer > 0 || m_QueuedCustomWeapon == -1)
-		return;
-
-	// switch Weapon
-	SetCustomWeapon(m_QueuedCustomWeapon);
-	m_ReloadTimer = 0;
-	*/
 }
 
 

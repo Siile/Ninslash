@@ -163,10 +163,7 @@ void IGameController::SetPickup(vec2 Pos, int PickupType, int PickupSubtype, int
 
 int IGameController::GetRandomWeapon()
 {
-	if (rand()%10 < 6)
-		return GetModularWeapon(1+rand()%4, 1+rand()%5);
-	
-	return GetStaticWeapon(1+rand()%5);
+	return GetRandomWeaponType();
 }
 
 int IGameController::GetRandomModularWeapon()

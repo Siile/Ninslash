@@ -161,15 +161,21 @@ inline vec2 CalcLogPos(vec2 Pos, vec2 Velocity, vec2 Velocity2, float Curvature,
 	n.x += Velocity.x*T;
 	n.y += Velocity.y*T + Curvature/10000*(Time*Time);
 	return n;
+}
+
+inline vec2 CalcRocketPos(vec2 Pos, vec2 Velocity, vec2 Velocity2, float Curvature, float Speed, float Time)
+{
+	Velocity2 *= 0.5f;
 	
-	/*
 	vec2 n;
+	n.x = Pos.x + sin(Velocity.x)*(Velocity.x > 0.0f ? 1 : -1)*Velocity2.x*Time;
+	n.y = Pos.y + sin(Velocity.y)*(Velocity.y > 0.0f ? 1 : -1)*Velocity2.y*Time;
 	Time *= Speed;
-	float T = log(1.0f + Time)*150.0f;
-	n.x = Pos.x + Velocity.x*T;
-	n.y = Pos.y + Velocity.y*T + Curvature/10000*(T*T);
+	float T = Time*min(4.0f, 0.1f + Time*0.01f);
+
+	n.x += Velocity.x*T;
+	n.y += Velocity.y*T + Curvature/10000*(Time*Time);
 	return n;
-	*/
 }
 
 

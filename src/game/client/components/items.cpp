@@ -67,6 +67,8 @@ void CItems::UpdateProjectileTrace(const CNetObj_Projectile *pCurrent, int ItemI
 	
 	if (WeaponProjectilePosType(pCurrent->m_Type) == 1)
 		Pos = CalcLogPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct);
+	else if (WeaponProjectilePosType(pCurrent->m_Type) == 2)
+		Pos = CalcRocketPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct);
 	else
 		Pos = CalcPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct);
 	
@@ -100,23 +102,22 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 
 	vec2 Pos;
 	vec2 PrevPos;
-	vec2 TrailPos;
-	vec2 PredictPos;
 	
 
 	if (WeaponProjectilePosType(pCurrent->m_Type) == 1)
 	{
 		Pos = CalcLogPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct);
 		PrevPos = CalcLogPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct-0.001f);
-		TrailPos = CalcLogPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct+0.015f);
-		PredictPos = CalcLogPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct+0.01f);
+	}
+	else if (WeaponProjectilePosType(pCurrent->m_Type) == 2)
+	{
+		Pos = CalcRocketPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct);
+		PrevPos = CalcRocketPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct-0.001f);
 	}
 	else
 	{
 		Pos = CalcPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct);
 		PrevPos = CalcPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct-0.001f);
-		TrailPos = CalcPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct+0.015f);
-		PredictPos = CalcPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct+0.01f);
 	}
 	
 	
@@ -263,6 +264,12 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	{
 		m_pClient->m_pEffects->Flame(Pos, vec2(frandom()-frandom(), frandom()-frandom())*10.0f);
 		m_pClient->m_pEffects->Flame(Pos, vec2(frandom()-frandom(), frandom()-frandom())*10.0f);
+	}
+	
+	if (GetStaticType(pCurrent->m_Type) == SW_BAZOOKA)
+	{
+		m_pClient->m_pEffects->Flame(Pos, -Vel);
+		m_pClient->m_pEffects->SmokeTrail(Pos, -Vel);
 	}
 	
 	

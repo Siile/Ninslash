@@ -331,6 +331,10 @@ container.sounds.Add(SoundSet("barrel2_fire", FileList("audio/wp_barrel2_fire-%0
 container.sounds.Add(SoundSet("barrel3_fire", FileList("audio/wp_barrel3_fire-%02d.wv", 1)))
 container.sounds.Add(SoundSet("barrel4_fire", FileList("audio/wp_barrel4_fire-%02d.wv", 1)))
 
+container.sounds.Add(SoundSet("bazooka_fire", FileList("audio/wp_bazooka_fire-%02d.wv", 3)))
+container.sounds.Add(SoundSet("bouncer_fire", FileList("audio/wp_bouncer_fire-%02d.wv", 3)))
+container.sounds.Add(SoundSet("bouncer_bounce", FileList("audio/wp_bouncer_bounce-%02d.wv", 3)))
+
 container.sounds.Add(SoundSet("sfx_bounce1", ["audio/sfx_bounce1.wv"]))
 
 container.sounds.Add(SoundSet("inv1", ["audio/inv1.wv"]))
@@ -657,10 +661,12 @@ container.sprites.Add(Sprite("weapon_static2", set_weapons, 2, 0, 4, 2)) # gun 1
 container.sprites.Add(Sprite("weapon_static3", set_weapons, 2, 2, 4, 2)) # gun 2
 container.sprites.Add(Sprite("weapon_static4", set_weapons, 0, 0, 2, 3)) # grenade 1
 container.sprites.Add(Sprite("weapon_static5", set_weapons, 0, 3, 2, 3)) # grenade 2
-container.sprites.Add(Sprite("weapon_static6", set_weapons, 0, 9, 7, 3)) # chainsaw
-container.sprites.Add(Sprite("weapon_static7", set_weapons, 0, 6, 7, 3)) # flamer
-container.sprites.Add(Sprite("weapon_static8", set_weapons, 7, 6, 7, 3)) # flame rifle / bubbler
-container.sprites.Add(Sprite("weapon_static9", set_weapons, 2, 12, 4, 4)) # shuriken
+container.sprites.Add(Sprite("weapon_static6", set_weapons, 7, 9, 6, 3)) # bazooka
+container.sprites.Add(Sprite("weapon_static7", set_weapons, 6, 12, 6, 3)) # bouncer
+container.sprites.Add(Sprite("weapon_static8", set_weapons, 0, 9, 7, 3)) # chainsaw
+container.sprites.Add(Sprite("weapon_static9", set_weapons, 0, 6, 7, 3)) # flamer
+container.sprites.Add(Sprite("weapon_static10", set_weapons, 7, 6, 6, 3)) # flame rifle / bubbler
+container.sprites.Add(Sprite("weapon_static11", set_weapons, 2, 12, 4, 4)) # shuriken
 
 # pickups
 container.sprites.Add(Sprite("pickup_kit", set_weapons, 10, 0, 2, 2))
@@ -672,9 +678,12 @@ container.sprites.Add(Sprite("pickup_ammo", set_weapons, 8,0,2,2))
 
 
 # projectiles
-for x in range(0, 4):
+for x in range(0, 3):
 	for y in range(0, 4):
 		container.sprites.Add(Sprite("projectile"+str(x+1)+"_"+str(y+1), set_projectiles, x*3, y*2, 3, 2))
+
+container.sprites.Add(Sprite("projectile_bazooka", set_projectiles, 9, 0, 2, 2))
+container.sprites.Add(Sprite("projectile_bouncer", set_projectiles, 9, 2, 2, 2))
 
 # trails
 for y in range(0, 4):

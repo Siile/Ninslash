@@ -23,8 +23,17 @@ float GetProjectileSprite(int Weapon)
 		};
 	}
 	
-	if (GetStaticType(Weapon) == SW_BUBBLER)
-		return 1;
+	if (IsStaticWeapon(Weapon))
+	{
+		switch (GetStaticType(Weapon))
+		{
+			case SW_BUBBLER: return 1;
+			case SW_BAZOOKA: return 12;
+			case SW_BOUNCER: return 13;
+			default: return 0;
+		};
+	}
+	
 	
 	int Part1 = GetPart(Weapon, 0);
 	int Part2 = GetPart(Weapon, 1);
@@ -74,6 +83,8 @@ int GetProjectileTraceType(int Weapon)
 			case SW_SHURIKEN: return -4;
 			case SW_GRENADE2: return 5;
 			case SW_GRENADE1: return 4;
+			case SW_BAZOOKA: return -1;
+			case SW_BOUNCER: return 6;
 			default: return 0;
 		};
 	}
@@ -122,6 +133,7 @@ vec2 GetWeaponColorswap(int Weapon)
 		{
 			case SW_GRENADE1: return vec2(0.0f, 0.0f);
 			case SW_GRENADE2: return vec2(0.9f, 1.0f);
+			case SW_BOUNCER: return vec2(0.0f, 0.0f);
 			default: return vec2(0.0f, 0.0f);
 		};
 	}
@@ -155,6 +167,8 @@ float GetProjectileSize(int Weapon)
 			case SW_GRENADE1: case SW_GRENADE2: return 2.5f;
 			case SW_SHURIKEN: return 2.5f;
 			case SW_BUBBLER: return 0.9f;
+			case SW_BAZOOKA: return 1.3f;
+			case SW_BOUNCER: return 1.0f;
 			case SW_GUN1: return 0.7f;
 			default: return 1.0f;
 		};
@@ -223,11 +237,12 @@ int GetExplosionSprite(int Weapon)
 		{
 			case SW_GRENADE1: return SPRITE_EXPLOSION1_1;
 			case SW_GRENADE2: return SPRITE_EXPLOSION1_1;
-			default: return SPRITE_EXPLOSION1_1;
+			case SW_BAZOOKA: return SPRITE_EXPLOSION1_1;
+			default: return 0;
 		};
 	}
 	
-	return SPRITE_EXPLOSION1_1;
+	return 0;
 }
 
 int GetExplosionSound(int Weapon)
@@ -266,6 +281,8 @@ int GetExplosionSound(int Weapon)
 		{
 			case SW_GRENADE1: return SOUND_GRENADE_EXPLODE;
 			case SW_GRENADE2: return SOUND_GRENADE2_EXPLODE;
+			case SW_BAZOOKA: return SOUND_GRENADE_EXPLODE;
+			case SW_BOUNCER: return SOUND_GRENADE2_EXPLODE;
 			default: return 0;
 		};
 	}
@@ -287,6 +304,8 @@ int GetWeaponFireSound(int Weapon)
 		{
 			case SW_CHAINSAW: return SOUND_CHAINSAW_FIRE;
 			case SW_FLAMER: return SOUND_FLAMER1;
+			case SW_BAZOOKA: return SOUND_BAZOOKA_FIRE;
+			case SW_BOUNCER: return SOUND_BOUNCER_FIRE;
 			case SW_GUN1: return SOUND_GUN_FIRE;
 			case SW_GUN2: return SOUND_LASER_FIRE;
 			case SW_GRENADE1: return -1;
@@ -346,6 +365,8 @@ float GetExplosionSize(int Weapon)
 			case SW_GRENADE1: return 300.0f;
 			case SW_GRENADE2: return 320.0f;
 			case SW_BUBBLER: return 80.0f;
+			case SW_BAZOOKA: return 240.0f;
+			case SW_BOUNCER: return 140.0f;
 			default: return 0.0f;
 		};
 	}
@@ -405,6 +426,8 @@ float GetExplosionDamage(int Weapon)
 			case SW_GRENADE1: return 100; break;
 			case SW_GRENADE2: return 30; break;
 			case SW_BUBBLER: return 14; break;
+			case SW_BAZOOKA: return 80; break;
+			case SW_BOUNCER: return 30; break;
 			default: return 0;
 		};
 	}
@@ -441,7 +464,7 @@ int GetWeaponRenderType(int Weapon)
 	
 	switch (GetStaticType(Weapon))
 	{
-		case SW_CHAINSAW: case SW_FLAMER: case SW_BUBBLER: return WRT_WEAPON1;
+		case SW_CHAINSAW: case SW_FLAMER: case SW_BAZOOKA: case SW_BOUNCER: case SW_BUBBLER: return WRT_WEAPON1;
 		case SW_GUN1: case SW_GUN2: return WRT_WEAPON2;
 		default: return WRT_ITEM1;
 	};
@@ -460,7 +483,8 @@ ivec2 GetWeaponVisualSize(int Weapon)
 	
 	switch (GetStaticType(Weapon))
 	{
-		case SW_CHAINSAW: case SW_BUBBLER: case SW_FLAMER:  return ivec2(7, 3);
+		case SW_CHAINSAW: case SW_BUBBLER: return ivec2(7, 3);
+		case SW_FLAMER: case SW_BAZOOKA: case SW_BOUNCER: return ivec2(6, 3);
 		case SW_GUN1: case SW_GUN2: return ivec2(4, 2);
 		case SW_GRENADE1: case SW_GRENADE2: return ivec2(2, 3);
 		case SW_SHURIKEN: return ivec2(4, 4);
@@ -505,6 +529,8 @@ int GetWeaponFiringType(int Weapon)
 	{
 		case SW_CHAINSAW: case SW_FLAMER: return WFT_HOLD;
 		case SW_BUBBLER: return WFT_PROJECTILE;
+		case SW_BAZOOKA: return WFT_PROJECTILE;
+		case SW_BOUNCER: return WFT_PROJECTILE;
 		case SW_GUN1: return WFT_PROJECTILE;
 		case SW_GUN2: return WFT_CHARGE;
 		case SW_GRENADE1: case SW_GRENADE2: return WFT_THROW;
@@ -538,6 +564,8 @@ float GetWeaponRenderRecoil(int Weapon)
 		//case SW_GRENADE1: case SW_GRENADE2: return -20.0f;
 		//case SW_SHURIKEN: return -25.0f;
 		case SW_BUBBLER: return 15.0f;
+		case SW_BAZOOKA: return 18.0f;
+		case SW_BOUNCER: return 13.0f;
 		case SW_CHAINSAW: return 2.0f;
 		case SW_GUN1: case SW_GUN2: return 13.0f;
 		default: return 0.0f;
@@ -561,6 +589,8 @@ vec2 GetWeaponRenderOffset(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_BAZOOKA: return vec2(30, 0);
+			case SW_BOUNCER: return vec2(30, 0);
 			case SW_BUBBLER: return vec2(30, 0);
 			case SW_CHAINSAW: return vec2(30, 0);
 			case SW_FLAMER: return vec2(30, 0);
@@ -581,6 +611,10 @@ vec2 GetMuzzleRenderOffset(int Weapon)
 	
 	if (GetStaticType(Weapon) == SW_BUBBLER)
 		return vec2(64, -4);
+	if (GetStaticType(Weapon) == SW_BAZOOKA)
+		return vec2(60, 0);
+	if (GetStaticType(Weapon) == SW_BOUNCER)
+		return vec2(62, 0);
 	
 	if (IsModularWeapon(Weapon))
 	{
@@ -614,6 +648,9 @@ int WeaponProjectilePosType(int Weapon)
 	if (GetStaticType(Weapon) == SW_BUBBLER)
 		return 1;
 	
+	if (GetStaticType(Weapon) == SW_BAZOOKA)
+		return 2;
+	
 	return 0;
 }
 
@@ -639,6 +676,8 @@ vec2 GetProjectileOffset(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_BAZOOKA: return vec2(65, -8);
+			case SW_BOUNCER: return vec2(65, -11);
 			case SW_BUBBLER: return vec2(66, -12);
 			case SW_CHAINSAW: return vec2(53, -11);
 			case SW_FLAMER: return vec2(86, -11);
@@ -729,6 +768,10 @@ int GetMuzzleType(int Weapon)
 	
 	if (GetStaticType(Weapon) == SW_BUBBLER)
 		return 0;
+	if (GetStaticType(Weapon) == SW_BAZOOKA)
+		return 0;
+	if (GetStaticType(Weapon) == SW_BOUNCER)
+		return 2;
 	
 	if (IsModularWeapon(Weapon))
 	{
@@ -773,6 +816,10 @@ float GetProjectileSpeed(int Weapon)
 	
 	if (GetStaticType(Weapon) == SW_BUBBLER)
 		return 25.0f;
+	if (GetStaticType(Weapon) == SW_BAZOOKA)
+		return 400.0f;
+	if (GetStaticType(Weapon) == SW_BOUNCER)
+		return 1500.0f;
 	
 	int Part1 = GetPart(Weapon, 0);
 	int Part2 = GetPart(Weapon, 1);
@@ -816,6 +863,12 @@ float GetProjectileCurvature(int Weapon)
 	
 	if (GetStaticType(Weapon) == SW_BUBBLER)
 		return 2400.0f;
+	
+	if (GetStaticType(Weapon) == SW_BAZOOKA)
+		return 0.0f;
+	
+	if (GetStaticType(Weapon) == SW_BOUNCER)
+		return 0.0f;
 	
 	int Part1 = GetPart(Weapon, 0);
 	int Part2 = GetPart(Weapon, 1);
@@ -982,6 +1035,8 @@ int AIAttackRange(int Weapon)
 			case SW_GUN2: return 500;
 			case SW_SHURIKEN: return 700;
 			case SW_BUBBLER: return 700;
+			case SW_BAZOOKA: return 700;
+			case SW_BOUNCER: return 700;
 			case SW_FLAMER: return 600;
 			case SW_CHAINSAW: return 150;
 			default: return 0;
@@ -1100,6 +1155,8 @@ float GetProjectileDamage(int Weapon)
 			case SW_FLAMER: return 2.0f;
 			case SW_CHAINSAW: return 6.0f;
 			case SW_BUBBLER: return 6.0f;
+			case SW_BAZOOKA: return 20.0f;
+			case SW_BOUNCER: return 0.0f;
 			case SW_GUN1: return 12.0f;
 			case SW_GUN2: return 35.0f;
 			default: return 0.0f;
@@ -1166,7 +1223,7 @@ int GetRandomWeaponType()
 	if (rand()%10 < 3)
 		return GetModularWeapon(5, 6+rand()%3);
 	
-	return GetStaticWeapon(1+rand()%(NUM_SW-3));
+	return GetStaticWeapon(1+rand()%(NUM_SW-2));
 }
 
 float GetProjectileKnockback(int Weapon)
@@ -1237,6 +1294,8 @@ float GetProjectileLife(int Weapon)
 		{
 			case SW_GUN1: return 0.6f;
 			case SW_BUBBLER: return 0.8f;
+			case SW_BAZOOKA: return 0.8f;
+			case SW_BOUNCER: return 1.2f;
 			default: return 0.0f;
 		};
 	}
@@ -1269,6 +1328,8 @@ float GetWeaponFireRate(int Weapon)
 		{
 			case SW_CHAINSAW: return 500;
 			case SW_FLAMER: return 200;
+			case SW_BAZOOKA: return 600;
+			case SW_BOUNCER: return 240;
 			case SW_BUBBLER: return 600;
 			case SW_GUN1: return 240;
 			case SW_GUN2: return 200;
@@ -1377,6 +1438,9 @@ bool GetWeaponFullAuto(int Weapon)
 
 bool IsProjectileBouncy(int Weapon)
 {
+	if (GetStaticType(Weapon) == SW_BOUNCER)
+		return true;
+	
 	return false;
 }
 
@@ -1437,6 +1501,8 @@ int GetWeaponMaxAmmo(int Weapon)
 		{
 			case SW_GUN1: return 0;
 			case SW_BUBBLER: return 30;
+			case SW_BAZOOKA: return 6;
+			case SW_BOUNCER: return 20;
 			case SW_CHAINSAW: return 15;
 			case SW_FLAMER: return 25;
 			default: return 0;
@@ -1455,6 +1521,8 @@ bool WeaponUseAmmo(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_BAZOOKA: return true;
+			case SW_BOUNCER: return true;
 			case SW_BUBBLER: return true;
 			case SW_CHAINSAW: return true;
 			case SW_FLAMER: return true;

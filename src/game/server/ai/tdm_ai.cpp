@@ -22,9 +22,6 @@ void CAItdm::OnCharacterSpawn(CCharacter *pChr)
 	
 	m_WaypointDir = vec2(0, 0);
 	Player()->SetRandomSkin();
-	
-	//if (g_Config.m_SvRandomWeapons)
-	//	pChr->GiveRandomWeapon();
 }
 
 

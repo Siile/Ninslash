@@ -65,6 +65,9 @@ vec2 CProjectile::GetPos(float Time)
 	if (WeaponProjectilePosType(m_Weapon) == 1)
 		return CalcLogPos(m_Pos, m_Direction, m_Vel2, m_Curvature, m_Speed, Time);
 	
+	if (WeaponProjectilePosType(m_Weapon) == 2)
+		return CalcRocketPos(m_Pos, m_Direction, m_Vel2, m_Curvature, m_Speed, Time);
+	
 	return CalcPos(m_Pos, m_Direction, m_Vel2, m_Curvature, m_Speed, Time);
 }
 
@@ -99,6 +102,8 @@ bool CProjectile::Bounce(vec2 Pos)
 			if(!right && left)
 				m_Direction.x *= -1;
 		}
+		
+		GameServer()->CreateSound(Pos, SOUND_BOUNCER_BOUNCE);
 		
 		return true;
 	}

@@ -184,8 +184,6 @@ public:
 	
 	bool GiveAmmo(int *CustomWeapon, float AmmoFill);
 	
-	void SetCustomWeapon(int CustomWeapon);
-	
 	void RandomizeInventory();
 	
 	void AutoWeaponChange();
