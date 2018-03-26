@@ -242,6 +242,10 @@ int GetExplosionSprite(int Weapon)
 		};
 	}
 	
+	if (IsModularWeapon(Weapon))
+	{
+		return SPRITE_EXPLOSION1_1;
+	}
 	return 0;
 }
 
@@ -1217,7 +1221,7 @@ float GetProjectileDamage(int Weapon)
 
 int GetRandomWeaponType()
 {
-	if (rand()%10 < 6)
+	if (rand()%10 < 5)
 		return GetModularWeapon(1+rand()%4, 1+rand()%4);
 	
 	if (rand()%10 < 3)
