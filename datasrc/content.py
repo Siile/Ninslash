@@ -342,6 +342,8 @@ container.sounds.Add(SoundSet("inv2", ["audio/inv2.wv"]))
 container.sounds.Add(SoundSet("inv3", ["audio/inv3.wv"]))
 container.sounds.Add(SoundSet("inv4", ["audio/inv4.wv"]))
 
+container.sounds.Add(SoundSet("gui_denied1", ["audio/gui_denied1.wv"]))
+
 for i in range(1, 10):
 	container.sounds.Add(SoundSet("weapon_charge1_" + str(i), ["audio/wp_charge1_0" + str(i) + ".wv"]))
 

@@ -288,7 +288,7 @@ void CCustomStuff::Update(bool Paused)
 	for (;m_LastUpdate < currentTime; m_LastUpdate += step)
 	{
 		Tick(Paused);
-		if (i++ > 5)
+		if (i++ > 3)
 		{
 			m_LastUpdate = currentTime;
 			break;

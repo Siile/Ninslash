@@ -794,6 +794,7 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 			else
 			{
 				// negative gui sound
+				m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_GUI_DENIED1, 0);
 			}
 		}
 		

@@ -1055,13 +1055,7 @@ void CAI::ClearEmotions()
 int CAI::WeaponShootRange()
 {
 	int Weapon = Player()->GetCharacter()->GetWeaponType();
-	
-	if (GetWeaponFiringType(Weapon) == WFT_NONE)
-		return 1200;
-	
-	int Range = 700;
-	
-	return Range;
+	return AIAttackRange(Weapon);
 }
 
 
