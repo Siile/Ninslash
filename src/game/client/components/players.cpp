@@ -514,7 +514,7 @@ void CPlayers::RenderPlayer(
 		pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE] = 1.0f;
 	}
 	
-	//float ChargeLevel = pCustomPlayerInfo->ChargeIntensity(Player.m_ChargeLevel);
+	pCustomPlayerInfo->ChargeIntensity(Player.m_ChargeLevel);
 	
 	if (Player.m_ChargeLevel == 100)
 	{
