@@ -65,6 +65,7 @@ void CAIrobot1::OnCharacterSpawn(CCharacter *pChr)
 		pChr->SetHealth(100);
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 2)));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
 	}
 	else if (m_Skin == 8)
 	{

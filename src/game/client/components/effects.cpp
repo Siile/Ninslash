@@ -1356,7 +1356,7 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 	
 	// weapons
 	int Part1 = GetPart(Weapon, 0);
-	int Part2 = GetPart(Weapon, 1);
+	//int Part2 = GetPart(Weapon, 1);
 
 	// launcher
 	if (Part1 == 2)

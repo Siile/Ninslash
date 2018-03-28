@@ -32,6 +32,7 @@ class CMapGen
 	void GenerateSwitch(class CGenLayer *pTiles);
 	void GenerateTurretStand(class CGenLayer *pTiles);
 	void GenerateTurret(class CGenLayer *pTiles);
+	void GenerateTeslacoil(class CGenLayer *pTiles);
 	void GenerateBarrel(class CGenLayer *pTiles);
 	void GenerateLightningWall(class CGenLayer *pTiles);
 	void GenerateMine(class CGenLayer *pTiles);

@@ -514,9 +514,7 @@ void CPlayers::RenderPlayer(
 		pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE] = 1.0f;
 	}
 	
-	float WeaponScale = 1.0f;
-	
-	float ChargeLevel = pCustomPlayerInfo->ChargeIntensity(Player.m_ChargeLevel);
+	//float ChargeLevel = pCustomPlayerInfo->ChargeIntensity(Player.m_ChargeLevel);
 	
 	if (Player.m_ChargeLevel == 100)
 	{
@@ -543,8 +541,6 @@ void CPlayers::RenderPlayer(
 	// render chainsaw effect
 	if (!Paused && GetStaticType(Player.m_Weapon) == SW_CHAINSAW && Player.m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)
 	{
-		WeaponScale = 1.07f;
-		
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_CHAINSAW].m_Id);
 		Graphics()->QuadsBegin();
 		

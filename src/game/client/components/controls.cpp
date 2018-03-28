@@ -205,7 +205,6 @@ CInputCount CountInput(int Prev, int Cur)
 int CControls::SnapInput(int *pData)
 {
 	static int64 LastSendTime = 0;
-	static int64 WeaponChangeTime = 0;
 	static int PrevWeapon = 0;
 	bool Send = false;
 
@@ -279,73 +278,8 @@ int CControls::SnapInput(int *pData)
 		
 		if (m_InputData.m_WantedWeapon != PrevWeapon)
 		{
-			WeaponChangeTime = time_get();
 			PrevWeapon = m_InputData.m_WantedWeapon;
 		}
-		
-		/*
-		if (WeaponChangeTime && time_get() > WeaponChangeTime + time_freq()/2)
-		{
-			WeaponChangeTime = 0;
-			m_InputData.m_WantedWeapon = 0;
-			PrevWeapon = 0;
-		}
-		*/
-		
-		// can't want a weapon you don't have to prevent weapon change on picking wanted weapon
-		int w = CustomStuff()->m_LocalWeapons;
-		/*
-		if (!m_BuildMode && !(w & (1<<(m_InputData.m_WantedWeapon-1))) && m_InputData.m_WantedWeapon > 0)
-		{
-			m_SignalWeapon = m_InputData.m_WantedWeapon-1;
-			m_InputData.m_WantedWeapon = CustomStuff()->m_LocalWeapon+1;
-		}
-		*/
-		
-		/*
-		if (m_Build == 0)
-			m_BuildReleased = true;
-		
-		if (m_BuildReleased && m_Build && m_pClient->BuildingEnabled())
-		{
-			m_BuildMode = !m_BuildMode;
-			m_BuildReleased = false;
-			
-			m_SelectedBuilding = -1;
-			
-			if (!m_BuildMode)
-				m_InputData.m_WantedWeapon = m_LastWeapon;
-			else
-				m_LastWeapon = CustomStuff()->m_LocalWeapon+1;
-		}
-		
-		if (m_BuildMode)
-		{
-			//if (m_InputData.m_WantedWeapon > 1)
-			//	m_SelectedBuilding = m_InputData.m_WantedWeapon;
-			
-			//m_InputData.m_WantedWeapon = 1;
-			m_InputData.m_NextWeapon = 0;
-			m_InputData.m_PrevWeapon = 0;
-		}
-		*/
-		
-		// place buildings
-		/*
-		if (m_InputData.m_Fire&1)
-		{
-			if (m_BuildMode && m_SelectedBuilding >= 0 && CustomStuff()->m_BuildPosValid &&
-				CountInput(m_InputData.m_Fire, m_LastData.m_Fire).m_Presses)
-			{
-				CNetMsg_Cl_UseKit Msg;
-				Msg.m_Kit = m_SelectedBuilding-1;
-				Msg.m_X = CustomStuff()->m_BuildPos.x;
-				Msg.m_Y = CustomStuff()->m_BuildPos.y+18;
-				Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
-			}
-		}
-		*/
-		
 		
 		// check if we need to send input
 		if(m_InputData.m_Direction != m_LastData.m_Direction) Send = true;

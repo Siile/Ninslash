@@ -172,7 +172,7 @@ void CGuts::Update(float TimePassed)
 					// move the point
 					vec2 Vel = m_aGuts[i].m_aVel[p]*TimePassed;
 					
-					vec2 OldVel = Vel;
+					//vec2 OldVel = Vel;
 					//Vel.x += OnForceTile*1;
 
 					if (OnForceTile != 0)
@@ -181,7 +181,7 @@ void CGuts::Update(float TimePassed)
 						Collision()->MoveBox(&m_aGuts[i].m_aPos[p], &Vel, vec2(6, 6), 0.85f, false);
 					
 					// stick to walls and ceiling
-					vec2 P = m_aGuts[i].m_aPos[p];
+					//vec2 P = m_aGuts[i].m_aPos[p];
 					
 
 					m_aGuts[i].m_aVel[p] = Vel* (1.0f/TimePassed);

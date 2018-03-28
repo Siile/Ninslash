@@ -1814,7 +1814,6 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 
 void CRenderTools::SetShadersForPlayer(CPlayerInfo *pCustomPlayerInfo)
 {
-	float SpawnEffect = pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING];
 	float Visibility = max(pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING], pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY]);
 	float Electro = pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE];
 	float Damage = pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE];
@@ -1831,7 +1830,6 @@ void CRenderTools::SetShadersForWeapon(CPlayerInfo *pCustomPlayerInfo)
 	else if (GetWeaponFiringType(pCustomPlayerInfo->m_Weapon) == WFT_CHARGE)
 		ChargeLevel = pCustomPlayerInfo->ChargeIntensity();
 	
-	float SpawnEffect = pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING];
 	float Visibility = max(pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING], pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY]);
 	float Electro = pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE];
 	float Damage = pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE];
@@ -2442,7 +2440,7 @@ void CRenderTools::RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, CSkeleto
 
 				// find timelines
 				{
-					auto SlotTimelineIter = pAnimation->m_lSlotTimeline.find(pSlot->m_Name);
+					//auto SlotTimelineIter = pAnimation->m_lSlotTimeline.find(pSlot->m_Name);
 					//if(SlotTimelineIter != pAnimation->m_lSlotTimeline.end())
 					//	pSlotTimeline = &SlotTimelineIter->second;	
 				}
@@ -2814,7 +2812,7 @@ void CRenderTools::RenderBuilding(vec2 Position, CAnimSkeletonInfo *pSkeleton, C
 
 				// find timelines
 				{
-					auto SlotTimelineIter = pAnimation->m_lSlotTimeline.find(pSlot->m_Name);
+					//auto SlotTimelineIter = pAnimation->m_lSlotTimeline.find(pSlot->m_Name);
 					//if(SlotTimelineIter != pAnimation->m_lSlotTimeline.end())
 					//	pSlotTimeline = &SlotTimelineIter->second;	
 				}

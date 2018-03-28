@@ -229,7 +229,7 @@ void CSpark::RenderGroup(int Group)
 			
 			Graphics()->SetColor(1, 1, 1, 1.0f);
 			
-			vec2 Out = vec2(1, 1) * m_aSpark[i].m_Size;
+			//vec2 Out = vec2(1, 1) * m_aSpark[i].m_Size;
 				
 			/*
 			IGraphics::CFreeformItem Freeform1(

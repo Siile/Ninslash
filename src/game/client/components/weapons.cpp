@@ -29,7 +29,6 @@ void CWeapons::RenderWeapon(const CNetObj_Weapon *pPrev, const CNetObj_Weapon *p
 {
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 	vec2 Pos = mix(vec2(pPrev->m_X, pPrev->m_Y), vec2(pCurrent->m_X, pCurrent->m_Y), Client()->IntraGameTick());
-	float Size = 64.0f;
 
 	float Angle = mix(pPrev->m_Angle, pCurrent->m_Angle, Client()->IntraGameTick()) / 256.0f;
 	
@@ -57,7 +56,7 @@ void CWeapons::RenderWeapon(const CNetObj_Weapon *pPrev, const CNetObj_Weapon *p
 	//if (GetStaticType(pCurrent->m_WeaponType) == SW_SHURIKEN)
 	if (GetProjectileTraceType(pCurrent->m_WeaponType) != 0)
 	{
-		if (length(Vel) > GetWeaponTraceThreshold(pCurrent->m_WeaponType))
+		if (length(Vel) >= GetWeaponTraceThreshold(pCurrent->m_WeaponType))
 			m_pClient->m_pTracers->Add(GetProjectileTraceType(pCurrent->m_WeaponType), pCurrent->m_AttackTick, Pos, Pos, pCurrent->m_AttackTick, pCurrent->m_WeaponType);
 		else if (length(Vel) > GetWeaponTraceThreshold(pCurrent->m_WeaponType) / 5.0f)
 			m_pClient->m_pTracers->UpdatePos(pCurrent->m_AttackTick, Pos);
@@ -73,7 +72,7 @@ void CWeapons::RenderWeapon(const CNetObj_Weapon *pPrev, const CNetObj_Weapon *p
 
 	static float s_Time = 0.0f;
 	static float s_LastLocalTime = Client()->LocalTime();
-	float Offset = Pos.y/32.0f + Pos.x/32.0f;
+	//float Offset = Pos.y/32.0f + Pos.x/32.0f;
 	if(Client()->State() == IClient::STATE_DEMOPLAYBACK)
 	{
 		const IDemoPlayer::CInfo *pInfo = DemoPlayer()->BaseInfo();

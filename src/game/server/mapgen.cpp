@@ -556,6 +556,30 @@ void CMapGen::GenerateTurret(CGenLayer *pTiles)
 	pTiles->Use(p.x, p.y);
 }
 
+void CMapGen::GenerateTeslacoil(CGenLayer *pTiles)
+{
+	
+	if (frandom() < 0.4f)
+	{
+		ivec2 p = pTiles->GetRightCeiling();
+		
+		if (p.x != 0)
+		{
+			ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_TESLACOIL);
+			pTiles->Use(p.x, p.y);
+			return;
+		}
+	}
+	
+	ivec2 p = pTiles->GetRightPlatform();
+	
+	if (p.x == 0)
+		return;
+	
+	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_TESLACOIL);
+	pTiles->Use(p.x, p.y);
+}
+
 void CMapGen::GeneratePowerupper(CGenLayer *pTiles)
 {
 	ivec2 p = pTiles->GetLeftPlatform();
@@ -1026,8 +1050,11 @@ void CMapGen::GenerateLevel()
 	
 	if (Level%5 == 4 || Level%7 == 6 || Level%11 == 9)
 	{
-		for (int i = 0; i < 1 + frandom()*min(10.0f, Level * 0.2f); i++)
+		for (int i = 0; i < 2 + (0.3f + frandom())*min(10.0f, Level * 0.2f); i++)
 			GenerateTurret(pTiles);
+		
+		if (Level > 20 && frandom() < 0.7f)
+			GenerateTeslacoil(pTiles);
 	}
 	else
 	{

@@ -474,7 +474,7 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	if(!pCharacter)
 		return;
 
-	vec2 Area1Pos = vec2(0, 0);
+	//vec2 Area1Pos = vec2(0, 0);
 	vec2 Area2Pos = vec2(8, 5);
 	
 	float x = Area2Pos.x; // 16
@@ -669,8 +669,8 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	x = -1;
 	y = -1;
 	
-	vec2 FrameSize = vec2(38, 38);
-	int Fuel = pCharacter->m_JetpackPower/2;
+	//vec2 FrameSize = vec2(38, 38);
+	//int Fuel = pCharacter->m_JetpackPower/2;
 	
 	// buff duration
 	x = -1;
@@ -786,7 +786,7 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	
 	// weapons
 	float Size = 0.2f;
-	int iw = pCharacter->m_Weapon;
+	//int iw = pCharacter->m_Weapon;
 
 	if (m_pClient->m_pControls->m_SignalWeapon >= 0)
 	{
@@ -811,7 +811,10 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		Graphics()->QuadsBegin();
 		Graphics()->SetColor(0.9f, 0.9f, 0.9f, 1);
 		RenderTools()->SelectSprite(SPRITE_GUINUMBER_1+i);
-		RenderTools()->DrawSprite(x-20, y, 12);
+		if (i == CustomStuff()->m_WeaponSlot)
+			RenderTools()->DrawSprite(x-20, y, 16);
+		else
+			RenderTools()->DrawSprite(x-20, y, 12);
 		Graphics()->SetColor(1, 1, 1, 1);
 		Graphics()->QuadsEnd();
 		

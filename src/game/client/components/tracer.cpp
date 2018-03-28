@@ -217,28 +217,6 @@ void CTracer::RenderGroup(int Group)
 		int i = m_aFirstPart[Group];
 		while(i != -1)
 		{
-			float a = 1.0f; //m_aTracer[i].m_Life / m_aTracer[i].m_LifeSpan;
-			
-			/*
-			IGraphics::CColorVertex aColors[4] = {
-				IGraphics::CColorVertex(0, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a),
-				IGraphics::CColorVertex(1, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a),
-				IGraphics::CColorVertex(2, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, 0.0f),
-				IGraphics::CColorVertex(3, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, 0.0f)};
-			Graphics()->SetColorVertex(aColors, 4);
-			
-			vec2 TrailDir = normalize(m_aTracer[i].m_Pos - m_aTracer[i].m_DelayPos);
-			vec2 Out = vec2(TrailDir.y, -TrailDir.x) * 3.0f;
-			
-			IGraphics::CFreeformItem Freeform1(
-				m_aTracer[i].m_Pos.x-Out.x, m_aTracer[i].m_Pos.y-Out.y,
-				m_aTracer[i].m_Pos.x+Out.x, m_aTracer[i].m_Pos.y+Out.y,
-				m_aTracer[i].m_DelayPos.x-Out.x, m_aTracer[i].m_DelayPos.y-Out.y,
-				m_aTracer[i].m_DelayPos.x+Out.x, m_aTracer[i].m_DelayPos.y+Out.y);
-			
-			Graphics()->QuadsDrawFreeform(&Freeform1, 1);
-			*/
-	
 			vec2 p1 = m_aTracer[i].m_Pos[0];
 			vec2 TrailDir = normalize(p1 - m_aTracer[i].m_Pos[1]);
 			float o1 = m_aTracer[i].m_Size1;
@@ -379,117 +357,13 @@ void CTracer::RenderGroup(int Group)
 					p2.x-Out2.x, p2.y-Out2.y,
 					p1.x+Out1.x, p1.y+Out1.y,
 					p2.x+Out2.x, p2.y+Out2.y);
-					
-			/*
-				IGraphics::CFreeformItem Freeform1(
-					p1.x-Out1.x, p1.y-Out1.y,
-					p1.x+Out1.x, p1.y+Out1.y,
-					p2.x-Out2.x, p2.y-Out2.y,
-					p2.x+Out2.x, p2.y+Out2.y);
-					*/
 				
 				Graphics()->QuadsDrawFreeform(&Freeform1, 1);
 				
 				p1 = p2;
 				Out1 = Out2;
 			}
-	
-	
 
-			/*
-			float len = length(m_aTracer[i].m_Pos - m_aTracer[i].m_DelayPos);
-			
-			int p = 4;//max(1, 1);//int(len/20));
-			
-			for (int t = 0; t < p; t++)
-			{
-				vec2 p1 = mix(m_aTracer[i].m_Pos, m_aTracer[i].m_DelayPos, t/float(p));
-				vec2 p2 = mix(m_aTracer[i].m_Pos, m_aTracer[i].m_DelayPos, (t+1)/float(p));
-				
-				if (m_aTracer[i].m_Special == 1)
-				{
-					p1.x += (sin(p1.x/24.0f)+sin(p1.y/32.0f)) * 8.0f * t/float(p);
-					p1.y += (cos(p1.x/24.0f)+cos(p1.y/32.0f)) * 8.0f * t/float(p);
-					
-					p2.x += (sin(p2.x/24.0f)+sin(p2.y/32.0f)) * 8.0f * (t+1)/float(p);
-					p2.y += (cos(p2.x/24.0f)+cos(p2.y/32.0f)) * 8.0f * (t+1)/float(p);
-				}
-				
-				vec2 TrailDir = normalize(p1 - p2);
-				
-				float o1 = mix(m_aTracer[i].m_Size1, m_aTracer[i].m_Size2, t/float(p));
-				float o2 = mix(m_aTracer[i].m_Size1, m_aTracer[i].m_Size2, (t+1)/float(p));
-				
-				vec2 Out1 = vec2(TrailDir.y, -TrailDir.x) * o1*0.7f;
-				vec2 Out2 = vec2(TrailDir.y, -TrailDir.x) * o2*0.7f;
-				
-				float a1 = 1-t/float(p);
-				float a2 = 1-(t+1)/float(p);
-				
-				IGraphics::CColorVertex aColors[4] = {
-					IGraphics::CColorVertex(0, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a1),
-					IGraphics::CColorVertex(1, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a1),
-					IGraphics::CColorVertex(2, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a2),
-					IGraphics::CColorVertex(3, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a2)};
-				Graphics()->SetColorVertex(aColors, 4);
-			
-			
-				IGraphics::CFreeformItem Freeform1(
-					p1.x-Out1.x, p1.y-Out1.y,
-					p1.x+Out1.x, p1.y+Out1.y,
-					p2.x-Out2.x, p2.y-Out2.y,
-					p2.x+Out2.x, p2.y+Out2.y);
-				
-				Graphics()->QuadsDrawFreeform(&Freeform1, 1);
-			}
-			
-			
-			//if (m_aTracer[i].m_Special == 0)
-			{
-				for (int t = 0; t < p; t++)
-				{
-					vec2 p1 = mix(m_aTracer[i].m_Pos, m_aTracer[i].m_DelayPos, t/float(p));
-					vec2 p2 = mix(m_aTracer[i].m_Pos, m_aTracer[i].m_DelayPos, (t+1)/float(p));
-					
-					if (m_aTracer[i].m_Special == 1)
-					{
-						p1.x += (sin(p1.x/24.0f)+sin(p1.y/32.0f)) * 8.0f * t/float(p);
-						p1.y += (cos(p1.x/24.0f)+cos(p1.y/32.0f)) * 8.0f * t/float(p);
-						
-						p2.x += (sin(p2.x/24.0f)+sin(p2.y/32.0f)) * 8.0f * (t+1)/float(p);
-						p2.y += (cos(p2.x/24.0f)+cos(p2.y/32.0f)) * 8.0f * (t+1)/float(p);
-					}
-					
-					vec2 TrailDir = normalize(p1 - p2);
-					
-					float o1 = mix(m_aTracer[i].m_Size1, m_aTracer[i].m_Size2, t/float(p));
-					float o2 = mix(m_aTracer[i].m_Size1, m_aTracer[i].m_Size2, (t+1)/float(p));
-					
-					vec2 Out1 = vec2(TrailDir.y, -TrailDir.x) * o1*1.3f;
-					vec2 Out2 = vec2(TrailDir.y, -TrailDir.x) * o2*1.3f;
-					
-					float a1 = 1-t/float(p)*0.5f;
-					float a2 = 1-(t+1)/float(p)*0.5f;
-					
-					IGraphics::CColorVertex aColors[4] = {
-						IGraphics::CColorVertex(0, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a1),
-						IGraphics::CColorVertex(1, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a1),
-						IGraphics::CColorVertex(2, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a2),
-						IGraphics::CColorVertex(3, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a2)};
-					Graphics()->SetColorVertex(aColors, 4);
-				
-				
-					IGraphics::CFreeformItem Freeform1(
-						p1.x-Out1.x, p1.y-Out1.y,
-						p1.x+Out1.x, p1.y+Out1.y,
-						p2.x-Out2.x, p2.y-Out2.y,
-						p2.x+Out2.x, p2.y+Out2.y);
-					
-					Graphics()->QuadsDrawFreeform(&Freeform1, 1);
-				}
-			}
-			*/
-			
 			i = m_aTracer[i].m_NextPart;
 		}
 	

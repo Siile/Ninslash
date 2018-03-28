@@ -750,7 +750,9 @@ void CCharacter::HandleWeaponSwitch()
 	{
 		while(Next) // Next Weapon selection
 		{
-			WantedSlot = clamp(WantedSlot+1, 0, 3);
+			//WantedSlot = clamp(WantedSlot+1, 0, 3);
+			if (++WantedSlot > 3)
+				WantedSlot = 0;
 			Next--;
 		}
 	}
@@ -758,7 +760,9 @@ void CCharacter::HandleWeaponSwitch()
 	{
 		while(Prev) // Prev Weapon selection
 		{
-			WantedSlot = clamp(WantedSlot-1, 0, 3);
+			//WantedSlot = clamp(WantedSlot-1, 0, 3);
+			if (--WantedSlot < 0)
+				WantedSlot = 3;
 			Prev--;
 		}
 	}

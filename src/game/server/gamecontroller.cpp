@@ -700,6 +700,11 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		new CTurret(&GameServer()->m_World, Pos+vec2(0, -10), TEAM_NEUTRAL, GameServer()->NewWeapon(GetModularWeapon(1, 1)));
 		return true;
 	}
+	else if (Index == ENTITY_TESLACOIL)
+	{
+		new CTeslacoil(&GameServer()->m_World, Pos+vec2(0, -10), TEAM_NEUTRAL);
+		return true;
+	}
 	else if (Index == ENTITY_SWITCH)
 	{
 		new CBuilding(&GameServer()->m_World, Pos+vec2(0, -10), BUILDING_SWITCH, TEAM_NEUTRAL);
