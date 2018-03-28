@@ -729,7 +729,7 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon)
 	}
 	
 	CDroid *apDEnts[MAX_CLIENTS];
-	int DNum = m_World.FindEntities(Pos, Radius, (CEntity**)apEnts,
+	int DNum = m_World.FindEntities(Pos, Radius, (CEntity**)apDEnts,
 									MAX_CLIENTS, CGameWorld::ENTTYPE_DROID);
 	
 	for (int i = 0; i < DNum; ++i)
