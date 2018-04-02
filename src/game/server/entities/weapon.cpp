@@ -322,7 +322,7 @@ bool CWeapon::Throw()
 	v.x = sin(m_Direction.x)*(m_Direction.x > 0.0f ? 1 : -1)*m_Vel.x;
 	v.y = sin(m_Direction.y)*(m_Direction.y > 0.0f ? 1 : -1)*m_Vel.y;
 	
-	m_Vel = v*1.0f + m_Direction * m_Charge * 0.21f * WeaponThrowForce(m_WeaponType);
+	m_Vel = v*1.0f + m_Direction * m_Charge * 0.24f * WeaponThrowForce(m_WeaponType);
 
 	m_Angle = 0.0f;
 	m_AngleForce = m_Vel.x * 0.3f;

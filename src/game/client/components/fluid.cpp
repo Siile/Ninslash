@@ -211,7 +211,7 @@ void CFluid::RenderGlobalAcid()
 	vec2 Size = vec2(Screen.x+StepX*2, Screen.y);
 	
 	//Size.y = AcidLevel-SScreen.y;
-	Size.y = (Center.y+Screen.y/2) - AcidLevel;
+	Size.y = (Center.y+Screen.y/1.5f) - AcidLevel;
 	
 	m_GlobalPool.m_Pos = Pos;
 	m_GlobalPool.m_Size = Size;
@@ -224,16 +224,16 @@ void CFluid::RenderGlobalAcid()
 	else
 		Graphics()->SetColor(0, 0.8f, 0, 0.6f);
 
-	int offX = fmod(abs(Center.x), 16.0f);
+	int offX = -fmod(abs(Center.x), 16.0f);
 	
 	// fullscreen fluid
 	if (Center.y > AcidLevel+Screen.y/2)
 	{
 		IGraphics::CFreeformItem Freeform(
-			Center.x-Screen.x/2, Center.y-Screen.y/2,
-			Center.x+Screen.x/2, Center.y-Screen.y/2,
-			Center.x-Screen.x/2, Center.y+Screen.y/2,
-			Center.x+Screen.x/2, Center.y+Screen.y/2);
+			Center.x-Screen.x/1.5f, Center.y-Screen.y/1.5f,
+			Center.x+Screen.x/1.5f, Center.y-Screen.y/1.5f,
+			Center.x-Screen.x/1.5f, Center.y+Screen.y/1.5f,
+			Center.x+Screen.x/1.5f, Center.y+Screen.y/1.5f);
 			
 		Graphics()->QuadsDrawFreeform(&Freeform, 1);
 	}

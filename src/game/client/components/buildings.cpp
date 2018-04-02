@@ -579,56 +579,34 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 	RenderTools()->RenderWeapon(Weapon, p, Dir, WEAPON_GAME_SIZE);
 	
 	Graphics()->QuadsEnd();
-	Graphics()->ShaderEnd();
-	
 	
 	
 	// render muzzle
 	if (GetWeaponFiringType(Weapon) != WFT_HOLD)
 	{
-		//float Alpha = 0.0f;
-		//int Phase1Tick = (Client()->GameTick() - Player.m_AttackTick);
-					
-		//if (Phase1Tick < 10)
+		CustomStuff()->SetTurretMuzzle(ivec2(pCurrent->m_X, pCurrent->m_Y), pCurrent->m_AttackTick, pCurrent->m_Weapon);
+		
+		CTurretMuzzle Muzzle = CustomStuff()->GetTurretMuzzle(ivec2(pCurrent->m_X, pCurrent->m_Y));
+		
+		if (Muzzle.m_Weapon)
 		{
-			/*
-			if (Player.m_AttackTick && Player.m_AttackTick != pCustomPlayerInfo->m_MuzzleTick)
-						{
-							vec2 Moff = GetMuzzleRenderOffset(Player.m_Weapon);
-							vec2 DirY(-Dir.y,Dir.x);
-							vec2 MuzzlePos = p + Dir * Moff.x + DirY * Moff.y;
-							//vec2 MuzzlePos = p + Dir * 20;
-							m_pClient->m_pEffects->Muzzle(MuzzlePos, Dir, Player.m_Weapon);
-						}
-						
-						pCustomPlayerInfo->AddMuzzle(Player.m_AttackTick, Player.m_Weapon);
-					}
-						
-					
-					// render muzzles
-					for (int i = 0; i < 4; i++)
-					{
-						if (pCustomPlayerInfo->m_aMuzzleWeapon[i])
-						{
-							Graphics()->TextureSet(g_pData->m_aImages[IMAGE_MUZZLE].m_Id);
-							Graphics()->QuadsBegin();
-							Graphics()->QuadsSetRotation(Angle);
-							
-							vec2 Moff = GetMuzzleRenderOffset(Player.m_Weapon);
-							RenderTools()->SelectSprite(SPRITE_MUZZLE1_1 + pCustomPlayerInfo->m_aMuzzleType[i]*4 + pCustomPlayerInfo->m_aMuzzleTime[i]*4, SPRITE_FLAG_FLIP_X);
+			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_MUZZLE].m_Id);
+			Graphics()->QuadsBegin();
+			Graphics()->QuadsSetRotation(Angle);
+			
+			vec2 Moff = GetMuzzleRenderOffset(Muzzle.m_Weapon)+vec2(-3, -6);
+			RenderTools()->SelectSprite(SPRITE_MUZZLE1_1 + Muzzle.m_Muzzle*4 + Muzzle.m_Time*4, SPRITE_FLAG_FLIP_X);
 
-							vec2 DirY(-Dir.y,Dir.x);
-							vec2 MuzzlePos = p + Dir * Moff.x + DirY * Moff.y;
+			vec2 DirY(-Dir.y,Dir.x);
+			vec2 MuzzlePos = p + Dir * Moff.x + DirY * Moff.y;
 
-							RenderTools()->DrawSprite(MuzzlePos.x, MuzzlePos.y, 60);
-							
-							Graphics()->QuadsEnd();	
-						}
-			*/
+			RenderTools()->DrawSprite(MuzzlePos.x, MuzzlePos.y, 60);
+			
+			Graphics()->QuadsEnd();
 		}
 	}
 	
-	
+	Graphics()->ShaderEnd();
 
 	vec2 Offset = vec2(0, 0);
 	

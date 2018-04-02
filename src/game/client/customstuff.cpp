@@ -120,6 +120,9 @@ void CCustomStuff::Reset()
 	for (int i = 0; i < MAX_IMPACTS; i++)
 		m_aImpactTick[i] = 0;
 	
+	for (int i = 0; i < MAX_TURRETMUZZLES; i++)
+		m_aTurretMuzzle[i].Reset();
+	
 	m_WeaponpickTimer = 0;
 	m_WeaponpickWeapon = 0;
 	
@@ -132,6 +135,55 @@ void CCustomStuff::Reset()
 	m_BuildPosValid = false;
 	m_FlipBuilding = false;
 }
+
+void CCustomStuff::SetTurretMuzzle(ivec2 Pos, int AttackTick, int Weapon)
+{
+	if (!AttackTick)
+		return;
+	
+	// find existing one
+	for (int i = 0; i < MAX_TURRETMUZZLES; i++)
+	{
+		if (m_aTurretMuzzle[i].m_Pos.x == Pos.x && m_aTurretMuzzle[i].m_Pos.y == Pos.y)
+		{
+			if (AttackTick && m_aTurretMuzzle[i].m_AttackTick != AttackTick)
+			{
+				m_aTurretMuzzle[i].m_Time = 0.0f;
+				m_aTurretMuzzle[i].m_AttackTick = AttackTick;
+				m_aTurretMuzzle[i].m_Weapon = Weapon;
+				m_aTurretMuzzle[i].m_Muzzle = rand()%4;
+			}
+			
+			return;
+		}
+	}
+
+	// .. or a new one
+	for (int i = 0; i < MAX_TURRETMUZZLES; i++)
+	{
+		if (m_aTurretMuzzle[i].m_Weapon == 0)
+		{
+			m_aTurretMuzzle[i].m_Pos = Pos;
+			m_aTurretMuzzle[i].m_Time = 0.0f;
+			m_aTurretMuzzle[i].m_AttackTick = AttackTick;
+			m_aTurretMuzzle[i].m_Weapon = Weapon;
+			m_aTurretMuzzle[i].m_Muzzle = rand()%4;
+			return;
+		}
+	}
+}
+
+
+CTurretMuzzle CCustomStuff::GetTurretMuzzle(ivec2 Pos)
+{
+	for (int i = 0; i < MAX_TURRETMUZZLES; i++)
+		if (m_aTurretMuzzle[i].m_Pos.x == Pos.x && m_aTurretMuzzle[i].m_Pos.y == Pos.y)
+			return m_aTurretMuzzle[i];
+	
+	return CTurretMuzzle();
+}
+
+
 
 float CCustomStuff::ChargeIntensity(int Charge)
 {
@@ -250,6 +302,18 @@ void CCustomStuff::Tick(bool Paused)
 			
 			if (m_aJumppad[i] > 0)
 				m_aJumppad[i] += 0.1f;
+		}
+		
+		// turret muzzle
+		for (int i = 0; i < MAX_TURRETMUZZLES; i++)
+		{
+			if (m_aTurretMuzzle[i].m_Weapon)
+			{
+				m_aTurretMuzzle[i].m_Time += 0.15f;
+				
+				if (m_aTurretMuzzle[i].m_Time > 1.0f)
+					m_aTurretMuzzle[i].m_Weapon = 0;
+			}
 		}
 	}
 	

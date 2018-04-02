@@ -11,6 +11,7 @@
 #include "customstuff/droidanim.h"
 
 #define MAX_BG_SOUNDS 64
+#define MAX_TURRETMUZZLES 64
 
 enum Pickers
 {
@@ -19,6 +20,29 @@ enum Pickers
 	PICKER_EMOTICON,
 };
 
+
+struct CTurretMuzzle
+{
+	ivec2 m_Pos;
+	int m_AttackTick;
+	int m_Weapon;
+	int m_Muzzle;
+	float m_Time;
+	
+	CTurretMuzzle()
+	{
+		Reset();
+	}
+	
+	void Reset()
+	{
+		m_Pos = ivec2(0, 0);
+		m_AttackTick = 0;
+		m_Weapon = 0;
+		m_Muzzle = 0;
+		m_Time = 0.0f;
+	}
+};
 
 
 class CCustomStuff
@@ -51,6 +75,12 @@ public:
 		IMPACT_HIT,
 		MAX_IMPACTSTATES
 	};
+	
+	CTurretMuzzle m_aTurretMuzzle[MAX_TURRETMUZZLES];
+	
+	void SetTurretMuzzle(ivec2 Pos, int AttackTick, int Weapon);
+	
+	CTurretMuzzle GetTurretMuzzle(ivec2 Pos);
 	
 	int64 m_aBGSound[MAX_BG_SOUNDS];
 	int64 m_aBGEffect[MAX_BG_SOUNDS];

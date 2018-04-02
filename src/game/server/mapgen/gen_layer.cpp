@@ -513,7 +513,7 @@ void CGenLayer::GenerateSlopes()
 			if (Get(x, y) && frandom() < 0.5f)
 			{
 				int s = 0;
-				int MaxSize = 7 + rand()%8;
+				int MaxSize = 70 + rand()%8;
 
 				for (int i = 0; i < MaxSize-1; i++)
 				{

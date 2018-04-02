@@ -627,7 +627,7 @@ vec2 GetMuzzleRenderOffset(int Weapon)
 			case 1: return vec2(66, 0);
 			case 2: return vec2(64, 0);
 			case 3: return vec2(74, 0);
-			case 4: return vec2(60, 0);
+			case 4: return vec2(60, -4);
 			case 5: return vec2(68, 0);
 			default: return vec2(50, 0);
 		};

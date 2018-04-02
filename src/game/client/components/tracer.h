@@ -61,16 +61,7 @@ struct CTrace
 			m_Color = vec4(0.6f, 0.4f, 0.2f, 0.8f);
 			return;
 		}
-		
-		if (Type == 4)
-		{
-			m_Speed = 3.0f;
-			m_Size1 = 10.0f * GetProjectileSize(Weapon);
-			m_Size2 = 0.0f * GetProjectileSize(Weapon);
-			m_LifeSpan = 0.4f;
-			m_Color = vec4(0.6f, 0.4f, 0.2f, 0.8f);
-			return;
-		}
+	
 		
 		if (Type == 2)
 		{
@@ -101,7 +92,7 @@ struct CTrace
 			m_Size1 = 8.0f;
 			m_Size2 = 0.0f;
 			m_LifeSpan = 1.5f;
-			m_Color = vec4(1.0f, 0.2f, 0.2f, 0.4f);
+			m_Color = vec4(0.6f, 0.4f, 0.2f, 0.8f);
 			return;
 		}
 		

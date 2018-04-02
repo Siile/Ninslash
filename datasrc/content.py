@@ -350,6 +350,7 @@ for i in range(1, 10):
 
 
 image_null = Image("null", "")
+image_pixel = Image("pixel", "pixel.png")
 image_particles = Image("particles", "particles.png")
 image_gore = Image("gore", "gore.png")
 image_meat = Image("meat", "meat.png")
@@ -420,6 +421,7 @@ image_gui_window1 = Image("gui_window1", "gui/window1.png")
 image_texasmask = Image("texasmask", "texasmask.png")
 
 container.images.Add(image_null)
+container.images.Add(image_pixel)
 container.images.Add(image_game)
 container.images.Add(image_flag)
 container.images.Add(image_weapons)

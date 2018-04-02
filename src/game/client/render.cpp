@@ -1990,9 +1990,10 @@ void CRenderTools::RenderFreeHand(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo
 	if (d.x < 0)
 		FlipY = true;
 	
+	//Graphics()->ShaderEnd();
 	
-	// render arm
-	Graphics()->TextureSet(-1);
+	// render arm / RenderArm
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_PIXEL].m_Id);
 	Graphics()->QuadsBegin();
 	Graphics()->SetColor(0, 0, 0, 1);
 				
@@ -2046,7 +2047,6 @@ void CRenderTools::RenderFreeHand(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo
 		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 	}
 	Graphics()->QuadsEnd();
-	
 	
 	// turbo effect to hand
 	if (PlayerInfo->m_Turbo && Hand == HAND_FREE)
@@ -2264,14 +2264,7 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 		return;
 
 	vec2 Position = Pos;
-
 	
-	/*
-	if (PlayerInfo->m_Weapon == WEAPON_SCYTHE || (!PlayerInfo->m_Hang && (PlayerInfo->m_Weapon == WEAPON_HAMMER || PlayerInfo->m_Weapon == WEAPON_TOOL)))
-		HandFront = false;
-	*/
-	
-		
 	PlayerInfo->Animation()->m_ColorBody = pInfo->m_ColorBody;
 	PlayerInfo->Animation()->m_ColorFeet = pInfo->m_ColorFeet;
 
@@ -2302,33 +2295,8 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 	if (Atlas > NUM_BODIES-1)
 		Atlas = NUM_BODIES-1;
 	
-	// check render order with some weapons & free hand
-	//if (PlayerInfo->m_Weapon == WEAPON_SCYTHE && (PlayerInfo->m_Hang || !PlayerInfo->MeleeFront()))
-	//	RenderScythe(PlayerInfo, pInfo, Dir, Position);
-	
-	
-	/*
-	bool HandFront = true;
-	
-	if (!PlayerInfo->m_Hang && (GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_ITEM1 || GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_WEAPON2))
-		HandFront = false;
-	*/
-	
+
 	SetShadersForPlayer(PlayerInfo);
-	
-	
-	/*
-	if (!HandFront && GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_MELEE)
-		RenderMelee(PlayerInfo, pInfo, Dir, Position);
-	else if (GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_ITEM1 || GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_WEAPON2)
-	{
-		RenderFreeHand(PlayerInfo, pInfo, HAND_FREE, Dir, Position, true);
-	}
-	else if (PlayerInfo->m_Weapon == WEAPON_NONE)
-		RenderFreeHand(PlayerInfo, pInfo, HAND_FREE, Dir, Position, true);
-	else if (!HandFront)
-		RenderFreeHand(PlayerInfo, pInfo, HAND_FREE, Dir, Position, true);
-	*/
 	
 	if (GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_MELEE)
 	{
@@ -2378,19 +2346,6 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 	}
 	else
 		RenderFreeHand(PlayerInfo, pInfo, HAND_FREE, Dir, Position);
-	
-	/*
-	if (HandFront && GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_MELEE)
-		RenderMelee(PlayerInfo, pInfo, Dir, Position);
-	else if (GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_ITEM1 || GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_WEAPON2)
-	{
-		RenderFreeHand(PlayerInfo, pInfo, HAND_WEAPON, Dir, Position);
-	}
-	else if (PlayerInfo->m_Weapon == WEAPON_NONE)
-		RenderFreeHand(PlayerInfo, pInfo, HAND_WEAPON, Dir, Position, true);
-	else if (HandFront)
-		RenderFreeHand(PlayerInfo, pInfo, HAND_FREE, Dir, Position);
-	*/
 }
 
 
