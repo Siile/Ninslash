@@ -4,6 +4,7 @@ uniform sampler2D texture;
 uniform float rnd;
 uniform float intensity;
 uniform float colorswap;
+uniform float weaponcharge;
 
 float rand(vec2 co){
     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
@@ -30,5 +31,13 @@ void main (void)
 	c.b = b*(1.0f-swap1) + r*swap1;
 	
 	vec4 color = vec4(-f, f, -f, 0);
-	gl_FragColor = c + color*intensity;
+	
+	// weapon charge
+	vec4 c2 = c;
+	float v = max(1.0f - (c2.r + c2.g + c2.b) / 1.5f, -2.0f);
+	c2.b += v * max(weaponcharge*1.2f, -2.0f);
+	c2.g += v * min(weaponcharge, 0.95f);
+	c2.r += v * min(weaponcharge, 0.95f);
+
+	gl_FragColor = c * gl_Color* (1.0f - weaponcharge) + c2 * gl_Color * weaponcharge + color*intensity;
 }

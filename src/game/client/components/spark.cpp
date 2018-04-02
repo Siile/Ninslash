@@ -12,6 +12,7 @@ CSpark::CSpark()
 {
 	OnReset();
 	m_RenderSpark.m_pParts = this;
+	m_RenderArea1.m_pParts = this;
 }
 
 
@@ -99,7 +100,7 @@ void CSpark::Update(float TimePassed)
 				}
 			}
 				
-			// check blood death
+			// check death
 			if(m_aSpark[i].m_Life > m_aSpark[i].m_LifeSpan)
 			{
 				// remove it from the group list
@@ -150,62 +151,104 @@ void CSpark::OnRender()
 void CSpark::RenderGroup(int Group)
 {
 	Graphics()->BlendNormal();
-	//gfx_blend_additive();
-	Graphics()->TextureSet(-1);
-	Graphics()->QuadsBegin();
-
-	int i = m_aFirstPart[Group];
-	while(i != -1)
+	
+	
+	if (Group == GROUP_SPARKS)
 	{
-		/*
-		float a = m_aSpark[i].m_Life / m_aSpark[i].m_LifeSpan;
-		vec2 p = m_aSpark[i].m_Pos;
-		float Size = m_aSpark[i].m_Size;
+		Graphics()->TextureSet(-1);
+		Graphics()->QuadsBegin();
 
-		Graphics()->QuadsSetRotation(m_aSpark[i].m_Rot);
+		int i = m_aFirstPart[Group];
+		while(i != -1)
+		{
+			/*
+			float a = m_aSpark[i].m_Life / m_aSpark[i].m_LifeSpan;
+			vec2 p = m_aSpark[i].m_Pos;
+			float Size = m_aSpark[i].m_Size;
 
-		Graphics()->SetColor(
-			m_aSpark[i].m_Color.r,
-			m_aSpark[i].m_Color.g,
-			m_aSpark[i].m_Color.b,
-			1.2f-a); // pow(a, 0.75f) *
+			Graphics()->QuadsSetRotation(m_aSpark[i].m_Rot);
 
-		IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
-		Graphics()->QuadsDraw(&QuadItem, 1);
-		*/
-		
+			Graphics()->SetColor(
+				m_aSpark[i].m_Color.r,
+				m_aSpark[i].m_Color.g,
+				m_aSpark[i].m_Color.b,
+				1.2f-a); // pow(a, 0.75f) *
 
-		float a = 1.0f - m_aSpark[i].m_Life / m_aSpark[i].m_LifeSpan;
-		vec2 p = m_aSpark[i].m_Pos;
-		
-		/*
-		Graphics()->SetColor(
-			m_aSpark[i].m_Color.r,
-			m_aSpark[i].m_Color.g,
-			m_aSpark[i].m_Color.b,
-			1.2f-a); // pow(a, 0.75f) *
-		*/
+			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
+			Graphics()->QuadsDraw(&QuadItem, 1);
+			*/
 			
-		IGraphics::CColorVertex aColors[4] = {
-			IGraphics::CColorVertex(0, m_aSpark[i].m_Color.r, m_aSpark[i].m_Color.g, m_aSpark[i].m_Color.b, a),
-			IGraphics::CColorVertex(1, m_aSpark[i].m_Color.r, m_aSpark[i].m_Color.g, m_aSpark[i].m_Color.b, a),
-			IGraphics::CColorVertex(2, m_aSpark[i].m_Color.r, m_aSpark[i].m_Color.g, m_aSpark[i].m_Color.b, 0.0f),
-			IGraphics::CColorVertex(3, m_aSpark[i].m_Color.r, m_aSpark[i].m_Color.g, m_aSpark[i].m_Color.b, 0.0f)};
-		Graphics()->SetColorVertex(aColors, 4);
-			
-		vec2 r = normalize(m_aSpark[i].m_Vel);
-		
-		vec2 Out = vec2(r.y, -r.x) * 1.0f;
-			
-		IGraphics::CFreeformItem Freeform1(
-				m_aSpark[i].m_Vel.x/20.0f + p.x-Out.x, m_aSpark[i].m_Vel.y/20.0f + p.y-Out.y,
-				m_aSpark[i].m_Vel.x/20.0f + p.x+Out.x, m_aSpark[i].m_Vel.y/20.0f + p.y+Out.y,
-				p.x-Out.x, p.y-Out.y,
-				p.x+Out.x, p.y+Out.y);
-		Graphics()->QuadsDrawFreeform(&Freeform1, 1);
 
-		i = m_aSpark[i].m_NextPart;
+			float a = 1.0f - m_aSpark[i].m_Life / m_aSpark[i].m_LifeSpan;
+			vec2 p = m_aSpark[i].m_Pos;
+			
+			/*
+			Graphics()->SetColor(
+				m_aSpark[i].m_Color.r,
+				m_aSpark[i].m_Color.g,
+				m_aSpark[i].m_Color.b,
+				1.2f-a); // pow(a, 0.75f) *
+			*/
+				
+			IGraphics::CColorVertex aColors[4] = {
+				IGraphics::CColorVertex(0, m_aSpark[i].m_Color.r, m_aSpark[i].m_Color.g, m_aSpark[i].m_Color.b, a),
+				IGraphics::CColorVertex(1, m_aSpark[i].m_Color.r, m_aSpark[i].m_Color.g, m_aSpark[i].m_Color.b, a),
+				IGraphics::CColorVertex(2, m_aSpark[i].m_Color.r, m_aSpark[i].m_Color.g, m_aSpark[i].m_Color.b, 0.0f),
+				IGraphics::CColorVertex(3, m_aSpark[i].m_Color.r, m_aSpark[i].m_Color.g, m_aSpark[i].m_Color.b, 0.0f)};
+			Graphics()->SetColorVertex(aColors, 4);
+				
+			vec2 r = normalize(m_aSpark[i].m_Vel);
+			
+			vec2 Out = vec2(r.y, -r.x) * m_aSpark[i].m_Size;
+				
+			IGraphics::CFreeformItem Freeform1(
+					m_aSpark[i].m_Vel.x/20.0f + p.x-Out.x, m_aSpark[i].m_Vel.y/20.0f + p.y-Out.y,
+					m_aSpark[i].m_Vel.x/20.0f + p.x+Out.x, m_aSpark[i].m_Vel.y/20.0f + p.y+Out.y,
+					p.x-Out.x, p.y-Out.y,
+					p.x+Out.x, p.y+Out.y);
+			Graphics()->QuadsDrawFreeform(&Freeform1, 1);
+
+			i = m_aSpark[i].m_NextPart;
+		}
+		Graphics()->QuadsEnd();
+		Graphics()->BlendNormal();
 	}
-	Graphics()->QuadsEnd();
-	Graphics()->BlendNormal();
+	else if (Group == GROUP_AREA1)
+	{
+		Graphics()->TextureSet(-1);
+
+		int i = m_aFirstPart[Group];
+		while(i != -1)
+		{
+			float a = m_aSpark[i].m_Life / m_aSpark[i].m_LifeSpan;
+			
+			Graphics()->ShaderBegin(SHADER_RAGE, a);
+			Graphics()->QuadsBegin();
+		
+			vec2 p = m_aSpark[i].m_Pos;
+			
+			Graphics()->SetColor(1, 1, 1, 1.0f);
+			
+			//vec2 Out = vec2(1, 1) * m_aSpark[i].m_Size;
+				
+			/*
+			IGraphics::CFreeformItem Freeform1(
+					p.x-Out.x, p.y-Out.y,
+					p.x+Out.x, p.y-Out.y,
+					p.x-Out.x, p.y+Out.y,
+					p.x+Out.x, p.y+Out.y);
+			Graphics()->QuadsDrawFreeform(&Freeform1, 1);
+			*/
+			
+			IGraphics::CQuadItem QuadItem(p.x, p.y, m_aSpark[i].m_Size, m_aSpark[i].m_Size);
+			Graphics()->QuadsDraw(&QuadItem, 1);
+			
+			Graphics()->QuadsEnd();
+
+			i = m_aSpark[i].m_NextPart;
+		}
+		Graphics()->BlendNormal();
+
+		Graphics()->ShaderEnd();
+	}
 }

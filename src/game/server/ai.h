@@ -48,8 +48,6 @@ class CAI
 	class CGameContext *m_pGameServer;
 	class CPlayer *m_pPlayer;
 	
-	class CPlayer *m_pTargetPlayer;
-	
 	int m_UnstuckCount;
 	vec2 m_StuckPos;
 	
@@ -66,6 +64,8 @@ protected:
 	
 	CGameContext *GameServer() const { return m_pGameServer; }
 	CPlayer *Player() const { return m_pPlayer; }
+	
+	class CPlayer *m_pTargetPlayer;
 	
 	int m_MoveReactTime;
 	
@@ -201,6 +201,8 @@ protected:
 	int m_ItemUseTick;
 	
 	void UseItems();
+	
+	int m_ChargeStartTick;
 	
 	int m_PowerLevel;
 	int m_DispersionTick;

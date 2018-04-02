@@ -37,9 +37,11 @@
 #include "components/debughud.h"
 #include "components/effects.h"
 #include "components/picker.h"
+#include "components/inventory.h"
 #include "components/flow.h"
 #include "components/hud.h"
 #include "components/items.h"
+#include "components/weapons.h"
 #include "components/fluid.h"
 #include "components/cbelt.h"
 #include "components/buildings.h"
@@ -53,6 +55,9 @@
 #include "components/particles.h"
 #include "components/light.h"
 #include "components/blood.h"
+#include "components/guts.h"
+#include "components/brains.h"
+#include "components/tracer.h"
 #include "components/splatter.h"
 #include "components/spark.h"
 #include "components/players.h"
@@ -77,6 +82,9 @@ static CGameConsole gs_GameConsole;
 static CBinds gs_Binds;
 static CParticles gs_Particles;
 static CBlood gs_Blood;
+static CGuts gs_Guts;
+static CBrains gs_Brains;
+static CTracer gs_Tracers;
 static CSplatter gs_Splatter;
 static CSpark gs_Spark;
 static CFluid gs_Fluid;
@@ -93,6 +101,7 @@ static CEffects gs_Effects;
 static CScoreboard gs_Scoreboard;
 static CSounds gs_Sounds;
 static CPicker gs_Picker;
+static CInventory gs_Inventory;
 static CDamageInd gsDamageInd;
 static CVoting gs_Voting;
 static CSpectator gs_Spectator;
@@ -101,6 +110,7 @@ static CDroids gs_Droids;
 static CPlayers gs_Players;
 static CNamePlates gs_NamePlates;
 static CItems gs_Items;
+static CWeapons gs_Weapons;
 static CBuildings gs_Buildings;
 static CBuildings2 gs_Buildings2;
 static CMapImages gs_MapImages;
@@ -136,12 +146,16 @@ void CGameClient::OnConsoleInit()
 	m_pGameConsole = &::gs_GameConsole;
 	m_pParticles = &::gs_Particles;
 	m_pBlood = &::gs_Blood;
+	m_pGuts = &::gs_Guts;
+	m_pBrains = &::gs_Brains;
+	m_pTracers = &::gs_Tracers;
 	m_pSplatter = &::gs_Splatter;
 	m_pSpark = &::gs_Spark;
 	m_pFluid = &::gs_Fluid;
 	m_pCBelt = &::gs_CBelt;
 	m_pLight = &::gs_Light;
 	m_pMenus = &::gs_Menus;
+	m_pInventory = &::gs_Inventory;
 	m_pSkins = &::gs_Skins;
 	m_pCountryFlags = &::gs_CountryFlags;
 	m_pChat = &::gs_Chat;
@@ -156,6 +170,7 @@ void CGameClient::OnConsoleInit()
 	m_pVoting = &::gs_Voting;
 	m_pScoreboard = &::gs_Scoreboard;
 	m_pItems = &::gs_Items;
+	m_pWeapons = &::gs_Weapons;
 	m_pBuildings = &::gs_Buildings;
 	m_pBuildings2 = &::gs_Buildings2;
 	m_pDroids = &::gs_Droids;
@@ -167,8 +182,11 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(m_pCountryFlags);
 	m_All.Add(m_pMapimages);
 	m_All.Add(m_pEffects); // doesn't render anything, just updates effects
+	m_All.Add(m_pTracers);
 	m_All.Add(m_pParticles);
 	m_All.Add(m_pBlood);
+	m_All.Add(m_pGuts);
+	m_All.Add(m_pBrains);
 	m_All.Add(m_pSplatter);
 	m_All.Add(m_pSpark);
 	m_All.Add(m_pLight);
@@ -187,6 +205,10 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderColorTrail);
 	m_All.Add(&m_pParticles->m_RenderLazerload); // works
 	m_All.Add(m_pBuildings);
+	m_All.Add(&m_pTracers->m_RenderTracers);
+	m_All.Add(&m_pTracers->m_RenderSpriteTracers);
+	m_All.Add(&m_pGuts->m_RenderGuts);
+	m_All.Add(&m_pBrains->m_RenderBrains);
 	m_All.Add(&m_pParticles->m_RenderCrafting);
 	m_All.Add(&gs_Droids);
 	m_All.Add(m_pItems);
@@ -195,12 +217,14 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderTakeoff);
 	m_All.Add(&gs_Players);
 	m_All.Add(m_pBuildings2);
+	m_All.Add(m_pWeapons);
 	m_All.Add(&m_pParticles->m_RenderMeat);
 	m_All.Add(&m_pBlood->m_RenderBlood);
 	m_All.Add(&m_pBlood->m_RenderAcid);
 	m_All.Add(&m_pSplatter->m_RenderSplatter);
 	m_All.Add(&gs_MapLayersForeGround);
 	m_All.Add(m_pCBelt);
+	m_All.Add(&m_pParticles->m_RenderEffect1);
 	m_All.Add(&m_pParticles->m_RenderSparks);
 	m_All.Add(&m_pParticles->m_RenderDeath);
 	m_All.Add(&m_pParticles->m_RenderHitEffects);
@@ -215,6 +239,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderBloodFX);
 	m_All.Add(&m_pParticles->m_RenderLazer);
 	m_All.Add(&m_pSpark->m_RenderSpark);
+	m_All.Add(&m_pSpark->m_RenderArea1);
 	m_All.Add(m_pFluid);
 	m_All.Add(&m_pBlood->m_RenderAcidLayer);
 	m_All.Add(&gs_NamePlates);
@@ -222,6 +247,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderDamageInd);
 	m_All.Add(m_pDamageind);
 	m_All.Add(&m_pLight->m_RenderLight);
+	m_All.Add(m_pInventory);
 	m_All.Add(&gs_Hud);
 	m_All.Add(&gs_Spectator);
 	m_All.Add(&gs_Picker);
@@ -243,6 +269,7 @@ void CGameClient::OnConsoleInit()
 	m_Input.Add(m_pMenus);
 	m_Input.Add(&gs_Spectator);
 	m_Input.Add(&gs_Picker);
+	m_Input.Add(&gs_Inventory);
 	m_Input.Add(m_pControls);
 	m_Input.Add(m_pBinds);
 
@@ -504,11 +531,12 @@ void CGameClient::UpdatePositions()
 	
 	CustomStuff()->Update(Paused);
 
-
-	Collision()->m_GlobalAcid = SurvivalAcid();
+	if (Collision())
+		Collision()->m_GlobalAcid = SurvivalAcid();
 	
 	// global acid level timer
 	if (m_Snap.m_pGameInfoObj)
+	{
 		if(m_Snap.m_pGameInfoObj->m_TimeLimit && !m_Snap.m_pGameInfoObj->m_WarmupTimer)
 		{
 			if (m_Snap.m_pGameInfoObj->m_TimeLimit != 0)
@@ -518,6 +546,9 @@ void CGameClient::UpdatePositions()
 		}
 		else
 			Collision()->m_GlobalAcid = false;
+	}
+	else
+		Collision()->m_GlobalAcid = false;
 
 }
 
@@ -676,6 +707,24 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker)
 		m_aClients[pMsg->m_ClientID].m_Emoticon = pMsg->m_Emoticon;
 		m_aClients[pMsg->m_ClientID].m_EmoticonStart = Client()->GameTick();
 	}
+	else if (MsgId == NETMSGTYPE_SV_INVENTORY)
+	{
+		CNetMsg_Sv_Inventory *pMsg = (CNetMsg_Sv_Inventory *)pRawMsg;
+
+		// apply
+		CustomStuff()->m_aItem[0] = pMsg->m_Item1;
+		CustomStuff()->m_aItem[1] = pMsg->m_Item2;
+		CustomStuff()->m_aItem[2] = pMsg->m_Item3;
+		CustomStuff()->m_aItem[3] = pMsg->m_Item4;
+		CustomStuff()->m_aItem[4] = pMsg->m_Item5;
+		CustomStuff()->m_aItem[5] = pMsg->m_Item6;
+		CustomStuff()->m_aItem[6] = pMsg->m_Item7;
+		CustomStuff()->m_aItem[7] = pMsg->m_Item8;
+		CustomStuff()->m_aItem[8] = pMsg->m_Item9;
+		CustomStuff()->m_aItem[9] = pMsg->m_Item10;
+		CustomStuff()->m_aItem[10] = pMsg->m_Item11;
+		CustomStuff()->m_aItem[11] = pMsg->m_Item12;
+	}
 	else if(MsgId == NETMSGTYPE_SV_SOUNDGLOBAL)
 	{
 		if(m_SuppressEvents)
@@ -821,15 +870,15 @@ void CGameClient::ProcessEvents()
 		else if(Item.m_Type == NETEVENTTYPE_EXPLOSION)
 		{
 			CNetEvent_Explosion *ev = (CNetEvent_Explosion *)pData;
-			g_GameClient.m_pEffects->Explosion(vec2(ev->m_X, ev->m_Y), ev->m_PowerLevel);
+			g_GameClient.m_pEffects->Explosion(vec2(ev->m_X, ev->m_Y), ev->m_Weapon);
 			
-			// add camera shake
+			// todo: readd camera shake
+			/*
 			float d = distance(CustomStuff()->m_LocalPos, vec2(ev->m_X, ev->m_Y));
 			
 			if (d < 80 + ev->m_PowerLevel * 40)
 				CustomStuff()->SetScreenshake(8.0f + ev->m_PowerLevel * 2);
-			else if (d < 140 + ev->m_PowerLevel * 40)
-				CustomStuff()->SetScreenshake(4.0f + ev->m_PowerLevel * 2);
+			*/
 		}
 		else if(Item.m_Type == NETEVENTTYPE_REPAIR)
 		{
@@ -1199,12 +1248,15 @@ void CGameClient::OnNewSnapshot()
 	Client()->GetServerInfo(&CurrentServerInfo);
 	if(CurrentServerInfo.m_aGameType[0] != '0')
 	{
+		m_ServerMode = SERVERMODE_MOD;
+		/*
 		if(str_comp(CurrentServerInfo.m_aGameType, "INF") != 0 && str_comp(CurrentServerInfo.m_aGameType, "DEF") != 0 && str_comp(CurrentServerInfo.m_aGameType, "GUN") != 0 && str_comp(CurrentServerInfo.m_aGameType, "DM") != 0 && str_comp(CurrentServerInfo.m_aGameType, "TDM") != 0 && str_comp(CurrentServerInfo.m_aGameType, "CTF") != 0)
 			m_ServerMode = SERVERMODE_MOD;
 		else if(mem_comp(&StandardTuning, &m_Tuning, sizeof(CTuningParams)) == 0)
 			m_ServerMode = SERVERMODE_PURE;
 		else
 			m_ServerMode = SERVERMODE_PUREMOD;
+		*/
 	}
 
 	// add tuning to demo

@@ -20,13 +20,11 @@ enum ExplosionType
 class CProjectile : public CEntity
 {
 public:
-	CProjectile(CGameWorld *pGameWorld, int Weapon, int Owner, vec2 Pos, vec2 Dir, int Span,
+	CProjectile(CGameWorld *pGameWorld, int Weapon, int Owner, vec2 Pos, vec2 Dir,  vec2 Vel, int Span,
 		int Damage, int Explosive, float Force, int SoundImpact);
 
 	vec2 GetPos(float Time);
 	void FillInfo(CNetObj_Projectile *pProj);
-	
-	void SetPowerLevel(int PowerLevel);
 	
 	bool Bounce(vec2 Pos);
 	int BounceTick;
@@ -40,6 +38,7 @@ public:
 
 private:
 	vec2 m_Direction;
+	vec2 m_Vel2;
 	int m_PowerLevel;
 	int m_LifeSpan;
 	int m_Owner;
@@ -50,6 +49,14 @@ private:
 	int m_StartTick;
 	int m_Explosive;
 	bool m_Bouncy;
+	
+	//
+	int m_Part1;
+	int m_Part2;
+	float m_Speed;
+	float m_Curvature;
+	
+	void UpdateStats();
 	
 	int m_ElectroTimer;
 };

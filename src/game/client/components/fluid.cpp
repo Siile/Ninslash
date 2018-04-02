@@ -197,6 +197,7 @@ void CFluid::RenderGlobalAcid()
 	if (AcidLevel == 0.0f)
 		return;
 
+	
 	vec2 Center = m_pClient->m_pCamera->m_Center;
 	vec2 Screen = vec2(Graphics()->ScreenWidth(), Graphics()->ScreenHeight());
 	
@@ -209,7 +210,8 @@ void CFluid::RenderGlobalAcid()
 	float StepX = 16;
 	vec2 Size = vec2(Screen.x+StepX*2, Screen.y);
 	
-	Size.y = AcidLevel-Screen.y;
+	//Size.y = AcidLevel-SScreen.y;
+	Size.y = (Center.y+Screen.y/1.5f) - AcidLevel;
 	
 	m_GlobalPool.m_Pos = Pos;
 	m_GlobalPool.m_Size = Size;
@@ -222,31 +224,23 @@ void CFluid::RenderGlobalAcid()
 	else
 		Graphics()->SetColor(0, 0.8f, 0, 0.6f);
 
-	int offX = fmod(abs(Center.x), 16.0f);
+	int offX = -fmod(abs(Center.x), 16.0f);
 	
-	// fluid
-	for (int f = -3; f < Size.x / 16; f++)
+	// fullscreen fluid
+	if (Center.y > AcidLevel+Screen.y/2)
 	{
-		int a = abs(int(f+Pos.x/16))%128;
-		
-		float y1 = Pos.y + m_GlobalPool.m_aSurfaceY[a];
-		float y2 = Pos.y + m_GlobalPool.m_aSurfaceY[(a+1)%128];
-		
 		IGraphics::CFreeformItem Freeform(
-			Pos.x+f*StepX+offX, y1,
-			Pos.x+(f+1)*StepX+offX, y2,
-			Pos.x+f*StepX+offX, Pos.y+Size.y,
-			Pos.x+(f+1)*StepX+offX, Pos.y+Size.y);
+			Center.x-Screen.x/1.5f, Center.y-Screen.y/1.5f,
+			Center.x+Screen.x/1.5f, Center.y-Screen.y/1.5f,
+			Center.x-Screen.x/1.5f, Center.y+Screen.y/1.5f,
+			Center.x+Screen.x/1.5f, Center.y+Screen.y/1.5f);
 			
 		Graphics()->QuadsDrawFreeform(&Freeform, 1);
 	}
-	
-	// top outline
-	if (!g_Config.m_GfxMultiBuffering)
+	else
 	{
-		Graphics()->SetColor(0, 0, 0, 0.4f);
-
-		for (int f = 0; f < Size.x / 16; f++)
+		// fluid
+		for (int f = -3; f < Size.x / 16; f++)
 		{
 			int a = abs(int(f+Pos.x/16))%128;
 			
@@ -256,14 +250,37 @@ void CFluid::RenderGlobalAcid()
 			IGraphics::CFreeformItem Freeform(
 				Pos.x+f*StepX+offX, y1,
 				Pos.x+(f+1)*StepX+offX, y2,
-				Pos.x+f*StepX+offX, y1+2,
-				Pos.x+(f+1)*StepX+offX, y2+2);
+				Pos.x+f*StepX+offX, Pos.y+Size.y,
+				Pos.x+(f+1)*StepX+offX, Pos.y+Size.y);
 				
 			Graphics()->QuadsDrawFreeform(&Freeform, 1);
+		}
+		
+		// top outline
+		if (!g_Config.m_GfxMultiBuffering)
+		{
+			Graphics()->SetColor(0, 0, 0, 0.4f);
+
+			for (int f = 0; f < Size.x / 16; f++)
+			{
+				int a = abs(int(f+Pos.x/16))%128;
+				
+				float y1 = Pos.y + m_GlobalPool.m_aSurfaceY[a];
+				float y2 = Pos.y + m_GlobalPool.m_aSurfaceY[(a+1)%128];
+				
+				IGraphics::CFreeformItem Freeform(
+					Pos.x+f*StepX+offX, y1,
+					Pos.x+(f+1)*StepX+offX, y2,
+					Pos.x+f*StepX+offX, y1+2,
+					Pos.x+(f+1)*StepX+offX, y2+2);
+					
+				Graphics()->QuadsDrawFreeform(&Freeform, 1);
+			}
 		}
 	}
 	
 	Graphics()->QuadsEnd();
+	
 }
 
 

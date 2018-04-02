@@ -260,11 +260,13 @@ bool CSpineReader::Load(const char *pData,
 	}
 
 	// parse events
+	/*
 	if((*pJsonData)["events"].type != json_none)
 	{
 		// TODO:
 		const json_value& rEvents = (*pJsonData)["events"];
 	}
+	*/
 
 	// parse animations
 	if((*pJsonData)["animations"].type == json_object && pmAnimations)
@@ -609,8 +611,7 @@ bool CSpineReader::LoadAtlas(const char *pAtlasData, CSpineAtlas *pAtlas)
 				}
 
 				pLine = str_skip_whitespaces(pLine);
-				const char *pFilter = pLine + str_length("rotate: ");
-
+				//const char *pFilter = pLine + str_length("rotate: ");
 			}
 
 			pAtlas->m_lPages.add(Page);

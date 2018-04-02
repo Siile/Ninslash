@@ -84,11 +84,16 @@ public:
 	void GenerateFences();
 	void GenerateSlopes();
 	void RemoveSingles();
+	void BaseCleanup();
 	void GenerateBoxes();
 	void GenerateBackground();
+	void GenerateMoreBackground();
+	bool AddBackgroundTile(int x, int y);
 	void GenerateAirPlatforms(int Num);
 	void Scan();
 	int Size();
+	
+	void CleanTiles();
 	
 	ivec2 GetPlayerSpawn();
 	ivec2 GetOpenArea();
@@ -99,6 +104,7 @@ public:
 	ivec2 GetPlatform();
 	ivec2 GetCeiling();
 	ivec2 GetLeftCeiling();
+	ivec2 GetRightCeiling();
 	ivec2 GetWall();
 	ivec2 GetTopCorner();
 	ivec2 GetSharpCorner();

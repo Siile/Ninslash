@@ -31,6 +31,14 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	m_GameFlags = GAMEFLAG_COOP;
 	m_GameState = STATE_STARTING;
 	
+	if (g_Config.m_SvMapGenRandSeed)
+	{
+		g_Config.m_SvMapGenSeed = rand()%32767;
+		g_Config.m_SvMapGenRandSeed = 0;
+	}
+	
+	srand(g_Config.m_SvMapGenLevel + g_Config.m_SvMapGenSeed);
+	
 	for (int i = 0; i < MAX_ENEMIES; i++)
 		m_aEnemySpawnPos[i] = vec2(0, 0);
 	
@@ -41,7 +49,7 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	
 	// hordes of enemies
 	bool Defend = (g_Config.m_SvMapGenLevel > 1 && g_Config.m_SvMapGenLevel%5 == 0);
-	int e = 3 + log(float(1 + g_Config.m_SvMapGenLevel/3)) * 4;
+	int e = 6 + log(float(1 + g_Config.m_SvMapGenLevel/3)) * 4;
 	e += rand()%(1+g_Config.m_SvMapGenLevel/6);
 	e += g_Config.m_SvMapGenLevel/3;
 
@@ -151,7 +159,7 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			switch (i)
 			{
 			case ENEMY_ALIEN1:
-				pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer());
+				pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer(), g_Config.m_SvMapGenLevel);
 				break;
 					
 			case ENEMY_ALIEN2:
@@ -183,7 +191,7 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 				break;
 				
 			default:
-				pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer());
+				pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer(), g_Config.m_SvMapGenLevel);
 				break;
 			};
 				
@@ -194,18 +202,10 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 		
 		if (!Found)
 		{
-			pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer());
+			pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer(), g_Config.m_SvMapGenLevel);
 			pChr->GetPlayer()->m_ToBeKicked = true;
 			Trigger(false);
 		}
-	}
-	else
-	{
-		/*
-		CPlayerData *pData = GameServer()->Server()->PlayerData(pChr->GetPlayer()->GetCID());
-		pChr->GiveCustomWeapon(pData->m_Weapon);
-		pChr->SetCustomWeapon(pData->m_Weapon);
-		*/
 	}
 }
 
@@ -303,6 +303,8 @@ void CGameControllerCoop::Tick()
 		// reset to first map if there's no players for 60 seconds
 		else if (Server()->Tick() > Server()->TickSpeed()*60.0f)
 		{
+			if (g_Config.m_SvMapGenRandSeed)
+				g_Config.m_SvMapGenSeed = rand()%32767;
 			FirstMap();
 		}
 	}

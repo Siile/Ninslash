@@ -34,11 +34,13 @@ class CItems : public CComponent
 	
 	float m_FlagTilt[2];
 	
+	void UpdateProjectileTrace(const CNetObj_Projectile *pCurrent, int ItemID);
 	
 public:
 	virtual void OnReset();
 	virtual void OnRender();
 
+	void UpdateTraces();
 	void AddExtraProjectile(CNetObj_Projectile *pProj);
 };
 

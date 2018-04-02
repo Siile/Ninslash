@@ -216,10 +216,28 @@ CBuilding *CGameWorld::IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec
 		if(p == pNotThis || !p->m_Collision)
 			continue;
 		
-		if (Team == p->m_Team && p->m_Type != BUILDING_MINE1 && p->m_Type != BUILDING_MINE2)
+		//if (!GameServer()->m_pController->IsTeamplay())
+		//	continue;
+		
+		/*
+		if (GameServer()->m_pController->IsTeamplay())
+		{
+			if (Team == p->m_Team)
+				continue;
+		}
+		else
+		{
+			if (Team == 
+		}
+		*/
+		
+		if (Team == p->m_Team)
 			continue;
 		
-		if (GameServer()->m_pController->IsCoop() && (p->m_Type == BUILDING_TURRET || p->m_Type == BUILDING_TESLACOIL || p->m_Type == BUILDING_REACTOR))
+		//if (p->m_Team >= 0)
+		//	continue;
+		
+		if (GameServer()->m_pController->IsCoop() && Team >= 0 && p->m_Team >= 0 && (p->m_Type == BUILDING_TURRET || p->m_Type == BUILDING_TESLACOIL || p->m_Type == BUILDING_REACTOR))
 		{
 			if (Team >= 0 && Team < MAX_CLIENTS)
 			{
@@ -393,7 +411,7 @@ CCharacter *CGameWorld::IntersectScythe(vec2 Pos0, vec2 Pos1, float Radius, vec2
 		//	continue;
 		
 		float Len = distance(p->m_Pos + vec2(0, -10), IntersectPos);
-		if(Len < p->m_ProximityRadius+Radius+p->WeaponPowerLevel(WEAPON_SCYTHE)*10.0f)
+		if(Len < p->m_ProximityRadius+Radius+p->GetWeaponPowerLevel()*10.0f)
 		{
 			Len = distance(Pos0, IntersectPos);
 			if(Len < ClosestLen)

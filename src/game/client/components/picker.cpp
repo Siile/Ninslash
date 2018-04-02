@@ -96,7 +96,7 @@ void CPicker::OnConsoleInit()
 	Console()->Register("+dropweapon", "", CFGFLAG_CLIENT, ConDropWeapon, this, "Drop weapon");
 	Console()->Register("+lastweapon", "", CFGFLAG_CLIENT, ConLastWeaponpick, this, "Select last picked weapon");
 	Console()->Register("+gamepadlastweapon", "", CFGFLAG_CLIENT, ConLastWeaponpick, this, "Select last picked weapon");
-	Console()->Register("+picker", "", CFGFLAG_CLIENT, ConKeyPicker, this, "Open weapon selector");
+	//Console()->Register("+picker", "", CFGFLAG_CLIENT, ConKeyPicker, this, "Open weapon selector");
 	Console()->Register("+gamepadpicker", "", CFGFLAG_CLIENT, ConKeyPicker, this, "Open weapon selector");
 	Console()->Register("weaponpick", "i", CFGFLAG_CLIENT, ConWeaponpick, this, "Use weapon");
 	
@@ -541,7 +541,7 @@ void CPicker::LastWeaponpick()
 {
 	if (CustomStuff()->m_WeaponpickTimer > 0.0f)
 	{
-		Weaponpick(CustomStuff()->m_WeaponpickWeapon-1);
+		Weaponpick(CustomStuff()->m_WeaponpickWeapon);
 		CustomStuff()->m_LastWeaponPicked = true;
 	}
 }
@@ -550,21 +550,21 @@ void CPicker::LastWeaponpick()
 	
 void CPicker::Weaponpick(int Weapon)
 {
-	int Group = CustomStuff()->m_SelectedGroup-1;
-	
 	if (Weapon < 0 || Weapon >= NUM_WEAPONS)
 		return;
 
+	/*
 	int w = CustomStuff()->m_LocalWeapons;
 	if (!(w & (1<<(Weapon+1))))
 	{
 		m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_NEGATIVE, 0);
 		return;
 	}
+	*/
 	
 	m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_POSITIVE, 0);
 
-	m_pClient->m_pControls->m_PickedWeapon = Weapon+2;
+	m_pClient->m_pControls->m_PickedWeapon = Weapon+1;
 }
 
 void CPicker::DropWeapon()
@@ -579,6 +579,8 @@ void CPicker::DropWeapon()
 	
 	CNetMsg_Cl_DropWeapon Msg;
 	Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+	
+	m_pClient->m_pControls->m_InputData.m_WantedWeapon = 0;
 }
 
 

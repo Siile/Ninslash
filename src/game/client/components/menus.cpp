@@ -673,7 +673,7 @@ void CMenus::RenderLoading()
 	LastLoadRender = time_get();
 
 	// need up date this here to get correct
-	vec3 Rgb = HslToRgb(vec3(g_Config.m_UiColorHue/255.0f, g_Config.m_UiColorSat/255.0f, g_Config.m_UiColorLht/255.0f));
+	//vec3 Rgb = HslToRgb(vec3(g_Config.m_UiColorHue/255.0f, g_Config.m_UiColorSat/255.0f, g_Config.m_UiColorLht/255.0f));
 	//ms_GuiColor = vec4(Rgb.r, Rgb.g, Rgb.b, g_Config.m_UiColorAlpha/255.0f);
 	ms_GuiColor = vec4(0.2f, 0.25f, 0.3f, 0.75f);
 
@@ -800,9 +800,6 @@ void CMenus::RenderFront(CUIRect MainView)
 {
 	s_ResetMenu = false;
 	
-	static int s_MenuPage = 0;
-	static float s_ReactorTime = 0.0f;
-	
 	if(gs_TextureLogo == -1)
 		gs_TextureLogo = Graphics()->LoadTexture("logo.png", IStorage::TYPE_ALL, CImageInfo::FORMAT_AUTO, 0);
 	
@@ -828,7 +825,7 @@ void CMenus::RenderFront(CUIRect MainView)
 	
 	
 	// render background
-	CUIRect Temp, TabBar;
+	CUIRect TabBar;
 	MainView.VSplitLeft(350, &MainView, &TabBar);
 	TabBar.VSplitRight(350, &TabBar, NULL);
 	TabBar.HSplitTop(220, NULL, &TabBar);
@@ -1634,12 +1631,14 @@ void CMenus::OnRender()
 		RenderDemoPlayer(Screen);
 	}
 
+	/*
 	if(Client()->State() == IClient::STATE_ONLINE && m_pClient->m_ServerMode == m_pClient->SERVERMODE_PUREMOD)
 	{
 		Client()->Disconnect();
 		SetActive(true);
 		m_Popup = POPUP_PURE;
 	}
+	*/
 
 	if(!IsActive())
 	{
@@ -1651,7 +1650,7 @@ void CMenus::OnRender()
 	}
 
 	// update colors
-	vec3 Rgb = HslToRgb(vec3(g_Config.m_UiColorHue/255.0f, g_Config.m_UiColorSat/255.0f, g_Config.m_UiColorLht/255.0f));
+	//vec3 Rgb = HslToRgb(vec3(g_Config.m_UiColorHue/255.0f, g_Config.m_UiColorSat/255.0f, g_Config.m_UiColorLht/255.0f));
 	//ms_GuiColor = vec4(Rgb.r, Rgb.g, Rgb.b, g_Config.m_UiColorAlpha/255.0f);
 	ms_GuiColor = vec4(0.2f, 0.25f, 0.3f, 0.75f);
 
@@ -1738,7 +1737,7 @@ void CMenus::RenderBackground()
 	for (;m_LastUpdate < currentTime; m_LastUpdate += step)
 	{
 		if (Client()->Loaded())
-			s_ShaderIntensity += 0.025f;
+			s_ShaderIntensity += 0.05f;
 		
 		if (i++ > 1)
 		{

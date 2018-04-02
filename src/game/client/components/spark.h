@@ -13,24 +13,14 @@ struct CSinglespark
 		m_Size = 2;
 		m_Rot = 0;
 		m_Rotspeed = 0;
-		m_FlowAffected = 1.0f;
 		m_Color = vec4(1,1,1,1);
-		m_Freeze = false;
 	}
 
 	vec2 m_Pos;
 	vec2 m_Vel;
 
-	bool m_Freeze;
-	
-	int m_Spr;
-
-	float m_FlowAffected;
-
 	float m_LifeSpan;
-
 	float m_Size;
-
 	float m_Rot;
 	float m_Rotspeed;
 
@@ -49,6 +39,7 @@ public:
 	enum
 	{
 		GROUP_SPARKS=0,
+		GROUP_AREA1,
 		NUM_GROUPS
 	};
 
@@ -82,5 +73,6 @@ private:
 	};
 
 	CRenderGroup<GROUP_SPARKS> m_RenderSpark;
+	CRenderGroup<GROUP_AREA1> m_RenderArea1;
 };
 #endif

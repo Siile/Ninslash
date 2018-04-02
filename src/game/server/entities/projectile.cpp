@@ -1,14 +1,14 @@
 #include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
+#include <game/weapons.h>
 #include "projectile.h"
 #include "building.h"
 #include "droid.h"
 #include "electro.h"
 #include "superexplosion.h"
-#include "smokescreen.h"
 
 
-CProjectile::CProjectile(CGameWorld *pGameWorld, int Weapon, int Owner, vec2 Pos, vec2 Dir, int Span,
+CProjectile::CProjectile(CGameWorld *pGameWorld, int Weapon, int Owner, vec2 Pos, vec2 Dir, vec2 Vel, int Span,
 		int Damage, int Explosive, float Force, int SoundImpact)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_PROJECTILE)
 {
@@ -23,6 +23,7 @@ CProjectile::CProjectile(CGameWorld *pGameWorld, int Weapon, int Owner, vec2 Pos
 	m_StartTick = Server()->Tick();
 	m_Explosive = Explosive;
 	m_Bouncy = false;
+	m_Vel2 = Vel*30.0f;
 	
 	m_PowerLevel = 0;
 
@@ -31,8 +32,7 @@ CProjectile::CProjectile(CGameWorld *pGameWorld, int Weapon, int Owner, vec2 Pos
 	m_OwnerBuilding = NULL;
 	BounceTick = 0;
 	
-	if (Weapon == W_DROID_STAR)
-		m_Explosive = EXPLOSION_GREEN;
+	UpdateStats();
 	
 	GameWorld()->InsertEntity(this);
 }
@@ -43,96 +43,55 @@ void CProjectile::Reset()
 }
 
 
-void CProjectile::SetPowerLevel(int PowerLevel)
+void CProjectile::UpdateStats()
 {
-	m_PowerLevel = PowerLevel;
-	
-	if (PowerLevel > 0)
-	{
-		if (m_Weapon == WEAPON_RIFLE)
-		{
-			m_Damage += PowerLevel*3;
-			m_Bouncy = true;
-			m_LifeSpan *= 1.1f;
-		}
-		
-		if (m_Weapon == WEAPON_SHOTGUN)
-		{
-			m_LifeSpan *= 1.2f;
-			m_Damage += 1;
-		}
-	}
+	m_Part1 = GetPart(m_Weapon, 0);
+	m_Part2 = GetPart(m_Weapon, 1);
+	m_Speed = GetProjectileSpeed(m_Weapon);
+	m_Curvature = GetProjectileCurvature(m_Weapon);
+	m_Bouncy = IsProjectileBouncy(m_Weapon);
 }
-
 
 
 vec2 CProjectile::GetPos(float Time)
 {
-	float Curvature = 0;
-	float Speed = 0;
-
-	switch(m_Weapon)
-	{
-		case WEAPON_GRENADE:
-			Curvature = GameServer()->Tuning()->m_GrenadeCurvature;
-			Speed = GameServer()->Tuning()->m_GrenadeSpeed;
-			break;
-			
-		case WEAPON_ELECTRIC:
-			Curvature = GameServer()->Tuning()->m_ElectricCurvature;
-			Speed = GameServer()->Tuning()->m_ElectricSpeed;
-			break;
-
-		case WEAPON_FLAMER:
-			Curvature = GameServer()->Tuning()->m_FlamerCurvature;
-			Speed = GameServer()->Tuning()->m_FlamerSpeed;
-			break;
-
-		case WEAPON_SHOTGUN:
-			Curvature = GameServer()->Tuning()->m_ShotgunCurvature;
-			Speed = GameServer()->Tuning()->m_ShotgunSpeed;
-			break;
-
-		case WEAPON_RIFLE:
-			//Curvature = GameServer()->Tuning()->m_GunCurvature;
-			//Speed = GameServer()->Tuning()->m_GunSpeed;
-			//break;
-			
-		case W_DROID_WALKER:
-			Curvature = GameServer()->Tuning()->m_WalkerCurvature;
-			Speed = GameServer()->Tuning()->m_WalkerSpeed;
-			break;
-			
-		case W_DROID_STAR:
-			Curvature = GameServer()->Tuning()->m_StarDroidCurvature;
-			Speed = GameServer()->Tuning()->m_StarDroidSpeed;
-			break;
-	}
-
+	/*
 	if (m_Weapon == W_DROID_STAR)
 		return CalcLogPos(m_Pos, m_Direction, Curvature, Speed, Time);
 	
-	return CalcPos(m_Pos, m_Direction, Curvature, Speed, Time);
+	if (m_Weapon == W_RIFLE && m_PowerLevel == 3)
+		return CalcTPos(m_Pos, m_Direction, Curvature, Speed, Time);
+	*/
+	if (WeaponProjectilePosType(m_Weapon) == 1)
+		return CalcLogPos(m_Pos, m_Direction, m_Vel2, m_Curvature, m_Speed, Time);
+	
+	if (WeaponProjectilePosType(m_Weapon) == 2)
+		return CalcRocketPos(m_Pos, m_Direction, m_Vel2, m_Curvature, m_Speed, Time);
+	
+	return CalcPos(m_Pos, m_Direction, m_Vel2, m_Curvature, m_Speed, Time);
 }
 
-
+// todo: fix broken bouncing
 bool CProjectile::Bounce(vec2 Pos)
 {
 	if (m_Bouncy)
 	{
 		BounceTick = Server()->Tick();
 	
-		int top = GameServer()->Collision()->GetCollisionAt(Pos.x, Pos.y-8);
-		int bot = GameServer()->Collision()->GetCollisionAt(Pos.x, Pos.y+8);
-		int left = GameServer()->Collision()->GetCollisionAt(Pos.x-8, Pos.y);
-		int right = GameServer()->Collision()->GetCollisionAt(Pos.x+8, Pos.y);
+		m_Vel2 = vec2(0, 0);
+		int top = GameServer()->Collision()->GetCollisionAt(Pos.x, Pos.y-16);
+		int bot = GameServer()->Collision()->GetCollisionAt(Pos.x, Pos.y+16);
+		int left = GameServer()->Collision()->GetCollisionAt(Pos.x-16, Pos.y);
+		int right = GameServer()->Collision()->GetCollisionAt(Pos.x+16, Pos.y);
 		
 		int c = (top > 0) + (bot > 0) + (left > 0) + (right > 0);
 		
 		if (c == 4)
 		{
-			m_Direction.y *= -1;
-			m_Direction.x *= -1;
+			//m_Direction.y *= -1;
+			//m_Direction.x *= -1;
+			
+			return false;
 		}
 		else
 		{
@@ -145,6 +104,8 @@ bool CProjectile::Bounce(vec2 Pos)
 			if(!right && left)
 				m_Direction.x *= -1;
 		}
+		
+		GameServer()->CreateSound(Pos, SOUND_BOUNCER_BOUNCE);
 		
 		return true;
 	}
@@ -165,26 +126,36 @@ void CProjectile::Tick()
 	CCharacter *ReflectChr = NULL;
 	
 	Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &CurPos, 0);
-		
+	
+	float r = 6.0f;
+	
+	if (m_Weapon == W_SWORD)
+		r = 64.0f;
+	
 	if (m_Weapon != W_DROID_STAR)
 	{
-		TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, 6.0f, CurPos, OwnerChar);
-		ReflectChr = GameServer()->m_World.IntersectScythe(PrevPos, CurPos, 50.0f, CurPos, OwnerChar);
+		TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, r, CurPos, OwnerChar);
+		ReflectChr = GameServer()->m_World.IntersectScythe(PrevPos, CurPos, r+45.0f, CurPos, OwnerChar);
 	}
 	
-	int Team = -1;
+	int Team = m_Owner;
+	
+	if (OwnerChar && GameServer()->m_pController->IsTeamplay())
+		Team = OwnerChar->GetPlayer()->GetTeam();
+	
+	/*
 	if (m_Owner == RED_BASE)
 		Team = TEAM_RED;
 	else if (m_Owner == BLUE_BASE)
 		Team = TEAM_BLUE;
 	else if (OwnerChar)
 		Team = OwnerChar->GetPlayer()->GetTeam();
+	*/
 	
 	CBuilding *TargetBuilding = NULL;
 	
-	if (m_Weapon != W_DROID_STAR)
-		TargetBuilding = GameServer()->m_World.IntersectBuilding(PrevPos, CurPos, 6.0f, CurPos, Team);
-	
+	//if (m_Weapon != W_DROID_STAR)
+	TargetBuilding = GameServer()->m_World.IntersectBuilding(PrevPos, CurPos, 6.0f, CurPos, Team);
 	
 	
 	if (m_OwnerBuilding == TargetBuilding)
@@ -192,7 +163,7 @@ void CProjectile::Tick()
 	
 	CDroid *TargetMonster = NULL;
 	
-	if (m_Weapon != W_DROID_STAR)
+	//if (m_Weapon != W_DROID_STAR)
 		TargetMonster = GameServer()->m_World.IntersectWalker(PrevPos, CurPos, 6.0f, CurPos);
 	
 	if (m_Owner == NEUTRAL_BASE)
@@ -207,6 +178,9 @@ void CProjectile::Tick()
 		m_Pos = CurPos;
 		Collide = false;
 	}
+
+	if (m_Weapon == W_SWORD)
+		Collide = false;
 	
 	if (ReflectChr)
 	{
@@ -224,6 +198,7 @@ void CProjectile::Tick()
 	
 	if(TargetMonster || TargetBuilding || TargetChr || Collide || m_LifeSpan < 0 || GameLayerClipped(CurPos))
 	{
+		/*
 		if(m_LifeSpan >= 0 || m_Weapon == WEAPON_GRENADE || m_Weapon == WEAPON_FLAMER || m_Weapon == WEAPON_ELECTRIC)
 			GameServer()->CreateSound(CurPos, m_SoundImpact);
 
@@ -271,9 +246,44 @@ void CProjectile::Tick()
 		{
 			TargetMonster->TakeDamage(m_Direction * max(0.001f, m_Force), m_Damage, m_Owner, CurPos);
 			//GameServer()->CreateMonsterHit(CurPos);
-			GameServer()->m_World.DestroyEntity(this);
+			//GameServer()->m_World.DestroyEntity(this);
+		}
+		*/
+		
+		if(TargetChr)
+		{
+			vec2 Force = m_Direction * max(0.001f, m_Force);
+			
+			/*
+			if (m_Weapon == WEAPON_RIFLE && m_PowerLevel > 1)
+			{
+				TargetChr->Electrocute(0.15f);
+				Force *= 2.0f;
+			}
+			*/
+			
+			//TargetChr->TakeDamage(Force, m_Damage, m_Owner, m_Weapon, CurPos, DAMAGETYPE_NORMAL, m_OwnerBuilding ? true : false);
+			TargetChr->TakeDamage(m_Owner, m_Weapon, m_Damage, Force, CurPos);
+			
+			GameServer()->CreateEffect(FX_BLOOD2, (CurPos+TargetChr->m_Pos)/2.0f + vec2(0, -4));
 		}
 
+		if(TargetBuilding)
+		{
+			TargetBuilding->TakeDamage(m_Damage, m_Owner, m_Weapon);
+			GameServer()->CreateBuildingHit(CurPos);
+		}
+		
+		if (TargetMonster)
+		{
+			TargetMonster->TakeDamage(m_Direction * max(0.001f, m_Force), m_Damage, m_Owner, CurPos, m_Weapon);
+		}
+		
+		if (m_LifeSpan < 0)
+			GameServer()->CreateExplosion(PrevPos, m_Owner, m_Weapon);
+		else if (IsExplosiveProjectile(m_Weapon))
+			GameServer()->CreateExplosion(CurPos, m_Owner, m_Weapon);
+		
 		GameServer()->m_World.DestroyEntity(this);
 	}
 	
@@ -293,6 +303,8 @@ void CProjectile::FillInfo(CNetObj_Projectile *pProj)
 	pProj->m_Y = (int)m_Pos.y;
 	pProj->m_VelX = (int)(m_Direction.x*100.0f);
 	pProj->m_VelY = (int)(m_Direction.y*100.0f);
+	pProj->m_Vel2X = (int)(m_Vel2.x*10.0f);
+	pProj->m_Vel2Y = (int)(m_Vel2.y*10.0f);
 	pProj->m_StartTick = m_StartTick;
 	pProj->m_Type = m_Weapon;
 	pProj->m_PowerLevel = m_PowerLevel;

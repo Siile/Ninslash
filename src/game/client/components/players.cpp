@@ -20,6 +20,7 @@
 #include <game/client/components/flow.h>
 #include <game/client/components/skins.h>
 #include <game/client/components/effects.h>
+#include <game/client/components/tracer.h>
 #include <game/client/components/sounds.h>
 #include <game/client/components/controls.h>
 
@@ -111,6 +112,7 @@ void CPlayers::RenderPlayer(
 	bool NewTick = m_pClient->m_NewTick;
 
 	pCustomPlayerInfo->m_RenderInfo = RenderInfo;
+	pCustomPlayerInfo->m_Weapon = Player.m_Weapon;
 	
 	
 	// set size
@@ -168,14 +170,14 @@ void CPlayers::RenderPlayer(
 
 	m_pClient->m_pFlow->Add(Position, Vel*100.0f, 10.0f);
 
-	RenderInfo.m_GotAirJump = Player.m_Jumped&2?0:1;
+	//RenderInfo.m_GotAirJump = Player.m_Jumped&2?0:1;
 
 	// detect events
 	if(NewTick)
 	{
 		// detect air jump
-		if(!RenderInfo.m_GotAirJump && !(Prev.m_Jumped&2))
-			m_pClient->m_pEffects->AirJump(Position);
+		//if(!RenderInfo.m_GotAirJump && !(Prev.m_Jumped&2))
+		//	m_pClient->m_pEffects->AirJump(Position);
 	}
 	
 	// Player.IsOnForceTile()
@@ -287,35 +289,97 @@ void CPlayers::RenderPlayer(
 		
 	bool Paused = true;
 		
-	static float s_LastGameTickTime = Client()->GameTickTime();
+	//static float s_LastGameTickTime = Client()->GameTickTime();
 	if(m_pClient->m_Snap.m_pGameInfoObj && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
 	{
-		s_LastGameTickTime = Client()->GameTickTime();
+		//s_LastGameTickTime = Client()->GameTickTime();
 		Paused = false;
 	}
+
+	pCustomPlayerInfo->m_WeaponCharge = 0;
 	
-	if (Player.m_Weapon == WEAPON_HAMMER)
+	// recoil & muzzle to static weapons
+	if (IsStaticWeapon(Player.m_Weapon) || !Player.m_Weapon)
+	{
+		int Phase1Tick = (Client()->GameTick() - Player.m_AttackTick);
+	
+		//if (Phase1Tick < 10 && pCustomPlayerInfo->m_RecoilTick < Player.m_AttackTick && !Paused)
+		if (Player.m_AttackTick && pCustomPlayerInfo->m_RecoilTick < Player.m_AttackTick && !Paused)
+		{
+			pCustomPlayerInfo->m_RecoilTick = Player.m_AttackTick;
+			pCustomPlayerInfo->m_WeaponRecoil -= Direction * GetWeaponRenderRecoil(Player.m_Weapon);
+			
+			if (GetStaticType(Player.m_Weapon) == SW_GUN1 || GetStaticType(Player.m_Weapon) == SW_GUN2)
+			{
+				vec2 Moff = GetMuzzleRenderOffset(Player.m_Weapon);
+				vec2 DirY(-pCustomPlayerInfo->m_MuzzleDir.y, pCustomPlayerInfo->m_MuzzleDir.x);
+					
+				if (pCustomPlayerInfo->m_MuzzleDir.x < 0)
+					Moff.y *= -1;
+					
+				vec2 MuzzlePos = pCustomPlayerInfo->m_MuzzlePos + pCustomPlayerInfo->m_MuzzleDir * Moff.x + DirY * Moff.y;
+				m_pClient->m_pEffects->Muzzle(MuzzlePos, pCustomPlayerInfo->m_MuzzleDir, Player.m_Weapon);
+			}
+			
+			if (GetWeaponFiringType(Player.m_Weapon) == WFT_THROW)
+			{
+				
+				
+			}
+		}
+		
+		if (Player.m_ChargeLevel > 0 && GetWeaponFiringType(Player.m_Weapon) == WFT_THROW)
+			pCustomPlayerInfo->m_WeaponCharge = Phase1Tick;
+			
+	
+		/*
+		if (Player.m_AttackTick != pCustomPlayerInfo->m_MuzzleTick)
+		{
+			vec2 MuzzlePos = p + Dir * 20;
+			m_pClient->m_pEffects->Muzzle(MuzzlePos, Dir, Player.m_Weapon);
+			pCustomPlayerInfo->m_MuzzleTick = Player.m_AttackTick
+		}
+		*/
+	
+	
+		// throwing
+		//if (GetWeaponFiringType(Player.m_Weapon) == WFT_THROW)
+		//	pCustomPlayerInfo->m_WeaponRecoil -= Direction * Player.m_ChargeLevel * 0.12f;
+		
+		//if (Phase1Tick < 10)
+		//	pCustomPlayerInfo->AddMuzzle(Player.m_AttackTick, Player.m_Weapon);
+	}
+	
+	if (GetWeaponFiringType(Player.m_Weapon) == WFT_MELEE)
 	{
 		// melee attack effect
 		if (pCustomPlayerInfo->m_MeleeTick < Player.m_AttackTick && !Paused)
 		{
 			pCustomPlayerInfo->m_MeleeTick = Player.m_AttackTick;
 			
+			bool Flip = false;
+			
 			if (pCustomPlayerInfo->m_MeleeState == MELEE_UP)
 			{
+				if (Direction.x < 0.0f)
+					Flip = !Flip;
+				
 				pCustomPlayerInfo->m_MeleeAnimState = 1.0f;
 				pCustomPlayerInfo->m_MeleeState = MELEE_DOWN;
-				m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), false, Player.m_WeaponPowerLevel);
-				pCustomPlayerInfo->m_Weapon2Recoil += Direction * 15;
+				m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), Flip, Player.m_WeaponPowerLevel);
+				pCustomPlayerInfo->m_WeaponRecoil += Direction * 15;
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*95, vec2(frandom()-frandom(), frandom()-frandom())*30);
 			}
 			else
 			{
+				if (Direction.x < 0.0f)
+					Flip = !Flip;
+				
 				pCustomPlayerInfo->m_MeleeAnimState = 1.0f;
 				pCustomPlayerInfo->m_MeleeState = MELEE_UP;
-				m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), true, Player.m_WeaponPowerLevel);
-				pCustomPlayerInfo->m_Weapon2Recoil += Direction * 15;
+				m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), !Flip, Player.m_WeaponPowerLevel);
+				pCustomPlayerInfo->m_WeaponRecoil += Direction * 15;
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*95, vec2(frandom()-frandom(), frandom()-frandom())*30);
 			}
@@ -327,6 +391,7 @@ void CPlayers::RenderPlayer(
 			CustomStuff()->AddImpact(vec4(p.x-r, p.y-r, p.x+r, p.y+r), CCustomStuff::IMPACT_HIT, normalize(p-Position+vec2(0, -0.3f)));
 		}
 	}
+	/*
 	else if (Player.m_Weapon == WEAPON_TOOL)
 	{
 		// melee attack effect
@@ -334,7 +399,7 @@ void CPlayers::RenderPlayer(
 		{
 			pCustomPlayerInfo->m_MeleeTick = Player.m_AttackTick;
 			pCustomPlayerInfo->m_ToolAngleOffset = 45.0f;
-			pCustomPlayerInfo->m_Weapon2Recoil += Direction * 15;
+			pCustomPlayerInfo->m_WeaponRecoil += Direction * 15;
 		}
 	}
 	else if (Player.m_Weapon == WEAPON_SCYTHE)
@@ -346,6 +411,7 @@ void CPlayers::RenderPlayer(
 			pCustomPlayerInfo->FireMelee();
 		}
 	}
+	*/
 	else
 	{
 		pCustomPlayerInfo->m_MeleeTick = Player.m_AttackTick;
@@ -368,9 +434,26 @@ void CPlayers::RenderPlayer(
 		);
 	}
 	
+	
+	// dash effect
+	if (Player.m_Movement)
+	{
+		m_pClient->m_pTracers->Add(-2, pInfo.m_ClientID, Position+vec2(0, -6), Position+vec2(0, -6), 0, 0);
+			
+		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] < 0.5f)
+			m_pClient->m_pEffects->DashEffect(Position+vec2(0, -6), Player.m_Movement1>>6);
+			
+		pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] = 1.0f;
+	}
+	else
+		m_pClient->m_pTracers->UpdatePos(pInfo.m_ClientID, Position+vec2(0, -6));
+	
 	// store some data to customstuff for easy access
 	if (pInfo.m_Local)
 	{
+		//if (rand()%10 == 1)
+		//	m_pClient->m_pEffects->Guts(Position);
+
 		CustomStuff()->m_LocalAlive = true;
 		CustomStuff()->m_LocalColor = RenderInfo.m_ColorBody;
 		CustomStuff()->m_LocalWeapon = Player.m_Weapon;
@@ -388,13 +471,15 @@ void CPlayers::RenderPlayer(
 	CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_Color = RenderInfo.m_ColorBody;
 		
 	// draw aim line 
-	if (pPlayerInfo->m_Local && g_Config.m_GoreAimLine && pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING] < 0.9f)
+	if (!CustomStuff()->m_Inventory && pPlayerInfo->m_Local && WeaponAimline(Player.m_Weapon) && pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING] < 0.9f)
 	{
 		//vec2 Pos = Position + Direction * 400; //Position + Direction * 500.0f;
-		vec2 Pos = Position + m_pClient->m_pControls->m_MousePos; //Position + Direction * 500.0f;
+		//vec2 Pos = Position + m_pClient->m_pControls->m_MousePos; //Position + Direction * 500.0f;
+		vec2 Pos = Position + Direction * 1000.0f;
 		vec2 From = Position + WeaponOffset;
 		vec2 Dir = Direction;
 
+		Collision()->IntersectLine(From, Pos, 0x0, &Pos);
 		vec2 Out, Border;
 
 		Graphics()->BlendNormal();
@@ -404,18 +489,8 @@ void CPlayers::RenderPlayer(
 		float a = 1.0f - pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY];
 		
 		// do outline
-		if (Player.m_Weapon == WEAPON_SHOTGUN)
-			Graphics()->SetColor(1.0f, 1.0f, 0.2f, 0.3f*a);
-		else if (Player.m_Weapon == WEAPON_RIFLE)
-			Graphics()->SetColor(0.2f, 1.0f, 0.2f, 0.3f*a);
-		else if (Player.m_Weapon == WEAPON_GRENADE || Player.m_Weapon == WEAPON_FLAMER)
-			Graphics()->SetColor(1.0f, 0.2f, 0.2f, 0.3f*a);
-		else if (Player.m_Weapon == WEAPON_LASER || Player.m_Weapon == WEAPON_ELECTRIC)
-			Graphics()->SetColor(0.2f, 0.2f, 1.0f, 0.3f*a);
-		else if (Player.m_Weapon == WEAPON_CHAINSAW || Player.m_Weapon == WEAPON_HAMMER || Player.m_Weapon == WEAPON_SCYTHE)
-			Graphics()->SetColor(1.0f, 0.2f, 0.2f, 0.0f);
-		else
-			Graphics()->SetColor(0.2f, 1.0f, 0.2f, 0.3f*a);
+		//Graphics()->SetColor(0.2f, 1.0f, 0.2f, 0.3f*a);
+		Graphics()->SetColor(0.2f, 1.0f, 0.2f, 0.3f*a);
 
 		Out = vec2(Dir.y, -Dir.x) * 1.0f;
 
@@ -439,29 +514,39 @@ void CPlayers::RenderPlayer(
 		pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE] = 1.0f;
 	}
 	
-	float WeaponScale = 1.0f;
+	pCustomPlayerInfo->ChargeIntensity(Player.m_ChargeLevel);
+	
+	if (Player.m_ChargeLevel == 100)
+	{
+		if (!pCustomPlayerInfo->m_Charged)
+		{
+			pCustomPlayerInfo->m_Charged = true;
+			//m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_CHARGE_FULL, 1.0f, Position);
+		}
+	}
+	else if (Player.m_ChargeLevel < 0)
+	{
+		if (!pCustomPlayerInfo->m_ChargeFailed)
+		{
+			pCustomPlayerInfo->m_ChargeFailed = true;
+			//m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_CHARGE_DOWN, 1.0f, Position);
+		}
+	}
+	else
+	{
+		pCustomPlayerInfo->m_ChargeFailed = false;
+		pCustomPlayerInfo->m_Charged = false;
+	}
 	
 	// render chainsaw effect
-	if (!Paused && Player.m_Weapon == WEAPON_CHAINSAW && Player.m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)
+	if (!Paused && GetStaticType(Player.m_Weapon) == SW_CHAINSAW && Player.m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)
 	{
-		WeaponScale = 1.07f;
-		
-		if (Player.m_WeaponPowerLevel == 1)
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_CHAINSAW2].m_Id);
-		else if (Player.m_WeaponPowerLevel > 1)
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_CHAINSAW3].m_Id);
-		else
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_CHAINSAW].m_Id);
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_CHAINSAW].m_Id);
 		Graphics()->QuadsBegin();
 		
 		Graphics()->QuadsSetRotation(Angle);
 		
-		if (Player.m_WeaponPowerLevel == 1)
-			RenderTools()->SelectSprite(SPRITE_FX_CHAINSAW2_1+rand()%3, frandom()*10 < 5.0f ? SPRITE_FLAG_FLIP_Y : 0);
-		else if (Player.m_WeaponPowerLevel > 1)
-			RenderTools()->SelectSprite(SPRITE_FX_CHAINSAW3_1+rand()%3, frandom()*10 < 5.0f ? SPRITE_FLAG_FLIP_Y : 0);
-		else
-			RenderTools()->SelectSprite(SPRITE_FX_CHAINSAW1+rand()%3, frandom()*10 < 5.0f ? SPRITE_FLAG_FLIP_Y : 0);
+		RenderTools()->SelectSprite(SPRITE_FX_CHAINSAW1+rand()%3, frandom()*10 < 5.0f ? SPRITE_FLAG_FLIP_Y : 0);
 		
 		vec2 p = Position + Direction * g_pData->m_Weapons.m_aId[WEAPON_CHAINSAW].m_Offsetx + CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoil + CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_Weapon2Recoil + WeaponOffset;
 
@@ -474,54 +559,28 @@ void CPlayers::RenderPlayer(
 		if (Player.m_WeaponPowerLevel > 1)
 			Size *= 1.15f;
 		
-		p.y += g_pData->m_Weapons.m_aId[WEAPON_CHAINSAW].m_Offsety;
+		//p.y += g_pData->m_Weapons.m_aId[WEAPON_CHAINSAW].m_Offsety;
 		RenderTools()->DrawSprite(p.x, p.y, Size);
 		
 		Graphics()->QuadsEnd();
 	}
 	
-	if (Player.m_Weapon == WEAPON_CHAINSAW && Player.m_WeaponPowerLevel > 1)
-		WeaponScale *= 1.15f;
 	
-	
+	pCustomPlayerInfo->m_WeaponColorSwap = 0.0f;
 	
 	// render weapon
-	if (Player.m_Weapon > WEAPON_NONE && Player.m_Weapon != WEAPON_TOOL && Player.m_Weapon != WEAPON_HAMMER && Player.m_Weapon != WEAPON_SCYTHE)
+	if (GetWeaponRenderType(Player.m_Weapon) == WRT_WEAPON1)
 	{
-		float ColorSwap = 0.0f;
+		//pCustomPlayerInfo->m_WeaponColorSwap = GetWeaponColorswap(Player.m_Weapon);
+		RenderTools()->SetShadersForWeapon(pCustomPlayerInfo);
 		
-		if (Player.m_WeaponPowerLevel == 1)
-			ColorSwap = 1.0f;
-		if (Player.m_WeaponPowerLevel == 2)
-			ColorSwap = 0.5f;
-		
-		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DEATHRAY] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_DEATHRAY);
-		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_ELECTRIC, pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE], ColorSwap);
-		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_SPAWN, pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING], ColorSwap);
-		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_DAMAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE], ColorSwap);
-		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_INVISIBILITY, pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY], ColorSwap);
-		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_RAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE], ColorSwap);
-		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL], ColorSwap);
-		else if (Player.m_WeaponPowerLevel > 0)
-			Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, ColorSwap);
-		
-		//Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 		Graphics()->QuadsBegin();
-		//Graphics()->QuadsSetRotation(State.GetAttach()->m_Angle*pi*2+Angle);
 		Graphics()->QuadsSetRotation(Angle);
 
 		// normal weapons
-		int iw = clamp(Player.m_Weapon, 0, NUM_WEAPONS-1);
+		//int iw = clamp(Player.m_Weapon, 0, NUM_WEAPONS-1);
 		//RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[iw].m_pSpriteBody, Direction.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
-		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[iw].m_pSpriteBody, Direction.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
 
 		vec2 Dir = Direction;
 		vec2 p;
@@ -533,16 +592,24 @@ void CPlayers::RenderPlayer(
 
 			float a = (Client()->GameTick()-Player.m_AttackTick+s_LastIntraTick)/5.0f;
 			
+			
+			// recoil to modular
+			if (Player.m_AttackTick && pCustomPlayerInfo->m_RecoilTick < Player.m_AttackTick && !Paused)
+			{
+				pCustomPlayerInfo->m_RecoilTick = Player.m_AttackTick;
+				pCustomPlayerInfo->m_WeaponRecoil -= Direction * GetWeaponRenderRecoil(Player.m_Weapon);
+			}
+			
+			
+			
 			if(a < 1)
 			{
 
 				if (CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilLoaded)
 				{
 					CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilLoaded = false;
-					//if (Player.m_Weapon == WEAPON_GUN)
-					//	CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilVel -= Direction * 10.0f;
-					//else 
-					if (Player.m_Weapon == WEAPON_CHAINSAW)
+					
+					if (GetStaticType(Player.m_Weapon) == SW_CHAINSAW)
 					{
 						CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilVel -= Direction * 1.0f;
 						pCustomPlayerInfo->m_LastChainsawSoundTick = Client()->GameTick() + 500 * Client()->GameTickSpeed()/1000;
@@ -550,16 +617,8 @@ void CPlayers::RenderPlayer(
 						
 						m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
 					}
-					else if (Player.m_Weapon != WEAPON_FLAMER)
-						CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilVel -= Direction * 12.0f;
-						
-					/*
-					if (Player.m_Weapon == WEAPON_GUN || Player.m_Weapon == WEAPON_SHOTGUN)
-					{
-						CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponFlashAlpha = 1.0f;
-						CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponFlashNum = rand() % g_pData->m_Weapons.m_aId[iw].m_NumSpriteMuzzles;
-					}
-					*/
+					//else if (Player.m_Weapon != WEAPON_FLAMER)
+					//	CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilVel -= Direction * 12.0f;
 				}
 			}
 			else
@@ -567,10 +626,13 @@ void CPlayers::RenderPlayer(
 				CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoilLoaded = true;
 			}
 			
-			p = Position + Dir * g_pData->m_Weapons.m_aId[iw].m_Offsetx + CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoil + CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_Weapon2Recoil + WeaponOffset;
+			vec2 Offset = GetWeaponRenderOffset(Player.m_Weapon);
+			
+			p = Position + Dir * Offset.x + CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponRecoil + CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_Weapon2Recoil + WeaponOffset;
+			
 			
 			// chainsaw shaking
-			if (!Paused && Player.m_Weapon == WEAPON_CHAINSAW && Player.m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)
+			if (!Paused && GetStaticType(Player.m_Weapon) == SW_CHAINSAW && Player.m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)
 			{
 				p = p + vec2(frandom()-frandom(), frandom()-frandom()) * 4.0f;
 				
@@ -591,71 +653,119 @@ void CPlayers::RenderPlayer(
 				}
 			}
 			
+			
 			{
-				p.y += g_pData->m_Weapons.m_aId[iw].m_Offsety;
-				RenderTools()->DrawSprite(p.x, p.y, g_pData->m_Weapons.m_aId[iw].m_VisualSize*WeaponScale);
-			}
-		}
-		
-		Graphics()->QuadsEnd();
-		
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
-		Graphics()->QuadsBegin();
-		//Graphics()->QuadsSetRotation(State.GetAttach()->m_Angle*pi*2+Angle);
-		Graphics()->QuadsSetRotation(Angle);
-		
-		Graphics()->ShaderEnd();
-		
-		// muzzle
-		if (Player.m_Weapon == WEAPON_RIFLE || Player.m_Weapon == WEAPON_SHOTGUN)
-		{
-			// check if we're firing stuff
-			if(g_pData->m_Weapons.m_aId[iw].m_NumSpriteMuzzles)//prev.attackticks)
-			{
-				float Alpha = 0.0f;
-				int Phase1Tick = (Client()->GameTick() - Player.m_AttackTick);
-				if (Phase1Tick < (g_pData->m_Weapons.m_aId[iw].m_Muzzleduration + 3))
+				p.y += Offset.y;
+				RenderTools()->RenderWeapon(Player.m_Weapon, p, Dir, WEAPON_GAME_SIZE);
+				
+				//RenderTools()->DrawSprite(p.x, p.y, g_pData->m_Weapons.m_aId[iw].m_VisualSize*WeaponScale);
+				
+				Graphics()->QuadsEnd();
+				RenderHand(&RenderInfo, p, Direction, -1.8f*pi/4, vec2(-26, 8));
+				
+				// muzzle
+				
+				if (Player.m_AttackTick && Player.m_AttackTick != pCustomPlayerInfo->m_MuzzleTick)
 				{
-					float t = ((((float)Phase1Tick) + IntraTick)/(float)g_pData->m_Weapons.m_aId[iw].m_Muzzleduration);
-					Alpha = mix(2.0f, 0.0f, min(1.0f,max(0.0f,t)));
+					if (GetWeaponFiringType(Player.m_Weapon) != WFT_HOLD)
+					{		
+						vec2 Moff = GetMuzzleRenderOffset(Player.m_Weapon);
+						vec2 DirY(-Dir.y,Dir.x);
+						vec2 MuzzlePos = p + Dir * Moff.x + DirY * Moff.y;
+						m_pClient->m_pEffects->Muzzle(MuzzlePos, Dir, Player.m_Weapon);
+					}
 				}
-
-				int IteX = rand() % g_pData->m_Weapons.m_aId[iw].m_NumSpriteMuzzles;
-				static int s_LastIteX = IteX;
-				if(Client()->State() == IClient::STATE_DEMOPLAYBACK)
+				
+				
+				if (GetWeaponFiringType(Player.m_Weapon) != WFT_HOLD)
 				{
-					const IDemoPlayer::CInfo *pInfo = DemoPlayer()->BaseInfo();
-					if(pInfo->m_Paused)
-						IteX = s_LastIteX;
-					else
-						s_LastIteX = IteX;
+					pCustomPlayerInfo->AddMuzzle(Player.m_AttackTick, Player.m_Weapon);
+				
+					// render muzzles
+					for (int i = 0; i < 4; i++)
+					{
+						if (pCustomPlayerInfo->m_aMuzzleWeapon[i])
+						{
+							Graphics()->TextureSet(g_pData->m_aImages[IMAGE_MUZZLE].m_Id);
+							Graphics()->QuadsBegin();
+							Graphics()->QuadsSetRotation(Angle);
+								
+							vec2 Moff = GetMuzzleRenderOffset(Player.m_Weapon);
+							
+							if (Dir.x < 0)
+								Moff.y *= -1;
+					
+							RenderTools()->SelectSprite(SPRITE_MUZZLE1_1 + pCustomPlayerInfo->m_aMuzzleType[i]*4 + pCustomPlayerInfo->m_aMuzzleTime[i]*4, SPRITE_FLAG_FLIP_X);
+
+							vec2 DirY(-Dir.y,Dir.x);
+							vec2 MuzzlePos = p + Dir * Moff.x + DirY * Moff.y;
+
+							RenderTools()->DrawSprite(MuzzlePos.x, MuzzlePos.y, 60);
+							
+							Graphics()->QuadsEnd();	
+						}
+					}
 				}
 				else
+					pCustomPlayerInfo->m_MuzzleTick = Player.m_AttackTick;
+				
+					
+				
+				
+				/*
+				
+				if (GetWeaponFiringType(Player.m_Weapon) != WFT_HOLD)
 				{
-					if(m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED)
-						IteX = s_LastIteX;
-					else
-						s_LastIteX = IteX;
-				}
-				if (Alpha > 0.0f && g_pData->m_Weapons.m_aId[iw].m_aSpriteMuzzles[IteX])
-				{
-					float OffsetY = -g_pData->m_Weapons.m_aId[iw].m_Muzzleoffsety;
-					RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[iw].m_aSpriteMuzzles[IteX], Direction.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
-					if(Direction.x < 0)
-						OffsetY = -OffsetY;
+					//float Alpha = 0.0f;
+					//int Phase1Tick = (Client()->GameTick() - Player.m_AttackTick);
+					
+					//if (Phase1Tick < 10)
+					{
+						if (Player.m_AttackTick && Player.m_AttackTick != pCustomPlayerInfo->m_MuzzleTick)
+						{
+							vec2 Moff = GetMuzzleRenderOffset(Player.m_Weapon);
+							vec2 DirY(-Dir.y,Dir.x);
+							vec2 MuzzlePos = p + Dir * Moff.x + DirY * Moff.y;
+							m_pClient->m_pEffects->Muzzle(MuzzlePos, Dir, Player.m_Weapon);
+						}
+						
+						pCustomPlayerInfo->AddMuzzle(Player.m_AttackTick, Player.m_Weapon);
 
-					vec2 DirY(-Dir.y,Dir.x);
-					vec2 MuzzlePos = p + Dir * g_pData->m_Weapons.m_aId[iw].m_Muzzleoffsetx + DirY * OffsetY;
+						pCustomPlayerInfo->m_MuzzleTick = Player.m_AttackTick;
+					}
+						
+					
+					// render muzzles
+					for (int i = 0; i < 4; i++)
+					{
+						if (pCustomPlayerInfo->m_aMuzzleWeapon[i])
+						{
+							Graphics()->TextureSet(g_pData->m_aImages[IMAGE_MUZZLE].m_Id);
+							Graphics()->QuadsBegin();
+							Graphics()->QuadsSetRotation(Angle);
+							
+							vec2 Moff = GetMuzzleRenderOffset(Player.m_Weapon);
+							
+							if (Dir.x < 0)
+								Moff.y *= -1;
+				
+							RenderTools()->SelectSprite(SPRITE_MUZZLE1_1 + pCustomPlayerInfo->m_aMuzzleType[i]*4 + pCustomPlayerInfo->m_aMuzzleTime[i]*4, SPRITE_FLAG_FLIP_X);
 
-					RenderTools()->DrawSprite(MuzzlePos.x, MuzzlePos.y, g_pData->m_Weapons.m_aId[iw].m_VisualSize);
+							vec2 DirY(-Dir.y,Dir.x);
+							vec2 MuzzlePos = p + Dir * Moff.x + DirY * Moff.y;
+
+							RenderTools()->DrawSprite(MuzzlePos.x, MuzzlePos.y, 60);
+							
+							Graphics()->QuadsEnd();	
+						}
+					}
 				}
+				*/
 			}
 		}
-		Graphics()->QuadsEnd();
 		
-		
-		// flamethrower
-		if (Player.m_Weapon == WEAPON_FLAMER)
+		// flamer
+		if (GetStaticType(Player.m_Weapon) == SW_FLAMER)
 		{
 			// roll the animation
 			if (Player.m_AttackTick > Client()->GameTick() - 220 * Client()->GameTickSpeed()/1000)
@@ -680,10 +790,6 @@ void CPlayers::RenderPlayer(
 			{
 				int f = pCustomPlayerInfo->m_FlameState / 4;
 				
-				if (Player.m_WeaponPowerLevel == 1)
-					Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 1.0f);
-				if (Player.m_WeaponPowerLevel > 1)
-					Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 0.5f);
 				Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FLAME].m_Id);
 				Graphics()->QuadsBegin();
 				
@@ -766,9 +872,6 @@ void CPlayers::RenderPlayer(
 				
 				Graphics()->QuadsEnd();
 				
-				if (Player.m_WeaponPowerLevel > 0)
-					Graphics()->ShaderEnd();
-				
 				OffsetY = -0 * (Dir.x < 0 ? -1 : 1);
 				//FPos = p + Dir * 52 + DirY * OffsetY;
 				
@@ -776,7 +879,7 @@ void CPlayers::RenderPlayer(
 				{
 					//m_pClient->m_pEffects->Flame(FPos, Dir * (900.0f+frandom()*500.0f), 0.5f);
 					
-					FPos = p + Dir * 60 + DirY * OffsetY;
+					FPos = p + Dir * 40 + DirY * OffsetY;
 						
 					if (frandom()*10 < 4 && !Collision()->CheckPoint(FPos.x, FPos.y))
 					{
@@ -787,21 +890,69 @@ void CPlayers::RenderPlayer(
 		}
 		
 		
-		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DEATHRAY] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_DEATHRAY);
-		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_ELECTRIC, pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE]);
-		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_SPAWN, pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING]);
-		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_DAMAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE]);
-		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_INVISIBILITY, pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY]);
-		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_RAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE]);
-		else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] > 0.0f)
-			Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL]);
+		// render hand
 		
+		/*
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
+		Graphics()->QuadsBegin();
+		//Graphics()->QuadsSetRotation(State.GetAttach()->m_Angle*pi*2+Angle);
+		Graphics()->QuadsSetRotation(Angle);
+		
+		Graphics()->ShaderEnd();
+		
+		// muzzle
+		if (Player.m_Weapon == WEAPON_RIFLE || Player.m_Weapon == WEAPON_SHOTGUN)
+		{
+			// check if we're firing stuff
+			if(g_pData->m_Weapons.m_aId[iw].m_NumSpriteMuzzles)//prev.attackticks)
+			{
+				float Alpha = 0.0f;
+				int Phase1Tick = (Client()->GameTick() - Player.m_AttackTick);
+				if (Phase1Tick < (g_pData->m_Weapons.m_aId[iw].m_Muzzleduration + 3))
+				{
+					float t = ((((float)Phase1Tick) + IntraTick)/(float)g_pData->m_Weapons.m_aId[iw].m_Muzzleduration);
+					Alpha = mix(2.0f, 0.0f, min(1.0f,max(0.0f,t)));
+				}
+
+				int IteX = rand() % g_pData->m_Weapons.m_aId[iw].m_NumSpriteMuzzles;
+				static int s_LastIteX = IteX;
+				if(Client()->State() == IClient::STATE_DEMOPLAYBACK)
+				{
+					const IDemoPlayer::CInfo *pInfo = DemoPlayer()->BaseInfo();
+					if(pInfo->m_Paused)
+						IteX = s_LastIteX;
+					else
+						s_LastIteX = IteX;
+				}
+				else
+				{
+					if(m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED)
+						IteX = s_LastIteX;
+					else
+						s_LastIteX = IteX;
+				}
+				if (Alpha > 0.0f && g_pData->m_Weapons.m_aId[iw].m_aSpriteMuzzles[IteX])
+				{
+					float OffsetY = -g_pData->m_Weapons.m_aId[iw].m_Muzzleoffsety;
+					RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[iw].m_aSpriteMuzzles[IteX], Direction.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
+					if(Direction.x < 0)
+						OffsetY = -OffsetY;
+
+					vec2 DirY(-Dir.y,Dir.x);
+					vec2 MuzzlePos = p + Dir * g_pData->m_Weapons.m_aId[iw].m_Muzzleoffsetx + DirY * OffsetY;
+
+					RenderTools()->DrawSprite(MuzzlePos.x, MuzzlePos.y, g_pData->m_Weapons.m_aId[iw].m_VisualSize);
+				}
+			}
+		}
+		Graphics()->QuadsEnd();
+		
+		
+		// flamethrower
+		
+					
+		RenderTools()->SetShadersForWeapon(pCustomPlayerInfo);
+			
 		switch (Player.m_Weapon)
 		{
 			//case WEAPON_GUN: RenderHand(&RenderInfo, p, Direction, -3*pi/4, vec2(-15, 4)); break;
@@ -816,9 +967,11 @@ void CPlayers::RenderPlayer(
 				//RenderHand(&RenderInfo, p, Direction, -pi/2, vec2(-42, 4));
 				break;
 		}
+		*/
 
 		Graphics()->ShaderEnd();
 	}
+	
 
 	RenderInfo.m_Size = 64.0f; // force some settings
 	RenderInfo.m_ColorBody.a = 1.0f;
@@ -839,6 +992,13 @@ void CPlayers::RenderPlayer(
 		if (!Paused && pCustomPlayerInfo->m_LastJetpackSoundTick <= Client()->GameTick())
 		{
 			pCustomPlayerInfo->m_LastJetpackSoundTick = Client()->GameTick() + 190 * Client()->GameTickSpeed()/1000;
+			
+			m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_JETPACK1+pCustomPlayerInfo->m_LastJetpackSound, 1.0f, Position);
+				
+			if (++pCustomPlayerInfo->m_LastJetpackSound > 3)
+				pCustomPlayerInfo->m_LastJetpackSound = 0;
+				
+			/*
 			if (pCustomPlayerInfo->m_LastJetpackSound == 0)
 			{
 				pCustomPlayerInfo->m_LastJetpackSound = 1;
@@ -849,6 +1009,7 @@ void CPlayers::RenderPlayer(
 				pCustomPlayerInfo->m_LastJetpackSound = 0;
 				m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_JETPACK2, 1.0f, Position);
 			}
+			*/
 		}
 	}
 	else
@@ -856,7 +1017,7 @@ void CPlayers::RenderPlayer(
 	
 	
 	// chainsaw sound
-	if (Player.m_Weapon == WEAPON_CHAINSAW && !Paused)
+	if (GetStaticType(Player.m_Weapon) == SW_CHAINSAW && !Paused)
 	{
 		if (pCustomPlayerInfo->m_LastChainsawSoundTick < Client()->GameTick())
 		{
@@ -1152,23 +1313,7 @@ void CPlayers::RenderPlayer(
 	//pCustomPlayerInfo->UpdatePhysics(vec2(Player.m_VelX, Player.m_VelY), vec2(Prev.m_VelX, Prev.m_VelY));
 	
 	// set correct shader
-	if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DEATHRAY] > 0.0f)
-		Graphics()->ShaderBegin(SHADER_DEATHRAY);
-	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE] > 0.0f)
-		Graphics()->ShaderBegin(SHADER_ELECTRIC, pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE]);
-	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING] > 0.0f)
-		Graphics()->ShaderBegin(SHADER_SPAWN, pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING]);
-	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE] > 0.0f)
-		Graphics()->ShaderBegin(SHADER_DAMAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE]);
-	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY] > 0.0f)
-		Graphics()->ShaderBegin(SHADER_INVISIBILITY, pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY]);
-	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] > 0.0f)
-		Graphics()->ShaderBegin(SHADER_RAGE, pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE]);
-	else if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] > 0.0f)
-		Graphics()->ShaderBegin(SHADER_FUEL, pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL]);
-	
-	//Graphics()->ShaderBegin(SHADER_ELECTRIC, 1.0f);
-	
+	RenderTools()->SetShadersForPlayer(pCustomPlayerInfo);
 	RenderTools()->RenderPlayer(&CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID], &RenderInfo, Player.m_Weapon, Player.m_Emote, Direction, Position);
 	
 	
@@ -1176,10 +1321,17 @@ void CPlayers::RenderPlayer(
 	if (Player.m_HandJetpack)
 	{
 		// sound
-		if (!Paused && pCustomPlayerInfo->m_LastJetpackSoundTick <= Client()->GameTick())
+		if (!Paused && pCustomPlayerInfo->m_LastTurboSoundTick <= Client()->GameTick())
 		{
-			pCustomPlayerInfo->m_LastJetpackSoundTick = Client()->GameTick() + 190 * Client()->GameTickSpeed()/1000;
-			if (pCustomPlayerInfo->m_LastJetpackSound == 0)
+			pCustomPlayerInfo->m_LastTurboSoundTick = Client()->GameTick() + 190 * Client()->GameTickSpeed()/1000;
+			
+			m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_TURBO1+pCustomPlayerInfo->m_LastTurboSound, 1.0f, Position);
+				
+			if (++pCustomPlayerInfo->m_LastTurboSound > 3)
+				pCustomPlayerInfo->m_LastTurboSound = 0;
+			
+			/*
+			if (pCustomPlayerInfo->m_LastTurboSound == 0)
 			{
 				pCustomPlayerInfo->m_LastJetpackSound = 1;
 				m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_JETPACK1, 1.0f, Position);
@@ -1189,6 +1341,7 @@ void CPlayers::RenderPlayer(
 				pCustomPlayerInfo->m_LastJetpackSound = 0;
 				m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_JETPACK2, 1.0f, Position);
 			}
+			*/
 		}
 		
 		// info to physics
@@ -1321,15 +1474,13 @@ void CPlayers::OnRender()
 {
 	CustomStuff()->ClearImpacts();
 	
-	const int aTeamColors[2] = {2555648, 8912640};
-	const int aTeamFeetColors[2] = {65280, 10354432};
+	//const int aTeamColors[2] = {2555648, 8912640};
+	//const int aTeamFeetColors[2] = {65280, 10354432};
 	
 	// update RenderInfo for ninja
 	for(int i = 0; i < MAX_CLIENTS; ++i)
 	{
 		m_aRenderInfo[i] = m_pClient->m_aClients[i].m_RenderInfo;
-		
-		vec3 TeamColor = GetColorV3(aTeamColors[TEAM_RED]);
 	}
 
 	CustomStuff()->m_LocalAlive = false;
@@ -1380,6 +1531,13 @@ void CPlayers::OnRender()
 					CustomStuff()->m_aLocalItems[3] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item4;
 					CustomStuff()->m_aLocalItems[4] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item5;
 					CustomStuff()->m_aLocalItems[5] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item6;
+					
+					CustomStuff()->m_WeaponSlot = ((const CNetObj_PlayerInfo *)pInfo)->m_WeaponSlot;
+					
+					CustomStuff()->m_aSnapWeapon[0] = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapon1;
+					CustomStuff()->m_aSnapWeapon[1] = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapon2;
+					CustomStuff()->m_aSnapWeapon[2] = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapon3;
+					CustomStuff()->m_aSnapWeapon[3] = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapon4;
 				}
 
 				CNetObj_Character PrevChar = m_pClient->m_Snap.m_aCharacters[i].m_Prev;

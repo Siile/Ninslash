@@ -69,7 +69,7 @@ void CDroids::RenderWalker(const CNetObj_Droid *pPrev, const CNetObj_Droid *pCur
 		{
 			//vec2 Dir = GetDirection((int)(Angle*256));
 			
-			int Sprite = SPRITE_MUZZLE1;
+			int Sprite = SPRITE_MUZZLE5_1;
 			
 			float Alpha = 0.0f;
 			int Phase1Tick = (Client()->GameTick() - pCurrent->m_AttackTick);
@@ -80,21 +80,21 @@ void CDroids::RenderWalker(const CNetObj_Droid *pPrev, const CNetObj_Droid *pCur
 			}
 			
 			Sprite += Phase1Tick/2;
-			if (Sprite > SPRITE_MUZZLE1+2)
-				Sprite = SPRITE_MUZZLE1+2;
+			if (Sprite > SPRITE_MUZZLE5_1+3)
+				Sprite = SPRITE_MUZZLE5_1+3;
 			
 			if (Alpha > 0.0f)
 			{
-				RenderTools()->SelectSprite(Sprite, Dir < 0 ? SPRITE_FLAG_FLIP_Y : 0);
+				RenderTools()->SelectSprite(Sprite, SPRITE_FLAG_FLIP_X | (Dir < 0 ? SPRITE_FLAG_FLIP_Y : 0));
 				
 				float OffsetY = pCurrent->m_Anim < 3 ? -57 : 7;
 				
-				vec2 p = Pos + vec2(Dir*14, OffsetY) + vec2(cosf(Angle), sinf(Angle))*55;
-				RenderTools()->DrawSprite(p.x, p.y, 96);
+				vec2 p = Pos + vec2(Dir*14, OffsetY+2) + vec2(cosf(Angle), sinf(Angle))*37;
+				RenderTools()->DrawSprite(p.x, p.y, 54);
 				
-				p = Pos + vec2(Dir*28, OffsetY-7) + vec2(cosf(Angle), sinf(Angle))*64;
+				p = Pos + vec2(Dir*28, OffsetY-4) + vec2(cosf(Angle), sinf(Angle))*49;
 				p += vec2(sinf(Angle), 0)*6*Dir;
-				RenderTools()->DrawSprite(p.x, p.y, 96);
+				RenderTools()->DrawSprite(p.x, p.y, 54);
 			}
 		}
 		
@@ -146,8 +146,6 @@ void CDroids::RenderStar(const CNetObj_Droid *pPrev, const CNetObj_Droid *pCurre
 	RenderTools()->RenderStarDroid(Pos, Anim, Time, pCurrent->m_Dir*-1, pCurrent->m_Angle, pCurrent->m_Status, &DroidAnim);
 	RenderTools()->Graphics()->ShaderEnd();
 	
-	int Dir = pCurrent->m_Dir;
-	
 	// effects
 	if (pCurrent->m_Status == DROIDSTATUS_TERMINATED)
 		m_pClient->m_pEffects->Electrospark(Pos + vec2(frandom()-frandom(), frandom()-frandom())*frandom()*90, 32 + frandom()*32, vec2(frandom()-frandom(), frandom()-frandom()) * 10.0f);
@@ -177,11 +175,13 @@ void CDroids::RenderCrawler(const CNetObj_Droid *pPrev, const CNetObj_Droid *pCu
 			RenderTools()->Graphics()->ShaderBegin(SHADER_DAMAGE, CustomStuff()->m_DroidDamageIntensity[ItemID%MAX_DROIDS]);
 	}
 	
-	
+	/*
 	static float s_LastGameTickTime = Client()->GameTickTime();
 	if(m_pClient->m_Snap.m_pGameInfoObj && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
 		s_LastGameTickTime = Client()->GameTickTime();
-	float Ct = (Client()->PrevGameTick()-pCurrent->m_AttackTick)/(float)SERVER_TICK_SPEED + s_LastGameTickTime;
+	*/
+	
+	//float Ct = (Client()->PrevGameTick()-pCurrent->m_AttackTick)/(float)SERVER_TICK_SPEED + s_LastGameTickTime;
 
 	int Anim = 0;
 	float Time = 0.0f;

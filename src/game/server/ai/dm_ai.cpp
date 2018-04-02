@@ -27,8 +27,37 @@ void CAIdm::OnCharacterSpawn(CCharacter *pChr)
 	
 	m_WaypointDir = vec2(0, 0);
 	Player()->SetRandomSkin();
+}
+
+
+void CAIdm::ReceiveDamage(int CID, int Dmg)
+{
+	if (frandom() > Dmg*0.02f)
+		return;
 	
-	//pChr->GiveRandomWeapon();
+	if (CID < 0 || CID >= MAX_CLIENTS)
+		return;
+	
+	int p = CID;
+		
+	CPlayer *pPlayer = GameServer()->m_apPlayers[p];
+	if(!pPlayer)
+		return;
+		
+	if (pPlayer == Player())
+		return;
+
+	CCharacter *pCharacter = pPlayer->GetCharacter();
+	if (!pCharacter)
+		return;
+		
+	if (!pCharacter->IsAlive())
+		return;
+		
+	m_pTargetPlayer = pPlayer;
+	m_PlayerDirection = m_pTargetPlayer->GetCharacter()->m_Pos - m_Pos;
+	m_PlayerPos = m_pTargetPlayer->GetCharacter()->m_Pos;
+	m_PlayerDistance = distance(m_pTargetPlayer->GetCharacter()->m_Pos, m_Pos);
 }
 
 
@@ -53,8 +82,19 @@ void CAIdm::DoBehavior()
 	if (m_EnemiesInSight > 0)
 	{
 		if (!ShootAtClosestEnemy())
+		{
 			if (!ShootAtClosestBuilding())
 				ShootAtClosestMonster();
+		}
+		else
+		{
+			if (WeaponShootRange() - m_PlayerDistance > 200)
+			{
+				m_TargetPos = normalize(m_Pos - m_PlayerPos) * WeaponShootRange();
+				if (GameServer()->Collision()->IntersectLine(m_Pos, m_TargetPos, 0x0, &m_TargetPos))
+					SeekRandomWaypoint();
+			}
+		}
 		
 		ReactToPlayer();
 	}
@@ -62,26 +102,25 @@ void CAIdm::DoBehavior()
 	{
 		if (!ShootAtClosestBuilding())
 			ShootAtClosestMonster();
-	}
 
-
-	//if (SeekClosestEnemy())
-	if (SeekRandomEnemy())
-	{
-		m_TargetPos = m_PlayerPos;
-				
-		if (m_EnemiesInSight > 0)
+		//if (SeekClosestEnemy())
+		if (SeekRandomEnemy())
 		{
-			if (WeaponShootRange() - m_PlayerDistance > 200)
-				SeekRandomWaypoint();
-			
-			/*
-			// distance to the player
-			if (m_PlayerPos.x < m_Pos.x)
-				m_TargetPos.x = m_PlayerPos.x + WeaponShootRange()/2*(0.5f+frandom()*1.0f);
-			else
-				m_TargetPos.x = m_PlayerPos.x - WeaponShootRange()/2*(0.5f+frandom()*1.0f);
-			*/
+			m_TargetPos = m_PlayerPos;
+					
+			if (m_EnemiesInSight > 0)
+			{
+				if (WeaponShootRange() - m_PlayerDistance > 200)
+					SeekRandomWaypoint();
+				
+				/*
+				// distance to the player
+				if (m_PlayerPos.x < m_Pos.x)
+					m_TargetPos.x = m_PlayerPos.x + WeaponShootRange()/2*(0.5f+frandom()*1.0f);
+				else
+					m_TargetPos.x = m_PlayerPos.x - WeaponShootRange()/2*(0.5f+frandom()*1.0f);
+				*/
+			}
 		}
 	}
 

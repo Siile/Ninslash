@@ -19,6 +19,10 @@ class CMapGen
 	void GeneratePVPLevel();
 	
 	void WriteLayers(class CGenLayer *pTiles);
+	void WriteBackground(class CGenLayer *pTiles);
+	void WriteBase(class CGenLayer *pTiles, int BaseNum, ivec2 Pos, float Size);
+	
+	void Mirror(class CGenLayer *pTiles);
 	
 	void GenerateEnd(class CGenLayer *pTiles);
 	
@@ -27,6 +31,8 @@ class CMapGen
 	void GeneratePowerupper(class CGenLayer *pTiles);
 	void GenerateSwitch(class CGenLayer *pTiles);
 	void GenerateTurretStand(class CGenLayer *pTiles);
+	void GenerateTurret(class CGenLayer *pTiles);
+	void GenerateTeslacoil(class CGenLayer *pTiles);
 	void GenerateBarrel(class CGenLayer *pTiles);
 	void GenerateLightningWall(class CGenLayer *pTiles);
 	void GenerateMine(class CGenLayer *pTiles);

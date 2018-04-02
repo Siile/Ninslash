@@ -265,6 +265,9 @@ void CBuildings2::RenderFlametrap(const struct CNetObj_Building *pCurrent)
 // todo: separate from buildings2.cpp
 void CBuildings2::RenderBuildMode()
 {
+	// nope
+	return;
+	
 	if (m_pClient->m_Snap.m_pGameInfoObj)
 	{
 		int Flags = m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags;

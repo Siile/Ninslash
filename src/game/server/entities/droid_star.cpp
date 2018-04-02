@@ -46,7 +46,7 @@ void CStar::Reset()
 
 
 
-void CStar::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type)
+void CStar::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Weapon)
 {
 	// skip everything while spawning
 	//if (m_aStatus[STATUS_SPAWNING] > 0.0f)
@@ -67,25 +67,19 @@ void CStar::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type)
 			m_AttackTimer--;
 	}
 	
-	// create healthmod indicator
-	if (Type == DAMAGETYPE_NORMAL)
+	// create damage indicator
+	if (WeaponElectroAmount(Weapon) > 0.0f)
+		m_Status = DROIDSTATUS_ELECTRIC;
+	else if (WeaponFlameAmount(Weapon) > 0.0f)
+		m_Status = DROIDSTATUS_HURT;
+	else
 	{
 		if (Pos.x != 0 && Pos.y != 0)
 			DmgPos = Pos;
-		//	DmgPos = (DmgPos + Pos) / 2.0f;
 		
 		GameServer()->CreateBuildingHit(DmgPos);
-
 		m_Status = DROIDSTATUS_HURT;
 	}
-	else
-	if (Type == DAMAGETYPE_ELECTRIC)
-	{
-		//GameServer()->SendEffect(m_pPlayer->GetCID(), EFFECT_ELECTRODAMAGE);
-		m_Status = DROIDSTATUS_ELECTRIC;
-	}
-	else if (Type == DAMAGETYPE_FLAME)
-		m_Status = DROIDSTATUS_HURT;
 	
 	GameServer()->CreateDamageInd(DmgPos, GetAngle(-Force), -Dmg, -1);
 	
@@ -127,8 +121,7 @@ void CStar::Tick()
 		{
 			if (Server()->Tick() > m_DamageTakenTick+200 || abs(m_Vel.y) < 0.2f)
 			{
-				GameServer()->CreateExplosion(m_Pos+m_Center, NEUTRAL_BASE, DEATHTYPE_DROID_STAR, 0, false, false);
-				GameServer()->CreateSound(m_Pos+m_Center, SOUND_GRENADE_EXPLODE);
+				GameServer()->CreateExplosion(m_Pos+m_Center, TEAM_NEUTRAL, GetDroidWeapon(m_Type, true));
 				m_DeathTick = Server()->Tick();
 				
 				for (int i = 0; i < 3; i++)
@@ -228,8 +221,8 @@ void CStar::Fire()
 		
 		GameServer()->CreateSound(m_Pos, aCustomWeapon[W_DROID_STAR].m_Sound);
 		
-		GameServer()->CreateProjectile(NEUTRAL_BASE, W_DROID_STAR, 0, TurretPos+normalize(m_Target*-1)*30.0f, m_Target*-1);
-		GameServer()->CreateProjectile(NEUTRAL_BASE, W_DROID_STAR, 0, TurretPos+normalize(m_Target*-1)*30.0f+vec2(-m_Dir * 64, 0), m_Target*-1);
+		GameServer()->CreateProjectile(NEUTRAL_BASE, GetDroidWeapon(m_Type), 0, TurretPos+normalize(m_Target*-1)*30.0f, m_Target*-1);
+		GameServer()->CreateProjectile(NEUTRAL_BASE, GetDroidWeapon(m_Type), 0, TurretPos+normalize(m_Target*-1)*30.0f+vec2(-m_Dir * 64, 0), m_Target*-1);
 		
 		//GameServer()->CreateProjectile(NEUTRAL_BASE, W_DROID_WALKER, 0, TurretPos+normalize(m_Target*-1)*32.0f, m_Target*-1);
 		//GameServer()->CreateProjectile(NEUTRAL_BASE, W_DROID_WALKER, 0, TurretPos+normalize(m_Target*-1)*32.0f+vec2(m_Dir * 44, -28), m_Target*-1);

@@ -266,12 +266,16 @@ public:
 	class CBinds *m_pBinds;
 	class CParticles *m_pParticles;
 	class CBlood *m_pBlood;
+	class CGuts *m_pGuts;
+	class CBrains *m_pBrains;
+	class CTracer *m_pTracers;
 	class CSplatter *m_pSplatter;
 	class CSpark *m_pSpark;
 	class CFluid *m_pFluid;
 	class CCBelt *m_pCBelt;
 	class CLight *m_pLight;
 	class CMenus *m_pMenus;
+	class CInventory *m_pInventory;
 	class CSkins *m_pSkins;
 	class CCountryFlags *m_pCountryFlags;
 	class CFlow *m_pFlow;
@@ -286,6 +290,7 @@ public:
 	class CVoting *m_pVoting;
 	class CScoreboard *m_pScoreboard;
 	class CItems *m_pItems;
+	class CWeapons *m_pWeapons;
 	class CDroids *m_pDroids;
 	class CBuildings *m_pBuildings;
 	class CBuildings2 *m_pBuildings2;

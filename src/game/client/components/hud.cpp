@@ -172,8 +172,8 @@ void CHud::RenderScoreHud()
 						TextRender()->Text(0, min(Whole-w-1.0f, Whole-ScoreWidthMax-ImageSize-2*Split), StartY+(t+1)*20.0f-3.0f, 8.0f, pName, -1);
 
 						// draw tee of the flag holder
-						CTeeRenderInfo Info = m_pClient->m_aClients[ID].m_RenderInfo;
-						Info.m_Size = 18.0f;
+						//CTeeRenderInfo Info = m_pClient->m_aClients[ID].m_RenderInfo;
+						//Info.m_Size = 18.0f;
 						//RenderTools()->RenderTee(CAnimState::GetIdle(), &Info, EMOTE_NORMAL, vec2(1,0),
 						//	vec2(Whole-ScoreWidthMax-Info.m_Size/2-Split, StartY+1.0f+Info.m_Size/2+t*20));
 					}
@@ -399,12 +399,17 @@ void CHud::RenderCursor()
 	if(!m_pClient->m_Snap.m_pLocalCharacter || Client()->State() == IClient::STATE_DEMOPLAYBACK)
 		return;
 
+	if (CustomStuff()->m_Inventory)
+		return;
+	
 	MapscreenToGroup(m_pClient->m_pCamera->m_Center.x, m_pClient->m_pCamera->m_Center.y, Layers()->GameGroup());
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
 	Graphics()->QuadsBegin();
 
 	// render cursor
-	RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[m_pClient->m_Snap.m_pLocalCharacter->m_Weapon%NUM_WEAPONS].m_pSpriteCursor);
+	int Weapon = max(m_pClient->m_Snap.m_pLocalCharacter->m_Weapon, 0);
+	
+	RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[Weapon%NUM_WEAPONS].m_pSpriteCursor);
 	float CursorSize = 64;
 	RenderTools()->DrawSprite(m_pClient->m_pControls->m_TargetPos.x, m_pClient->m_pControls->m_TargetPos.y, CursorSize);
 	Graphics()->QuadsEnd();
@@ -469,35 +474,18 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	if(!pCharacter)
 		return;
 
-	//mapscreen_to_group(gacenter_x, center_y, layers_game_group());
-
-	
-	vec2 Area1Pos = vec2(0, 0);
-	vec2 Area2Pos = vec2(38, 5);
+	//vec2 Area1Pos = vec2(0, 0);
+	vec2 Area2Pos = vec2(8, 5);
 	
 	float x = Area2Pos.x; // 16
 	float y = 5;
 	
-	// render ammo count
+	int Weapon = pCharacter->m_Weapon;
+	
 	// render gui stuff
-	if (aCustomWeapon[pCharacter->m_Weapon%NUM_WEAPONS].m_MaxAmmo > 0)
-	{
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_PICKUPS].m_Id);
+	
+	
 
-		Graphics()->QuadsBegin();
-
-		// if weaponstage is active, put a "glow" around the stage ammo
-		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[pCharacter->m_Weapon%NUM_WEAPONS].m_pSpritePickup);
-		IGraphics::CQuadItem Array[30];
-		int i;
-		
-		float d = 30.0f / aCustomWeapon[pCharacter->m_Weapon%NUM_WEAPONS].m_MaxAmmo;
-		
-		for (i = 0; i < min(pCharacter->m_AmmoCount, 30); i++)
-			Array[i] = IGraphics::CQuadItem(x+i*4*d,y+12, 6,12);
-		Graphics()->QuadsDrawTL(Array, i);
-		Graphics()->QuadsEnd();
-	}
 
 	
 	// new health bar, healthbar, render health
@@ -505,7 +493,9 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	Graphics()->QuadsBegin();
 	
 	vec2 HpSize = vec2(120, 12);
+	vec2 FuelSize = vec2(60, 12);
 	
+
 	float hpf = min(pCharacter->m_Health, 100) / 100.0f;
 		
 	{ // hp fill
@@ -635,6 +625,43 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 	}
 	
+	// render jetpack
+	{
+		float Fuel = min(pCharacter->m_JetpackPower/2, 100) / 100.0f;		
+		y += 16;
+		//x += 4;
+		
+		// fill
+		{
+			Graphics()->SetColor(0.5f, 0.8f, 1, 1);
+			Graphics()->QuadsSetSubsetFree(0, 0.5f, 1*Fuel, 0.5f, 0, 1, 1*Fuel, 1);
+
+			IGraphics::CFreeformItem FreeFormItem(
+				x, y,
+				x+Fuel*FuelSize.x, y,
+				x, y+FuelSize.y,
+				x+Fuel*FuelSize.x, y+FuelSize.y);
+
+			Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+		}
+		
+		// frame
+		{
+			Graphics()->SetColor(1, 1, 1, 1);
+			Graphics()->QuadsSetSubsetFree(0, 0, 1, 0, 0, 0.5f, 1, 0.5f); // nice way to pick a sprite
+
+			IGraphics::CFreeformItem FreeFormItem(
+				x, y,
+				x+FuelSize.x, y,
+				x, y+FuelSize.y,
+				x+FuelSize.x, y+FuelSize.y);
+
+			Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+		}
+		y -= 12;
+		//x -= 4;
+	}
+	
 	Graphics()->QuadsEnd();
 	
 	
@@ -642,29 +669,26 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	x = -1;
 	y = -1;
 	
-	vec2 FrameSize = vec2(38, 38);
-	int Fuel = pCharacter->m_JetpackPower/2;
-	
-	
+	//vec2 FrameSize = vec2(38, 38);
+	//int Fuel = pCharacter->m_JetpackPower/2;
 	
 	// buff duration
 	x = -1;
 	y = -1;
 	
+	//int BuffTime = 100 - (Client()->GameTick() - CustomStuff()->m_Local.m_BuffStartTick)*5.0f / Client()->GameTickSpeed();
 	
-	int BuffTime = 100 - (Client()->GameTick() - CustomStuff()->m_Local.m_BuffStartTick)*5.0f / Client()->GameTickSpeed();
-	
-	if (CustomStuff()->m_Local.m_Buff < 0)
-		BuffTime = -1;
-	
+	//if (CustomStuff()->m_Local.m_Buff < 0)
+	//	BuffTime = -1;
 
-	
-	
+	/*
 	Graphics()->TextureSet(-1);
 	Graphics()->QuadsBegin();
 	Graphics()->SetColor(1, Fuel*0.01f, 0, 1);
 	DrawCircular(x+19, y+19, 12.5f, 64, 100-Fuel, 100);
+	*/
 	
+	/*
 	if (BuffTime < 0)
 		DrawCircular(x+19, y+19, 12.5f, 64, 100-Fuel, 100, true);
 	else
@@ -672,10 +696,47 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		Graphics()->SetColor(0.15f, 0.5f+BuffTime*0.005f, 0.3f, 1);
 		DrawCircular(x+19, y+19, 12.5f, 64, 100-BuffTime, 100, true);
 	}
-	Graphics()->QuadsEnd();
+	*/
+	
+	//Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GUINUMBERS].m_Id);
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
+	
+	x += 80;
+	y += 4;
+	
+	if (WeaponUseAmmo(Weapon))
+	{
+		int n1 = pCharacter->m_AmmoCount;
+		int n2 = 0;
+		
+		while (n1 >= 10)
+		{
+			n1 -= 10;
+			n2++;
+		}
+		
+		Graphics()->QuadsBegin();
+		Graphics()->SetColor(0.9f, 0.9f, 0.9f, 1);
+		RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+n2);
+		RenderTools()->DrawSprite(x, y+24, 20);
+		RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+n1);
+		RenderTools()->DrawSprite(x+10, y+24, 20);
+		Graphics()->QuadsEnd();
+	}
+	else
+	{
+		Graphics()->QuadsBegin();
+		Graphics()->SetColor(0.9f, 0.9f, 0.9f, 1);
+		RenderTools()->SelectSprite(SPRITE_GUINUMBER_LINE);
+		RenderTools()->DrawSprite(x+5, y+24, 20);
+		Graphics()->QuadsEnd();
+	}
+	
+	//Graphics()->QuadsEnd();
 	
 	
 	// frame
+	/*
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FUEL].m_Id);
 	Graphics()->QuadsBegin();
 	{
@@ -691,7 +752,9 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 	}
 	Graphics()->QuadsEnd();
+	*/
 
+	/*
 	
 	if (BuffTime > 0)
 	{
@@ -708,129 +771,22 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		RenderTools()->DrawSprite(x, y, 18);
 
 		Graphics()->QuadsEnd();
-		
-		/*
-		char aBuf[32];
-		str_format(aBuf, sizeof(aBuf), "%d", BuffTime);
-		TextRender()->TextColor(0, 1, 1, 1);
-		TextRender()->Text(0, x+6, y+2, 6, aBuf, -1);
-		*/
 	}
+	*/
 
 	
 	x = Area2Pos.x; // 16
 	y = Area2Pos.y;
 
+	x += 14;
+	//y += 6;
 	
-	// buildings
-	if (m_pClient->m_pControls->m_BuildMode && m_pClient->BuildingEnabled())
-	{
-		float Size = 0.2f;
-		y += 24;
-		//x += 12;
-		
-		for (int i = 0; i < NUM_KITS; i++)
-		{
-			if (i != 0)
-				x += 140*Size;
-			
-			int Cost = BuildableCost[i];
-			
-			// draw building
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
-			Graphics()->QuadsBegin();
-	
-			Graphics()->SetColor(1, 1, 1, 1);
-			
-			RenderTools()->SelectSprite(SPRITE_KIT_BARREL+i);
-			RenderTools()->DrawSprite(x, y, 20);
-
-			Graphics()->QuadsEnd();
-			
-			
-			if (m_pClient->m_pControls->m_SelectedBuilding == i+1)
-			{
-				Graphics()->ShaderBegin(SHADER_GRAYSCALE, 0.0f);
-				Graphics()->QuadsBegin();
-				
-				if (Cost > CustomStuff()->m_LocalKits)
-					Graphics()->SetColor(1, 0, 0, 0.7f);
-				else
-					Graphics()->SetColor(0, 1, 0, 0.7f);
-				
-				RenderTools()->SelectSprite(SPRITE_KIT_BARREL+i);
-				RenderTools()->DrawSprite(x, y, 20);
-				
-				Graphics()->QuadsEnd();
-				Graphics()->ShaderEnd();
-			}
-			
-			// draw cost
-			char aBuf[8];
-			str_format(aBuf, sizeof(aBuf), "%d", Cost);
-			
-			if (Cost > CustomStuff()->m_LocalKits)
-				TextRender()->TextColor(1, 0, 0, 1);
-			else
-				TextRender()->TextColor(0, 1, 0, 1);
-			
-			TextRender()->Text(0, x+6, y+2, 6, aBuf, -1);
-			TextRender()->TextColor(1, 1, 1, 1);
-			
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
-			Graphics()->QuadsBegin();
-			Graphics()->SetColor(1, 1, 1, 1.0f);
-			RenderTools()->SelectSprite(SPRITE_PICKUP_KIT);
-			RenderTools()->DrawSprite(x+14, y+6.5f, 8);
-			Graphics()->QuadsEnd();
-		}
-		
-		x = Area2Pos.x + 134;
-		y = 16;
-		
-		// back to weapon helper
-		int iw = clamp(CustomStuff()->m_LatestWeapon, 0, NUM_WEAPONS-1);
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
-		Graphics()->QuadsBegin();
-
-		Graphics()->SetColor(1, 1, 1, 1);
-
-		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[iw].m_pSpriteBody);
-		RenderTools()->DrawSprite(x, y, 24);
-		Graphics()->QuadsEnd();
-		
-
-		TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
-		TextRender()->Text(0, x+9, y+1, 8, m_pClient->m_pBinds->GetKey("+build"), -1);
-		TextRender()->TextColor(1, 1, 1, 1);
-		
-		x = Area2Pos.x + 164;
-		y = 16;
-		
-		// number of contruction kits
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
-		Graphics()->QuadsBegin();
-		Graphics()->SetColor(1, 1, 1, 1.0f);
-		RenderTools()->SelectSprite(SPRITE_PICKUP_KIT);
-		RenderTools()->DrawSprite(x, y, 20);
-		Graphics()->QuadsEnd();
-		
-		char aBuf[8];
-		str_format(aBuf, sizeof(aBuf), "%d", clamp(CustomStuff()->m_LocalKits ,0, 9));
-		TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
-		TextRender()->Text(0, x+7, y+2, 8, aBuf, -1);
-		TextRender()->TextColor(1, 1, 1, 1);
-
-		return;
-	}
-	
-	
-	y += 31;
+	y += 24;
 	
 	
 	// weapons
 	float Size = 0.2f;
-	int iw = pCharacter->m_Weapon;
+	//int iw = pCharacter->m_Weapon;
 
 	if (m_pClient->m_pControls->m_SignalWeapon >= 0)
 	{
@@ -839,7 +795,149 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		m_pClient->m_pControls->m_SignalWeapon = -1;
 	}
 	
+	// weapons 1 - 4
 	
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
+	
+	x += 60*Size;
+	y += 18;
+	
+	for (int i = 0; i < 4; i++)
+	{
+		int w = CustomStuff()->m_aSnapWeapon[i];
+		
+		// order num.
+		
+		Graphics()->QuadsBegin();
+		Graphics()->SetColor(0.9f, 0.9f, 0.9f, 1);
+		RenderTools()->SelectSprite(SPRITE_GUINUMBER_1+i);
+		if (i == CustomStuff()->m_WeaponSlot)
+			RenderTools()->DrawSprite(x-20, y, 16);
+		else
+			RenderTools()->DrawSprite(x-20, y, 12);
+		Graphics()->SetColor(1, 1, 1, 1);
+		Graphics()->QuadsEnd();
+		
+		if (w != WEAPON_NONE)
+		{
+			// pickup icon
+			/*
+			if (CustomStuff()->m_WeaponpickTimer > 0.0f)
+			{
+				int pw = clamp(CustomStuff()->m_WeaponpickWeapon, 0, NUM_WEAPONS-1);
+				if (i == pw)
+				{
+					Graphics()->QuadsBegin();
+					float a = sin(CustomStuff()->m_WeaponpickTimer*pi)*sin(CustomStuff()->m_WeaponpickTimer*pi);
+					
+					Graphics()->SetColor(1, 1, 1, a);
+					
+					RenderTools()->SelectSprite(SPRITE_WEAPON_PICKUP);
+					RenderTools()->DrawSprite(x, y, 32);
+					Graphics()->QuadsEnd();
+				}
+			}
+			*/
+			
+			// selected weapon / item
+			if (i == CustomStuff()->m_WeaponSlot)
+			{
+				Graphics()->ShaderBegin(SHADER_GRAYSCALE, 0.0f);
+				Graphics()->QuadsBegin();
+				RenderTools()->SelectSprite(SPRITE_WEAPON_SLOT);
+			
+				Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+				
+				//RenderTools()->RenderWeapon(w, vec2(x, y), vec2(1, 0), 24.0f);
+				RenderTools()->RenderWeapon(w, vec2(x-0.5f, y-0.5f), vec2(1, 0), WEAPON_GAME_SIZE/3);
+				RenderTools()->RenderWeapon(w, vec2(x+0.5f, y-0.5f), vec2(1, 0), WEAPON_GAME_SIZE/3);
+				RenderTools()->RenderWeapon(w, vec2(x-0.5f, y+0.5f), vec2(1, 0), WEAPON_GAME_SIZE/3);
+				RenderTools()->RenderWeapon(w, vec2(x+0.5f, y+0.5f), vec2(1, 0), WEAPON_GAME_SIZE/3);
+
+				Graphics()->QuadsEnd();
+			}
+			
+			RenderTools()->SetShadersForWeapon(w);
+			Graphics()->QuadsBegin();
+			Graphics()->SetColor(1, 1, 1, 1.0f);
+				
+			RenderTools()->SelectSprite(SPRITE_WEAPON_SLOT);
+				
+			RenderTools()->DrawSprite(x, y, 24);
+			Graphics()->QuadsEnd();	
+			
+			
+			// weapon
+			Graphics()->QuadsBegin();
+			
+			Graphics()->SetColor(1, 1, 1, 1);
+			
+			RenderTools()->RenderWeapon(w, vec2(x, y), vec2(1, 0), WEAPON_GAME_SIZE/3);
+			
+			/*
+			if (i == CustomStuff()->m_WeaponSlot)
+				RenderTools()->DrawSprite(x, y, g_pData->m_Weapons.m_aId[w].m_VisualSize * Size * 1.7f);
+			else
+				RenderTools()->DrawSprite(x, y, g_pData->m_Weapons.m_aId[w].m_VisualSize * Size);
+			*/
+
+			Graphics()->QuadsEnd();
+		}
+		
+		//x += 140*Size;
+		y += 14;
+	}
+
+	Graphics()->ShaderEnd();
+	
+	
+	x = 110;
+	y = 27;
+	
+	// kits & building
+	
+	int LocalKits = clamp(CustomStuff()->m_LocalKits ,0, 9);
+	
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
+	Graphics()->QuadsBegin();
+	
+	Graphics()->SetColor(1.0f, 1.0f, 1.0f, 0.5f);
+	RenderTools()->SelectSprite(SPRITE_PICKUP_KIT);
+	RenderTools()->DrawSprite(x, y, 26);
+	
+
+	float KitSize = 18.0f;
+	
+	if (false)
+	{
+		Graphics()->QuadsEnd();
+		Graphics()->ShaderBegin(SHADER_GRAYSCALE, 0.0f);
+		Graphics()->QuadsBegin();
+					
+		Graphics()->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
+		RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+LocalKits);
+		RenderTools()->DrawSprite(x-1, y-1, KitSize);
+		RenderTools()->DrawSprite(x+1, y-1, KitSize);
+		RenderTools()->DrawSprite(x+1, y+1, KitSize);
+		RenderTools()->DrawSprite(x-1, y+1, KitSize);
+					
+		Graphics()->QuadsEnd();
+		Graphics()->ShaderEnd();
+		Graphics()->QuadsBegin();
+	}
+	
+	
+	Graphics()->SetColor(0.9f, 0.9f, 0.9f, 1.0f);
+	RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+LocalKits);
+	RenderTools()->DrawSprite(x, y, KitSize);
+	
+	Graphics()->QuadsEnd();
+		
+		
+		
+		
+	
+	/*
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 	
 	for (int i = 1; i < NUM_WEAPONS; i++)
@@ -984,6 +1082,7 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 		TextRender()->Text(0, x+7, y+2, 8, aBuf, -1);
 		TextRender()->TextColor(1, 1, 1, 1);
 	}
+	*/
 }
 
 void CHud::RenderSpectatorHud()

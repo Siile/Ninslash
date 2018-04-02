@@ -8,6 +8,7 @@
 #include <game/client/gameclient.h>
 #include <game/client/component.h>
 #include <game/client/components/picker.h>
+#include <game/client/components/inventory.h>
 #include <game/client/components/chat.h>
 #include <game/client/components/menus.h>
 #include <game/client/components/scoreboard.h>
@@ -26,6 +27,7 @@ void CControls::OnReset()
 	m_LastData.m_Direction = 0;
 	m_LastData.m_Hook = 0;
 	m_LastData.m_Down = 0;
+	m_LastData.m_Charge = 0;
 	// simulate releasing the fire button
 	if((m_LastData.m_Fire&1) != 0)
 		m_LastData.m_Fire++;
@@ -102,8 +104,9 @@ void CControls::OnConsoleInit()
 	Console()->Register("+down", "", CFGFLAG_CLIENT, ConKeyInputState, &m_InputData.m_Down, "Slide / down");
 	Console()->Register("+jump", "", CFGFLAG_CLIENT, ConKeyInputState, &m_InputData.m_Jump, "Jump");
 	Console()->Register("+turbo", "", CFGFLAG_CLIENT, ConKeyInputState, &m_InputData.m_Hook, "Turbo");
+	Console()->Register("+charge", "", CFGFLAG_CLIENT, ConKeyInputState, &m_InputData.m_Charge, "Charge");
 	Console()->Register("+fire", "", CFGFLAG_CLIENT, ConKeyInputCounter, &m_InputData.m_Fire, "Fire");
-	Console()->Register("+build", "", CFGFLAG_CLIENT, ConKeyInputCounter, &m_Build, "Build");
+	//Console()->Register("+build", "", CFGFLAG_CLIENT, ConKeyInputCounter, &m_Build, "Build");
 
 	// gamepad
 	Console()->Register("+gamepadleft", "", CFGFLAG_CLIENT, ConKeyInputState, &m_InputDirectionLeft, "Move left");
@@ -125,12 +128,13 @@ void CControls::OnConsoleInit()
 	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 3}; Console()->Register("+weapon3", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon3"); }
 	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 4}; Console()->Register("+weapon4", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon4"); }
 	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 5}; Console()->Register("+weapon5", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon5"); }
+	/*
 	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 6}; Console()->Register("+weapon6", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon6"); }
 	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 7}; Console()->Register("+weapon7", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon7"); }
 	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 8}; Console()->Register("+weapon8", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon8"); }
 	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 9}; Console()->Register("+weapon9", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon9"); }
 	{ static CInputSet s_Set = {this, &m_InputData.m_WantedWeapon, &m_SelectedBuilding, 10}; Console()->Register("+weapon10", "", CFGFLAG_CLIENT, ConKeyInputSet, (void *)&s_Set, "Switch to weapon10"); }
-
+	*/
 	
 	{ static CInputSet s_Set = {this, &m_InputData.m_NextWeapon, 0}; Console()->Register("+nextweapon", "", CFGFLAG_CLIENT, ConKeyInputNextPrevWeapon, (void *)&s_Set, "Switch to next weapon"); }
 	{ static CInputSet s_Set = {this, &m_InputData.m_PrevWeapon, 0}; Console()->Register("+prevweapon", "", CFGFLAG_CLIENT, ConKeyInputNextPrevWeapon, (void *)&s_Set, "Switch to previous weapon"); }
@@ -201,6 +205,7 @@ CInputCount CountInput(int Prev, int Cur)
 int CControls::SnapInput(int *pData)
 {
 	static int64 LastSendTime = 0;
+	static int PrevWeapon = 0;
 	bool Send = false;
 
 	// update player state
@@ -259,65 +264,22 @@ int CControls::SnapInput(int *pData)
 			m_InputData.m_Fire = ((int)(t*10));
 			m_InputData.m_Hook = ((int)(t*2))&1;
 			m_InputData.m_Down = ((int)(t*3))&1;
-			m_InputData.m_WantedWeapon = ((int)t)%NUM_WEAPONS;
+			m_InputData.m_Charge = ((int)(t*4))&1;
+			m_InputData.m_WantedWeapon = ((int)t)%4;
 			m_InputData.m_TargetX = (int)(sinf(t*3)*100.0f);
 			m_InputData.m_TargetY = (int)(cosf(t*3)*100.0f);
 		}
 
 		// get wanted weapon from picker
 		if (m_PickedWeapon >= 0 && !m_BuildMode)
-			m_InputData.m_WantedWeapon = m_PickedWeapon;
+			m_InputData.m_WantedWeapon = m_PickedWeapon+1;
 		
 		m_PickedWeapon = -1;
 		
-		// can't want a weapon you don't have to prevent weapon change on picking wanted weapon
-		int w = CustomStuff()->m_LocalWeapons;
-		if (!m_BuildMode && !(w & (1<<(m_InputData.m_WantedWeapon-1))) && m_InputData.m_WantedWeapon > 0)
+		if (m_InputData.m_WantedWeapon != PrevWeapon)
 		{
-			m_SignalWeapon = m_InputData.m_WantedWeapon-1;
-			m_InputData.m_WantedWeapon = CustomStuff()->m_LocalWeapon+1;
+			PrevWeapon = m_InputData.m_WantedWeapon;
 		}
-		
-		if (m_Build == 0)
-			m_BuildReleased = true;
-		
-		if (m_BuildReleased && m_Build && m_pClient->BuildingEnabled())
-		{
-			m_BuildMode = !m_BuildMode;
-			m_BuildReleased = false;
-			
-			m_SelectedBuilding = -1;
-			
-			if (!m_BuildMode)
-				m_InputData.m_WantedWeapon = m_LastWeapon;
-			else
-				m_LastWeapon = CustomStuff()->m_LocalWeapon+1;
-		}
-		
-		if (m_BuildMode)
-		{
-			//if (m_InputData.m_WantedWeapon > 1)
-			//	m_SelectedBuilding = m_InputData.m_WantedWeapon;
-			
-			m_InputData.m_WantedWeapon = 1;
-			m_InputData.m_NextWeapon = 0;
-			m_InputData.m_PrevWeapon = 0;
-		}
-		
-		// place buildings
-		if (m_InputData.m_Fire&1)
-		{
-			if (m_BuildMode && m_SelectedBuilding >= 0 && CustomStuff()->m_BuildPosValid &&
-				CountInput(m_InputData.m_Fire, m_LastData.m_Fire).m_Presses)
-			{
-				CNetMsg_Cl_UseKit Msg;
-				Msg.m_Kit = m_SelectedBuilding-1;
-				Msg.m_X = CustomStuff()->m_BuildPos.x;
-				Msg.m_Y = CustomStuff()->m_BuildPos.y+18;
-				Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
-			}
-		}
-		
 		
 		// check if we need to send input
 		if(m_InputData.m_Direction != m_LastData.m_Direction) Send = true;
@@ -325,6 +287,7 @@ int CControls::SnapInput(int *pData)
 		else if(m_InputData.m_Fire != m_LastData.m_Fire) Send = true;
 		else if(m_InputData.m_Hook != m_LastData.m_Hook) Send = true;
 		else if(m_InputData.m_Down != m_LastData.m_Down) Send = true;
+		else if(m_InputData.m_Charge != m_LastData.m_Charge) Send = true;
 		else if(m_InputData.m_WantedWeapon != m_LastData.m_WantedWeapon) Send = true;
 		else if(m_InputData.m_NextWeapon != m_LastData.m_NextWeapon) Send = true;
 		else if(m_InputData.m_PrevWeapon != m_LastData.m_PrevWeapon) Send = true;

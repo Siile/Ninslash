@@ -51,7 +51,7 @@ MACRO_CONFIG_INT(BrMaxRequests, br_max_requests, 25, 0, 1000, CFGFLAG_SAVE|CFGFL
 MACRO_CONFIG_INT(SndBufferSize, snd_buffer_size, 512, 128, 32768, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Sound buffer size")
 MACRO_CONFIG_INT(SndRate, snd_rate, 48000, 0, 0, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Sound mixing rate")
 MACRO_CONFIG_INT(SndEnable, snd_enable, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Sound enable")
-MACRO_CONFIG_INT(SndMusic, snd_enable_music, 0, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Play background music")
+MACRO_CONFIG_INT(SndMusic, snd_enable_music, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Play background music")
 MACRO_CONFIG_INT(SndVolume, snd_volume, 100, 0, 100, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Sound volume")
 
 MACRO_CONFIG_INT(SndEnvironmental, snd_environmental, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Environmental sounds")
@@ -67,8 +67,6 @@ MACRO_CONFIG_INT(GamepadID, gamepadid, -1, 9999, -1, CFGFLAG_SAVE|CFGFLAG_CLIENT
 
 MACRO_CONFIG_INT(GoreBlood, gore_blood, 10, 0, 100, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Blood amount")
 MACRO_CONFIG_INT(GoreWallSplatter, gore_wallsplatter, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Wall splatter enable")
-
-MACRO_CONFIG_INT(GoreAimLine, gore_aimline, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Aim line enable")
 
 
 MACRO_CONFIG_INT(GoreCameraDelay, gore_cameradelay, 0, 0, 24, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Camera delay")
@@ -135,6 +133,8 @@ MACRO_CONFIG_INT(DbgResizable, dbg_resizable, 0, 0, 0, CFGFLAG_CLIENT, "Enables 
 // MapGen
 MACRO_CONFIG_INT(SvMapGen, sv_mapgen, 1, 0, 1, CFGFLAG_SERVER, "Map Generation Status")
 MACRO_CONFIG_INT(SvMapGenLevel, sv_mapgen_level, 1, 1, 9999, CFGFLAG_SERVER, "Map Difficulty")
+MACRO_CONFIG_INT(SvMapGenSeed, sv_mapgen_seed, 0, 0, 32767, CFGFLAG_SERVER, "Map generation seed")
+MACRO_CONFIG_INT(SvMapGenRandSeed, sv_mapgen_random_seed, 1, 0, 1, CFGFLAG_SERVER, "Random map generation seed")
 
 // Invasion
 MACRO_CONFIG_INT(SvInvFails, sv_inv_fails,  0, 0, 9, CFGFLAG_SERVER, "Invasion level fails")

@@ -32,8 +32,6 @@ void CAIbunny2::OnCharacterSpawn(CCharacter *pChr)
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	m_Triggered = true;
 	
-	pChr->GiveCustomWeapon(WEAPON_RIFLE);
-	
 	pChr->SetHealth(30);
 	//pChr->GiveBuff(PLAYERITEM_SHIELD);
 	
@@ -62,7 +60,7 @@ void CAIbunny2::DoBehavior()
 	SeekClosestEnemyInSight();
 
 	bool Jump = false;
-	bool Shooting = false;
+	//bool Shooting = false;
 	
 	// if we see a player
 	if (m_EnemiesInSight > 0)
@@ -71,7 +69,7 @@ void CAIbunny2::DoBehavior()
 		
 		if (ShootAtClosestEnemy())
 		{
-			Shooting = true;
+			//Shooting = true;
 		}
 		else
 		{

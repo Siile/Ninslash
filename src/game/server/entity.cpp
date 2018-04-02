@@ -22,6 +22,7 @@ CEntity::CEntity(CGameWorld *pGameWorld, int ObjType)
 	m_pNextTypeEntity = 0;
 	
 	m_Center = vec2(0, 0);
+	m_Damageable = false;
 }
 
 CEntity::~CEntity()

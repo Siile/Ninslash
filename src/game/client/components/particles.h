@@ -104,6 +104,7 @@ public:
 		GROUP_CRAFTING,
 		GROUP_DAMAGEIND,
 		GROUP_MEAT,
+		GROUP_EFFECT1,
 		NUM_GROUPS
 	};
 
@@ -162,5 +163,6 @@ private:
 	CRenderGroup<GROUP_CRAFTING> m_RenderCrafting;
 	CRenderGroup<GROUP_DAMAGEIND> m_RenderDamageInd;
 	CRenderGroup<GROUP_MEAT> m_RenderMeat;
+	CRenderGroup<GROUP_EFFECT1> m_RenderEffect1;
 };
 #endif

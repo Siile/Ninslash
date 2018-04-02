@@ -1,5 +1,8 @@
 #include "customstuff.h"
 
+#include <game/client/components/tracer.h>
+#include <game/client/components/inventory.h>
+
 
 
 CCustomStuff::CCustomStuff(CGameClient *pClient)
@@ -31,6 +34,23 @@ void CCustomStuff::Reset()
 		m_aBGEffect[i] = 0;
 	}
 	
+	m_ChargeAngle = 0;
+	m_Inventory = false;
+	
+	for (int i = 0; i < 12; i++)
+		m_aItem[i] = 0;
+	
+	/*
+	int w = 1<<0 | 1<<5;
+	m_aItem[0] = w;
+	w = 0; w |= 1<<1; w |= 1<<6;
+	m_aItem[1] = w;
+	w = 0; w |= 1<<2; w |= 1<<7;
+	m_aItem[2] = w;
+	w = 0; w |= 1<<6;
+	m_aItem[3] = w;
+	*/
+	
 	m_Local.m_Buff = -1;
 	
 	m_DoorTimer = 0.0f;
@@ -46,6 +66,12 @@ void CCustomStuff::Reset()
 	m_WeaponDropTick = 0;
 	m_SwitchTick = 0;
 	m_SelectedWeapon = 0;
+	m_LocalWeapons = 0;
+	
+	m_WeaponSlot = 0;
+	for (int i = 0; i < 4; i++)
+		m_aSnapWeapon[i] = -1;
+	
 	m_LocalWeapons = 0;
 	m_LocalUpgrades = 0;
 	m_LocalUpgrades2 = 0;
@@ -94,6 +120,9 @@ void CCustomStuff::Reset()
 	for (int i = 0; i < MAX_IMPACTS; i++)
 		m_aImpactTick[i] = 0;
 	
+	for (int i = 0; i < MAX_TURRETMUZZLES; i++)
+		m_aTurretMuzzle[i].Reset();
+	
 	m_WeaponpickTimer = 0;
 	m_WeaponpickWeapon = 0;
 	
@@ -107,6 +136,59 @@ void CCustomStuff::Reset()
 	m_FlipBuilding = false;
 }
 
+void CCustomStuff::SetTurretMuzzle(ivec2 Pos, int AttackTick, int Weapon)
+{
+	if (!AttackTick)
+		return;
+	
+	// find existing one
+	for (int i = 0; i < MAX_TURRETMUZZLES; i++)
+	{
+		if (m_aTurretMuzzle[i].m_Pos.x == Pos.x && m_aTurretMuzzle[i].m_Pos.y == Pos.y)
+		{
+			if (AttackTick && m_aTurretMuzzle[i].m_AttackTick != AttackTick)
+			{
+				m_aTurretMuzzle[i].m_Time = 0.0f;
+				m_aTurretMuzzle[i].m_AttackTick = AttackTick;
+				m_aTurretMuzzle[i].m_Weapon = Weapon;
+				m_aTurretMuzzle[i].m_Muzzle = rand()%4;
+			}
+			
+			return;
+		}
+	}
+
+	// .. or a new one
+	for (int i = 0; i < MAX_TURRETMUZZLES; i++)
+	{
+		if (m_aTurretMuzzle[i].m_Weapon == 0)
+		{
+			m_aTurretMuzzle[i].m_Pos = Pos;
+			m_aTurretMuzzle[i].m_Time = 0.0f;
+			m_aTurretMuzzle[i].m_AttackTick = AttackTick;
+			m_aTurretMuzzle[i].m_Weapon = Weapon;
+			m_aTurretMuzzle[i].m_Muzzle = rand()%4;
+			return;
+		}
+	}
+}
+
+
+CTurretMuzzle CCustomStuff::GetTurretMuzzle(ivec2 Pos)
+{
+	for (int i = 0; i < MAX_TURRETMUZZLES; i++)
+		if (m_aTurretMuzzle[i].m_Pos.x == Pos.x && m_aTurretMuzzle[i].m_Pos.y == Pos.y)
+			return m_aTurretMuzzle[i];
+	
+	return CTurretMuzzle();
+}
+
+
+
+float CCustomStuff::ChargeIntensity(int Charge)
+{
+	return (0.8f+cos(m_ChargeAngle*4.0f)*0.2f)*min(1.0f, Charge*0.01f);
+}
 
 
 CDroidAnim *CCustomStuff::GetDroidAnim(int Index)
@@ -169,6 +251,7 @@ void CCustomStuff::Tick(bool Paused)
 			m_WeaponpickTimer -= 0.0035f;
 	}
 	
+	m_ChargeAngle += 0.1f;
 	
 	if (m_DoorTimer > 0.0f)
 		m_DoorTimer += 0.01f;
@@ -220,7 +303,22 @@ void CCustomStuff::Tick(bool Paused)
 			if (m_aJumppad[i] > 0)
 				m_aJumppad[i] += 0.1f;
 		}
+		
+		// turret muzzle
+		for (int i = 0; i < MAX_TURRETMUZZLES; i++)
+		{
+			if (m_aTurretMuzzle[i].m_Weapon)
+			{
+				m_aTurretMuzzle[i].m_Time += 0.15f;
+				
+				if (m_aTurretMuzzle[i].m_Time > 1.0f)
+					m_aTurretMuzzle[i].m_Weapon = 0;
+			}
+		}
 	}
+	
+	m_pClient->m_pTracers->Tick();
+	m_pClient->m_pInventory->Tick();
 	
 	// Camera
 	
@@ -254,7 +352,7 @@ void CCustomStuff::Update(bool Paused)
 	for (;m_LastUpdate < currentTime; m_LastUpdate += step)
 	{
 		Tick(Paused);
-		if (i++ > 5)
+		if (i++ > 3)
 		{
 			m_LastUpdate = currentTime;
 			break;

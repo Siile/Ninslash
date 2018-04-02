@@ -32,8 +32,6 @@ void CAIpyro1::OnCharacterSpawn(CCharacter *pChr)
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	m_Triggered = false;
 	
-	pChr->GiveCustomWeapon(WEAPON_GRENADE);
-	
 	pChr->SetHealth(100);
 	
 	m_ShockTimer = 10;

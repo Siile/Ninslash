@@ -15,6 +15,7 @@
 
 #include <game/client/components/flow.h>
 #include <game/client/components/effects.h>
+#include <game/client/components/tracer.h>
 
 #include "items.h"
 
@@ -43,50 +44,43 @@ void CItems::OnReset()
 
 
 
+void CItems::UpdateProjectileTrace(const CNetObj_Projectile *pCurrent, int ItemID)
+{
+	static float s_LastGameTickTime = Client()->GameTickTime();
+	if(m_pClient->m_Snap.m_pGameInfoObj && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
+		s_LastGameTickTime = Client()->GameTickTime();
+	float Ct = (Client()->PrevGameTick()-pCurrent->m_StartTick)/(float)SERVER_TICK_SPEED + s_LastGameTickTime;
+	if(Ct < 0)
+	{
+		return; // projectile haven't been shot yet
+	}
+		
+	// get positions
+	float Speed = GetProjectileSpeed(pCurrent->m_Type);
+	float Curvature = GetProjectileCurvature(pCurrent->m_Type);
+	
+	vec2 StartPos(pCurrent->m_X, pCurrent->m_Y);
+	vec2 StartVel(pCurrent->m_VelX/100.0f, pCurrent->m_VelY/100.0f);
+	vec2 Vel2(pCurrent->m_Vel2X/10.0f, pCurrent->m_Vel2Y/10.0f);
+	
+	vec2 Pos = vec2(0, 0);
+	
+	if (WeaponProjectilePosType(pCurrent->m_Type) == 1)
+		Pos = CalcLogPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct);
+	else if (WeaponProjectilePosType(pCurrent->m_Type) == 2)
+		Pos = CalcRocketPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct);
+	else
+		Pos = CalcPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct);
+	
+	//vec2 TrailPos = CalcPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct+0.01f);
+	
+	m_pClient->m_pTracers->Add(GetProjectileTraceType(pCurrent->m_Type), ItemID+100, Pos, Pos, pCurrent->m_StartTick, pCurrent->m_Type);
+}
+	
 
+// render projectiles
 void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 {
-	// get positions
-	float Curvature = 0;
-	float Speed = 0;
-	if(pCurrent->m_Type == WEAPON_FLAMER)
-	{
-		Curvature = m_pClient->m_Tuning.m_FlamerCurvature;
-		Speed = m_pClient->m_Tuning.m_FlamerSpeed;
-	}
-	else if(pCurrent->m_Type == WEAPON_GRENADE)
-	{
-		Curvature = m_pClient->m_Tuning.m_GrenadeCurvature;
-		Speed = m_pClient->m_Tuning.m_GrenadeSpeed;
-	}
-	else if(pCurrent->m_Type == WEAPON_ELECTRIC)
-	{
-		Curvature = m_pClient->m_Tuning.m_ElectricCurvature;
-		Speed = m_pClient->m_Tuning.m_ElectricSpeed;
-	}
-	else if(pCurrent->m_Type == WEAPON_SHOTGUN)
-	{
-		Curvature = m_pClient->m_Tuning.m_ShotgunCurvature;
-		Speed = m_pClient->m_Tuning.m_ShotgunSpeed;
-	}
-	else if(pCurrent->m_Type == WEAPON_RIFLE)
-	{
-		//Curvature = m_pClient->m_Tuning.m_GunCurvature;
-		//Speed = m_pClient->m_Tuning.m_GunSpeed;
-		
-		Curvature = m_pClient->m_Tuning.m_WalkerCurvature;
-		Speed = m_pClient->m_Tuning.m_WalkerSpeed;
-	}
-	else if(pCurrent->m_Type == W_DROID_WALKER)
-	{
-		Curvature = m_pClient->m_Tuning.m_WalkerCurvature;
-		Speed = m_pClient->m_Tuning.m_WalkerSpeed;
-	}
-	else if(pCurrent->m_Type == W_DROID_STAR)
-	{
-		Curvature = m_pClient->m_Tuning.m_StarDroidCurvature;
-		Speed = m_pClient->m_Tuning.m_StarDroidSpeed;
-	}
 
 	static float s_LastGameTickTime = Client()->GameTickTime();
 	if(m_pClient->m_Snap.m_pGameInfoObj && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
@@ -97,38 +91,35 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 		return; // projectile havn't been shot yet
 	}
 		
+	// get positions
+	float Speed = GetProjectileSpeed(pCurrent->m_Type);
+	float Curvature = GetProjectileCurvature(pCurrent->m_Type);
+	
 	vec2 StartPos(pCurrent->m_X, pCurrent->m_Y);
 	vec2 StartVel(pCurrent->m_VelX/100.0f, pCurrent->m_VelY/100.0f);
+	vec2 Vel2(pCurrent->m_Vel2X/10.0f, pCurrent->m_Vel2Y/10.0f);
 	
 
 	vec2 Pos;
 	vec2 PrevPos;
-		
-	vec2 TrailPos1;
-	vec2 TrailPos2;
-		
-	vec2 PredictPos;
 	
-	if (pCurrent->m_Type == W_DROID_STAR)
+
+	if (WeaponProjectilePosType(pCurrent->m_Type) == 1)
 	{
-		Pos = CalcLogPos(StartPos, StartVel, Curvature, Speed, Ct);
-		PrevPos = CalcLogPos(StartPos, StartVel, Curvature, Speed, Ct-0.001f);
-		
-		TrailPos1 = CalcLogPos(StartPos, StartVel, Curvature, Speed, Ct+0.008f);
-		TrailPos2 = CalcLogPos(StartPos, StartVel, Curvature, Speed, Ct-0.009f);
-		
-		PredictPos = CalcLogPos(StartPos, StartVel, Curvature, Speed, Ct+0.01f);
+		Pos = CalcLogPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct);
+		PrevPos = CalcLogPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct-0.001f);
+	}
+	else if (WeaponProjectilePosType(pCurrent->m_Type) == 2)
+	{
+		Pos = CalcRocketPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct);
+		PrevPos = CalcRocketPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct-0.001f);
 	}
 	else
 	{
-		Pos = CalcPos(StartPos, StartVel, Curvature, Speed, Ct);
-		PrevPos = CalcPos(StartPos, StartVel, Curvature, Speed, Ct-0.001f);
-		
-		TrailPos1 = CalcPos(StartPos, StartVel, Curvature, Speed, Ct+0.008f);
-		TrailPos2 = CalcPos(StartPos, StartVel, Curvature, Speed, Ct-0.009f);
-		
-		PredictPos = CalcPos(StartPos, StartVel, Curvature, Speed, Ct+0.01f);
+		Pos = CalcPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct);
+		PrevPos = CalcPos(StartPos, StartVel, Vel2, Curvature, Speed, Ct-0.001f);
 	}
+	
 	
 	/*
 	if(pCurrent->m_Type == WEAPON_GRENADE || pCurrent->m_Type == WEAPON_FLAMER)
@@ -137,6 +128,7 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 		m_pClient->m_pEffects->Light(Pos, 96);
 	*/
 
+	/*
 	if (pCurrent->m_Type == WEAPON_ELECTRIC || pCurrent->m_Type == WEAPON_GRENADE)
 	{
 		if (pCurrent->m_PowerLevel == 1)
@@ -144,27 +136,21 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 		else if (pCurrent->m_PowerLevel > 1)
 			Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 0.5f);
 	}
+	*/
+	
 
 	
-	
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_PROJECTILES].m_Id);
 	Graphics()->QuadsBegin();
 
-	if (pCurrent->m_Type == WEAPON_FLAMER)
-	{
-		RenderTools()->SelectSprite(SPRITE_FIREBALL1 + CustomStuff()->GetSpriteFrame(10, 3));
-	}
-	else if (pCurrent->m_Type == W_DROID_WALKER)
-		RenderTools()->SelectSprite(SPRITE_WALKER_PROJ);
-	else if (pCurrent->m_Type == W_DROID_STAR)
-		RenderTools()->SelectSprite(SPRITE_GREEN_CHARGE1 + CustomStuff()->GetSpriteFrame(6, 7));
-	else if (pCurrent->m_Type == WEAPON_RIFLE && pCurrent->m_PowerLevel > 1)
-		RenderTools()->SelectSprite(SPRITE_WEAPON_RIFLE_PROJ2);
-	else
-		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[clamp(pCurrent->m_Type, 0, NUM_WEAPONS-1)].m_pSpriteProj);
+	RenderTools()->SelectSprite(SPRITE_PROJECTILE1_1 + GetProjectileSprite(pCurrent->m_Type));
+	
+	//	RenderTools()->SelectSprite(SPRITE_GREEN_CHARGE1 + CustomStuff()->GetSpriteFrame(6, 7));
+	// else if (pCurrent->m_Type == WEAPON_RIFLE && pCurrent->m_PowerLevel > 1)
 	
 	
 	vec2 Vel = Pos-PrevPos;
+	
 	//vec2 pos = mix(vec2(prev->x, prev->y), vec2(current->x, current->y), Client()->IntraGameTick());
 
 	
@@ -173,15 +159,9 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	
 
 	// add particle for this projectile
+	/*
 	if(pCurrent->m_Type == WEAPON_FLAMER)
 	{
-		/*
-		m_pClient->m_pEffects->Triangle(Pos+vec2(-8, 0), Vel*1000);
-		m_pClient->m_pEffects->Triangle(Pos+vec2(+8, 0), Vel*1000);
-		m_pClient->m_pEffects->Triangle(Pos+vec2(0, -8), Vel*1000);
-		m_pClient->m_pEffects->Triangle(Pos+vec2(0, +8), Vel*1000);
-		*/
-		
 		m_pClient->m_pEffects->Triangle(Pos, Vel*1000);
 		m_pClient->m_pEffects->Triangle(Pos+vec2(frandom()-frandom(), frandom()-frandom())*4.0f, Vel*1000);
 		
@@ -218,14 +198,8 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	}
 	else if(pCurrent->m_Type == WEAPON_ELECTRIC)
 	{
-		if (pCurrent->m_PowerLevel == 1)
-			m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.5f, 0.5f, 1.0f, 0.75f), 2.0f);
-		else if (pCurrent->m_PowerLevel > 1)
-			m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.5f, 1.0f, 0.5f, 0.75f), 2.0f);
-		
-		//m_pClient->m_pEffects->BulletTrail(Pos);
-		m_pClient->m_pEffects->Electrospark(Pos, 16, Vel * 100.0f);
-		
+		m_pClient->m_pTracers->Add(pCurrent->m_Type, ItemID, TrailPos1, pCurrent->m_StartTick, pCurrent->m_PowerLevel);
+	
 		static float s_Time = 0.0f;
 		static float s_LastLocalTime = Client()->LocalTime();
 
@@ -248,30 +222,20 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 		s_LastLocalTime = Client()->LocalTime();
 	}
 	else
+	*/
 	{
-		if(pCurrent->m_Type == WEAPON_SHOTGUN && Ct > 0.01f)
-		{
-			if (pCurrent->m_PowerLevel == 0)
-				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.6f, 0.6f, 0.3f, 0.75f));
-			else
-				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.7f, 0.5f, 0.3f, 0.75f));
-		}
+		bool Rot = true;
 		
-		if(pCurrent->m_Type == WEAPON_RIFLE || pCurrent->m_Type == W_DROID_WALKER)
-		{
-			if (pCurrent->m_PowerLevel == 0)
-				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.2f, 0.2f, 1.0f, 0.75f));
-			else if (pCurrent->m_PowerLevel == 1)
-				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.2f, 1.0f, 0.5f, 0.75f));
-			else
-				m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.5f, 0.5f, 1.0f, 0.75f));
-		}
 		
+		/*
 		if(pCurrent->m_Type == W_DROID_STAR)
 		{
-			m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.4f, 1.0f, 0.4f, 0.5f), 6*(1.0f + Ct*3.0f));
+			//m_pClient->m_pEffects->BulletTrail(TrailPos1, TrailPos2, vec4(0.4f, 1.0f, 0.4f, 0.5f), 6*(1.0f + Ct*3.0f));
+			m_pClient->m_pTracers->Add(pCurrent->m_Type, ItemID, TrailPos1, pCurrent->m_StartTick, pCurrent->m_PowerLevel);
 		}
+		*/
 		
+		/*
 		if (Collision()->GetCollisionAt(PredictPos.x, PredictPos.y)&1 ||  // solid
 			Collision()->GetCollisionAt(PredictPos.x, PredictPos.y)&4)    // nohook
 		{
@@ -279,23 +243,41 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 			m_pClient->m_pEffects->Spark(PredictPos);
 			m_pClient->m_pEffects->Spark(PredictPos);
 		}
-			
+		*/
 		
-		
-		if(length(Vel) > 0.00001f)
-			Graphics()->QuadsSetRotation(GetAngle(Vel));
-		else
-			Graphics()->QuadsSetRotation(0);
+		if (Rot)
+		{
+			if(length(Vel) > 0.00001f)
+				Graphics()->QuadsSetRotation(GetAngle(Vel));
+			else
+				Graphics()->QuadsSetRotation(0);
+		}
 
 	}
 
-	vec2 Size = vec2(32, 32);
+	vec2 Size = vec2(45, 30) * GetProjectileSize(pCurrent->m_Type);
 	
-	if(pCurrent->m_Type == WEAPON_FLAMER)
-		Size = vec2(64, 32) * 0.65f;
+	if (GetProjectileSprite(pCurrent->m_Type) == 3 || GetProjectileSprite(pCurrent->m_Type) == 7)
+		Size *= 2.0f;
 	
-	if(pCurrent->m_Type == W_DROID_STAR)
-		Size = vec2(18, 18) * (1.0f + Ct*3.0f);
+	if (GetStaticType(pCurrent->m_Type) == SW_BUBBLER)
+	{
+		m_pClient->m_pEffects->Flame(Pos, vec2(frandom()-frandom(), frandom()-frandom())*10.0f);
+		m_pClient->m_pEffects->Flame(Pos, vec2(frandom()-frandom(), frandom()-frandom())*10.0f);
+	}
+	
+	if (GetStaticType(pCurrent->m_Type) == SW_BAZOOKA)
+	{
+		m_pClient->m_pEffects->Flame(Pos, -Vel);
+		m_pClient->m_pEffects->SmokeTrail(Pos, -Vel);
+	}
+	
+	
+	//if (GetStaticType(pCurrent->m_Type) == SW_BUBBLER)
+	//	Size = vec2(18, 18) * (1.0f + Ct*3.0f);
+	
+	//if(pCurrent->m_Type == W_DROID_STAR)
+	//	Size = vec2(18, 18) * (1.0f + Ct*3.0f);
 	
 	IGraphics::CQuadItem QuadItem(Pos.x, Pos.y, Size.x, Size.y);
 	// draw projectile
@@ -306,12 +288,12 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	Graphics()->ShaderEnd();
 }
 
+
+
 void CItems::RenderPickup(const CNetObj_Pickup *pPrev, const CNetObj_Pickup *pCurrent)
 {
-	if (pCurrent->m_PowerLevel == 1)
-		Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 1.0f);
-	else if (pCurrent->m_PowerLevel == 2)
-		Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 0.5f);
+	if (pCurrent->m_Type == POWERUP_WEAPON)
+		RenderTools()->SetShadersForWeapon(pCurrent->m_Subtype);
 	
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 	Graphics()->QuadsBegin();
@@ -331,21 +313,21 @@ void CItems::RenderPickup(const CNetObj_Pickup *pPrev, const CNetObj_Pickup *pCu
 		
 		//m_pClient->m_pEffects->Light(Pos, 256);
 		
-		int Weapon = pCurrent->m_Subtype;
+		//int Weapon = pCurrent->m_Subtype;
 		
-		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[clamp(Weapon, 0, NUM_WEAPONS-1)].m_pSpriteBody);
-		Size = g_pData->m_Weapons.m_aId[clamp(pCurrent->m_Subtype, 0, NUM_WEAPONS-1)].m_VisualSize;
+		//RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[clamp(Weapon, 0, NUM_WEAPONS-1)].m_pSpriteBody);
+		//Size = g_pData->m_Weapons.m_aId[clamp(pCurrent->m_Subtype, 0, NUM_WEAPONS-1)].m_VisualSize;
 	}
 	else
 	{
-		if (pCurrent->m_Type == POWERUP_AMMO || pCurrent->m_Type == POWERUP_KIT)
-			SkipOffset = true;
+		//if (pCurrent->m_Type == POWERUP_AMMO || pCurrent->m_Type == POWERUP_KIT)
+		//	SkipOffset = true;
 		
 		const int c[] = {
 			SPRITE_PICKUP_HEALTH,
-			SPRITE_PICKUP_ARMOR,
+			SPRITE_PICKUP_AMMO,
 			SPRITE_PICKUP_WEAPON,
-			SPRITE_PICKUP_MINE,
+			SPRITE_PICKUP_ARMOR,
 			SPRITE_PICKUP_KIT
 			};
 		RenderTools()->SelectSprite(c[pCurrent->m_Type]);
@@ -385,7 +367,12 @@ void CItems::RenderPickup(const CNetObj_Pickup *pPrev, const CNetObj_Pickup *pCu
 	}
 	
 	s_LastLocalTime = Client()->LocalTime();
-	RenderTools()->DrawSprite(Pos.x, Pos.y, Size);
+	
+	if (pCurrent->m_Type == POWERUP_WEAPON)
+		RenderTools()->RenderWeapon(pCurrent->m_Subtype, Pos, vec2(1, 0), WEAPON_GAME_SIZE);
+	else
+		RenderTools()->DrawSprite(Pos.x, Pos.y, Size);
+
 	Graphics()->QuadsEnd();
 	Graphics()->ShaderEnd();
 }
@@ -526,64 +513,25 @@ void CItems::RenderLaser(const struct CNetObj_Laser *pCurrent)
 	float a = Ms / m_pClient->m_Tuning.m_LaserBounceDelay;
 	a = clamp(a, 0.0f, 1.0f);
 	float Ia = 1-a;
-
 	
-	if (pCurrent->m_PowerLevel == 0)
-	{
-		m_pClient->m_pEffects->BulletTrail(Pos, From, vec4(0.3f, 0.3f, 1.0f, 0.2f));
-	}
-	else
-	{
-		Graphics()->ShaderBegin(SHADER_ELECTRIC, 1.0f);
-	}
-	
+	Graphics()->ShaderBegin(SHADER_ELECTRIC, 1.0f);
+		
 	vec2 Out, Border;
 
 	Graphics()->BlendNormal();
 	Graphics()->TextureSet(-1);
 	Graphics()->QuadsBegin();
 
-	vec4 OuterColor(0.075f, 0.075f, 0.25f, 1.0f);
-	vec4 InnerColor(0.5f, 0.5f, 1.0f, 1.0f);
+	vec4 OuterColor(0.075f, 0.15f, 0.25f, 1.0f);
+	vec4 InnerColor(0.5f, 0.75f, 1.0f, 1.0f);
 
-	if (pCurrent->m_PowerLevel == 0)
+	if (pCurrent->m_Charge >= 0)
 	{
-		// do outline
-		Graphics()->SetColor(OuterColor.r, OuterColor.g, OuterColor.b, 1.0f);
-		Out = vec2(Dir.y, -Dir.x) * (7.0f*Ia);
-
-		IGraphics::CFreeformItem Freeform(
-				From.x-Out.x, From.y-Out.y,
-				From.x+Out.x, From.y+Out.y,
-				Pos.x-Out.x, Pos.y-Out.y,
-				Pos.x+Out.x, Pos.y+Out.y);
-		Graphics()->QuadsDrawFreeform(&Freeform, 1);
-
-		// do inner
-		Out = vec2(Dir.y, -Dir.x) * (5.0f*Ia);
-		Graphics()->SetColor(InnerColor.r, InnerColor.g, InnerColor.b, 1.0f); // center
-
-		Freeform = IGraphics::CFreeformItem(
-				From.x-Out.x, From.y-Out.y,
-				From.x+Out.x, From.y+Out.y,
-				Pos.x-Out.x, Pos.y-Out.y,
-				Pos.x+Out.x, Pos.y+Out.y);
-		Graphics()->QuadsDrawFreeform(&Freeform, 1); 
-	}
-	else
-	{
-		if (pCurrent->m_PowerLevel > 1)
-		{
-			Graphics()->SetColor(1.0f, 0.5f, 0.0f, 1.0f);
-			OuterColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);
-			InnerColor = vec4(1.0f, 0.4f, 0.0f, 1.0f);
-		}
-		else
-			Graphics()->SetColor(0.5f, 0.5f, 1, 1.0f);
+		Graphics()->SetColor(0.5f, 0.75f, 1, 0.3f+pCurrent->m_Charge*0.007f);
 		
 		int Steps = 1 + length(Pos - From) / 75;
 		vec2 Step = (Pos - From) / Steps;
-		Out = vec2(Dir.y, -Dir.x) * (7.0f*Ia);
+		Out = vec2(Dir.y, -Dir.x) * (1+pCurrent->m_Charge*0.1f*Ia); // 7
 		
 		vec2 p1 = From;
 		vec2 s1 = Out * 0.1f;
@@ -596,15 +544,9 @@ void CItems::RenderLaser(const struct CNetObj_Laser *pCurrent)
 			vec2 o2 = vec2(0, 0);
 			
 			if (i < Steps-1)
-				o2 = vec2(frandom()-frandom(), frandom()-frandom()) * 15.0f;
-			
-			if (i < Steps-1 && pCurrent->m_PowerLevel < 0)
-				o2 += vec2(frandom()-frandom(), frandom()-frandom()) * 50.0f;
+				o2 = vec2(frandom()-frandom(), frandom()-frandom()) * (pCurrent->m_Charge*0.15f); // 15
 			
 			vec2 s2 = Out * frandom()*4.0f;
-			
-			if (pCurrent->m_PowerLevel < 0)
-				s2 = Out * frandom()*2.0f;
 			
 			if (i == Steps -1)
 				s2 *= 0.1f;
@@ -617,11 +559,93 @@ void CItems::RenderLaser(const struct CNetObj_Laser *pCurrent)
 								
 			Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 		
+			m_pClient->m_pEffects->BulletTrail(p1+o1, p2+o2, vec4(0.5f, 1.0f, 1.0f, 0.2f));
 		
-			if (pCurrent->m_PowerLevel > 1)
-				m_pClient->m_pEffects->BulletTrail(p1+o1, p2+o2, vec4(1.0f, 0.5f, 0.0f, 0.2f));
-			else if (pCurrent->m_PowerLevel > 0)
-				m_pClient->m_pEffects->BulletTrail(p1+o1, p2+o2, vec4(0.5f, 0.5f, 1.0f, 0.2f));
+			s1 = s2;
+			p1 = p2;
+			o1 = o2;
+		}
+	}
+	
+	// lightning shotgun
+	if (pCurrent->m_Charge == -1)
+	{
+		Graphics()->SetColor(0.5f+a*0.5f, 0.75f+a*0.25f, 1, 0.75f);
+		
+		int Steps = 1 + length(Pos - From) / 75;
+		vec2 Step = (Pos - From) / Steps;
+		Out = vec2(Dir.y, -Dir.x) * (8*Ia); // 7
+		
+		vec2 p1 = From;
+		vec2 s1 = Out * 0.1f;
+		
+		vec2 o1 = vec2(0, 0);
+			
+		for (int i = 0; i < Steps; i++)
+		{
+			vec2 p2 = p1 + Step;
+			vec2 o2 = vec2(0, 0);
+			
+			if (i < Steps-1)
+				o2 = vec2(frandom()-frandom(), frandom()-frandom()) * ((i+1)*10.0f);
+			
+			vec2 s2 = Out * frandom()*2.0f;
+			
+			if (i == Steps -1)
+				s2 *= 0.1f;
+			
+			IGraphics::CFreeformItem FreeFormItem(
+				p1.x-s1.x+o1.x, p1.y-s1.y+o1.y,
+				p1.x+s1.x+o1.x, p1.y+s1.y+o1.y,
+				p2.x-s2.x+o2.x, p2.y-s2.y+o2.y,
+				p2.x+s2.x+o2.x, p2.y+s2.y+o2.y);
+								
+			Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+		
+			m_pClient->m_pEffects->BulletTrail(p1+o1, p2+o2, vec4(0.5f, 1.0f, 1.0f, 0.2f));
+		
+			s1 = s2;
+			p1 = p2;
+			o1 = o2;
+		}
+	}
+	
+	// lightning grenade
+	if (pCurrent->m_Charge == -2)
+	{
+		Graphics()->SetColor(0.5f+a*0.5f, 0.75f+a*0.25f, 1, 0.75f);
+		
+		int Steps = 1 + length(Pos - From) / 35;
+		vec2 Step = (Pos - From) / Steps;
+		Out = vec2(Dir.y, -Dir.x) * (6*Ia); // 7
+		
+		vec2 p1 = From;
+		vec2 s1 = Out * 0.1f;
+		
+		vec2 o1 = vec2(0, 0);
+			
+		for (int i = 0; i < Steps; i++)
+		{
+			vec2 p2 = p1 + Step;
+			vec2 o2 = vec2(0, 0);
+			
+			if (i < Steps-1)
+				o2 = vec2(frandom()-frandom(), frandom()-frandom()) * ((i+1)*30.0f);
+			
+			vec2 s2 = Out * frandom()*1.0f * (1.0f + i*0.4f);
+			
+			if (i == Steps -1)
+				s2 *= 0.1f;
+			
+			IGraphics::CFreeformItem FreeFormItem(
+				p1.x-s1.x+o1.x, p1.y-s1.y+o1.y,
+				p1.x+s1.x+o1.x, p1.y+s1.y+o1.y,
+				p2.x-s2.x+o2.x, p2.y-s2.y+o2.y,
+				p2.x+s2.x+o2.x, p2.y+s2.y+o2.y);
+								
+			Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+		
+			//m_pClient->m_pEffects->BulletTrail(p1+o1, p2+o2, vec4(0.5f, 1.0f, 1.0f, 0.2f));
 		
 			s1 = s2;
 			p1 = p2;
@@ -633,6 +657,7 @@ void CItems::RenderLaser(const struct CNetObj_Laser *pCurrent)
 	
 	
 	// render head
+	if (pCurrent->m_Charge != -2)
 	{
 		Graphics()->BlendNormal();
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_PARTICLES].m_Id);
@@ -649,10 +674,8 @@ void CItems::RenderLaser(const struct CNetObj_Laser *pCurrent)
 		Graphics()->QuadsDraw(&QuadItem, 1);
 		Graphics()->QuadsEnd();
 	}
-	
-	if (pCurrent->m_PowerLevel != 0)
-		Graphics()->ShaderEnd();
 
+	Graphics()->ShaderEnd();
 	Graphics()->BlendNormal();
 }
 
@@ -724,7 +747,21 @@ void CItems::RenderLaserFail(const struct CNetObj_LaserFail *pCurrent)
 	Graphics()->BlendNormal();
 }
 
+void CItems::UpdateTraces()
+{
+	if(Client()->State() < IClient::STATE_ONLINE)
+		return;
+	
+	int Num = Client()->SnapNumItems(IClient::SNAP_CURRENT);
+	for(int i = 0; i < Num; i++)
+	{
+		IClient::CSnapItem Item;
+		const void *pData = Client()->SnapGetItem(IClient::SNAP_CURRENT, i, &Item);
 
+		if(Item.m_Type == NETOBJTYPE_PROJECTILE)
+			UpdateProjectileTrace((const CNetObj_Projectile *)pData, Item.m_ID);
+	}
+}
 
 
 void CItems::OnRender()

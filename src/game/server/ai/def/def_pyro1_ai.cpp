@@ -32,10 +32,6 @@ void CAIdefpyro1::OnCharacterSpawn(CCharacter *pChr)
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	m_Triggered = false;
 	
-	if (frandom() < 0.6f)
-		pChr->GiveCustomWeapon(WEAPON_FLAMER);
-	else
-		pChr->GiveCustomWeapon(WEAPON_GRENADE);
 	
 	pChr->SetHealth(100);
 	

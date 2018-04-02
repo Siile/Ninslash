@@ -13,6 +13,7 @@
 
 #include <game/client/customstuff.h>
 
+#include <game/weapons.h>
 #include <game/client/components/flow.h>
 #include <game/client/components/effects.h>
 #include <game/client/components/sounds.h>
@@ -187,8 +188,6 @@ void CBuildings::RenderSwitch(const struct CNetObj_Building *pCurrent)
 	RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y-14, 96);
 	Graphics()->QuadsEnd();
 	
-	int s = pCurrent->m_Status;
-	
 	Graphics()->ShaderBegin(SHADER_ELECTRIC, frandom());
 	Graphics()->QuadsBegin();
 	
@@ -357,7 +356,7 @@ void CBuildings::RenderReactor(const struct CNetObj_Building *pCurrent)
 		Graphics()->QuadsEnd();
 	}
 	
-	int f = CustomStuff()->m_SawbladeAngle * 100;
+	//int f = CustomStuff()->m_SawbladeAngle * 100;
 	
 	
 	if (Repair && frandom() < 0.15f)
@@ -406,7 +405,7 @@ void CBuildings::RenderTeslacoil(const struct CNetObj_Building *pCurrent)
 		Graphics()->QuadsEnd();
 	}
 	
-	int f = CustomStuff()->m_SawbladeAngle * 100;
+	//int f = CustomStuff()->m_SawbladeAngle * 100;
 	
 	
 	if (Repair && frandom() < 0.15f)
@@ -462,7 +461,7 @@ void CBuildings::RenderStand(const struct CNetObj_Building *pCurrent)
 	
 	// render drop weapon tip for local player
 	if (distance(CustomStuff()->m_LocalPos, vec2(pCurrent->m_X, pCurrent->m_Y+15)) < 45 && 
-		CustomStuff()->m_LocalWeapon != WEAPON_TOOL && CustomStuff()->m_LocalWeapon != WEAPON_SCYTHE && CustomStuff()->m_LocalWeapon != WEAPON_HAMMER)
+		IsModularWeapon(CustomStuff()->m_LocalWeapon) && GetWeaponFiringType(CustomStuff()->m_LocalWeapon) == WFT_PROJECTILE)
 	{
 		TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
 		TextRender()->Text(0, pCurrent->m_X + 22, pCurrent->m_Y - 30 - 60*FlipY, 32, m_pClient->m_pBinds->GetKey("+dropweapon"), -1);
@@ -570,190 +569,47 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 	vec2 p = Pos + vec2(cosf(Angle)*12, sinf(Angle)*12+(-40-9)*FlipY); //+ vec2(cosf(Angle)*90, sinf(Angle)*90-71);
 	vec2 Dir = GetDirection((int)(Angle*256));
 	
-	int iw = clamp(Weapon, 0, NUM_WEAPONS-1);
 	
-	// render chainsaw effect
-	if (iw == WEAPON_CHAINSAW && pCurrent->m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)
-	{
-		float WeaponScale = 1.07f;
+	// render weapon
+	RenderTools()->SetShadersForWeapon(Weapon);
 		
-		if (pCurrent->m_PowerLevel == 1)
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_CHAINSAW2].m_Id);
-		else if (pCurrent->m_PowerLevel > 1)
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_CHAINSAW3].m_Id);
-		else
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_CHAINSAW].m_Id);
-		Graphics()->QuadsBegin();
-		
-		Graphics()->QuadsSetRotation(Angle);
-		
-		if (pCurrent->m_PowerLevel == 1)
-			RenderTools()->SelectSprite(SPRITE_FX_CHAINSAW2_1+rand()%3, frandom()*10 < 5.0f ? SPRITE_FLAG_FLIP_Y : 0);
-		else if (pCurrent->m_PowerLevel > 1)
-			RenderTools()->SelectSprite(SPRITE_FX_CHAINSAW3_1+rand()%3, frandom()*10 < 5.0f ? SPRITE_FLAG_FLIP_Y : 0);
-		else
-			RenderTools()->SelectSprite(SPRITE_FX_CHAINSAW1+rand()%3, frandom()*10 < 5.0f ? SPRITE_FLAG_FLIP_Y : 0);
-		
-		p += Dir*14.0f;
-		
-		Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
-		
-		float Size = 132;
-		
-		if (pCurrent->m_PowerLevel > 1)
-			Size *= 1.15f;
-		
-		p.y += g_pData->m_Weapons.m_aId[WEAPON_CHAINSAW].m_Offsety;
-		RenderTools()->DrawSprite(p.x, p.y, Size);
-		
-		Graphics()->QuadsEnd();
-	}
-	
-	
-	// weapon
-	if (pCurrent->m_PowerLevel == 1)
-		Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 1.0f);
-	else if (pCurrent->m_PowerLevel > 1)
-		Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 0.5f);
-	
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 	Graphics()->QuadsBegin();
 	Graphics()->QuadsSetRotation(Angle);
-	RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[iw].m_pSpriteBody, Dir.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
 	
-	/*
-	p = Dir * g_pData->m_Weapons.m_aId[iw].m_Offsetx;
-	p.y += g_pData->m_Weapons.m_aId[iw].m_Offsety;
-	*/
-
-	vec2 Offset = vec2(0, 0);
+	RenderTools()->RenderWeapon(Weapon, p, Dir, WEAPON_GAME_SIZE);
 	
-	// chainsaw shake effects
-	if (iw == WEAPON_CHAINSAW)
-	{
-		if (pCurrent->m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)
-		{
-			Offset = vec2(frandom()-frandom(), frandom()-frandom()) * 2.0f;
-			m_pClient->m_pEffects->ChainsawSmoke(vec2(pCurrent->m_X, pCurrent->m_Y-50*FlipY));
-		}
-	}
-	
-	
-	RenderTools()->DrawSprite(p.x+Offset.x, p.y+Offset.y, g_pData->m_Weapons.m_aId[iw].m_VisualSize);
 	Graphics()->QuadsEnd();
 	
-	if (iw == WEAPON_FLAMER)
+	
+	// render muzzle
+	if (GetWeaponFiringType(Weapon) != WFT_HOLD)
 	{
-		// todo: get a truly unique index
-		int i = (pCurrent->m_X/7 + pCurrent->m_Y/15)%512;
-
-		// roll the animation
-		if (pCurrent->m_AttackTick > Client()->GameTick() - 220 * Client()->GameTickSpeed()/1000)
-		{
-			if (CustomStuff()->m_aTurretFlame[i] == 0)
-				CustomStuff()->m_aTurretFlame[i]++;
-				
-			if (CustomStuff()->m_aTurretFlame[i] > 9*5)
-				CustomStuff()->m_aTurretFlame[i] = 5*5;
-		}
-		else
-		{
-			if (CustomStuff()->m_aTurretFlame[i] > 0 && CustomStuff()->m_aTurretFlame[i] < 9*5)
-				CustomStuff()->m_aTurretFlame[i] = 9*5;
-		}
+		CustomStuff()->SetTurretMuzzle(ivec2(pCurrent->m_X, pCurrent->m_Y), pCurrent->m_AttackTick, pCurrent->m_Weapon);
 		
-		// render the animation
-		if (CustomStuff()->m_aTurretFlame[i] > 0)
+		CTurretMuzzle Muzzle = CustomStuff()->GetTurretMuzzle(ivec2(pCurrent->m_X, pCurrent->m_Y));
+		
+		if (Muzzle.m_Weapon)
 		{
-			int f = CustomStuff()->m_aTurretFlame[i] / 5;
-				
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FLAME].m_Id);
+			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_MUZZLE].m_Id);
 			Graphics()->QuadsBegin();
-				
-			bool Flip = Dir.x < 0 ? true : false;
-				
-			Graphics()->SetColor(1, 1, 1, 1);
-			Graphics()->QuadsSetRotation(0);
-					
-			vec2 DirY(-Dir.y,Dir.x);
-			float OffsetY = -20 * (Dir.x < 0 ? -1 : 1);
-
-			int Slices = 3;
-
-			vec2 PrevPos = vec2(0, 0);
-			float PrevA = 0.0f;
-				
-			vec2 FPos = p + DirY * OffsetY;
-			FPos -= vec2(cos(Angle), sin(Angle))*60.0f;
-				
-			vec2 StartPos = FPos;
-				
-			int Flames = 0;
+			Graphics()->QuadsSetRotation(Angle);
 			
-			for (int l = 0; l <= Slices; l++)
-			{
-				float fa = Angle;
-					
-				float x1 = (l-1.0f) / float(Slices);
-				float x2 = (l+0.0f) / float(Slices);
-				if (l > 0)
-					RenderTools()->SelectSprite(SPRITE_FLAME1+f,  + (Flip ? SPRITE_FLAG_FLIP_Y : 0), 0, 0, x1, x2);
-				
-				FPos += vec2(cos(fa), sin(fa)) * (240.0f / Slices);
-					
-				if (PrevPos.x == 0.0f)
-				{
-					PrevPos = FPos;
-					PrevA = fa;
-					continue;
-				}
-				
-				float a1 = PrevA-pi/2.0f;
-				float a2 = fa-pi/2.0f;
-				float a3 = PrevA+pi/2.0f;
-				float a4 = fa+pi/2.0f;
-					
-				float s1 = 32.0f;
-					
-				vec2 p1 = PrevPos+vec2(cos(a1), sin(a1))*s1;
-				vec2 p2 = FPos+vec2(cos(a2), sin(a2))*s1;
-				vec2 p3 = PrevPos+vec2(cos(a3), sin(a3))*s1;
-				vec2 p4 = FPos+vec2(cos(a4), sin(a4))*s1;
-					
-				if (!Flames && Collision()->IntersectLine(StartPos, PrevPos, 0x0, 0x0))
-				{
-					Flames++;
-					m_pClient->m_pEffects->Flame(PrevPos + vec2(frandom()-frandom(), frandom()-frandom()) * 12.0f, vec2(frandom()-frandom(), frandom()-frandom()) * 200.0f, 0.5f, true);
-				}
-					
-				// prev
-				Collision()->IntersectLine(StartPos, p1, 0x0, &p1);
-				Collision()->IntersectLine(StartPos, p3, 0x0, &p3);
-				Collision()->IntersectLine(StartPos, p2, 0x0, &p2);
-				Collision()->IntersectLine(StartPos, p4, 0x0, &p4);
-					
-				IGraphics::CFreeformItem FreeFormItem(
-					p1.x, p1.y,
-					p2.x, p2.y,
-					p3.x, p3.y,
-					p4.x, p4.y);
-						
-				Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
-					
-				PrevPos = FPos;
-				PrevA = fa;
-			}
-				
-				
-			Graphics()->QuadsEnd();
-				
-			OffsetY = -0 * (Dir.x < 0 ? -1 : 1);
+			vec2 Moff = GetMuzzleRenderOffset(Muzzle.m_Weapon)+vec2(-3, -6);
+			RenderTools()->SelectSprite(SPRITE_MUZZLE1_1 + Muzzle.m_Muzzle*4 + Muzzle.m_Time*4, SPRITE_FLAG_FLIP_X);
 
+			vec2 DirY(-Dir.y,Dir.x);
+			vec2 MuzzlePos = p + Dir * Moff.x + DirY * Moff.y;
+
+			RenderTools()->DrawSprite(MuzzlePos.x, MuzzlePos.y, 60);
+			
+			Graphics()->QuadsEnd();
 		}
 	}
-
-	Graphics()->ShaderEnd();
 	
+	Graphics()->ShaderEnd();
+
+	vec2 Offset = vec2(0, 0);
 	
 	// fastener
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
@@ -788,7 +644,7 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 	Graphics()->QuadsEnd();
 
 	
-		
+	/*
 	if (iw == WEAPON_RIFLE || iw == WEAPON_SHOTGUN)
 	{
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GAME].m_Id);
@@ -847,12 +703,14 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 		Graphics()->QuadsEnd();
 	}
 	
+	*/
 	// no ammo & low health status
 	s = pCurrent->m_Status;
 	bool Repair = s & (1<<BSTATUS_REPAIR);
 	
-	s = pCurrent->m_Status;
-	bool NoAmmo = s & (1<<BSTATUS_NOPE);
+	//s = pCurrent->m_Status;
+	//bool NoAmmo = s & (1<<BSTATUS_NOPE);
+	bool NoAmmo = false;
 	
 	if (Repair && (CustomStuff()->LocalTick()/12+(pCurrent->m_X/8 + pCurrent->m_Y/32))%8 < 4)
 	{
@@ -867,6 +725,7 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 		Graphics()->QuadsEnd();
 	}
 	
+	/*
 	s = pCurrent->m_Status;
 	if (NoAmmo && (CustomStuff()->LocalTick()/12+(pCurrent->m_X/8 + pCurrent->m_Y/32))%8 >= 4)
 	{
@@ -892,6 +751,7 @@ void CBuildings::RenderTurret(const struct CNetObj_Turret *pCurrent)
 		Graphics()->QuadsDraw(&Ammo, 1);
 		Graphics()->QuadsEnd();
 	}
+	*/
 }
 
 

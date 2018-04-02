@@ -8,7 +8,7 @@
 #include "alien1_ai.h"
 
 
-CAIalien1::CAIalien1(CGameContext *pGameServer, CPlayer *pPlayer)
+CAIalien1::CAIalien1(CGameContext *pGameServer, CPlayer *pPlayer, int Level)
 : CAI(pGameServer, pPlayer)
 {
 	m_SkipMoveUpdate = 0;
@@ -16,6 +16,8 @@ CAIalien1::CAIalien1(CGameContext *pGameServer, CPlayer *pPlayer)
 	m_ShockTimer = 0;
 	m_Triggered = false;
 	m_TriggerLevel = 5 + rand()%5;
+	
+	m_Level = Level;
 	
 	// "boss"
 	if (frandom() < 0.5f && g_Config.m_SvInvBosses > 0)
@@ -44,23 +46,24 @@ void CAIalien1::OnCharacterSpawn(CCharacter *pChr)
 	
 	if (m_Skin == 11)
 	{
-		pChr->GiveCustomWeapon(WEAPON_CHAINSAW, 1, 2);
-		pChr->SetCustomWeapon(WEAPON_CHAINSAW);
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_CHAINSAW)));
 		pChr->SetHealth(80);
 		m_PowerLevel = 8;
 		m_TriggerLevel = 15 + rand()%5;
 	}
 	else
 	{
-		if (frandom() < 0.4f)
-			pChr->GiveCustomWeapon(WEAPON_RIFLE);
-		else if (frandom() < 0.4f)
-			pChr->GiveCustomWeapon(WEAPON_CHAINSAW);
+		if (frandom() < min(m_Level*0.01f, 0.5f))
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 1)));
+		if (frandom() < min(m_Level*0.01f, 0.5f))
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
+		
+		if (frandom() < 0.5f)
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GUN1)));
 		else if (frandom() < 0.5f)
-			pChr->GiveCustomWeapon(WEAPON_LASER);
-		else
-			pChr->GiveCustomWeapon(WEAPON_ELECTRIC);
-			pChr->SetHealth(60);
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GUN2)));
+		
+		pChr->SetHealth(60);
 	}
 	
 	
@@ -109,6 +112,21 @@ void CAIalien1::DoBehavior()
 		if (ShootAtClosestEnemy())
 		{
 			Shooting = true;
+			
+			if (WeaponShootRange() - m_PlayerDistance > 200)
+			{
+				m_TargetPos = normalize(m_Pos - m_PlayerPos) * WeaponShootRange();
+				GameServer()->Collision()->IntersectLine(m_Pos, m_TargetPos, 0x0, &m_TargetPos);
+				//MoveTowardsWaypoint(true);
+				//
+				
+				int Weapon = Player()->GetCharacter()->GetWeaponType();
+				if (GetWeaponFiringType(Weapon) == WFT_NONE)
+				{
+					Shooting = false;
+					m_TargetPos = m_Pos - m_PlayerDirection*3;
+				}
+			}
 		}
 		else
 		{

@@ -51,29 +51,27 @@ void CAIrobot1::OnCharacterSpawn(CCharacter *pChr)
 	{
 		m_PowerLevel = 6;
 		pChr->SetHealth(80);
-		pChr->GiveCustomWeapon(WEAPON_RIFLE);
-		pChr->SetCustomWeapon(WEAPON_RIFLE);
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(3, 4)));
 	}
 	else if (m_Skin == 3)
 	{
 		m_PowerLevel = 2;
 		pChr->SetHealth(100);
-		pChr->GiveCustomWeapon(WEAPON_CHAINSAW);
-		pChr->SetCustomWeapon(WEAPON_CHAINSAW);
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_CHAINSAW)));
 	}
 	else if (m_Skin == 1)
 	{
 		m_PowerLevel = 6;
 		pChr->SetHealth(100);
-		pChr->GiveCustomWeapon(WEAPON_SHOTGUN);
-		pChr->SetCustomWeapon(WEAPON_SHOTGUN);
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 2)));
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
 	}
 	else if (m_Skin == 8)
 	{
 		m_PowerLevel = 8;
 		pChr->SetHealth(140);
-		pChr->GiveCustomWeapon(WEAPON_ELECTRIC, 1, 1);
-		pChr->SetCustomWeapon(WEAPON_ELECTRIC);
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(3, 1)));
 	}
 	
 	if (!m_Triggered)
@@ -94,7 +92,7 @@ void CAIrobot1::DoBehavior()
 	
 	HeadToMovingDirection();
 	SeekClosestEnemyInSight();
-	bool Shooting = false;
+	//bool Shooting = false;
 	
 	// if we see a player
 	if (m_EnemiesInSight > 0)
@@ -107,7 +105,7 @@ void CAIrobot1::DoBehavior()
 		
 		if (ShootAtClosestEnemy())
 		{
-			Shooting = true;
+			//Shooting = true;
 			
 			if (m_Skin == 1 && WeaponShootRange() - m_PlayerDistance > 100)
 			{

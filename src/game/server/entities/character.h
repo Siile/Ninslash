@@ -25,13 +25,6 @@ enum BaseDamage
 	NEUTRAL_BASE = -1,
 };
 
-enum WeaponGroup
-{
-	WEAPONGROUP_PRIMARY,
-	WEAPONGROUP_SECONDARY,
-	WEAPONGROUP_TOOL,
-	
-};
 
 class CCharacter : public CEntity
 {
@@ -82,8 +75,11 @@ public:
 		return false;
 	}
 	
+	void ReleaseWeapons();
+	
 	void Die(int Killer, int Weapon, bool SkipKillMessage = false, bool IsTurret = false);
-	bool TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos, int Type = DAMAGETYPE_NORMAL, bool IsTurret = false);
+	//bool TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos, int Type = DAMAGETYPE_NORMAL, bool IsTurret = false);
+	bool TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos);
 	void SetAflame(float Duration, int From, int Weapon);
 	void TakeDeathtileDamage();
 	void TakeSawbladeDamage(vec2 SawbladePos);
@@ -111,7 +107,19 @@ public:
 
 	bool IsAlive() const { return m_Alive; }
 	class CPlayer *GetPlayer() { return m_pPlayer; }
-
+	
+	class CWeapon *GetWeapon(int Slot = -1) {
+		if (Slot >= NUM_SLOTS)
+			return NULL;
+		
+		if (Slot < 0 && m_WeaponSlot >= 0 && m_WeaponSlot < NUM_SLOTS)
+			return m_apWeapon[m_WeaponSlot];
+		
+		if (Slot < 0)
+			return NULL;
+		
+		return m_apWeapon[Slot];
+	}
 	
 	bool m_IsBot;
 	int m_HiddenHealth;
@@ -139,37 +147,22 @@ public:
 	// custom weapon system
 	int m_ActiveWeapon;
 	
+	int m_WeaponSlot;
+	int m_WantedSlot;
+	
 	struct CustomWeaponStat
 	{
 		int m_Ammo;
 		int m_PowerLevel;
 		bool m_Got;
-		bool m_Disabled;
+		bool m_Disabled; // gungame
 		bool m_Ready;
 	} m_aWeapon[NUM_WEAPONS];
 	
 	bool AddClip(int Weapon = -1);
 	
 	// for pickup drops, easy access
-	bool HasAmmo()
-	{
-		if (m_ActiveWeapon < 0)
-			return false;
-		
-		if (m_aWeapon[m_ActiveWeapon].m_Ammo > 0 ||
-			aCustomWeapon[m_ActiveWeapon].m_MaxAmmo == 0)
-			return true;
-		
-		return false;
-	}
-	
-	int WeaponPowerLevel(int Weapon){
-		if (Weapon < 0 || Weapon >= NUM_CUSTOMWEAPONS)
-			return 0;
-		
-		return m_aWeapon[Weapon].m_PowerLevel;
-	}
-	
+	bool HasAmmo();
 	
 	bool GotWeapon(int Weapon)
 	{
@@ -182,21 +175,23 @@ public:
 	bool WeaponDisabled(int CustomWeapon){ return m_aWeapon[CustomWeapon].m_Disabled; }
 	void DisableWeapon(int CustomWeapon){ m_aWeapon[CustomWeapon].m_Disabled = true; }
 	
-	void UpgradeWeapon();
+	bool GiveWeapon(class CWeapon *pWeapon);
+	int GetWeaponType(int Slot = -1);
+	int GetWeaponSlot(){ return clamp(m_WeaponSlot, 0, 3);}
+	int GetWeaponPowerLevel(int WeaponSlot = -1);
 	
-	bool GiveCustomWeapon(int CustomWeapon, float AmmoFill = 1.0f, int PowerLevel = 0);
-	void GiveRandomWeapon(int WeaponLevel = -1);
-	void GiveAllWeapons();
+	bool PickWeapon(class CWeapon *pWeapon);
+	
 	bool GiveAmmo(int *CustomWeapon, float AmmoFill);
 	
-	void SetCustomWeapon(int CustomWeapon);
+	void RandomizeInventory();
 	
 	void AutoWeaponChange();
 	
 	void GiveStartWeapon();
+	
+	int m_PickedWeaponSlot;
 
-	// next that shares a parent
-	int m_aNextWeapon[NUM_WEAPONS];
 
 	int m_Type;
 	
@@ -263,9 +258,25 @@ public:
 	
 	bool ScytheReflect();
 	
+	int GetArmor() { return m_Armor; }
+	
+	// inventory
+	void SwapItem(int Item1, int Item2);
+	void CombineItem(int Item1, int Item2);
+	void TakePart(int Item1, int Slot, int Item2);
+	void SendInventory();
+	
+	void ReplaceWeapon(int Slot, int Part1, int Part2);
+	void ReleaseWeapon(class CWeapon *pWeapon = NULL);
+	void TriggerWeapon(class CWeapon *pWeapon = NULL);
+	
+	bool UpgradeTurret(vec2 Pos, vec2 Dir, int Slot = -1);
+	
 private:
 	// player controlling this character
 	class CPlayer *m_pPlayer;
+	
+	class CWeapon *m_apWeapon[12];
 
 	bool m_IgnoreCollision;
 	
@@ -283,24 +294,17 @@ private:
 	
 	bool m_Alive;
 	
+	int m_AcidTimer;
+	
 	vec2 m_Recoil;
-	
-	// nonprojectile weirdos
-	int m_Chainsaw;
-	int m_Scythe;
-	
-	int m_ScytheTick;
+
 	int m_ChangeDirTick;
 	int m_LastDir;
 	
-	void Chainsaw();
-	void Scythe();
+	int m_ChargeTick;
 	
 	int m_Flamethrower;
 	void Flamethrower();
-	
-	float m_DelayedShotgunTick;
-	void DelayedFire();
 	
 	CCharacter *m_LockedTo;
 	
@@ -308,7 +312,6 @@ private:
 	
 	// weapon info
 	CEntity *m_apHitObjects[10];
-	int m_NumObjectsHit;
 
 	int m_ReloadTimer;
 

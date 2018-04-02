@@ -32,8 +32,6 @@ void CAIdefrobot3::OnCharacterSpawn(CCharacter *pChr)
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	m_Triggered = false;
 	
-	pChr->GiveCustomWeapon(WEAPON_CHAINSAW, 1, 2);
-	
 	pChr->SetHealth(500);
 	
 	m_ShockTimer = 10;
@@ -61,7 +59,7 @@ void CAIdefrobot3::DoBehavior()
 	SeekClosestEnemyInSight();
 
 	bool Jump = false;
-	bool Shooting = false;
+	//bool Shooting = false;
 	
 	// if we see a player
 	if (m_EnemiesInSight > 0)
@@ -70,7 +68,7 @@ void CAIdefrobot3::DoBehavior()
 		
 		if (ShootAtClosestEnemy())
 		{
-			Shooting = true;
+			//Shooting = true;
 		}
 		else
 		{

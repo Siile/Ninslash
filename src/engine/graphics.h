@@ -18,6 +18,7 @@ enum RenderBuffers
 
 enum Shaders
 {
+	SHADER_PLAYER,
 	SHADER_ELECTRIC,
 	SHADER_DEATHRAY,
 	SHADER_COLORSWAP,
@@ -130,7 +131,8 @@ public:
 	virtual void CreateTextureBuffer(int Width, int Height) = 0;
 
 	virtual void LoadShaders() = 0;
-	virtual void ShaderBegin(int Shade, float Intensity = 1.0f, float ColorSwap = 0.0f) = 0;
+	virtual void ShaderBegin(int Shade, float Intensity = 1.0f, float ColorSwap = 0.0f, float WeaponCharge = 0.0f) = 0;
+	virtual void PlayerShaderBegin(float colorG, float colorB, float Charge = 0.0f, float Visibility = 1.0f, float Electro = 0.0f, float Damage = 0.0f, float Deathray = 0.0f) = 0;
 	virtual void ShaderEnd() = 0;
 	
 	virtual void CameraToShaders(int ScreenWidth, int ScreenHeight, int CameraX, int CameraY) = 0;

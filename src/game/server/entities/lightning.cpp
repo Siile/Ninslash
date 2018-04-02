@@ -44,5 +44,5 @@ void CLightning::Snap(int SnappingClient)
 	pObj->m_FromX = (int)m_From.x;
 	pObj->m_FromY = (int)m_From.y;
 	pObj->m_StartTick = m_EvalTick;
-	pObj->m_PowerLevel = -1;
+	pObj->m_Charge = -1;
 }

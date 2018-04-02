@@ -9,7 +9,7 @@ Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY",
 
 Powerups = ["HEALTH", "AMMO", "WEAPON", "ARMOR", "KIT"]
 
-Statuses = ["EMPTY", "SPAWNING", "AFLAME", "SLOWED", "ELECTRIC", "DEATHRAY", "SHIELD", "RAGE", "INVISIBILITY", "HEAL", "FUEL"]
+Statuses = ["EMPTY", "SPAWNING", "AFLAME", "SLOWED", "ELECTRIC", "DEATHRAY", "SHIELD", "RAGE", "INVISIBILITY", "HEAL", "FUEL", "SLOWMOVING"]
 
 Damagetypes = ["NORMAL", "FLAME", "ELECTRIC", "FLUID"]
 
@@ -17,6 +17,8 @@ Droidstatus = ["IDLE", "HURT", "ELECTRIC", "TERMINATED"]
 Droidtype = ["WALKER", "STAR", "CRAWLER", "FLY"]
 
 CoreAction = ["IDLE", "JUMP", "WALLJUMP", "ROLL", "SLIDE", "SLIDEKICK", "FALL", "JUMPPAD", "HANG"]
+
+InventoryAction = ["SWAP", "COMBINE", "TAKEPART"]
 
 RawHeader = '''
 
@@ -29,10 +31,10 @@ enum
 
 enum
 {
+	TEAM_NEUTRAL=-1,
 	TEAM_SPECTATORS=-1,
 	TEAM_RED,
 	TEAM_BLUE,
-	TEAM_NEUTRAL,
 
 	FLAG_MISSING=-3,
 	FLAG_ATSTAND,
@@ -88,10 +90,12 @@ enum
 	FX_BARREL,
 	FX_LAZERLOAD,
 	FX_BLOOD1,
+	FX_BLOOD2,
 	FX_MONSTERDEATH,
 	FX_MONSTERSPAWN,
 	FX_TAKEOFF,
 	FX_FLAME1,
+	FX_ROLLDASH,
 	NUMFX,
 	
 	EFFECT_ELECTRODAMAGE=1,
@@ -129,6 +133,7 @@ enum
 	DEATHTYPE_DROID_STAR,
 	NUM_DEATHTYPES,
 	
+	NUM_SLOTS=12,
 	NUM_BODIES=7,
 	MAX_PLAYERITEMS=2,
 	
@@ -149,7 +154,8 @@ Enums = [
 	Enum("DAMAGETYPE", Damagetypes),
 	Enum("DROIDSTATUS", Droidstatus),
 	Enum("DROIDTYPE", Droidtype),
-	Enum("COREACTION", CoreAction)
+	Enum("COREACTION", CoreAction),
+	Enum("INVENTORYACTION", InventoryAction)
 ]
 
 Flags = [
@@ -168,6 +174,7 @@ Objects = [
 		NetIntAny("m_Jump"),
 		NetIntAny("m_Fire"),
 		NetIntAny("m_Hook"),
+		NetIntAny("m_Charge"),
 		NetIntAny("m_Down"),
 
 		NetIntRange("m_PlayerFlags", 0, 256),
@@ -182,8 +189,10 @@ Objects = [
 		NetIntAny("m_Y"),
 		NetIntAny("m_VelX"),
 		NetIntAny("m_VelY"),
+		NetIntAny("m_Vel2X"),
+		NetIntAny("m_Vel2Y"),
 
-		NetIntRange("m_Type", 0, 'NUM_WEAPONS'), #'NUM_WEAPONS-1'
+		NetIntAny("m_Type"),
 		NetIntRange("m_PowerLevel", 0, 9),
 		NetTick("m_StartTick"),
 	]),
@@ -193,7 +202,7 @@ Objects = [
 		NetIntAny("m_Y"),
 		NetIntAny("m_FromX"),
 		NetIntAny("m_FromY"),
-		NetIntRange("m_PowerLevel", 0, 9),
+		NetIntAny("m_Charge"),
 
 		NetTick("m_StartTick"),
 	]),
@@ -212,9 +221,16 @@ Objects = [
 		NetIntAny("m_X"),
 		NetIntAny("m_Y"),
 
-		NetIntRange("m_PowerLevel", 0, 9),
 		NetIntRange("m_Type", 0, 'max_int'),
-		NetIntRange("m_Subtype", 0, 'max_int'),
+		NetIntAny("m_Subtype"),
+	]),
+	
+	NetObject("Weapon", [
+		NetIntAny("m_X"),
+		NetIntAny("m_Y"),
+		NetIntAny("m_WeaponType"),
+		NetIntAny("m_AttackTick"),
+		NetIntAny("m_Angle")
 	]),
 	
 	NetObject("Droid", [
@@ -234,14 +250,13 @@ Objects = [
 		NetIntAny("m_Y"),
 		NetIntRange("m_Status", 0, 'max_int'),
 		NetIntRange("m_Type", 0, 'max_int'),
-		NetIntRange("m_Team", 'TEAM_RED', 'TEAM_NEUTRAL')
+		NetIntAny("m_Team")
 	]),
 	
 	
 	NetObject("Turret:Building", [
 		NetIntAny("m_Angle"),
-		NetIntRange("m_Weapon", 0, 'NUM_WEAPONS-1'),
-		NetIntRange("m_PowerLevel", 0, 9),
+		NetIntAny("m_Weapon"),
 		NetIntRange("m_AttackTick", 0, 'max_int')
 	]),
 	
@@ -283,6 +298,7 @@ Objects = [
 		NetIntAny("m_Y"),
 		NetIntAny("m_VelX"),
 		NetIntAny("m_VelY"),
+		NetIntAny("m_Movement1"),
 		
 		NetIntRange("m_Health", 0, 100),
 
@@ -299,6 +315,9 @@ Objects = [
 		NetIntRange("m_Slide", -10, 32),
 		
 		NetIntRange("m_JumpTimer", -10, 10),
+
+		NetIntRange("m_Charge", 0, 1),
+		NetIntRange("m_ChargeLevel", -50, 100),
 		
 		NetIntAny("m_Status"),
 		NetIntAny("m_DamageTick"),
@@ -317,10 +336,11 @@ Objects = [
 		NetIntRange("m_PlayerFlags", 0, 256),
 		NetIntRange("m_Armor", 0, 50),
 		NetIntRange("m_AmmoCount", 0, 30),
-		NetIntRange("m_Weapon", 0, 'NUM_WEAPONS-1'),
+		NetIntAny("m_Weapon"),
 		NetIntRange("m_WeaponPowerLevel", 0, 9),
 		NetIntRange("m_Emote", 0, len(Emotes)),
 		NetIntRange("m_AttackTick", 0, 'max_int'),
+		NetIntAny("m_Movement"),
 	]),
 
 	NetObject("PlayerInfo", [
@@ -331,6 +351,12 @@ Objects = [
 
 		NetIntAny("m_Score"),
 		NetIntAny("m_Latency"),
+		
+		NetIntRange("m_WeaponSlot", 0, 3),
+		NetIntAny("m_Weapon1"),
+		NetIntAny("m_Weapon2"),
+		NetIntAny("m_Weapon3"),
+		NetIntAny("m_Weapon4"),
 		
 		NetIntAny("m_Weapons"),
 		NetIntAny("m_Upgrades"),
@@ -395,7 +421,7 @@ Objects = [
 	NetEvent("FlameHit:Common", []),
 	
 	NetEvent("Explosion:Common", [
-		NetIntRange("m_PowerLevel", 0, 9),
+		NetIntAny("m_Weapon"),
 	]),
 
 	NetEvent("FlameExplosion:Common", []),
@@ -438,6 +464,7 @@ Objects = [
 	]),
 ]
 
+# todo: find where's the 32 message type limit and change it to 64
 Messages = [
 
 	### Server messages
@@ -458,8 +485,7 @@ Messages = [
 	NetMessage("Sv_KillMsg", [
 		NetIntRange("m_Killer", 0, 'MAX_CLIENTS-1'),
 		NetIntRange("m_Victim", 0, 'MAX_CLIENTS-1'),
-		NetIntRange("m_Weapon", -3, 'NUM_DEATHTYPES-1'),
-		NetIntRange("m_IsTurret", 0, 1),
+		NetIntAny("m_Weapon"),
 		NetIntAny("m_ModeSpecial"),
 	]),
 
@@ -472,7 +498,7 @@ Messages = [
 	NetMessage("Sv_ReadyToEnter", []),
 
 	NetMessage("Sv_WeaponPickup", [
-		NetIntRange("m_Weapon", 0, 'NUM_WEAPONS-1'),
+		NetIntAny("m_Weapon"),
 	]),
 
 	NetMessage("Sv_Emoticon", [
@@ -518,8 +544,23 @@ Messages = [
 		NetIntRange("m_Buff", 0, 8),
 		NetIntAny("m_StartTick"),
 	]),
+	
+	NetMessage("Sv_Inventory", [
+		NetIntAny("m_Item1"),
+		NetIntAny("m_Item2"),
+		NetIntAny("m_Item3"),
+		NetIntAny("m_Item4"),
+		NetIntAny("m_Item5"),
+		NetIntAny("m_Item6"),
+		NetIntAny("m_Item7"),
+		NetIntAny("m_Item8"),
+		NetIntAny("m_Item9"),
+		NetIntAny("m_Item10"),
+		NetIntAny("m_Item11"),
+		NetIntAny("m_Item12"),
+	]),
 
-	### Client messages
+	### Client messages / 13
 	NetMessage("Cl_Say", [
 		NetBool("m_Team"),
 		NetStringStrict("m_pMessage"),
@@ -584,10 +625,6 @@ Messages = [
 		NetIntAny("m_Y"),
 	]),
 	
-	NetMessage("Cl_SelectTool", [
-		NetIntRange("m_Tool", 0, '99'),
-	]),
-
 	NetMessage("Cl_Vote", [
 		NetIntRange("m_Vote", -1, 1),
 	]),
@@ -596,5 +633,12 @@ Messages = [
 		NetStringStrict("m_Type"),
 		NetStringStrict("m_Value"),
 		NetStringStrict("m_Reason"),
+	]),
+	
+	NetMessage("Cl_InventoryAction", [
+		NetIntRange("m_Type", 0, 4),
+		NetIntRange("m_Item1", 0, 12),
+		NetIntRange("m_Item2", -1, 12),
+		NetIntRange("m_Slot", 0, 4),
 	]),
 ]

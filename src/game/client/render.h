@@ -219,6 +219,7 @@ public:
 	void RenderTopper(CTeeRenderInfo *pInfo, vec2 Pos);
 	void RenderEye(CTeeRenderInfo *pInfo, vec2 Pos);
 
+	void RenderLine(vec2 p1, vec2 p2, float Size, vec4 Color);
 
 	void RenderShield(vec2 Pos, vec2 Size, float State);
 	void RenderHeal(vec2 Pos, vec2 Size, float State);
@@ -228,11 +229,12 @@ public:
 	
 	void RenderArm(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec2 Pos, vec2 PlayerPos);
 	
-	void RenderFreeHand(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec2 Dir, vec2 Pos, bool Behind = false);
+	void RenderFreeHand(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, int Hand, vec2 Dir, vec2 Pos, bool Behind = false);
 
 	// render player with custom info (teesplatter, bounciness etc...)
 	void RenderPlayer(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, int WeaponNum, int Emote, vec2 Dir, vec2 Pos);
-
+	
+	void RenderWeapon(int Weapon, vec2 Pos, vec2 Dir, float Size, bool BeginQuads = false, int Flags = 0, float Alpha2 = 1.0f, bool KillMessage = false);
 
 	void RenderStaticPlayer(CTeeRenderInfo *pInfo, vec2 Pos);
 	void RenderPortrait(CTeeRenderInfo *pInfo, vec2 Position, int EyeType);
@@ -253,6 +255,9 @@ public:
 	template<typename TKeyframe>
 	static void RenderEvalSkeletonAnim(TKeyframe *pKeyFrame, int NumKeyframes, float Time, typename TKeyframe::KeyframeReturnType *pResult);
 
+	void SetShadersForPlayer(class CPlayerInfo *pCustomPlayerInfo);
+	void SetShadersForWeapon(class CPlayerInfo *pCustomPlayerInfo);
+	void SetShadersForWeapon(int Weapon, float Charge = 0.0f, float Visibility = 1.0f, float Electro = 0.0f, float Damage = 0.0f, float Deathray = 0.0f);
 
 	// map render methods (gc_render_map.cpp)
 	static void RenderEvalEnvelope(CEnvPoint *pPoints, int NumPoints, int Channels, float Time, float *pResult);

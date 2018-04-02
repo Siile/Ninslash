@@ -14,7 +14,12 @@ enum MeleeState
 	MELEE_DOWN,
 };
 
-
+enum Hand
+{
+	HAND_WEAPON,
+	HAND_FREE
+};
+	
 class CPlayerInfo
 {
 private:
@@ -50,7 +55,6 @@ private:
 	
 	CMelee m_Melee;
 	
-	
 	struct CHand
 	{
 		bool m_Front;
@@ -73,10 +77,26 @@ private:
 		}
 	};
 	
-	CHand m_Hand;
+	CHand m_Hand[2];
+	
+	float m_ChargeAngle;
+	int m_Charge;
 	
 public:
 	CPlayerInfo();
+	
+	// muzzle
+	void AddMuzzle(int AttackTick, int Weapon);
+	int m_MuzzleTick;
+	
+	float m_aMuzzleTime[4];
+	int m_aMuzzleWeapon[4];
+	int m_aMuzzleType[4];
+	
+	int m_RecoilTick;
+	
+	bool m_Charged;
+	bool m_ChargeFailed;
 	
 	vec2 m_FGHandPos;
 	
@@ -84,9 +104,17 @@ public:
 	vec2 m_ArmPos;
 	
 	bool m_Turbo;
-	vec2 HandOffset();
-	void SetHandTarget(vec3 Pos);
-	int HandFrame();
+	vec2 HandOffset(int Hand);
+	void SetHandTarget(int Hand, vec3 Pos);
+	int HandFrame(int Hand);
+	
+	float ChargeIntensity(int Charge);
+	float ChargeIntensity();
+	float GetWeaponCharge();
+	
+	float m_WeaponColorSwap;
+	
+	float m_SpinningAngle;
 	
 	bool m_Hang;
 	
@@ -110,6 +138,7 @@ public:
 	vec2 m_Vel;
 	
 	int m_WeaponPowerLevel;
+	int m_WeaponCharge;
 	
 	float m_Angle;
 	
@@ -128,6 +157,8 @@ public:
 	float m_aSplatter[8];
 	vec4 m_aSplatterColor[8];
 	
+	int m_LastTurboSound;
+	int m_LastTurboSoundTick;
 	int m_LastJetpackSound;
 	int m_LastJetpackSoundTick;
 	int m_LastChainsawSoundTick;
@@ -142,6 +173,9 @@ public:
 	void Reset();
 	
 	int m_Weapon;
+	
+	vec2 m_MuzzlePos;
+	vec2 m_MuzzleDir;
 	
 	int m_MeleeState;
 	int m_MeleeTick;

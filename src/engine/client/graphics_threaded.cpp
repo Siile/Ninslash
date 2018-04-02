@@ -390,12 +390,28 @@ void CGraphics_Threaded::LoadShaders()
 	m_pCommandBuffer->AddCommand(Cmd);
 }
 
-void CGraphics_Threaded::ShaderBegin(int Shader, float Intensity, float ColorSwap)
+void CGraphics_Threaded::ShaderBegin(int Shader, float Intensity, float ColorSwap, float WeaponCharge)
 {
 	CCommandBuffer::SCommand_ShaderBegin Cmd;
 	Cmd.m_Shader = Shader;
 	Cmd.m_Intensity = Intensity;
 	Cmd.m_ColorSwap = ColorSwap;
+	Cmd.m_WeaponCharge = WeaponCharge;
+	m_pCommandBuffer->AddCommand(Cmd);
+}
+
+
+void CGraphics_Threaded::PlayerShaderBegin(float colorG, float colorB, float Charge, float Visibility, float Electro, float Damage, float Deathray)
+{
+	CCommandBuffer::SCommand_ShaderBegin Cmd;
+	Cmd.m_Shader = SHADER_PLAYER;
+	Cmd.m_Intensity = colorB;
+	Cmd.m_ColorSwap = colorG;
+	Cmd.m_Visibility = Visibility;
+	Cmd.m_Electro = Electro;
+	Cmd.m_Damage = Damage;
+	Cmd.m_Deathray = Deathray;
+	Cmd.m_WeaponCharge = Charge;
 	m_pCommandBuffer->AddCommand(Cmd);
 }
 
@@ -755,8 +771,8 @@ void CGraphics_Threaded::QuadsDrawTL(const CQuadItem *pArray, int Num)
 void CGraphics_Threaded::QuadsDrawFreeform(const CFreeformItem *pArray, int Num)
 {
 
-	CCommandBuffer::SPoint Center;
-	Center.z = 0;
+	//CCommandBuffer::SPoint Center;
+	//Center.z = 0;
 	
 	dbg_assert(m_Drawing == DRAWING_QUADS, "called Graphics()->QuadsDrawFreeform without begin");
 

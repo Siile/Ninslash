@@ -104,7 +104,7 @@ inline void IntsToStr(const int *pInts, int Num, char *pStr)
 }
 
 
-
+/*
 inline vec2 CalcPos(vec2 Pos, vec2 Velocity, float Curvature, float Speed, float Time)
 {
 	vec2 n;
@@ -113,14 +113,68 @@ inline vec2 CalcPos(vec2 Pos, vec2 Velocity, float Curvature, float Speed, float
 	n.y = Pos.y + Velocity.y*Time + Curvature/10000*(Time*Time);
 	return n;
 }
+*/
 
-inline vec2 CalcLogPos(vec2 Pos, vec2 Velocity, float Curvature, float Speed, float Time)
+inline vec2 CalcPos(vec2 Pos, vec2 Velocity, vec2 Velocity2, float Curvature, float Speed, float Time)
+{
+	vec2 n;
+	n.x = Pos.x + sin(Velocity.x)*(Velocity.x > 0.0f ? 1 : -1)*Velocity2.x*Time;
+	n.y = Pos.y + sin(Velocity.y)*(Velocity.y > 0.0f ? 1 : -1)*Velocity2.y*Time;
+	Time *= Speed;
+	//n.x += Velocity.x*Time + sin(Time*0.01f)*min(Time*0.02f, 12.0f)*Velocity.y;
+	//n.y += Velocity.y*Time + Curvature/10000*(Time*Time) + sin(Time*0.01f)*min(Time*0.02f, 12.0f)*Velocity.x;
+	n.x += Velocity.x*Time;
+	n.y += Velocity.y*Time + Curvature/10000*(Time*Time);
+	return n;
+}
+
+inline vec2 CalcTPos(vec2 Pos, vec2 Velocity, vec2 Velocity2, float Curvature, float Speed, float Time)
+{
+	vec2 n;
+	n.x = Pos.x + sin(Velocity.x)*(Velocity.x > 0.0f ? 1 : -1)*Velocity2.x*Time + sin(Time*0.03f)*min(Time*0.1f, 48.0f)*Velocity.y;
+	n.y = Pos.y + sin(Velocity.y)*(Velocity.y > 0.0f ? 1 : -1)*Velocity2.y*Time + sin(Time*0.04f)*min(Time*0.1f, 48.0f)*Velocity.y;
+	Time *= Speed;
+	n.x += Velocity.x*Time;
+	n.y += Velocity.y*Time + Curvature/10000*(Time*Time);
+	return n;
+}
+
+/*
+inline vec2 CalcTPos(vec2 Pos, vec2 Velocity, float Curvature, float Speed, float Time)
 {
 	vec2 n;
 	Time *= Speed;
+	n.x = Pos.x + Velocity.x*Time + sin(Time*0.03f)*min(Time*0.1f, 48.0f)*Velocity.y;
+	n.y = Pos.y + Velocity.y*Time + Curvature/10000*(Time*Time) + sin(Time*0.03f)*min(Time*0.1f, 48.0f)*Velocity.x;
+	return n;
+}
+*/
+
+inline vec2 CalcLogPos(vec2 Pos, vec2 Velocity, vec2 Velocity2, float Curvature, float Speed, float Time)
+{
+	vec2 n;
+	n.x = Pos.x + sin(Velocity.x)*(Velocity.x > 0.0f ? 1 : -1)*Velocity2.x*Time;
+	n.y = Pos.y + sin(Velocity.y)*(Velocity.y > 0.0f ? 1 : -1)*Velocity2.y*Time;
+	Time *= Speed;
 	float T = log(1.0f + Time)*150.0f;
-	n.x = Pos.x + Velocity.x*T;
-	n.y = Pos.y + Velocity.y*T + Curvature/10000*(T*T);
+
+	n.x += Velocity.x*T;
+	n.y += Velocity.y*T + Curvature/10000*(Time*Time);
+	return n;
+}
+
+inline vec2 CalcRocketPos(vec2 Pos, vec2 Velocity, vec2 Velocity2, float Curvature, float Speed, float Time)
+{
+	Velocity2 *= 0.5f;
+	
+	vec2 n;
+	n.x = Pos.x + sin(Velocity.x)*(Velocity.x > 0.0f ? 1 : -1)*Velocity2.x*Time;
+	n.y = Pos.y + sin(Velocity.y)*(Velocity.y > 0.0f ? 1 : -1)*Velocity2.y*Time;
+	Time *= Speed;
+	float T = Time*min(4.0f, 0.1f + Time*0.01f);
+
+	n.x += Velocity.x*T;
+	n.y += Velocity.y*T + Curvature/10000*(Time*Time);
 	return n;
 }
 
@@ -250,6 +304,9 @@ public:
 	// for animation, not syncronized
 	int m_JumpTimer;
 	
+	int m_DashTimer;
+	int m_DashAngle;
+	
 	int m_Direction;
 	int m_Down;
 	int m_Angle;
@@ -261,6 +318,11 @@ public:
 	bool m_OnWall;
 	int m_Roll;
 	int m_Slide;
+	
+	int m_Charge;
+	int m_ChargeLevel;
+	
+	bool FullCharge() { return m_ChargeLevel == 100; }
 	
 	int m_DamageTick;
 			

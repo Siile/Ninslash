@@ -51,8 +51,6 @@ void CMapGen::Load(const char* pTileName)
 	CConfiguration *pCurrentConf = 0;
 	CIndexRule *pCurrentIndex = 0;
 
-	char aBuf[256];
-
 	// read each line
 	while(char *pLine = LineReader.Get())
 	{
@@ -148,9 +146,6 @@ void CMapGen::Load(const char* pTileName)
 	}
 
 	io_close(RulesFile);
-
-	//str_format(aBuf, sizeof(aBuf),"loaded %s", aPath);
-	//m_pEditor->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "editor", aBuf);
 
 	m_FileLoaded = true;
 }
@@ -340,13 +335,25 @@ void CMapGen::GenerateWeapon(CGenLayer *pTiles, int Weapon)
 	}
 	else
 	{
-		p = pTiles->GetPlatform();
-	
-		if (p.x == 0)
-			return;
+		p = pTiles->GetCeiling();
 		
-		pTiles->Use(p.x, p.y);
-		ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+Weapon);
+		if (p.x != 0)
+		{
+			p.y += 1;
+			
+			pTiles->Use(p.x, p.y);
+			ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+Weapon);
+		}
+		else
+		{
+			p = pTiles->GetPlatform();
+		
+			if (p.x == 0)
+				return;
+			
+			pTiles->Use(p.x, p.y);
+			ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+Weapon);
+		}
 	}
 }
 
@@ -501,7 +508,12 @@ void CMapGen::GenerateTurretStand(CGenLayer *pTiles)
 	
 	if (frandom() < 0.4f)
 	{
-		ivec2 p = pTiles->GetLeftCeiling();
+		ivec2 p = ivec2(0, 0);
+		
+		if (frandom() < 0.6f)
+			p = pTiles->GetLeftCeiling();
+		else
+			p = pTiles->GetCeiling();
 		
 		if (p.x != 0)
 		{
@@ -517,6 +529,54 @@ void CMapGen::GenerateTurretStand(CGenLayer *pTiles)
 		return;
 	
 	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_STAND);
+	pTiles->Use(p.x, p.y);
+}
+
+void CMapGen::GenerateTurret(CGenLayer *pTiles)
+{
+	
+	if (frandom() < 0.4f)
+	{
+		ivec2 p = pTiles->GetRightCeiling();
+		
+		if (p.x != 0)
+		{
+			ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_TURRET);
+			pTiles->Use(p.x, p.y);
+			return;
+		}
+	}
+	
+	ivec2 p = pTiles->GetRightPlatform();
+	
+	if (p.x == 0)
+		return;
+	
+	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_TURRET);
+	pTiles->Use(p.x, p.y);
+}
+
+void CMapGen::GenerateTeslacoil(CGenLayer *pTiles)
+{
+	
+	if (frandom() < 0.4f)
+	{
+		ivec2 p = pTiles->GetRightCeiling();
+		
+		if (p.x != 0)
+		{
+			ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_TESLACOIL);
+			pTiles->Use(p.x, p.y);
+			return;
+		}
+	}
+	
+	ivec2 p = pTiles->GetRightPlatform();
+	
+	if (p.x == 0)
+		return;
+	
+	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_TESLACOIL);
 	pTiles->Use(p.x, p.y);
 }
 
@@ -536,9 +596,16 @@ void CMapGen::GenerateEnemySpawn(CGenLayer *pTiles)
 	ivec2 p = pTiles->GetPlatform();
 	
 	if (p.x == 0)
+		p = pTiles->GetOpenArea();
+	
+	if (p.x == 0)
+		p = pTiles->GetCeiling();
+	
+	if (p.x == 0)
 		return;
 	
-	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_ENEMYSPAWN);
+	ModifTile(p+ivec2(-1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_ENEMYSPAWN);
+	ModifTile(p+ivec2(+1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_ENEMYSPAWN);
 	pTiles->Use(p.x, p.y);
 }
 
@@ -811,14 +878,15 @@ void CMapGen::GenerateLevel()
 	int n = pTiles->Size()/500;
 	
 	GenerateEnd(pTiles);
+	pTiles->GenerateBackground();
+	pTiles->GenerateMoreBackground();
 	
 	if (n > 1)
 		pTiles->GenerateAirPlatforms(n/2 + rand()%(n/2));
 	else
 		pTiles->GenerateAirPlatforms(n);
-	
-	pTiles->GenerateBackground();
 
+	dbg_msg("mapgen", "Proceed tiles");
 	Proceed(pTiles, 0);
 	
 	pTiles->GenerateBoxes();
@@ -886,19 +954,20 @@ void CMapGen::GenerateLevel()
 	
 	
 	// find platforms, corners etc.
+	dbg_msg("mapgen", "Scanning level");
 	pTiles->Scan();
 	
 	// start pos
 	for (int i = 0; i < 4; i++)
 	{
 		ivec2 p = pTiles->GetPlayerSpawn();
-		ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SPAWN);
+		ModifTile(p+ivec2(-1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SPAWN);
+		ModifTile(p+ivec2(+1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SPAWN);
 	}
 	
 	// acid pools
-	for (int i = 0; i < Level-1; i++)
+	for (int i = 0; i < Level+1; i++)
 		GenerateAcid(pTiles);
-	
 
 	// conveyor belts
 	if (Level > 10)
@@ -917,7 +986,7 @@ void CMapGen::GenerateLevel()
 	}
 	
 	// enemy spawn positions
-	for (int i = 0; i < min(5+Level,14) ; i++)
+	for (int i = 0; i < min(5+Level, 14) ; i++)
 		GenerateEnemySpawn(pTiles);
 	
 	
@@ -973,8 +1042,28 @@ void CMapGen::GenerateLevel()
 
 	GenerateWeapon(pTiles, ENTITY_KIT);
 	
-	if (Level > 10)
+	if (Level > 5)
 		GenerateWeapon(pTiles, ENTITY_KIT);
+	
+	if (Level > 15)
+		GenerateWeapon(pTiles, ENTITY_KIT);
+	
+	if (Level%5 == 4 || Level%7 == 6 || Level%11 == 9)
+	{
+		for (int i = 0; i < 2 + (0.3f + frandom())*min(10.0f, Level * 0.2f); i++)
+			GenerateTurret(pTiles);
+		
+		if (Level > 20 && frandom() < 0.7f)
+			GenerateTeslacoil(pTiles);
+	}
+	else
+	{
+		if (frandom() < 0.5f && Level > 3)
+			GenerateTurret(pTiles);
+		
+		if (frandom() < 0.5f && Level > 9)
+			GenerateTurret(pTiles);
+	}
 	
 	for (int i = 0; i < (pTiles->Size())/1100; i++)
 		GenerateHearts(pTiles);
@@ -984,16 +1073,7 @@ void CMapGen::GenerateLevel()
 	
 	for (int i = 0; i < (pTiles->Size())/1400; i++)
 		GenerateArmor(pTiles);
-	
-	// power upper(s)
-	if (Level > 15 && frandom() < 0.15f)
-		GeneratePowerupper(pTiles);
-	if (Level > 5 && frandom() < 0.4f)
-		GeneratePowerupper(pTiles);
-	
-	if (Level%3 == 0 || Level%5 == 0)
-		GeneratePowerupper(pTiles);
-	
+		
 	if (Level%5 == 4)
 		GenerateSwitch(pTiles);
 	
@@ -1006,6 +1086,7 @@ void CMapGen::GenerateLevel()
 			GenerateWalker(pTiles);
 	}
 
+	
 	// star droids
 	if (Level > 5)
 		if (Level%4 == 0 || Level%7 == 0 || Level%11 == 0 || Level%17 == 0)
@@ -1040,7 +1121,7 @@ void CMapGen::GenerateLevel()
 		case 0:
 		case 1:
 		case 2: GenerateSawblade(pTiles); break;
-		case 3: GenerateMine(pTiles); break;
+		case 3: 
 		case 4: GenerateFiretrap(pTiles); break;
 		case 5: GenerateDeathray(pTiles); break;
 		}
@@ -1056,6 +1137,23 @@ void CMapGen::GenerateLevel()
 	if (pTiles)
 		delete pTiles;
 }
+
+
+
+
+void CMapGen::Mirror(CGenLayer *pTiles)
+{
+	int w = pTiles->Width();
+	int h = pTiles->Height();
+	
+	for (int x = 0; x < w/2; x++)
+		for (int y = 0; y < h; y++)
+		{
+			pTiles->Set(pTiles->Get(w/2-x, y), w/2+x, y);
+		}
+	
+}
+
 
 
 void CMapGen::GeneratePVPLevel()
@@ -1090,20 +1188,23 @@ void CMapGen::GeneratePVPLevel()
 	}
 	
 	pTiles->GenerateSlopes();
+	Mirror(pTiles);
+	
 	pTiles->RemoveSingles();
 	
 	dbg_msg("mapgen", "rooms generated, map size: %d", pTiles->Size());
 	
 	int n = pTiles->Size()/500;
 
+	pTiles->GenerateBackground();
+	pTiles->GenerateMoreBackground();
 	
 	if (n > 1)
 		pTiles->GenerateAirPlatforms(n/2 + rand()%(n/2));
 	else
 		pTiles->GenerateAirPlatforms(n);
-	
-	pTiles->GenerateBackground();
 
+	dbg_msg("mapgen", "Proceed tiles");
 	Proceed(pTiles, 0);
 	
 	pTiles->GenerateBoxes();
@@ -1111,27 +1212,20 @@ void CMapGen::GeneratePVPLevel()
 	pTiles->GenerateFences();
 	
 	WriteLayers(pTiles);
-	
+	WriteBackground(pTiles);
 	
 	// find platforms, corners etc.
+	dbg_msg("mapgen", "Scanning level");
 	pTiles->Scan();
 	
-	// dm spawn pos
-	if (str_comp(g_Config.m_SvGametype, "dm") == 0)
+	// flags to ctf
+	if (str_comp(g_Config.m_SvGametype, "ctf") == 0)
 	{
-		for (int i = 0; i < 16; i++)
-		{
-			ivec2 p = pTiles->GetPlatform();
-			
-			if (p.x != 0)
-				ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SPAWN);
-		}
-	}
-	else
-	// tdm & ctf
-	{
+		// left & rightmost tiles as spawns
+		
 		// red team spawn pos
-		for (int i = 0; i < 14; i++)
+		/*
+		for (int i = 0; i < 2; i++)
 		{
 			ivec2 p = pTiles->GetLeftPlatform();
 			
@@ -1143,7 +1237,7 @@ void CMapGen::GeneratePVPLevel()
 		}
 		
 		// blue team spawn pos
-		for (int i = 0; i < 14; i++)
+		for (int i = 0; i < 2; i++)
 		{
 			ivec2 p = pTiles->GetRightPlatform();
 			
@@ -1153,11 +1247,8 @@ void CMapGen::GeneratePVPLevel()
 				ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SPAWN_BLUE);
 			}
 		}
-	}
-	
-	// flags to ctf
-	if (str_comp(g_Config.m_SvGametype, "ctf") == 0)
-	{
+		*/
+		
 		{
 			ivec2 p = pTiles->GetLeftPlatform();
 			
@@ -1165,6 +1256,7 @@ void CMapGen::GeneratePVPLevel()
 			{
 				pTiles->Use(p.x, p.y);
 				ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_FLAGSTAND_RED);
+				WriteBase(pTiles, 0, p, 6);
 			}
 			else
 				dbg_msg("mapgen", "Can't set red flag");
@@ -1176,14 +1268,63 @@ void CMapGen::GeneratePVPLevel()
 			{
 				pTiles->Use(p.x, p.y);
 				ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_FLAGSTAND_BLUE);
+				WriteBase(pTiles, 1, p, 6);
 			}
 			else
 				dbg_msg("mapgen", "Can't set blue flag");
 		}
 	}
 	
+	// dm spawn pos
+	if (str_comp(g_Config.m_SvGametype, "dm") == 0)
+	{
+		for (int i = 0; i < 16; i++)
+		{
+			ivec2 p = pTiles->GetPlatform();
+			
+			if (p.x == 0)
+				p = pTiles->GetWall();
+			if (p.x == 0)
+				p = pTiles->GetCeiling();
+			
+			if (p.x != 0)
+				ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SPAWN);
+		}
+	}
+	else
+	// tdm & ctf
+	{
+		for (int i = 0; i < 6; i++)
+		{
+			// red team spawn pos
+			{
+				ivec2 p = pTiles->GetLeftPlatform();
+				
+				if (p.x != 0)
+				{
+					pTiles->Use(p.x, p.y);
+					ModifTile(p+ivec2(-1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SPAWN_RED);
+					ModifTile(p+ivec2(+1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SPAWN_RED);
+				}
+			}
+			
+			// blue team spawn pos
+			{
+				ivec2 p = pTiles->GetRightPlatform();
+				
+				if (p.x != 0)
+				{
+					pTiles->Use(p.x, p.y);
+					ModifTile(p+ivec2(-1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SPAWN_BLUE);
+					ModifTile(p+ivec2(+1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SPAWN_BLUE);
+				}
+			}
+		}
+	}
+	
+	
 	// acid pools
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < 40; i++)
 		GenerateAcid(pTiles);
 
 	// conveyor belts
@@ -1201,6 +1342,13 @@ void CMapGen::GeneratePVPLevel()
 	for (int i = 0; i < 4; i++)
 		GenerateScreen(pTiles);
 	
+
+	//for (int i = 0; i < 2; i++)
+	//	GenerateCrawlerDroid(pTiles);
+	
+	int Obs = 1 + pTiles->NumPlatforms() / 4.0f;
+	
+	
 	// barrels
 	int b = 5 + rand()%3;
 	
@@ -1212,10 +1360,10 @@ void CMapGen::GeneratePVPLevel()
 		GenerateSpeaker(pTiles);
 	
 	
-	w = 8;
+	w = 1 + pTiles->NumPlatforms() / 5.0f;
 	
 	for (int i = 0; i < w; i++)
-		GenerateWeapon(pTiles, ENTITY_WEAPON_CHAINSAW+rand()%8);
+		GenerateWeapon(pTiles, ENTITY_WEAPON_CHAINSAW);
 	
 	for (int i = 0; i < 3; i++)
 		GenerateWeapon(pTiles, ENTITY_KIT);
@@ -1228,15 +1376,9 @@ void CMapGen::GeneratePVPLevel()
 	
 	for (int i = 0; i < (pTiles->Size())/1200; i++)
 		GenerateArmor(pTiles);
-	
-	
-	GeneratePowerupper(pTiles);
-	
-	if (frandom() < 0.3f)
-		GeneratePowerupper(pTiles);
+
 
 	// obstacles
-	int Obs = 2 + rand()%4;
 	
 	while (Obs-- > 0)
 	{
@@ -1256,6 +1398,53 @@ void CMapGen::GeneratePVPLevel()
 	
 	if (pTiles)
 		delete pTiles;
+}
+
+void CMapGen::WriteBase(class CGenLayer *pTiles, int BaseNum, ivec2 Pos, float Size)
+{
+	int w = m_pLayers->GameLayer()->m_Width;
+	int h = m_pLayers->GameLayer()->m_Height;
+	
+	CGenLayer *pBaseTiles = new CGenLayer(w, h);
+	pBaseTiles->CleanTiles();
+	
+	// copy tiles & check distance to base pos
+	for(int x = 1; x < w-1; x++)
+		for(int y = 1; y < h-1; y++)
+		{
+			int i = pTiles->Get(x, y);
+			
+			if (i > 0 && distance(vec2(Pos.x, Pos.y), vec2(x, y)) < Size)
+				pBaseTiles->Set(1, x, y);
+		}
+	
+	// auto map
+	pBaseTiles->RemoveSingles();
+	pBaseTiles->BaseCleanup();
+	Proceed(pBaseTiles, 0);
+	
+	// write to layer
+	int LayerIndex = 0;
+	
+	if (BaseNum == 0)
+		LayerIndex = m_pLayers->GetBase1LayerIndex();
+	else if (BaseNum == 1)
+		LayerIndex = m_pLayers->GetBase2LayerIndex();
+	
+	
+	for(int x = 0; x < w; x++)
+		for(int y = 0; y < h; y++)
+		{
+			int i = pBaseTiles->Get(x, y);
+			
+			if (i > 0)
+			{
+				int f = pBaseTiles->GetFlags(x, y);
+				ModifTile(ivec2(x, y), LayerIndex, i, f);
+			}
+		}
+		
+	delete pBaseTiles;
 }
 
 
@@ -1303,6 +1492,7 @@ void CMapGen::WriteLayers(CGenLayer *pTiles)
 			}
 		}
 		
+	/*
 	// background
 	for(int x = 0; x < w; x++)
 		for(int y = 0; y < h; y++)
@@ -1312,6 +1502,7 @@ void CMapGen::WriteLayers(CGenLayer *pTiles)
 			if (i > 0)
 				ModifTile(ivec2(x, y), m_pLayers->GetBackgroundLayerIndex(), i, pTiles->GetFlags(x, y, CGenLayer::BACKGROUND));
 		}
+	*/
 	
 	// doodads
 	for(int x = 0; x < w; x++)
@@ -1321,6 +1512,22 @@ void CMapGen::WriteLayers(CGenLayer *pTiles)
 			
 			if (i > 0)
 				ModifTile(ivec2(x, y), m_pLayers->GetDoodadsLayerIndex(), i, pTiles->GetFlags(x, y, CGenLayer::DOODADS));
+		}
+}
+
+void CMapGen::WriteBackground(CGenLayer *pTiles)
+{
+	int w = m_pLayers->GameLayer()->m_Width;
+	int h = m_pLayers->GameLayer()->m_Height;
+	
+	// background
+	for(int x = 0; x < w; x++)
+		for(int y = 0; y < h; y++)
+		{
+			int i = pTiles->Get(x, y, CGenLayer::BACKGROUND);
+			
+			if (i > 0)
+				ModifTile(ivec2(x, y), m_pLayers->GetBackgroundLayerIndex(), i, pTiles->GetFlags(x, y, CGenLayer::BACKGROUND));
 		}
 }
 

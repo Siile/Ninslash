@@ -11,6 +11,7 @@
 #include "customstuff/droidanim.h"
 
 #define MAX_BG_SOUNDS 64
+#define MAX_TURRETMUZZLES 64
 
 enum Pickers
 {
@@ -19,6 +20,29 @@ enum Pickers
 	PICKER_EMOTICON,
 };
 
+
+struct CTurretMuzzle
+{
+	ivec2 m_Pos;
+	int m_AttackTick;
+	int m_Weapon;
+	int m_Muzzle;
+	float m_Time;
+	
+	CTurretMuzzle()
+	{
+		Reset();
+	}
+	
+	void Reset()
+	{
+		m_Pos = ivec2(0, 0);
+		m_AttackTick = 0;
+		m_Weapon = 0;
+		m_Muzzle = 0;
+		m_Time = 0.0f;
+	}
+};
 
 
 class CCustomStuff
@@ -34,6 +58,7 @@ private:
 	
 	CDroidAnim *m_apDroidAnim[MAX_DROIDS];
 	
+	float m_ChargeAngle;
 	
 	//friend class CGameClient;
 	CGameClient *m_pClient;
@@ -51,6 +76,12 @@ public:
 		MAX_IMPACTSTATES
 	};
 	
+	CTurretMuzzle m_aTurretMuzzle[MAX_TURRETMUZZLES];
+	
+	void SetTurretMuzzle(ivec2 Pos, int AttackTick, int Weapon);
+	
+	CTurretMuzzle GetTurretMuzzle(ivec2 Pos);
+	
 	int64 m_aBGSound[MAX_BG_SOUNDS];
 	int64 m_aBGEffect[MAX_BG_SOUNDS];
 	
@@ -62,6 +93,8 @@ public:
 
 	vec4 BloodColor(int ClientID);
 	bool IsBot(int ClientID);
+	
+	float ChargeIntensity(int Charge);
 	
 	CDroidAnim *GetDroidAnim(int Index);
 	
@@ -115,7 +148,6 @@ public:
 		return false;
 	}
 	
-	
 	int GetSpriteFrame(int Speed, int Range)
 	{
 		return (m_Tick / Speed)%Range;
@@ -162,6 +194,9 @@ public:
 	int m_LocalWeapon;
 	vec4 m_LocalColor;
 	
+	bool m_Inventory;
+	int m_aItem[12];
+	
 	bool m_BuildMode;
 	
 	// Droids
@@ -179,6 +214,8 @@ public:
 	int m_WantedWeapon;
 	int m_SelectedGroup;
 	
+	int m_WeaponSlot;
+	int m_aSnapWeapon[4];
 	int m_LocalWeapons;
 	int m_LocalUpgrades;
 	int m_LocalUpgrades2;

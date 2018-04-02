@@ -3,6 +3,7 @@
 #include <game/generated/protocol.h>
 #include <game/server/gamecontext.h>
 
+#include <game/weapons.h>
 #include <game/server/player.h>
 #include "character.h"
 #include "droid.h"
@@ -155,15 +156,24 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 	m_Type = Type;
 	m_MaxLife = m_Life;
 	
+	/*
 	if (!GameServer()->m_pController->IsTeamplay())
 		m_Team = TEAM_NEUTRAL;
+	*/
 	
-	if (m_Team == TEAM_BLUE)
-		m_DamageOwner = BLUE_BASE;
-	else if (m_Team == TEAM_RED)
-		m_DamageOwner = RED_BASE;
+	if (GameServer()->m_pController->IsTeamplay())
+	{
+		if (m_Team == TEAM_BLUE)
+			m_DamageOwner = BLUE_BASE;
+		else if (m_Team == TEAM_RED)
+			m_DamageOwner = RED_BASE;
+		else
+			m_DamageOwner = NEUTRAL_BASE;
+	}
 	else
-		m_DamageOwner = NEUTRAL_BASE;
+	{
+		m_DamageOwner = Team;
+	}
 	
 	GameWorld()->InsertEntity(this);
 	
@@ -274,7 +284,7 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon)
 	if (m_Life >= 5000)
 		return;
 	
-	if ((m_Type == BUILDING_TURRET || m_Type == BUILDING_TESLACOIL) && GameServer()->m_pController->IsCoop())
+	if ((m_Type == BUILDING_TURRET || m_Type == BUILDING_TESLACOIL) && GameServer()->m_pController->IsCoop() && m_Team >= 0)
 	{
 		if (Owner >= 0 && Owner < MAX_CLIENTS)
 		{
@@ -284,6 +294,20 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon)
 				return;
 		}
 	}
+	
+	if (m_Team >= 0)
+	{
+		int Team = Owner;
+	
+		CCharacter *OwnerChar = GameServer()->GetPlayerChar(Owner);
+	
+		if (OwnerChar && GameServer()->m_pController->IsTeamplay())
+			Team = OwnerChar->GetPlayer()->GetTeam();
+	
+		if (m_Team == Team)
+			return;
+	}
+	
 	
 	if (g_Config.m_SvOneHitKill)
 		Damage = 1000;
@@ -309,13 +333,6 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon)
 	if (m_Life <= 0)
 	{
 		m_DeathTimer = 5;
-		/* turret
-		vec2 ep = m_Pos + vec2(0, -70);
-		GameServer()->CreateExplosion(ep, m_DamageOwner, Weapon, false, false);
-		GameServer()->CreateSound(ep, SOUND_GRENADE_EXPLODE);
-		*/
-		//Destroy();
-		//GameServer()->m_World.DestroyEntity(this);
 		
 		if (m_Type == BUILDING_BARREL || m_Type == BUILDING_POWERBARREL)
 			m_DamageOwner = Owner;
@@ -325,35 +342,37 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon)
 
 void CBuilding::Destroy()
 {
+	GameServer()->CreateExplosion(m_Pos, m_DamageOwner, GetBuildingWeapon(m_Type));
+	
 	if (m_Type == BUILDING_MINE1)
 	{
 		m_Life = 9000;
-		GameServer()->CreateMineExplosion(m_Pos, m_DamageOwner, DEATHTYPE_LANDMINE, false);
+		//GameServer()->CreateMineExplosion(m_Pos, m_DamageOwner, GetBuildingWeapon(m_Type), false);
 		GameServer()->m_World.DestroyEntity(this);
 	}
 	else if (m_Type == BUILDING_MINE2)
 	{
 		m_Life = 9000;
-		GameServer()->CreateElectromineExplosion(m_Pos, m_DamageOwner, DEATHTYPE_ELECTROMINE, false);
+		//GameServer()->CreateElectromineExplosion(m_Pos, m_DamageOwner, GetBuildingWeapon(m_Type), false);
 		GameServer()->m_World.DestroyEntity(this);
 	}
 	else if (m_Type == BUILDING_BARREL)
 	{
-		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
-		GameServer()->CreateExplosion(m_Pos, m_DamageOwner, DEATHTYPE_BARREL, 0, false, false);
+		//GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
+		//GameServer()->CreateExplosion(m_Pos, m_DamageOwner, GetBuildingWeapon(m_Type));
 		GameServer()->m_World.DestroyEntity(this);
 	}
 	else if (m_Type == BUILDING_POWERBARREL)
 	{
-		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
-		GameServer()->CreateExplosion(m_Pos, m_DamageOwner, DEATHTYPE_POWERBARREL, 2, false, false);
+		//GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
+		//GameServer()->CreateExplosion(m_Pos, m_DamageOwner, GetBuildingWeapon(m_Type));
 		GameServer()->m_World.DestroyEntity(this);
 	}
 	else if (m_Type == BUILDING_REACTOR)
 	{
 		new CBuilding(&GameServer()->m_World, m_Pos, BUILDING_REACTOR_DESTROYED, TEAM_NEUTRAL);
-		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
-		GameServer()->CreateExplosion(m_Pos, m_DamageOwner, DEATHTYPE_EMPTY, 2, false, false);
+		//GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
+		//GameServer()->CreateExplosion(m_Pos, m_DamageOwner, GetBuildingWeapon(m_Type));
 		GameServer()->m_World.DestroyEntity(this);
 		
 		GameServer()->SendBroadcast("Reactor lost", -1);
@@ -361,8 +380,8 @@ void CBuilding::Destroy()
 	}
 	else if (m_Type == BUILDING_FLAMETRAP)
 	{
-		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
-		GameServer()->CreateExplosion(m_Pos, m_DamageOwner, DEATHTYPE_FLAMETRAP, 0, false, false);
+		//GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
+		//GameServer()->CreateExplosion(m_Pos, m_DamageOwner, GetBuildingWeapon(m_Type));
 		GameServer()->m_World.DestroyEntity(this);
 	}
 	else if (m_Type == BUILDING_LIGHTNINGWALL)
@@ -434,7 +453,7 @@ void CBuilding::Tick()
 		CCharacter *pHit = GameServer()->m_World.IntersectCharacter(m_Pos, m_Pos+vec2(0, -m_Height), 4.0f, At);
 		
 		if(pHit)
-			pHit->TakeDamage(vec2(0, 0), 3, NEUTRAL_BASE, DEATHTYPE_LIGHTNINGWALL, vec2(0, 0), DAMAGETYPE_ELECTRIC);	
+			pHit->TakeDamage(NEUTRAL_BASE, GetBuildingWeapon(m_Type), 3, vec2(0, 0), vec2(0, 0));	
 	}
 	
 	if (m_Type == BUILDING_JUMPPAD)
@@ -473,7 +492,7 @@ void CBuilding::Tick()
 			else
 				Dir = vec2(0.f, 0.f);
 
-			pTarget->TakeDamage(Dir * 10.0f, 5, -1, vec2(0, 0));
+			pTarget->TakeDamage(Dir * 10.0f, 5, -1, vec2(0, 0), GetBuildingWeapon(BUILDING_SAWBLADE));
 		}
 	}
 	
@@ -504,8 +523,8 @@ void CBuilding::Tick()
 				
 					if(pChr && pChr->IsAlive())
 					{
-						pChr->TakeDamage(vec2(0, 0), 2, NEUTRAL_BASE, DEATHTYPE_FLAMETRAP, vec2(0, 0), DAMAGETYPE_FLAME);
-						pChr->SetAflame(1.0f, NEUTRAL_BASE, DEATHTYPE_FLAMETRAP);
+						pChr->TakeDamage(NEUTRAL_BASE, GetBuildingWeapon(m_Type), 2, vec2(0, 0), vec2(0, 0));
+						pChr->SetAflame(1.0f, NEUTRAL_BASE, GetBuildingWeapon(m_Type));
 					}
 				}
 				{
@@ -513,8 +532,8 @@ void CBuilding::Tick()
 				
 					if(pChr && pChr->IsAlive())
 					{
-						pChr->TakeDamage(vec2(0, 0), 2, NEUTRAL_BASE, DEATHTYPE_FLAMETRAP, vec2(0, 0), DAMAGETYPE_FLAME);
-						pChr->SetAflame(1.0f, NEUTRAL_BASE, DEATHTYPE_FLAMETRAP);
+						pChr->TakeDamage(NEUTRAL_BASE, GetBuildingWeapon(m_Type), 2, vec2(0, 0), vec2(0, 0));
+						pChr->SetAflame(1.0f, NEUTRAL_BASE, GetBuildingWeapon(m_Type));
 					}
 				}
 			}
