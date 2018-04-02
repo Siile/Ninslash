@@ -71,7 +71,7 @@ vec2 CProjectile::GetPos(float Time)
 	return CalcPos(m_Pos, m_Direction, m_Vel2, m_Curvature, m_Speed, Time);
 }
 
-
+// todo: fix broken bouncing
 bool CProjectile::Bounce(vec2 Pos)
 {
 	if (m_Bouncy)
@@ -79,17 +79,19 @@ bool CProjectile::Bounce(vec2 Pos)
 		BounceTick = Server()->Tick();
 	
 		m_Vel2 = vec2(0, 0);
-		int top = GameServer()->Collision()->GetCollisionAt(Pos.x, Pos.y-8);
-		int bot = GameServer()->Collision()->GetCollisionAt(Pos.x, Pos.y+8);
-		int left = GameServer()->Collision()->GetCollisionAt(Pos.x-8, Pos.y);
-		int right = GameServer()->Collision()->GetCollisionAt(Pos.x+8, Pos.y);
+		int top = GameServer()->Collision()->GetCollisionAt(Pos.x, Pos.y-16);
+		int bot = GameServer()->Collision()->GetCollisionAt(Pos.x, Pos.y+16);
+		int left = GameServer()->Collision()->GetCollisionAt(Pos.x-16, Pos.y);
+		int right = GameServer()->Collision()->GetCollisionAt(Pos.x+16, Pos.y);
 		
 		int c = (top > 0) + (bot > 0) + (left > 0) + (right > 0);
 		
 		if (c == 4)
 		{
-			m_Direction.y *= -1;
-			m_Direction.x *= -1;
+			//m_Direction.y *= -1;
+			//m_Direction.x *= -1;
+			
+			return false;
 		}
 		else
 		{

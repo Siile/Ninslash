@@ -241,7 +241,7 @@ void CTracer::RenderGroup(int Group)
 				float a1 = 0.9f-t1;
 				float a2 = 0.9f-t2;
 				
-				if (distance(p1, p2) > 1.0f)
+				if (distance(p1, p2) > 1.0f && distance(p1, p2) < 200.0f)
 				{
 					IGraphics::CColorVertex aColors[4] = {
 						IGraphics::CColorVertex(0, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a1),
@@ -345,20 +345,23 @@ void CTracer::RenderGroup(int Group)
 				//a1 = 1.0f;
 				//a2 = 1.0f;
 				
-				IGraphics::CColorVertex aColors[4] = {
-					IGraphics::CColorVertex(0, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a1),
-					IGraphics::CColorVertex(1, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a1),
-					IGraphics::CColorVertex(2, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a2),
-					IGraphics::CColorVertex(3, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a2)};
-				Graphics()->SetColorVertex(aColors, 4);
-			
-				IGraphics::CFreeformItem Freeform1(
-					p1.x-Out1.x, p1.y-Out1.y,
-					p2.x-Out2.x, p2.y-Out2.y,
-					p1.x+Out1.x, p1.y+Out1.y,
-					p2.x+Out2.x, p2.y+Out2.y);
+				if (distance(p1, p2) > 1.0f && distance(p1, p2) < 200.0f)
+				{
+					IGraphics::CColorVertex aColors[4] = {
+						IGraphics::CColorVertex(0, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a1),
+						IGraphics::CColorVertex(1, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a1),
+						IGraphics::CColorVertex(2, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a2),
+						IGraphics::CColorVertex(3, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a2)};
+					Graphics()->SetColorVertex(aColors, 4);
 				
-				Graphics()->QuadsDrawFreeform(&Freeform1, 1);
+					IGraphics::CFreeformItem Freeform1(
+						p1.x-Out1.x, p1.y-Out1.y,
+						p2.x-Out2.x, p2.y-Out2.y,
+						p1.x+Out1.x, p1.y+Out1.y,
+						p2.x+Out2.x, p2.y+Out2.y);
+					
+					Graphics()->QuadsDrawFreeform(&Freeform1, 1);
+				}
 				
 				p1 = p2;
 				Out1 = Out2;
