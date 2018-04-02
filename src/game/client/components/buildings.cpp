@@ -13,6 +13,7 @@
 
 #include <game/client/customstuff.h>
 
+#include <game/weapons.h>
 #include <game/client/components/flow.h>
 #include <game/client/components/effects.h>
 #include <game/client/components/sounds.h>
@@ -460,7 +461,7 @@ void CBuildings::RenderStand(const struct CNetObj_Building *pCurrent)
 	
 	// render drop weapon tip for local player
 	if (distance(CustomStuff()->m_LocalPos, vec2(pCurrent->m_X, pCurrent->m_Y+15)) < 45 && 
-		CustomStuff()->m_LocalWeapon != WEAPON_TOOL && CustomStuff()->m_LocalWeapon != WEAPON_SCYTHE && CustomStuff()->m_LocalWeapon != WEAPON_HAMMER)
+		IsModularWeapon(CustomStuff()->m_LocalWeapon) && GetWeaponFiringType(CustomStuff()->m_LocalWeapon) == WFT_PROJECTILE)
 	{
 		TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
 		TextRender()->Text(0, pCurrent->m_X + 22, pCurrent->m_Y - 30 - 60*FlipY, 32, m_pClient->m_pBinds->GetKey("+dropweapon"), -1);

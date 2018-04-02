@@ -241,7 +241,9 @@ void CTracer::RenderGroup(int Group)
 				float a1 = 0.9f-t1;
 				float a2 = 0.9f-t2;
 				
-				if (distance(p1, p2) > 1.0f && distance(p1, p2) < 200.0f)
+				float d = distance(p1, p2);
+				
+				if (d > 1.0f && d < 200.0f)
 				{
 					IGraphics::CColorVertex aColors[4] = {
 						IGraphics::CColorVertex(0, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a1),
@@ -345,7 +347,9 @@ void CTracer::RenderGroup(int Group)
 				//a1 = 1.0f;
 				//a2 = 1.0f;
 				
-				if (distance(p1, p2) > 1.0f && distance(p1, p2) < 200.0f)
+				float d = distance(p1, p2);
+				
+				if (d > 1.0f && d < 200.0f)
 				{
 					IGraphics::CColorVertex aColors[4] = {
 						IGraphics::CColorVertex(0, m_aTracer[i].m_Color.r, m_aTracer[i].m_Color.g, m_aTracer[i].m_Color.b, m_aTracer[i].m_Color.a*a1),
