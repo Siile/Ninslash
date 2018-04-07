@@ -50,6 +50,8 @@ public:
 	bool UsesAmmo(){ return m_MaxAmmo > 0 ? true : false; }
 	int GetAmmo(){ return m_Ammo; }
 	
+	bool Upgrade();
+	
 	void SetTurret(bool TurretBit = true);
 	
 	int m_Ammo;
@@ -63,6 +65,8 @@ public:
 protected:
 	vec2 m_Vel;
 	vec2 m_Direction;
+	
+	int m_MaxLevel;
 	
 	bool m_Stuck;
 	

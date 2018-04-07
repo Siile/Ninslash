@@ -359,6 +359,8 @@ void CPlayers::RenderPlayer(
 			
 			bool Flip = false;
 			
+			float Charge = GetWeaponCharge(Player.m_Weapon) / float(max(1, WeaponMaxLevel(Player.m_Weapon)));
+			
 			if (pCustomPlayerInfo->m_MeleeState == MELEE_UP)
 			{
 				if (Direction.x < 0.0f)
@@ -366,7 +368,7 @@ void CPlayers::RenderPlayer(
 				
 				pCustomPlayerInfo->m_MeleeAnimState = 1.0f;
 				pCustomPlayerInfo->m_MeleeState = MELEE_DOWN;
-				m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), Flip, Player.m_WeaponPowerLevel);
+				m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), Flip, Charge);
 				pCustomPlayerInfo->m_WeaponRecoil += Direction * 15;
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*95, vec2(frandom()-frandom(), frandom()-frandom())*30);
@@ -378,7 +380,7 @@ void CPlayers::RenderPlayer(
 				
 				pCustomPlayerInfo->m_MeleeAnimState = 1.0f;
 				pCustomPlayerInfo->m_MeleeState = MELEE_UP;
-				m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), !Flip, Player.m_WeaponPowerLevel);
+				m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), !Flip, Charge);
 				pCustomPlayerInfo->m_WeaponRecoil += Direction * 15;
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*95, vec2(frandom()-frandom(), frandom()-frandom())*30);
@@ -541,6 +543,7 @@ void CPlayers::RenderPlayer(
 	// render chainsaw effect
 	if (!Paused && GetStaticType(Player.m_Weapon) == SW_CHAINSAW && Player.m_AttackTick > Client()->GameTick() - 500 * Client()->GameTickSpeed()/1000)
 	{
+		RenderTools()->SetShadersForWeapon(pCustomPlayerInfo);
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_CHAINSAW].m_Id);
 		Graphics()->QuadsBegin();
 		
@@ -554,15 +557,13 @@ void CPlayers::RenderPlayer(
 		
 		Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
 		
-		float Size = 132;
-		
-		if (Player.m_WeaponPowerLevel > 1)
-			Size *= 1.15f;
-		
-		//p.y += g_pData->m_Weapons.m_aId[WEAPON_CHAINSAW].m_Offsety;
+		float Charge = GetWeaponCharge(Player.m_Weapon) / float(max(1, WeaponMaxLevel(Player.m_Weapon)));
+		float Size = 132 + Charge*40.0f;
+
 		RenderTools()->DrawSprite(p.x, p.y, Size);
 		
 		Graphics()->QuadsEnd();
+		Graphics()->ShaderEnd();
 	}
 	
 	

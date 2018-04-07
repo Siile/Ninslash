@@ -55,13 +55,6 @@ void CProjectile::UpdateStats()
 
 vec2 CProjectile::GetPos(float Time)
 {
-	/*
-	if (m_Weapon == W_DROID_STAR)
-		return CalcLogPos(m_Pos, m_Direction, Curvature, Speed, Time);
-	
-	if (m_Weapon == W_RIFLE && m_PowerLevel == 3)
-		return CalcTPos(m_Pos, m_Direction, Curvature, Speed, Time);
-	*/
 	if (WeaponProjectilePosType(m_Weapon) == 1)
 		return CalcLogPos(m_Pos, m_Direction, m_Vel2, m_Curvature, m_Speed, Time);
 	
@@ -143,15 +136,6 @@ void CProjectile::Tick()
 	if (OwnerChar && GameServer()->m_pController->IsTeamplay())
 		Team = OwnerChar->GetPlayer()->GetTeam();
 	
-	/*
-	if (m_Owner == RED_BASE)
-		Team = TEAM_RED;
-	else if (m_Owner == BLUE_BASE)
-		Team = TEAM_BLUE;
-	else if (OwnerChar)
-		Team = OwnerChar->GetPlayer()->GetTeam();
-	*/
-	
 	CBuilding *TargetBuilding = NULL;
 	
 	//if (m_Weapon != W_DROID_STAR)
@@ -198,71 +182,9 @@ void CProjectile::Tick()
 	
 	if(TargetMonster || TargetBuilding || TargetChr || Collide || m_LifeSpan < 0 || GameLayerClipped(CurPos))
 	{
-		/*
-		if(m_LifeSpan >= 0 || m_Weapon == WEAPON_GRENADE || m_Weapon == WEAPON_FLAMER || m_Weapon == WEAPON_ELECTRIC)
-			GameServer()->CreateSound(CurPos, m_SoundImpact);
-
-		if(m_Explosive == EXPLOSION_FLAME)
-		{		
-			GameServer()->CreateFlameExplosion(CurPos, m_Owner, m_Weapon, false, m_OwnerBuilding ? true : false);
-		}
-		
-		else if(m_Explosive == EXPLOSION_ELECTRIC)
-		{		
-			GameServer()->CreateElectricExplosion(CurPos, m_Owner, m_Weapon, m_PowerLevel, false, m_OwnerBuilding ? true : false);
-		}
-	
-		else if(m_Explosive == EXPLOSION_GREEN)
-		{
-			GameServer()->CreateExplosion(CurPos, m_Owner, m_Weapon, -1, false, m_OwnerBuilding ? true : false);
-			GameServer()->CreateSound(CurPos, SOUND_GREEN_EXPLOSION);
-		}
-		else if(m_Explosive == EXPLOSION_EXPLOSION)
-		{
-			GameServer()->CreateExplosion(CurPos, m_Owner, m_Weapon, m_PowerLevel, false, m_OwnerBuilding ? true : false);
-		}
-
-		else if(TargetChr)
-		{
-			vec2 Force = m_Direction * max(0.001f, m_Force);
-			
-			if (m_Weapon == WEAPON_RIFLE && m_PowerLevel > 1)
-			{
-				TargetChr->Electrocute(0.15f);
-				Force *= 2.0f;
-			}
-			
-			TargetChr->TakeDamage(Force, m_Damage, m_Owner, m_Weapon, CurPos, DAMAGETYPE_NORMAL, m_OwnerBuilding ? true : false);
-		}
-		
-		else if(TargetBuilding)
-		{
-			TargetBuilding->TakeDamage(m_Damage, m_Owner, m_Weapon);
-			GameServer()->CreateBuildingHit(CurPos);
-			//GameServer()->m_World.DestroyEntity(this);
-		}
-		
-		else if(TargetMonster)
-		{
-			TargetMonster->TakeDamage(m_Direction * max(0.001f, m_Force), m_Damage, m_Owner, CurPos);
-			//GameServer()->CreateMonsterHit(CurPos);
-			//GameServer()->m_World.DestroyEntity(this);
-		}
-		*/
-		
 		if(TargetChr)
 		{
 			vec2 Force = m_Direction * max(0.001f, m_Force);
-			
-			/*
-			if (m_Weapon == WEAPON_RIFLE && m_PowerLevel > 1)
-			{
-				TargetChr->Electrocute(0.15f);
-				Force *= 2.0f;
-			}
-			*/
-			
-			//TargetChr->TakeDamage(Force, m_Damage, m_Owner, m_Weapon, CurPos, DAMAGETYPE_NORMAL, m_OwnerBuilding ? true : false);
 			TargetChr->TakeDamage(m_Owner, m_Weapon, m_Damage, Force, CurPos);
 			
 			GameServer()->CreateEffect(FX_BLOOD2, (CurPos+TargetChr->m_Pos)/2.0f + vec2(0, -4));

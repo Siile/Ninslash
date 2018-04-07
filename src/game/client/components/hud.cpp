@@ -320,9 +320,9 @@ void CHud::RenderConnectionWarning()
 {
 	if(Client()->ConnectionProblems())
 	{
-		const char *pText = Localize("Connection Problems...");
+		const char *pText = Localize("Waiting for server...");
 		float w = TextRender()->TextWidth(0, 24, pText, -1);
-		TextRender()->Text(0, 150*Graphics()->ScreenAspect()-w/2, 50, 24, pText, -1);
+		TextRender()->Text(0, 150*Graphics()->ScreenAspect()-w/2, 40, 24, pText, -1);
 	}
 }
 

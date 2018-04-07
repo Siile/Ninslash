@@ -29,12 +29,19 @@ void CPowerupper::Tick()
 {
 	if (m_Item < 0 && (((!GameServer()->m_pController->IsCoop() || g_Config.m_SvMapGenLevel < 2) && m_ItemTakenTick + Server()->TickSpeed()*30.0f < GameServer()->Server()->Tick()) || m_ItemTakenTick == 0))
 	{
+		if (frandom() < 0.6f)
+			m_Item = PLAYERITEM_UPGRADE;
+		else
+			m_Item = PLAYERITEM_SHIELD;
+		
+		/*
 		while (m_Item < 0 || m_Item == PLAYERITEM_FILL || m_Item == PLAYERITEM_LANDMINE || m_Item == PLAYERITEM_ELECTROMINE || (m_Item == PLAYERITEM_FUEL && g_Config.m_SvUnlimitedTurbo))
 		{
 			m_Item = rand()%NUM_PLAYERITEMS;
 			if (frandom() < 0.4f)
 				m_Item = PLAYERITEM_UPGRADE;
 		}
+		*/
 	}
 	
 	// give buff to player
@@ -44,16 +51,18 @@ void CPowerupper::Tick()
 		int Num = GameServer()->m_World.FindEntities(m_Pos+vec2(0, -24), 16.0f, (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
 		
 		int Bots = 0;
+		bool Taken = false;
 		
 		for(int i = 0; i < Num; i++)
 		{
 			if (apEnts[i]->m_IsBot)
 				Bots++;
 			else
-				apEnts[i]->GiveBuff(m_Item);
+				Taken = apEnts[i]->GiveBuff(m_Item);
 		}
 		
-		if (Num - Bots > 0)
+		//if (Num - Bots > 0)
+		if (Taken)
 		{
 			m_Item = -1;
 			m_ItemTakenTick = GameServer()->Server()->Tick();

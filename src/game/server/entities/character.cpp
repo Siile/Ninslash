@@ -186,7 +186,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		}
 	}
 	
-	//m_apWeapon[2] = GameServer()->NewWeapon(GetStaticWeapon(SW_BAZOOKA));
 	//m_apWeapon[3] = GameServer()->NewWeapon(GetStaticWeapon(SW_BOUNCER));
 	
 	GiveStartWeapon();
@@ -1209,36 +1208,60 @@ void CCharacter::SelectItem(int Item)
 	}
 }
 
-void CCharacter::GiveBuff(int Item)
+bool CCharacter::UpgradeWeapon()
+{
+	if (GetWeapon() && GetWeapon()->Upgrade())
+	{
+		GameServer()->CreateSound(m_Pos, SOUND_UPGRADE);
+		return true;
+	}
+		
+	return false;
+}
+
+bool CCharacter::GiveBuff(int Item)
 {
 	if (Item < 0)
-		return;
+		return false;
 	
-	if (Item != PLAYERITEM_UPGRADE)
-		GameServer()->SendBuff(Item, Server()->Tick(), GetPlayer()->GetCID());
-	
+	if (Item == PLAYERITEM_UPGRADE)
+		return UpgradeWeapon();
+		
 	//if (Item == PLAYERITEM_HEAL)
 	//	m_aStatus[STATUS_HEAL] = Server()->TickSpeed() * 0.75f;
 
+	/*
 	if (Item == PLAYERITEM_RAGE)
 		m_aStatus[STATUS_RAGE] = Server()->TickSpeed() * 20.0f;
 	
 	if (Item == PLAYERITEM_FUEL)
 		m_aStatus[STATUS_FUEL] = Server()->TickSpeed() * 20.0f;
+	*/
 	
 	if (Item == PLAYERITEM_SHIELD)
 	{
+		if (m_aStatus[STATUS_SHIELD] > 0)
+			return false;
+		
+		GameServer()->SendBuff(Item, Server()->Tick(), GetPlayer()->GetCID());
 		m_aStatus[STATUS_SHIELD] = Server()->TickSpeed() * 20.0f;
 		m_ShieldHealth = 100;
 		m_ShieldRadius = 16;
+		return true;
 	}
 	
+	/*
 	if (Item == PLAYERITEM_INVISIBILITY)
 		m_aStatus[STATUS_INVISIBILITY] = Server()->TickSpeed() * 20.0f;
+	*/
+	
+	return false;
 }
 
 void CCharacter::GiveRandomBuff()
 {
+	return;
+	
 	int Buff = -1;
 	
 	while (Buff < 0 || Buff == PLAYERITEM_FILL || Buff == PLAYERITEM_LANDMINE || Buff == PLAYERITEM_ELECTROMINE || (Buff == PLAYERITEM_FUEL && g_Config.m_SvUnlimitedTurbo))
