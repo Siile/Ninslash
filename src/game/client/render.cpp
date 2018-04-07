@@ -1830,6 +1830,9 @@ void CRenderTools::SetShadersForWeapon(CPlayerInfo *pCustomPlayerInfo)
 	else if (GetWeaponFiringType(pCustomPlayerInfo->m_Weapon) == WFT_CHARGE)
 		ChargeLevel = pCustomPlayerInfo->ChargeIntensity();
 	
+	if (WeaponMaxLevel(pCustomPlayerInfo->m_Weapon) > 0)
+		ChargeLevel = -GetWeaponCharge(pCustomPlayerInfo->m_Weapon) / float(WeaponMaxLevel(pCustomPlayerInfo->m_Weapon));
+	
 	float Visibility = max(pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING], pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY]);
 	float Electro = pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE];
 	float Damage = pCustomPlayerInfo->m_EffectIntensity[EFFECT_DAMAGE];
@@ -1846,6 +1849,10 @@ void CRenderTools::SetShadersForWeapon(CPlayerInfo *pCustomPlayerInfo)
 void CRenderTools::SetShadersForWeapon(int Weapon, float Charge, float Visibility, float Electro, float Damage, float Deathray)
 {
 	vec2 ColorSwap = GetWeaponColorswap(Weapon);
+	
+	if (WeaponMaxLevel(Weapon) > 0)
+		Charge = -GetWeaponCharge(Weapon) / float(WeaponMaxLevel(Weapon));
+	
 	Graphics()->PlayerShaderBegin(ColorSwap.x, ColorSwap.y, Charge, Visibility, Electro, Damage, Deathray);
 }
 

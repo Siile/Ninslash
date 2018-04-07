@@ -582,7 +582,7 @@ void CMapGen::GenerateTeslacoil(CGenLayer *pTiles)
 
 void CMapGen::GeneratePowerupper(CGenLayer *pTiles)
 {
-	ivec2 p = pTiles->GetLeftPlatform();
+	ivec2 p = pTiles->GetPlatform();
 	
 	if (p.x == 0)
 		return;
@@ -985,6 +985,9 @@ void CMapGen::GenerateLevel()
 			GenerateHangables(pTiles);
 	}
 	
+	for (int i = 0; i < min(4, 1 + int(Level * 0.05f)); i++)
+		GeneratePowerupper(pTiles);
+	
 	// enemy spawn positions
 	for (int i = 0; i < min(5+Level, 14) ; i++)
 		GenerateEnemySpawn(pTiles);
@@ -1348,6 +1351,8 @@ void CMapGen::GeneratePVPLevel()
 	
 	int Obs = 1 + pTiles->NumPlatforms() / 4.0f;
 	
+	GeneratePowerupper(pTiles);
+	GeneratePowerupper(pTiles);
 	
 	// barrels
 	int b = 5 + rand()%3;

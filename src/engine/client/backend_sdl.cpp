@@ -473,6 +473,12 @@ void CCommandProcessorFragment_OpenGL::Cmd_ShaderBegin(const CCommandBuffer::SCo
 	GLint location = pShader->getUniformLocation("rnd");
 	if (location >= 0)
 		glUniform1fARB(location, GLfloat(frandom()));
+	
+	float Time = time_get() / 100000.0f;
+	
+	location = pShader->getUniformLocation("time");
+	if (location >= 0)
+		glUniform1fARB(location, GLfloat(Time));
 
 	location = pShader->getUniformLocation("intensity");
 	if (location >= 0)

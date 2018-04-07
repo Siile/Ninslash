@@ -2,6 +2,7 @@
 
 uniform sampler2D texture;
 uniform float rnd;
+uniform float time;
 uniform float intensity;
 uniform float colorswap;
 //uniform float colorswap_b;
@@ -69,6 +70,16 @@ vec4 Deathray(vec4 c)
 	return mix(c, vec4(1.0f, 1.0f-f*0.5f, 1.0f-f, c.a), deathray);
 }
 
+vec4 Glow(vec4 c)
+{
+	float a = (gl_TexCoord[0].x*250.0f-time)*0.1f;
+	float v = max(0.0f, sin(a)*sin(a)*sin(a)*1.5f-0.5f);
+	
+	c.g += v * 0.25f*(-weaponcharge);
+	c.b += v * 0.25f*(-weaponcharge);
+	return mix(c, vec4(0.0f, 1.0f, 1.0f, c.a), (1 - abs(1 - c.a*2))*v*gl_Color.a*(-weaponcharge));
+}
+
 
 void main (void)
 {
@@ -78,7 +89,8 @@ void main (void)
 	c.xy = ColorSwap(c.xy, colorswap);
 	c.xz = ColorSwap(vec2(mix(c.x, c2.x, intensity), c2.z), intensity);
 	
-	c = WeaponCharge(c);
+	if (weaponcharge > 0.0f)
+		c = WeaponCharge(c);
 	
 	if (visibility < 1.0f)
 		c = Invisibility(c);
@@ -91,6 +103,9 @@ void main (void)
 	
 	if (deathray > 0.0f)
 		c = Deathray(c);
+	
+	if (weaponcharge < 0.0f)
+		c = Glow(c);
 	
 	gl_FragColor = c;
 }

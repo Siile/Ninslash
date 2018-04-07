@@ -59,6 +59,8 @@ public:
 		ClearWeapon();
 	}
 	
+	void SetRandomWeapon();
+	
 	void Hide()
 	{
 		m_SpawnTick = 1;

@@ -405,7 +405,7 @@ enum WeaponBits
 inline int GetPart(int Weapon, int Group){ return (Weapon & (15<<(4+Group*4)))>>(4+Group*4); }
 inline int GetModularWeapon(int Part1, int Part2){ return (!Part1 && !Part2) ? 0 : (Part2<<8 | Part1<<4 | BIT_WEAPON); }
 inline int GetStaticWeapon(int Weapon){ return (Weapon<<4 | BIT_STATICWEAPON | BIT_WEAPON); }
-inline int GetStaticType(int Weapon){ return (Weapon>>4); }
+inline int GetStaticType(int Weapon){ return 255 & (Weapon>>4); }
 
 inline int GetChargedWeapon(int Weapon, int Charge){ return (Weapon & (15<<4 | 15<<8 | 15)) | Charge<<12; }
 inline int GetWeaponCharge(int Weapon){ return (Weapon & (15<<12))>>12; }
@@ -475,6 +475,8 @@ float WeaponBurstReload(int Weapon);
 
 ivec2 GetWeaponVisualSize(int Weapon);
 ivec2 GetWeaponVisualSize2(int Weapon);
+
+int WeaponMaxLevel(int Weapon);
 
 bool IsLaserWeapon(int Weapon);
 int GetLaserRange(int Weapon);

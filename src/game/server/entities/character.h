@@ -144,6 +144,8 @@ public:
 		m_Core.m_Vel /= 1.5f;
 	}
 	
+	bool UpgradeWeapon();
+	
 	// custom weapon system
 	int m_ActiveWeapon;
 	
@@ -248,7 +250,7 @@ public:
 	
 	void SelectItem(int Item);
 	void UseKit(int Kit, vec2 Pos);
-	void GiveBuff(int Item);
+	bool GiveBuff(int Item);
 	void GiveRandomBuff();
 	
 	int m_AttackTick;

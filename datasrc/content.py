@@ -337,6 +337,8 @@ container.sounds.Add(SoundSet("bouncer_bounce", FileList("audio/wp_bouncer_bounc
 
 container.sounds.Add(SoundSet("sfx_bounce1", ["audio/sfx_bounce1.wv"]))
 
+container.sounds.Add(SoundSet("upgrade", FileList("audio/wp_upgrade-%02d.wv", 3)))
+
 container.sounds.Add(SoundSet("inv1", ["audio/inv1.wv"]))
 container.sounds.Add(SoundSet("inv2", ["audio/inv2.wv"]))
 container.sounds.Add(SoundSet("inv3", ["audio/inv3.wv"]))

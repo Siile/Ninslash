@@ -10,7 +10,12 @@ CWeapon::CWeapon(CGameWorld *pGameWorld, int Type)
 {
 	m_ProximityRadius = ms_PhysSize;
 	m_WeaponType = Type;
-	m_PowerLevel = 0;
+
+	if (WeaponMaxLevel(m_WeaponType) > 0)
+		m_PowerLevel = GetWeaponCharge(m_WeaponType);
+	else
+		m_PowerLevel = 0;
+	
 	Reset();
 	
 	GameWorld()->InsertEntity(this);
@@ -18,6 +23,7 @@ CWeapon::CWeapon(CGameWorld *pGameWorld, int Type)
 
 void CWeapon::Reset()
 {
+	m_MaxLevel = WeaponMaxLevel(m_WeaponType);
 	m_Disabled = false;
 	m_IsTurret = false;
 	m_ChargeSoundTimer = 0;
@@ -116,6 +122,11 @@ void CWeapon::SetTurret(bool TurretBit)
 void CWeapon::UpdateStats()
 {
 	m_CanFire = true;
+	m_MaxLevel = WeaponMaxLevel(m_WeaponType);
+
+	if (m_MaxLevel > 0)
+		m_WeaponType = GetChargedWeapon(m_WeaponType, m_PowerLevel);
+	
 	m_FireRate = GetWeaponFireRate(m_WeaponType);
 	m_KnockBack =GetWeaponKnockback(m_WeaponType);
 	m_FireSound = GetWeaponFireSound(m_WeaponType);
@@ -403,10 +414,25 @@ bool CWeapon::AddClip()
 	return false;
 }
 
+bool CWeapon::Upgrade()
+{
+	if (m_PowerLevel < m_MaxLevel)
+	{
+		m_PowerLevel++;
+		UpdateStats();
+		return true;
+	}
+	
+	return false;
+}
+
 void CWeapon::Tick()
 {
 	if (m_Disabled)
 		return;
+	
+	if (m_MaxLevel > 0)
+		m_WeaponType = GetChargedWeapon(m_WeaponType, m_PowerLevel);
 	
 	// pick me up!
 	if (m_Stuck && m_Owner < 0)
@@ -435,8 +461,8 @@ void CWeapon::Tick()
 	if (m_BurstCount > 0)
 		m_FullAuto = true;
 	
-	if (IsModularWeapon(m_WeaponType) && !m_TriggerCount)
-		m_WeaponType = GetChargedWeapon(m_WeaponType, m_Charge / 20);
+	//if (IsModularWeapon(m_WeaponType) && !m_TriggerCount)
+	//	m_WeaponType = GetChargedWeapon(m_WeaponType, m_Charge / 20);
 	
 	if(m_ReloadTimer > 0)
 		m_ReloadTimer--;
@@ -496,6 +522,7 @@ void CWeapon::Trigger()
 		}
 	}
 	
+	/*
 	if (IsModularWeapon(m_WeaponType))
 	{
 		m_WeaponType = GetChargedWeapon(m_WeaponType, max(0, GetWeaponCharge(m_WeaponType)-1));
@@ -510,6 +537,7 @@ void CWeapon::Trigger()
 		else
 			m_TriggerTick = 0;
 	}
+	*/
 }
 
 void CWeapon::SelfDestruct()
@@ -623,21 +651,7 @@ void CWeapon::Snap(int SnappingClient)
 
 	pW->m_X = (int)m_Pos.x;
 	pW->m_Y = (int)m_Pos.y;
-	//pW->m_Angle = (int)(m_Angle*1000);
 	pW->m_Angle = (int)(m_Angle*256.0f);
 	pW->m_WeaponType = m_WeaponType;
 	pW->m_AttackTick = m_AttackTick;
-	
-	
-	/*
-	CNetObj_Pickup *pP = static_cast<CNetObj_Pickup *>(Server()->SnapNewItem(NETOBJTYPE_PICKUP, m_ID, sizeof(CNetObj_Pickup)));
-	if(!pP)
-		return;
-
-	pP->m_X = (int)m_Pos.x;
-	pP->m_Y = (int)m_Pos.y;
-	pP->m_WeaponType = POWERUP_WEAPON;
-	pP->m_PowerLevel = 0;
-	pP->m_Subtype = m_WeaponType;
-	*/
 }

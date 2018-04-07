@@ -50,10 +50,17 @@ void CPickup::Reset()
 		ClearWeapon();
 		
 		if (m_Type == POWERUP_WEAPON)
-			m_Subtype = GetRandomWeaponType();
+			SetRandomWeapon();
 	}
 }
 
+void CPickup::SetRandomWeapon()
+{
+	m_Subtype = GetRandomWeaponType();
+	
+	if (WeaponMaxLevel(m_Subtype) > 0 && frandom() < 0.5f)
+		m_Subtype = GetChargedWeapon(m_Subtype, frandom()*WeaponMaxLevel(m_Subtype));
+}
 
 void CPickup::ClearWeapon()
 {
@@ -92,7 +99,7 @@ void CPickup::Tick()
 			
 			
 			if (m_Type == POWERUP_WEAPON)
-				m_Subtype = GetRandomWeaponType();
+				SetRandomWeapon();
 			
 			ClearWeapon();
 			

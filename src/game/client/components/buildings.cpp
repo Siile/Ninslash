@@ -57,7 +57,7 @@ void CBuildings::RenderPowerupper(const struct CNetObj_Powerupper *pCurrent)
 			Graphics()->SetColor(1, 1, 1, 1);
 			Graphics()->QuadsSetRotation(0);
 				
-			RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y-48, 96);
+			RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y-64, 96);
 			Graphics()->QuadsEnd();
 			Graphics()->ShaderEnd();
 		}
@@ -72,7 +72,7 @@ void CBuildings::RenderPowerupper(const struct CNetObj_Powerupper *pCurrent)
 			Graphics()->SetColor(1, 1, 1, 1);
 			Graphics()->QuadsSetRotation(0);
 				
-			RenderTools()->DrawSprite(pCurrent->m_X+sin(CustomStuff()->m_SawbladeAngle/8)*2.0f, pCurrent->m_Y+cos(CustomStuff()->m_SawbladeAngle/4)*4.0f-48, 64);
+			RenderTools()->DrawSprite(pCurrent->m_X+sin(CustomStuff()->m_SawbladeAngle/8)*2.0f, pCurrent->m_Y+cos(CustomStuff()->m_SawbladeAngle/4)*4.0f-64, 64);
 			Graphics()->QuadsEnd();
 		}
 	}

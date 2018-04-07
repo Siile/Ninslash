@@ -113,7 +113,7 @@ struct CTrace
 		{
 			m_Parts = 20;
 			m_Speed = 3.0f;
-			m_Size1 = 10.0f;
+			m_Size1 = 10.0f * GetProjectileSize(Weapon);;
 			m_Size2 = 5.0f;
 			m_LifeSpan = 1.5f;
 			m_Color = vec4(0.0f, 1.0f, 0.0f, 0.5f);

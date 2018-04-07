@@ -1535,7 +1535,7 @@ void CEffects::HammerHit(vec2 Pos)
 	m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_HAMMER_HIT, 1.0f, Pos);
 }
 
-void CEffects::SwordHit(vec2 Pos, float Angle, bool Flip, int PowerLevel)
+void CEffects::SwordHit(vec2 Pos, float Angle, bool Flip, float Charge)
 {
 	CParticle p;
 	p.SetDefault();
@@ -1543,16 +1543,11 @@ void CEffects::SwordHit(vec2 Pos, float Angle, bool Flip, int PowerLevel)
 	p.m_Frames = 3;
 	p.m_Pos = Pos;
 	p.m_LifeSpan = 0.12f;
-	p.m_StartSize = 170;
-	p.m_EndSize = 170;
+	p.m_StartSize = 170+Charge*40.0f;
+	p.m_EndSize = 170+Charge*40.0f;
 	p.m_Rot = Angle;
 	p.m_Flip = Flip;
-	//if (PowerLevel == 1)
-		p.m_Color = vec4(0.5f, 1.0f, 0.5f, 1.0f);
-	//else if (PowerLevel == 2)
-	//	p.m_Color = vec4(0.5f, 0.5f, 1.0f, 1.0f);
-	//else if (PowerLevel == 3)
-	//	p.m_Color = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	p.m_Color = vec4(0.5f+Charge*0.25f, 1.0f, 0.5f+Charge*0.5f, 1.0f);
 	m_pClient->m_pParticles->Add(CParticles::GROUP_SWORDHITS, &p);
 }
 

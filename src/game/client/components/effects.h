@@ -27,7 +27,7 @@ public:
 	void FlameExplosion(vec2 Pos);
 	void HammerHit(vec2 Pos);
 	void DashEffect(vec2 Pos, int Angle);
-	void SwordHit(vec2 Pos, float Angle, bool Flip, int PowerLevel);
+	void SwordHit(vec2 Pos, float Angle, bool Flip, float Charge);
 	void AirJump(vec2 Pos);
 	void Blood(vec2 Pos, vec2 Dir, vec4 Color = vec4(1, 0, 0, 1));
 	void Guts(vec2 Pos, vec4 Color = vec4(1, 0, 0, 1));
