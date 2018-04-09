@@ -18,7 +18,7 @@ Droidtype = ["WALKER", "STAR", "CRAWLER", "FLY"]
 
 CoreAction = ["IDLE", "JUMP", "WALLJUMP", "ROLL", "SLIDE", "SLIDEKICK", "FALL", "JUMPPAD", "HANG"]
 
-InventoryAction = ["SWAP", "COMBINE", "TAKEPART"]
+InventoryAction = ["SWAP", "COMBINE", "TAKEPART", "DROP"]
 
 RawHeader = '''
 
@@ -334,7 +334,7 @@ Objects = [
 
 	NetObject("Character:CharacterCore", [
 		NetIntRange("m_PlayerFlags", 0, 256),
-		NetIntRange("m_Armor", 0, 50),
+		NetIntRange("m_Armor", 0, 100),
 		NetIntRange("m_AmmoCount", 0, 30),
 		NetIntAny("m_Weapon"),
 		NetIntRange("m_WeaponPowerLevel", 0, 9),
@@ -636,9 +636,9 @@ Messages = [
 	]),
 	
 	NetMessage("Cl_InventoryAction", [
-		NetIntRange("m_Type", 0, 4),
-		NetIntRange("m_Item1", 0, 12),
-		NetIntRange("m_Item2", -1, 12),
-		NetIntRange("m_Slot", 0, 4),
+		NetIntRange("m_Type", 0, 6),
+		NetIntAny("m_Item1"),
+		NetIntAny("m_Item2"),
+		NetIntAny("m_Slot"),
 	]),
 ]

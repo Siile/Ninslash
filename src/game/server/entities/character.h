@@ -184,8 +184,6 @@ public:
 	
 	bool PickWeapon(class CWeapon *pWeapon);
 	
-	bool GiveAmmo(int *CustomWeapon, float AmmoFill);
-	
 	void RandomizeInventory();
 	
 	void AutoWeaponChange();
@@ -263,6 +261,7 @@ public:
 	int GetArmor() { return m_Armor; }
 	
 	// inventory
+	void DropItem(int Slot, vec2 Pos);
 	void SwapItem(int Item1, int Item2);
 	void CombineItem(int Item1, int Item2);
 	void TakePart(int Item1, int Slot, int Item2);

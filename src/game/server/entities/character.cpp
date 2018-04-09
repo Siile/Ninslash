@@ -186,8 +186,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		}
 	}
 	
-	//m_apWeapon[3] = GameServer()->NewWeapon(GetStaticWeapon(SW_BOUNCER));
-	
 	GiveStartWeapon();
 	SendInventory();
 	
@@ -390,6 +388,30 @@ void CCharacter::SendInventory()
 	Msg.m_Item12 = GetWeaponType(11);
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, GetPlayer()->GetCID());
 }
+
+
+void CCharacter::DropItem(int Slot, vec2 Pos)
+{
+	if (Slot < 0 || Slot >= 12)
+		return;
+
+	if (m_apWeapon[Slot] && m_apWeapon[Slot]->Drop())
+	{
+		//vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
+		vec2 Direction = normalize(Pos - m_Pos);
+		
+		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
+		
+		GameServer()->m_pController->DropWeapon(m_Pos+vec2(0, -16), m_Core.m_Vel/1.7f + Direction*10 + vec2(0, -3), m_apWeapon[Slot]);
+		m_SkipPickups = 20;
+				
+		m_apWeapon[Slot] = NULL;
+		m_ActiveWeapon = WEAPON_NONE;
+		SendInventory();
+		return;
+	}
+}
+
 
 void CCharacter::SwapItem(int Item1, int Item2)
 {
@@ -655,18 +677,22 @@ void CCharacter::DropWeapon()
 	
 	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
 	
-	if (UpgradeTurret(m_Pos, -Direction))
+	if (m_HiddenHealth > 0)
 	{
-		m_apWeapon[m_WeaponSlot] = 0;
-		SendInventory();
-		return;
+		if (UpgradeTurret(m_Pos, -Direction))
+		{
+			m_apWeapon[m_WeaponSlot] = 0;
+			SendInventory();
+			return;
+		}
 	}
+	
 	
 	if (GetWeapon()->Drop())
 	{
 		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
 		
-		GameServer()->m_pController->DropWeapon(m_Pos+vec2(0, -16), m_Core.m_Vel/1.7f + Direction*8 + vec2(0, -3), GetWeapon());
+		GameServer()->m_pController->DropWeapon(m_Pos+vec2(0, -16), m_Core.m_Vel/1.7f + Direction*10 + vec2(0, -3), GetWeapon());
 		m_SkipPickups = 20;
 				
 		m_apWeapon[GetWeaponSlot()] = NULL;
@@ -1020,32 +1046,6 @@ void CCharacter::GiveStartWeapon()
 	}
 }
 
-
-
-bool CCharacter::GiveAmmo(int *CustomWeapon, float AmmoFill)
-{
-	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
-		return false;
-	
-	if(m_aWeapon[*CustomWeapon].m_Got)
-	{
-		if (m_aWeapon[*CustomWeapon].m_Ammo < aCustomWeapon[*CustomWeapon].m_MaxAmmo)
-		{
-			m_aWeapon[*CustomWeapon].m_Ammo += aCustomWeapon[*CustomWeapon].m_MaxAmmo * AmmoFill;
-			
-			if (m_aWeapon[*CustomWeapon].m_Ammo > aCustomWeapon[*CustomWeapon].m_MaxAmmo)
-				m_aWeapon[*CustomWeapon].m_Ammo = aCustomWeapon[*CustomWeapon].m_MaxAmmo;
-			
-			return true;
-		}
-	}
-	
-	return false;
-}
-
-
-
-
 void CCharacter::SetEmote(int Emote, int Tick)
 {
 	//if (m_EmoteLockStop > Tick)
@@ -1260,6 +1260,7 @@ bool CCharacter::GiveBuff(int Item)
 
 void CCharacter::GiveRandomBuff()
 {
+	// disabled
 	return;
 	
 	int Buff = -1;
@@ -1632,57 +1633,22 @@ bool CCharacter::AddClip(int Weapon)
 	for (int i = 0; i < NUM_SLOTS; i++)
 		if (m_apWeapon[i] && m_apWeapon[i]->AddClip())
 			return true;
-	
-	/*
-	if (Weapon == -1)
-		Weapon = m_ActiveWeapon;
-	
-	if (Weapon < 0 || Weapon >= NUM_WEAPONS)
-		return false;
-	
-	if (!m_aWeapon[Weapon].m_Got)
-		return false;
-	
-	if (aCustomWeapon[Weapon].m_PowerupSize <= 0 || aCustomWeapon[Weapon].m_MaxAmmo <= 0)
-		return false;
 
-	if (m_aWeapon[Weapon].m_Ammo < aCustomWeapon[Weapon].m_MaxAmmo)
-	{
-		m_aWeapon[Weapon].m_Ammo = min(m_aWeapon[Weapon].m_Ammo+aCustomWeapon[Weapon].m_PowerupSize, aCustomWeapon[Weapon].m_MaxAmmo);
-		GetPlayer()->m_InterestPoints += 40;
-		return true;
-	}
-	*/
-	
 	return false;
 }
 
 bool CCharacter::IncreaseAmmo(int Amount)
 {
-	if (AddClip())
-		return true;
-	
-	/*
-	if (AddClip(m_PrevWeapon))
-		return true;
-	
-	for (int i = 0; i < NUM_WEAPONS; i++)
-	{
-		if (AddClip(i))
-			return true;
-	}
-	*/
-	
-	return false;
+	return AddClip();
 }
 
 
 bool CCharacter::IncreaseArmor(int Amount)
 {
-	if(m_Armor >= 50)
+	if(m_Armor >= 100)
 		return false;
 	
-	m_Armor = clamp(m_Armor+Amount, 0, 50);
+	m_Armor = clamp(m_Armor+Amount, 0, 100);
 	return true;
 }
 
@@ -1878,8 +1844,8 @@ bool CCharacter::TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos)
 	//	Dmg = 0;
 	
 	// disable self damage if weapon is forced
-	if (g_Config.m_SvForceWeapon && From == m_pPlayer->GetCID())
-		return false;
+	//if (g_Config.m_SvForceWeapon && From == m_pPlayer->GetCID())
+	//	return false;
 
 	m_DamageTaken++;
 
@@ -2188,10 +2154,7 @@ void CCharacter::Snap(int SnappingClient)
 		pCharacter->m_Armor = m_Armor;
 
 		if(GetWeapon())
-		{
-			//pCharacter->m_AmmoCount = (m_aWeapon[m_ActiveWeapon].m_Ammo * (10.0f / aCustomWeapon[m_ActiveWeapon].m_MaxAmmo));
 			pCharacter->m_AmmoCount = GetWeapon()->GetAmmo();
-		}
 		else
 			pCharacter->m_AmmoCount = 0;
 	}

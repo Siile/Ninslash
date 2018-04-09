@@ -280,13 +280,7 @@ void CCrawler::Fire()
 		
 		m_Vel += normalize(m_Target)*7.0f;
 		
-		GameServer()->CreateSound(m_Pos, aCustomWeapon[W_DROID_STAR].m_Sound);
-		
-		GameServer()->CreateProjectile(NEUTRAL_BASE, W_DROID_STAR, 0, TurretPos+normalize(m_Target*-1)*30.0f, m_Target*-1);
-		GameServer()->CreateProjectile(NEUTRAL_BASE, W_DROID_STAR, 0, TurretPos+normalize(m_Target*-1)*30.0f+vec2(-m_Dir * 64, 0), m_Target*-1);
-		
-		//GameServer()->CreateProjectile(NEUTRAL_BASE, W_DROID_WALKER, 0, TurretPos+normalize(m_Target*-1)*32.0f, m_Target*-1);
-		//GameServer()->CreateProjectile(NEUTRAL_BASE, W_DROID_WALKER, 0, TurretPos+normalize(m_Target*-1)*32.0f+vec2(m_Dir * 44, -28), m_Target*-1);
+		GameServer()->CreateSound(m_Pos, SOUND_STAR_FIRE);
 		
 		m_AttackTick = Server()->Tick();
 	}

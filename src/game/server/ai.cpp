@@ -1393,8 +1393,10 @@ bool CAI::ShootAtClosestBuilding()
 
 void CAI::RandomlyStopShooting()
 {
+	/*
 	if (Player()->GetCharacter()->m_ActiveWeapon == W_SCYTHE)
 		return;
+	*/
 	
 	if (frandom()*20 < 4 && m_Attack == 1)
 	{

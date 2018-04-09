@@ -815,11 +815,13 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 
 	if(Type != -1)
 	{
+		/*
 		if (g_Config.m_SvForceWeapon)
 		{
 			if (Type == POWERUP_WEAPON || Type == POWERUP_AMMO)
 				return true;
 		}
+		*/
 		
 		if (Type == POWERUP_WEAPON)
 			SubType = GetRandomWeapon();

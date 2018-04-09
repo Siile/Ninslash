@@ -168,7 +168,7 @@ bool CTurret::Target()
 			return false;
 
 		int Distance = distance(pCharacter->m_Pos, TurretPos);
-		//if (Distance < aCustomWeapon[iw].m_AiAttackRange && !GameServer()->Collision()->FastIntersectLine(pCharacter->m_Pos, TurretPos))
+
 		if (Distance < 900 && !GameServer()->Collision()->FastIntersectLine(pCharacter->m_Pos, TurretPos))
 		{
 			m_Target = TurretPos - ((pCharacter->m_Pos+vec2(0, -64)) + pCharacter->GetCore().m_Vel * 2.0f);

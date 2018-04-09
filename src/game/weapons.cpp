@@ -1454,7 +1454,7 @@ float GetWeaponFireRate(int Weapon)
 	{
 		case 1: v -= Charge*80.0f; break;
 		case 2: v -= Charge*90.0f; v *= 1.1f; break;
-		case 3: v -= Charge*80.0f; v *= 1.2f; break;
+		case 3: v -= Charge*90.0f; v *= 1.2f; break;
 		case 4: v -= Charge*80.0f; v *= 0.60f; break;
 		case 5: v -= Charge*50.0f; v *= 0.65f; break;
 		case 6: v -= Charge*35.0f; v *= 1.0f; break;

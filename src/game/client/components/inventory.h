@@ -35,6 +35,7 @@ class CInventory : public CComponent
 	int m_DragPart;
 	int m_DragSlot;
 	
+	void Drop(int Slot);
 	void Swap(int Item1, int Item2);
 	void Combine(int Item1, int Item2);
 	void TakePart(int Item1, int Slot, int Item2);

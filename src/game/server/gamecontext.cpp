@@ -481,14 +481,6 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int Charge, vec
 	
 	int ShotSpread = GetShotSpread(Weapon);
 	
-	/*
-	if (Part1 == 1)
-	{
-		ShotSpread += 2;
-		BulletSpread += 0.05f;
-	}
-	*/
-	
 	// laser pistol
 	if (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_GUN2)
 	{
@@ -545,83 +537,6 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int Charge, vec
 
 	if (DamageOwner >= 0 && DamageOwner < MAX_CLIENTS)
 		Server()->SendMsg(&Msg, 0, DamageOwner);
-	
-	/*
-	if (Weapon == WEAPON_LASER)
-	{
-		Dmg += PowerLevel*0.35f;
-		float a = GetAngle(Direction);
-		a += (frandom()-frandom())*aCustomWeapon[Weapon].m_BulletSpread;
-		new CLaser(&m_World, Pos, vec2(cosf(a), sinf(a)), Tuning()->m_LaserReach, DamageOwner, aCustomWeapon[Weapon].m_Damage * Dmg, PowerLevel);
-
-		return;
-	}
-	
-	if (Weapon == W_SWORD)
-		Dmg *= 0.3f;
-		
-	switch (Weapon)
-	{
-	case WEAPON_ELECTRIC:
-		Explosion = EXPLOSION_ELECTRIC;
-		HitSound = SOUND_LASER_FIRE;
-		break;
-		
-	case WEAPON_GRENADE:
-		Explosion = EXPLOSION_EXPLOSION;
-		HitSound = SOUND_GRENADE_EXPLODE;
-		break;
-		
-	case WEAPON_FLAMER:
-		Explosion = EXPLOSION_FLAME;
-		HitSound = SOUND_GRENADE_EXPLODE;
-		break;
-		
-		
-	default:;
-	};
-	
-	int ShotSpread = aCustomWeapon[Weapon].m_ShotSpread;
-	
-	if (Weapon == WEAPON_SHOTGUN && PowerLevel > 0)
-		ShotSpread += 2;
-
-	CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-	Msg.AddInt(ShotSpread);
-
-	for (int i = 0; i < ShotSpread; i++)
-	{
-		float Angle = GetAngle(Direction);
-		
-		Angle -= (ShotSpread-1)/2.0f * pi/180 * 4;
-		Angle += i * pi/180 * 4;
-		Angle += (frandom()-frandom())*aCustomWeapon[Weapon].m_BulletSpread;
-
-		CProjectile *pProj = new CProjectile(&m_World,
-			Weapon,
-			DamageOwner,
-			Pos,
-			vec2(cosf(Angle), sinf(Angle)),
-			(int)(Server()->TickSpeed()*aCustomWeapon[Weapon].m_BulletLife),
-			aCustomWeapon[Weapon].m_Damage * Dmg,
-			Explosion,
-			aCustomWeapon[Weapon].m_Knockback,
-			HitSound);
-			
-		pProj->m_OwnerBuilding = OwnerBuilding;
-		pProj->SetPowerLevel(PowerLevel);
-
-		// pack the Projectile and send it to the client Directly
-		CNetObj_Projectile p;
-		pProj->FillInfo(&p);
-
-		for(unsigned i = 0; i < sizeof(CNetObj_Projectile)/sizeof(int); i++)
-			Msg.AddInt(((int *)&p)[i]);
-	}
-
-	if (DamageOwner >= 0 && DamageOwner < MAX_CLIENTS)
-		Server()->SendMsg(&Msg, 0, DamageOwner);
-	*/
 }
 
 
@@ -2234,6 +2149,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			CNetMsg_Cl_InventoryAction *pMsg = (CNetMsg_Cl_InventoryAction *)pRawMsg;
 			switch (pMsg->m_Type)
 			{
+				case INVENTORYACTION_DROP: pPlayer->DropItem(pMsg->m_Slot, vec2(pMsg->m_Item1, pMsg->m_Item2)); break;
 				case INVENTORYACTION_SWAP: pPlayer->SwapItem(pMsg->m_Item1, pMsg->m_Item2); break;
 				case INVENTORYACTION_COMBINE: pPlayer->CombineItem(pMsg->m_Item1, pMsg->m_Item2); break;
 				case INVENTORYACTION_TAKEPART: pPlayer->TakePart(pMsg->m_Item1, pMsg->m_Slot, pMsg->m_Item2); break;

@@ -94,6 +94,12 @@ void CPlayer::SwapItem(int Item1, int Item2)
 		GetCharacter()->SwapItem(Item1, Item2);
 }
 
+void CPlayer::DropItem(int Slot, vec2 Pos)
+{
+	if (GetCharacter())
+		GetCharacter()->DropItem(Slot, Pos);
+}
+
 void CPlayer::CombineItem(int Item1, int Item2)
 {
 	if (GetCharacter())
