@@ -253,6 +253,7 @@ public:
 	
 	int m_AttackTick;
 	int m_DamageTakenTick;
+	int m_SendInventoryTick;	
 	
 	int m_Kits;
 	

@@ -353,7 +353,6 @@ void CBuilding::Destroy()
 	else if (m_Type == BUILDING_MINE2)
 	{
 		m_Life = 9000;
-		//GameServer()->CreateElectromineExplosion(m_Pos, m_DamageOwner, GetBuildingWeapon(m_Type), false);
 		GameServer()->m_World.DestroyEntity(this);
 	}
 	else if (m_Type == BUILDING_BARREL)

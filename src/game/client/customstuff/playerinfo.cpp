@@ -660,17 +660,6 @@ void CPlayerInfo::Tick()
 			m_FlameState = 0;
 	}
 	
-
-	
-	/*
-	for (int i = 1; i < 20; i++)
-	{
-		m_aFlameAngle[20-i] = m_aFlameAngle[19-i];
-	}
-	*/
-	
-	
-	
 	if (m_EffectIntensity[EFFECT_DEATHRAY] <= 0.0f)
 		m_pAnimation->Tick();
 }

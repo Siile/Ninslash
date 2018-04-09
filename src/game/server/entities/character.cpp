@@ -68,6 +68,7 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	m_PainSoundTimer = 0;
 	m_Silent = false;
 	m_IgnoreCollision = false;
+	m_SendInventoryTick = 0;
 	
 	for (int i = 0; i < NUM_STATUSS; i++)
 	{
@@ -102,6 +103,8 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		m_apWeapon[i] = NULL;
 	
 	m_aStatus[STATUS_SPAWNING] = 0.7f*Server()->TickSpeed();
+	
+	m_SendInventoryTick = Server()->Tick() + Server()->TickSpeed();
 	
 	m_ChangeDirTick = 0;
 	m_LastDir = 0;
@@ -1127,9 +1130,6 @@ void CCharacter::ResetInput()
 
 bool CCharacter::Invisible()
 {
-	//if ((m_Core.m_Jetpack == 1 || m_Core.m_Input.m_Hook > 0) && m_Core.m_JetpackPower > 0)
-	//	return false;
-		
 	if (m_aStatus[STATUS_SPAWNING] > 0)
 		return true;
 		
@@ -1344,6 +1344,12 @@ void CCharacter::Tick()
 	{
 		vec2 WpPos = GameServer()->Collision()->GetClosestWaypointPos(m_Pos);
 		new CStaticlaser(&GameServer()->m_World, m_Pos, WpPos, 2);
+	}
+	
+	if (m_SendInventoryTick && m_SendInventoryTick < Server()->Tick())
+	{
+		SendInventory();
+		m_SendInventoryTick = 0;
 	}
 	
 	/*
