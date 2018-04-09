@@ -508,7 +508,6 @@ void CPlayers::RenderPlayer(
 
 	
 	CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_Weapon = Player.m_Weapon;
-	CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID].m_WeaponPowerLevel = Player.m_WeaponPowerLevel;
 	
 	if (Player.m_DamageTick > pCustomPlayerInfo->m_DamageTick)
 	{

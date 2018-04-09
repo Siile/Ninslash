@@ -193,7 +193,6 @@ Objects = [
 		NetIntAny("m_Vel2Y"),
 
 		NetIntAny("m_Type"),
-		NetIntRange("m_PowerLevel", 0, 9),
 		NetTick("m_StartTick"),
 	]),
 
@@ -337,7 +336,6 @@ Objects = [
 		NetIntRange("m_Armor", 0, 100),
 		NetIntRange("m_AmmoCount", 0, 30),
 		NetIntAny("m_Weapon"),
-		NetIntRange("m_WeaponPowerLevel", 0, 9),
 		NetIntRange("m_Emote", 0, len(Emotes)),
 		NetIntRange("m_AttackTick", 0, 'max_int'),
 		NetIntAny("m_Movement"),

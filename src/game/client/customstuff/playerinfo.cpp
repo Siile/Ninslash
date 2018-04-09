@@ -57,7 +57,6 @@ void CPlayerInfo::Reset()
 	m_RecoilTick = 0;
 	
 	m_WeaponColorSwap = 0.0f;
-	m_WeaponPowerLevel = 0;
 	
 	m_ArmPos = vec2(0, 0);
 	
@@ -252,10 +251,14 @@ float CPlayerInfo::MeleeAngle()
 
 float CPlayerInfo::MeleeSize()
 {
+	/*
 	return 1.1f + m_WeaponPowerLevel*0.2f;
 	
 	float s = abs(m_Melee.m_TurnSpeed);
 	return 0.8f + (s > 0.2f ? s - 0.2f : 0.0f);
+	*/
+	
+	return 1.0f;
 }
 
 bool CPlayerInfo::MeleeFlip()
@@ -449,6 +452,7 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 	float TurnSpeedCap = 0.15f;
 	float TurnAmount = 0.03f;
 	
+	/*
 	if (m_Melee.m_EffectFrame > 0)
 	{
 		if (++m_Melee.m_EffectFrame > 7*3)
@@ -485,6 +489,7 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 		m_Melee.m_FrontChangeAngle += pi*2.0f * ((m_Melee.m_Angle > m_Melee.m_FrontChangeAngle) ? 1.0f : -1.0f);
 		m_Melee.m_Front = !m_Melee.m_Front;
 	}
+	*/
 
 
 	// adjust skeleton a bit

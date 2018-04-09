@@ -137,7 +137,6 @@ public:
 	vec2 m_Pos;
 	vec2 m_Vel;
 	
-	int m_WeaponPowerLevel;
 	int m_WeaponCharge;
 	
 	float m_Angle;

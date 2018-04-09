@@ -24,8 +24,6 @@ CProjectile::CProjectile(CGameWorld *pGameWorld, int Weapon, int Owner, vec2 Pos
 	m_Explosive = Explosive;
 	m_Bouncy = false;
 	m_Vel2 = Vel*30.0f;
-	
-	m_PowerLevel = 0;
 
 	m_ElectroTimer = 0;
 	
@@ -217,7 +215,6 @@ void CProjectile::FillInfo(CNetObj_Projectile *pProj)
 	pProj->m_Vel2Y = (int)(m_Vel2.y*10.0f);
 	pProj->m_StartTick = m_StartTick;
 	pProj->m_Type = m_Weapon;
-	pProj->m_PowerLevel = m_PowerLevel;
 }
 
 void CProjectile::Snap(int SnappingClient)
