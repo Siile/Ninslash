@@ -18,30 +18,9 @@ enum PlayerItems
 	NUM_PLAYERITEMS,
 };
 
-/*
-enum CustomWeapons
-{
-	W_NONE = 0,
-	W_TOOL = 0,
-	W_SWORD,
-	W_SHOTGUN,
-	W_RIFLE,
-	W_LASER,
-	W_ELECTRIC,
-	W_GRENADELAUNCHER,
-	W_FLAMER,
-	W_CHAINSAW,
-	W_SCYTHE,
-	W_DROID_WALKER,
-	W_DROID_STAR,
-	W_ROBOT1,
-	NUM_CUSTOMWEAPONS
-};
-*/
-
-
 enum WeaponBits
 {
+	// 4 first bits of weapon int are flags / statuses, 5 in case of droids
 	BIT_WEAPON = 1<<0,
 	BIT_TURRET = 1<<1,
 	BIT_BUILDING = 1<<2,
@@ -90,7 +69,7 @@ enum WeaponBits
 
 #define WEAPON_GAME_SIZE 15
 
-// todo: move somewhere else and remove this file
+
 inline int GetPart(int Weapon, int Group){ return (Weapon & (15<<(4+Group*4)))>>(4+Group*4); }
 inline int GetModularWeapon(int Part1, int Part2){ return (!Part1 && !Part2) ? 0 : (Part2<<8 | Part1<<4 | BIT_WEAPON); }
 inline int GetStaticWeapon(int Weapon){ return (Weapon<<4 | BIT_STATICWEAPON | BIT_WEAPON); }

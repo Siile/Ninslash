@@ -556,6 +556,8 @@ void IGameController::CreateDroppables()
 
 void IGameController::DeathMessage()
 {
+	GameServer()->CreateSoundGlobal(SOUND_GAMEOVER);
+	
 	switch (rand()%5)
 	{
 		case 0:

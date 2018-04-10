@@ -99,6 +99,7 @@ public:
 	bool AddMine();
 	bool AddKit();
 	
+	void SetArmor(int Armor);
 	void SetHealth(int Health);
 	void RefillHealth();
 

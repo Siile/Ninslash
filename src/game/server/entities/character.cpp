@@ -183,10 +183,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		pPlayer->m_IsBot = true;
 		
 		if (GameServer()->m_pController->IsCoop())
-		{
-			//m_Type = CCharacter::ROBOT;
 			m_Silent = true;
-		}
 	}
 	
 	GiveStartWeapon();
@@ -1563,6 +1560,11 @@ void CCharacter::TickPaused()
 		++m_EmoteStop;
 }
 
+
+void CCharacter::SetArmor(int Armor)
+{
+	m_Armor = Armor;
+}
 
 void CCharacter::SetHealth(int Health)
 {
