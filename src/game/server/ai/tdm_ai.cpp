@@ -91,6 +91,8 @@ void CAItdm::DoBehavior()
 			SeekRandomWaypoint();
 	}
 	
+	if (Player()->GetCharacter()->GetWeaponType() == WEAPON_NONE)
+		FindWeapon();
 
 	if (UpdateWaypoint())
 	{
@@ -107,6 +109,6 @@ void CAItdm::DoBehavior()
 	RandomlyStopShooting();
 	
 	// next reaction in
-	m_ReactionTime = 2 + frandom()*4;
-	
+	m_ReactionTime = 2;
+	//m_ReactionTime = 2 + frandom()*4;
 }

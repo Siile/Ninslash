@@ -61,6 +61,8 @@ public:
 	
 	void SetRandomWeapon();
 	
+	bool IsWeapon();
+	
 	void Hide()
 	{
 		m_SpawnTick = 1;

@@ -1191,6 +1191,22 @@ void CCharacterCore::Move()
 		NewPos.y -= 18;
 		m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(28.0f, 64.0f), 0, !m_Sliding);
 		NewPos.y += 18;
+		
+		// unstuck jumpkick
+		if (!m_Input.m_Hook && abs(m_Vel.x) < 0.1f && abs(m_Vel.y) < 0.1f && !IsGrounded())
+		{
+			if (m_pCollision->CheckPoint(m_Pos.x-26, m_Pos.y-40))
+			{
+				NewPos.x += 1;
+				NewPos.y += 1;
+			}
+			
+			if (m_pCollision->CheckPoint(m_Pos.x+26, m_Pos.y-40))
+			{
+				NewPos.x -= 1;
+				NewPos.y += 1;
+			}
+		}
 	}
 	else
 	{
