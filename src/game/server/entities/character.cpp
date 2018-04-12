@@ -1028,21 +1028,24 @@ void CCharacter::GiveStartWeapon()
 	// dm, tdm, ctf
 	int w = 0;
 	
-	if (frandom() < 0.5f)
-	{
-		m_apWeapon[w++] = GameServer()->NewWeapon(GameServer()->m_pController->GetRandomModularWeapon());
-	}
-	else
+	if (g_Config.m_SvRandomWeapons)
 	{
 		if (frandom() < 0.5f)
-			m_apWeapon[w++] = GameServer()->NewWeapon(GetStaticWeapon(SW_GUN1));
+		{
+			m_apWeapon[w++] = GameServer()->NewWeapon(GameServer()->m_pController->GetRandomModularWeapon());
+		}
 		else
-			m_apWeapon[w++] = GameServer()->NewWeapon(GetStaticWeapon(SW_GUN2));
-		
-		if (frandom() < 0.5f)
-			m_apWeapon[w++] = GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1));
-		else
-			m_apWeapon[w++] = GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE2));
+		{
+			if (frandom() < 0.5f)
+				m_apWeapon[w++] = GameServer()->NewWeapon(GetStaticWeapon(SW_GUN1));
+			else
+				m_apWeapon[w++] = GameServer()->NewWeapon(GetStaticWeapon(SW_GUN2));
+			
+			if (frandom() < 0.5f)
+				m_apWeapon[w++] = GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1));
+			else
+				m_apWeapon[w++] = GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE2));
+		}
 	}
 }
 

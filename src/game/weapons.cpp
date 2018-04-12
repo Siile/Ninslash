@@ -1471,23 +1471,25 @@ float GetWeaponKnockback(int Weapon)
 {
 	if (IsModularWeapon(Weapon))
 	{
+		float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+		
 		int Part1 = GetPart(Weapon, 0);
 		int Part2 = GetPart(Weapon, 1);
 		
 		if (Part1 == 1)
 		{
-			if (Part2 == 1) return 1.5f;
-			if (Part2 == 2) return 2.0f;
-			if (Part2 == 3) return 2.0f;
-			if (Part2 == 4) return 1.0f;
+			if (Part2 == 1) return 1.5f+Charge*1.25f;
+			if (Part2 == 2) return 2.0f+Charge*1.25f;
+			if (Part2 == 3) return 2.0f+Charge*1.25f;
+			if (Part2 == 4) return 1.0f+Charge*1.25f;
 		}
 		
 		if (Part1 == 2)
 		{
-			if (Part2 == 1) return 2.0f;
-			if (Part2 == 2) return 3.0f;
-			if (Part2 == 3) return 2.0f;
-			if (Part2 == 4) return 1.5f;
+			if (Part2 == 1) return 2.0f+Charge*1.25f;
+			if (Part2 == 2) return 3.0f+Charge*1.25f;
+			if (Part2 == 3) return 2.0f+Charge*1.25f;
+			if (Part2 == 4) return 1.5f+Charge*1.25f;
 		}
 		
 		if (Part1 == 3)
@@ -1497,10 +1499,10 @@ float GetWeaponKnockback(int Weapon)
 		
 		if (Part1 == 4)
 		{
-			if (Part2 == 1) return 1.5f;
-			if (Part2 == 2) return 2.0f;
-			if (Part2 == 3) return 2.0f;
-			if (Part2 == 4) return 1.0f;
+			if (Part2 == 1) return 1.5f+Charge*1.25f;
+			if (Part2 == 2) return 2.0f+Charge*1.25f;
+			if (Part2 == 3) return 2.0f+Charge*1.25f;
+			if (Part2 == 4) return 1.0f+Charge*1.25f;
 		}
 	}
 	

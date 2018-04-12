@@ -444,6 +444,7 @@ void CMapGen::GenerateHangables(CGenLayer *pTiles)
 
 void CMapGen::GenerateMine(CGenLayer *pTiles)
 {
+	/*
 	ivec2 p = pTiles->GetPlatform();
 	
 	if (p.x == 0)
@@ -453,6 +454,7 @@ void CMapGen::GenerateMine(CGenLayer *pTiles)
 		ModifTile(p+ivec2(1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_MINE1);
 	else
 		ModifTile(p+ivec2(-1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_MINE2);
+	*/
 }
 
 void CMapGen::GenerateWalker(CGenLayer *pTiles)
@@ -1041,7 +1043,7 @@ void CMapGen::GenerateLevel()
 	w = 2 + rand()%3 + (Level > 15 ? 1 : 0);
 	
 	for (int i = 0; i < w; i++)
-		GenerateWeapon(pTiles, ENTITY_WEAPON_CHAINSAW+rand()%8);
+		GenerateWeapon(pTiles, ENTITY_RANDOM_WEAPON);
 
 	GenerateWeapon(pTiles, ENTITY_KIT);
 	
@@ -1368,7 +1370,7 @@ void CMapGen::GeneratePVPLevel()
 	w = 1 + pTiles->NumPlatforms() / 5.0f;
 	
 	for (int i = 0; i < w; i++)
-		GenerateWeapon(pTiles, ENTITY_WEAPON_CHAINSAW);
+		GenerateWeapon(pTiles, ENTITY_RANDOM_WEAPON);
 	
 	for (int i = 0; i < 3; i++)
 		GenerateWeapon(pTiles, ENTITY_KIT);
