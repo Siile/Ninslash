@@ -235,7 +235,7 @@ bool CGenLayer::AddBackgroundTile(int x, int y)
 	
 	return false;
 }
-
+ 
 void CGenLayer::GenerateMoreForeground()
 {
 	float a1 = 0.02f + frandom()*0.01f;
