@@ -331,7 +331,7 @@ void CWalker::Fire()
 
 		//vec2 Dir = vec2(cosf(Angle), sinf(Angle));
 		
-		GameServer()->CreateSound(m_Pos, aCustomWeapon[W_DROID_WALKER].m_Sound);
+		GameServer()->CreateSound(m_Pos, SOUND_WALKER_FIRE);
 		
 		GameServer()->CreateProjectile(NEUTRAL_BASE, GetDroidWeapon(m_Type), 0, TurretPos+normalize(m_Target*-1)*32.0f, m_Target*-1);
 		GameServer()->CreateProjectile(NEUTRAL_BASE, GetDroidWeapon(m_Type), 0, TurretPos+normalize(m_Target*-1)*32.0f+vec2(m_Dir * 4, -8), m_Target*-1);

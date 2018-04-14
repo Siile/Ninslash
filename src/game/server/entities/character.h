@@ -99,6 +99,7 @@ public:
 	bool AddMine();
 	bool AddKit();
 	
+	void SetArmor(int Armor);
 	void SetHealth(int Health);
 	void RefillHealth();
 
@@ -184,8 +185,6 @@ public:
 	
 	bool PickWeapon(class CWeapon *pWeapon);
 	
-	bool GiveAmmo(int *CustomWeapon, float AmmoFill);
-	
 	void RandomizeInventory();
 	
 	void AutoWeaponChange();
@@ -255,6 +254,7 @@ public:
 	
 	int m_AttackTick;
 	int m_DamageTakenTick;
+	int m_SendInventoryTick;	
 	
 	int m_Kits;
 	
@@ -263,6 +263,7 @@ public:
 	int GetArmor() { return m_Armor; }
 	
 	// inventory
+	void DropItem(int Slot, vec2 Pos);
 	void SwapItem(int Item1, int Item2);
 	void CombineItem(int Item1, int Item2);
 	void TakePart(int Item1, int Slot, int Item2);

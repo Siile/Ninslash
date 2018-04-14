@@ -844,25 +844,37 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 		// mouse release
 		if (m_MouseTrigger && !m_Mouse1 && m_DragItem >= 0)
 		{
-			if (Part)
+			// drop items by dragging the away from the frame
+			if (abs(m_SelectorMouse.x - Pos.x) > Size.x || abs(m_SelectorMouse.y - Pos.y) > Size.y) 
 			{
-				if (m_DragItem != CustomStuff()->m_WeaponSlot)
-					Combine(m_DragItem, CustomStuff()->m_WeaponSlot);
+				Drop(m_DragItem);
 			}
 			else
-			{
-				if (Selected >= 0)
+			{			
+				// item combining not in use
+				/*
+				if (Part)
 				{
-					Swap(m_DragItem, Selected);
-					
-					s_ItemOffset[Selected] = aPos[Selected] - m_SelectorMouse;
-					s_ItemEffectSelect[Selected] = 0.5f;
-					
-					if (m_DragItem != Selected)
-						s_ItemOffset[m_DragItem] = aPos[m_DragItem] - aPos[Selected];
+					if (m_DragItem != CustomStuff()->m_WeaponSlot)
+						Combine(m_DragItem, CustomStuff()->m_WeaponSlot);
 				}
 				else
-					s_ItemOffset[m_DragItem] = aPos[m_DragItem] - m_SelectorMouse;
+				*/
+				{
+					// swap and move items
+					if (Selected >= 0)
+					{
+						Swap(m_DragItem, Selected);
+						
+						s_ItemOffset[Selected] = aPos[Selected] - m_SelectorMouse;
+						s_ItemEffectSelect[Selected] = 0.5f;
+						
+						if (m_DragItem != Selected)
+							s_ItemOffset[m_DragItem] = aPos[m_DragItem] - aPos[Selected];
+					}
+					else
+						s_ItemOffset[m_DragItem] = aPos[m_DragItem] - m_SelectorMouse;
+				}
 			}
 				
 			m_DragItem = -1;
@@ -871,14 +883,12 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 		// weapon part to inventory
 		if (m_MouseTrigger && !m_Mouse1 && m_DragPart >= 0)
 		{
+			/*
 			if (Selected >= 0)
 			{
 				TakePart(CustomStuff()->m_WeaponSlot, m_DragSlot, Selected);
 			}
-			else
-			{
-				
-			}
+			*/
 				
 			m_DragPart = -1;
 			m_DragSlot = -1;
@@ -1128,7 +1138,7 @@ void CInventory::DrawBuildMode()
 	
 	//
 	
-	// building actions
+	// building actions / build
 	if (m_Tab == 1)
 	{
 		// mouse click
@@ -1153,6 +1163,25 @@ void CInventory::DrawBuildMode()
 		}
 	}
 }
+
+
+void CInventory::Drop(int Slot)
+{
+	if (Slot < 0 || Slot >= 12)
+		return;
+	
+	//CustomStuff()->m_aItem[Slot] = 0;
+	vec2 Pos = m_SelectorMouse + m_pClient->m_pCamera->m_Center;
+	
+	CNetMsg_Cl_InventoryAction Msg;
+	Msg.m_Type = INVENTORYACTION_DROP;
+	Msg.m_Slot = Slot;
+	Msg.m_Item1 = int(Pos.x);
+	Msg.m_Item2 = int(Pos.y);
+	Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+}
+
+
 
 
 void CInventory::Swap(int Item1, int Item2)

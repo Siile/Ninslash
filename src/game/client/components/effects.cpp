@@ -1178,17 +1178,33 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 				
 			if (GetDroidType(Weapon) == DROIDTYPE_STAR)
 			{
-				CSinglespark b;
-				b.SetDefault();
-				b.m_Pos = Pos;
-				b.m_Size = 84.0f * GetProjectileSize(Weapon);
-				b.m_LifeSpan = 0.35f;
-				b.m_Rotspeed = 0;
-				b.m_Vel = vec2(0, 0);
-				b.m_Rot = 0;
-				
-				b.m_Color = vec4(0.0f, 1.0f, 1.0f, 1.0f);
-				m_pClient->m_pSpark->Add(CSpark::GROUP_AREA1, &b);
+				if (g_Config.m_GfxShaders)
+				{
+					CSinglespark b;
+					b.SetDefault();
+					b.m_Pos = Pos;
+					b.m_Size = 84.0f * GetProjectileSize(Weapon);
+					b.m_LifeSpan = 0.35f;
+					b.m_Rotspeed = 0;
+					b.m_Vel = vec2(0, 0);
+					b.m_Rot = 0;
+					
+					b.m_Color = vec4(0.0f, 1.0f, 1.0f, 1.0f);
+					m_pClient->m_pSpark->Add(CSpark::GROUP_AREA1, &b);
+				}
+				else
+				{
+					CParticle p;
+					p.SetDefault();
+					p.m_Spr = SPRITE_ELECTRIC1;
+					p.m_Frames = 8;
+					p.m_Pos = Pos;
+					p.m_LifeSpan = 0.20f;
+					p.m_StartSize = 70 * GetProjectileSize(Weapon);
+					p.m_EndSize = p.m_StartSize;
+					p.m_Rot = frandom()*pi*2;
+					m_pClient->m_pParticles->Add(CParticles::GROUP_ELECTRIC, &p);
+				}
 			}
 		}
 		
@@ -1320,20 +1336,38 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 			{
 				Electrospark(Pos, 96);
 				Electrospark(Pos, 96);
-				for (int i = 0; i < 2; i++)
+				
+				if (g_Config.m_GfxShaders)
 				{
-					CSinglespark b;
-					b.SetDefault();
-					b.m_Pos = Pos;
-					b.m_Size = 256.0f+i*128;
-					b.m_LifeSpan = 0.30f-i*0.05f;
-					b.m_Rotspeed = 0;
-					b.m_Vel = vec2(0, 0);
-					b.m_Rot = 0;
-					
-					b.m_Color = vec4(0.0f, 0.5f+i*0.5f, 1.0f, 1.0f);
-					m_pClient->m_pSpark->Add(CSpark::GROUP_AREA1, &b);
+					for (int i = 0; i < 2; i++)
+					{
+						CSinglespark b;
+						b.SetDefault();
+						b.m_Pos = Pos;
+						b.m_Size = 256.0f+i*128;
+						b.m_LifeSpan = 0.30f-i*0.05f;
+						b.m_Rotspeed = 0;
+						b.m_Vel = vec2(0, 0);
+						b.m_Rot = 0;
+						
+						b.m_Color = vec4(0.0f, 0.5f+i*0.5f, 1.0f, 1.0f);
+						m_pClient->m_pSpark->Add(CSpark::GROUP_AREA1, &b);
+					}
 				}
+				else
+				{
+					CParticle p;
+					p.SetDefault();
+					p.m_Spr = SPRITE_ELECTRIC1;
+					p.m_Frames = 8;
+					p.m_Pos = Pos;
+					p.m_LifeSpan = 0.20f;
+					p.m_StartSize = 160;
+					p.m_EndSize = p.m_StartSize;
+					p.m_Rot = frandom()*pi*2;
+					m_pClient->m_pParticles->Add(CParticles::GROUP_ELECTRIC, &p);
+				}
+				
 			} break;
 			
 			case SW_BOUNCER:
@@ -1449,17 +1483,34 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 		
 		Electrospark(Pos, 64 * GetProjectileSize(Weapon));
 		
-		CSinglespark b;
-		b.SetDefault();
-		b.m_Pos = Pos;
-		b.m_Size = 84.0f * GetProjectileSize(Weapon);
-		b.m_LifeSpan = 0.35f;
-		b.m_Rotspeed = 0;
-		b.m_Vel = vec2(0, 0);
-		b.m_Rot = 0;
 		
-		b.m_Color = vec4(0.0f, 1.0f, 1.0f, 1.0f);
-		m_pClient->m_pSpark->Add(CSpark::GROUP_AREA1, &b);
+		if (g_Config.m_GfxShaders)
+		{
+			CSinglespark b;
+			b.SetDefault();
+			b.m_Pos = Pos;
+			b.m_Size = 84.0f * GetProjectileSize(Weapon);
+			b.m_LifeSpan = 0.35f;
+			b.m_Rotspeed = 0;
+			b.m_Vel = vec2(0, 0);
+			b.m_Rot = 0;
+			
+			b.m_Color = vec4(0.0f, 1.0f, 1.0f, 1.0f);
+			m_pClient->m_pSpark->Add(CSpark::GROUP_AREA1, &b);
+		}
+		else
+		{
+			CParticle p;
+			p.SetDefault();
+			p.m_Spr = SPRITE_ELECTRIC1;
+			p.m_Frames = 8;
+			p.m_Pos = Pos;
+			p.m_LifeSpan = 0.20f;
+			p.m_StartSize = 70 * GetProjectileSize(Weapon);
+			p.m_EndSize = p.m_StartSize;
+			p.m_Rot = frandom()*pi*2;
+			m_pClient->m_pParticles->Add(CParticles::GROUP_ELECTRIC, &p);
+		}
 		
 		/*
 		CParticle p;

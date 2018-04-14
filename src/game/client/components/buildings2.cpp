@@ -62,8 +62,8 @@ void CBuildings2::RenderLightningWall(const struct CNetObj_Building *pCurrent)
 	Graphics()->BlendNormal();
 	Graphics()->TextureSet(-1);
 	Graphics()->QuadsBegin();
-	
 	Graphics()->SetColor(0.5f, 0.5f, 1, 1.0f);
+		
 	//Graphics()->SetColor(0.3f + frandom()*0.4f, 0.3f + frandom()*0.4f, 1, 1.0f);
 	int Steps = 2 + length(Pos - From) / 60;
 	vec2 Step = (Pos - From) / Steps;

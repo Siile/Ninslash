@@ -1445,7 +1445,7 @@ float GetWeaponFireRate(int Weapon)
 		case 1: v = 280; break;
 		case 2: v = 490; break;
 		case 3: v = 370; break;
-		case 4: v = 500; v -= Charge*50.0f; break;
+		case 4: v = 500; v -= Charge*60.0f; break;
 		case 5: v = 400; break;
 		default: v = 300; break;
 	};
@@ -1454,7 +1454,7 @@ float GetWeaponFireRate(int Weapon)
 	{
 		case 1: v -= Charge*80.0f; break;
 		case 2: v -= Charge*90.0f; v *= 1.1f; break;
-		case 3: v -= Charge*80.0f; v *= 1.2f; break;
+		case 3: v -= Charge*90.0f; v *= 1.2f; break;
 		case 4: v -= Charge*80.0f; v *= 0.60f; break;
 		case 5: v -= Charge*50.0f; v *= 0.65f; break;
 		case 6: v -= Charge*35.0f; v *= 1.0f; break;
@@ -1471,23 +1471,25 @@ float GetWeaponKnockback(int Weapon)
 {
 	if (IsModularWeapon(Weapon))
 	{
+		float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+		
 		int Part1 = GetPart(Weapon, 0);
 		int Part2 = GetPart(Weapon, 1);
 		
 		if (Part1 == 1)
 		{
-			if (Part2 == 1) return 1.5f;
-			if (Part2 == 2) return 2.0f;
-			if (Part2 == 3) return 2.0f;
-			if (Part2 == 4) return 1.0f;
+			if (Part2 == 1) return 1.5f+Charge*1.25f;
+			if (Part2 == 2) return 2.0f+Charge*1.25f;
+			if (Part2 == 3) return 2.0f+Charge*1.25f;
+			if (Part2 == 4) return 1.0f+Charge*1.25f;
 		}
 		
 		if (Part1 == 2)
 		{
-			if (Part2 == 1) return 2.0f;
-			if (Part2 == 2) return 3.0f;
-			if (Part2 == 3) return 2.0f;
-			if (Part2 == 4) return 1.5f;
+			if (Part2 == 1) return 2.0f+Charge*1.25f;
+			if (Part2 == 2) return 3.0f+Charge*1.25f;
+			if (Part2 == 3) return 2.0f+Charge*1.25f;
+			if (Part2 == 4) return 1.5f+Charge*1.25f;
 		}
 		
 		if (Part1 == 3)
@@ -1497,10 +1499,10 @@ float GetWeaponKnockback(int Weapon)
 		
 		if (Part1 == 4)
 		{
-			if (Part2 == 1) return 1.5f;
-			if (Part2 == 2) return 2.0f;
-			if (Part2 == 3) return 2.0f;
-			if (Part2 == 4) return 1.0f;
+			if (Part2 == 1) return 1.5f+Charge*1.25f;
+			if (Part2 == 2) return 2.0f+Charge*1.25f;
+			if (Part2 == 3) return 2.0f+Charge*1.25f;
+			if (Part2 == 4) return 1.0f+Charge*1.25f;
 		}
 	}
 	

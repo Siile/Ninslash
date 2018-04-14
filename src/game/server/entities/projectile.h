@@ -39,7 +39,6 @@ public:
 private:
 	vec2 m_Direction;
 	vec2 m_Vel2;
-	int m_PowerLevel;
 	int m_LifeSpan;
 	int m_Owner;
 	int m_Weapon;

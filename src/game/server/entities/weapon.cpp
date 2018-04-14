@@ -579,7 +579,7 @@ void CWeapon::Move()
 		
 	if (Grounded)
 	{
-		m_Vel.x = (m_Vel.x + OnForceTile) * 0.925f;
+		m_Vel.x = (m_Vel.x + OnForceTile*0.7f) * 0.925f;
 		//m_Vel.x *= 0.8f;
 		m_AngleForce += (m_Vel.x - m_AngleForce) / 2.0f;
 	}

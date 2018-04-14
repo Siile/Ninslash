@@ -106,6 +106,8 @@ protected:
 	void Panic();
 	int m_PanicTick;
 	
+	void FindWeapon();
+	
 	void ClearEmotions();
 	void HandleEmotions();
 	

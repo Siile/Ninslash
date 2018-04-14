@@ -72,7 +72,7 @@ vec4 Deathray(vec4 c)
 
 vec4 Glow(vec4 c)
 {
-	float a = (gl_TexCoord[0].x*250.0f-time)*0.1f;
+	float a = (gl_TexCoord[0].x*250.0f-time)*(0.1f-weaponcharge*0.01f);
 	float v = max(0.0f, sin(a)*sin(a)*sin(a)*1.5f-0.5f);
 	
 	c.g += v * 0.25f*(-weaponcharge);

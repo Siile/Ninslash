@@ -1741,41 +1741,7 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 			Alpha2 = PlayerInfo->m_MeleeAnimState * 0.2f;
 		
 		SetShadersForWeapon(PlayerInfo);
-		RenderWeapon(PlayerInfo->m_Weapon, p + HandPos, vec2(cos(WAngle), sin(WAngle))*WeaponDir, WEAPON_GAME_SIZE, true, Flags, Alpha2);
-		//RenderWeapon(PlayerInfo->m_Weapon, p, GetDirection(((WeaponAngle)*WeaponDir+pi/2)*(180/pi)*pi*2), WEAPON_GAME_SIZE, true, Flags);
-		
-		// render sword
-		/*
-		int Sprite = SPRITE_SWORD1_1 + int(PlayerInfo->m_MeleeAnimState);
-			
-		if (PlayerInfo->m_WeaponPowerLevel == 1)
-			Sprite = SPRITE_SWORD2_1 + int(PlayerInfo->m_MeleeAnimState);
-		else if (PlayerInfo->m_WeaponPowerLevel > 1)
-			Sprite = SPRITE_SWORD3_1 + int(PlayerInfo->m_MeleeAnimState);
-			
-		if (PlayerInfo->m_Weapon == WEAPON_TOOL)
-		{
-			Sprite = SPRITE_WEAPON_TOOL_BODY;
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
-		}
-		else if (PlayerInfo->m_Weapon == WEAPON_HAMMER)
-		{
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_SWORD].m_Id);
-		}
-		
-		Graphics()->QuadsBegin();
-		Graphics()->QuadsSetRotation(WeaponAngle*WeaponDir);
-		
-		SelectSprite(Sprite, (FlipY ? SPRITE_FLAG_FLIP_Y : 0) + (WeaponDir < 0 ? SPRITE_FLAG_FLIP_X : 0));
-		IGraphics::CQuadItem QuadItem(WeaponPos.x + Offset.x, WeaponPos.y + Offset.y, Size.x, Size.y);
-		Graphics()->QuadsDraw(&QuadItem, 1);
-		Graphics()->QuadsEnd();
-		*/
-		
-		
-		
-		// render hand
-		//float HandBaseSize = 16.0f;		
+		RenderWeapon(PlayerInfo->m_Weapon, p + HandPos, vec2(cos(WAngle), sin(WAngle))*WeaponDir, WEAPON_GAME_SIZE, true, Flags, Alpha2);	
 		
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HANDS].m_Id);
 		Graphics()->QuadsBegin();
@@ -1906,12 +1872,13 @@ void CRenderTools::RenderScythe(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 	int Sprite = SPRITE_SCYTHE1+PlayerInfo->MeleeFrame();
 		
 	Graphics()->QuadsBegin();
-	
+	/*
 	if (PlayerInfo->m_WeaponPowerLevel == 0)
 		Graphics()->SetColor(0.1f, 0.1f, 1, 1);
 	else if (PlayerInfo->m_WeaponPowerLevel == 1)
 		Graphics()->SetColor(1.0f, 0.1f, 0.1f, 1);
 	else
+		*/
 		Graphics()->SetColor(0.1f, 1.0f, 0.1f, 1);
 	
 	Graphics()->QuadsSetRotation(WeaponAngle);

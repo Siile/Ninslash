@@ -85,7 +85,7 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	// force some settings
 	g_Config.m_SvRandomWeapons = 0;
 	g_Config.m_SvOneHitKill = 0;
-	g_Config.m_SvForceWeapon = 0;
+	//g_Config.m_SvForceWeapon = 0;
 	g_Config.m_SvWarmup = 0;
 	g_Config.m_SvTimelimit = 0;
 	g_Config.m_SvScorelimit = 0;

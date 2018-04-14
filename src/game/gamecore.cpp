@@ -671,6 +671,7 @@ void CCharacterCore::Tick(bool UseInput)
 			m_Vel.y = 0.0f;
 		}
 		
+		// hand turbo boost
 		if(m_Input.m_Hook && m_JetpackPower > 0 && !IsInFluid())
 		{
 			if ((TargetDirection.x > 0 && m_Vel.x < HandJetpackControlSpeed + ForceTileStatus) || (TargetDirection.x < 0 && m_Vel.x > -HandJetpackControlSpeed + ForceTileStatus))
@@ -689,7 +690,7 @@ void CCharacterCore::Tick(bool UseInput)
 			m_HandJetpack = true;
 		}
 	}
-
+	
 	m_Sliding = false;
 	
 	if(slope != 0)
@@ -698,8 +699,6 @@ void CCharacterCore::Tick(bool UseInput)
 	if( (m_Vel.x > SlideActivationSpeed && slope == 1) || (m_Vel.x < -SlideActivationSpeed && slope == -1)) {
 		m_Sliding = true;
 	}
-	
-	
 
 	if(slope != 0 && m_Direction == slope && !m_Sliding)
 		MaxSpeed = SlopeDescendingControlSpeed;
@@ -761,21 +760,6 @@ void CCharacterCore::Tick(bool UseInput)
 		}
 	}
 	
-	if (IsOnForceTile() == -1)
-	{
-	//	m_Vel.x -= 0.3f;
-	}
-	
-	/*
-	// add the speed modification according to players wanted direction
-	if(m_Direction < 0)
-		m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, -Accel);
-	if(m_Direction > 0)
-		m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, Accel);
-	if(m_Direction == 0)
-		m_Vel.x *= Friction;
-	*/
-
 	
 	// handle jumping
 	// 1 bit = to keep track if a jump has been made on this input
@@ -835,7 +819,7 @@ void CCharacterCore::Tick(bool UseInput)
 	vec2 Dir = GetDirection(m_Angle);
 	
 	// roll dash
-	if (m_Roll > 4 && !m_DashTimer && m_Input.m_Jump && ((m_Vel.x < 0) == (Dir.x < 0)) && Dir.y < 0)
+	if (m_Roll > 4 && !m_DashTimer && m_Input.m_Jump && ((m_Vel.x < 0) == (Dir.x < 0)) && Dir.y < 0.25f)
 	{
 		/*
 			m_Slide = 5;
@@ -977,7 +961,7 @@ void CCharacterCore::Tick(bool UseInput)
 
 	if (m_Action == COREACTION_SLIDEKICK)
 	{
-		if (m_ActionState == 1 && abs(m_Vel.x) < 20.0f)
+		if (m_ActionState == 1 && abs(m_Vel.x) < 22.0f)
 			m_Vel.x *= 1.05f;
 		
 		if (m_ActionState < 0)
@@ -1090,7 +1074,7 @@ void CCharacterCore::Slide()
 {
 	float PhysSize = 28.0f;
 	
-	//if (IsGrounded() && m_Input.m_Down && m_Slide == 0 && m_Roll == 0)
+	// start sliding
 	if (m_Input.m_Down && m_Slide == 0 && m_Roll == 0)
 	{
 		vec2 TargetDirection = normalize(vec2(m_Input.m_TargetX, m_Input.m_TargetY));
@@ -1107,8 +1091,6 @@ void CCharacterCore::Slide()
 			else if (TargetDirection.x < 0 && abs(m_Vel.x) < 4.0f)
 				m_Vel.x = -4;
 		}
-		
-		//m_Vel.x *= 1.1f;
 	}
 
 	if (!m_Input.m_Down && m_Slide > 0)
@@ -1125,15 +1107,15 @@ void CCharacterCore::Slide()
 		{
 			//if (IsGrounded())
 			{
-				if (IsGrounded())
+				if (IsGrounded() && (!m_Input.m_Hook || ((IsOnForceTile() < 0 && m_Vel.x > 0) || (IsOnForceTile() > 0 && m_Vel.x < 0))))
 					m_Vel.x *= 0.98f;
 			
-				if (m_Vel.x < -3.5f && !m_pCollision->CheckPoint(m_Pos.x-(PhysSize+32), m_Pos.y+PhysSize/2))
+				if (m_Vel.x < -3.5f)// && !m_pCollision->CheckPoint(m_Pos.x-(PhysSize+32), m_Pos.y+PhysSize/2))
 				{
 					m_LockDirection = -2;
 					m_Anim = -3;
 				}
-				else if (m_Vel.x > 3.5f && !m_pCollision->CheckPoint(m_Pos.x+(PhysSize+32), m_Pos.y+PhysSize/2))
+				else if (m_Vel.x > 3.5f)// && !m_pCollision->CheckPoint(m_Pos.x+(PhysSize+32), m_Pos.y+PhysSize/2))
 				{
 					m_LockDirection = 2;
 					m_Anim = 3;
@@ -1209,6 +1191,31 @@ void CCharacterCore::Move()
 		NewPos.y -= 18;
 		m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(28.0f, 64.0f), 0, !m_Sliding);
 		NewPos.y += 18;
+		
+		// unstuck jumpkick
+		if (!m_Input.m_Hook && abs(m_Vel.x + m_Vel.y) < 0.1f)
+		{
+			int Top = m_pCollision->CheckPoint(m_Pos.x, m_Pos.y-80);
+			int Bot = m_pCollision->CheckPoint(m_Pos.x, m_Pos.y+60);
+			
+			if (Top && !Bot)
+			{
+				int Left = m_pCollision->CheckPoint(m_Pos.x-26, m_Pos.y-40);
+				int Right = m_pCollision->CheckPoint(m_Pos.x+26, m_Pos.y-40);
+				
+				if (Left && !Right)
+				{
+					NewPos.x += 1;
+					NewPos.y += 1;
+				}
+				
+				if (Right && !Left)
+				{
+					NewPos.x -= 1;
+					NewPos.y += 1;
+				}
+			}
+		}
 	}
 	else
 	{

@@ -38,8 +38,6 @@ void CSuperexplosion::Tick()
 		if (m_Life == 0)
 			PowerLevel = 1;
 		
-		GameServer()->CreateElectricExplosion(m_Pos, m_Player, m_Weapon, PowerLevel, false, m_IsTurret);
-		
 		m_Life++;
 		
 		if (m_Life > m_MaxLife)

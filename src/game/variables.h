@@ -109,11 +109,10 @@ MACRO_CONFIG_INT(SvAbilities, sv_abilities, 0, 0, 1, CFGFLAG_SERVER, "Enable cla
 MACRO_CONFIG_INT(SvPickupDrops, sv_pickupdrops, 1, 0, 1, CFGFLAG_SERVER, "Pickup drops")
 MACRO_CONFIG_INT(SvVanillaPickups, sv_vanillapickups, 1, 0, 1, CFGFLAG_SERVER, "Enable vanilla's pickups")
 MACRO_CONFIG_INT(SvWeaponDrops, sv_weapondrops, 1, 0, 1, CFGFLAG_SERVER, "Enable weapon drops")
-MACRO_CONFIG_INT(SvPreferredTeamSize, sv_preferredteamsize, 5, 0, 32, CFGFLAG_SERVER, "Preferred team size")
+MACRO_CONFIG_INT(SvNumBots, sv_bots, 4, 0, 30, CFGFLAG_SERVER, "Max number of bots")
+MACRO_CONFIG_INT(SvBotLevel, sv_botlevel, 6, 1, 30, CFGFLAG_SERVER, "AI level of bots")
 MACRO_CONFIG_INT(SvUnlimitedTurbo, sv_unlimited_turbo, 0, 0, 1, CFGFLAG_SERVER, "Unlimited turbo")
-MACRO_CONFIG_INT(SvRandomBuff, sv_random_buff, 0, 0, 1, CFGFLAG_SERVER, "Spawn with a random buff")
 MACRO_CONFIG_INT(SvOneHitKill, sv_one_hit_kill, 0, 0, 1, CFGFLAG_SERVER, "One hit kills")
-MACRO_CONFIG_INT(SvForceWeapon, sv_force_weapon, 0, 0, 9, CFGFLAG_SERVER, "The same and only the same weapon for all")
 MACRO_CONFIG_INT(SvSelfKillPenalty, sv_selfkillpenalty, 1, 0, 1, CFGFLAG_SERVER, "Penalty for self kills")
 
 MACRO_CONFIG_INT(SvSpectatorUpdateTime, sv_spectatorupdatetime, 5, 1, 20, CFGFLAG_SERVER, "Time between spectator view changes to spectators")

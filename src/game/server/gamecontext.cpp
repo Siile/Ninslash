@@ -481,14 +481,6 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int Charge, vec
 	
 	int ShotSpread = GetShotSpread(Weapon);
 	
-	/*
-	if (Part1 == 1)
-	{
-		ShotSpread += 2;
-		BulletSpread += 0.05f;
-	}
-	*/
-	
 	// laser pistol
 	if (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_GUN2)
 	{
@@ -545,83 +537,6 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int Charge, vec
 
 	if (DamageOwner >= 0 && DamageOwner < MAX_CLIENTS)
 		Server()->SendMsg(&Msg, 0, DamageOwner);
-	
-	/*
-	if (Weapon == WEAPON_LASER)
-	{
-		Dmg += PowerLevel*0.35f;
-		float a = GetAngle(Direction);
-		a += (frandom()-frandom())*aCustomWeapon[Weapon].m_BulletSpread;
-		new CLaser(&m_World, Pos, vec2(cosf(a), sinf(a)), Tuning()->m_LaserReach, DamageOwner, aCustomWeapon[Weapon].m_Damage * Dmg, PowerLevel);
-
-		return;
-	}
-	
-	if (Weapon == W_SWORD)
-		Dmg *= 0.3f;
-		
-	switch (Weapon)
-	{
-	case WEAPON_ELECTRIC:
-		Explosion = EXPLOSION_ELECTRIC;
-		HitSound = SOUND_LASER_FIRE;
-		break;
-		
-	case WEAPON_GRENADE:
-		Explosion = EXPLOSION_EXPLOSION;
-		HitSound = SOUND_GRENADE_EXPLODE;
-		break;
-		
-	case WEAPON_FLAMER:
-		Explosion = EXPLOSION_FLAME;
-		HitSound = SOUND_GRENADE_EXPLODE;
-		break;
-		
-		
-	default:;
-	};
-	
-	int ShotSpread = aCustomWeapon[Weapon].m_ShotSpread;
-	
-	if (Weapon == WEAPON_SHOTGUN && PowerLevel > 0)
-		ShotSpread += 2;
-
-	CMsgPacker Msg(NETMSGTYPE_SV_EXTRAPROJECTILE);
-	Msg.AddInt(ShotSpread);
-
-	for (int i = 0; i < ShotSpread; i++)
-	{
-		float Angle = GetAngle(Direction);
-		
-		Angle -= (ShotSpread-1)/2.0f * pi/180 * 4;
-		Angle += i * pi/180 * 4;
-		Angle += (frandom()-frandom())*aCustomWeapon[Weapon].m_BulletSpread;
-
-		CProjectile *pProj = new CProjectile(&m_World,
-			Weapon,
-			DamageOwner,
-			Pos,
-			vec2(cosf(Angle), sinf(Angle)),
-			(int)(Server()->TickSpeed()*aCustomWeapon[Weapon].m_BulletLife),
-			aCustomWeapon[Weapon].m_Damage * Dmg,
-			Explosion,
-			aCustomWeapon[Weapon].m_Knockback,
-			HitSound);
-			
-		pProj->m_OwnerBuilding = OwnerBuilding;
-		pProj->SetPowerLevel(PowerLevel);
-
-		// pack the Projectile and send it to the client Directly
-		CNetObj_Projectile p;
-		pProj->FillInfo(&p);
-
-		for(unsigned i = 0; i < sizeof(CNetObj_Projectile)/sizeof(int); i++)
-			Msg.AddInt(((int *)&p)[i]);
-	}
-
-	if (DamageOwner >= 0 && DamageOwner < MAX_CLIENTS)
-		Server()->SendMsg(&Msg, 0, DamageOwner);
-	*/
 }
 
 
@@ -753,201 +668,6 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon)
 }
 
 
-void CGameContext::CreateMineExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage)
-{
-	/*
-	CreateEffect(FX_MINE, Pos);
-	CreateSound(Pos, SOUND_GRENADE_EXPLODE);
-
-	if (!NoDamage)
-	{
-		// deal damage
-		CCharacter *apEnts[MAX_CLIENTS];
-		float Radius = 60.0f;
-		float InnerRadius = 30.0f;
-		int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
-		for(int i = 0; i < Num; i++)
-		{
-			vec2 Diff = apEnts[i]->m_Pos - Pos;
-			vec2 ForceDir(0,1);
-			float l = length(Diff);
-			if(l)
-				ForceDir = normalize(Diff);
-			l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
-			float Dmg = MineExplosionDmg * l;
-						
-			if((int)Dmg && Dmg > 0.0f)
-				apEnts[i]->TakeDamage(ForceDir*Dmg*0.2f, (int)Dmg, Owner, Weapon, vec2(0, 0));
-		}
-		
-		// buildings
-		{
-			CBuilding *apBuildings[9];
-			Num = m_World.FindEntities(Pos, Radius, (CEntity**)apBuildings, 9, CGameWorld::ENTTYPE_BUILDING);
-
-			for(int i = 0; i < Num; i++)
-			{
-				vec2 Diff = apBuildings[i]->m_Pos - Pos;
-				float l = length(Diff);
-				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
-				float Dmg = MineExplosionDmg * l;
-							
-				if((int)Dmg && Dmg > 0.0f)
-					apBuildings[i]->TakeDamage((int)Dmg, Owner, Weapon);
-			}
-		}
-	}
-	*/
-}
-
-
-void CGameContext::CreateElectromineExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage)
-{
-	/*
-	//CreateEffect(FX_ELECTRIC, Pos);
-	CreateEffect(FX_ELECTROMINE, Pos);
-	
-	if (!NoDamage)
-	{
-		float Radius = 80.0f;
-		float InnerRadius = 40.0f;
-		
-		// deal damage
-		{
-			CCharacter *apEnts[MAX_CLIENTS];
-			int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
-			for(int i = 0; i < Num; i++)
-			{
-				vec2 Diff = apEnts[i]->m_Pos - Pos;
-				vec2 ForceDir(0,1);
-				float l = length(Diff);
-				if(l)
-					ForceDir = normalize(Diff);
-				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
-				float Dmg = 15 * l;
-							
-				if((int)Dmg && Dmg > 0.0f)
-				{
-					CreateEffect(FX_ELECTROHIT, (Pos+apEnts[i]->m_Pos)/2.0f);
-					apEnts[i]->TakeDamage(ForceDir*0.1f, (int)Dmg, Owner, Weapon, vec2(0, 0), DAMAGETYPE_ELECTRIC);
-					//apEnts[i]->SetAflame(0.5f+Dmg*0.5f, Owner, Weapon);
-				}
-			}
-		}
-		
-		// monsters
-		{
-			CDroid *apMonsters[9];
-			int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apMonsters, 9, CGameWorld::ENTTYPE_DROID);
-
-			for(int i = 0; i < Num; i++)
-			{
-				if (apMonsters[i]->m_Health <= 0)
-					continue;
-				
-				vec2 Diff = apMonsters[i]->m_Pos - Pos;
-				vec2 ForceDir(0,1);
-				float l = length(Diff);
-				if(l)
-					ForceDir = normalize(Diff);
-				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
-				float Dmg = 24 * l;
-							
-				if((int)Dmg && Dmg > 0.0f)
-				{
-					CreateEffect(FX_ELECTROHIT, (Pos+apMonsters[i]->m_Pos)/2.0f);
-					apMonsters[i]->TakeDamage(ForceDir*0.1f, (int)Dmg, Owner, vec2(0, 0), DAMAGETYPE_ELECTRIC);
-				}
-			}
-		}
-	}
-	*/
-}
-
-
-void CGameContext::CreateFlameExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamage, bool IsTurret)
-{
-	/*
-	// create the event
-	CNetEvent_FlameExplosion *pEvent = (CNetEvent_FlameExplosion *)m_Events.Create(NETEVENTTYPE_FLAMEEXPLOSION, sizeof(CNetEvent_FlameExplosion));
-	if(pEvent)
-	{
-		pEvent->m_X = (int)Pos.x;
-		pEvent->m_Y = (int)Pos.y;
-	}
-
-	if (!NoDamage)
-	{
-		float Radius = 70.0f;
-		float InnerRadius = 30.0f;
-			
-		// deal damage
-		{
-			CCharacter *apEnts[MAX_CLIENTS];
-			int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
-			for(int i = 0; i < Num; i++)
-			{
-				vec2 Diff = apEnts[i]->m_Pos - Pos;
-				vec2 ForceDir(0,1);
-				float l = length(Diff);
-				if(l)
-					ForceDir = normalize(Diff);
-				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
-				float Dmg = 7 * l;
-
-				if((int)Dmg && Dmg > 0.0f)
-				{
-					apEnts[i]->TakeDamage(ForceDir*Dmg*0.9f, (int)Dmg, Owner, Weapon, vec2(0, 0), DAMAGETYPE_FLAME, IsTurret);
-					apEnts[i]->SetAflame(0.65f+Dmg*0.4f, Owner, Weapon);
-				}
-			}
-		}
-		
-		// buildings
-		{
-			CBuilding *apBuildings[9];
-			int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apBuildings, 9, CGameWorld::ENTTYPE_BUILDING);
-
-			for(int i = 0; i < Num; i++)
-			{
-				vec2 Diff = apBuildings[i]->m_Pos - Pos;
-				float l = length(Diff);
-				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
-				float Dmg = 14 * l;
-							
-				if((int)Dmg && Dmg > 0.0f)
-					apBuildings[i]->TakeDamage((int)Dmg, Owner, Weapon);
-			}
-		}
-		
-		// monsters
-		{
-			CDroid *apMonsters[9];
-			int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apMonsters, 9, CGameWorld::ENTTYPE_DROID);
-
-			for(int i = 0; i < Num; i++)
-			{
-				if (apMonsters[i]->m_Health <= 0)
-					continue;
-				
-				vec2 Diff = apMonsters[i]->m_Pos - Pos;
-				vec2 ForceDir(0,1);
-				float l = length(Diff);
-				if(l)
-					ForceDir = normalize(Diff);
-				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
-				float Dmg = 24 * l;
-							
-				if((int)Dmg && Dmg > 0.0f)
-				{
-					apMonsters[i]->TakeDamage(ForceDir*0.1f, (int)Dmg, Owner, vec2(0, 0));
-				}
-			}
-		}
-	}
-	*/
-}
-
 
 void CGameContext::SendEffect(int ClientID, int EffectID)
 {
@@ -959,128 +679,6 @@ void CGameContext::SendEffect(int ClientID, int EffectID)
 	}
 }
 
-void CGameContext::CreateElectricExplosion(vec2 Pos, int Owner, int Weapon, int PowerLevel, bool NoDamage, bool IsTurret)
-{
-	/*
-	if (PowerLevel > 1)
-	{
-		new CSuperexplosion(&m_World, Pos, Owner, Weapon, 1, 0, IsTurret);
-		return;
-	}
-	
-	float Dmg2 = 1.0f;
-	
-	if (m_pController->IsCoop() && IsBot(Owner))
-		Dmg2 = 0.6f;
-	
-	// create the event
-	if (PowerLevel > 0)
-		CreateEffect(FX_SUPERELECTRIC, Pos);
-	else
-		CreateEffect(FX_ELECTRIC, Pos);
-	
-	if (!NoDamage)
-	{
-		float Radius = 100.0f;
-		float InnerRadius = 50.0f;
-		
-		if (PowerLevel > 0)
-		{
-			InnerRadius *= 1.4f;
-			Radius *= 1.4f;
-			Dmg2 *= 1.3f;
-		}
-		
-		// deal damage
-		{
-			CCharacter *apEnts[MAX_CLIENTS];
-			int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
-			for(int i = 0; i < Num; i++)
-			{
-				vec2 Diff = apEnts[i]->m_Pos - Pos;
-				vec2 ForceDir(0,1);
-				float l = length(Diff);
-				if(l)
-					ForceDir = normalize(Diff);
-				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
-				float Dmg = 24 * l;
-							
-				if((int)Dmg && Dmg > 0.0f)
-				{
-					CreateEffect(FX_ELECTROHIT, (Pos+apEnts[i]->m_Pos)/2.0f);
-					apEnts[i]->TakeDamage(ForceDir*0.1f, (int)Dmg*Dmg2, Owner, Weapon, vec2(0, 0), DAMAGETYPE_ELECTRIC, IsTurret);
-					//apEnts[i]->SetAflame(0.5f+Dmg*0.5f, Owner, Weapon);
-				}
-			}
-		}
-		
-		// buildings
-		{
-			CBuilding *apBuildings[9];
-			int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apBuildings, 9, CGameWorld::ENTTYPE_BUILDING);
-
-			for(int i = 0; i < Num; i++)
-			{
-				// skip own buildings in co-op
-				if (m_pController->IsCoop() && (apBuildings[i]->m_Type == BUILDING_TURRET || apBuildings[i]->m_Type == BUILDING_TESLACOIL || apBuildings[i]->m_Type == BUILDING_REACTOR))
-					if (Owner >= 0 && Owner < MAX_CLIENTS)
-					{
-						CPlayer *pPlayer = m_apPlayers[Owner];
-						if(pPlayer && !pPlayer->m_IsBot)
-							continue;
-					}
-				
-				vec2 Diff = apBuildings[i]->m_Pos - Pos;
-				float l = length(Diff);
-				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
-				float Dmg = 28 * l;
-				
-				if((int)Dmg && Dmg > 0.0f)
-					apBuildings[i]->TakeDamage((int)Dmg*Dmg2, Owner, Weapon);
-			}
-		}
-		
-		// monsters
-		{
-			CDroid *apMonsters[9];
-			int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apMonsters, 9, CGameWorld::ENTTYPE_DROID);
-
-			for(int i = 0; i < Num; i++)
-			{
-				if (apMonsters[i]->m_Health <= 0)
-					continue;
-				
-				vec2 Diff = apMonsters[i]->m_Pos - Pos;
-				vec2 ForceDir(0,1);
-				float l = length(Diff);
-				if(l)
-					ForceDir = normalize(Diff);
-				l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
-				float Dmg = 25 * l;
-							
-				if((int)Dmg && Dmg > 0.0f)
-				{
-					CreateEffect(FX_ELECTROHIT, (Pos+apMonsters[i]->m_Pos)/2.0f);
-					apMonsters[i]->TakeDamage(ForceDir*0.1f, (int)Dmg*Dmg2*1.3f, Owner, vec2(0, 0), DAMAGETYPE_ELECTRIC);
-				}
-			}
-		}
-	}
-	*/
-}
-
-
-/*
-void create_smoke(vec2 Pos)
-{
-	// create the event
-	EV_EXPLOSION *pEvent = (EV_EXPLOSION *)events.create(EVENT_SMOKE, sizeof(EV_EXPLOSION));
-	if(pEvent)
-	{
-		pEvent->x = (int)Pos.x;
-		pEvent->y = (int)Pos.y;
-	}
-}*/
 
 void CGameContext::CreatePlayerSpawn(vec2 Pos)
 {
@@ -1370,10 +968,6 @@ void CGameContext::SendTuningParams(int ClientID)
 
 void CGameContext::UpdateSpectators()
 {
-	// SKIP
-	//return;
-	
-	
 	bool Found[2] = {false, false};
 		
 	// check validity
@@ -1410,7 +1004,6 @@ void CGameContext::UpdateSpectators()
 			if(Team == TEAM_RED || Team == TEAM_BLUE)
 			{
 				// most interesting player exists
-				
 				int Points = -1;
 				int Player = m_aMostInterestingPlayer[Team];
 				
@@ -1423,32 +1016,9 @@ void CGameContext::UpdateSpectators()
 					
 				if (m_apPlayers[i]->m_InterestPoints > Points)
 				{
-					// works
-					//char aBuf[128]; str_format(aBuf, sizeof(aBuf), "i = %d, team = %d", i, Team);
-					//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "cstt", aBuf);
-					
 					m_aMostInterestingPlayer[Team] = i;
 					Found[Team] = true;				
 				}
-				
-				
-				/*
-				if (m_aMostInterestingPlayer[Team] >= 0)
-				{
-					if (m_apPlayers[m_aMostInterestingPlayer[Team]]->GetCharacter() && m_apPlayers[i]->m_InterestPoints > m_apPlayers[m_aMostInterestingPlayer[Team]]->m_InterestPoints)
-					{
-						// found more interesting player
-						m_aMostInterestingPlayer[m_apPlayers[i]->GetTeam()] = i;
-						Found[m_apPlayers[i]->GetTeam()] = true;
-					}
-				}
-				else
-				if (m_apPlayers[i]->m_InterestPoints > 0)
-				{
-					m_aMostInterestingPlayer[Team] = i;
-					Found[Team] = true;
-				}
-				*/
 			}
 		}
 	}
@@ -1500,22 +1070,6 @@ void CGameContext::UpdateSpectators()
 			}
 		}
 	}
-	
-	
-	
-	/*
-			CNetMsg_Cl_SetSpectatorMode *pMsg = (CNetMsg_Cl_SetSpectatorMode *)pRawMsg;
-
-			if(pPlayer->GetTeam() != TEAM_SPECTATORS || pPlayer->m_SpectatorID == pMsg->m_SpectatorID || ClientID == pMsg->m_SpectatorID ||
-				(g_Config.m_SvSpamprotection && pPlayer->m_LastSetSpectatorMode && pPlayer->m_LastSetSpectatorMode+Server()->TickSpeed()*3 > Server()->Tick()))
-				return;
-
-			pPlayer->m_LastSetSpectatorMode = Server()->Tick();
-			if(pMsg->m_SpectatorID != SPEC_FREEVIEW && (!m_apPlayers[pMsg->m_SpectatorID] || m_apPlayers[pMsg->m_SpectatorID]->GetTeam() == TEAM_SPECTATORS))
-				SendChatTarget(ClientID, "Invalid spectator id used");
-			else
-				pPlayer->m_SpectatorID = pMsg->m_SpectatorID;
-	*/
 }
 
 
@@ -2074,43 +1628,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			if(pPlayer->GetTeam() == pMsg->m_Team || (g_Config.m_SvSpamprotection && pPlayer->m_LastSetTeam && pPlayer->m_LastSetTeam+Server()->TickSpeed()*1 > Server()->Tick()))
 				return;
 			
-			
 			pPlayer->m_LastSetTeam = Server()->Tick();
 			if(pPlayer->GetTeam() == TEAM_SPECTATORS || pMsg->m_Team == TEAM_SPECTATORS)
 				m_VoteUpdate = true;
+			
 			pPlayer->SetTeam(pMsg->m_Team);
 			pPlayer->m_TeamChangeTick = Server()->Tick();
-					
-			
-			//pPlayer->m_WantedTeam = pMsg->m_Team;
-			
-			/*
-			if(pMsg->m_Team != TEAM_SPECTATORS)
-			{
-				pPlayer->SetTeam(TEAM_SPECTATORS);
-				pPlayer->SetWantedTeam(pMsg->m_Team);
-			}
-			else
-			{
-				pPlayer->SetTeam(TEAM_SPECTATORS);
-				pPlayer->m_WantedTeam = pMsg->m_Team;
-			}
-			*/
-			
-			
-			/* 1.4 way
-			pPlayer->m_LastSetTeam = Server()->Tick();
-			if(str_comp(g_Config.m_SvGametype, "cstt") == 0)
-			{
-				pPlayer->SetTeam(TEAM_SPECTATORS, pMsg->m_Team == TEAM_SPECTATORS);
-				pPlayer->SetWantedTeam(pMsg->m_Team);
-			}
-			else
-			{
-				pPlayer->SetTeam(pMsg->m_Team, true);
-				pPlayer->SetWantedTeam(pMsg->m_Team);
-			}
-			*/
 			
 			/*
 			if(pMsg->m_Team != TEAM_SPECTATORS && m_LockTeams)
@@ -2234,6 +1757,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			CNetMsg_Cl_InventoryAction *pMsg = (CNetMsg_Cl_InventoryAction *)pRawMsg;
 			switch (pMsg->m_Type)
 			{
+				case INVENTORYACTION_DROP: pPlayer->DropItem(pMsg->m_Slot, vec2(pMsg->m_Item1, pMsg->m_Item2)); break;
 				case INVENTORYACTION_SWAP: pPlayer->SwapItem(pMsg->m_Item1, pMsg->m_Item2); break;
 				case INVENTORYACTION_COMBINE: pPlayer->CombineItem(pMsg->m_Item1, pMsg->m_Item2); break;
 				case INVENTORYACTION_TAKEPART: pPlayer->TakePart(pMsg->m_Item1, pMsg->m_Slot, pMsg->m_Item2); break;

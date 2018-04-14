@@ -50,19 +50,22 @@ void CAIrobot1::OnCharacterSpawn(CCharacter *pChr)
 	if (m_Skin == 2)
 	{
 		m_PowerLevel = 6;
-		pChr->SetHealth(80);
+		pChr->SetHealth(60);
+		pChr->SetArmor(60);
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(3, 4)));
 	}
 	else if (m_Skin == 3)
 	{
 		m_PowerLevel = 2;
-		pChr->SetHealth(100);
+		pChr->SetHealth(60);
+		pChr->SetArmor(100);
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_CHAINSAW)));
 	}
 	else if (m_Skin == 1)
 	{
 		m_PowerLevel = 6;
-		pChr->SetHealth(100);
+		pChr->SetHealth(60);
+		pChr->SetArmor(80);
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 2)));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
@@ -70,8 +73,9 @@ void CAIrobot1::OnCharacterSpawn(CCharacter *pChr)
 	else if (m_Skin == 8)
 	{
 		m_PowerLevel = 8;
-		pChr->SetHealth(140);
-		pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(3, 1)));
+		pChr->SetHealth(100);
+		pChr->SetArmor(100);
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(3, 1+rand()%3)));
 	}
 	
 	if (!m_Triggered)

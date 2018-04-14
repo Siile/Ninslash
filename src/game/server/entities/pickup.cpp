@@ -71,6 +71,16 @@ void CPickup::ClearWeapon()
 	}
 }
 
+bool CPickup::IsWeapon()
+{
+	if (m_SpawnTick > 0)
+		return false;
+	
+	if (m_Type == POWERUP_WEAPON)
+		return true;
+	
+	return false;
+}
 
 void CPickup::Tick()
 {
@@ -290,6 +300,7 @@ void CPickup::SurvivalReset()
 	}
 		
 	ClearWeapon();
+	SetRandomWeapon();
 
 	if (m_Dropable)
 		m_SpawnTick = 999;

@@ -303,6 +303,8 @@ container.sounds.Add(SoundSet("build", FileList("audio/build-%02d.wv", 2)))
 container.sounds.Add(SoundSet("star_fire", FileList("audio/wp_star_fire-%02d.wv", 3)))
 container.sounds.Add(SoundSet("green_explosion", FileList("audio/sfx_green_explosion-%02d.wv", 3)))
 
+container.sounds.Add(SoundSet("gameover", ["audio/gameover.wv"]))
+
 container.sounds.Add(SoundSet("menu", ["audio/music_menu.wv"]))
 
 container.sounds.Add(SoundSet("bg1", ["audio/bg1.wv"]))

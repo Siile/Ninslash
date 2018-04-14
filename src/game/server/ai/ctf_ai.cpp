@@ -18,7 +18,7 @@ CAIctf::CAIctf(CGameContext *pGameServer, CPlayer *pPlayer)
 void CAIctf::OnCharacterSpawn(CCharacter *pChr)
 {
 	CAI::OnCharacterSpawn(pChr);
-	
+	m_PowerLevel = g_Config.m_SvBotLevel;
 	m_WaypointDir = vec2(0, 0);
 	Player()->SetRandomSkin();
 }
@@ -73,7 +73,7 @@ void CAIctf::DoBehavior()
 		// easy access
 		vec2 TeamFlagPos = GameServer()->m_pController->GetFlagPos(Player()->GetTeam());
 		vec2 EnemyFlagPos = GameServer()->m_pController->GetFlagPos(EnemyTeam);
-			
+		
 		if (GameServer()->m_pController->GetFlagState(Player()->GetTeam()) != FLAG_ATSTAND)
 		{
 			// check distance to flags, choose closer
@@ -95,7 +95,6 @@ void CAIctf::DoBehavior()
 				SeekEnemy = true;
 		}
 	}
-	
 
 	if (SeekEnemy)
 	{
@@ -111,6 +110,8 @@ void CAIctf::DoBehavior()
 		}
 	}
 	
+	if (Player()->GetCharacter()->GetWeaponType() == WEAPON_NONE)
+		FindWeapon();
 
 	if (UpdateWaypoint())
 	{
@@ -126,6 +127,7 @@ void CAIctf::DoBehavior()
 	RandomlyStopShooting();
 	
 	// next reaction in
-	m_ReactionTime = 2 + frandom()*4;
+	m_ReactionTime = 2;
+	//m_ReactionTime = 2 + frandom()*4;
 	
 }

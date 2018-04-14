@@ -24,8 +24,6 @@ CProjectile::CProjectile(CGameWorld *pGameWorld, int Weapon, int Owner, vec2 Pos
 	m_Explosive = Explosive;
 	m_Bouncy = false;
 	m_Vel2 = Vel*30.0f;
-	
-	m_PowerLevel = 0;
 
 	m_ElectroTimer = 0;
 	
@@ -120,16 +118,10 @@ void CProjectile::Tick()
 	
 	Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &CurPos, 0);
 	
-	float r = 6.0f;
+	float r = 6.0f * GetProjectileSize(m_Weapon);
 	
-	if (m_Weapon == W_SWORD)
-		r = 64.0f;
-	
-	if (m_Weapon != W_DROID_STAR)
-	{
-		TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, r, CurPos, OwnerChar);
-		ReflectChr = GameServer()->m_World.IntersectScythe(PrevPos, CurPos, r+45.0f, CurPos, OwnerChar);
-	}
+	TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, r, CurPos, OwnerChar);
+	ReflectChr = GameServer()->m_World.IntersectScythe(PrevPos, CurPos, r+45.0f, CurPos, OwnerChar);
 	
 	int Team = m_Owner;
 	
@@ -138,8 +130,7 @@ void CProjectile::Tick()
 	
 	CBuilding *TargetBuilding = NULL;
 	
-	//if (m_Weapon != W_DROID_STAR)
-	TargetBuilding = GameServer()->m_World.IntersectBuilding(PrevPos, CurPos, 6.0f, CurPos, Team);
+	TargetBuilding = GameServer()->m_World.IntersectBuilding(PrevPos, CurPos, r, CurPos, Team);
 	
 	
 	if (m_OwnerBuilding == TargetBuilding)
@@ -147,8 +138,7 @@ void CProjectile::Tick()
 	
 	CDroid *TargetMonster = NULL;
 	
-	//if (m_Weapon != W_DROID_STAR)
-		TargetMonster = GameServer()->m_World.IntersectWalker(PrevPos, CurPos, 6.0f, CurPos);
+	TargetMonster = GameServer()->m_World.IntersectWalker(PrevPos, CurPos, r, CurPos);
 	
 	if (m_Owner == NEUTRAL_BASE)
 		TargetMonster = NULL;
@@ -158,13 +148,9 @@ void CProjectile::Tick()
 	if (Collide && Bounce(CurPos))
 	{
 		m_StartTick = Server()->Tick()-1;
-		//m_Direction.y *= -1;
 		m_Pos = CurPos;
 		Collide = false;
 	}
-
-	if (m_Weapon == W_SWORD)
-		Collide = false;
 	
 	if (ReflectChr)
 	{
@@ -229,7 +215,6 @@ void CProjectile::FillInfo(CNetObj_Projectile *pProj)
 	pProj->m_Vel2Y = (int)(m_Vel2.y*10.0f);
 	pProj->m_StartTick = m_StartTick;
 	pProj->m_Type = m_Weapon;
-	pProj->m_PowerLevel = m_PowerLevel;
 }
 
 void CProjectile::Snap(int SnappingClient)

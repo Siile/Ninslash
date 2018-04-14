@@ -2,6 +2,7 @@
 #include <game/weapons.h>
 
 #include "ai.h"
+#include "entities/pickup.h"
 #include "entities/character.h"
 #include "entities/droid.h"
 #include "entities/building.h"
@@ -219,6 +220,24 @@ void CAI::Panic()
 		m_Attack = 1;
 	else
 		m_Attack = 0;
+}
+
+
+void CAI::FindWeapon()
+{
+	CPickup *apEnts[60];
+	float Radius = 1000;
+	
+	int Num = GameServer()->m_World.FindEntities(m_Pos, Radius, (CEntity**)apEnts, 60, CGameWorld::ENTTYPE_PICKUP);
+	for(int i = 0; i < Num; i++)
+	{
+		if (apEnts[i]->IsWeapon())
+		{
+			vec2 p = apEnts[i]->m_Pos;
+			if (!GameServer()->Collision()->IsInFluid(p.x, p.y))
+				m_TargetPos = p;
+		}
+	}
 }
 
 
@@ -1393,8 +1412,10 @@ bool CAI::ShootAtClosestBuilding()
 
 void CAI::RandomlyStopShooting()
 {
+	/*
 	if (Player()->GetCharacter()->m_ActiveWeapon == W_SCYTHE)
 		return;
+	*/
 	
 	if (frandom()*20 < 4 && m_Attack == 1)
 	{

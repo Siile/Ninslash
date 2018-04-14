@@ -355,7 +355,7 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, bool IsBot)
 void IGameController::AutoBalance()
 {
 	// no bots
-	if (g_Config.m_SvPreferredTeamSize == 0)
+	if (g_Config.m_SvNumBots == 0)
 	{
 		int Bots = 0;
 		
@@ -412,13 +412,13 @@ void IGameController::AutoBalance()
 		
 
 		// add bots
-		if (Players + Bots < g_Config.m_SvPreferredTeamSize)
+		if (Players + Bots < g_Config.m_SvNumBots)
 		{
 			GameServer()->AddBot();
 		}
 		
 		// kick bots
-		if (Players + Bots > g_Config.m_SvPreferredTeamSize && Bots > 0)
+		if (Players + Bots > g_Config.m_SvNumBots && Bots > 0)
 		{
 			GameServer()->KickBot(BotID);
 		}
@@ -479,17 +479,17 @@ void IGameController::AutoBalance()
 		}
 
 		// not enough players
-		if ((Red+RedBots) < g_Config.m_SvPreferredTeamSize || (Blue+BlueBots) < g_Config.m_SvPreferredTeamSize)
+		if ((Red+RedBots) < g_Config.m_SvNumBots || (Blue+BlueBots) < g_Config.m_SvNumBots)
 			GameServer()->AddBot();
 
 		
 		// unbalanced teams
-		if (Red+RedBots > Blue+BlueBots && Red+RedBots > g_Config.m_SvPreferredTeamSize && RedBots > 0)
+		if (Red+RedBots > Blue+BlueBots && Red+RedBots > g_Config.m_SvNumBots && RedBots > 0)
 			GameServer()->KickBot(RedBotID);
-		if (Red+RedBots < Blue+BlueBots && Blue+BlueBots > g_Config.m_SvPreferredTeamSize && BlueBots > 0)
+		if (Red+RedBots < Blue+BlueBots && Blue+BlueBots > g_Config.m_SvNumBots && BlueBots > 0)
 			GameServer()->KickBot(BlueBotID);
 		
-		if (Red+RedBots == Blue+BlueBots && Red+RedBots > g_Config.m_SvPreferredTeamSize && RedBots > 0 && BlueBots > 0)
+		if (Red+RedBots == Blue+BlueBots && Red+RedBots > g_Config.m_SvNumBots && RedBots > 0 && BlueBots > 0)
 		{
 			GameServer()->KickBot(RedBotID);
 			GameServer()->KickBot(BlueBotID);
@@ -556,6 +556,8 @@ void IGameController::CreateDroppables()
 
 void IGameController::DeathMessage()
 {
+	GameServer()->CreateSoundGlobal(SOUND_GAMEOVER);
+	
 	switch (rand()%5)
 	{
 		case 0:
@@ -639,6 +641,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		new CBuilding(&GameServer()->m_World, Pos, BUILDING_SAWBLADE, TEAM_NEUTRAL);
 		return true;
 	}
+	/*
 	else if (Index == ENTITY_MINE1)
 	{
 		new CBuilding(&GameServer()->m_World, Pos+vec2(0,6), BUILDING_MINE1, TEAM_NEUTRAL);
@@ -649,6 +652,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		new CBuilding(&GameServer()->m_World, Pos+vec2(0,6), BUILDING_MINE2, TEAM_NEUTRAL);
 		return true;
 	}
+	*/
 	else if (Index == ENTITY_BARREL)
 	{
 		new CBuilding(&GameServer()->m_World, Pos+vec2(0,-12), BUILDING_BARREL, TEAM_NEUTRAL);
@@ -771,55 +775,22 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 			else
 				Type = POWERUP_AMMO;
 		}
-		else if(Index == ENTITY_WEAPON_CHAINSAW)
+		else if(Index == ENTITY_RANDOM_WEAPON)
 		{
 			Type = POWERUP_WEAPON;
-			SubType = WEAPON_CHAINSAW;
-		}
-		else if(Index == ENTITY_WEAPON_SHOTGUN)
-		{
-			Type = POWERUP_WEAPON;
-			SubType = WEAPON_SHOTGUN;
-		}
-		else if(Index == ENTITY_WEAPON_GRENADE)
-		{
-			Type = POWERUP_WEAPON;
-			SubType = WEAPON_GRENADE;
-		}
-		else if(Index == ENTITY_WEAPON_RIFLE)
-		{
-			Type = POWERUP_WEAPON;
-			SubType = WEAPON_RIFLE;
-		}
-		else if(Index == ENTITY_WEAPON_ELECTRIC)
-		{
-			Type = POWERUP_WEAPON;
-			SubType = WEAPON_ELECTRIC;
-		}
-		else if(Index == ENTITY_WEAPON_LASER)
-		{
-			Type = POWERUP_WEAPON;
-			SubType = WEAPON_LASER;
-		}
-		else if(Index == ENTITY_WEAPON_FLAMER)
-		{
-			Type = POWERUP_WEAPON;
-			SubType = WEAPON_FLAMER;
-		}
-		else if(Index == ENTITY_WEAPON_SCYTHE)
-		{
-			Type = POWERUP_WEAPON;
-			SubType = WEAPON_SCYTHE;
+			SubType = 0;
 		}
 	}
 
 	if(Type != -1)
 	{
+		/*
 		if (g_Config.m_SvForceWeapon)
 		{
 			if (Type == POWERUP_WEAPON || Type == POWERUP_AMMO)
 				return true;
 		}
+		*/
 		
 		if (Type == POWERUP_WEAPON)
 			SubType = GetRandomWeapon();

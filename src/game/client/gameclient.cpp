@@ -829,13 +829,8 @@ void CGameClient::ProcessEvents()
 		{
 			CNetEvent_DamageInd *ev = (CNetEvent_DamageInd *)pData;
 			
-			/*
-			if (g_Config.m_GoreDmgInd)
-				g_GameClient.m_pEffects->DamageIndicator(vec2(ev->m_X, ev->m_Y), GetDirection(ev->m_Angle));
-			*/
-			
 			// 0 - 200
-			int BloodAmount = ev->m_Damage * g_Config.m_GoreBlood / 20.0f;
+			int BloodAmount = ev->m_Damage * g_Config.m_GoreBlood / 30.0f;
 			
 			
 			if (BloodAmount > 0)
@@ -845,27 +840,9 @@ void CGameClient::ProcessEvents()
 			}
 			
 			g_GameClient.m_pEffects->DamageInd(vec2(ev->m_X, ev->m_Y), RandomDir()*0.3f - GetDirection(ev->m_Angle)*2.0f, abs(ev->m_Damage), GetPlayerColor(ev->m_ClientID));
-			
 
 			if (BloodAmount > 0)
-			{
 				AddPlayerSplatter(vec2(ev->m_X, ev->m_Y), CustomStuff()->BloodColor(ev->m_ClientID));
-				
-				/*
-				for (int c = 0; c < MAX_CLIENTS; c++)
-				{
-					if (CustomStuff()->m_aPlayerInfo[c].m_InUse)
-					{
-						if (abs(CustomStuff()->m_aPlayerInfo[c].Pos().x - ev->m_X) < 250 && abs(CustomStuff()->m_aPlayerInfo[c].Pos().y - ev->m_Y) < 250)
-						{
-							vec2 At;
-							if (!Collision()->IntersectLine(CustomStuff()->m_aPlayerInfo[c].Pos(), vec2(ev->m_X, ev->m_Y), 0x0, 0x0))
-								CustomStuff()->m_aPlayerInfo[c].AddSplatter(CustomStuff()->BloodColor(ev->m_ClientID));		
-						}							
-					}
-				}
-				*/
-			}
 		}
 		else if(Item.m_Type == NETEVENTTYPE_EXPLOSION)
 		{
