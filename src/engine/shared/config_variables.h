@@ -58,9 +58,6 @@ MACRO_CONFIG_INT(SndEnvironmental, snd_environmental, 1, 0, 1, CFGFLAG_SAVE|CFGF
 
 MACRO_CONFIG_INT(GfxScreen, gfx_screen, 0, 0, 0, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Screen index")
 
-MACRO_CONFIG_INT(Shaders, shaders, 0, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Shaders supported")
-
-
 MACRO_CONFIG_INT(GamepadID, gamepadid, -1, 9999, -1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Gamepad to use")
 
 
@@ -92,7 +89,8 @@ MACRO_CONFIG_INT(GfxAsyncRender, gfx_asyncrender, 0, 0, 1, CFGFLAG_SAVE|CFGFLAG_
 
 MACRO_CONFIG_INT(GfxThreaded, gfx_threaded, 0, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Use the threaded graphics backend")
 
-MACRO_CONFIG_INT(GfxMultiBuffering, gfx_multibuffering, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Use multiple screen buffers (might cause issues)")
+MACRO_CONFIG_INT(GfxShaders, gfx_shaders, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Use shaders")
+MACRO_CONFIG_INT(GfxMultiBuffering, gfx_multibuffering, 1, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Use multiple screen buffers")
 
 MACRO_CONFIG_INT(InpMousesens, inp_mousesens, 100, 5, 100000, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Mouse sensitivity")
 MACRO_CONFIG_INT(InpHWCursor, inp_hw_cursor, 0, 0, 1, CFGFLAG_SAVE|CFGFLAG_CLIENT, "Use a hardware cursor")

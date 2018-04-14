@@ -88,7 +88,9 @@ public:
 	void GenerateBoxes();
 	void GenerateBackground();
 	void GenerateMoreBackground();
+	void GenerateMoreForeground();
 	bool AddBackgroundTile(int x, int y);
+	bool AddForegroundTile(int x, int y);
 	void GenerateAirPlatforms(int Num);
 	void Scan();
 	int Size();

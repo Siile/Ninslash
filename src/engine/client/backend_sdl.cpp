@@ -15,6 +15,7 @@
 #include "shaders.h"
 #include "backend_sdl.h"
 
+#include <engine/shared/config.h>
 
 // ------------ CGraphicsBackend_Threaded
 
@@ -350,6 +351,12 @@ void CCommandProcessorFragment_OpenGL::Cmd_Texture_Create(const CCommandBuffer::
 
 void CCommandProcessorFragment_OpenGL::Cmd_CreateTextureBuffer(const CCommandBuffer::SCommand_CreateTextureBuffer *pCommand)
 {
+	if (!m_ShadersLoaded)
+	{
+		g_Config.m_GfxMultiBuffering = 0;
+		return;
+	}
+	
 	dbg_msg("render", "creating texture buffers");
 	glewInit();
 	dbg_msg("render", "glew ready");
@@ -433,6 +440,9 @@ void CCommandProcessorFragment_OpenGL::Cmd_CreateTextureBuffer(const CCommandBuf
 
 void CCommandProcessorFragment_OpenGL::Cmd_LoadShaders(const CCommandBuffer::SCommand_LoadShaders *pCommand)
 {
+	g_Config.m_GfxShaders = 0;
+	m_ShadersLoaded = false;
+	
 	m_aShader[SHADER_PLAYER] = LoadShader("data/shaders/basic.vert", "data/shaders/player.frag");
 	m_aShader[SHADER_ELECTRIC] = LoadShader("data/shaders/basic.vert", "data/shaders/electric.frag");
 	m_aShader[SHADER_DEATHRAY] = LoadShader("data/shaders/basic.vert", "data/shaders/deathray.frag");
@@ -448,6 +458,8 @@ void CCommandProcessorFragment_OpenGL::Cmd_LoadShaders(const CCommandBuffer::SCo
 	m_aShader[SHADER_GRAYSCALE] = LoadShader("data/shaders/basic.vert", "data/shaders/grayscale.frag");
 	m_aShader[SHADER_MENU] = LoadShader("data/shaders/basic.vert", "data/shaders/menu.frag");
 	
+	
+	g_Config.m_GfxShaders = 1;
 	m_ShadersLoaded = true;
 }
 

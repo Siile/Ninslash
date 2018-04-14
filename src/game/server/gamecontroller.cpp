@@ -355,7 +355,7 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, bool IsBot)
 void IGameController::AutoBalance()
 {
 	// no bots
-	if (g_Config.m_SvPreferredTeamSize == 0)
+	if (g_Config.m_SvNumBots == 0)
 	{
 		int Bots = 0;
 		
@@ -412,13 +412,13 @@ void IGameController::AutoBalance()
 		
 
 		// add bots
-		if (Players + Bots < g_Config.m_SvPreferredTeamSize)
+		if (Players + Bots < g_Config.m_SvNumBots)
 		{
 			GameServer()->AddBot();
 		}
 		
 		// kick bots
-		if (Players + Bots > g_Config.m_SvPreferredTeamSize && Bots > 0)
+		if (Players + Bots > g_Config.m_SvNumBots && Bots > 0)
 		{
 			GameServer()->KickBot(BotID);
 		}
@@ -479,17 +479,17 @@ void IGameController::AutoBalance()
 		}
 
 		// not enough players
-		if ((Red+RedBots) < g_Config.m_SvPreferredTeamSize || (Blue+BlueBots) < g_Config.m_SvPreferredTeamSize)
+		if ((Red+RedBots) < g_Config.m_SvNumBots || (Blue+BlueBots) < g_Config.m_SvNumBots)
 			GameServer()->AddBot();
 
 		
 		// unbalanced teams
-		if (Red+RedBots > Blue+BlueBots && Red+RedBots > g_Config.m_SvPreferredTeamSize && RedBots > 0)
+		if (Red+RedBots > Blue+BlueBots && Red+RedBots > g_Config.m_SvNumBots && RedBots > 0)
 			GameServer()->KickBot(RedBotID);
-		if (Red+RedBots < Blue+BlueBots && Blue+BlueBots > g_Config.m_SvPreferredTeamSize && BlueBots > 0)
+		if (Red+RedBots < Blue+BlueBots && Blue+BlueBots > g_Config.m_SvNumBots && BlueBots > 0)
 			GameServer()->KickBot(BlueBotID);
 		
-		if (Red+RedBots == Blue+BlueBots && Red+RedBots > g_Config.m_SvPreferredTeamSize && RedBots > 0 && BlueBots > 0)
+		if (Red+RedBots == Blue+BlueBots && Red+RedBots > g_Config.m_SvNumBots && RedBots > 0 && BlueBots > 0)
 		{
 			GameServer()->KickBot(RedBotID);
 			GameServer()->KickBot(BlueBotID);

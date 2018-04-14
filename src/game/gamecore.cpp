@@ -1193,18 +1193,27 @@ void CCharacterCore::Move()
 		NewPos.y += 18;
 		
 		// unstuck jumpkick
-		if (!m_Input.m_Hook && abs(m_Vel.x) < 0.1f && abs(m_Vel.y) < 0.1f && !IsGrounded())
+		if (!m_Input.m_Hook && abs(m_Vel.x + m_Vel.y) < 0.1f)
 		{
-			if (m_pCollision->CheckPoint(m_Pos.x-26, m_Pos.y-40))
-			{
-				NewPos.x += 1;
-				NewPos.y += 1;
-			}
+			int Top = m_pCollision->CheckPoint(m_Pos.x, m_Pos.y-80);
+			int Bot = m_pCollision->CheckPoint(m_Pos.x, m_Pos.y+60);
 			
-			if (m_pCollision->CheckPoint(m_Pos.x+26, m_Pos.y-40))
+			if (Top && !Bot)
 			{
-				NewPos.x -= 1;
-				NewPos.y += 1;
+				int Left = m_pCollision->CheckPoint(m_Pos.x-26, m_Pos.y-40);
+				int Right = m_pCollision->CheckPoint(m_Pos.x+26, m_Pos.y-40);
+				
+				if (Left && !Right)
+				{
+					NewPos.x += 1;
+					NewPos.y += 1;
+				}
+				
+				if (Right && !Left)
+				{
+					NewPos.x -= 1;
+					NewPos.y += 1;
+				}
 			}
 		}
 	}

@@ -859,6 +859,8 @@ void CMapGen::GenerateLevel()
 
 	pRoom->Generate(pTiles);
 	
+	//pTiles->GenerateMoreForeground();
+	
 	// check for too tight corridors
 	{
 		for(int y = 3; y < h-4; y++)
@@ -1178,6 +1180,8 @@ void CMapGen::GeneratePVPLevel()
 	pMaze->OpenRooms(pRoom);
 
 	pRoom->Generate(pTiles);
+	
+	//pTiles->GenerateMoreForeground();
 	
 	// check for too tight corridors
 	{

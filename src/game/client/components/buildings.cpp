@@ -54,7 +54,11 @@ void CBuildings::RenderPowerupper(const struct CNetObj_Powerupper *pCurrent)
 			
 			RenderTools()->SelectSprite(SPRITE_ITEM1+pCurrent->m_Item);
 			
-			Graphics()->SetColor(1, 1, 1, 1);
+			if (g_Config.m_GfxShaders)
+				Graphics()->SetColor(1, 1, 1, 1);
+			else
+				Graphics()->SetColor(1, 1, 1, 0.3f);
+			
 			Graphics()->QuadsSetRotation(0);
 				
 			RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y-64, 96);

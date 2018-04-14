@@ -19,12 +19,7 @@ CAIdm::CAIdm(CGameContext *pGameServer, CPlayer *pPlayer)
 void CAIdm::OnCharacterSpawn(CCharacter *pChr)
 {
 	CAI::OnCharacterSpawn(pChr);
-	
-	m_PowerLevel = 4;
-	
-	if (g_Config.m_SvGodBots)
-		m_PowerLevel = 20;
-	
+	m_PowerLevel = g_Config.m_SvBotLevel;
 	m_WaypointDir = vec2(0, 0);
 	Player()->SetRandomSkin();
 }

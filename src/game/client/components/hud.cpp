@@ -846,7 +846,10 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 				Graphics()->QuadsBegin();
 				RenderTools()->SelectSprite(SPRITE_WEAPON_SLOT);
 			
-				Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+				if (g_Config.m_GfxShaders)
+					Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+				else
+					Graphics()->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
 				
 				//RenderTools()->RenderWeapon(w, vec2(x, y), vec2(1, 0), 24.0f);
 				RenderTools()->RenderWeapon(w, vec2(x-0.5f, y-0.5f), vec2(1, 0), WEAPON_GAME_SIZE/3);

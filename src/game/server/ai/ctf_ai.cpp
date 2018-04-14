@@ -18,7 +18,7 @@ CAIctf::CAIctf(CGameContext *pGameServer, CPlayer *pPlayer)
 void CAIctf::OnCharacterSpawn(CCharacter *pChr)
 {
 	CAI::OnCharacterSpawn(pChr);
-	
+	m_PowerLevel = g_Config.m_SvBotLevel;
 	m_WaypointDir = vec2(0, 0);
 	Player()->SetRandomSkin();
 }

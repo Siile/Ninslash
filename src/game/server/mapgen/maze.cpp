@@ -206,9 +206,10 @@ void CMaze::Generate()
 		}
 	}
 	else
-	// ctf, tdm, dm
+	// ctf, tdm, dm, br
 	{
 		// dual way
+		/*
 		{
 			m_aRoom[m_Rooms++] = vec2(m_W*0.1f, m_H*(0.2f + frandom()*0.6f));
 			m_aRoom[m_Rooms++] = vec2(m_W*0.5f, m_H*0.15f);
@@ -239,6 +240,24 @@ void CMaze::Generate()
 				GenerateRoom(true, true);
 				GenerateRoom(true, true);
 			}
+		}
+		*/
+		
+		{
+			m_aRoom[m_Rooms++] = vec2(m_W*0.1f, m_H*0.5f);
+			m_aRoom[m_Rooms++] = vec2(m_W*0.5f, m_H*0.5f);
+			Connect(m_aRoom[0], m_aRoom[1]);
+			
+			Connect(vec2(m_W*0.25f, m_H*0.2f), vec2(m_W*0.5f, m_H*0.2f));
+			Connect(vec2(m_W*0.35f, m_H*0.8f), vec2(m_W*0.5f, m_H*0.8f));
+			
+			Connect(vec2(m_W*0.2f, m_H*0.5f), vec2(m_W*0.25f, m_H*0.2f));
+			Connect(vec2(m_W*0.3f, m_H*0.5f), vec2(m_W*0.35f, m_H*0.8f));
+			
+			Connect(vec2(m_W*0.4f, m_H*0.5f), vec2(m_W*0.4f, m_H*0.2f));
+			
+			if (frandom() < 0.5f)
+				Connect(vec2(m_W*0.5f, m_H*0.5f), vec2(m_W*0.5f, m_H*0.8f));
 		}
 	}
 }

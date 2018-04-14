@@ -19,7 +19,7 @@ CAItdm::CAItdm(CGameContext *pGameServer, CPlayer *pPlayer)
 void CAItdm::OnCharacterSpawn(CCharacter *pChr)
 {
 	CAI::OnCharacterSpawn(pChr);
-	
+	m_PowerLevel = g_Config.m_SvBotLevel;
 	m_WaypointDir = vec2(0, 0);
 	Player()->SetRandomSkin();
 }
@@ -27,13 +27,6 @@ void CAItdm::OnCharacterSpawn(CCharacter *pChr)
 
 void CAItdm::DoBehavior()
 {
-	// power level
-	//m_PowerLevel = 20 - GameServer()->m_pController->CountPlayers(Player()->GetTeam())*1.5f;
-	m_PowerLevel = 8;
-
-	if (g_Config.m_SvGodBots)
-		m_PowerLevel = 20;
-	
 	// reset jump and attack
 	if (Player()->GetCharacter()->GetCore().m_JetpackPower < 10 || Player()->GetCharacter()->GetCore().m_Jetpack == 0)
 		m_Jump = 0;

@@ -219,6 +219,15 @@ void CGenLayer::GenerateBoxes()
 }
 
 
+bool CGenLayer::AddForegroundTile(int x, int y)
+{
+	if ((Get(x-1, y) || Get(x+1, y)) && (Get(x, y-1) || Get(x, y+1)))
+		return true;
+	
+	return false;
+}
+
+
 bool CGenLayer::AddBackgroundTile(int x, int y)
 {
 	if ((Get(x-1, y, BACKGROUND) || Get(x+1, y, BACKGROUND)) && (Get(x, y-1, BACKGROUND) || Get(x, y+1, BACKGROUND)))
@@ -226,7 +235,29 @@ bool CGenLayer::AddBackgroundTile(int x, int y)
 	
 	return false;
 }
+
+void CGenLayer::GenerateMoreForeground()
+{
+	float a1 = 0.02f + frandom()*0.01f;
+	float a2 = 0.02f + frandom()*0.01f;
 	
+	for (int i = 0; i < 10; i++)
+	{
+		bool *apTiles = new bool[m_Width*m_Height];
+		for (int x = 0; x < m_Width; x++)
+			for (int y = 0; y < m_Height; y++)
+				if (abs(sin(x*a1)*cos(y*a2)) > 0.5f)
+					apTiles[x + y*m_Width] = AddForegroundTile(x, y);
+			
+		for (int x = 0; x < m_Width; x++)
+			for (int y = 0; y < m_Height; y++)
+				if (apTiles[x + y*m_Width])
+					Set(1, x, y, 0);
+
+		delete apTiles;
+	}
+}
+
 void CGenLayer::GenerateMoreBackground()
 {
 	for (int i = 0; i < 20; i++)
@@ -247,69 +278,15 @@ void CGenLayer::GenerateMoreBackground()
 		
 void CGenLayer::GenerateBackground()
 {
+	// clone foreground
 	for (int x = 0; x < m_Width; x++)
 		for (int y = 0; y < m_Height; y++)
 		{
-			if (Get(x, y) && frandom() < 0.35f)
+			if (Get(x, y) && frandom() < 0.4f)
 				Set(1, x, y, 0, BACKGROUND);
 			else
 				Set(0, x, y, 0, BACKGROUND);
 		}
-
-	return;
-		
-	int n = m_Width/30;
-
-	while (n-- > 0)
-	{
-		int nx = 10 + rand()%(m_Width - 20);
-		
-		int s = 4 + rand()%4;
-		
-		bool Valid = true;
-		
-		/*
-		// check if the area is empty first
-		for (int x = nx - s; x < nx + s; x++)
-			for (int y = 0; y < m_Height; y++)
-				if (Get(x, y, BACKGROUND))
-					Valid = false;
-				*/
-				
-		// fill the area
-		if (Valid)
-		{
-			for (int x = nx - s; x < nx + s; x++)
-				for (int y = 0; y < m_Height; y++)
-					Set(1, x, y, 0, BACKGROUND);
-		}
-	}
-	
-	n = m_Height/40;
-	while (n-- > 0)
-	{
-		int ny = 10 + rand()%(m_Height - 20);
-		
-		int s = 4 + rand()%3;
-		
-		bool Valid = true;
-		
-		/*
-		// check if the area is empty first
-		for (int x = 0; x < m_Width; x++)
-			for (int y = ny - s; y < ny + s; y++)
-				if (Get(x, y, BACKGROUND))
-					Valid = false;
-				*/
-				
-		// fill the area
-		if (Valid)
-		{
-			for (int x = 0; x < m_Width; x++)
-				for (int y = ny - s; y < ny + s; y++)
-					Set(1, x, y, 0, BACKGROUND);
-		}
-	}
 }
 
 
