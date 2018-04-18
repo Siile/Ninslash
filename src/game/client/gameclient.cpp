@@ -36,6 +36,7 @@
 #include "components/damageind.h"
 #include "components/debughud.h"
 #include "components/effects.h"
+#include "components/picker.h"
 #include "components/inventory.h"
 #include "components/flow.h"
 #include "components/hud.h"
@@ -99,6 +100,7 @@ static CControls gs_Controls;
 static CEffects gs_Effects;
 static CScoreboard gs_Scoreboard;
 static CSounds gs_Sounds;
+static CPicker gs_Picker;
 static CInventory gs_Inventory;
 static CDamageInd gsDamageInd;
 static CVoting gs_Voting;
@@ -248,6 +250,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(m_pInventory);
 	m_All.Add(&gs_Hud);
 	m_All.Add(&gs_Spectator);
+	m_All.Add(&gs_Picker);
 	m_All.Add(&gs_KillMessages);
 	m_All.Add(m_pChat);
 	m_All.Add(&gs_Broadcast);
@@ -265,6 +268,7 @@ void CGameClient::OnConsoleInit()
 	m_Input.Add(m_pMotd); // for pressing esc to remove it
 	m_Input.Add(m_pMenus);
 	m_Input.Add(&gs_Spectator);
+	m_Input.Add(&gs_Picker);
 	m_Input.Add(&gs_Inventory);
 	m_Input.Add(m_pControls);
 	m_Input.Add(m_pBinds);

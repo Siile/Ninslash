@@ -319,7 +319,10 @@ void CCustomStuff::Tick(bool Paused)
 	m_CameraCenter.y += (m_CameraTargetCenter.y-m_CameraCenter.y) / 24.0f;
 	
 	if (m_CameraShake > 0.0f)
-		m_CameraShake -= 0.25f;
+	{
+		m_CameraShake *= 0.95f;
+		m_CameraShake -= 0.22f;
+	}
 	
 	// building
 	if (m_LocalTeam == TEAM_SPECTATORS)

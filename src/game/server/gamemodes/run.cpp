@@ -155,6 +155,9 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			if (g_Config.m_SvMapGenLevel > 30 && frandom() < 0.3f)
 				i = ENEMY_BUNNY1;
 			
+			if (g_Config.m_SvMapGenLevel > 50 && frandom() < 0.05f)
+				i = ENEMY_PYRO1;
+			
 			
 			switch (i)
 			{
@@ -183,7 +186,7 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 				break;
 				
 			case ENEMY_PYRO1:
-				pChr->GetPlayer()->m_pAI = new CAIpyro1(GameServer(), pChr->GetPlayer());
+				pChr->GetPlayer()->m_pAI = new CAIpyro1(GameServer(), pChr->GetPlayer(), g_Config.m_SvMapGenLevel);
 				break;
 				
 			case ENEMY_PYRO2:

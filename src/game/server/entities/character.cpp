@@ -273,7 +273,18 @@ bool CCharacter::GiveWeapon(class CWeapon *pWeapon)
 		return false;
 	
 	if (m_apWeapon[m_WeaponSlot])
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			if (!m_apWeapon[i])
+			{
+				m_apWeapon[i] = pWeapon;
+				pWeapon->OnPlayerPick();
+				return true;
+			}
+		}
 		return false;
+	}
 	
 	m_apWeapon[m_WeaponSlot] = pWeapon;
 	pWeapon->OnPlayerPick();
