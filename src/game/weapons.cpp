@@ -701,6 +701,17 @@ vec2 GetProjectileOffset(int Weapon)
 }
 
 
+float ScreenshakeAmount(int Weapon)
+{
+	float d = GetExplosionDamage(Weapon) * 0.2f;
+	
+	if (d > 0 && WeaponElectroAmount(Weapon) <= 0.0f && WeaponFlameAmount(Weapon) <= 0.0f)
+		return d * 0.02f;
+	
+	return 0.0f;
+}
+
+
 float GetMeleeHitRadius(int Weapon)
 {
 	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));

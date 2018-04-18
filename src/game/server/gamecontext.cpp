@@ -1424,7 +1424,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 			
 
-			
 			if ( strcmp(pMsg->m_pMessage, "/showwaypoints") == 0 )
 			{
 				m_ShowWaypoints = !m_ShowWaypoints;
@@ -1436,7 +1435,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				m_ShowAiState = !m_ShowAiState;
 				SkipSending = true;
 			}
-			
 			
 		
 			if (!SkipSending)

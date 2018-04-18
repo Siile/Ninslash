@@ -66,15 +66,11 @@ void CCustomStuff::Reset()
 	m_WeaponDropTick = 0;
 	m_SwitchTick = 0;
 	m_SelectedWeapon = 0;
-	m_LocalWeapons = 0;
 	
 	m_WeaponSlot = 0;
 	for (int i = 0; i < 4; i++)
 		m_aSnapWeapon[i] = -1;
 	
-	m_LocalWeapons = 0;
-	m_LocalUpgrades = 0;
-	m_LocalUpgrades2 = 0;
 	m_LocalKits = 0;
 	m_Picker = 0;
 	m_LastUpdate = time_get();
@@ -104,9 +100,6 @@ void CCustomStuff::Reset()
 		m_aTurretFlame[i] = 0;
 		m_aJumppad[i] = 0;
 	}
-	
-	for (int i = 0; i < NUM_PLAYERITEMS; i++)
-		m_aLocalItems[i] = 0;
 	
 	for (int i = 0; i < 64; i++)
 	{
@@ -326,7 +319,7 @@ void CCustomStuff::Tick(bool Paused)
 	m_CameraCenter.y += (m_CameraTargetCenter.y-m_CameraCenter.y) / 24.0f;
 	
 	if (m_CameraShake > 0.0f)
-		m_CameraShake -= 0.2f;
+		m_CameraShake -= 0.25f;
 	
 	// building
 	if (m_LocalTeam == TEAM_SPECTATORS)

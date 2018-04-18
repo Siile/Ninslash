@@ -27,7 +27,8 @@ void CPowerupper::Reset()
 
 void CPowerupper::Tick()
 {
-	if (m_Item < 0 && (((!GameServer()->m_pController->IsCoop() || g_Config.m_SvMapGenLevel < 2) && m_ItemTakenTick + Server()->TickSpeed()*30.0f < GameServer()->Server()->Tick()) || m_ItemTakenTick == 0))
+	//if (m_Item < 0 && (((!GameServer()->m_pController->IsCoop() || g_Config.m_SvMapGenLevel < 2) && m_ItemTakenTick + Server()->TickSpeed()*30.0f < GameServer()->Server()->Tick()) || m_ItemTakenTick == 0))
+	if (m_Item < 0 && (m_ItemTakenTick == 0 || (!g_Config.m_SvSurvivalMode && m_ItemTakenTick + Server()->TickSpeed()*30.0f < GameServer()->Server()->Tick())))
 	{
 		if (frandom() < 0.6f)
 			m_Item = PLAYERITEM_UPGRADE;

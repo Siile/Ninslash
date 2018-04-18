@@ -597,7 +597,9 @@ bool CCharacter::PickWeapon(CWeapon *pWeapon)
 	bool Valid = true;
 	
 	for (int i = 0; i < 4; i++)
-		if (GetWeaponType(i) == pWeapon->GetWeaponType() && GetWeaponFiringType(GetWeaponType(i)) != WFT_THROW)
+		if (GetChargedWeapon(GetWeaponType(i), 0) == GetChargedWeapon(pWeapon->GetWeaponType(), 0) && 
+			GetWeaponCharge(GetWeaponType(i)) >= GetWeaponCharge(pWeapon->GetWeaponType()) && 
+			GetWeaponFiringType(GetWeaponType(i)) != WFT_THROW)
 			Valid = false;
 	
 	for (int i = 0; i < 4; i++)
@@ -1213,6 +1215,7 @@ bool CCharacter::UpgradeWeapon()
 	if (GetWeapon() && GetWeapon()->Upgrade())
 	{
 		GameServer()->CreateSound(m_Pos, SOUND_UPGRADE);
+		SendInventory();
 		return true;
 	}
 		

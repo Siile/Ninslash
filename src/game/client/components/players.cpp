@@ -1508,29 +1508,7 @@ void CPlayers::OnRender()
 				// send weapon info to custom stuff
 				if (Local)
 				{
-					// HACK: delay changing m_LocalWeapons for one frame, because pInfo is outdated compared to NETMSGTYPE_SV_WEAPONPICKUP data
-					// m_LocalWeapons will be almost always up to date, except when the server forces new weapon list to the player
-					static int LocalWeaponsChangeCounter = 0;
-					int NewWeapons = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapons;
-					if (CustomStuff()->m_LocalWeapons != NewWeapons)
-					{
-						LocalWeaponsChangeCounter++;
-						if (LocalWeaponsChangeCounter > 2)
-							CustomStuff()->m_LocalWeapons = NewWeapons;
-					}
-					else
-					{
-						LocalWeaponsChangeCounter = 0;
-					}
-					CustomStuff()->m_LocalUpgrades = ((const CNetObj_PlayerInfo *)pInfo)->m_Upgrades;
-					CustomStuff()->m_LocalUpgrades2 = ((const CNetObj_PlayerInfo *)pInfo)->m_Upgrades2;
 					CustomStuff()->m_LocalKits = ((const CNetObj_PlayerInfo *)pInfo)->m_Kits;
-					CustomStuff()->m_aLocalItems[0] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item1;
-					CustomStuff()->m_aLocalItems[1] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item2;
-					CustomStuff()->m_aLocalItems[2] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item3;
-					CustomStuff()->m_aLocalItems[3] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item4;
-					CustomStuff()->m_aLocalItems[4] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item5;
-					CustomStuff()->m_aLocalItems[5] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item6;
 					
 					CustomStuff()->m_WeaponSlot = ((const CNetObj_PlayerInfo *)pInfo)->m_WeaponSlot;
 					

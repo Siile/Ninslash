@@ -311,63 +311,12 @@ void CPlayer::Snap(int SnappingClient)
 	pPlayerInfo->m_Score = m_Score;
 	pPlayerInfo->m_Team = m_Team;
 	pPlayerInfo->m_Spectating = 0;
-		
-	/*
-	if (pPlayerInfo->m_Team != TEAM_SPECTATORS)
-	{
-		if (SnappingClient != GetCID())
-			pPlayerInfo->m_Team = m_Team;
-		else
-		{
-			if (GetCharacter() || GameServer()->m_pController->IsGameOver() ||  GameServer()->m_aMostInterestingPlayer[m_Team] < 0)
-				pPlayerInfo->m_Team = m_Team;
-			else
-				pPlayerInfo->m_Team = TEAM_SPECTATORS;
-		}
-	}
-	*/
-	
-	
-	// snap weapons
-	pPlayerInfo->m_Weapons = 0;
-	pPlayerInfo->m_Upgrades = 0;
-	pPlayerInfo->m_Upgrades2 = 0;
+
 	pPlayerInfo->m_Kits = 0;
 	
 	if (GetCharacter())
 	{
-		/*
-		for (int i = 0; i < NUM_WEAPONS; i++)
-		{
-			if (GetCharacter()->GotWeapon(i))
-			{
-				pPlayerInfo->m_Weapons |= 1 << i;
-				
-				if (GetCharacter()->WeaponPowerLevel(i) > 0)
-					pPlayerInfo->m_Upgrades |= 1 << i;
-				if (GetCharacter()->WeaponPowerLevel(i) > 1)
-					pPlayerInfo->m_Upgrades2 |= 1 << i;
-			}
-		}
-		*/
-		
-		for (int i = 0; i < 3; i++)
-		{
-			if (GetCharacter()->GetWeaponPowerLevel(i) > 0)
-				pPlayerInfo->m_Upgrades |= 1 << i;
-			if (GetCharacter()->GetWeaponPowerLevel(i) > 1)
-				pPlayerInfo->m_Upgrades2 |= 1 << i;
-		}
-		
 		pPlayerInfo->m_Kits = GetCharacter()->m_Kits;
-		
-		pPlayerInfo->m_Item1 = GetCharacter()->m_aItem[0];
-		pPlayerInfo->m_Item2 = GetCharacter()->m_aItem[1];
-		pPlayerInfo->m_Item3 = GetCharacter()->m_aItem[2];
-		pPlayerInfo->m_Item4 = GetCharacter()->m_aItem[3];
-		pPlayerInfo->m_Item5 = GetCharacter()->m_aItem[4];
-		pPlayerInfo->m_Item6 = GetCharacter()->m_aItem[5];
-		
 		pPlayerInfo->m_WeaponSlot = GetCharacter()->GetWeaponSlot();
 		
 		pPlayerInfo->m_Weapon1 = GetCharacter()->GetWeaponType(0);
@@ -375,32 +324,13 @@ void CPlayer::Snap(int SnappingClient)
 		pPlayerInfo->m_Weapon3 = GetCharacter()->GetWeaponType(2);
 		pPlayerInfo->m_Weapon4 = GetCharacter()->GetWeaponType(3);
 	}
-	
-	
 
 	if(m_ClientID == SnappingClient)
 		pPlayerInfo->m_Local = 1;
 
-	// fake spectator mode in survival
-	/*
-	if (SnappingClient == GetCID() && m_Team != TEAM_SPECTATORS && g_Config.m_SvSurvivalMode && !GetCharacter() && m_DieTick < Server()->Tick() - Server()->TickSpeed()*1)
-	{
-		pPlayerInfo->m_Team = TEAM_SPECTATORS;
-		
-		CNetObj_SpectatorInfo *pSpectatorInfo = static_cast<CNetObj_SpectatorInfo *>(Server()->SnapNewItem(NETOBJTYPE_SPECTATORINFO, m_ClientID, sizeof(CNetObj_SpectatorInfo)));
-		if(!pSpectatorInfo)
-			return;
-
-		pSpectatorInfo->m_SpectatorID = m_SpectatorID;
-		pSpectatorInfo->m_X = m_ViewPos.x;
-		pSpectatorInfo->m_Y = m_ViewPos.y;
-	}
-	*/
-	
 	if (g_Config.m_SvSurvivalMode && !GetCharacter() && m_DieTick < Server()->Tick() - Server()->TickSpeed()*1)
 		pPlayerInfo->m_Spectating = 1;
 	
-	//if(m_ClientID == SnappingClient && m_Team == TEAM_SPECTATORS)
 	if(m_ClientID == SnappingClient && Spectating())
 	{
 		//pPlayerInfo->m_Team = TEAM_SPECTATORS;
@@ -414,26 +344,6 @@ void CPlayer::Snap(int SnappingClient)
 		pSpectatorInfo->m_X = m_ViewPos.x;
 		pSpectatorInfo->m_Y = m_ViewPos.y;
 	}
-	
-	/*
-	if(m_ClientID == SnappingClient && pPlayerInfo->m_Team == TEAM_SPECTATORS)
-	{
-		CNetObj_SpectatorInfo *pSpectatorInfo = static_cast<CNetObj_SpectatorInfo *>(Server()->SnapNewItem(NETOBJTYPE_SPECTATORINFO, m_ClientID, sizeof(CNetObj_SpectatorInfo)));
-		if(!pSpectatorInfo)
-		{
-			// SPEC_FREEVIEW
-
-			//pSpectatorInfo->m_X = 0;
-			//pSpectatorInfo->m_Y = 0;
-		}
-		else
-		{
-			pSpectatorInfo->m_SpectatorID = m_SpectatorID;
-			pSpectatorInfo->m_X = m_ViewPos.x;
-			pSpectatorInfo->m_Y = m_ViewPos.y;
-		}
-	}
-	*/
 }
 
 bool CPlayer::Spectating()

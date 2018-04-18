@@ -7,7 +7,6 @@
 #include <game/collision.h>
 #include <game/client/gameclient.h>
 #include <game/client/component.h>
-#include <game/client/components/picker.h>
 #include <game/client/components/inventory.h>
 #include <game/client/components/chat.h>
 #include <game/client/components/menus.h>
@@ -151,27 +150,22 @@ void CControls::OnMessage(int Msg, void *pRawMsg)
 	}
 	*/
 	
+	/*
 	if(Msg == NETMSGTYPE_SV_WEAPONPICKUP)
 	{
 		CNetMsg_Sv_WeaponPickup *pMsg = (CNetMsg_Sv_WeaponPickup *)pRawMsg;
 		
-		CustomStuff()->m_LocalWeapons |= 1 << (pMsg->m_Weapon);
 		CustomStuff()->m_WeaponpickTimer = 1.0f;
 		CustomStuff()->m_WeaponpickWeapon = pMsg->m_Weapon;
 		CustomStuff()->m_LastWeaponPicked = false;
 			
 		if(g_Config.m_ClAutoswitchWeapons)
 		{
-			/* old way using weapon groups
-			char aBuf[32];
-			str_format(aBuf, sizeof(aBuf), "weaponpick %d", pMsg->m_Weapon-1);
-			Console()->ExecuteLine(aBuf);
-			*/
-
 			// not working yet
 			m_InputData.m_WantedWeapon = pMsg->m_Weapon+1;
 		}
 	}
+	*/
 }
 
 
@@ -271,8 +265,10 @@ int CControls::SnapInput(int *pData)
 		}
 
 		// get wanted weapon from picker
+		/*
 		if (m_PickedWeapon >= 0 && !m_BuildMode)
 			m_InputData.m_WantedWeapon = m_PickedWeapon+1;
+		*/
 		
 		m_PickedWeapon = -1;
 		

@@ -44,6 +44,9 @@ enum WeaponBits
 	SW_BOUNCER,
 	SW_CHAINSAW,
 	SW_FLAMER,
+	SW_SWITCH,
+	SW_UPGRADE,
+	SW_RANDOM,
 	SW_BUBBLER,
 	SW_SHURIKEN,
 	NUM_SW,
@@ -133,6 +136,9 @@ bool WeaponUseAmmo(int Weapon);
 bool IsFlammableProjectile(int Weapon);
 float WeaponFlameAmount(int Weapon);
 float WeaponElectroAmount(int Weapon);
+
+float ScreenshakeDistance(int Weapon);
+float ScreenshakeAmount(int Weapon);
 
 float WeaponThrowForce(int Weapon);
 

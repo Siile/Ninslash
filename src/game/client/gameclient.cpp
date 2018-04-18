@@ -36,7 +36,6 @@
 #include "components/damageind.h"
 #include "components/debughud.h"
 #include "components/effects.h"
-#include "components/picker.h"
 #include "components/inventory.h"
 #include "components/flow.h"
 #include "components/hud.h"
@@ -100,7 +99,6 @@ static CControls gs_Controls;
 static CEffects gs_Effects;
 static CScoreboard gs_Scoreboard;
 static CSounds gs_Sounds;
-static CPicker gs_Picker;
 static CInventory gs_Inventory;
 static CDamageInd gsDamageInd;
 static CVoting gs_Voting;
@@ -250,7 +248,6 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(m_pInventory);
 	m_All.Add(&gs_Hud);
 	m_All.Add(&gs_Spectator);
-	m_All.Add(&gs_Picker);
 	m_All.Add(&gs_KillMessages);
 	m_All.Add(m_pChat);
 	m_All.Add(&gs_Broadcast);
@@ -268,7 +265,6 @@ void CGameClient::OnConsoleInit()
 	m_Input.Add(m_pMotd); // for pressing esc to remove it
 	m_Input.Add(m_pMenus);
 	m_Input.Add(&gs_Spectator);
-	m_Input.Add(&gs_Picker);
 	m_Input.Add(&gs_Inventory);
 	m_Input.Add(m_pControls);
 	m_Input.Add(m_pBinds);
@@ -850,12 +846,16 @@ void CGameClient::ProcessEvents()
 			g_GameClient.m_pEffects->Explosion(vec2(ev->m_X, ev->m_Y), ev->m_Weapon);
 			
 			// todo: readd camera shake
-			/*
 			float d = distance(CustomStuff()->m_LocalPos, vec2(ev->m_X, ev->m_Y));
+			float s = GetExplosionSize(ev->m_Weapon);
 			
-			if (d < 80 + ev->m_PowerLevel * 40)
-				CustomStuff()->SetScreenshake(8.0f + ev->m_PowerLevel * 2);
-			*/
+			if (d < s)
+			{
+				float a = ScreenshakeAmount(ev->m_Weapon);
+				
+				if (a > 0)
+					CustomStuff()->SetScreenshake(a * (0.5f + (s-d)*0.5f));
+			}
 		}
 		else if(Item.m_Type == NETEVENTTYPE_REPAIR)
 		{
