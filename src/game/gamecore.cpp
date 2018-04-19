@@ -1224,7 +1224,7 @@ void CCharacterCore::Move()
 		NewPos.y += 10;
 	}
 	
-	if (VelY > 15.0f && abs(m_Vel.y) < 2.0f && m_Input.m_Down)
+	if (VelY > 13.0f && abs(m_Vel.y) < 2.0f && m_Input.m_Down)
 		Roll();
 	
 	m_Vel.x = m_Vel.x*(1.0f/RampValue);

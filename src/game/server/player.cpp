@@ -276,6 +276,7 @@ void CPlayer::PostTick()
 		m_ViewPos = GameServer()->m_apPlayers[m_SpectatorID]->m_ViewPos;
 }
 
+
 void CPlayer::Snap(int SnappingClient)
 {
 #ifdef CONF_DEBUG
@@ -343,6 +344,19 @@ void CPlayer::Snap(int SnappingClient)
 		pSpectatorInfo->m_SpectatorID = m_SpectatorID;
 		pSpectatorInfo->m_X = m_ViewPos.x;
 		pSpectatorInfo->m_Y = m_ViewPos.y;
+		
+		if (m_SpectatorID >= 0)
+		{
+			CPlayerSpecData d = GameServer()->GetPlayerSpecData(m_SpectatorID);
+			
+			pPlayerInfo->m_Kits = d.m_Kits;
+			pPlayerInfo->m_WeaponSlot = d.m_WeaponSlot;
+			
+			pPlayerInfo->m_Weapon1 = d.m_aWeapon[0];
+			pPlayerInfo->m_Weapon2 = d.m_aWeapon[1];
+			pPlayerInfo->m_Weapon3 = d.m_aWeapon[2];
+			pPlayerInfo->m_Weapon4 = d.m_aWeapon[3];
+		}
 	}
 }
 

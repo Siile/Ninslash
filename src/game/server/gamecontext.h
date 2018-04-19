@@ -18,10 +18,6 @@
 #include "mapgen.h"
 #include "lastseen.h"
 
-
-//inline int GetPart(int Weapon, int Group){ return (Weapon & (15<<(2+Group*4)))>>(2+Group*4); }
-//inline int GetWeapon(int Part1, int Part2){ return Part1<<2 | Part2<<6 | 1<<0; }
-
 /*
 	Tick
 		Game Context (CGameContext::tick)
@@ -43,6 +39,23 @@
 			All players (CPlayer::snap)
 
 */
+
+struct CPlayerSpecData
+{
+	CPlayerSpecData()
+	{
+		m_Kits = 0;
+		m_WeaponSlot = 0;
+		
+		for (int i = 0; i < 4; i++)
+			m_aWeapon[i] = 0;
+	}
+	
+	int m_WeaponSlot;
+	int m_aWeapon[4];
+	int m_Kits;
+};
+
 class CGameContext : public IGameServer
 {
 	IServer *m_pServer;
@@ -101,6 +114,8 @@ public:
 
 	IGameController *m_pController;
 	CGameWorld m_World;
+	
+	CPlayerSpecData GetPlayerSpecData(int ClientID);
 	
 	int m_aMostInterestingPlayer[2];
 	

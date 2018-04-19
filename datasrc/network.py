@@ -357,16 +357,6 @@ Objects = [
 		NetIntAny("m_Weapon4"),
 		
 		NetIntRange("m_Kits", 0, 9),
-		
-		#NetIntAny("m_Weapons"),
-		#NetIntAny("m_Upgrades"),
-		#NetIntAny("m_Upgrades2"),
-		#NetIntRange("m_Item1", 0, 9),
-		#NetIntRange("m_Item2", 0, 9),
-		#NetIntRange("m_Item3", 0, 9),
-		#NetIntRange("m_Item4", 0, 9),
-		#NetIntRange("m_Item5", 0, 9),
-		#NetIntRange("m_Item6", 0, 9),
 	]),
 
 	NetObject("ClientInfo", [

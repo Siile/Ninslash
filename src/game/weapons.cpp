@@ -790,7 +790,7 @@ int GetLaserCharge(int Weapon)
 			float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
 			
 			if (GetPart(Weapon, 1) == 2) return -1;
-			if (GetPart(Weapon, 1) == 3) return 50 + Charge*70;
+			if (GetPart(Weapon, 1) == 3) return 60 + Charge*60;
 		}
 	}
 

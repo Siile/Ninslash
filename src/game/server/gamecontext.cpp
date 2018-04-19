@@ -115,6 +115,22 @@ void CGameContext::Clear()
 }
 
 
+CPlayerSpecData CGameContext::GetPlayerSpecData(int ClientID)
+{
+	CPlayerSpecData data;
+	CCharacter *pCharacter = GetPlayerChar(ClientID);
+	
+	if (!pCharacter)
+		return data;
+	
+	data.m_Kits = pCharacter->m_Kits;
+	data.m_WeaponSlot = pCharacter->GetWeaponSlot();
+		
+	for (int i = 0; i < 4; i++)
+		data.m_aWeapon[i] = pCharacter->GetWeaponType(i);
+	
+	return data;
+}
 
 
 
