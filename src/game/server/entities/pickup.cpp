@@ -347,8 +347,7 @@ void CPickup::TickPaused()
 
 void CPickup::Snap(int SnappingClient)
 {
-	if(m_SpawnTick != -1 || NetworkClipped(SnappingClient) ||
-		(m_Type == POWERUP_WEAPON && !GameServer()->m_pController->CanSeePickup(SnappingClient, m_Type, m_Subtype))) // for gungame
+	if(m_SpawnTick != -1 || NetworkClipped(SnappingClient))
 		return;
 
 	CNetObj_Pickup *pP = static_cast<CNetObj_Pickup *>(Server()->SnapNewItem(NETOBJTYPE_PICKUP, m_ID, sizeof(CNetObj_Pickup)));

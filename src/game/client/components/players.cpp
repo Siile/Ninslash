@@ -440,12 +440,13 @@ void CPlayers::RenderPlayer(
 	// dash effect
 	if (Player.m_Movement)
 	{
-		m_pClient->m_pTracers->Add(-2, pInfo.m_ClientID, Position+vec2(0, -6), Position+vec2(0, -6), 0, 0);
-			
-		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] < 0.5f)
+		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY] <= 0.0f)
+			m_pClient->m_pTracers->Add(-2, pInfo.m_ClientID, Position+vec2(0, -6), Position+vec2(0, -6), 0, 0);
+	
+		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DASH] < 0.5f)
 			m_pClient->m_pEffects->DashEffect(Position+vec2(0, -6), Player.m_Movement1>>6);
 			
-		pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] = 1.0f;
+		pCustomPlayerInfo->m_EffectIntensity[EFFECT_DASH] = 1.0f;
 	}
 	else
 		m_pClient->m_pTracers->UpdatePos(pInfo.m_ClientID, Position+vec2(0, -6));
@@ -1273,9 +1274,9 @@ void CPlayers::RenderPlayer(
 	s = Player.m_Status;
 	if (s & (1<<STATUS_RAGE))
 	{
-		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] <= 0.0f)
+		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DASH] <= 0.0f)
 			m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_ITEM_RAGE, 1.0f, Position);
-		pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] = 1.0f;
+		pCustomPlayerInfo->m_EffectIntensity[EFFECT_DASH] = 1.0f;
 	}	
 	
 	s = Player.m_Status;
