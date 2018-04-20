@@ -11,6 +11,18 @@ enum WeaponParts1
 };
 
 
+bool ValidForTurret(int Weapon)
+{
+	if (IsModularWeapon(Weapon) && GetWeaponFiringType(Weapon) == WFT_PROJECTILE)
+		return true;
+	
+	if (IsStaticWeapon(Weapon) && (GetStaticType(Weapon) == SW_BAZOOKA || GetStaticType(Weapon) == SW_BOUNCER))
+		return true;
+		
+	return false;
+}
+
+
 float GetProjectileSprite(int Weapon)
 {
 	if (IsDroid(Weapon))
@@ -414,8 +426,8 @@ float GetExplosionDamage(int Weapon)
 			case BUILDING_TURRET: return 20.0f;
 			case BUILDING_TESLACOIL: return 120.0f;
 			case BUILDING_FLAMETRAP: return 40.0f;
-			case BUILDING_BARREL: return 60.0f; break;
-			case BUILDING_POWERBARREL: return 120.0f; break;
+			case BUILDING_BARREL: return 30.0f; break;
+			case BUILDING_POWERBARREL: return 60.0f; break;
 			default: return 0; break;
 		};
 	}

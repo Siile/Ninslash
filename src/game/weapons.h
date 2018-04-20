@@ -97,6 +97,8 @@ inline int GetBuildingWeapon(int Building) { return BIT_BUILDING | Building<<6; 
 inline int GetDroidType(int Weapon) { return IsDroid(Weapon) ? (Weapon & (1023<<6))>>6 : false; }
 inline int GetDroidWeapon(int Droid, bool OnDeath = false) { return BIT_DROID | (OnDeath ? BIT_ONDEATH : 0) | Droid<<6; }
 
+bool ValidForTurret(int Weapon);
+
 int GetShotSpread(int Weapon);
 float GetProjectileSpread(int Weapon);
 float GetExplosionSize(int Weapon);
