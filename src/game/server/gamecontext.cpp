@@ -19,6 +19,7 @@
 #include "gamemodes/base.h"
 #include "gamemodes/texasrun.h"
 
+#include <game/server/entities/pickup.h>
 #include <game/server/entities/projectile.h>
 #include <game/server/entities/laser.h>
 #include <game/server/entities/building.h>
@@ -657,6 +658,24 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon)
 						
 		if((int)Dmg && Dmg > 0.0f)
 			apBuildings[i]->TakeDamage((int)Dmg*Dmg2, Owner, Weapon);
+	}
+	
+	{
+		CPickup *apPickups[64];
+		Num = m_World.FindEntities(Pos, Radius, (CEntity**)apPickups, 64, CGameWorld::ENTTYPE_PICKUP);
+		for(int i = 0; i < Num; i++)
+		{
+			vec2 Diff = apPickups[i]->m_Pos - Pos - vec2(0, 8);
+			vec2 ForceDir(0,1);
+			float l = length(Diff);
+			if(l)
+				ForceDir = normalize(Diff);
+			l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
+			float Dmg = GetExplosionDamage(Weapon) * l;
+							
+			if((int)Dmg && Dmg > 0.0f)
+				apPickups[i]->AddForce(ForceDir*Dmg*0.3f); //
+		}
 	}
 	
 	CDroid *apDEnts[MAX_CLIENTS];

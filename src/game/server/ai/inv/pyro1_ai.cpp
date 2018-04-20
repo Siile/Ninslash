@@ -49,9 +49,8 @@ void CAIpyro1::OnCharacterSpawn(CCharacter *pChr)
 	m_StartPos = Player()->GetCharacter()->m_Pos;
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	
+	pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 4)));
 	pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_BAZOOKA)));
-	pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
-	pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GUN1)));
 	
 	pChr->SetHealth(90+min(m_Level*0.2f, 100.0f));
 	pChr->SetArmor(80+min(m_Level*0.2f, 100.0f));

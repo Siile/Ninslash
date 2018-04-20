@@ -791,6 +791,7 @@ int WeaponMaxLevel(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_UPGRADE: return 2;
 			case SW_BAZOOKA: return 2;
 			case SW_FLAMER: return 2;
 			case SW_BOUNCER: return 2;
@@ -798,7 +799,6 @@ int WeaponMaxLevel(int Weapon)
 			default: return 0;
 		};
 	}
-	
 	
 	return 0;
 }
@@ -1230,7 +1230,7 @@ float WeaponBurstReload(int Weapon)
 		switch (GetStaticType(Weapon))
 		{
 			case SW_BUBBLER: return 0.2f;
-			case SW_BAZOOKA: return 1.0f - Charge * 0.6f;
+			case SW_BAZOOKA: return 1.0f - Charge * 0.5f;
 			default: return 0.0f;
 		};
 	}
@@ -1457,7 +1457,7 @@ float GetWeaponFireRate(int Weapon)
 		{
 			case SW_CHAINSAW: return 500;
 			case SW_FLAMER: return 200;
-			case SW_BAZOOKA: return 600;
+			case SW_BAZOOKA: return 640;
 			case SW_BOUNCER: return 240;
 			case SW_BUBBLER: return 600;
 			case SW_GUN1: return 240;
@@ -1546,9 +1546,14 @@ float GetWeaponKnockback(int Weapon)
 
 bool GetWeaponFullAuto(int Weapon)
 {
+	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+	
 	// modular weapons
 	if (IsModularWeapon(Weapon))
 	{
+		if (Charge > 0.9f)
+			return true;
+		
 		int Part2 = GetPart(Weapon, 1);
 		
 		if (Part2 == 2 || Part2 == 3)

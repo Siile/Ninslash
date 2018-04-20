@@ -72,6 +72,8 @@ public:
 		m_Subtype = 0;
 	}
 	
+	void AddForce(vec2 Force);
+	
 	void ClearWeapon();
 	
 	bool m_SkipAutoRespawn;

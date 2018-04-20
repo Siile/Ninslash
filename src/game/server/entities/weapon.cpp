@@ -16,6 +16,9 @@ CWeapon::CWeapon(CGameWorld *pGameWorld, int Type)
 	else
 		m_PowerLevel = 0;
 	
+	if (IsStaticWeapon(Type) && GetStaticType(Type) == SW_UPGRADE)
+		m_PowerLevel = 3;
+	
 	Reset();
 	
 	GameWorld()->InsertEntity(this);

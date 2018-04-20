@@ -316,6 +316,13 @@ void CPickup::Tick()
 }
 
 	
+void CPickup::AddForce(vec2 Force)
+{
+	if (m_Dropable && !m_Treasure)
+		m_Vel += Force;
+}
+	
+	
 void CPickup::SurvivalReset()
 {
 	if (!m_Dropable || m_ResetableDropable)
