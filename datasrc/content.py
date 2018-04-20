@@ -663,7 +663,7 @@ for i in range(0, 3):
 	container.sprites.Add(Sprite("weapon_part2_"+str(5+i), set_weapons, 24, 26+i*2, 8, 2))
 
 
-# tools & items / weapons - mind the order
+# items & weapons - mind the order
 n = 0
 container.sprites.Add(Sprite("weapon_static1", set_weapons, 6, 0, 2, 4)) # tool
 container.sprites.Add(Sprite("weapon_static2", set_weapons, 2, 0, 4, 2)) # gun 1
@@ -674,11 +674,12 @@ container.sprites.Add(Sprite("weapon_static6", set_weapons, 7, 9, 6, 3)) # bazoo
 container.sprites.Add(Sprite("weapon_static7", set_weapons, 6, 12, 6, 3)) # bouncer
 container.sprites.Add(Sprite("weapon_static8", set_weapons, 0, 9, 7, 3)) # chainsaw
 container.sprites.Add(Sprite("weapon_static9", set_weapons, 0, 6, 7, 3)) # flamer
-container.sprites.Add(Sprite("weapon_static10", set_weapons, 2, 16, 2, 3)) # switch
-container.sprites.Add(Sprite("weapon_static11", set_weapons, 2, 19, 2, 2)) # upgrade
-container.sprites.Add(Sprite("weapon_static12", set_weapons, 2, 21, 2, 3)) # random
-container.sprites.Add(Sprite("weapon_static13", set_weapons, 7, 6, 6, 3)) # flame rifle / bubbler
-container.sprites.Add(Sprite("weapon_static14", set_weapons, 2, 12, 4, 4)) # shuriken
+container.sprites.Add(Sprite("weapon_static10", set_weapons, 2, 16, 2, 4)) # switch
+container.sprites.Add(Sprite("weapon_static11", set_weapons, 2, 20, 2, 2)) # upgrade
+container.sprites.Add(Sprite("weapon_static12", set_weapons, 2, 22, 2, 3)) # shield
+container.sprites.Add(Sprite("weapon_static13", set_weapons, 2, 25, 2, 3)) # invis
+container.sprites.Add(Sprite("weapon_static14", set_weapons, 7, 6, 6, 3)) # flame rifle / bubbler
+container.sprites.Add(Sprite("weapon_static15", set_weapons, 2, 12, 4, 4)) # shuriken
 
 # pickups
 container.sprites.Add(Sprite("pickup_kit", set_weapons, 10, 0, 2, 2))

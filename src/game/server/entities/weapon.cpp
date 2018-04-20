@@ -138,6 +138,28 @@ void CWeapon::UpdateStats()
 }
 
 
+bool CWeapon::Activate()
+{
+	if (IsStaticWeapon(m_WeaponType))
+	{
+		switch (GetStaticType(m_WeaponType))
+		{
+			case SW_INVIS: case SW_SHIELD:
+			{
+				GameServer()->m_pController->TriggerWeapon(this);
+				m_DestructionTick = 1;
+			} break;
+			
+			default: break;
+		}
+	}
+	
+	
+	return true;
+}
+
+
+
 bool CWeapon::Fire(float *pKnockback)
 {
 	m_Disabled = false;
@@ -153,6 +175,11 @@ bool CWeapon::Fire(float *pKnockback)
 	
 	if (WFT == WFT_NONE)
 		return false;
+	
+	if (WFT == WFT_ACTIVATE)
+	{
+		return Activate();
+	}
 	
 	// check for ammo
 	if (m_IsTurret)
@@ -625,15 +652,8 @@ void CWeapon::Move()
 	{
 		m_AngleForce *= 0.98f;
 	}
-	//else
-	//	m_AngleForce *= 0.995f;
 	
 	m_Angle += clamp(m_AngleForce*0.04f, -0.6f, 0.6f);
-	
-	if (m_Angle < 0)
-		m_Angle += 2*pi;
-	if (m_Angle >= 2*pi)
-		m_Angle -= 2*pi;
 }
 	
 void CWeapon::TickPaused()

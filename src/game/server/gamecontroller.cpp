@@ -88,6 +88,7 @@ void IGameController::DropPickup(vec2 Pos, int PickupType, vec2 Force, int Picku
 				m_apPickup[i]->SetSubtype(PickupSubtype);
 			
 			m_apPickup[i]->m_Vel = Force;
+			m_apPickup[i]->m_AngleForce = Force.x * (0.15f + frandom()*0.1f);
 			
 			if (Ammo >= 0.0f)
 				m_apPickup[i]->m_Ammo = Ammo;
@@ -112,6 +113,7 @@ void IGameController::DropWeapon(vec2 Pos, vec2 Force, CWeapon *pWeapon)
 			pWeapon->m_Disabled = true;
 			
 			m_apPickup[i]->m_Vel = Force;
+			m_apPickup[i]->m_AngleForce = Force.x * (0.25f + frandom()*0.1f);
 			return;
 		}
 	}

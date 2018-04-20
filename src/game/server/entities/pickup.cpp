@@ -37,6 +37,7 @@ CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType, int Ammo)
 
 void CPickup::Reset()
 {
+	m_Mirror = false;
 	if (!m_SkipAutoRespawn)
 	{
 		if (g_pData->m_aPickups[m_Type].m_Spawndelay > 0)
@@ -47,6 +48,9 @@ void CPickup::Reset()
 		m_Flashing = false;
 		m_FlashTimer = 0;
 		
+		m_AngleForce = 0.0f;
+		m_Angle = 0.0f;
+	
 		ClearWeapon();
 		
 		if (m_Type == POWERUP_WEAPON)
@@ -179,17 +183,45 @@ void CPickup::Tick()
 		if (OnForceTile == 0)
 			OnForceTile = GameServer()->Collision()->IsForceTile(m_Pos.x+12, m_Pos.y+12+5);
 		
+
+		if (Grounded)
+		{
+			m_Vel.x = (m_Vel.x + OnForceTile*0.37f) * 0.925f;
+			//m_Vel.x *= 0.8f;
+			//m_Vel.x = (m_Vel.x + OnForceTile) * 0.8f;
+			m_AngleForce += (m_Vel.x - OnForceTile*0.74f*6.0f - m_AngleForce) / 2.0f;
+		}
+		else
+		{
+			m_Vel.x *= 0.99f;
+			m_Vel.y *= 0.99f;
+		}
+		
+		if (m_Vel.x > 0.1f)
+			m_Mirror = false;
+		else if (m_Vel.x < -0.1f)
+			m_Mirror = true;
+		
+		/*
 		if (Grounded)
 			m_Vel.x = (m_Vel.x + OnForceTile) * 0.8f;
 			//m_Vel.x *= 0.8f;
 		else
 			m_Vel.x *= 0.99f;
-		
+		*/
 		
 		//if (OnForceTile == -1)
 		//	m_Vel.x -= 0.3f;
 		
-		GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(24.0f, 24.0f), 0.4f);
+		vec2 OldVel = m_Vel;
+		GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(24.0f, 24.0f), 0.5f);
+		
+		if (m_pWeapon)
+			if ((((OldVel.x < 0 && m_Vel.x > 0) || (OldVel.x > 0 && m_Vel.x < 0)) && abs(m_Vel.x) > 3.0f) ||
+				(((OldVel.y < 0 && m_Vel.y > 0) || (OldVel.y > 0 && m_Vel.y < 0)) && abs(m_Vel.y) > 3.0f))
+				GameServer()->CreateSound(m_Pos, SOUND_SFX_BOUNCE1);
+
+		m_Angle += clamp(m_AngleForce*0.04f, -0.6f, 0.6f);
 	}
 	
 	// Check if a player intersected us
@@ -325,6 +357,8 @@ void CPickup::Snap(int SnappingClient)
 
 	pP->m_X = (int)m_Pos.x;
 	pP->m_Y = (int)m_Pos.y;
+	pP->m_Angle = (int)(m_Angle*256.0f);
+	pP->m_Mirror = m_Mirror;
 	pP->m_Type = m_Type;
 	pP->m_Subtype = m_Subtype;
 }

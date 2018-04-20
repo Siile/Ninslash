@@ -2097,7 +2097,7 @@ void CRenderTools::RenderFreeHand(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo
 
 
 
-void CRenderTools::RenderWeapon(int Weapon, vec2 Pos, vec2 Dir, float Size, bool BeginQuads, int Flags, float Alpha2, bool KillMessage)
+void CRenderTools::RenderWeapon(int Weapon, vec2 Pos, vec2 Dir, float Size, bool BeginQuads, int Flags, float Alpha2, bool KillMessage, bool NoFlags)
 {
 	//Pos.x -= Size / 4;
 	
@@ -2120,7 +2120,7 @@ void CRenderTools::RenderWeapon(int Weapon, vec2 Pos, vec2 Dir, float Size, bool
 			Graphics()->SetColor(1, 1, 1, 1);
 		}
 	
-		SelectSprite(SPRITE_WEAPON_STATIC1+GetStaticType(Weapon), (Dir.x < 0 ? SPRITE_FLAG_FLIP_Y : 0) ^ Flags);
+		SelectSprite(SPRITE_WEAPON_STATIC1+GetStaticType(Weapon), NoFlags ? Flags : ((Dir.x < 0 ? SPRITE_FLAG_FLIP_Y : 0) ^ Flags));
 		//DrawSprite(Pos.x, Pos.y, Size);
 		IGraphics::CQuadItem QuadItem(Pos.x, Pos.y, Size*WSize.x, Size*WSize.y);
 		Graphics()->QuadsDraw(&QuadItem, 1);
@@ -2189,7 +2189,7 @@ void CRenderTools::RenderWeapon(int Weapon, vec2 Pos, vec2 Dir, float Size, bool
 		// back outlines
 		if (Part1 >= 0)
 		{
-			SelectSprite(SPRITE_WEAPON_PART1_BG_0+Part1, Dir.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
+			SelectSprite(SPRITE_WEAPON_PART1_BG_0+Part1, NoFlags ? Flags : (Dir.x < 0 ? SPRITE_FLAG_FLIP_Y : 0));
 			//DrawSprite(Pos.x, Pos.y, Size);
 			IGraphics::CQuadItem QuadItem(Pos.x, Pos.y, Size*WSize.x, Size*WSize.y);
 			Graphics()->QuadsDraw(&QuadItem, 1);
@@ -2198,7 +2198,7 @@ void CRenderTools::RenderWeapon(int Weapon, vec2 Pos, vec2 Dir, float Size, bool
 		// front
 		if (Part2 >= 0)
 		{
-			SelectSprite(SPRITE_WEAPON_PART2_0+Part2, Dir.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
+			SelectSprite(SPRITE_WEAPON_PART2_0+Part2, NoFlags ? Flags : (Dir.x < 0 ? SPRITE_FLAG_FLIP_Y : 0));
 			IGraphics::CQuadItem QuadItem2(Pos.x+Dir.x*Size*(WSize.x-1), Pos.y+Dir.y*Size*(WSize.x-1), Size*WSize2.x, Size*WSize2.y);
 			Graphics()->QuadsDraw(&QuadItem2, 1);
 		}
@@ -2206,7 +2206,7 @@ void CRenderTools::RenderWeapon(int Weapon, vec2 Pos, vec2 Dir, float Size, bool
 		// back
 		if (Part1 >= 0)
 		{
-			SelectSprite(SPRITE_WEAPON_PART1_0+Part1, Dir.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
+			SelectSprite(SPRITE_WEAPON_PART1_0+Part1, NoFlags ? Flags : (Dir.x < 0 ? SPRITE_FLAG_FLIP_Y : 0));
 			//DrawSprite(Pos.x, Pos.y, Size);
 			IGraphics::CQuadItem QuadItem3(Pos.x, Pos.y, Size*WSize.x, Size*WSize.y);
 			Graphics()->QuadsDraw(&QuadItem3, 1);

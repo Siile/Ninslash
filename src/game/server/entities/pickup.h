@@ -92,9 +92,14 @@ public:
 	
 	void SetSubtype(int Type){ m_Subtype = Type; }
 	
+	float m_Angle;
+	float m_AngleForce;
+	
 private:
 	int m_Type;
 	int m_Subtype;
+	
+	bool m_Mirror;
 	
 	vec2 m_SpawnPos;
 	bool m_ResetableDropable;

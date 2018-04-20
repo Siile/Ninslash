@@ -219,7 +219,8 @@ Objects = [
 	NetObject("Pickup", [
 		NetIntAny("m_X"),
 		NetIntAny("m_Y"),
-
+		NetBool("m_Mirror"),
+		NetIntAny("m_Angle"),
 		NetIntRange("m_Type", 0, 'max_int'),
 		NetIntAny("m_Subtype"),
 	]),

@@ -183,18 +183,33 @@ void CItems::RenderPickup(const CNetObj_Pickup *pPrev, const CNetObj_Pickup *pCu
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 	Graphics()->QuadsBegin();
 	vec2 Pos = mix(vec2(pPrev->m_X, pPrev->m_Y), vec2(pCurrent->m_X, pCurrent->m_Y), Client()->IntraGameTick());
-	float Angle = 0.0f;
-	float Size = 64.0f;
+	float Angle = mix(pPrev->m_Angle, pCurrent->m_Angle, Client()->IntraGameTick()) / 256.0f;
 	
+	if (pCurrent->m_Angle > (256.0f * pi) && pPrev->m_Angle < 0)
+	{
+		float ca = pCurrent->m_Angle - 256.0f * 2 * pi;
+		Angle = mix((float)pPrev->m_Angle, ca, Client()->IntraGameTick()) / 256.0f;
+	}
+	else if (pCurrent->m_Angle < 0 && pPrev->m_Angle > (256.0f * pi))
+	{
+		float ca = pCurrent->m_Angle + 256.0f * 2 * pi;
+		Angle = mix((float)pPrev->m_Angle, ca, Client()->IntraGameTick()) / 256.0f;
+	}
+	
+	int Flags = pCurrent->m_Mirror ? SPRITE_FLAG_FLIP_Y : 0;
+	
+	float Size = 64.0f;
 	bool SkipOffset = false;
 	
+	if (Angle != 0.0f)
+		SkipOffset = true;
 	
 	vec2 Vel = vec2(pCurrent->m_X, pCurrent->m_Y) - vec2(pPrev->m_X, pPrev->m_Y);
 	m_pClient->AddFluidForce(Pos, Vel);
 	
 	if (pCurrent->m_Type == POWERUP_WEAPON)
 	{
-		Angle = 0; //-pi/6;//-0.25f * pi * 2.0f;
+		//Angle = 0; //-pi/6;//-0.25f * pi * 2.0f;
 	}
 	else
 	{
@@ -212,7 +227,7 @@ void CItems::RenderPickup(const CNetObj_Pickup *pPrev, const CNetObj_Pickup *pCu
 	}
 
 	Graphics()->QuadsSetRotation(Angle);
-
+		
 	static float s_Time = 0.0f;
 	static float s_LastLocalTime = Client()->LocalTime();
 	float Offset = Pos.y/32.0f + Pos.x/32.0f;
@@ -237,7 +252,7 @@ void CItems::RenderPickup(const CNetObj_Pickup *pPrev, const CNetObj_Pickup *pCu
 	s_LastLocalTime = Client()->LocalTime();
 	
 	if (pCurrent->m_Type == POWERUP_WEAPON)
-		RenderTools()->RenderWeapon(pCurrent->m_Subtype, Pos, vec2(1, 0), WEAPON_GAME_SIZE);
+		RenderTools()->RenderWeapon(pCurrent->m_Subtype, Pos, vec2(cos(Angle), sin(Angle)), WEAPON_GAME_SIZE, false, Flags, 1.0f, false, true);
 	else
 		RenderTools()->DrawSprite(Pos.x, Pos.y, Size);
 

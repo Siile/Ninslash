@@ -133,8 +133,6 @@ vec2 GetWeaponColorswap(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
-			case SW_GRENADE1: return vec2(0.0f, 0.0f);
-			case SW_GRENADE2: return vec2(0.9f, 1.0f);
 			case SW_BOUNCER: return vec2(0.0f+Charge*0.9f, 0.0f+Charge*0.4f);
 			case SW_BAZOOKA: return vec2(0.0f+Charge*1.0f, 0.0f+Charge*0.4f);
 			case SW_CHAINSAW: return vec2(0.0f+Charge*0.25f, 0.0f+Charge*0.9f);
@@ -314,6 +312,10 @@ int GetWeaponFireSound(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_UPGRADE: return -1;
+			case SW_SWITCH: return -1;
+			case SW_INVIS: return -1;
+			case SW_SHIELD: return -1;
 			case SW_CHAINSAW: return SOUND_CHAINSAW_FIRE;
 			case SW_FLAMER: return SOUND_FLAMER1;
 			case SW_BAZOOKA: return SOUND_BAZOOKA_FIRE;
@@ -439,7 +441,7 @@ float GetExplosionDamage(int Weapon)
 			case SW_GRENADE2: return 30; break;
 			case SW_BUBBLER: return 14; break;
 			case SW_BAZOOKA: return 80; break;
-			case SW_BOUNCER: return 30 - (GetShotSpread(Weapon)-1)*4.0f; break;
+			case SW_BOUNCER: return 24 - max(8.0f, (GetShotSpread(Weapon)-1)*4.0f); break;
 			default: return 0;
 		};
 	}
@@ -501,6 +503,11 @@ ivec2 GetWeaponVisualSize(int Weapon)
 		case SW_GRENADE1: case SW_GRENADE2: return ivec2(2, 3);
 		case SW_SHURIKEN: return ivec2(4, 4);
 		case SW_TOOL: return ivec2(2, 4);
+		
+		case SW_UPGRADE: return ivec2(2, 2);
+		case SW_SWITCH: return ivec2(2, 4);
+		case SW_INVIS: return ivec2(2, 3);
+		case SW_SHIELD: return ivec2(2, 3);
 	};
 	
 	return ivec2(0, 0);
@@ -539,6 +546,7 @@ int GetWeaponFiringType(int Weapon)
 	
 	switch (GetStaticType(Weapon))
 	{
+		case SW_SHIELD: case SW_INVIS: case SW_UPGRADE: case SW_SWITCH: return WFT_ACTIVATE;
 		case SW_CHAINSAW: case SW_FLAMER: return WFT_HOLD;
 		case SW_BUBBLER: return WFT_PROJECTILE;
 		case SW_BAZOOKA: return WFT_PROJECTILE;
@@ -601,6 +609,9 @@ vec2 GetWeaponRenderOffset(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_UPGRADE: return vec2(9, 0);
+			case SW_SWITCH: return vec2(2, -5);
+			case SW_SHIELD: case SW_INVIS: return vec2(4, -3);
 			case SW_BAZOOKA: return vec2(30, 0);
 			case SW_BOUNCER: return vec2(30, 0);
 			case SW_BUBBLER: return vec2(30, 0);
@@ -772,7 +783,7 @@ int WeaponMaxLevel(int Weapon)
 			case SW_FLAMER: return 2;
 			case SW_BOUNCER: return 2;
 			case SW_CHAINSAW: return 2;
-			default: return false;
+			default: return 0;
 		};
 	}
 	

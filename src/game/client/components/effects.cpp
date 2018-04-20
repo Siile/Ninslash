@@ -1484,7 +1484,7 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 		Electrospark(Pos, 64 * GetProjectileSize(Weapon));
 		
 		
-		if (g_Config.m_GfxShaders)
+		//if (g_Config.m_GfxShaders)
 		{
 			CSinglespark b;
 			b.SetDefault();
@@ -1498,6 +1498,7 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 			b.m_Color = vec4(0.0f, 1.0f, 1.0f, 1.0f);
 			m_pClient->m_pSpark->Add(CSpark::GROUP_AREA1, &b);
 		}
+		/*
 		else
 		{
 			CParticle p;
@@ -1511,6 +1512,7 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 			p.m_Rot = frandom()*pi*2;
 			m_pClient->m_pParticles->Add(CParticles::GROUP_ELECTRIC, &p);
 		}
+		*/
 		
 		/*
 		CParticle p;

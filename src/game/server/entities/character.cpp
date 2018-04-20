@@ -186,6 +186,14 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 			m_Silent = true;
 	}
 	
+	
+	int n = 0;
+	//m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD));
+	//m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_INVIS));
+	//m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_UPGRADE));
+	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_BAZOOKA));
+	
+	
 	GiveStartWeapon();
 	SendInventory();
 	
@@ -556,12 +564,27 @@ void CCharacter::TriggerWeapon(CWeapon *pWeapon)
 	
 	int w = GetWeaponType();
 	
+	if (IsStaticWeapon(w))
+	{
+		switch (GetStaticType(w))
+		{
+			case SW_INVIS: GiveBuff(PLAYERITEM_INVISIBILITY); break;
+			case SW_SHIELD: GiveBuff(PLAYERITEM_SHIELD); break;
+			
+			default: break;
+		}
+	}
+	
+	/*
+	int w = GetWeaponType();
+	
 	if (IsModularWeapon(w) && GetPart(w, 1) == 5)
 	{
 		m_ChargeTick = 0;
 		m_AttackTick = Server()->Tick();
 		m_Core.m_ChargeLevel = 0;
 	}
+	*/
 }
 
 void CCharacter::ReleaseWeapon(CWeapon *pWeapon)
@@ -1264,10 +1287,8 @@ bool CCharacter::GiveBuff(int Item)
 		return true;
 	}
 	
-	/*
 	if (Item == PLAYERITEM_INVISIBILITY)
-		m_aStatus[STATUS_INVISIBILITY] = Server()->TickSpeed() * 20.0f;
-	*/
+		m_aStatus[STATUS_INVISIBILITY] = Server()->TickSpeed() * 15.0f;
 	
 	return false;
 }

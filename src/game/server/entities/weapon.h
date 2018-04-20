@@ -29,6 +29,8 @@ public:
 	
 	bool Fire(float *pKnockback = NULL);
 	
+	bool Activate();
+	
 	bool Throw();
 	bool Charge();
 	bool ReleaseCharge(float *pKnockback = NULL);

@@ -46,7 +46,8 @@ enum WeaponBits
 	SW_FLAMER,
 	SW_SWITCH,
 	SW_UPGRADE,
-	SW_RANDOM,
+	SW_SHIELD,
+	SW_INVIS,
 	SW_BUBBLER,
 	SW_SHURIKEN,
 	NUM_SW,
@@ -65,7 +66,8 @@ enum WeaponBits
 	WFT_PROJECTILE, // rifles, shotguns etc.
 	WFT_CHARGE, // gun 2 & charge weapons
 	WFT_HOLD, // chainsaw & flamer
-	WFT_THROW // grenades
+	WFT_THROW, // grenades
+	WFT_ACTIVATE // some items
 };
 
 
