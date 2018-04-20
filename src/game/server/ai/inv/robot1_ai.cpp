@@ -46,26 +46,27 @@ void CAIrobot1::OnCharacterSpawn(CCharacter *pChr)
 	m_StartPos = Player()->GetCharacter()->m_Pos;
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	
+	int Level = g_Config.m_SvMapGenLevel;
 	
 	if (m_Skin == 2)
 	{
 		m_PowerLevel = 6;
-		pChr->SetHealth(60);
-		pChr->SetArmor(60);
+		pChr->SetHealth(50+min(Level*0.2f, 100.0f));
+		pChr->SetArmor(50+min(Level*0.2f, 100.0f));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(3, 4)));
 	}
 	else if (m_Skin == 3)
 	{
 		m_PowerLevel = 2;
-		pChr->SetHealth(60);
-		pChr->SetArmor(100);
+		pChr->SetHealth(50+min(Level*0.2f, 100.0f));
+		pChr->SetArmor(100+min(Level*0.2f, 100.0f));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_CHAINSAW)));
 	}
 	else if (m_Skin == 1)
 	{
 		m_PowerLevel = 6;
-		pChr->SetHealth(60);
-		pChr->SetArmor(80);
+		pChr->SetHealth(50+min(Level*0.2f, 100.0f));
+		pChr->SetArmor(70+min(Level*0.2f, 100.0f));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 2)));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
@@ -73,8 +74,8 @@ void CAIrobot1::OnCharacterSpawn(CCharacter *pChr)
 	else if (m_Skin == 8)
 	{
 		m_PowerLevel = 8;
-		pChr->SetHealth(100);
-		pChr->SetArmor(100);
+		pChr->SetHealth(100+min(Level*0.2f, 100.0f));
+		pChr->SetArmor(100+min(Level*0.2f, 100.0f));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(3, 1+rand()%3)));
 	}
 	

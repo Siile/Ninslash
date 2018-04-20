@@ -34,8 +34,9 @@ void CAIbunny1::OnCharacterSpawn(CCharacter *pChr)
 {
 	CAI::OnCharacterSpawn(pChr);
 	
+	int Level = g_Config.m_SvMapGenLevel;
+	
 	m_WaypointDir = vec2(0, 0);
-
 	m_PowerLevel = 10;
 	
 	m_StartPos = Player()->GetCharacter()->m_Pos;
@@ -53,7 +54,7 @@ void CAIbunny1::OnCharacterSpawn(CCharacter *pChr)
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE2)));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE2)));
 		
-		pChr->SetHealth(100);
+		pChr->SetHealth(80+min(Level*0.2f, 80.0f));
 		m_PowerLevel = 14;
 		m_TriggerLevel = 15 + rand()%5;
 	}
@@ -65,7 +66,7 @@ void CAIbunny1::OnCharacterSpawn(CCharacter *pChr)
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(5, 6)));
 		
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE2)));
-		pChr->SetHealth(50);
+		pChr->SetHealth(40+min(Level*0.2f, 80.0f));
 	}
 	
 	m_ShockTimer = 10;

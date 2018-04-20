@@ -47,8 +47,8 @@ void CAIalien1::OnCharacterSpawn(CCharacter *pChr)
 	if (m_Skin == 11)
 	{
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_CHAINSAW)));
-		pChr->SetHealth(60);
-		pChr->SetArmor(80);
+		pChr->SetHealth(60+min(m_Level*0.2f, 80.0f));
+		pChr->SetArmor(60+min(m_Level*0.2f, 80.0f));
 		m_PowerLevel = 8;
 		m_TriggerLevel = 15 + rand()%5;
 	}
@@ -64,7 +64,7 @@ void CAIalien1::OnCharacterSpawn(CCharacter *pChr)
 		else if (frandom() < 0.5f)
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GUN2)));
 		
-		pChr->SetHealth(60);
+		pChr->SetHealth(60+min(m_Level*0.2f, 80.0f));
 	}
 	
 	

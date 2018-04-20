@@ -155,7 +155,7 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			if (g_Config.m_SvMapGenLevel > 30 && frandom() < 0.3f)
 				i = ENEMY_BUNNY1;
 			
-			if (g_Config.m_SvMapGenLevel > 50 && frandom() < 0.05f)
+			if (g_Config.m_SvMapGenLevel > 50 && frandom() < 0.04f)
 				i = ENEMY_PYRO1;
 			
 			

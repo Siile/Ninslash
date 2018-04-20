@@ -53,8 +53,8 @@ void CAIpyro1::OnCharacterSpawn(CCharacter *pChr)
 	pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
 	pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GUN1)));
 	
-	pChr->SetHealth(100);
-	pChr->SetArmor(80);
+	pChr->SetHealth(90+min(m_Level*0.2f, 100.0f));
+	pChr->SetArmor(80+min(m_Level*0.2f, 100.0f));
 	m_PowerLevel = 8;
 	m_TriggerLevel = 15 + rand()%5;
 	

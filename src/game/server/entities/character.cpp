@@ -187,6 +187,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	}
 	
 	
+	/*
 	int n = 0;
 	//m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD));
 	//m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_INVIS));
@@ -196,6 +197,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_BOUNCER));
 	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_FLAMER));
 	m_Kits = 9;
+	*/
 	
 	GiveStartWeapon();
 	SendInventory();
