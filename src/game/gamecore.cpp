@@ -265,7 +265,7 @@ void CCharacterCore::Tick(bool UseInput)
 	m_OnWall = false;
 	
 	// rage
-	if (m_Status & (1<<STATUS_RAGE))
+	if (m_Status & (1<<STATUS_DASH))
 	{
 		Friction /= 1.4f;
 		MaxSpeed *= 1.4f;

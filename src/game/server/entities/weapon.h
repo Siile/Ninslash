@@ -52,6 +52,7 @@ public:
 	bool UsesAmmo(){ return m_MaxAmmo > 0 ? true : false; }
 	int GetAmmo(){ return m_Ammo; }
 	
+	bool Overcharge();
 	bool Upgrade();
 	
 	void SetTurret(bool TurretBit = true);
@@ -63,6 +64,8 @@ public:
 	
 	void OnPlayerPick();
 	void Deactivate();
+	
+	int m_DestructionTick;
 	
 protected:
 	vec2 m_Vel;
@@ -112,7 +115,6 @@ protected:
 	
 private:
 	int m_LastNoAmmoSound;
-	int m_DestructionTick;
 	
 	void SelfDestruct();
 };

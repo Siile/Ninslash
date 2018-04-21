@@ -137,6 +137,12 @@ bool AIWeaponCharge(int Weapon)
 	return false;
 }
 
+float GetWeaponLevelCharge(int Weapon)
+{
+	return GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+}
+
+
 vec2 GetWeaponColorswap(int Weapon)
 {
 	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));

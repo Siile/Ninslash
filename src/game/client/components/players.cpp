@@ -1272,7 +1272,7 @@ void CPlayers::RenderPlayer(
 	}	
 	
 	s = Player.m_Status;
-	if (s & (1<<STATUS_RAGE))
+	if (s & (1<<STATUS_DASH))
 	{
 		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DASH] <= 0.0f)
 			m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_ITEM_RAGE, 1.0f, Position);

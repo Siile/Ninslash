@@ -687,7 +687,9 @@ container.sprites.Add(Sprite("pickup_armor", set_weapons, 14,0,2,2))
 container.sprites.Add(Sprite("pickup_health", set_weapons, 12,0,2,2))
 container.sprites.Add(Sprite("pickup_ammo", set_weapons, 8,0,2,2))
 
-
+# for displaying weapon ranks / levels in inventory
+for y in range(0, 5):
+	container.sprites.Add(Sprite("weaponrank"+str(y+1), set_weapons, 18, 0+y*2, 2, 2))
 
 
 # projectiles

@@ -450,12 +450,30 @@ void CCharacter::SwapItem(int Item1, int Item2)
 	
 	CWeapon *t = m_apWeapon[Item1];
 	
-	// drop weapon
-	if (Item2 < 0)
+	int w1 = GetWeaponType(Item1);
+	int w2 = GetWeaponType(Item2);
+	
+	if (IsStaticWeapon(w1) && GetStaticType(w1) == SW_UPGRADE)
 	{
+		if (GetWeapon(Item2))
+		{
+			if (GetWeapon(Item2)->Overcharge())
+			{
+				m_apWeapon[Item1]->m_DestructionTick = 1;
+				m_apWeapon[Item1] = NULL;
+				
+				// overcharge sound
+			}
+			else
+				; // negative sound
+			
+			SendInventory();
+			return;
+		}
 	}
-	else
+	
 	// swap slots
+	if (Item2 >= 0)
 	{
 		m_apWeapon[Item1] = m_apWeapon[Item2];
 		m_apWeapon[Item2] = t;
@@ -1168,9 +1186,9 @@ void CCharacter::SelectItem(int Item)
 	}
 	*/
 
-	if (Item == PLAYERITEM_RAGE && m_aStatus[STATUS_RAGE] <= 0)
+	if (Item == PLAYERITEM_RAGE && m_aStatus[STATUS_DASH] <= 0)
 	{
-		m_aStatus[STATUS_RAGE] = Server()->TickSpeed() * 20.0f;
+		m_aStatus[STATUS_DASH] = Server()->TickSpeed() * 20.0f;
 		m_aItem[Item]--;
 	}
 	
@@ -1226,7 +1244,7 @@ bool CCharacter::GiveBuff(int Item)
 
 	/*
 	if (Item == PLAYERITEM_RAGE)
-		m_aStatus[STATUS_RAGE] = Server()->TickSpeed() * 20.0f;
+		m_aStatus[STATUS_DASH] = Server()->TickSpeed() * 20.0f;
 	
 	if (Item == PLAYERITEM_FUEL)
 		m_aStatus[STATUS_FUEL] = Server()->TickSpeed() * 20.0f;

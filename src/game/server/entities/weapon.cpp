@@ -448,6 +448,23 @@ bool CWeapon::AddClip()
 	return false;
 }
 
+bool CWeapon::Overcharge()
+{
+	if (m_MaxLevel > 0 && m_PowerLevel <= m_MaxLevel)
+	{
+		if (m_MaxLevel > 3 && m_PowerLevel == m_MaxLevel)
+			m_PowerLevel++;
+		
+		m_PowerLevel++;
+		
+		UpdateStats();
+		return true;
+	}
+	
+	return false;
+}
+
+
 bool CWeapon::Upgrade()
 {
 	if (m_PowerLevel < m_MaxLevel)

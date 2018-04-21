@@ -162,6 +162,8 @@ int GetLaserCharge(int Weapon);
 
 int AIAttackRange(int Weapon);
 
+float GetWeaponLevelCharge(int Weapon);
+
 int GetRandomWeaponType();
 int GetMuzzleType(int Weapon);
 int GetMuzzleAmount(int Weapon);
