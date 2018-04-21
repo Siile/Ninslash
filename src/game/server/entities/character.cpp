@@ -463,9 +463,8 @@ void CCharacter::SwapItem(int Item1, int Item2)
 				m_apWeapon[Item1] = NULL;
 				
 				// overcharge sound
+				GameServer()->CreateSound(m_Pos, SOUND_UPGRADE);
 			}
-			else
-				; // negative sound
 			
 			SendInventory();
 			return;
@@ -661,7 +660,7 @@ bool CCharacter::PickWeapon(CWeapon *pWeapon)
 	for (int i = 0; i < 4; i++)
 		if (GetChargedWeapon(GetWeaponType(i), 0) == GetChargedWeapon(pWeapon->GetWeaponType(), 0) && 
 			GetWeaponCharge(GetWeaponType(i)) >= GetWeaponCharge(pWeapon->GetWeaponType()) && 
-			GetWeaponFiringType(GetWeaponType(i)) != WFT_THROW)
+			GetWeaponFiringType(GetWeaponType(i)) != WFT_THROW && GetStaticType(GetWeaponType(i)) != SW_UPGRADE)
 			Valid = false;
 	
 	for (int i = 0; i < 4; i++)

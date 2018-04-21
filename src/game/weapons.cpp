@@ -1313,7 +1313,7 @@ float GetProjectileDamage(int Weapon)
 
 			if (Part2 == 1) return 25+Charge*10.0f;
 			if (Part2 == 2) return 8+Charge*4.0f;
-			if (Part2 == 3) return 33+Charge*17.0f;
+			if (Part2 == 3) return 30+Charge*20.0f;
 			if (Part2 == 4) return 15+Charge*5.0f;
 		}
 		else if (Part1 == 4)
