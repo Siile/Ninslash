@@ -1161,7 +1161,7 @@ void CAI::ShootAtClosestHuman()
 			if (ClosestDistance < WeaponShootRange() && abs(atan2(m_Direction.x, m_Direction.y) - atan2(AttackDirection.x, AttackDirection.y)) < PI / 4.0f)
 			{
 				m_Attack = 1;
-				if (frandom()*30 < 2 && !Player()->GetCharacter()->UsingMeleeWeapon())
+				if (frandom()*30 < 2 && WeaponShootRange() > 200)
 					m_DontMoveTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed()*(1+frandom());
 			}
 		}
@@ -1250,7 +1250,7 @@ bool CAI::ShootAtClosestEnemy()
 					m_Attack = 1;
 					
 					if (m_PowerLevel < 10)
-					if (frandom()*30 < 2 && !Player()->GetCharacter()->UsingMeleeWeapon())
+					if (frandom()*30 < 2 && WeaponShootRange() > 200)
 						m_DontMoveTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed()*(1+frandom()-m_PowerLevel*0.1f);
 				}
 				
@@ -1329,7 +1329,7 @@ bool CAI::ShootAtClosestMonster()
 			if (ClosestDistance < WeaponShootRange() && abs(atan2(m_Direction.x, m_Direction.y) - atan2(AttackDirection.x, AttackDirection.y)) < PI / 4.0f)
 			{
 				m_Attack = 1;
-				if (frandom()*30 < 2 && !Player()->GetCharacter()->UsingMeleeWeapon())
+				if (frandom()*30 < 2 && WeaponShootRange() > 200)
 					m_DontMoveTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed()*(1+frandom());
 			}
 		}
@@ -1398,7 +1398,7 @@ bool CAI::ShootAtClosestBuilding()
 			if (ClosestDistance < WeaponShootRange() && abs(atan2(m_Direction.x, m_Direction.y) - atan2(AttackDirection.x, AttackDirection.y)) < PI / 4.0f)
 			{
 				m_Attack = 1;
-				if (frandom()*30 < 2 && !Player()->GetCharacter()->UsingMeleeWeapon())
+				if (frandom()*30 < 2 && WeaponShootRange() > 200)
 					m_DontMoveTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed()*(1+frandom());
 			}
 		}

@@ -196,126 +196,6 @@ void CPicker::DrawEmoticons()
 
 void CPicker::DrawWeapons()
 {
-	// reset mouse to active weapon
-	if (m_ResetMouse)
-	{
-		float Angle = -pi/2.0f + 2*pi*(CustomStuff()->m_SelectedWeapon-1)/(NUM_WEAPONS-1);
-		if (Angle > pi)
-			Angle -= 2*pi;
-		
-		m_SelectorMouse = vec2(135.0f * cosf(Angle), 135.0f * sinf(Angle));
-		m_ResetMouse = false;
-		m_Selected = -1;
-		m_ItemSelected = -1;
-	}
-	
-	CUIRect Screen = *UI()->Screen();
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
-	Graphics()->QuadsBegin();
-
-	bool Unselect = true;
-	
-	for (int i = 0; i < NUM_WEAPONS-1; i++)
-	{
-		int w = CustomStuff()->m_LocalWeapons;
-		if (!(w & (1<<(i+1))))
-			continue;
-		
-		float Angle = -pi/2.0f + 2*pi*i/(NUM_WEAPONS-1);
-		if (Angle > pi)
-			Angle -= 2*pi;
-
-		bool Selected = m_Selected == i;
-
-		float Size = Selected ? 1.25f : 1.0f;
-
-		float NudgeX = 135.0f * cosf(Angle);
-		float NudgeY = 135.0f * sinf(Angle);
-		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[i+1].m_pSpriteBody);
-		
-		vec2 Pos = vec2(Screen.w/2 + NudgeX, Screen.h/2 + NudgeY);
-		
-		RenderTools()->DrawSprite(Pos.x, Pos.y, g_pData->m_Weapons.m_aId[i+1].m_VisualSize * Size);
-		
-		if (distance(m_SelectorMouse+vec2(Screen.w/2, Screen.h/2), Pos) < 40 && 
-			length(m_SelectorMouse) > 100.0f)
-		{
-			if (m_Selected != i)
-				m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_PICK, 0);
-			
-			m_Selected = i;
-			Unselect = false;
-		}
-	}
-
-	Graphics()->QuadsEnd();
-	
-	
-	if (Unselect)
-		m_Selected = -1;
-	
-	// render mines
-	if (CustomStuff()->m_aLocalItems[PLAYERITEM_LANDMINE] + CustomStuff()->m_aLocalItems[PLAYERITEM_ELECTROMINE] > 0)
-	{		
-		if (CustomStuff()->m_aLocalItems[PLAYERITEM_LANDMINE] > 0)
-		{
-			bool Selected = m_ItemSelected == PLAYERITEM_LANDMINE;
-			
-			Graphics()->TextureSet(-1);
-			Graphics()->QuadsBegin();
-			if (Selected)
-				Graphics()->SetColor(0.2f, 1.0f, 0.2f, 0.5f);
-			else
-				Graphics()->SetColor(0.4f, .4f, 0.4f, 0.5f);
-			DrawCircle(Screen.w/2-32, Screen.h/2, 28, 20);
-			Graphics()->QuadsEnd();
-			
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMS].m_Id);
-			Graphics()->QuadsBegin();
-			Graphics()->SetColor(1,1,1,1);
-
-			float Size = Selected ? 1.25f : 1.0f;
-		
-			RenderTools()->SelectSprite(SPRITE_ITEM1+PLAYERITEM_LANDMINE);
-			RenderTools()->DrawSprite(Screen.w/2 - 32, Screen.h/2, 64 * Size);
-			Graphics()->QuadsEnd();
-			
-			char aBuf[8];
-			str_format(aBuf, sizeof(aBuf), "%d", clamp(CustomStuff()->m_aLocalItems[PLAYERITEM_LANDMINE] ,0, 9));
-			TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
-			TextRender()->Text(0, Screen.w/2 - 32+20, Screen.h/2+12, 16*Size, aBuf, -1);
-			TextRender()->TextColor(1, 1, 1, 1);
-		}
-		if (CustomStuff()->m_aLocalItems[PLAYERITEM_ELECTROMINE] > 0)
-		{
-			bool Selected = m_ItemSelected == PLAYERITEM_ELECTROMINE;
-			
-			Graphics()->TextureSet(-1);
-			Graphics()->QuadsBegin();
-			if (Selected)
-				Graphics()->SetColor(0.2f, 1.0f, 0.2f, 0.5f);
-			else
-				Graphics()->SetColor(0.4f, .4f, 0.4f, 0.5f);
-			DrawCircle(Screen.w/2+32, Screen.h/2, 28, 20);
-			Graphics()->QuadsEnd();
-			
-			Graphics()->TextureSet(g_pData->m_aImages[IMAGE_ITEMS].m_Id);
-			Graphics()->QuadsBegin();
-			Graphics()->SetColor(1,1,1,1);
-			
-			float Size = Selected ? 1.25f : 1.0f;
-		
-			RenderTools()->SelectSprite(SPRITE_ITEM1+PLAYERITEM_ELECTROMINE);
-			RenderTools()->DrawSprite(Screen.w/2 + 32, Screen.h/2, 64 * Size);
-			Graphics()->QuadsEnd();
-			
-			char aBuf[8];
-			str_format(aBuf, sizeof(aBuf), "%d", clamp(CustomStuff()->m_aLocalItems[PLAYERITEM_ELECTROMINE] ,0, 9));
-			TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
-			TextRender()->Text(0, Screen.w/2 + 32+20, Screen.h/2+12, 16*Size, aBuf, -1);
-			TextRender()->TextColor(1, 1, 1, 1);
-		}
-	}
 }
 
 
@@ -442,24 +322,6 @@ void CPicker::OnRender()
 	// items in the middle
 	else if (m_PickerType == PICKER_WEAPON)
 	{
-		m_Selected = -1;
-			
-		if (distance(m_SelectorMouse, vec2(-32, 0)) < 32 && CustomStuff()->m_aLocalItems[PLAYERITEM_LANDMINE] > 0)
-		{
-			if (m_ItemSelected != PLAYERITEM_LANDMINE)
-				m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_PICK, 0);
-				
-			m_ItemSelected = PLAYERITEM_LANDMINE;
-		}
-		else if (distance(m_SelectorMouse, vec2(+32, 0)) < 32 && CustomStuff()->m_aLocalItems[PLAYERITEM_ELECTROMINE] > 0)
-		{
-			if (m_ItemSelected != PLAYERITEM_ELECTROMINE)
-				m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_PICK, 0);
-			
-			m_ItemSelected = PLAYERITEM_ELECTROMINE;
-		}
-		else
-			m_ItemSelected = -1;
 	}
 
 	CUIRect Screen = *UI()->Screen();
@@ -520,20 +382,7 @@ void CPicker::UseKit(int Kit)
 
 void CPicker::Itempick(int Item)
 {
-	if (Item < 0 || Item >= NUM_PLAYERITEMS)
-		return;
 
-	if (CustomStuff()->m_aLocalItems[Item] < 1)
-	{
-		m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_NEGATIVE, 0);
-		return;
-	}
-	
-	m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_UI_POSITIVE, 0);
-
-	CNetMsg_Cl_SelectItem Msg;
-	Msg.m_Item = Item;
-	Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
 }
 
 

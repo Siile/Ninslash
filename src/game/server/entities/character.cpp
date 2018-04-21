@@ -186,6 +186,19 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 			m_Silent = true;
 	}
 	
+	
+	/*
+	int n = 0;
+	//m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD));
+	//m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_INVIS));
+	//m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_UPGRADE));
+	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_BAZOOKA));
+	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_CHAINSAW));
+	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_BOUNCER));
+	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_FLAMER));
+	m_Kits = 9;
+	*/
+	
 	GiveStartWeapon();
 	SendInventory();
 	
@@ -229,7 +242,6 @@ void CCharacter::SaveData()
 {
 	CPlayerData *pData = GameServer()->Server()->PlayerData(GetPlayer()->GetCID());
 
-	//pData->m_Weapon = GetActiveWeapon();
 	pData->m_Kits = m_Kits;
 	pData->m_Armor = m_Armor;
 	pData->m_Score = GetPlayer()->m_Score;
@@ -273,7 +285,18 @@ bool CCharacter::GiveWeapon(class CWeapon *pWeapon)
 		return false;
 	
 	if (m_apWeapon[m_WeaponSlot])
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			if (!m_apWeapon[i])
+			{
+				m_apWeapon[i] = pWeapon;
+				pWeapon->OnPlayerPick();
+				return true;
+			}
+		}
 		return false;
+	}
 	
 	m_apWeapon[m_WeaponSlot] = pWeapon;
 	pWeapon->OnPlayerPick();
@@ -395,6 +418,14 @@ void CCharacter::DropItem(int Slot, vec2 Pos)
 	if (Slot < 0 || Slot >= 12)
 		return;
 
+	
+	if (UpgradeTurret(Pos, vec2(Pos.x > m_Pos.x ? -1 : 1, 0), Slot))
+	{
+		m_apWeapon[Slot] = 0;
+		SendInventory();
+		return;
+	}
+	
 	if (m_apWeapon[Slot] && m_apWeapon[Slot]->Drop())
 	{
 		//vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
@@ -406,7 +437,6 @@ void CCharacter::DropItem(int Slot, vec2 Pos)
 		m_SkipPickups = 20;
 				
 		m_apWeapon[Slot] = NULL;
-		m_ActiveWeapon = WEAPON_NONE;
 		SendInventory();
 		return;
 	}
@@ -420,12 +450,29 @@ void CCharacter::SwapItem(int Item1, int Item2)
 	
 	CWeapon *t = m_apWeapon[Item1];
 	
-	// drop weapon
-	if (Item2 < 0)
+	int w1 = GetWeaponType(Item1);
+	int w2 = GetWeaponType(Item2);
+	
+	if (IsStaticWeapon(w1) && GetStaticType(w1) == SW_UPGRADE)
 	{
+		if (GetWeapon(Item2))
+		{
+			if (GetWeapon(Item2)->Overcharge())
+			{
+				m_apWeapon[Item1]->m_DestructionTick = 1;
+				m_apWeapon[Item1] = NULL;
+				
+				// overcharge sound
+				GameServer()->CreateSound(m_Pos, SOUND_UPGRADE);
+			}
+			
+			SendInventory();
+			return;
+		}
 	}
-	else
+	
 	// swap slots
+	if (Item2 >= 0)
 	{
 		m_apWeapon[Item1] = m_apWeapon[Item2];
 		m_apWeapon[Item2] = t;
@@ -545,12 +592,27 @@ void CCharacter::TriggerWeapon(CWeapon *pWeapon)
 	
 	int w = GetWeaponType();
 	
+	if (IsStaticWeapon(w))
+	{
+		switch (GetStaticType(w))
+		{
+			case SW_INVIS: GiveBuff(PLAYERITEM_INVISIBILITY); break;
+			case SW_SHIELD: GiveBuff(PLAYERITEM_SHIELD); break;
+			
+			default: break;
+		}
+	}
+	
+	/*
+	int w = GetWeaponType();
+	
 	if (IsModularWeapon(w) && GetPart(w, 1) == 5)
 	{
 		m_ChargeTick = 0;
 		m_AttackTick = Server()->Tick();
 		m_Core.m_ChargeLevel = 0;
 	}
+	*/
 }
 
 void CCharacter::ReleaseWeapon(CWeapon *pWeapon)
@@ -562,7 +624,6 @@ void CCharacter::ReleaseWeapon(CWeapon *pWeapon)
 		
 		GetWeapon()->Throw();
 		m_apWeapon[GetWeaponSlot()] = NULL;
-		m_ActiveWeapon = WEAPON_NONE;
 	}
 	else
 	{
@@ -571,8 +632,8 @@ void CCharacter::ReleaseWeapon(CWeapon *pWeapon)
 			if (m_apWeapon[i] == pWeapon)
 			{
 				m_apWeapon[i] = NULL;
-				if (GetWeaponSlot() == i)
-					m_ActiveWeapon = WEAPON_NONE;
+				//if (GetWeaponSlot() == i)
+				//	m_ActiveWeapon = WEAPON_NONE;
 				
 				break;
 			}
@@ -597,7 +658,9 @@ bool CCharacter::PickWeapon(CWeapon *pWeapon)
 	bool Valid = true;
 	
 	for (int i = 0; i < 4; i++)
-		if (GetWeaponType(i) == pWeapon->GetWeaponType() && GetWeaponFiringType(GetWeaponType(i)) != WFT_THROW)
+		if (GetChargedWeapon(GetWeaponType(i), 0) == GetChargedWeapon(pWeapon->GetWeaponType(), 0) && 
+			GetWeaponCharge(GetWeaponType(i)) >= GetWeaponCharge(pWeapon->GetWeaponType()) && 
+			GetWeaponFiringType(GetWeaponType(i)) != WFT_THROW && GetStaticType(GetWeaponType(i)) != SW_UPGRADE)
 			Valid = false;
 	
 	for (int i = 0; i < 4; i++)
@@ -620,24 +683,27 @@ bool CCharacter::UpgradeTurret(vec2 Pos, vec2 Dir, int Slot)
 {
 	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "character", "Upgrade turret");
 	
+	if (Slot < 0)
+		Slot = GetWeaponSlot();
+	
 	if (!GetWeapon(Slot))
 		return false;
 	
-	if (GetWeaponRenderType(GetWeaponType()) != WRT_WEAPON1)
+	if (!ValidForTurret(GetWeaponType(Slot)))
 		return false;
 	
 	// check if near upgradeable buildings
 	float CheckRange = 48.0f;
 	CBuilding *pNear = NULL;
 	CBuilding *apEnts[16];
-	int Num = GameServer()->m_World.FindEntities(m_Pos+vec2(0, -20), 40, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
+	int Num = GameServer()->m_World.FindEntities(Pos+vec2(0, -20), 40, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
 
 	// check for turret stands
 	for (int i = 0; i < Num; ++i)
 	{
 		CBuilding *pTarget = apEnts[i];
 		
-		if (pTarget->m_Type == BUILDING_STAND && distance(pTarget->m_Pos, m_Pos+vec2(0, -20)) < CheckRange)
+		if (pTarget->m_Type == BUILDING_STAND && distance(pTarget->m_Pos, Pos+vec2(0, -20)) < CheckRange)
 		{
 			pNear = pTarget;
 			break;
@@ -645,7 +711,7 @@ bool CCharacter::UpgradeTurret(vec2 Pos, vec2 Dir, int Slot)
 	}
 	
 	// transform stand to turret
-	if (pNear && IsModularWeapon(GetWeaponType(Slot)))
+	if (pNear)
 	{
 		vec2 p = pNear->m_Pos;
 		GameServer()->m_World.DestroyEntity(pNear);
@@ -654,11 +720,12 @@ bool CCharacter::UpgradeTurret(vec2 Pos, vec2 Dir, int Slot)
 		if (!GameServer()->m_pController->IsTeamplay())
 			Team = GetPlayer()->GetCID();
 		
-		CTurret *pTurret = new CTurret(&GameServer()->m_World, p, Team, GetWeapon());
+		GetWeapon(Slot)->SetOwner(GetPlayer()->GetCID());
+		CTurret *pTurret = new CTurret(&GameServer()->m_World, p, Team, GetWeapon(Slot));
 		pTurret->SetAngle(Dir);
 				
 		// sound
-		GameServer()->CreateSound(m_Pos, SOUND_BUILD_TURRET);
+		GameServer()->CreateSound(Pos, SOUND_BUILD_TURRET);
 		return true;
 	}
 	
@@ -696,7 +763,6 @@ void CCharacter::DropWeapon()
 		m_SkipPickups = 20;
 				
 		m_apWeapon[GetWeaponSlot()] = NULL;
-		m_ActiveWeapon = WEAPON_NONE;
 		SendInventory();
 		return;
 	}
@@ -707,7 +773,6 @@ void CCharacter::DropWeapon()
 			ReleaseWeapon();
 		
 		m_apWeapon[GetWeaponSlot()] = NULL;
-		m_ActiveWeapon = WEAPON_NONE;
 		SendInventory();
 		return;
 	}
@@ -758,7 +823,6 @@ void CCharacter::DoWeaponSwitch()
 			return;
 		
 		m_WeaponSlot = m_WantedSlot;
-		m_ActiveWeapon = GetWeaponType();
 		m_AttackTick = 0;
 	}
 }
@@ -798,60 +862,6 @@ void CCharacter::HandleWeaponSwitch()
 	m_WantedSlot = WantedSlot;
 	
 	DoWeaponSwitch();
-	
-	
-	
-	/*
-	int WantedWeapon = m_ActiveWeapon;
-	
-	if(m_QueuedCustomWeapon != -1)
-		WantedWeapon = m_QueuedCustomWeapon;
-	
-	//if (WantedWeapon < 0)
-	//	return;
-	
-	// mouse scroll
-	
-	//if (WantedWeapon >= 0)
-	{
-		int Next = CountInput(m_LatestPrevInput.m_NextWeapon, m_LatestInput.m_NextWeapon).m_Presses;
-		int Prev = CountInput(m_LatestPrevInput.m_PrevWeapon, m_LatestInput.m_PrevWeapon).m_Presses;
-
-		if(Next < 128) // make sure we only try sane stuff
-		{
-			int i = 100;
-			while(Next && i-- > 0) // Next Weapon selection
-			{
-				WantedWeapon = (WantedWeapon+1)%NUM_WEAPONS;
-				if(WantedWeapon != WEAPON_TOOL && m_aWeapon[WantedWeapon].m_Got && !m_aWeapon[WantedWeapon].m_Disabled)
-					Next--;
-			}
-		}
-
-		if(Prev < 128) // make sure we only try sane stuff
-		{
-			int i = 100;
-			while(Prev && i-- > 0) // Prev Weapon selection
-			{
-				WantedWeapon = (WantedWeapon-1)<0?NUM_WEAPONS-1:WantedWeapon-1;
-				if(WantedWeapon != WEAPON_TOOL && m_aWeapon[WantedWeapon].m_Got && !m_aWeapon[WantedWeapon].m_Disabled)
-					Prev--;
-			}
-		}
-		
-		if (WantedWeapon >= 0 && !m_aWeapon[WantedWeapon].m_Got)
-			WantedWeapon = WEAPON_HAMMER;
-	}
-
-	// Direct Weapon selection
-	if(m_LatestInput.m_WantedWeapon)
-		WantedWeapon = m_Input.m_WantedWeapon-1;
-
-	if (WantedWeapon >= 0 && WantedWeapon != WEAPON_TOOL && m_aWeapon[WantedWeapon].m_Got)
-		m_QueuedCustomWeapon = WantedWeapon;
-	
-	DoWeaponSwitch();
-	*/
 }
 
 
@@ -1175,9 +1185,9 @@ void CCharacter::SelectItem(int Item)
 	}
 	*/
 
-	if (Item == PLAYERITEM_RAGE && m_aStatus[STATUS_RAGE] <= 0)
+	if (Item == PLAYERITEM_RAGE && m_aStatus[STATUS_DASH] <= 0)
 	{
-		m_aStatus[STATUS_RAGE] = Server()->TickSpeed() * 20.0f;
+		m_aStatus[STATUS_DASH] = Server()->TickSpeed() * 20.0f;
 		m_aItem[Item]--;
 	}
 	
@@ -1213,6 +1223,7 @@ bool CCharacter::UpgradeWeapon()
 	if (GetWeapon() && GetWeapon()->Upgrade())
 	{
 		GameServer()->CreateSound(m_Pos, SOUND_UPGRADE);
+		SendInventory();
 		return true;
 	}
 		
@@ -1232,7 +1243,7 @@ bool CCharacter::GiveBuff(int Item)
 
 	/*
 	if (Item == PLAYERITEM_RAGE)
-		m_aStatus[STATUS_RAGE] = Server()->TickSpeed() * 20.0f;
+		m_aStatus[STATUS_DASH] = Server()->TickSpeed() * 20.0f;
 	
 	if (Item == PLAYERITEM_FUEL)
 		m_aStatus[STATUS_FUEL] = Server()->TickSpeed() * 20.0f;
@@ -1250,10 +1261,8 @@ bool CCharacter::GiveBuff(int Item)
 		return true;
 	}
 	
-	/*
 	if (Item == PLAYERITEM_INVISIBILITY)
-		m_aStatus[STATUS_INVISIBILITY] = Server()->TickSpeed() * 20.0f;
-	*/
+		m_aStatus[STATUS_INVISIBILITY] = Server()->TickSpeed() * 15.0f;
 	
 	return false;
 }
@@ -1325,9 +1334,6 @@ void CCharacter::UpdateCoreStatus()
 
 void CCharacter::Tick()
 {
-	//if (g_Config.m_SvForceWeapon)
-	//	m_aWeapon[m_ActiveWeapon].m_Ammo = 0;
-	
 	//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "debug", "Tick");
 	
 	if (m_PainSoundTimer > 0)

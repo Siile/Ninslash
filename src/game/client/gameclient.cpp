@@ -850,12 +850,16 @@ void CGameClient::ProcessEvents()
 			g_GameClient.m_pEffects->Explosion(vec2(ev->m_X, ev->m_Y), ev->m_Weapon);
 			
 			// todo: readd camera shake
-			/*
 			float d = distance(CustomStuff()->m_LocalPos, vec2(ev->m_X, ev->m_Y));
+			float s = GetExplosionSize(ev->m_Weapon);
 			
-			if (d < 80 + ev->m_PowerLevel * 40)
-				CustomStuff()->SetScreenshake(8.0f + ev->m_PowerLevel * 2);
-			*/
+			if (d < s)
+			{
+				float a = ScreenshakeAmount(ev->m_Weapon);
+				
+				if (a > 0)
+					CustomStuff()->SetScreenshake(a * (0.5f + (s-d)*0.5f));
+			}
 		}
 		else if(Item.m_Type == NETEVENTTYPE_REPAIR)
 		{

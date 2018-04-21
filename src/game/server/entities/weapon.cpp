@@ -16,6 +16,9 @@ CWeapon::CWeapon(CGameWorld *pGameWorld, int Type)
 	else
 		m_PowerLevel = 0;
 	
+	if (IsStaticWeapon(Type) && GetStaticType(Type) == SW_UPGRADE)
+		m_PowerLevel = 3;
+	
 	Reset();
 	
 	GameWorld()->InsertEntity(this);
@@ -138,6 +141,28 @@ void CWeapon::UpdateStats()
 }
 
 
+bool CWeapon::Activate()
+{
+	if (IsStaticWeapon(m_WeaponType))
+	{
+		switch (GetStaticType(m_WeaponType))
+		{
+			case SW_INVIS: case SW_SHIELD:
+			{
+				GameServer()->m_pController->TriggerWeapon(this);
+				m_DestructionTick = 1;
+			} break;
+			
+			default: break;
+		}
+	}
+	
+	
+	return true;
+}
+
+
+
 bool CWeapon::Fire(float *pKnockback)
 {
 	m_Disabled = false;
@@ -153,6 +178,11 @@ bool CWeapon::Fire(float *pKnockback)
 	
 	if (WFT == WFT_NONE)
 		return false;
+	
+	if (WFT == WFT_ACTIVATE)
+	{
+		return Activate();
+	}
 	
 	// check for ammo
 	if (m_IsTurret)
@@ -355,6 +385,10 @@ void CWeapon::CreateProjectile()
 {
 	vec2 offs = GetProjectileOffset(m_WeaponType);
 	vec2 ProjStartPos = m_Pos+m_Direction*offs.x + vec2(0, offs.y);
+	
+	if (GetWeaponFiringType(m_WeaponType) == WFT_PROJECTILE)
+		GameServer()->Collision()->IntersectLine(m_Pos, ProjStartPos, 0x0, &ProjStartPos);
+	
 	GameServer()->CreateProjectile(m_Owner, m_WeaponType, m_Charge, ProjStartPos, m_Direction);
 	
 	if (m_FireSound >= 0 && GetWeaponFiringType(m_WeaponType) != WFT_HOLD)
@@ -413,6 +447,23 @@ bool CWeapon::AddClip()
 	
 	return false;
 }
+
+bool CWeapon::Overcharge()
+{
+	if (m_MaxLevel > 0 && m_PowerLevel <= m_MaxLevel)
+	{
+		if (m_MaxLevel > 3 && m_PowerLevel == m_MaxLevel)
+			m_PowerLevel++;
+		
+		m_PowerLevel++;
+		
+		UpdateStats();
+		return true;
+	}
+	
+	return false;
+}
+
 
 bool CWeapon::Upgrade()
 {
@@ -621,15 +672,8 @@ void CWeapon::Move()
 	{
 		m_AngleForce *= 0.98f;
 	}
-	//else
-	//	m_AngleForce *= 0.995f;
 	
 	m_Angle += clamp(m_AngleForce*0.04f, -0.6f, 0.6f);
-	
-	if (m_Angle < 0)
-		m_Angle += 2*pi;
-	if (m_Angle >= 2*pi)
-		m_Angle -= 2*pi;
 }
 	
 void CWeapon::TickPaused()

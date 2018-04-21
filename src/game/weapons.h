@@ -44,6 +44,10 @@ enum WeaponBits
 	SW_BOUNCER,
 	SW_CHAINSAW,
 	SW_FLAMER,
+	SW_UPGRADE,
+	SW_SHIELD,
+	SW_INVIS,
+	SW_SWITCH,
 	SW_BUBBLER,
 	SW_SHURIKEN,
 	NUM_SW,
@@ -62,7 +66,8 @@ enum WeaponBits
 	WFT_PROJECTILE, // rifles, shotguns etc.
 	WFT_CHARGE, // gun 2 & charge weapons
 	WFT_HOLD, // chainsaw & flamer
-	WFT_THROW // grenades
+	WFT_THROW, // grenades
+	WFT_ACTIVATE // some items
 };
 
 
@@ -91,6 +96,8 @@ inline int GetBuildingType(int Weapon) { return IsBuilding(Weapon) ? (Weapon & (
 inline int GetBuildingWeapon(int Building) { return BIT_BUILDING | Building<<6; }
 inline int GetDroidType(int Weapon) { return IsDroid(Weapon) ? (Weapon & (1023<<6))>>6 : false; }
 inline int GetDroidWeapon(int Droid, bool OnDeath = false) { return BIT_DROID | (OnDeath ? BIT_ONDEATH : 0) | Droid<<6; }
+
+bool ValidForTurret(int Weapon);
 
 int GetShotSpread(int Weapon);
 float GetProjectileSpread(int Weapon);
@@ -134,6 +141,9 @@ bool IsFlammableProjectile(int Weapon);
 float WeaponFlameAmount(int Weapon);
 float WeaponElectroAmount(int Weapon);
 
+float ScreenshakeDistance(int Weapon);
+float ScreenshakeAmount(int Weapon);
+
 float WeaponThrowForce(int Weapon);
 
 int WeaponProjectilePosType(int Weapon);
@@ -151,6 +161,8 @@ int GetLaserRange(int Weapon);
 int GetLaserCharge(int Weapon);
 
 int AIAttackRange(int Weapon);
+
+float GetWeaponLevelCharge(int Weapon);
 
 int GetRandomWeaponType();
 int GetMuzzleType(int Weapon);

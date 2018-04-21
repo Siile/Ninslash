@@ -19,6 +19,7 @@
 #include "gamemodes/base.h"
 #include "gamemodes/texasrun.h"
 
+#include <game/server/entities/pickup.h>
 #include <game/server/entities/projectile.h>
 #include <game/server/entities/laser.h>
 #include <game/server/entities/building.h>
@@ -115,6 +116,22 @@ void CGameContext::Clear()
 }
 
 
+CPlayerSpecData CGameContext::GetPlayerSpecData(int ClientID)
+{
+	CPlayerSpecData data;
+	CCharacter *pCharacter = GetPlayerChar(ClientID);
+	
+	if (!pCharacter)
+		return data;
+	
+	data.m_Kits = pCharacter->m_Kits;
+	data.m_WeaponSlot = pCharacter->GetWeaponSlot();
+		
+	for (int i = 0; i < 4; i++)
+		data.m_aWeapon[i] = pCharacter->GetWeaponType(i);
+	
+	return data;
+}
 
 
 
@@ -641,6 +658,24 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon)
 						
 		if((int)Dmg && Dmg > 0.0f)
 			apBuildings[i]->TakeDamage((int)Dmg*Dmg2, Owner, Weapon);
+	}
+	
+	{
+		CPickup *apPickups[64];
+		Num = m_World.FindEntities(Pos, Radius, (CEntity**)apPickups, 64, CGameWorld::ENTTYPE_PICKUP);
+		for(int i = 0; i < Num; i++)
+		{
+			vec2 Diff = apPickups[i]->m_Pos - Pos - vec2(0, 8);
+			vec2 ForceDir(0,1);
+			float l = length(Diff);
+			if(l)
+				ForceDir = normalize(Diff);
+			l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
+			float Dmg = GetExplosionDamage(Weapon) * l;
+							
+			if((int)Dmg && Dmg > 0.0f)
+				apPickups[i]->AddForce(ForceDir*Dmg*0.3f); //
+		}
 	}
 	
 	CDroid *apDEnts[MAX_CLIENTS];
@@ -1424,7 +1459,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 			
 
-			
 			if ( strcmp(pMsg->m_pMessage, "/showwaypoints") == 0 )
 			{
 				m_ShowWaypoints = !m_ShowWaypoints;
@@ -1436,7 +1470,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				m_ShowAiState = !m_ShowAiState;
 				SkipSending = true;
 			}
-			
 			
 		
 			if (!SkipSending)

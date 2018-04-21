@@ -418,6 +418,18 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 				
 				if (w >= 0 && (m_DragItem != x+y*4))
 				{
+					// weapon rank icon
+					int Level = GetWeaponLevelCharge(w)*4;
+					
+					if (Level > 0 && !(IsStaticWeapon(w) && GetStaticType(w) == SW_UPGRADE))
+					{
+						Graphics()->QuadsBegin();
+						Graphics()->SetColor(1.0f, 1.0f, 1.0f, s_Fade*1.0f);
+						RenderTools()->SelectSprite(SPRITE_WEAPONRANK1+min(Level-1, 4));
+						RenderTools()->DrawSprite(p2.x, p2.y-s2*1.6f, s2*4.0f);
+						Graphics()->QuadsEnd();
+					}
+					
 					RenderTools()->SetShadersForWeapon(w);
 					RenderTools()->RenderWeapon(w, p, vec2(1, 0), s, true);
 					Graphics()->ShaderEnd();

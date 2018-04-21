@@ -9,7 +9,7 @@ Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY",
 
 Powerups = ["HEALTH", "AMMO", "WEAPON", "ARMOR", "KIT"]
 
-Statuses = ["EMPTY", "SPAWNING", "AFLAME", "SLOWED", "ELECTRIC", "DEATHRAY", "SHIELD", "RAGE", "INVISIBILITY", "HEAL", "FUEL", "SLOWMOVING"]
+Statuses = ["EMPTY", "SPAWNING", "AFLAME", "SLOWED", "ELECTRIC", "DEATHRAY", "SHIELD", "DASH", "INVISIBILITY", "HEAL", "FUEL", "SLOWMOVING"]
 
 Damagetypes = ["NORMAL", "FLAME", "ELECTRIC", "FLUID"]
 
@@ -104,7 +104,7 @@ enum
 	EFFECT_DAMAGE,
 	EFFECT_INVISIBILITY,
 	EFFECT_HP,
-	EFFECT_RAGE,
+	EFFECT_DASH,
 	EFFECT_FUEL,
 	NUM_EFFECTS,
 	
@@ -219,7 +219,8 @@ Objects = [
 	NetObject("Pickup", [
 		NetIntAny("m_X"),
 		NetIntAny("m_Y"),
-
+		NetBool("m_Mirror"),
+		NetIntAny("m_Angle"),
 		NetIntRange("m_Type", 0, 'max_int'),
 		NetIntAny("m_Subtype"),
 	]),
@@ -356,16 +357,7 @@ Objects = [
 		NetIntAny("m_Weapon3"),
 		NetIntAny("m_Weapon4"),
 		
-		NetIntAny("m_Weapons"),
-		NetIntAny("m_Upgrades"),
-		NetIntAny("m_Upgrades2"),
 		NetIntRange("m_Kits", 0, 9),
-		NetIntRange("m_Item1", 0, 9),
-		NetIntRange("m_Item2", 0, 9),
-		NetIntRange("m_Item3", 0, 9),
-		NetIntRange("m_Item4", 0, 9),
-		NetIntRange("m_Item5", 0, 9),
-		NetIntRange("m_Item6", 0, 9),
 	]),
 
 	NetObject("ClientInfo", [

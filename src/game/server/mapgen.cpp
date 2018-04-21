@@ -992,6 +992,14 @@ void CMapGen::GenerateLevel()
 	for (int i = 0; i < min(4, 1 + int(Level * 0.05f)); i++)
 		GeneratePowerupper(pTiles);
 	
+	if (Level % 10 == 9)
+	{
+		GeneratePowerupper(pTiles);
+		GeneratePowerupper(pTiles);
+		GeneratePowerupper(pTiles);
+		GeneratePowerupper(pTiles);
+	}
+	
 	// enemy spawn positions
 	for (int i = 0; i < min(5+Level, 14) ; i++)
 		GenerateEnemySpawn(pTiles);

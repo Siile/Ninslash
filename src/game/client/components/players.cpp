@@ -440,12 +440,13 @@ void CPlayers::RenderPlayer(
 	// dash effect
 	if (Player.m_Movement)
 	{
-		m_pClient->m_pTracers->Add(-2, pInfo.m_ClientID, Position+vec2(0, -6), Position+vec2(0, -6), 0, 0);
-			
-		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] < 0.5f)
+		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY] <= 0.0f)
+			m_pClient->m_pTracers->Add(-2, pInfo.m_ClientID, Position+vec2(0, -6), Position+vec2(0, -6), 0, 0);
+	
+		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DASH] < 0.5f)
 			m_pClient->m_pEffects->DashEffect(Position+vec2(0, -6), Player.m_Movement1>>6);
 			
-		pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] = 1.0f;
+		pCustomPlayerInfo->m_EffectIntensity[EFFECT_DASH] = 1.0f;
 	}
 	else
 		m_pClient->m_pTracers->UpdatePos(pInfo.m_ClientID, Position+vec2(0, -6));
@@ -1271,11 +1272,11 @@ void CPlayers::RenderPlayer(
 	}	
 	
 	s = Player.m_Status;
-	if (s & (1<<STATUS_RAGE))
+	if (s & (1<<STATUS_DASH))
 	{
-		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] <= 0.0f)
+		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DASH] <= 0.0f)
 			m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_ITEM_RAGE, 1.0f, Position);
-		pCustomPlayerInfo->m_EffectIntensity[EFFECT_RAGE] = 1.0f;
+		pCustomPlayerInfo->m_EffectIntensity[EFFECT_DASH] = 1.0f;
 	}	
 	
 	s = Player.m_Status;
@@ -1504,41 +1505,6 @@ void CPlayers::OnRender()
 				bool Local = ((const CNetObj_PlayerInfo *)pInfo)->m_Local !=0;
 				if((p % 2) == 0 && Local) continue;
 				if((p % 2) == 1 && !Local) continue;
-				
-				// send weapon info to custom stuff
-				if (Local)
-				{
-					// HACK: delay changing m_LocalWeapons for one frame, because pInfo is outdated compared to NETMSGTYPE_SV_WEAPONPICKUP data
-					// m_LocalWeapons will be almost always up to date, except when the server forces new weapon list to the player
-					static int LocalWeaponsChangeCounter = 0;
-					int NewWeapons = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapons;
-					if (CustomStuff()->m_LocalWeapons != NewWeapons)
-					{
-						LocalWeaponsChangeCounter++;
-						if (LocalWeaponsChangeCounter > 2)
-							CustomStuff()->m_LocalWeapons = NewWeapons;
-					}
-					else
-					{
-						LocalWeaponsChangeCounter = 0;
-					}
-					CustomStuff()->m_LocalUpgrades = ((const CNetObj_PlayerInfo *)pInfo)->m_Upgrades;
-					CustomStuff()->m_LocalUpgrades2 = ((const CNetObj_PlayerInfo *)pInfo)->m_Upgrades2;
-					CustomStuff()->m_LocalKits = ((const CNetObj_PlayerInfo *)pInfo)->m_Kits;
-					CustomStuff()->m_aLocalItems[0] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item1;
-					CustomStuff()->m_aLocalItems[1] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item2;
-					CustomStuff()->m_aLocalItems[2] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item3;
-					CustomStuff()->m_aLocalItems[3] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item4;
-					CustomStuff()->m_aLocalItems[4] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item5;
-					CustomStuff()->m_aLocalItems[5] = ((const CNetObj_PlayerInfo *)pInfo)->m_Item6;
-					
-					CustomStuff()->m_WeaponSlot = ((const CNetObj_PlayerInfo *)pInfo)->m_WeaponSlot;
-					
-					CustomStuff()->m_aSnapWeapon[0] = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapon1;
-					CustomStuff()->m_aSnapWeapon[1] = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapon2;
-					CustomStuff()->m_aSnapWeapon[2] = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapon3;
-					CustomStuff()->m_aSnapWeapon[3] = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapon4;
-				}
 
 				CNetObj_Character PrevChar = m_pClient->m_Snap.m_aCharacters[i].m_Prev;
 				CNetObj_Character CurChar = m_pClient->m_Snap.m_aCharacters[i].m_Cur;
@@ -1552,6 +1518,29 @@ void CPlayers::OnRender()
 							(const CNetObj_PlayerInfo *)pPrevInfo,
 							(const CNetObj_PlayerInfo *)pInfo
 						);
+			}
+		}
+	}
+	
+	// get weapons and kits
+	for(int i = 0; i < MAX_CLIENTS; i++)
+	{
+		const void *pInfo = Client()->SnapFindItem(IClient::SNAP_CURRENT, NETOBJTYPE_PLAYERINFO, i);
+		
+		if(pInfo)
+		{
+			bool Local = ((const CNetObj_PlayerInfo *)pInfo)->m_Local != 0;
+			
+			if (Local)
+			{
+				CustomStuff()->m_LocalKits = ((const CNetObj_PlayerInfo *)pInfo)->m_Kits;
+					
+				CustomStuff()->m_WeaponSlot = ((const CNetObj_PlayerInfo *)pInfo)->m_WeaponSlot;
+					
+				CustomStuff()->m_aSnapWeapon[0] = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapon1;
+				CustomStuff()->m_aSnapWeapon[1] = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapon2;
+				CustomStuff()->m_aSnapWeapon[2] = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapon3;
+				CustomStuff()->m_aSnapWeapon[3] = ((const CNetObj_PlayerInfo *)pInfo)->m_Weapon4;
 			}
 		}
 	}

@@ -366,6 +366,10 @@ void CHud::RenderVoting()
 	CTextCursor Cursor;
 	char aBuf[512];
 	str_format(aBuf, sizeof(aBuf), Localize("%ds left"), m_pClient->m_pVoting->SecondsLeft());
+	
+	if (m_pClient->m_pVoting->SecondsLeft() < 0)
+		m_pClient->m_pVoting->Hide();
+	
 	float tw = TextRender()->TextWidth(0x0, 6, aBuf, -1);
 	TextRender()->SetCursor(&Cursor, 5.0f+100.0f-tw, 60.0f, 6.0f, TEXTFLAG_RENDER);
 	TextRender()->TextEx(&Cursor, aBuf, -1);
@@ -935,157 +939,6 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	RenderTools()->DrawSprite(x, y, KitSize);
 	
 	Graphics()->QuadsEnd();
-		
-		
-		
-		
-	
-	/*
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
-	
-	for (int i = 1; i < NUM_WEAPONS; i++)
-	{
-		if (i != 1)
-			x += 40*Size;
-		
-		bool Got = true;
-		bool Upgraded = true;
-		bool Upgraded2 = true;
-		
-		int w = CustomStuff()->m_LocalWeapons;
-		if (!(w & (1<<i)))
-			Got = false;
-		
-		int u = CustomStuff()->m_LocalUpgrades;
-		if (!(u & (1<<i)))
-			Upgraded = false;
-		
-		u = CustomStuff()->m_LocalUpgrades2;
-		if (!(u & (1<<i)))
-			Upgraded2 = false;
-		
-		if (CustomStuff()->m_WeaponpickTimer > 0.0f)
-		{
-			int pw = clamp(CustomStuff()->m_WeaponpickWeapon, 0, NUM_WEAPONS-1);
-			if (i == pw)
-			{
-				Graphics()->QuadsBegin();
-				float a = sin(CustomStuff()->m_WeaponpickTimer*pi)*sin(CustomStuff()->m_WeaponpickTimer*pi);
-				
-				Graphics()->SetColor(1, 1, 1, a);
-				
-				RenderTools()->SelectSprite(SPRITE_WEAPON_PICKUP);
-				RenderTools()->DrawSprite(x, y, 32);
-				Graphics()->QuadsEnd();
-			}
-		}
-
-		if (Got && Upgraded)
-		{
-			Graphics()->QuadsBegin();
-			Graphics()->SetColor(1, 1, 1, 0.5f);
-			
-			if (Upgraded2)
-				RenderTools()->SelectSprite(SPRITE_WEAPON_UPGRADED2);
-			else
-				RenderTools()->SelectSprite(SPRITE_WEAPON_UPGRADED1);
-			
-			RenderTools()->DrawSprite(x, y, 18);
-			Graphics()->QuadsEnd();
-		}
-		
-		if (!Got)
-			Graphics()->ShaderBegin(SHADER_GRAYSCALE, 0.5f);
-		
-		Graphics()->QuadsBegin();
-		
-		if (!Got)
-			Graphics()->SetColor(1, 1, 1, 0.5f);
-		else
-			Graphics()->SetColor(1, 1, 1, 1);
-		
-		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[i].m_pSpriteBody);
-		RenderTools()->DrawSprite(x, y, g_pData->m_Weapons.m_aId[i].m_VisualSize * Size);
-
-		Graphics()->QuadsEnd();
-		Graphics()->ShaderEnd();
-
-		// can't pick a weapon
-		if (CustomStuff()->m_WeaponSignalTimer > 0.0f)
-		{
-			int pw = CustomStuff()->m_WeaponSignal;
-			if (i == pw)
-			{
-				Graphics()->ShaderBegin(SHADER_GRAYSCALE, 0.0f);
-				Graphics()->QuadsBegin();
-				
-				Graphics()->SetColor(1.0f, 0.0f, 0.0f, CustomStuff()->m_WeaponSignalTimer * 0.75f);
-				
-				RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[i].m_pSpriteBody);
-				RenderTools()->DrawSprite(x, y, g_pData->m_Weapons.m_aId[i].m_VisualSize * Size);
-				
-				Graphics()->QuadsEnd();
-				Graphics()->ShaderEnd();
-			}
-		}
-		
-		// green layer for selected weapon
-		if (iw == i)
-		{
-			Graphics()->ShaderBegin(SHADER_GRAYSCALE, 0.0f);
-			Graphics()->QuadsBegin();
-			
-			Graphics()->SetColor(0.0f, 1.0f, 0.0f, 0.5f);
-			
-			RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[i].m_pSpriteBody);
-			RenderTools()->DrawSprite(x, y, g_pData->m_Weapons.m_aId[i].m_VisualSize * Size);
-			
-			Graphics()->QuadsEnd();
-			Graphics()->ShaderEnd();
-			
-			CustomStuff()->m_LatestWeapon = i;
-		}
-		
-		x += 40*Size;
-	}
-
-	x = Area2Pos.x + 134; y = 16;
-	
-	// tool / build helper
-	if (!m_pClient->IsLocalUndead() && m_pClient->BuildingEnabled())
-	{
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
-		Graphics()->QuadsBegin();
-
-		Graphics()->SetColor(1, 1, 1, 1);
-
-		RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[WEAPON_TOOL].m_pSpriteBody);
-		RenderTools()->DrawSprite(x, y, 24);
-		Graphics()->QuadsEnd();
-		
-
-		TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
-		TextRender()->Text(0, x+9, y+1, 8, m_pClient->m_pBinds->GetKey("+build"), -1);
-	
-		x = Area2Pos.x + 164;
-		y = 16;
-			
-		// number of contruction kits
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
-		Graphics()->QuadsBegin();
-		Graphics()->SetColor(1, 1, 1, 1.0f);
-		RenderTools()->SelectSprite(SPRITE_PICKUP_KIT);
-		RenderTools()->DrawSprite(x, y, 20);
-		Graphics()->QuadsEnd();
-
-
-		char aBuf[8];
-		str_format(aBuf, sizeof(aBuf), "%d", clamp(CustomStuff()->m_LocalKits ,0, 9));
-		TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
-		TextRender()->Text(0, x+7, y+2, 8, aBuf, -1);
-		TextRender()->TextColor(1, 1, 1, 1);
-	}
-	*/
 }
 
 void CHud::RenderSpectatorHud()

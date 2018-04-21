@@ -66,15 +66,6 @@ public:
 	void ResetInput();
 	void FireWeapon();
 
-	bool UsingMeleeWeapon()
-	{
-		if (m_ActiveWeapon == WEAPON_HAMMER ||
-			m_ActiveWeapon == WEAPON_TOOL)
-			return true;
-		
-		return false;
-	}
-	
 	void ReleaseWeapons();
 	
 	void Die(int Killer, int Weapon, bool SkipKillMessage = false, bool IsTurret = false);
@@ -130,8 +121,6 @@ public:
 	
 	bool m_WeaponPicked;
 	
-	int GetActiveWeapon(){ return m_ActiveWeapon; }
-	
 	void SaveData();
 	
 	int m_SkipPickups;
@@ -146,9 +135,6 @@ public:
 	}
 	
 	bool UpgradeWeapon();
-	
-	// custom weapon system
-	int m_ActiveWeapon;
 	
 	int m_WeaponSlot;
 	int m_WantedSlot;

@@ -43,11 +43,6 @@ bool CTuningParams::Get(const char *pName, float *pValue)
 	return false;
 }
 
-float HermiteBasis1(float v)
-{
-	return 2*v*v*v - 3*v*v+1;
-}
-
 float VelocityRamp(float Value, float Start, float Range, float Curvature)
 {
 	if(Value < Start)
@@ -270,7 +265,7 @@ void CCharacterCore::Tick(bool UseInput)
 	m_OnWall = false;
 	
 	// rage
-	if (m_Status & (1<<STATUS_RAGE))
+	if (m_Status & (1<<STATUS_DASH))
 	{
 		Friction /= 1.4f;
 		MaxSpeed *= 1.4f;
@@ -828,6 +823,8 @@ void CCharacterCore::Tick(bool UseInput)
 		*/
 		m_DashTimer = 4;
 		m_DashAngle = m_Angle;
+		
+		m_JetpackPower = min(m_JetpackPower + 25, 200);
 	}
 
 	if (m_DashTimer > 0)
@@ -835,7 +832,7 @@ void CCharacterCore::Tick(bool UseInput)
 		m_DashTimer--;
 		
 		//vec2 d = GetDirection(m_DashAngle)*16.0f * vec2(-1, -1);
-		vec2 d = GetDirection(m_DashAngle)*m_pWorld->m_Tuning.m_DashPower;
+		vec2 d = GetDirection(m_DashAngle)*max(length(m_Vel)*1.05f, float(m_pWorld->m_Tuning.m_DashPower));
 		//m_Vel = d;
 		m_Vel += (d - m_Vel) / 3.0f;
 	}
@@ -1224,7 +1221,7 @@ void CCharacterCore::Move()
 		NewPos.y += 10;
 	}
 	
-	if (VelY > 15.0f && abs(m_Vel.y) < 2.0f && m_Input.m_Down)
+	if (VelY > 13.0f && abs(m_Vel.y) < 2.0f && m_Input.m_Down)
 		Roll();
 	
 	m_Vel.x = m_Vel.x*(1.0f/RampValue);

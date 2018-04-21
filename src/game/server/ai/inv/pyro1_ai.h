@@ -6,7 +6,7 @@
 class CAIpyro1 : public CAI
 {
 public:
-	CAIpyro1(CGameContext *pGameServer, CPlayer *pPlayer);
+	CAIpyro1(CGameContext *pGameServer, CPlayer *pPlayer, int Level);
 
 	virtual void DoBehavior();
 	void OnCharacterSpawn(class CCharacter *pChr);
@@ -18,6 +18,8 @@ private:
 	vec2 m_StartPos;
 	
 	int m_ShockTimer;
+	int m_Skin;
+	int m_Level;
 };
 
 #endif

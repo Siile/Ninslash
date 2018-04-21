@@ -11,6 +11,18 @@ enum WeaponParts1
 };
 
 
+bool ValidForTurret(int Weapon)
+{
+	if (IsModularWeapon(Weapon) && GetWeaponFiringType(Weapon) == WFT_PROJECTILE)
+		return true;
+	
+	if (IsStaticWeapon(Weapon) && (GetStaticType(Weapon) == SW_BAZOOKA || GetStaticType(Weapon) == SW_BOUNCER))
+		return true;
+		
+	return false;
+}
+
+
 float GetProjectileSprite(int Weapon)
 {
 	if (IsDroid(Weapon))
@@ -125,6 +137,12 @@ bool AIWeaponCharge(int Weapon)
 	return false;
 }
 
+float GetWeaponLevelCharge(int Weapon)
+{
+	return GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+}
+
+
 vec2 GetWeaponColorswap(int Weapon)
 {
 	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
@@ -133,8 +151,6 @@ vec2 GetWeaponColorswap(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
-			case SW_GRENADE1: return vec2(0.0f, 0.0f);
-			case SW_GRENADE2: return vec2(0.9f, 1.0f);
 			case SW_BOUNCER: return vec2(0.0f+Charge*0.9f, 0.0f+Charge*0.4f);
 			case SW_BAZOOKA: return vec2(0.0f+Charge*1.0f, 0.0f+Charge*0.4f);
 			case SW_CHAINSAW: return vec2(0.0f+Charge*0.25f, 0.0f+Charge*0.9f);
@@ -314,6 +330,10 @@ int GetWeaponFireSound(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_UPGRADE: return -1;
+			case SW_SWITCH: return -1;
+			case SW_INVIS: return -1;
+			case SW_SHIELD: return -1;
 			case SW_CHAINSAW: return SOUND_CHAINSAW_FIRE;
 			case SW_FLAMER: return SOUND_FLAMER1;
 			case SW_BAZOOKA: return SOUND_BAZOOKA_FIRE;
@@ -412,8 +432,8 @@ float GetExplosionDamage(int Weapon)
 			case BUILDING_TURRET: return 20.0f;
 			case BUILDING_TESLACOIL: return 120.0f;
 			case BUILDING_FLAMETRAP: return 40.0f;
-			case BUILDING_BARREL: return 60.0f; break;
-			case BUILDING_POWERBARREL: return 120.0f; break;
+			case BUILDING_BARREL: return 30.0f; break;
+			case BUILDING_POWERBARREL: return 60.0f; break;
 			default: return 0; break;
 		};
 	}
@@ -439,7 +459,7 @@ float GetExplosionDamage(int Weapon)
 			case SW_GRENADE2: return 30; break;
 			case SW_BUBBLER: return 14; break;
 			case SW_BAZOOKA: return 80; break;
-			case SW_BOUNCER: return 30 - (GetShotSpread(Weapon)-1)*4.0f; break;
+			case SW_BOUNCER: return 24 - max(8.0f, (GetShotSpread(Weapon)-1)*4.0f); break;
 			default: return 0;
 		};
 	}
@@ -501,6 +521,11 @@ ivec2 GetWeaponVisualSize(int Weapon)
 		case SW_GRENADE1: case SW_GRENADE2: return ivec2(2, 3);
 		case SW_SHURIKEN: return ivec2(4, 4);
 		case SW_TOOL: return ivec2(2, 4);
+		
+		case SW_UPGRADE: return ivec2(2, 2);
+		case SW_SWITCH: return ivec2(2, 4);
+		case SW_INVIS: return ivec2(2, 3);
+		case SW_SHIELD: return ivec2(2, 3);
 	};
 	
 	return ivec2(0, 0);
@@ -539,6 +564,7 @@ int GetWeaponFiringType(int Weapon)
 	
 	switch (GetStaticType(Weapon))
 	{
+		case SW_SHIELD: case SW_INVIS: case SW_UPGRADE: case SW_SWITCH: return WFT_ACTIVATE;
 		case SW_CHAINSAW: case SW_FLAMER: return WFT_HOLD;
 		case SW_BUBBLER: return WFT_PROJECTILE;
 		case SW_BAZOOKA: return WFT_PROJECTILE;
@@ -601,6 +627,9 @@ vec2 GetWeaponRenderOffset(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_UPGRADE: return vec2(9, 0);
+			case SW_SWITCH: return vec2(2, -5);
+			case SW_SHIELD: case SW_INVIS: return vec2(4, -3);
 			case SW_BAZOOKA: return vec2(30, 0);
 			case SW_BOUNCER: return vec2(30, 0);
 			case SW_BUBBLER: return vec2(30, 0);
@@ -701,6 +730,17 @@ vec2 GetProjectileOffset(int Weapon)
 }
 
 
+float ScreenshakeAmount(int Weapon)
+{
+	float d = GetExplosionDamage(Weapon) * 0.2f;
+	
+	if (d > 0 && WeaponElectroAmount(Weapon) <= 0.0f && WeaponFlameAmount(Weapon) <= 0.0f)
+		return d * 0.02f;
+	
+	return 0.0f;
+}
+
+
 float GetMeleeHitRadius(int Weapon)
 {
 	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
@@ -757,14 +797,14 @@ int WeaponMaxLevel(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_UPGRADE: return 2;
 			case SW_BAZOOKA: return 2;
 			case SW_FLAMER: return 2;
 			case SW_BOUNCER: return 2;
 			case SW_CHAINSAW: return 2;
-			default: return false;
+			default: return 0;
 		};
 	}
-	
 	
 	return 0;
 }
@@ -779,7 +819,7 @@ int GetLaserCharge(int Weapon)
 			float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
 			
 			if (GetPart(Weapon, 1) == 2) return -1;
-			if (GetPart(Weapon, 1) == 3) return 50 + Charge*70;
+			if (GetPart(Weapon, 1) == 3) return 60 + Charge*60;
 		}
 	}
 
@@ -1080,6 +1120,7 @@ int AIAttackRange(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_SHIELD: case SW_INVIS: return 800;
 			case SW_GRENADE1: case SW_GRENADE2: return 700;
 			case SW_GUN1: return 700;
 			case SW_GUN2: return 500;
@@ -1196,7 +1237,7 @@ float WeaponBurstReload(int Weapon)
 		switch (GetStaticType(Weapon))
 		{
 			case SW_BUBBLER: return 0.2f;
-			case SW_BAZOOKA: return 1.0f - Charge * 0.6f;
+			case SW_BAZOOKA: return 1.0f - Charge * 0.5f;
 			default: return 0.0f;
 		};
 	}
@@ -1273,7 +1314,7 @@ float GetProjectileDamage(int Weapon)
 
 			if (Part2 == 1) return 25+Charge*10.0f;
 			if (Part2 == 2) return 8+Charge*4.0f;
-			if (Part2 == 3) return 33+Charge*17.0f;
+			if (Part2 == 3) return 30+Charge*20.0f;
 			if (Part2 == 4) return 15+Charge*5.0f;
 		}
 		else if (Part1 == 4)
@@ -1298,14 +1339,14 @@ float GetProjectileDamage(int Weapon)
 
 int GetRandomWeaponType()
 {
-	if (rand()%11 < 5)
+	if (rand()%13 < 5)
 		return GetModularWeapon(1+rand()%4, 1+rand()%4);
 	
 	// swords
-	if (rand()%10 < 3)
+	if (rand()%12 < 3)
 		return GetModularWeapon(5, 6+rand()%3);
 	
-	return GetStaticWeapon(1+rand()%(NUM_SW-3));
+	return GetStaticWeapon(1+rand()%(NUM_SW-5));
 }
 
 float GetProjectileKnockback(int Weapon)
@@ -1423,7 +1464,7 @@ float GetWeaponFireRate(int Weapon)
 		{
 			case SW_CHAINSAW: return 500;
 			case SW_FLAMER: return 200;
-			case SW_BAZOOKA: return 600;
+			case SW_BAZOOKA: return 640;
 			case SW_BOUNCER: return 240;
 			case SW_BUBBLER: return 600;
 			case SW_GUN1: return 240;
@@ -1512,9 +1553,14 @@ float GetWeaponKnockback(int Weapon)
 
 bool GetWeaponFullAuto(int Weapon)
 {
+	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+	
 	// modular weapons
 	if (IsModularWeapon(Weapon))
 	{
+		if (Charge > 0.9f)
+			return true;
+		
 		int Part2 = GetPart(Weapon, 1);
 		
 		if (Part2 == 2 || Part2 == 3)
