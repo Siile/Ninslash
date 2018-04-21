@@ -1120,6 +1120,7 @@ int AIAttackRange(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_SHIELD: case SW_INVIS: return 800;
 			case SW_GRENADE1: case SW_GRENADE2: return 700;
 			case SW_GUN1: return 700;
 			case SW_GUN2: return 500;
@@ -1338,14 +1339,14 @@ float GetProjectileDamage(int Weapon)
 
 int GetRandomWeaponType()
 {
-	if (rand()%11 < 5)
+	if (rand()%13 < 5)
 		return GetModularWeapon(1+rand()%4, 1+rand()%4);
 	
 	// swords
-	if (rand()%10 < 3)
+	if (rand()%12 < 3)
 		return GetModularWeapon(5, 6+rand()%3);
 	
-	return GetStaticWeapon(1+rand()%(NUM_SW-3));
+	return GetStaticWeapon(1+rand()%(NUM_SW-5));
 }
 
 float GetProjectileKnockback(int Weapon)

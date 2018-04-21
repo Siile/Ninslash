@@ -149,6 +149,7 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 		
 			int i = ENEMY_ALIEN1;
 			
+			/*
 			if (g_Config.m_SvMapGenLevel > 10 && frandom() < 0.35f)
 				i = ENEMY_ROBOT1;
 			
@@ -156,6 +157,19 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 				i = ENEMY_BUNNY1;
 			
 			if (g_Config.m_SvMapGenLevel > 50 && frandom() < 0.04f)
+				i = ENEMY_PYRO1;
+			*/
+			
+			float r = min(0.35f, g_Config.m_SvMapGenLevel * 0.01f - 0.02f);
+			if (frandom() < r)
+				i = ENEMY_ROBOT1;
+			
+			r = min(0.30f, g_Config.m_SvMapGenLevel * 0.005f - 0.02f);
+			if (frandom() < r)
+				i = ENEMY_ROBOT1;
+			
+			r = min(0.04f, g_Config.m_SvMapGenLevel * 0.002f - 0.02f);
+			if (frandom() < r)
 				i = ENEMY_PYRO1;
 			
 			

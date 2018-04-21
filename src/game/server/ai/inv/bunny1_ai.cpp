@@ -52,7 +52,7 @@ void CAIbunny1::OnCharacterSpawn(CCharacter *pChr)
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(5, 6)));
 		
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE2)));
-		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE2)));
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD)));
 		
 		pChr->SetHealth(80+min(Level*0.2f, 80.0f));
 		m_PowerLevel = 14;
