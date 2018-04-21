@@ -166,7 +166,7 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			
 			r = min(0.30f, g_Config.m_SvMapGenLevel * 0.005f - 0.02f);
 			if (frandom() < r)
-				i = ENEMY_ROBOT1;
+				i = ENEMY_BUNNY1;
 			
 			r = min(0.04f, g_Config.m_SvMapGenLevel * 0.002f - 0.02f);
 			if (frandom() < r)
