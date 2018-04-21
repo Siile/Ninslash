@@ -1337,7 +1337,7 @@ float GetProjectileDamage(int Weapon)
 	return 0;
 }
 
-int GetRandomWeaponType()
+int GetRandomWeaponType() 
 {
 	if (rand()%13 < 5)
 		return GetModularWeapon(1+rand()%4, 1+rand()%4);
