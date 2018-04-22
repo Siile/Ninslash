@@ -186,6 +186,10 @@ void CBuilding::Reset()
 	//GameServer()->m_World.DestroyEntity(this);
 }
 
+void CBuilding::SurvivalReset()
+{
+	
+}
 
 void CBuilding::CreateLightningWallTop()
 {

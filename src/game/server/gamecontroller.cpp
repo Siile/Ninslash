@@ -1226,7 +1226,10 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 	
 	if (g_Config.m_SvSurvivalMode && Weapon != WEAPON_GAME)
 	{
-		if (!IsCoop() || !pVictim->m_IsBot)
+		//if (!pVictim->m_IsBot || pKiller)
+		//	m_SurvivalStatus = SURVIVAL_NOCANDO;
+			
+		if ((!IsCoop() && pKiller) || (!pVictim->m_IsBot && pKiller))
 			m_SurvivalStatus = SURVIVAL_NOCANDO;
 		
 		// wait a second before ending the round if it's going to end
@@ -1461,11 +1464,21 @@ void IGameController::ResetSurvivalRound()
 	m_SurvivalStatus = 0;
 	
 	// reset pickups
-	CPickup *apEnts[4000];
-	int Num = GameServer()->m_World.FindEntities(vec2(0, 0), 0.0f, (CEntity**)apEnts, 4000, CGameWorld::ENTTYPE_PICKUP);
+	{
+		CPickup *apEnts[4000];
+		int Num = GameServer()->m_World.FindEntities(vec2(0, 0), 0.0f, (CEntity**)apEnts, 4000, CGameWorld::ENTTYPE_PICKUP);
 
-	for (int i = 0; i < Num; ++i)
-		apEnts[i]->SurvivalReset();
+		for (int i = 0; i < Num; ++i)
+			apEnts[i]->SurvivalReset();
+	}
+	
+	{
+		CBuilding *apEnts[4000];
+		int Num = GameServer()->m_World.FindEntities(vec2(0, 0), 0.0f, (CEntity**)apEnts, 4000, CGameWorld::ENTTYPE_BUILDING);
+
+		for (int i = 0; i < Num; ++i)
+			apEnts[i]->SurvivalReset();
+	}
 }
 
 void IGameController::KillEveryone()

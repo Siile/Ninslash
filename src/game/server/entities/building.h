@@ -27,6 +27,7 @@ public:
 
 	virtual void Reset();
 	virtual void Tick();
+	virtual void SurvivalReset();
 	virtual void TickPaused();
 	virtual void Snap(int SnappingClient);
 

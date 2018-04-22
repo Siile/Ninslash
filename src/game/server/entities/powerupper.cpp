@@ -25,6 +25,16 @@ void CPowerupper::Reset()
 	m_ItemTakenTick = 0;
 }
 
+void CPowerupper::SurvivalReset()
+{
+	if (frandom() < 0.6f)
+		m_Item = PLAYERITEM_UPGRADE;
+	else
+		m_Item = PLAYERITEM_SHIELD;
+	
+	m_ItemTakenTick = 0;
+}
+
 void CPowerupper::Tick()
 {
 	//if (m_Item < 0 && (((!GameServer()->m_pController->IsCoop() || g_Config.m_SvMapGenLevel < 2) && m_ItemTakenTick + Server()->TickSpeed()*30.0f < GameServer()->Server()->Tick()) || m_ItemTakenTick == 0))
