@@ -15,7 +15,7 @@ CAIpyro1::CAIpyro1(CGameContext *pGameServer, CPlayer *pPlayer, int Level)
 	m_StartPos = vec2(0, 0);
 	m_ShockTimer = 0;
 	m_Triggered = false;
-	m_TriggerLevel = 10 + rand()%5;
+	m_TriggerLevel = 15 + rand()%5;
 	
 	m_Level = Level;
 	
@@ -66,6 +66,9 @@ void CAIpyro1::OnCharacterSpawn(CCharacter *pChr)
 
 void CAIpyro1::ReceiveDamage(int CID, int Dmg)
 {
+	if (CID >= 0 && frandom() < Dmg*0.02f)
+		m_Triggered = true;
+	
 	//m_ShockTimer = 10;
 	//m_Attack = 0;
 }

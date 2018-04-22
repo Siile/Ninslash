@@ -11,6 +11,7 @@ public:
 	CPowerupper(CGameWorld *pGameWorld, vec2 Pos);
 
 	virtual void Reset();
+	virtual void SurvivalReset();
 	virtual void Tick();
 	virtual void Snap(int SnappingClient);
 	
