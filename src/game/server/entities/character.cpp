@@ -1856,9 +1856,9 @@ bool CCharacter::TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos)
 			Dmg = max(1, Dmg/2);
 	}
 	*/
-	
-	//if (From == m_pPlayer->GetCID() && IsTurret && GameServer()->m_pController->IsCoop())
-	//	Dmg = 0;
+		
+	if (From == m_pPlayer->GetCID() && GameServer()->m_pController->IsCoop())
+		Dmg = 0;
 	
 	// disable self damage if weapon is forced
 	//if (g_Config.m_SvForceWeapon && From == m_pPlayer->GetCID())
