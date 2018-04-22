@@ -1230,7 +1230,7 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 		//	m_SurvivalStatus = SURVIVAL_NOCANDO;
 			
 		if ((!IsCoop() && pKiller) || (!pVictim->m_IsBot && pKiller))
-			m_SurvivalStatus = SURVIVAL_NOCANDO;
+			m_SurvivalStatus = SURVIVAL_NOCANDO; 
 		
 		// wait a second before ending the round if it's going to end
 		m_SurvivalDeathTick = Server()->Tick() + Server()->TickSpeed()*1.0f;
