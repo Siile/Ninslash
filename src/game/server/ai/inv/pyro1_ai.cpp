@@ -39,7 +39,7 @@ CAIpyro1::CAIpyro1(CGameContext *pGameServer, CPlayer *pPlayer, int Level)
 void CAIpyro1::OnCharacterSpawn(CCharacter *pChr)
 {
 
-	CAI::OnCharacterSpawn(pChr);
+	CAI::OnCharacterSpawn(pChr); 
 	
 	m_WaypointDir = vec2(0, 0);
 	//Player()->SetRandomSkin();
