@@ -91,6 +91,7 @@ void CBlocks::RenderBlocks()
 	Graphics()->BlendNormal();
 	*/
 
+	CUIRect Screen = *UI()->Screen();
 	
 	vec2 Center = m_pClient->m_pCamera->m_Center / 32;
 
@@ -98,14 +99,17 @@ void CBlocks::RenderBlocks()
 	Graphics()->QuadsBegin();
 	Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
 	
-	int x1 = clamp(int(Center.x) - 20, 1, m_Width-2);
-	int x2 = clamp(int(Center.x) + 20, 1, m_Width-2);
-	int y1 = clamp(int(Center.y) - 20, 1, m_Height-2);
-	int y2 = clamp(int(Center.y) + 20, 1, m_Height-2);
+	int w = Graphics()->ScreenWidth()/32/2+2;
+	int h = Graphics()->ScreenHeight()/32/2+2;
 	
-	for (int x = x1; x < x2; x++)
+	int x1 = clamp(int(Center.x) - w, 1, m_Width-2);
+	int x2 = clamp(int(Center.x) + w, 1, m_Width-2);
+	int y1 = clamp(int(Center.y) - h, 1, m_Height-2);
+	int y2 = clamp(int(Center.y) + h, 1, m_Height-2);
+	
+	for (int x = x1; x <= x2; x++)
 	{
-		for (int y = y1; y < y2; y++)
+		for (int y = y1; y <= y2; y++)
 		{
 			if (m_pBlocks[y*m_Width+x])
 			{

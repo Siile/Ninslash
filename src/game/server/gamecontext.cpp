@@ -411,6 +411,11 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 	// for testing the collision
 	//CreateBuildingHit(Pos);
 	
+	if (GetStaticType(Weapon) == SW_FLAMER)
+		DamageBlocks(Pos, 1+Damage*0.5f, ProximityRadius*1.7f);
+	else
+		DamageBlocks(Pos, Damage*0.5f, ProximityRadius*0.9f);
+	
 	// player collision
 	{
 		CCharacter *apEnts[MAX_CLIENTS];

@@ -386,7 +386,8 @@ void CWeapon::CreateProjectile()
 	vec2 offs = GetProjectileOffset(m_WeaponType);
 	vec2 ProjStartPos = m_Pos+m_Direction*offs.x + vec2(0, offs.y);
 	
-	if (GetWeaponFiringType(m_WeaponType) == WFT_PROJECTILE)
+	int wft = GetWeaponFiringType(m_WeaponType);
+	if (wft == WFT_PROJECTILE || wft == WFT_HOLD)
 		GameServer()->Collision()->IntersectLine(m_Pos, ProjStartPos, 0x0, &ProjStartPos);
 	
 	GameServer()->CreateProjectile(m_Owner, m_WeaponType, m_Charge, ProjStartPos, m_Direction);
