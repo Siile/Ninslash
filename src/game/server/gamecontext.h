@@ -166,6 +166,10 @@ public:
 	void CreateSound(vec2 Pos, int Sound, int Mask=-1);
 	void CreateSoundGlobal(int Sound, int Target=-1);
 	
+	bool BuildableSpot(vec2 Pos);
+	bool AddBlock(int Type, vec2 Pos);
+	void DamageBlocks(vec2 Pos, int Damage, int Range);
+	
 	class CWeapon *NewWeapon(int Part1, int Part2);
 	class CWeapon *NewWeapon(int Weapon);
 	
@@ -195,7 +199,6 @@ public:
 	void SendEmoticon(int ClientID, int Emoticon);
 	void SendWeaponPickup(int ClientID, int Weapon);
 	void SendBroadcast(const char *pText, int ClientID, bool Lock = false);
-	void SendBuff(int Buff, int StartTick, int ClientID);
 
 
 	//

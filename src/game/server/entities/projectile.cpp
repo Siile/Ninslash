@@ -166,6 +166,9 @@ void CProjectile::Tick()
 		GameServer()->CreateBuildingHit(CurPos);
 	}
 	
+	if (Collide)
+		GameServer()->DamageBlocks(CurPos, m_Damage, 1);
+	
 	if(TargetMonster || TargetBuilding || TargetChr || Collide || m_LifeSpan < 0 || GameLayerClipped(CurPos))
 	{
 		if(TargetChr)

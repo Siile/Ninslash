@@ -264,6 +264,7 @@ public:
 	// pointers to all systems
 	class CGameConsole *m_pGameConsole;
 	class CBinds *m_pBinds;
+	class CBlocks *m_pBlocks;
 	class CParticles *m_pParticles;
 	class CBlood *m_pBlood;
 	class CGuts *m_pGuts;

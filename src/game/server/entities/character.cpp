@@ -185,8 +185,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		if (GameServer()->m_pController->IsCoop())
 			m_Silent = true;
 	}
-	
-	
+
 	/*
 	int n = 0;
 	//m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD));
@@ -196,8 +195,10 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_CHAINSAW));
 	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_BOUNCER));
 	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_FLAMER));
-	m_Kits = 9;
 	*/
+	
+	m_apWeapon[0] = GameServer()->NewWeapon(GetStaticWeapon(SW_FLAMER));
+	m_Kits = 99;
 	
 	GiveStartWeapon();
 	SendInventory();
@@ -1256,7 +1257,6 @@ bool CCharacter::GiveBuff(int Item)
 		if (m_aStatus[STATUS_SHIELD] > 0)
 			return false;
 		
-		GameServer()->SendBuff(Item, Server()->Tick(), GetPlayer()->GetCID());
 		m_aStatus[STATUS_SHIELD] = Server()->TickSpeed() * 20.0f;
 		m_ShieldHealth = 100;
 		m_ShieldRadius = 16;
@@ -1632,9 +1632,9 @@ bool CCharacter::AddKit()
 	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
 		return false;
 	
-	if (m_Kits < 9)
+	if (m_Kits < 99)
 	{
-		m_Kits++;
+		m_Kits += 3;
 		return true;
 	}
 	

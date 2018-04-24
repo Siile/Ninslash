@@ -21,7 +21,8 @@ class CInventory : public CComponent
 	int m_SelectedBuilding;
 	
 	static void ConKeyInventory(IConsole::IResult *pResult, void *pUserData);
-
+	static void ConKeyBuildmenu(IConsole::IResult *pResult, void *pUserData);
+	
 	bool m_ResetMouse;
 	bool m_Mouse1;
 	bool m_MouseTrigger;
@@ -30,6 +31,8 @@ class CInventory : public CComponent
 	vec2 m_MoveStartPos;
 	bool m_Moved;
 	bool m_MoveTrigger;
+	
+	int m_WantedTab;
 	
 	int m_DragItem;
 	int m_DragPart;
@@ -47,6 +50,8 @@ class CInventory : public CComponent
 	
 	bool m_Minimized;
 	float m_Scale;
+	
+	vec2 m_LastBlockPos;
 	
 public:
 	CInventory();

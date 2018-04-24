@@ -1,5 +1,3 @@
-
-
 #ifndef GAME_COLLISION_H
 #define GAME_COLLISION_H
 
@@ -16,7 +14,8 @@ class CCollision
 	int m_Width;
 	int m_Height;
 	class CLayers *m_pLayers;
-
+	bool *m_pBlocks;
+	
 	int SolidState(int x, int y, bool IncludeDeath = false);
 	int ForceState(int x, int y);
 	
@@ -77,6 +76,8 @@ public:
 	bool GenerateSomeMoreWaypoints();
 	int WaypointCount() { return m_WaypointCount; }
 	int ConnectionCount() { return m_ConnectionCount; }
+	
+	void SetBlock(ivec2 Pos, bool Block);
 	
 	void SetWaypointCenter(vec2 Position);
 	void AddWeight(vec2 Pos, int Weight);

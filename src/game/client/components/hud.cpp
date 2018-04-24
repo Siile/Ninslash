@@ -903,7 +903,7 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 	
 	// kits & building
 	
-	int LocalKits = clamp(CustomStuff()->m_LocalKits ,0, 9);
+	int LocalKits = clamp(CustomStuff()->m_LocalKits ,0, 99);
 	
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 	Graphics()->QuadsBegin();
@@ -915,28 +915,22 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 
 	float KitSize = 18.0f;
 	
-	if (false)
-	{
-		Graphics()->QuadsEnd();
-		Graphics()->ShaderBegin(SHADER_GRAYSCALE, 0.0f);
-		Graphics()->QuadsBegin();
-					
-		Graphics()->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
-		RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+LocalKits);
-		RenderTools()->DrawSprite(x-1, y-1, KitSize);
-		RenderTools()->DrawSprite(x+1, y-1, KitSize);
-		RenderTools()->DrawSprite(x+1, y+1, KitSize);
-		RenderTools()->DrawSprite(x-1, y+1, KitSize);
-					
-		Graphics()->QuadsEnd();
-		Graphics()->ShaderEnd();
-		Graphics()->QuadsBegin();
-	}
-	
-	
 	Graphics()->SetColor(0.9f, 0.9f, 0.9f, 1.0f);
-	RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+LocalKits);
-	RenderTools()->DrawSprite(x, y, KitSize);
+	if (LocalKits < 10)
+	{
+		RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+LocalKits);
+		RenderTools()->DrawSprite(x, y, KitSize);
+	}
+	else
+	{
+		int Kits1 = (LocalKits - (LocalKits%10))/10;
+		int Kits2 = LocalKits%10;
+		
+		RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+Kits1);
+		RenderTools()->DrawSprite(x-4, y, KitSize-2.0f);
+		RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+Kits2);
+		RenderTools()->DrawSprite(x+4, y, KitSize-2.0f);
+	}
 	
 	Graphics()->QuadsEnd();
 }

@@ -26,6 +26,8 @@ CInventory::CInventory()
 {
 	OnReset();
 	m_ResetMouse = true;
+	m_WantedTab = -1;
+	m_LastBlockPos = vec2(0, 0);
 }
 
 void CInventory::ConKeyInventory(IConsole::IResult *pResult, void *pUserData)
@@ -33,14 +35,38 @@ void CInventory::ConKeyInventory(IConsole::IResult *pResult, void *pUserData)
 	CInventory *pSelf = (CInventory *)pUserData;
 	
 	if(!pSelf->m_pClient->m_Snap.m_SpecInfo.m_Active && pSelf->Client()->State() != IClient::STATE_DEMOPLAYBACK)
-		pSelf->m_Active = pResult->GetInteger(0) != 0;
+	{
+		if (!pSelf->m_Render || pSelf->m_Tab == 0)
+			pSelf->m_Active = pResult->GetInteger(0) != 0;
+		
+		else if (pSelf->m_Render)
+		{
+			pSelf->m_WantedTab = 0;
+		}
+	}
 }
 
+void CInventory::ConKeyBuildmenu(IConsole::IResult *pResult, void *pUserData)
+{
+	CInventory *pSelf = (CInventory *)pUserData;
+	
+	if(!pSelf->m_pClient->m_Snap.m_SpecInfo.m_Active && pSelf->Client()->State() != IClient::STATE_DEMOPLAYBACK)
+	{
+		if (!pSelf->m_Render || pSelf->m_Tab == 1)
+			pSelf->m_Active = pResult->GetInteger(0) != 0;
+		
+		else if (pSelf->m_Render)
+		{
+			pSelf->m_WantedTab = 1;
+		}
+	}
+}
 
 void CInventory::OnConsoleInit()
 {
 	//Console()->Register("+gamepaditempicker", "", CFGFLAG_CLIENT, ConKeyItemPicker, this, "Open item selector");
 	Console()->Register("+inventory", "", CFGFLAG_CLIENT, ConKeyInventory, this, "Open inventory");
+	Console()->Register("+buildmenu", "", CFGFLAG_CLIENT, ConKeyBuildmenu, this, "Open build menu");
 }
 
 void CInventory::OnReset()
@@ -62,6 +88,7 @@ void CInventory::OnReset()
 	m_SelectedBuilding = -1;
 	m_Minimized = false;
 	m_Scale = 1.0f;
+	m_LastBlockPos = vec2(0, 0);
 }
 
 void CInventory::OnRelease()
@@ -469,7 +496,7 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 						Graphics()->ShaderBegin(SHADER_GRAYSCALE, 0.0f);
 						Graphics()->QuadsBegin();
 						
-						RenderTools()->SelectSprite(SPRITE_KIT_BARREL+x+y*4);
+						RenderTools()->SelectSprite(SPRITE_KIT_BLOCK1+x+y*4);
 						RenderTools()->DrawSprite(p.x-1, p.y-1, s*5.0f);
 						RenderTools()->DrawSprite(p.x+1, p.y-1, s*5.0f);
 						RenderTools()->DrawSprite(p.x+1, p.y+1, s*5.0f);
@@ -480,7 +507,7 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 						Graphics()->QuadsBegin();
 					}
 					
-					RenderTools()->SelectSprite(SPRITE_KIT_BARREL+x+y*4);
+					RenderTools()->SelectSprite(SPRITE_KIT_BLOCK1+x+y*4);
 					RenderTools()->DrawSprite(p.x, p.y, s*5.0f);
 				}
 			}
@@ -787,6 +814,13 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 	//if (!m_Mouse1)
 	//	m_Mouse1Loaded = true;
 		
+	
+	// auto scale
+	if (m_Minimized && m_Scale > 0.0f)
+		m_Scale = max(0.0f, m_Scale - 0.05f);
+		
+	if (!m_Minimized && m_Scale < 1.0f)
+		m_Scale = min(1.0f, m_Scale + 0.05f);
 		
 	// building actions
 	if (m_Tab == 1)
@@ -811,16 +845,10 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 				m_pClient->m_pSounds->Play(CSounds::CHN_GUI, SOUND_GUI_DENIED1, 0);
 			}
 		}
-		
-		if (m_Minimized && m_Scale > 0.0f)
-			m_Scale = max(0.0f, m_Scale - 0.05f);
-		
-		if (!m_Minimized && m_Scale < 1.0f)
-			m_Scale = min(1.0f, m_Scale + 0.05f);
 	}
 	
 	
-	// tab actions
+	// tab actions / switching
 	if (m_Mouse1 && m_Mouse1Loaded)
 	{
 		if (abs(m_SelectorMouse.x - Tab1Pos.x) < Size.x/7.0f && abs(m_SelectorMouse.y - Tab1Pos.y) < Size.y/7.0f)
@@ -945,7 +973,7 @@ void CInventory::DrawBuildMode()
 	if (m_Tab != 1 || m_SelectedBuilding < 0 || m_SelectedBuilding >= NUM_BUILDABLES)
 		return;
 	
-	//RenderTools()->SelectSprite(SPRITE_KIT_BARREL+Selected,
+	//RenderTools()->SelectSprite(SPRITE_KIT_BLOCK1+Selected,
 	//								(Selected == 2 && CustomStuff()->m_FlipBuilding) ? SPRITE_FLAG_FLIP_X : 0 + (FlipY ? SPRITE_FLAG_FLIP_Y : 0));
 
 	// validity checks, snap & rotate
@@ -958,12 +986,12 @@ void CInventory::DrawBuildMode()
 	bool Valid = false;
 	bool FlipY = false;
 	int Cost = 0; //BuildableCost[Selected];
+
 	
-	//m_pClient->m_pEffects->ChainsawSmoke(Pos);
-	
-	if (!Collision()->IsTileSolid(Pos.x, Pos.y))
-		Valid = true;
-	
+	if (Selected != BUILDABLE_BLOCK1)
+	{
+			if (!Collision()->IsTileSolid(Pos.x, Pos.y))
+				Valid = true;
 	
 			// snap y down
 			if (Valid && Selected != BUILDABLE_FLAMETRAP)
@@ -1084,19 +1112,37 @@ void CInventory::DrawBuildMode()
 				if (Collision()->IsTileSolid(Pos.x - 12, Pos.y) || Collision()->IsTileSolid(Pos.x + 12, Pos.y))
 					Valid = false;
 			}
-			
-			// not too close to other buildings
-			float Range = 48.0f;
-			
-			if (Selected == BUILDABLE_TESLACOIL)
-				Range = 74.0f;
-			
-			if (m_pClient->BuildingNear(Pos, Range))
-				Valid = false;
+	}
+	// Selected == BUILDABLE_BLOCK1
+	else
+	{
+		Pos.x = int(Pos.x / 32) * 32+16;
+		Pos.y = int(Pos.y / 32) * 32+16;
 		
-			// check for kits
-			if (Cost > CustomStuff()->m_LocalKits)
-				Valid = false;
+		bool Top = Collision()->IsTileSolid(Pos.x, Pos.y-32);
+		bool Bot = Collision()->IsTileSolid(Pos.x, Pos.y+32);
+		bool Left = Collision()->IsTileSolid(Pos.x-32, Pos.y);
+		bool Right = Collision()->IsTileSolid(Pos.x+32, Pos.y);
+		
+		if (!Collision()->IsTileSolid(Pos.x, Pos.y) && (Top || Bot || Left || Right))
+			Valid = true;
+	}
+	
+	// not too close to other buildings
+	float Range = 48.0f;
+			
+	if (Selected == BUILDABLE_TESLACOIL)
+		Range = 74.0f;
+	
+	if (Selected == BUILDABLE_BLOCK1)
+		Range = 32.0f;
+			
+	if (m_pClient->BuildingNear(Pos, Range))
+		Valid = false;
+		
+	// check for kits
+	if (Cost > CustomStuff()->m_LocalKits)
+		Valid = false;
 	
 	
 	
@@ -1131,7 +1177,7 @@ void CInventory::DrawBuildMode()
 	Graphics()->QuadsBegin();
 	if (Valid)	Graphics()->SetColor(0.0f, 1.0f, 0.0f, 1.0f);
 	else		Graphics()->SetColor(1.0f, 0.0f, 0.0f, 1.0f);
-	RenderTools()->SelectSprite(SPRITE_KIT_BARREL+Selected,
+	RenderTools()->SelectSprite(SPRITE_KIT_BLOCK1+Selected,
 		(Selected == 2 && CustomStuff()->m_FlipBuilding) ? SPRITE_FLAG_FLIP_X : 0 + (FlipY ? SPRITE_FLAG_FLIP_Y : 0));
 	RenderTools()->DrawSprite(Pos.x-1, Pos.y-1, BuildableSize[Selected]);
 	RenderTools()->DrawSprite(Pos.x+1, Pos.y-1, BuildableSize[Selected]);
@@ -1143,7 +1189,7 @@ void CInventory::DrawBuildMode()
 	// building sprite
 	Graphics()->QuadsBegin();
 	Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
-	RenderTools()->SelectSprite(SPRITE_KIT_BARREL+Selected,
+	RenderTools()->SelectSprite(SPRITE_KIT_BLOCK1+Selected,
 		(Selected == 2 && CustomStuff()->m_FlipBuilding) ? SPRITE_FLAG_FLIP_X : 0 + (FlipY ? SPRITE_FLAG_FLIP_Y : 0));
 	RenderTools()->DrawSprite(Pos.x, Pos.y, BuildableSize[Selected]);
 	Graphics()->QuadsEnd();
@@ -1153,8 +1199,26 @@ void CInventory::DrawBuildMode()
 	// building actions / build
 	if (m_Tab == 1)
 	{
+		if (!m_Mouse1)
+			m_LastBlockPos = vec2(0, 0);
+		
 		// mouse click
-		if (m_Mouse1Loaded && m_Mouse1 && Valid && m_Minimized && m_Scale < 0.3f)
+		if (Selected == BUILDABLE_BLOCK1 && m_Mouse1 && Valid && m_Minimized && m_Scale < 0.3f)
+		{
+			Pos += m_pClient->m_pCamera->m_Center;
+			
+			if (m_LastBlockPos == Pos)
+				return;
+			
+			m_LastBlockPos = Pos;
+			
+			CNetMsg_Cl_UseKit Msg;
+			Msg.m_Kit = m_SelectedBuilding;
+			Msg.m_X = Pos.x;
+			Msg.m_Y = Pos.y;
+			Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+		}
+		else if (m_Mouse1Loaded && m_Mouse1 && Valid && m_Minimized && m_Scale < 0.3f)
 		{
 			//m_Mouse1Loaded = false;
 			Pos += m_pClient->m_pCamera->m_Center;
@@ -1408,8 +1472,9 @@ void CInventory::OnRender()
 		m_Render = false;
 		return;
 	}
-
-	if (m_Active && !m_WasActive)
+	//m_Render = m_Active;
+	
+	if (m_Active && !m_WasActive && m_WantedTab < 0)
 	{
 		m_Render = !m_Render;
 		m_WasActive = m_Active;
@@ -1418,6 +1483,15 @@ void CInventory::OnRender()
 	if (!m_Active && m_WasActive)
 		m_WasActive = m_Active;
 
+	if (m_WantedTab >= 0)
+	{
+		m_Tab = m_WantedTab;
+		m_WantedTab = -1;
+		
+		m_Minimized = false;
+		m_pClient->m_pControls->m_SelectedBuilding = 0;
+		m_SelectedBuilding = -1;
+	}
 
 	static int64 LastTime = 0;
 	int64 t = time_get();
@@ -1429,8 +1503,6 @@ void CInventory::OnRender()
 	if (!m_Render && s_Fade < 0.01f)
 		return;
 	
-	CUIRect Screen = *UI()->Screen();
-
 	// clamp mouse
 	/*
 	m_SelectorMouse.x = clamp(m_SelectorMouse.x, 0.0f, Screen.w-16.0f);
@@ -1440,6 +1512,7 @@ void CInventory::OnRender()
 	m_SelectorMouse.x = clamp(m_SelectorMouse.x, 0.0f -Graphics()->ScreenWidth()/2, 0.0f + Graphics()->ScreenWidth()/2-16.0f);
 	m_SelectorMouse.y = clamp(m_SelectorMouse.y, 0.0f -Graphics()->ScreenHeight()/2, Graphics()->ScreenHeight()/2-16.0f);
 	
+	CUIRect Screen = *UI()->Screen();
 	Graphics()->MapScreen(Screen.x, Screen.y, Screen.w, Screen.h);
 	MapscreenToGroup(0, 0, Layers()->GameGroup());
 	Graphics()->BlendNormal();
