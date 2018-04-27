@@ -113,6 +113,8 @@ public:
 		return m_apWeapon[Slot];
 	}
 	
+	bool m_ForceCoreSend;
+	
 	bool m_IsBot;
 	int m_HiddenHealth;
 	int m_MaxHealth;

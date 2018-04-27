@@ -16,6 +16,7 @@ CBlock::CBlock(CGameWorld *pGameWorld, int Type, vec2 Pos)
 	m_DestroyTick = 0;
 	Sync();
 	GameServer()->Collision()->SetBlock(ivec2(m_Pos.x, m_Pos.y), true);
+	GameServer()->OnBlockChange(m_Pos);
 	GameWorld()->InsertEntity(this);
 }
 
@@ -90,6 +91,7 @@ void CBlock::TakeDamage(int Damage)
 		m_Type = 0;
 		m_DestroyTick = Server()->Tick() + Server()->TickSpeed()*3.0f;
 		GameServer()->Collision()->SetBlock(ivec2(m_Pos.x, m_Pos.y), false);
+		GameServer()->OnBlockChange(m_Pos);
 		
 		for (int i = 0; i < MAX_CLIENTS; i++)
 			m_aSnapped[i] = false;

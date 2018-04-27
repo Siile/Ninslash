@@ -227,6 +227,18 @@ bool CGameContext::BuildableSpot(vec2 Pos)
 }
 	
 
+void CGameContext::OnBlockChange(vec2 Pos)
+{
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CCharacter *pCharacter = GetPlayerChar(i);
+		
+		if (pCharacter && abs(Pos.x - pCharacter->m_Pos.x) < 1000 && abs(Pos.y - pCharacter->m_Pos.y) < 1000)
+			pCharacter->m_ForceCoreSend = true;	
+	}
+}
+	
+	
 bool CGameContext::AddBlock(int Type, vec2 Pos)
 {
 	if (!BuildableSpot(Pos))

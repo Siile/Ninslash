@@ -69,6 +69,7 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	m_Silent = false;
 	m_IgnoreCollision = false;
 	m_SendInventoryTick = 0;
+	m_ForceCoreSend = false;
 	
 	for (int i = 0; i < NUM_STATUSS; i++)
 	{
@@ -1551,8 +1552,9 @@ void CCharacter::TickDefered()
 		m_Core.Write(&Current);
 
 		// only allow dead reackoning for a top of 3 seconds
-		if(m_ReckoningTick+Server()->TickSpeed()*3 < Server()->Tick() || mem_comp(&Predicted, &Current, sizeof(CNetObj_Character)) != 0)
+		if(m_ForceCoreSend || m_ReckoningTick+Server()->TickSpeed()*3 < Server()->Tick() || mem_comp(&Predicted, &Current, sizeof(CNetObj_Character)) != 0)
 		{
+			m_ForceCoreSend = false;
 			m_ReckoningTick = Server()->Tick();
 			m_SendCore = m_Core;
 			m_ReckoningCore = m_Core;

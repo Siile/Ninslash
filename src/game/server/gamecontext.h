@@ -169,6 +169,7 @@ public:
 	bool BuildableSpot(vec2 Pos);
 	bool AddBlock(int Type, vec2 Pos);
 	void DamageBlocks(vec2 Pos, int Damage, int Range);
+	void OnBlockChange(vec2 Pos);
 	
 	class CWeapon *NewWeapon(int Part1, int Part2);
 	class CWeapon *NewWeapon(int Weapon);
