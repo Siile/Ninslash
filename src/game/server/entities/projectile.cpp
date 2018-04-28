@@ -181,7 +181,8 @@ void CProjectile::Tick()
 
 		if(TargetBuilding)
 		{
-			TargetBuilding->TakeDamage(m_Damage, m_Owner, m_Weapon);
+			vec2 Force = m_Direction * max(0.001f, m_Force);
+			TargetBuilding->TakeDamage(m_Damage, m_Owner, m_Weapon, Force);
 			GameServer()->CreateBuildingHit(CurPos);
 		}
 		

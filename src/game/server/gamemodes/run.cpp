@@ -6,6 +6,7 @@
 #include <game/mapitems.h>
 
 #include <game/server/entities/character.h>
+#include <game/server/entities/radar.h>
 #include <game/server/player.h>
 #include <game/server/gamecontext.h>
 
@@ -100,6 +101,9 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 		m_GameFlags |= GAMEFLAG_SURVIVAL;
 	
 	m_GameFlags |= GAMEFLAG_ACID;
+	
+	for (int i = 0; i < MAX_CLIENTS; i++)
+		new CRadar(&GameServer()->m_World, RADAR_HUMAN, i);
 }
 
 

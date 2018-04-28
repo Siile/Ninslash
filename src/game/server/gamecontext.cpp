@@ -229,12 +229,22 @@ bool CGameContext::BuildableSpot(vec2 Pos)
 
 void CGameContext::OnBlockChange(vec2 Pos)
 {
+	// force characters to update and send the core
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		CCharacter *pCharacter = GetPlayerChar(i);
 		
 		if (pCharacter && abs(Pos.x - pCharacter->m_Pos.x) < 1000 && abs(Pos.y - pCharacter->m_Pos.y) < 1000)
 			pCharacter->m_ForceCoreSend = true;	
+	}
+	
+	// check if buildings are affected
+	CBuilding *apEnts[512];
+	int Num = m_World.FindEntities(Pos, 100, (CEntity**)apEnts, 512, CGameWorld::ENTTYPE_BUILDING);
+
+	for (int i = 0; i < Num; ++i)
+	{
+		apEnts[i]->DoFallCheck();
 	}
 }
 	
@@ -360,6 +370,12 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
 		return true;
 	}
 
+	if (Kit == BUILDABLE_POWERBARREL)
+	{
+		new CBuilding(&m_World, Pos, BUILDING_POWERBARREL, TEAM_NEUTRAL);
+		return true;
+	}
+
 	if (Kit == BUILDABLE_TURRET)
 	{
 			new CBuilding(&m_World, Pos+vec2(0, 8), BUILDING_STAND, TEAM_NEUTRAL);
@@ -425,6 +441,8 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 	
 	if (GetStaticType(Weapon) == SW_FLAMER)
 		DamageBlocks(Pos, 1+Damage*0.5f, ProximityRadius*1.7f);
+	else if (GetStaticType(Weapon) == SW_CHAINSAW)
+		DamageBlocks(Pos, Damage*0.5f, 24 + ProximityRadius);
 	else
 		DamageBlocks(Pos, Damage*0.5f, ProximityRadius*0.9f);
 	
@@ -748,13 +766,15 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon)
 	for(int i = 0; i < Num; i++)
 	{
 		vec2 Diff = apBuildings[i]->m_Pos - Pos - vec2(0, 8);
-		
+		vec2 ForceDir(0,1);
 		float l = length(Diff);
+		if(l)
+			ForceDir = normalize(Diff);
 		l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
 		float Dmg = GetExplosionDamage(Weapon) * l;
 						
 		if((int)Dmg && Dmg > 0.0f)
-			apBuildings[i]->TakeDamage((int)Dmg*Dmg2, Owner, Weapon);
+			apBuildings[i]->TakeDamage((int)Dmg*Dmg2, Owner, Weapon, ForceDir*Dmg*0.3f);
 	}
 	
 	{

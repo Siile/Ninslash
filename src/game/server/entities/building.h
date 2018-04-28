@@ -47,12 +47,19 @@ public:
 	
 	bool m_Mirror;
 	
+	bool m_CanMove;
+	bool m_Moving;
+	vec2 m_Vel;
+	
+	void Move();
+	void DoFallCheck();
+
 	int m_DamageOwner;
 	int m_DeathTimer;
 	
 	bool Jumppad();
 	void Trigger();
-	void TakeDamage(int Damage, int Owner, int Weapon);
+	void TakeDamage(int Damage, int Owner, int Weapon, vec2 Force = vec2(0, 0));
 	void Destroy();
 	
 protected:
@@ -62,6 +69,8 @@ protected:
 	
 private:
 	int m_SetTimer;
+	
+	vec2 m_BoxSize;
 	
 	// lightning wall
 	void CreateLightningWallTop();

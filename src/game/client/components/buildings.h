@@ -10,8 +10,8 @@ class CBuildings : public CComponent
 	void RenderSawblade(const struct CNetObj_Building *pCurrent);
 	void RenderMine(const struct CNetObj_Building *pCurrent);
 	void RenderElectromine(const struct CNetObj_Building *pCurrent);
-	void RenderBarrel(const struct CNetObj_Building *pCurrent);
-	void RenderPowerBarrel(const struct CNetObj_Building *pCurrent);
+	void RenderBarrel(const struct CNetObj_Building *pCurrent, const struct CNetObj_Building *pPrev);
+	void RenderPowerBarrel(const struct CNetObj_Building *pCurrent, const struct CNetObj_Building *pPrev);
 	void RenderLazer(const struct CNetObj_Building *pCurrent);
 	void RenderBase(const struct CNetObj_Building *pCurrent);
 	void RenderStand(const struct CNetObj_Building *pCurrent);

@@ -61,6 +61,7 @@
 #include "components/tracer.h"
 #include "components/splatter.h"
 #include "components/spark.h"
+#include "components/radar.h"
 #include "components/players.h"
 #include "components/nameplates.h"
 #include "components/scoreboard.h"
@@ -115,6 +116,7 @@ static CItems gs_Items;
 static CWeapons gs_Weapons;
 static CBuildings gs_Buildings;
 static CBuildings2 gs_Buildings2;
+static CRadar gs_Radar;
 static CMapImages gs_MapImages;
 
 static CMapLayers gs_MapLayersBackGround(CMapLayers::TYPE_BACKGROUND);
@@ -177,6 +179,7 @@ void CGameClient::OnConsoleInit()
 	m_pBuildings2 = &::gs_Buildings2;
 	m_pBlocks = &::gs_Blocks;
 	m_pDroids = &::gs_Droids;
+	m_pRadar = &::gs_Radar;
 	m_pMapLayersBackGround = &::gs_MapLayersBackGround;
 	m_pMapLayersForeGround = &::gs_MapLayersForeGround;
 
@@ -251,6 +254,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderDamageInd);
 	m_All.Add(m_pDamageind);
 	m_All.Add(&m_pLight->m_RenderLight);
+	m_All.Add(m_pRadar);
 	m_All.Add(m_pInventory);
 	m_All.Add(&gs_Hud);
 	m_All.Add(&gs_Spectator);

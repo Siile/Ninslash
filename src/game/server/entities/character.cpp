@@ -198,7 +198,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_FLAMER));
 	*/
 	
-	m_apWeapon[0] = GameServer()->NewWeapon(GetStaticWeapon(SW_FLAMER));
+	m_apWeapon[0] = GameServer()->NewWeapon(GetStaticWeapon(SW_GUN1));
 	m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 6));
 	m_Kits = 99;
 	

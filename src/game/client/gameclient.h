@@ -293,6 +293,7 @@ public:
 	class CItems *m_pItems;
 	class CWeapons *m_pWeapons;
 	class CDroids *m_pDroids;
+	class CRadar *m_pRadar;
 	class CBuildings *m_pBuildings;
 	class CBuildings2 *m_pBuildings2;
 	class CMapLayers *m_pMapLayersBackGround;

@@ -20,6 +20,8 @@ CoreAction = ["IDLE", "JUMP", "WALLJUMP", "ROLL", "SLIDE", "SLIDEKICK", "FALL", 
 
 InventoryAction = ["SWAP", "COMBINE", "TAKEPART", "DROP"]
 
+Radar = ["CHARACTER", "HUMAN", "OBJECTIVE"]
+
 RawHeader = '''
 
 #include <engine/message.h>
@@ -155,7 +157,8 @@ Enums = [
 	Enum("DROIDSTATUS", Droidstatus),
 	Enum("DROIDTYPE", Droidtype),
 	Enum("COREACTION", CoreAction),
-	Enum("INVENTORYACTION", InventoryAction)
+	Enum("INVENTORYACTION", InventoryAction),
+	Enum("RADAR", Radar)
 ]
 
 Flags = [
@@ -274,6 +277,12 @@ Objects = [
 		NetIntAny("m_Y"),
 
 		NetIntRange("m_Team", 'TEAM_RED', 'TEAM_BLUE')
+	]),
+	
+	NetObject("Radar", [
+		NetIntAny("m_TargetX"),
+		NetIntAny("m_TargetY"),
+		NetIntAny("m_Type")
 	]),
 
 	NetObject("GameInfo", [

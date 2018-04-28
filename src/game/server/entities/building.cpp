@@ -20,6 +20,10 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 	m_Center = vec2(0, 0);
 	m_Collision = true;
 	m_Height = 0;
+	m_CanMove = false;
+	m_Moving = false;
+	m_BoxSize = vec2(32, 32);
+	m_Pos = Pos;
 	
 	m_Status = 0;
 	for (int i = 0; i < NUM_BSTATUS; i++)
@@ -43,13 +47,21 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		break;
 		
 	case BUILDING_BARREL:
+		m_Pos.y -= 6;
+		m_BoxSize = vec2(24.0f, 60.0f);
+		m_CanMove = true;
+		m_Moving = true;
 		m_ProximityRadius = BarrelPhysSize;
-		m_Life = 15+frandom()*5;
+		m_Life = 20+frandom()*5;
 		break;
 		
 	case BUILDING_POWERBARREL:
+		m_Pos.y -= 6;
+		m_BoxSize = vec2(24.0f, 60.0f);
+		m_CanMove = true;
+		m_Moving = true;
 		m_ProximityRadius = BarrelPhysSize;
-		m_Life = 15+frandom()*5;
+		m_Life = 25+frandom()*5;
 		break;
 		
 	case BUILDING_LAZER:
@@ -63,6 +75,7 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		break;
 		
 	case BUILDING_STAND:
+		m_CanMove = true;
 		m_ProximityRadius = StandPhysSize;
 		m_Life = 60;
 		m_Center = vec2(0, -10);
@@ -82,12 +95,14 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		break;
 		
 	case BUILDING_LIGHTNINGWALL:
+		m_CanMove = true;
 		m_ProximityRadius = LightningWallPhysSize;
 		m_Life = 70;
 		m_Center = vec2(0, 10);
 		break;
 		
 	case BUILDING_LIGHTNINGWALL2:
+		m_CanMove = true;
 		m_ProximityRadius = LightningWallPhysSize;
 		m_Life = 70;
 		m_Center = vec2(0, -10);
@@ -141,6 +156,7 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		break;
 		
 	case BUILDING_FLAMETRAP:
+		m_CanMove = true;
 		m_TriggerTimer = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed() * (frandom()*4.0f);
 		m_ProximityRadius = FlametrapPhysSize;
 		m_Life = 60;
@@ -151,7 +167,7 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		m_Life = 100;
 	};
 	
-	m_Pos = Pos;
+	m_Vel = vec2(0, 0);
 	m_Team = Team;
 	m_Type = Type;
 	m_MaxLife = m_Life;
@@ -190,6 +206,68 @@ void CBuilding::SurvivalReset()
 {
 	
 }
+
+
+void CBuilding::Move()
+{
+	if (!m_Moving)
+		return;
+	
+	m_Vel.y += 0.75f;
+	//m_Vel *= 0.99f;
+	
+	bool Grounded = false;
+	if(GameServer()->Collision()->CheckPoint(m_Pos.x+m_BoxSize.x/2, m_Pos.y+m_BoxSize.y/2+1))
+		Grounded = true;
+	if(GameServer()->Collision()->CheckPoint(m_Pos.x-m_BoxSize.x/2, m_Pos.y+m_BoxSize.y/2+1))
+		Grounded = true;
+		
+	int OnForceTile = GameServer()->Collision()->IsForceTile(m_Pos.x-12, m_Pos.y+m_BoxSize.y/2+1);
+	if (OnForceTile == 0)
+		OnForceTile = GameServer()->Collision()->IsForceTile(m_Pos.x+12, m_Pos.y+m_BoxSize.y/2+1);
+
+	if (Grounded)
+	{
+		m_Vel.x *= 0.99f;
+		m_Vel.x = (m_Vel.x + OnForceTile*0.37f) * 0.925f;
+	}
+	else
+	{
+		m_Vel.x *= 0.99f;
+		m_Vel.y *= 0.99f;
+	}
+	
+	vec2 OldVel = m_Vel;
+	GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, m_BoxSize, 0.3f, false);
+	
+	// fall damage
+	if ((((OldVel.y < 0 && m_Vel.y > 0) || (OldVel.y > 0 && m_Vel.y < 0)) && abs(m_Vel.y) > 3.0f))
+	{
+		GameServer()->CreateSound(m_Pos, SOUND_SFX_BOUNCE1);
+		TakeDamage(abs(m_Vel.y)*10, -1, 0);
+	}
+}
+
+void CBuilding::DoFallCheck()
+{
+	if (!m_CanMove || m_Moving)
+		return;
+	
+	// check if the building is still attached to something
+	switch (m_Type)
+	{
+		case BUILDING_BARREL: case BUILDING_POWERBARREL:
+			if (!GameServer()->Collision()->IsTileSolid(m_Pos.x-10, m_Pos.y+40) &&
+				!GameServer()->Collision()->IsTileSolid(m_Pos.x+10, m_Pos.y+40))
+			{
+				m_Moving = true;
+			}
+			break;
+	default:
+		break;
+	};
+}
+
 
 void CBuilding::CreateLightningWallTop()
 {
@@ -276,7 +354,7 @@ void CBuilding::Trigger()
 	}
 }
 
-void CBuilding::TakeDamage(int Damage, int Owner, int Weapon)
+void CBuilding::TakeDamage(int Damage, int Owner, int Weapon, vec2 Force)
 {
 	if (m_Type == BUILDING_SWITCH && !m_aStatus[BSTATUS_ON])
 	{
@@ -287,6 +365,9 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon)
 	
 	if (m_Life >= 5000)
 		return;
+	
+	//if (m_Moving)
+		m_Vel += Force;
 	
 	if ((m_Type == BUILDING_TURRET || m_Type == BUILDING_TESLACOIL) && GameServer()->m_pController->IsCoop() && m_Team >= 0)
 	{
@@ -432,6 +513,9 @@ void CBuilding::Destroy()
 
 void CBuilding::Tick()
 {
+	DoFallCheck();
+	Move();
+	
 	if (m_Type == BUILDING_DOOR1)
 	{
 		if (m_TriggerTimer > 0 && m_TriggerTimer < GameServer()->Server()->Tick())

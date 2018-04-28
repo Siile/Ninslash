@@ -355,6 +355,7 @@ for i in range(1, 10):
 
 image_null = Image("null", "")
 image_pixel = Image("pixel", "pixel.png")
+image_radar = Image("radar", "radar.png")
 image_particles = Image("particles", "particles.png")
 image_gore = Image("gore", "gore.png")
 image_meat = Image("meat", "meat.png")
@@ -427,6 +428,7 @@ image_texasmask = Image("texasmask", "texasmask.png")
 
 container.images.Add(image_null)
 container.images.Add(image_pixel)
+container.images.Add(image_radar)
 container.images.Add(image_blocks)
 container.images.Add(image_game)
 container.images.Add(image_flag)
@@ -1059,6 +1061,7 @@ container.sprites.Add(Sprite("turret_fastener", set_buildings, 4, 6, 2, 2))
 # buildabled
 container.sprites.Add(Sprite("kit_block1", set_buildings, 6, 7, 1, 1))
 container.sprites.Add(Sprite("kit_barrel", set_buildings, 3, 2, 1, 2))
+container.sprites.Add(Sprite("kit_powerbarrel", set_buildings, 8, 2, 1, 2))
 container.sprites.Add(Sprite("kit_turret", set_buildings, 1, 4, 3, 4))
 container.sprites.Add(Sprite("kit_flametrap", set_buildings, 8, 0,2, 2))
 container.sprites.Add(Sprite("kit_lightninwall", set_buildings, 6, 1, 1, 1))

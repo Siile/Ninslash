@@ -1011,7 +1011,7 @@ void CInventory::DrawBuildMode()
 				if (Collision()->IsTileSolid(To.x , To.y-64))
 					Valid = false;
 				
-				if (Collision()->IsForceTile(To.x, To.y+16))
+				if (Selected != BUILDABLE_POWERBARREL && Selected != BUILDABLE_BARREL && Collision()->IsForceTile(To.x, To.y+16))
 					Valid = false;
 			}
 			
@@ -1509,14 +1509,13 @@ void CInventory::OnRender()
 	m_SelectorMouse.y = clamp(m_SelectorMouse.y, 0.0f, Screen.h-16.0f);
 	*/
 	
-	m_SelectorMouse.x = clamp(m_SelectorMouse.x, 0.0f -Graphics()->ScreenWidth()/2, 0.0f + Graphics()->ScreenWidth()/2-16.0f);
-	m_SelectorMouse.y = clamp(m_SelectorMouse.y, 0.0f -Graphics()->ScreenHeight()/2, Graphics()->ScreenHeight()/2-16.0f);
-	
 	CUIRect Screen = *UI()->Screen();
 	Graphics()->MapScreen(Screen.x, Screen.y, Screen.w, Screen.h);
 	MapscreenToGroup(0, 0, Layers()->GameGroup());
 	Graphics()->BlendNormal();
 	
+	m_SelectorMouse.x = clamp(m_SelectorMouse.x, 0.0f -Graphics()->ScreenWidth()/2, 0.0f + Graphics()->ScreenWidth()/2-16.0f);
+	m_SelectorMouse.y = clamp(m_SelectorMouse.y, 0.0f -Graphics()->ScreenHeight()/2, Graphics()->ScreenHeight()/2-16.0f);
 
 	if (!m_Mouse1)
 		m_Mouse1Loaded = true;
