@@ -184,6 +184,7 @@ protected:
 	
 	bool SeekRandomHuman();
 	void ShootAtClosestHuman();
+	void ShootAtBlocks();
 	bool SeekClosestHumanInSight();
 	
 	bool SeekRandomEnemy();

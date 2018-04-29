@@ -390,7 +390,6 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
 	
 	if (Kit == BUILDABLE_TESLACOIL)
 	{
-		
 		int Team = m_apPlayers[Owner]->GetTeam();
 		if (!m_pController->IsTeamplay())
 			Team = m_apPlayers[Owner]->GetCID();

@@ -1107,6 +1107,33 @@ void CAI::ReactToPlayer()
 }
 
 
+void CAI::ShootAtBlocks()
+{
+	if (GameServer()->Collision()->CheckBlocks(m_Pos + normalize(m_Direction)*30) || GameServer()->Collision()->CheckBlocks(m_Pos + normalize(m_Direction)*60) || GameServer()->Collision()->CheckBlocks(m_Pos + normalize(m_Direction)*120))
+		m_Attack = 1;
+	
+	return;
+	
+	/*
+	float Range = WeaponShootRange();
+	
+	if (Range < 40)
+		return;
+	
+	if (Range > 1000)
+		Range = 1000;
+	
+	vec2 To = m_Pos + vec2(0, -6) + m_Direction * Range;
+	if (GameServer()->Collision()->IntersectBlocks(m_Pos, To))
+	{
+		m_Attack = 1;
+		
+		//if (frandom()*20 < 2 && Range > 200)
+		//	m_DontMoveTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed()*(1+frandom());
+	}
+	*/
+}
+
 
 void CAI::ShootAtClosestHuman()
 {

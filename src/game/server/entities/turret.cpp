@@ -21,6 +21,12 @@ CTurret::CTurret(CGameWorld *pGameWorld, vec2 Pos, int Team, class CWeapon *pWea
 	m_ReloadTimer = 0;
 	m_AttackTick = 0;
 	
+	m_AttachOnFall = true;
+	m_Bounciness = 0.0f;
+	m_BoxSize = vec2(24.0f, 40.0f);
+	m_CanMove = true;
+	m_Moving = false;
+	
 	m_pWeapon = pWeapon;
 	m_pWeapon->SetTurret();
 	
@@ -64,7 +70,6 @@ void CTurret::Tick()
 	else
 		m_aStatus[BSTATUS_REPAIR] = 0;
 	
-	
 	if (m_DeathTimer > 0)
 	{
 		m_DeathTimer--;
@@ -77,6 +82,8 @@ void CTurret::Tick()
 		return;
 	}
 
+	Move();
+	
 	bool WillFire = false;
 	
 	if (Target())

@@ -20,6 +20,7 @@ class CCollision
 	int ForceState(int x, int y);
 	
 	int GetTile(int x, int y);
+	bool GetBlock(int x, int y);
 	
 	int m_WaypointCount;
 	int m_ConnectionCount;
@@ -116,6 +117,10 @@ public:
 	
 	int CheckPoint(float x, float y, bool IncludeDeath = false) { return SolidState(round_to_int(x), round_to_int(y), IncludeDeath); }
 	bool CheckPoint(vec2 Pos) { return CheckPoint(Pos.x, Pos.y); }
+	
+	bool CheckBlocks(float x, float y) { return GetBlock(round_to_int(x), round_to_int(y)); }
+	bool CheckBlocks(vec2 Pos) { return CheckBlocks(Pos.x, Pos.y); }
+	
 	int GetCollisionAt(float x, float y) { return GetTile(round_to_int(x), round_to_int(y)); }
 	
 	int IsInFluid(float x, float y);
@@ -124,6 +129,7 @@ public:
 	int GetHeight() { return m_Height; };
 	int FastIntersectLine(vec2 Pos0, vec2 Pos1);
 	int IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, bool IncludeDeath = false);
+	bool IntersectBlocks(vec2 Pos0, vec2 Pos1);
 	
 	// return bounced (true) or not (false)
 	bool MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, int *pBounces, bool IgnoreCollision = false);

@@ -33,17 +33,17 @@ CBlocks::~CBlocks()
 
 void CBlocks::OnInit()
 {
-
+	ResetBlocks();
 }
 
 void CBlocks::OnReset()
 {
-	
+	ResetBlocks();
 }
 
 void CBlocks::OnMapLoad()
 {
-	
+	ResetBlocks();
 }
 
 void CBlocks::ResetBlocks()

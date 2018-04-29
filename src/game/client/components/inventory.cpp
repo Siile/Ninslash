@@ -37,8 +37,10 @@ void CInventory::ConKeyInventory(IConsole::IResult *pResult, void *pUserData)
 	if(!pSelf->m_pClient->m_Snap.m_SpecInfo.m_Active && pSelf->Client()->State() != IClient::STATE_DEMOPLAYBACK)
 	{
 		if (!pSelf->m_Render || pSelf->m_Tab == 0)
+		{
 			pSelf->m_Active = pResult->GetInteger(0) != 0;
-		
+			pSelf->m_Tab = 0;
+		}
 		else if (pSelf->m_Render)
 		{
 			pSelf->m_WantedTab = 0;
@@ -53,8 +55,10 @@ void CInventory::ConKeyBuildmenu(IConsole::IResult *pResult, void *pUserData)
 	if(!pSelf->m_pClient->m_Snap.m_SpecInfo.m_Active && pSelf->Client()->State() != IClient::STATE_DEMOPLAYBACK)
 	{
 		if (!pSelf->m_Render || pSelf->m_Tab == 1)
+		{
 			pSelf->m_Active = pResult->GetInteger(0) != 0;
-		
+			pSelf->m_Tab = 1;
+		}
 		else if (pSelf->m_Render)
 		{
 			pSelf->m_WantedTab = 1;
@@ -1106,7 +1110,7 @@ void CInventory::DrawBuildMode()
 			
 			
 			// final sanity checks
-			if (Selected != 2 && Valid)
+			if (Selected != BUILDABLE_FLAMETRAP && Valid)
 			{
 				// ground on both sides
 				if (Collision()->IsTileSolid(Pos.x - 12, Pos.y) || Collision()->IsTileSolid(Pos.x + 12, Pos.y))
@@ -1127,7 +1131,7 @@ void CInventory::DrawBuildMode()
 		if (!Collision()->IsTileSolid(Pos.x, Pos.y) && (Top || Bot || Left || Right))
 			Valid = true;
 	}
-	
+					
 	// not too close to other buildings
 	float Range = 48.0f;
 			
@@ -1178,7 +1182,7 @@ void CInventory::DrawBuildMode()
 	if (Valid)	Graphics()->SetColor(0.0f, 1.0f, 0.0f, 1.0f);
 	else		Graphics()->SetColor(1.0f, 0.0f, 0.0f, 1.0f);
 	RenderTools()->SelectSprite(SPRITE_KIT_BLOCK1+Selected,
-		(Selected == 2 && CustomStuff()->m_FlipBuilding) ? SPRITE_FLAG_FLIP_X : 0 + (FlipY ? SPRITE_FLAG_FLIP_Y : 0));
+		(Selected == BUILDABLE_FLAMETRAP && CustomStuff()->m_FlipBuilding) ? SPRITE_FLAG_FLIP_X : 0 + (FlipY ? SPRITE_FLAG_FLIP_Y : 0));
 	RenderTools()->DrawSprite(Pos.x-1, Pos.y-1, BuildableSize[Selected]);
 	RenderTools()->DrawSprite(Pos.x+1, Pos.y-1, BuildableSize[Selected]);
 	RenderTools()->DrawSprite(Pos.x-1, Pos.y+1, BuildableSize[Selected]);
@@ -1190,7 +1194,7 @@ void CInventory::DrawBuildMode()
 	Graphics()->QuadsBegin();
 	Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
 	RenderTools()->SelectSprite(SPRITE_KIT_BLOCK1+Selected,
-		(Selected == 2 && CustomStuff()->m_FlipBuilding) ? SPRITE_FLAG_FLIP_X : 0 + (FlipY ? SPRITE_FLAG_FLIP_Y : 0));
+		(Selected == BUILDABLE_FLAMETRAP && CustomStuff()->m_FlipBuilding) ? SPRITE_FLAG_FLIP_X : 0 + (FlipY ? SPRITE_FLAG_FLIP_Y : 0));
 	RenderTools()->DrawSprite(Pos.x, Pos.y, BuildableSize[Selected]);
 	Graphics()->QuadsEnd();
 	
@@ -1474,14 +1478,17 @@ void CInventory::OnRender()
 	}
 	//m_Render = m_Active;
 	
-	if (m_Active && !m_WasActive && m_WantedTab < 0)
+	if (m_WantedTab < 0)
 	{
-		m_Render = !m_Render;
-		m_WasActive = m_Active;
+		if (m_Active && !m_WasActive)
+		{
+			m_Render = !m_Render;
+			m_WasActive = m_Active;
+		}
+		
+		if (!m_Active && m_WasActive)
+			m_WasActive = m_Active;
 	}
-	
-	if (!m_Active && m_WasActive)
-		m_WasActive = m_Active;
 
 	if (m_WantedTab >= 0)
 	{
@@ -1509,13 +1516,14 @@ void CInventory::OnRender()
 	m_SelectorMouse.y = clamp(m_SelectorMouse.y, 0.0f, Screen.h-16.0f);
 	*/
 	
+	m_SelectorMouse.x = clamp(m_SelectorMouse.x, 0.0f -Graphics()->ScreenWidth()/2+20, 0.0f + Graphics()->ScreenWidth()/2-16.0f);
+	m_SelectorMouse.y = clamp(m_SelectorMouse.y, 0.0f -Graphics()->ScreenHeight()/2+20, Graphics()->ScreenHeight()/2-16.0f);
+	
 	CUIRect Screen = *UI()->Screen();
 	Graphics()->MapScreen(Screen.x, Screen.y, Screen.w, Screen.h);
 	MapscreenToGroup(0, 0, Layers()->GameGroup());
 	Graphics()->BlendNormal();
 	
-	m_SelectorMouse.x = clamp(m_SelectorMouse.x, 0.0f -Graphics()->ScreenWidth()/2, 0.0f + Graphics()->ScreenWidth()/2-16.0f);
-	m_SelectorMouse.y = clamp(m_SelectorMouse.y, 0.0f -Graphics()->ScreenHeight()/2, Graphics()->ScreenHeight()/2-16.0f);
 
 	if (!m_Mouse1)
 		m_Mouse1Loaded = true;

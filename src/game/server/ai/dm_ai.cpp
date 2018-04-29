@@ -121,6 +121,8 @@ void CAIdm::DoBehavior()
 
 	if (Player()->GetCharacter()->GetWeaponType() == WEAPON_NONE)
 		FindWeapon();
+	else
+		ShootAtBlocks();
 	
 	if (UpdateWaypoint())
 	{

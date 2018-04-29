@@ -198,11 +198,11 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_FLAMER));
 	*/
 	
-	m_apWeapon[0] = GameServer()->NewWeapon(GetStaticWeapon(SW_GUN1));
-	m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 6));
-	m_Kits = 99;
+	//m_apWeapon[0] = GameServer()->NewWeapon(GetStaticWeapon(SW_GUN1));
+	//m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 6));
 	
 	GiveStartWeapon();
+	m_Kits = 99;
 	SendInventory();
 	
 	return true;
@@ -1165,7 +1165,7 @@ void CCharacter::UseKit(int Kit, vec2 Pos)
 {
 	if (Kit < 0 || Kit >= NUM_BUILDABLES)
 		return;
-	
+		
 	if (m_Kits >= BuildableCost[Kit])
 	{
 		if (GameServer()->AddBuilding(Kit, Pos, GetPlayer()->GetCID()))
@@ -1637,7 +1637,7 @@ bool CCharacter::AddKit()
 	
 	if (m_Kits < 99)
 	{
-		m_Kits += 3;
+		m_Kits = min(m_Kits+4, 99);
 		return true;
 	}
 	

@@ -11,6 +11,12 @@ CTeslacoil::CTeslacoil(CGameWorld *pGameWorld, vec2 Pos, int Team, int OwnerPlay
 	m_Life = 80;
 	m_MaxLife = 80;
 	
+	m_AttachOnFall = true;
+	m_Bounciness = 0.0f;
+	m_BoxSize = vec2(24.0f, 34.0f);
+	m_CanMove = true;
+	m_Moving = false;
+	
 	m_OwnerPlayer = OwnerPlayer;
 	m_AttackTick = Server()->Tick() + Server()->TickSpeed()*frandom();
 	
@@ -45,6 +51,8 @@ void CTeslacoil::Tick()
 
 	if (Server()->Tick() > m_AttackTick + Server()->TickSpeed()*(0.3f + frandom()*0.3f))
 		Fire();
+	
+	Move();
 	
 	// destroy
 	if (m_Life <= 0)

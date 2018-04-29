@@ -137,6 +137,7 @@ void CAIrobot1::DoBehavior()
 	{
 		// triggered, but no enemies in sight
 		ShootAtClosestBuilding();
+		ShootAtBlocks();
 		
 		if (SeekClosestEnemy())
 			m_TargetPos = m_PlayerPos;

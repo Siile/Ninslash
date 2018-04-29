@@ -510,6 +510,14 @@ void CCollision::SetBlock(ivec2 Pos, bool Block)
 }
 
 
+bool CCollision::GetBlock(int x, int y)
+{
+	int Nx = clamp(x/32, 0, m_Width-1);
+	int Ny = clamp(y/32, 0, m_Height-1);
+	
+	return m_pBlocks[Ny*m_Width+Nx];
+}
+
 int CCollision::GetTile(int x, int y)
 {
 	int Nx = clamp(x/32, 0, m_Width-1);
@@ -685,6 +693,24 @@ int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *p
 	if(pOutBeforeCollision)
 		*pOutBeforeCollision = Pos1;
 	return 0;
+}
+
+bool CCollision::IntersectBlocks(vec2 Pos0, vec2 Pos1)
+{
+	float Distance = distance(Pos0, Pos1);
+	int End(Distance+1);
+
+	for(int i = 0; i < End; i++)
+	{
+		float a = i/Distance;
+		vec2 Pos = mix(Pos0, Pos1, a);
+		if(GetBlock(Pos.x, Pos.y))
+		{
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 // TODO: OPT: rewrite this smarter!

@@ -203,6 +203,7 @@ void CPicker::DrawWeapons()
 
 void CPicker::DrawKit()
 {
+	/*
 	// reset mouse to active weapon
 	if (m_ResetMouse)
 	{
@@ -266,6 +267,7 @@ void CPicker::DrawKit()
 	TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
 	TextRender()->Text(0, Screen.w/2+KitPos.x+25, Screen.h/2+KitPos.y+10, 16, aBuf, -1);
 	TextRender()->TextColor(1, 1, 1, 1);
+	*/
 }
 
 
@@ -363,6 +365,7 @@ void CPicker::OnRender()
 
 void CPicker::UseKit(int Kit)
 {
+	/*
 	if (Kit < 0 || Kit >= NUM_KITS)
 		return;
 
@@ -377,6 +380,7 @@ void CPicker::UseKit(int Kit)
 	CNetMsg_Cl_UseKit Msg;
 	Msg.m_Kit = Kit;
 	Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+	*/
 }
 
 

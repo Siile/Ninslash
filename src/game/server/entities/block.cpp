@@ -10,7 +10,7 @@ CBlock::CBlock(CGameWorld *pGameWorld, int Type, vec2 Pos)
 {
 	m_Pos = vec2(int(Pos.x / 32)*32, int(Pos.y / 32)*32);
 	m_Type = Type;
-	m_Life = 1;
+	m_Life = 100;
 	m_MaxLife = m_Life;
 	
 	m_DestroyTick = 0;

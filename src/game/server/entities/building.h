@@ -64,13 +64,14 @@ public:
 	
 protected:
 	void UpdateStatus();
+	float m_Bounciness;
+	bool m_AttachOnFall;
 	
 	int m_TriggerTimer;
+	vec2 m_BoxSize;
 	
 private:
 	int m_SetTimer;
-	
-	vec2 m_BoxSize;
 	
 	// lightning wall
 	void CreateLightningWallTop();

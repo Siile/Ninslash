@@ -22,8 +22,8 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 	m_Height = 0;
 	m_CanMove = false;
 	m_Moving = false;
+	m_AttachOnFall = false;
 	m_BoxSize = vec2(32, 32);
-	m_Pos = Pos;
 	
 	m_Status = 0;
 	for (int i = 0; i < NUM_BSTATUS; i++)
@@ -47,7 +47,8 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		break;
 		
 	case BUILDING_BARREL:
-		m_Pos.y -= 6;
+		m_Bounciness = 0.3f;
+		Pos.y -= 6;
 		m_BoxSize = vec2(24.0f, 60.0f);
 		m_CanMove = true;
 		m_Moving = true;
@@ -56,7 +57,8 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		break;
 		
 	case BUILDING_POWERBARREL:
-		m_Pos.y -= 6;
+		m_Bounciness = 0.33f;
+		Pos.y -= 6;
 		m_BoxSize = vec2(24.0f, 60.0f);
 		m_CanMove = true;
 		m_Moving = true;
@@ -75,10 +77,15 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		break;
 		
 	case BUILDING_STAND:
-		m_CanMove = true;
 		m_ProximityRadius = StandPhysSize;
 		m_Life = 60;
 		m_Center = vec2(0, -10);
+		
+		m_AttachOnFall = true;
+		m_Bounciness = 0.0f;
+		m_BoxSize = vec2(24.0f, 40.0f);
+		m_CanMove = true;
+		m_Moving = false;
 		
 		if (GameServer()->Collision()->IsTileSolid(Pos.x, Pos.y - 30))
 		{
@@ -95,6 +102,8 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		break;
 		
 	case BUILDING_LIGHTNINGWALL:
+		m_AttachOnFall = true;
+		m_Bounciness = 0.0f;
 		m_CanMove = true;
 		m_ProximityRadius = LightningWallPhysSize;
 		m_Life = 70;
@@ -102,6 +111,8 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		break;
 		
 	case BUILDING_LIGHTNINGWALL2:
+		m_AttachOnFall = true;
+		m_Bounciness = 0.0f;
 		m_CanMove = true;
 		m_ProximityRadius = LightningWallPhysSize;
 		m_Life = 70;
@@ -156,6 +167,9 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		break;
 		
 	case BUILDING_FLAMETRAP:
+		m_AttachOnFall = true;
+		m_BoxSize = vec2(32.0f, 32.0f);
+		m_Bounciness = 0.2f;
 		m_CanMove = true;
 		m_TriggerTimer = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed() * (frandom()*4.0f);
 		m_ProximityRadius = FlametrapPhysSize;
@@ -167,6 +181,7 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		m_Life = 100;
 	};
 	
+	m_Pos = Pos;
 	m_Vel = vec2(0, 0);
 	m_Team = Team;
 	m_Type = Type;
@@ -238,13 +253,24 @@ void CBuilding::Move()
 	}
 	
 	vec2 OldVel = m_Vel;
-	GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, m_BoxSize, 0.3f, false);
+	GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, m_BoxSize, m_Bounciness, false);
 	
 	// fall damage
-	if ((((OldVel.y < 0 && m_Vel.y > 0) || (OldVel.y > 0 && m_Vel.y < 0)) && abs(m_Vel.y) > 3.0f))
+	if ((((OldVel.y < 0 && m_Vel.y > 0) || (OldVel.y > 0 && m_Vel.y < 0)) && abs(m_Vel.y) > 2.0f))
 	{
 		GameServer()->CreateSound(m_Pos, SOUND_SFX_BOUNCE1);
 		TakeDamage(abs(m_Vel.y)*10, -1, 0);
+	}
+	
+	if (m_AttachOnFall && m_Vel.y == 0.0f && OldVel.y > 0.0f)
+	{
+		m_Moving = false;
+		
+		if (m_Mirror && (m_Type == BUILDING_TESLACOIL || m_Type == BUILDING_STAND || m_Type == BUILDING_TURRET))
+		{
+			m_Life = 1;
+			TakeDamage(20, -1, 0);
+		}
 	}
 }
 
@@ -253,7 +279,37 @@ void CBuilding::DoFallCheck()
 	if (!m_CanMove || m_Moving)
 		return;
 	
+	if (m_Type == BUILDING_FLAMETRAP)
+	{
+		if (m_Mirror)
+		{
+			if (!GameServer()->Collision()->IsTileSolid(m_Pos.x+m_BoxSize.x, m_Pos.y))
+				m_Moving = true;
+		}
+		else
+		{
+			if (!GameServer()->Collision()->IsTileSolid(m_Pos.x-m_BoxSize.x, m_Pos.y))
+				m_Moving = true;
+		}
+		
+		return;
+	}
+	
+	if (m_Mirror)
+	{
+		if (!GameServer()->Collision()->IsTileSolid(m_Pos.x-m_BoxSize.x/2, m_Pos.y-m_BoxSize.y-1) &&
+			!GameServer()->Collision()->IsTileSolid(m_Pos.x+m_BoxSize.x/2, m_Pos.y-m_BoxSize.y-1))
+			m_Moving = true;
+	}
+	else
+	{
+		if (!GameServer()->Collision()->IsTileSolid(m_Pos.x-m_BoxSize.x/2, m_Pos.y+m_BoxSize.y/2+1) &&
+			!GameServer()->Collision()->IsTileSolid(m_Pos.x+m_BoxSize.x/2, m_Pos.y+m_BoxSize.y/2+1))
+			m_Moving = true;
+	}
+	
 	// check if the building is still attached to something
+	/*
 	switch (m_Type)
 	{
 		case BUILDING_BARREL: case BUILDING_POWERBARREL:
@@ -266,6 +322,7 @@ void CBuilding::DoFallCheck()
 	default:
 		break;
 	};
+	*/
 }
 
 
@@ -366,7 +423,7 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon, vec2 Force)
 	if (m_Life >= 5000)
 		return;
 	
-	//if (m_Moving)
+	if (m_Moving)
 		m_Vel += Force;
 	
 	if ((m_Type == BUILDING_TURRET || m_Type == BUILDING_TESLACOIL) && GameServer()->m_pController->IsCoop() && m_Team >= 0)
@@ -513,7 +570,6 @@ void CBuilding::Destroy()
 
 void CBuilding::Tick()
 {
-	DoFallCheck();
 	Move();
 	
 	if (m_Type == BUILDING_DOOR1)
