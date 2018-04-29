@@ -310,7 +310,7 @@ int GetExplosionSound(int Weapon)
 			case SW_GRENADE1: return SOUND_GRENADE_EXPLODE;
 			case SW_GRENADE2: return SOUND_GRENADE2_EXPLODE;
 			case SW_BAZOOKA: return SOUND_GRENADE_EXPLODE;
-			case SW_BOUNCER: return SOUND_GRENADE2_EXPLODE;
+			case SW_BOUNCER: return SOUND_BOUNCER_EXPLODE;
 			default: return 0;
 		};
 	}

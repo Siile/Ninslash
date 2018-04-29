@@ -176,6 +176,17 @@ void CLaser::DoBounce()
 						
 						m_IgnoreScythe = -1;
 
+						if (GameServer()->Collision()->CheckBlocks(m_Pos))
+							GameServer()->DamageBlocks(m_Pos, m_Damage, 1);
+						else if (GameServer()->Collision()->CheckBlocks(m_Pos+vec2(-4, -4)))
+							GameServer()->DamageBlocks(m_Pos+vec2(-4, -4), m_Damage, 1);
+						else if (GameServer()->Collision()->CheckBlocks(m_Pos+vec2(4, -4)))
+							GameServer()->DamageBlocks(m_Pos+vec2(4, -4), m_Damage, 1);
+						else if (GameServer()->Collision()->CheckBlocks(m_Pos+vec2(-4, 4)))
+							GameServer()->DamageBlocks(m_Pos+vec2(-4, 4), m_Damage, 1);
+						else if (GameServer()->Collision()->CheckBlocks(m_Pos+vec2(4, 4)))
+							GameServer()->DamageBlocks(m_Pos+vec2(4, 4), m_Damage, 1);
+						
 						GameServer()->CreateSound(m_Pos, SOUND_LASER_BOUNCE);
 					}
 				}

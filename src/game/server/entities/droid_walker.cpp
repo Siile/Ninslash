@@ -101,17 +101,15 @@ void CWalker::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Weapon)
 		// random pickup drop
 		for (int i = 0; i < 3; i++)
 		{
-			if (frandom() < 0.3f)
+			if (frandom() < 0.4f)
 				GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_AMMO, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
-			else if (frandom() < 0.3f)
-				GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_HEALTH, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
-			else if (frandom() < 0.3f)
+			else if (frandom() < 0.4f)
 				GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_ARMOR, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 			else
 				GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_KIT, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);			
 		}
 		
-		if (frandom() < 0.075f)
+		if (frandom() < 0.08f)
 			GameServer()->m_pController->DropWeapon(m_Pos + vec2(0, -42), vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_UPGRADE)));
 
 		m_DeathTick = Server()->Tick();

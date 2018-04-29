@@ -61,7 +61,7 @@ void CBlock::Tick()
 	for (int i = 0; i < MAX_CLIENTS; i++)
 		if (m_aSnapped[i])
 		{
-			if (m_aSnapTimer[i]++ > 30)
+			if (m_aSnapTimer[i]++ > 20)
 			{
 				m_aSnapped[i] = false;
 				m_aSnapTimer[i] = 0;

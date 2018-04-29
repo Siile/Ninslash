@@ -336,6 +336,7 @@ container.sounds.Add(SoundSet("barrel4_fire", FileList("audio/wp_barrel4_fire-%0
 container.sounds.Add(SoundSet("bazooka_fire", FileList("audio/wp_bazooka_fire-%02d.wv", 3)))
 container.sounds.Add(SoundSet("bouncer_fire", FileList("audio/wp_bouncer_fire-%02d.wv", 3)))
 container.sounds.Add(SoundSet("bouncer_bounce", FileList("audio/wp_bouncer_bounce-%02d.wv", 3)))
+container.sounds.Add(SoundSet("bouncer_explode", FileList("audio/wp_bouncer_explode-%02d.wv", 3)))
 
 container.sounds.Add(SoundSet("sfx_bounce1", ["audio/sfx_bounce1.wv"]))
 

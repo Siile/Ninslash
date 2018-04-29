@@ -99,8 +99,8 @@ void CBlocks::RenderBlocks()
 	Graphics()->QuadsBegin();
 	Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
 	
-	int w = Graphics()->ScreenWidth()/32/2+2;
-	int h = Graphics()->ScreenHeight()/32/2+2;
+	int w = Graphics()->ScreenWidth()/32/2+4;
+	int h = Graphics()->ScreenHeight()/32/2+3;
 	
 	int x1 = clamp(int(Center.x) - w, 1, m_Width-2);
 	int x2 = clamp(int(Center.x) + w, 1, m_Width-2);

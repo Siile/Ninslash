@@ -1190,6 +1190,7 @@ void CCharacterCore::Move()
 		NewPos.y += 18;
 		
 		// unstuck jumpkick
+		/*
 		if (!m_Input.m_Hook && abs(m_Vel.x + m_Vel.y) < 0.1f)
 		{
 			int Top = m_pCollision->CheckPoint(m_Pos.x, m_Pos.y-80);
@@ -1213,6 +1214,7 @@ void CCharacterCore::Move()
 				}
 			}
 		}
+		*/
 	}
 	else
 	{

@@ -360,8 +360,7 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
 
 	if (Kit == BUILDABLE_BLOCK1)
 	{
-		AddBlock(1, Pos);
-		return true;
+		return AddBlock(1, Pos);
 	}
 	
 	if (Kit == BUILDABLE_BARREL)
