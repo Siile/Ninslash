@@ -184,10 +184,12 @@ void CBuildings2::RenderJumppad(const struct CNetObj_Building *pCurrent)
 }
 
 
-void CBuildings2::RenderFlametrap(const struct CNetObj_Building *pCurrent)
+void CBuildings2::RenderFlametrap(const CNetObj_Building *pCurrent, const CNetObj_Building *pPrev)
 {
+	vec2 Pos = mix(vec2(pPrev->m_X, pPrev->m_Y), vec2(pCurrent->m_X, pCurrent->m_Y), Client()->IntraGameTick());
+	
 	// render flame effect
-	int i = pCurrent->m_X/4 + pCurrent->m_Y/16;
+	int i = Pos.x/4 + Pos.y/16;
 	i = i%64;
 	
 	i = clamp(i, 0, 63);
@@ -207,12 +209,12 @@ void CBuildings2::RenderFlametrap(const struct CNetObj_Building *pCurrent)
 			if (CustomStuff()->m_FlametrapLastSound[i] == 0)
 			{
 				CustomStuff()->m_FlametrapLastSound[i] = 1;
-				m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_JETPACK1, 1.0f, vec2(pCurrent->m_X, pCurrent->m_Y));
+				m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_JETPACK1, 1.0f, Pos);
 			}
 			else
 			{
 				CustomStuff()->m_FlametrapLastSound[i] = 0;
-				m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_JETPACK2, 1.0f, vec2(pCurrent->m_X, pCurrent->m_Y));
+				m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_JETPACK2, 1.0f, Pos);
 			}
 			
 			// new sound
@@ -234,7 +236,7 @@ void CBuildings2::RenderFlametrap(const struct CNetObj_Building *pCurrent)
 		Graphics()->SetColor(1, 1, 1, 1);
 		Graphics()->QuadsSetRotation(0);
 			
-		IGraphics::CQuadItem QuadItem2(pCurrent->m_X + (Flip ? -13-72 : 13+72), pCurrent->m_Y - 18, 128, 64);
+		IGraphics::CQuadItem QuadItem2(Pos.x + (Flip ? -13-72 : 13+72), Pos.y - 18, 128, 64);
 		Graphics()->QuadsDraw(&QuadItem2, 1);
 		
 		Graphics()->QuadsEnd();
@@ -481,6 +483,7 @@ void CBuildings2::OnRender()
 		if (Item.m_Type == NETOBJTYPE_BUILDING)
 		{
 			const struct CNetObj_Building *pBuilding = (const CNetObj_Building *)pData;
+			const void *pPrev = Client()->SnapFindItem(IClient::SNAP_PREV, Item.m_Type, Item.m_ID);
 			
 			switch (pBuilding->m_Type)
 			{
@@ -498,7 +501,7 @@ void CBuildings2::OnRender()
 				break;
 				
 			case BUILDING_FLAMETRAP:
-				RenderFlametrap(pBuilding);
+				RenderFlametrap(pBuilding, pPrev ? (const CNetObj_Building *)pPrev : pBuilding);
 				break;
 				
 			case BUILDING_JUMPPAD:

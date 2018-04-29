@@ -6,6 +6,7 @@
 #include "player.h"
 
 #include <game/weapons.h>
+#include <game/buildables.h>
 #include <game/server/botnames.h>
 #include "gamemodes/texasrun.h"
 
@@ -114,7 +115,7 @@ void CPlayer::TakePart(int Item1, int Slot, int Item2)
 
 void CPlayer::UseKit(int Kit, vec2 Pos)
 {
-	if (GetCharacter() && Kit >= 0 && Kit < NUM_KITS)
+	if (GetCharacter() && Kit >= 0 && Kit < NUM_BUILDABLES)
 		GetCharacter()->UseKit(Kit, Pos);
 }
 

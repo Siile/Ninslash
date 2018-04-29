@@ -6,6 +6,7 @@
 #include <game/mapitems.h>
 
 #include <game/server/entities/character.h>
+#include <game/server/entities/radar.h>
 #include <game/server/player.h>
 #include <game/server/gamecontext.h>
 
@@ -31,6 +32,9 @@ CGameControllerDM::CGameControllerDM(class CGameContext *pGameServer)
 	
 	if (g_Config.m_SvEnableBuilding)
 		m_GameFlags |= GAMEFLAG_BUILD;
+	
+	//for (int i = 0; i < MAX_CLIENTS; i++)
+	//	new CRadar(&GameServer()->m_World, RADAR_CHARACTER, i);
 }
 
 void CGameControllerDM::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)

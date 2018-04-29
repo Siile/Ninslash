@@ -26,6 +26,7 @@
 #include "customstuff.h"
 #include "skelebank.h"
 
+#include "components/block.h"
 #include "components/binds.h"
 #include "components/broadcast.h"
 #include "components/camera.h"
@@ -60,6 +61,7 @@
 #include "components/tracer.h"
 #include "components/splatter.h"
 #include "components/spark.h"
+#include "components/radar.h"
 #include "components/players.h"
 #include "components/nameplates.h"
 #include "components/scoreboard.h"
@@ -80,6 +82,7 @@ static CMotd gs_Motd;
 static CBroadcast gs_Broadcast;
 static CGameConsole gs_GameConsole;
 static CBinds gs_Binds;
+static CBlocks gs_Blocks;
 static CParticles gs_Particles;
 static CBlood gs_Blood;
 static CGuts gs_Guts;
@@ -113,6 +116,7 @@ static CItems gs_Items;
 static CWeapons gs_Weapons;
 static CBuildings gs_Buildings;
 static CBuildings2 gs_Buildings2;
+static CRadar gs_Radar;
 static CMapImages gs_MapImages;
 
 static CMapLayers gs_MapLayersBackGround(CMapLayers::TYPE_BACKGROUND);
@@ -173,7 +177,9 @@ void CGameClient::OnConsoleInit()
 	m_pWeapons = &::gs_Weapons;
 	m_pBuildings = &::gs_Buildings;
 	m_pBuildings2 = &::gs_Buildings2;
+	m_pBlocks = &::gs_Blocks;
 	m_pDroids = &::gs_Droids;
+	m_pRadar = &::gs_Radar;
 	m_pMapLayersBackGround = &::gs_MapLayersBackGround;
 	m_pMapLayersForeGround = &::gs_MapLayersForeGround;
 
@@ -222,6 +228,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pBlood->m_RenderBlood);
 	m_All.Add(&m_pBlood->m_RenderAcid);
 	m_All.Add(&m_pSplatter->m_RenderSplatter);
+	m_All.Add(m_pBlocks);
 	m_All.Add(&gs_MapLayersForeGround);
 	m_All.Add(m_pCBelt);
 	m_All.Add(&m_pParticles->m_RenderEffect1);
@@ -247,6 +254,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderDamageInd);
 	m_All.Add(m_pDamageind);
 	m_All.Add(&m_pLight->m_RenderLight);
+	m_All.Add(m_pRadar);
 	m_All.Add(m_pInventory);
 	m_All.Add(&gs_Hud);
 	m_All.Add(&gs_Spectator);
@@ -912,6 +920,14 @@ void CGameClient::ProcessEvents()
 			g_GameClient.m_pEffects->PlayerDeath(vec2(ev->m_X, ev->m_Y), ev->m_ClientID);
 			CustomStuff()->m_aPlayerInfo[ev->m_ClientID].Reset();
 		}
+		/*
+		else if(Item.m_Type == NETEVENTTYPE_BLOCK)
+		{
+			CNetEvent_Block *ev = (CNetEvent_Block *)pData;
+			g_GameClient.m_pEffects->PlayerSpawn(vec2(ev->m_X, ev->m_Y));
+			Collision()->SetBlock(ivec2(ev->m_X, ev->m_Y), ev->m_Type);
+		}
+		*/
 		else if(Item.m_Type == NETEVENTTYPE_SOUNDWORLD)
 		{
 			CNetEvent_SoundWorld *ev = (CNetEvent_SoundWorld *)pData;

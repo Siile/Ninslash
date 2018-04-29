@@ -6,6 +6,7 @@
 #include <game/mapitems.h>
 
 #include <game/server/entities/character.h>
+#include <game/server/entities/radar.h>
 #include <game/server/player.h>
 #include <game/server/gamecontext.h>
 
@@ -81,6 +82,7 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	m_Deaths = m_EnemiesLeft;
 	m_NumEnemySpawnPos = 0;
 	m_SpawnPosRotation = 0;
+	m_TriggerTick = 0;
 	
 	// force some settings
 	g_Config.m_SvRandomWeapons = 0;
@@ -100,6 +102,9 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 		m_GameFlags |= GAMEFLAG_SURVIVAL;
 	
 	m_GameFlags |= GAMEFLAG_ACID;
+	
+	for (int i = 0; i < MAX_CLIENTS; i++)
+		new CRadar(&GameServer()->m_World, RADAR_HUMAN, i);
 }
 
 
@@ -313,6 +318,8 @@ void CGameControllerCoop::Tick()
 			str_format(aBuf, sizeof(aBuf), "start round, enemies: '%u'", m_Deaths);
 			GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "inv", aBuf);
 			
+			m_TriggerTick = 0;
+			
 			m_GameState = STATE_GAME;
 			for (int i = 0; i < m_EnemiesLeft && GameServer()->m_pController->CountBots() < 32; i++)
 				GameServer()->AddBot();
@@ -347,6 +354,12 @@ void CGameControllerCoop::Tick()
 	}
 	
 	GameServer()->UpdateAI();
+	
+	if (m_TriggerTick < Server()->Tick())
+	{
+		Trigger(true);
+		m_TriggerTick = Server()->Tick() + Server()->TickSpeed()*8;
+	}
 	
 	// kick unwanted bots
 	for (int i = 0; i < MAX_CLIENTS; i++)

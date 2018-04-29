@@ -20,6 +20,8 @@ CoreAction = ["IDLE", "JUMP", "WALLJUMP", "ROLL", "SLIDE", "SLIDEKICK", "FALL", 
 
 InventoryAction = ["SWAP", "COMBINE", "TAKEPART", "DROP"]
 
+Radar = ["CHARACTER", "HUMAN", "OBJECTIVE"]
+
 RawHeader = '''
 
 #include <engine/message.h>
@@ -61,13 +63,6 @@ enum
 	BUILDING_REACTOR_DESTROYED,
 	BUILDING_TESLACOIL,
 	BUILDING_SCREEN,
-	
-	KIT_BARREL=0,
-	KIT_TURRET,
-	KIT_FLAMETRAP,
-	KIT_LIGHTNINGWALL,
-	KIT_TESLACOIL,
-	NUM_KITS,
 	
 	BSTATUS_REPAIR=1,
 	BSTATUS_NOPE,
@@ -155,7 +150,8 @@ Enums = [
 	Enum("DROIDSTATUS", Droidstatus),
 	Enum("DROIDTYPE", Droidtype),
 	Enum("COREACTION", CoreAction),
-	Enum("INVENTORYACTION", InventoryAction)
+	Enum("INVENTORYACTION", InventoryAction),
+	Enum("RADAR", Radar)
 ]
 
 Flags = [
@@ -253,6 +249,11 @@ Objects = [
 		NetIntAny("m_Team")
 	]),
 	
+	NetObject("Block", [
+		NetIntAny("m_X"),
+		NetIntAny("m_Y"),
+		NetIntAny("m_Type")
+	]),
 	
 	NetObject("Turret:Building", [
 		NetIntAny("m_Angle"),
@@ -269,6 +270,12 @@ Objects = [
 		NetIntAny("m_Y"),
 
 		NetIntRange("m_Team", 'TEAM_RED', 'TEAM_BLUE')
+	]),
+	
+	NetObject("Radar", [
+		NetIntAny("m_TargetX"),
+		NetIntAny("m_TargetY"),
+		NetIntAny("m_Type")
 	]),
 
 	NetObject("GameInfo", [
@@ -357,7 +364,7 @@ Objects = [
 		NetIntAny("m_Weapon3"),
 		NetIntAny("m_Weapon4"),
 		
-		NetIntRange("m_Kits", 0, 9),
+		NetIntRange("m_Kits", 0, 99),
 	]),
 
 	NetObject("ClientInfo", [
@@ -442,6 +449,10 @@ Objects = [
 		NetIntRange("m_SoundID", 0, 'NUM_SOUNDS-1'),
 	]),
 
+	NetEvent("Block:Common", [
+		NetIntAny("m_Type")
+	]),
+	
 	NetEvent("DamageInd:Common", [
 		NetIntAny("m_Angle"),
 		NetIntAny("m_Damage"),
@@ -454,7 +465,7 @@ Objects = [
 	]),
 ]
 
-# todo: find where's the 32 message type limit and change it to 64
+# todo: remove unnecessary ones
 Messages = [
 
 	### Server messages
@@ -527,12 +538,6 @@ Messages = [
 		NetIntRange("m_No", 0, 'MAX_CLIENTS'),
 		NetIntRange("m_Pass", 0, 'MAX_CLIENTS'),
 		NetIntRange("m_Total", 0, 'MAX_CLIENTS'),
-	]),
-	
-	
-	NetMessage("Sv_Buff", [
-		NetIntRange("m_Buff", 0, 8),
-		NetIntAny("m_StartTick"),
 	]),
 	
 	NetMessage("Sv_Inventory", [

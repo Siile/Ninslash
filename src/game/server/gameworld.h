@@ -31,6 +31,8 @@ public:
 		ENTTYPE_DROID,
 		ENTTYPE_CHARACTER,
 		ENTTYPE_WEAPON,
+		ENTTYPE_BLOCK,
+		ENTTYPE_RADAR,
 		NUM_ENTTYPES
 	};
 
@@ -75,6 +77,8 @@ public:
 			Number of entities found and added to the ents array.
 	*/
 	int FindEntities(vec2 Pos, float Radius, CEntity **ppEnts, int Max, int Type);
+	
+	int FindBlocks(vec2 Pos, ivec2 Radius, CEntity **ppEnts, int Max);
 
 	/*
 		Function: interserct_CCharacter

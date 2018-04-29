@@ -49,7 +49,6 @@ int CGameWorld::FindEntities(vec2 Pos, float Radius, CEntity **ppEnts, int Max, 
 		return 0;
 
 	// todo: scalable
-
 	vec2 OPos = Pos;
 	
 	int Num = 0;
@@ -74,6 +73,26 @@ int CGameWorld::FindEntities(vec2 Pos, float Radius, CEntity **ppEnts, int Max, 
 
 	return Num;
 }
+
+
+int CGameWorld::FindBlocks(vec2 Pos, ivec2 Radius, CEntity **ppEnts, int Max)
+{
+	int Num = 0;
+	for(CEntity *pEnt = m_apFirstEntityTypes[CGameWorld::ENTTYPE_BLOCK];	pEnt; pEnt = pEnt->m_pNextTypeEntity)
+	{
+		if (abs(pEnt->m_Pos.x - Pos.x) < Radius.x && abs(pEnt->m_Pos.y - Pos.y) < Radius.y)
+		{
+			if(ppEnts)
+				ppEnts[Num] = pEnt;
+			Num++;
+			if(Num == Max)
+				break;
+		}
+	}
+
+	return Num;
+}
+
 
 void CGameWorld::InsertEntity(CEntity *pEnt)
 {

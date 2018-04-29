@@ -15,7 +15,7 @@ CAIpyro1::CAIpyro1(CGameContext *pGameServer, CPlayer *pPlayer, int Level)
 	m_StartPos = vec2(0, 0);
 	m_ShockTimer = 0;
 	m_Triggered = false;
-	m_TriggerLevel = 15 + rand()%5;
+	m_TriggerLevel = 20 + rand()%20;
 	
 	m_Level = Level;
 	
@@ -38,13 +38,13 @@ CAIpyro1::CAIpyro1(CGameContext *pGameServer, CPlayer *pPlayer, int Level)
 
 void CAIpyro1::OnCharacterSpawn(CCharacter *pChr)
 {
-
 	CAI::OnCharacterSpawn(pChr); 
+	m_TriggerLevel = 20 + rand()%20;
 	
 	m_WaypointDir = vec2(0, 0);
 	//Player()->SetRandomSkin();
 	
-	m_PowerLevel = 2;
+	m_PowerLevel = 4;
 	
 	m_StartPos = Player()->GetCharacter()->m_Pos;
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
@@ -135,6 +135,7 @@ void CAIpyro1::DoBehavior()
 	{
 		// triggered, but no enemies in sight
 		ShootAtClosestBuilding();
+		ShootAtBlocks();
 		
 		if (SeekClosestEnemy())
 			m_TargetPos = m_PlayerPos;

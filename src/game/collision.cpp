@@ -1,6 +1,3 @@
-
-
-
 #include <base/system.h>
 #include <base/math.h>
 #include <base/vmath.h>
@@ -24,6 +21,7 @@ CCollision::CCollision()
 	m_Width = 0;
 	m_Height = 0;
 	m_pLayers = 0;
+	m_pBlocks = 0;
 
 	m_PathLen = 0;
 	m_pPath = 0;
@@ -41,6 +39,10 @@ void CCollision::Init(class CLayers *pLayers)
 	m_Width = m_pLayers->GameLayer()->m_Width;
 	m_Height = m_pLayers->GameLayer()->m_Height;
 	m_pTiles = static_cast<CTile *>(m_pLayers->Map()->GetData(m_pLayers->GameLayer()->m_Data));
+	
+	m_pBlocks = new bool[m_Width*m_Height];
+	for (int i = 0; i < m_Width*m_Height; i++)
+		m_pBlocks[i] = false;
 	
 	m_LowestPoint = 0;
 	m_Time = 0;
@@ -499,12 +501,32 @@ void CCollision::AddWeight(vec2 Pos, int Weight)
 }
 
 
+void CCollision::SetBlock(ivec2 Pos, bool Block)
+{
+	int Nx = clamp(Pos.x/32, 0, m_Width-1);
+	int Ny = clamp(Pos.y/32, 0, m_Height-1);
+	
+	m_pBlocks[Ny*m_Width+Nx] = Block;
+}
+
+
+bool CCollision::GetBlock(int x, int y)
+{
+	int Nx = clamp(x/32, 0, m_Width-1);
+	int Ny = clamp(y/32, 0, m_Height-1);
+	
+	return m_pBlocks[Ny*m_Width+Nx];
+}
+
 int CCollision::GetTile(int x, int y)
 {
 	int Nx = clamp(x/32, 0, m_Width-1);
 	int Ny = clamp(y/32, 0, m_Height-1);
 
 	if (m_pTiles[Ny*m_Width+Nx].m_Index == ENTITY_SAWBLADE + ENTITY_OFFSET)
+		return COLFLAG_SOLID;
+	
+	if (m_pBlocks[Ny*m_Width+Nx])
 		return COLFLAG_SOLID;
 	
 	if (m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_MOVELEFT || m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_MOVERIGHT)
@@ -671,6 +693,24 @@ int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *p
 	if(pOutBeforeCollision)
 		*pOutBeforeCollision = Pos1;
 	return 0;
+}
+
+bool CCollision::IntersectBlocks(vec2 Pos0, vec2 Pos1)
+{
+	float Distance = distance(Pos0, Pos1);
+	int End(Distance+1);
+
+	for(int i = 0; i < End; i++)
+	{
+		float a = i/Distance;
+		vec2 Pos = mix(Pos0, Pos1, a);
+		if(GetBlock(Pos.x, Pos.y))
+		{
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 // TODO: OPT: rewrite this smarter!

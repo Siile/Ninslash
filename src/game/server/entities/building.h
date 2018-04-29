@@ -47,18 +47,29 @@ public:
 	
 	bool m_Mirror;
 	
+	bool m_CanMove;
+	bool m_Moving;
+	vec2 m_Vel;
+	
+	void Move();
+	void DoFallCheck();
+
 	int m_DamageOwner;
 	int m_DeathTimer;
 	
 	bool Jumppad();
 	void Trigger();
-	void TakeDamage(int Damage, int Owner, int Weapon);
+	void TakeDamage(int Damage, int Owner, int Weapon, vec2 Force = vec2(0, 0));
 	void Destroy();
 	
 protected:
 	void UpdateStatus();
+	float m_Bounciness;
+	bool m_AttachOnFall;
+	bool m_DestroyOnFall;
 	
 	int m_TriggerTimer;
+	vec2 m_BoxSize;
 	
 private:
 	int m_SetTimer;

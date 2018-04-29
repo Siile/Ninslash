@@ -1,6 +1,3 @@
-
-
-
 #include <cstring>
 #include <new>
 #include <base/math.h>
@@ -19,6 +16,7 @@
 #include "gamemodes/base.h"
 #include "gamemodes/texasrun.h"
 
+#include <game/server/entities/block.h>
 #include <game/server/entities/pickup.h>
 #include <game/server/entities/projectile.h>
 #include <game/server/entities/laser.h>
@@ -211,6 +209,98 @@ int CGameContext::CreateDeathray(vec2 Pos)
 }
 
 
+bool CGameContext::BuildableSpot(vec2 Pos)
+{
+	if (Collision()->GetCollisionAt(Pos.x, Pos.y)&CCollision::COLFLAG_SOLID)
+		return false;
+	
+	// todo: other entities
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CCharacter *pCharacter = GetPlayerChar(i);
+		
+		if (pCharacter && abs(Pos.x - pCharacter->m_Pos.x) < 32.0f && abs(Pos.y - pCharacter->m_Pos.y + 10) < 64.0f)
+			return false;
+	}
+	
+	return true;
+}
+	
+
+void CGameContext::OnBlockChange(vec2 Pos)
+{
+	// force characters to update and send the core
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CCharacter *pCharacter = GetPlayerChar(i);
+		
+		if (pCharacter && abs(Pos.x - pCharacter->m_Pos.x) < 1000 && abs(Pos.y - pCharacter->m_Pos.y) < 1000)
+			pCharacter->m_ForceCoreSend = true;	
+	}
+	
+	// check if buildings are affected
+	CBuilding *apEnts[512];
+	int Num = m_World.FindEntities(Pos, 100, (CEntity**)apEnts, 512, CGameWorld::ENTTYPE_BUILDING);
+
+	for (int i = 0; i < Num; ++i)
+	{
+		apEnts[i]->DoFallCheck();
+	}
+}
+	
+	
+bool CGameContext::AddBlock(int Type, vec2 Pos)
+{
+	if (!BuildableSpot(Pos))
+		return false;
+	
+	// remove existing blocks
+	vec2 BPos = vec2(int(Pos.x / 32)*32, int(Pos.y / 32)*32);
+	CBlock *apEnts[16];
+	int Num = m_World.FindBlocks(BPos, ivec2(1, 1), (CEntity**)apEnts, 16);
+
+	for (int i = 0; i < Num; ++i)
+	{
+		CBlock *pTarget = apEnts[i];
+		pTarget->Destroy();
+	}
+	
+	// add new one
+	new CBlock(&m_World, Type, Pos);
+	return true;
+}
+
+
+void CGameContext::DamageBlocks(vec2 Pos, int Damage, int Range)
+{
+	vec2 BPos = vec2(int(Pos.x / 32)*32, int(Pos.y / 32)*32);
+	
+	CBlock *apEnts[1024];
+	int Num = m_World.FindBlocks(BPos, ivec2(1, 1)*Range, (CEntity**)apEnts, 1024);
+
+	for (int i = 0; i < Num; ++i)
+	{
+		CBlock *pTarget = apEnts[i];
+		
+		if (Range > 8)
+		{
+			float Radius = Range;
+			float InnerRadius = Radius * 0.5f;
+			vec2 Diff = pTarget->m_Pos - Pos + vec2(16, 16);
+			
+			float l = length(Diff);
+			l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
+			float Dmg = Damage * l;
+							
+			if((int)Dmg && Dmg > 0.0f)
+				pTarget->TakeDamage((int)Dmg);
+		}
+		else
+			pTarget->TakeDamage(Damage);
+	}
+}
+
+
 void CGameContext::CreateEffect(int FX, vec2 Pos)
 {
 	// create the event
@@ -242,6 +332,10 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
 	
 	if (!g_Config.m_SvEnableBuilding)
 		return false;
+	
+	
+	if (Kit == BUILDABLE_BLOCK1)
+		CheckRange = 32.0f;
 
 	// check sanity
 	/*
@@ -264,9 +358,20 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
 	}
 	
 
+	if (Kit == BUILDABLE_BLOCK1)
+	{
+		return AddBlock(1, Pos);
+	}
+	
 	if (Kit == BUILDABLE_BARREL)
 	{
 		new CBuilding(&m_World, Pos, BUILDING_BARREL, TEAM_NEUTRAL);
+		return true;
+	}
+
+	if (Kit == BUILDABLE_POWERBARREL)
+	{
+		new CBuilding(&m_World, Pos, BUILDING_POWERBARREL, TEAM_NEUTRAL);
 		return true;
 	}
 
@@ -284,7 +389,6 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
 	
 	if (Kit == BUILDABLE_TESLACOIL)
 	{
-		
 		int Team = m_apPlayers[Owner]->GetTeam();
 		if (!m_pController->IsTeamplay())
 			Team = m_apPlayers[Owner]->GetCID();
@@ -328,8 +432,17 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 	float ProximityRadius = GetMeleeHitRadius(Weapon);
 	float Damage = GetProjectileDamage(Weapon);
 	
+	//AddBlock(1, Pos);
+	
 	// for testing the collision
 	//CreateBuildingHit(Pos);
+	
+	if (GetStaticType(Weapon) == SW_FLAMER)
+		DamageBlocks(Pos, 1+Damage*0.5f, ProximityRadius*1.7f);
+	else if (GetStaticType(Weapon) == SW_CHAINSAW)
+		DamageBlocks(Pos, Damage*0.5f, 24 + ProximityRadius);
+	else
+		DamageBlocks(Pos, Damage*0.5f, ProximityRadius*0.9f);
 	
 	// player collision
 	{
@@ -629,6 +742,8 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon)
 	float Radius = GetExplosionSize(Weapon)*0.7f;
 	float InnerRadius = Radius*0.5f;
 	
+	DamageBlocks(Pos, GetExplosionDamage(Weapon)*0.5f, Radius*0.8f);
+	
 	int Num = m_World.FindEntities(Pos, Radius, (CEntity**)apEnts, MAX_CLIENTS, CGameWorld::ENTTYPE_CHARACTER);
 	for(int i = 0; i < Num; i++)
 	{
@@ -657,7 +772,7 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon)
 		float Dmg = GetExplosionDamage(Weapon) * l;
 						
 		if((int)Dmg && Dmg > 0.0f)
-			apBuildings[i]->TakeDamage((int)Dmg*Dmg2, Owner, Weapon);
+			apBuildings[i]->TakeDamage((int)Dmg*Dmg2, Owner, Weapon, ForceDir*Dmg*0.3f);
 	}
 	
 	{
@@ -880,14 +995,6 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, bool Lock)
 		str_copy(m_apPlayers[ClientID]->m_aBroadcast, Lock ? pText : "", sizeof(m_apPlayers[ClientID]->m_aBroadcast));
 		m_apPlayers[ClientID]->m_BroadcastLockTick = Lock ? Server()->Tick() : 0;
 	}
-}
-
-void CGameContext::SendBuff(int Buff, int StartTick, int ClientID)
-{
-	CNetMsg_Sv_Buff Msg;
-	Msg.m_Buff = Buff;
-	Msg.m_StartTick = StartTick;
-	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 }
 
 //

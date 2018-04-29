@@ -1374,17 +1374,17 @@ void CMapGen::GeneratePVPLevel()
 	for (int i = 0; i < pTiles->NumPlatforms() / b; i++)
 		GenerateBarrel(pTiles);
 
-	
+	/*
 	for (int i = 0; i < 4 ; i++)
 		GenerateSpeaker(pTiles);
+	*/
 	
-	
-	w = 1 + pTiles->NumPlatforms() / 5.0f;
+	w = 2 + pTiles->NumPlatforms() / 5.0f;
 	
 	for (int i = 0; i < w; i++)
 		GenerateWeapon(pTiles, ENTITY_RANDOM_WEAPON);
 	
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 5; i++)
 		GenerateWeapon(pTiles, ENTITY_KIT);
 	
 	for (int i = 0; i < (pTiles->Size())/800; i++)

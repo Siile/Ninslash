@@ -69,6 +69,7 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	m_Silent = false;
 	m_IgnoreCollision = false;
 	m_SendInventoryTick = 0;
+	m_ForceCoreSend = false;
 	
 	for (int i = 0; i < NUM_STATUSS; i++)
 	{
@@ -185,8 +186,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		if (GameServer()->m_pController->IsCoop())
 			m_Silent = true;
 	}
-	
-	
+
 	/*
 	int n = 0;
 	//m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD));
@@ -196,8 +196,10 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_CHAINSAW));
 	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_BOUNCER));
 	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_FLAMER));
-	m_Kits = 9;
 	*/
+	
+	//m_apWeapon[0] = GameServer()->NewWeapon(GetStaticWeapon(SW_GUN1));
+	//m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 6));
 	
 	GiveStartWeapon();
 	SendInventory();
@@ -451,7 +453,7 @@ void CCharacter::SwapItem(int Item1, int Item2)
 	CWeapon *t = m_apWeapon[Item1];
 	
 	int w1 = GetWeaponType(Item1);
-	int w2 = GetWeaponType(Item2);
+	//int w2 = GetWeaponType(Item2);
 	
 	if (IsStaticWeapon(w1) && GetStaticType(w1) == SW_UPGRADE)
 	{
@@ -1162,7 +1164,7 @@ void CCharacter::UseKit(int Kit, vec2 Pos)
 {
 	if (Kit < 0 || Kit >= NUM_BUILDABLES)
 		return;
-	
+		
 	if (m_Kits >= BuildableCost[Kit])
 	{
 		if (GameServer()->AddBuilding(Kit, Pos, GetPlayer()->GetCID()))
@@ -1256,7 +1258,6 @@ bool CCharacter::GiveBuff(int Item)
 		if (m_aStatus[STATUS_SHIELD] > 0)
 			return false;
 		
-		GameServer()->SendBuff(Item, Server()->Tick(), GetPlayer()->GetCID());
 		m_aStatus[STATUS_SHIELD] = Server()->TickSpeed() * 20.0f;
 		m_ShieldHealth = 100;
 		m_ShieldRadius = 16;
@@ -1550,8 +1551,9 @@ void CCharacter::TickDefered()
 		m_Core.Write(&Current);
 
 		// only allow dead reackoning for a top of 3 seconds
-		if(m_ReckoningTick+Server()->TickSpeed()*3 < Server()->Tick() || mem_comp(&Predicted, &Current, sizeof(CNetObj_Character)) != 0)
+		if(m_ForceCoreSend || m_ReckoningTick+Server()->TickSpeed()*3 < Server()->Tick() || mem_comp(&Predicted, &Current, sizeof(CNetObj_Character)) != 0)
 		{
+			m_ForceCoreSend = false;
 			m_ReckoningTick = Server()->Tick();
 			m_SendCore = m_Core;
 			m_ReckoningCore = m_Core;
@@ -1632,9 +1634,9 @@ bool CCharacter::AddKit()
 	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
 		return false;
 	
-	if (m_Kits < 9)
+	if (m_Kits < 99)
 	{
-		m_Kits++;
+		m_Kits = min(m_Kits+4, 99);
 		return true;
 	}
 	
@@ -1860,7 +1862,7 @@ bool CCharacter::TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos)
 	*/
 		
 	if (From == m_pPlayer->GetCID() && GameServer()->m_pController->IsCoop())
-		Dmg = 0;
+		Dmg = max(1, Dmg/5);
 	
 	// disable self damage if weapon is forced
 	//if (g_Config.m_SvForceWeapon && From == m_pPlayer->GetCID())
