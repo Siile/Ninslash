@@ -434,7 +434,11 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon, vec2 Force)
 		return;
 	
 	if (m_Moving)
+	{
 		m_Vel += Force;
+		if (length(m_Vel) > 30.0f)
+			m_Vel = normalize(m_Vel)*30.0f;
+	}
 	
 	if ((m_Type == BUILDING_TURRET || m_Type == BUILDING_TESLACOIL) && GameServer()->m_pController->IsCoop() && m_Team >= 0)
 	{
@@ -602,6 +606,9 @@ void CBuilding::Tick()
 	
 	if (m_Type == BUILDING_LIGHTNINGWALL)
 	{
+		if (GameServer()->Collision()->IntersectBlocks(m_Pos, m_Pos+vec2(0, -m_Height)))
+			TakeDamage(200, -1, 0);
+		
 		vec2 At;
 		CCharacter *pHit = GameServer()->m_World.IntersectCharacter(m_Pos, m_Pos+vec2(0, -m_Height), 4.0f, At);
 		
