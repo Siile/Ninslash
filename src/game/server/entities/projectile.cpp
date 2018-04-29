@@ -167,7 +167,18 @@ void CProjectile::Tick()
 	}
 	
 	if (Collide)
-		GameServer()->DamageBlocks(CurPos, m_Damage, 1);
+	{
+		if (GameServer()->Collision()->CheckBlocks(CurPos))
+			GameServer()->DamageBlocks(CurPos, m_Damage, 1);
+		else if (GameServer()->Collision()->CheckBlocks(CurPos+vec2(-4, -4)))
+			GameServer()->DamageBlocks(CurPos+vec2(-4, -4), m_Damage, 1);
+		else if (GameServer()->Collision()->CheckBlocks(CurPos+vec2(4, -4)))
+			GameServer()->DamageBlocks(CurPos+vec2(4, -4), m_Damage, 1);
+		else if (GameServer()->Collision()->CheckBlocks(CurPos+vec2(-4, 4)))
+			GameServer()->DamageBlocks(CurPos+vec2(-4, 4), m_Damage, 1);
+		else if (GameServer()->Collision()->CheckBlocks(CurPos+vec2(4, 4)))
+			GameServer()->DamageBlocks(CurPos+vec2(4, 4), m_Damage, 1);
+	}
 	
 	if(TargetMonster || TargetBuilding || TargetChr || Collide || m_LifeSpan < 0 || GameLayerClipped(CurPos))
 	{

@@ -23,6 +23,7 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 	m_CanMove = false;
 	m_Moving = false;
 	m_AttachOnFall = false;
+	m_DestroyOnFall = false;
 	m_BoxSize = vec2(32, 32);
 	
 	m_Status = 0;
@@ -102,18 +103,20 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		break;
 		
 	case BUILDING_LIGHTNINGWALL:
-		m_AttachOnFall = true;
+		m_DestroyOnFall = true;
 		m_Bounciness = 0.0f;
 		m_CanMove = true;
+		m_BoxSize = vec2(24.0f, 40.0f);
 		m_ProximityRadius = LightningWallPhysSize;
 		m_Life = 70;
 		m_Center = vec2(0, 10);
 		break;
 		
 	case BUILDING_LIGHTNINGWALL2:
-		m_AttachOnFall = true;
+		m_DestroyOnFall = true;
 		m_Bounciness = 0.0f;
 		m_CanMove = true;
+		m_BoxSize = vec2(24.0f, 40.0f);
 		m_ProximityRadius = LightningWallPhysSize;
 		m_Life = 70;
 		m_Center = vec2(0, -10);
@@ -228,6 +231,13 @@ void CBuilding::Move()
 	if (!m_Moving)
 		return;
 	
+	if (m_DestroyOnFall)
+	{
+		//m_Life = 1;
+		TakeDamage(200, -1, 0);
+		return;
+	}
+	
 	m_Vel.y += 0.75f;
 	//m_Vel *= 0.99f;
 	
@@ -295,7 +305,7 @@ void CBuilding::DoFallCheck()
 		return;
 	}
 	
-	if (m_Mirror)
+	if (m_Mirror || m_Type == BUILDING_LIGHTNINGWALL2)
 	{
 		if (!GameServer()->Collision()->IsTileSolid(m_Pos.x-m_BoxSize.x/2, m_Pos.y-m_BoxSize.y-1) &&
 			!GameServer()->Collision()->IsTileSolid(m_Pos.x+m_BoxSize.x/2, m_Pos.y-m_BoxSize.y-1))

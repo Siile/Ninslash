@@ -39,6 +39,7 @@ private:
 	int m_SpawnPosRotation;
 	
 	int m_TriggerLevel;
+	int m_TriggerTick;
 	
 	void Trigger(bool IncreaseLevel);
 	

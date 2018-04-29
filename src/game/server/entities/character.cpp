@@ -202,7 +202,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	//m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 6));
 	
 	GiveStartWeapon();
-	m_Kits = 99;
 	SendInventory();
 	
 	return true;

@@ -1379,7 +1379,7 @@ void CMapGen::GeneratePVPLevel()
 		GenerateSpeaker(pTiles);
 	
 	
-	w = 1 + pTiles->NumPlatforms() / 5.0f;
+	w = 2 + pTiles->NumPlatforms() / 5.0f;
 	
 	for (int i = 0; i < w; i++)
 		GenerateWeapon(pTiles, ENTITY_RANDOM_WEAPON);

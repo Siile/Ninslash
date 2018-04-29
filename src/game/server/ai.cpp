@@ -174,7 +174,6 @@ void CAI::OnEvent(int EventNum)
 
 void CAI::Trigger(int TriggerLevel)
 {
-	
 	if (TriggerLevel >= m_TriggerLevel)
 	{
 		m_Triggered = true;

@@ -66,6 +66,7 @@ protected:
 	void UpdateStatus();
 	float m_Bounciness;
 	bool m_AttachOnFall;
+	bool m_DestroyOnFall;
 	
 	int m_TriggerTimer;
 	vec2 m_BoxSize;
