@@ -40,6 +40,7 @@ void CInventory::ConKeyInventory(IConsole::IResult *pResult, void *pUserData)
 		{
 			pSelf->m_Active = pResult->GetInteger(0) != 0;
 			pSelf->m_Tab = 0;
+			pSelf->m_Minimized = false;
 		}
 		else if (pSelf->m_Render)
 		{
@@ -58,6 +59,9 @@ void CInventory::ConKeyBuildmenu(IConsole::IResult *pResult, void *pUserData)
 		{
 			pSelf->m_Active = pResult->GetInteger(0) != 0;
 			pSelf->m_Tab = 1;
+			
+			if (!pSelf->m_Minimized)
+				pSelf->m_SelectedBuilding = -1;
 		}
 		else if (pSelf->m_Render)
 		{
