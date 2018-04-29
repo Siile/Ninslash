@@ -70,7 +70,7 @@ enum WeaponBits
 	WFT_ACTIVATE // some items
 };
 
-
+ 
 
 #define WEAPON_GAME_SIZE 15
 
