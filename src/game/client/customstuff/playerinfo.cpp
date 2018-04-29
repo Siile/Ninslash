@@ -449,8 +449,8 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 	}
 	
 	// spinning melee weapon
-	float TurnSpeedCap = 0.15f;
-	float TurnAmount = 0.03f;
+	//float TurnSpeedCap = 0.15f;
+	//float TurnAmount = 0.03f;
 	
 	/*
 	if (m_Melee.m_EffectFrame > 0)

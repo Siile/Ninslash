@@ -27,6 +27,7 @@ void CSuperexplosion::Reset()
 
 void CSuperexplosion::Tick()
 {
+	/*
 	if (m_NextIn-- <= 0)
 	{
 		m_NextIn = 6;
@@ -46,6 +47,7 @@ void CSuperexplosion::Tick()
 			return;
 		}
 	}
+	*/
 }
 	
 void CSuperexplosion::TickPaused()

@@ -272,7 +272,7 @@ void CCrawler::Fire()
 		m_FireCount++;
 		m_ReloadTimer = 700 * Server()->TickSpeed() / 1000;
 		
-		vec2 TurretPos = m_Pos+vec2(m_Dir * 16, m_Center.y-20);
+		//vec2 TurretPos = m_Pos+vec2(m_Dir * 16, m_Center.y-20);
 		//float Angle = (m_Angle + 90) / (180/pi);
 
 		//vec2 Dir = vec2(cosf(Angle), sinf(Angle));

@@ -593,7 +593,7 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 	int Part1 = 0;
 	int Part2 = 0;
 	*/
-	int Part = 0;
+	//int Part = 0;
 	vec2 pp1;
 	vec2 pp2;
 	

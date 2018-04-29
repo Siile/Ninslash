@@ -453,7 +453,7 @@ void CCharacter::SwapItem(int Item1, int Item2)
 	CWeapon *t = m_apWeapon[Item1];
 	
 	int w1 = GetWeaponType(Item1);
-	int w2 = GetWeaponType(Item2);
+	//int w2 = GetWeaponType(Item2);
 	
 	if (IsStaticWeapon(w1) && GetStaticType(w1) == SW_UPGRADE)
 	{
