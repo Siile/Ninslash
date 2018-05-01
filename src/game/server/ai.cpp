@@ -40,7 +40,10 @@ CAI::~CAI()
 void CAI::Reset()
 {
 	if (m_pPath)
+	{
 		delete m_pPath;
+		m_pPath = NULL;
+	}
 	
 	m_WaypointUpdateNeeded = true;
 	m_WayPointUpdateTick = 0;

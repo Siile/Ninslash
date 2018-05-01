@@ -58,7 +58,7 @@ class CAI
 	
 	
 	int m_HookReleaseTick;
-	int m_HookTick;	
+	int m_HookTick;
 	
 protected:
 	

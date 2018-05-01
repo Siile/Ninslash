@@ -174,6 +174,12 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	GameServer()->m_World.InsertEntity(this);
 	m_Alive = true;
 
+	if (pPlayer->m_pAI)
+	{
+		delete pPlayer->m_pAI;
+		pPlayer->m_pAI = NULL;
+	}
+	
 	GameServer()->m_pController->OnCharacterSpawn(this, pPlayer->m_IsBot);
 	
 	if (pPlayer->m_pAI)
@@ -1345,6 +1351,9 @@ void CCharacter::UpdateCoreStatus()
 void CCharacter::Tick()
 {
 	//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "debug", "Tick");
+
+	// stress testing pickups
+	//GameServer()->m_pController->DropWeapon(m_Pos, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_UPGRADE)));
 	
 	if (m_PainSoundTimer > 0)
 		m_PainSoundTimer--;
