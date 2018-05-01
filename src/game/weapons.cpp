@@ -427,7 +427,7 @@ float GetExplosionDamage(int Weapon)
 {
 	if (IsBuilding(Weapon))
 	{
-		switch (GetBuildingType(Weapon))
+		switch (GetBuildingType(Weapon)) 
 		{
 			case BUILDING_TURRET: return 20.0f;
 			case BUILDING_TESLACOIL: return 120.0f;
