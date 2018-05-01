@@ -69,7 +69,6 @@ void CGameContext::Construct(int Resetting)
 	
 	m_ShowWaypoints = false;
 	m_ShowAiState = false;
-	m_FreezeCharacters = false;
 
 	if(Resetting==NO_RESET)
 		m_pVoteOptionHeap = new CHeap();
@@ -131,7 +130,39 @@ CPlayerSpecData CGameContext::GetPlayerSpecData(int ClientID)
 	return data;
 }
 
-
+bool CGameContext::RespawnAlly(vec2 Pos, int Team)
+{
+	int Current = -1;
+	int DeathTick = 0;
+	
+	if (m_pController->IsCoop() && Team < 0)
+		return false;
+	
+	if (!Collision()->IsTileSolid(Pos.x-32, Pos.y-24) && !Collision()->IsTileSolid(Pos.x-32, Pos.y+24))
+		Pos.x -= 32;
+	else if (!Collision()->IsTileSolid(Pos.x+32, Pos.y-24) && !Collision()->IsTileSolid(Pos.x+32, Pos.y+24))
+		Pos.x += 32;
+	
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (m_apPlayers[i] && m_apPlayers[i]->GetTeam() == Team && !GetPlayerChar(i))
+		{
+			if (Current < 0 || DeathTick > m_apPlayers[i]->m_DeathTick)
+			{
+				Current = i;
+				DeathTick = m_apPlayers[i]->m_DeathTick;
+			}
+		}
+	}
+	
+	if (Current >= 0)
+	{
+		m_apPlayers[Current]->ForceRespawn(Pos);
+		return true;
+	}
+	
+	return false;
+}
 
 class CCharacter *CGameContext::GetPlayerChar(int ClientID)
 {

@@ -606,6 +606,7 @@ void CCharacter::TriggerWeapon(CWeapon *pWeapon)
 		{
 			case SW_INVIS: GiveBuff(PLAYERITEM_INVISIBILITY); break;
 			case SW_SHIELD: GiveBuff(PLAYERITEM_SHIELD); break;
+			case SW_RESPAWNER: GameServer()->RespawnAlly(m_Pos, GetPlayer()->GetTeam()); break;
 			
 			default: break;
 		}
@@ -1393,9 +1394,6 @@ void CCharacter::Tick()
 	if (m_aStatus[STATUS_SPAWNING] > 0.0f)
 		return;
 	
-	if (GameServer()->m_FreezeCharacters)
-		ResetInput();
-	
 	m_Core.m_Input = m_Input;
 
 	float RecoilCap = 15.0f;
@@ -1487,8 +1485,7 @@ void CCharacter::Tick()
 	// GameServer()->CreateDeath(m_Pos+vec2(frandom()*100, frandom()*100) - vec2(frandom()*100, frandom()*100), -1);
 	
 	// handle Weapons
-	if (!GameServer()->m_FreezeCharacters)
-		HandleWeapons();
+	HandleWeapons();
 
 	// Previnput
 	m_PrevInput = m_Input;
@@ -1708,6 +1705,8 @@ void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage, bool IsTurret
 	//	Weapon = 0;
 	// we got to wait 0.5 secs before respawning
 	//m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()/2;
+	
+	m_pPlayer->m_DeathTick = Server()->Tick();
 	
 	if (g_Config.m_SvSurvivalMode)
 		m_pPlayer->m_RespawnTick = Server()->Tick();

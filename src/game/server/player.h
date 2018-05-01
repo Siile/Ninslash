@@ -39,6 +39,7 @@ public:
 	void SaveData();	
 	void NewRound();
 	
+	bool ForceRespawn(vec2 Pos);
 	void TryRespawn();
 	void Respawn();
 	void SetTeam(int Team, bool DoChatMsg=true);
@@ -128,6 +129,7 @@ public:
 	
 	float m_InterestPoints;
 	
+	int m_DeathTick;
 	int m_RespawnTick;
 	int m_DieTick;
 	int m_Score;
