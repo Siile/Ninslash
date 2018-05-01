@@ -392,6 +392,12 @@ void CPlayer::OnDisconnect(const char *pReason)
 		str_format(aBuf, sizeof(aBuf), "leave player='%d:%s'", m_ClientID, Server()->ClientName(m_ClientID));
 		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "game", aBuf);
 	}
+	
+	if (m_pAI)
+	{
+		delete m_pAI;
+		m_pAI = NULL;
+	}
 }
 
 void CPlayer::OnPredictedInput(CNetObj_PlayerInput *NewInput)

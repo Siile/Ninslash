@@ -117,7 +117,6 @@ public:
 	int m_ConnectionCount;
 	
 	void SetCenter(int Distance = 1);
-	CWaypointPath *FindPathToCenter(CWaypointPath *Path = 0);
 	
 	// preventing loops and finding the shortest way to target
 	int m_PathDistance;
