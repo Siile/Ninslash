@@ -390,6 +390,43 @@ CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, v
 	return pClosest;
 }
 
+CCharacter *CGameWorld::GetFriendlyCharacterInBox(vec2 TopLeft, vec2 BotRight, int Team)
+{
+	vec2 Center = (TopLeft+BotRight)/2;
+	
+	// Find other players
+	CCharacter *p = (CCharacter *)FindFirst(ENTTYPE_CHARACTER);
+	for(; p; p = (CCharacter *)p->TypeNext())
+ 	{
+		if (!p->GetPlayer())
+			continue;
+		
+		// team checks, assume team is clientID in dm
+		if (g_Config.m_SvDisablePVP)
+		{
+			if ((Team < 0 && !p->m_IsBot) || (Team >= 0 && p->m_IsBot))
+				continue;
+		}
+		else
+		{
+			if (GameServer()->m_pController->IsTeamplay())
+			{
+				if (Team != p->GetPlayer()->GetTeam())
+					continue;
+			}
+			else
+				if (Team != p->GetPlayer()->GetCID())
+					continue;
+		}
+		
+		if (abs(p->m_Pos.x - Center.x) < abs(TopLeft.x - BotRight.x) &&
+			abs(p->m_Pos.y - Center.y) < abs(TopLeft.y - BotRight.y))
+			return p;
+	}
+
+	return NULL;
+}
+
 
 CCharacter *CGameWorld::IntersectScythe(vec2 Pos0, vec2 Pos1, float Radius, vec2& NewPos, CEntity *pNotThis)
 {

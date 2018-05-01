@@ -1211,6 +1211,9 @@ void IGameController::OnPlayerInfoChange(class CPlayer *pP)
 
 int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
 {
+	if (pVictim->m_IsBot && pVictim->GetPlayer()->m_pAI)
+		pVictim->GetPlayer()->m_pAI->OnCharacterDeath();
+	
 	if (g_Config.m_SvSurvivalMode)
 	{
 		// update spectator modes

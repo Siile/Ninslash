@@ -455,7 +455,7 @@ float GetExplosionDamage(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
-			case SW_GRENADE1: return 100; break;
+			case SW_GRENADE1: return 120; break;
 			case SW_GRENADE2: return 30; break;
 			case SW_BUBBLER: return 14; break;
 			case SW_BAZOOKA: return 80; break;
@@ -1281,7 +1281,7 @@ float GetProjectileDamage(int Weapon)
 			case SW_FLAMER: return 2.0f+Charge*3.0f;
 			case SW_CHAINSAW: return 6.0f+Charge*4.0f;
 			case SW_BUBBLER: return 6.0f;
-			case SW_BAZOOKA: return 20.0f;
+			case SW_BAZOOKA: return 10.0f;
 			case SW_BOUNCER: return 0.0f;
 			case SW_GUN1: return 12.0f;
 			case SW_GUN2: return 35.0f;
@@ -1347,6 +1347,20 @@ int GetRandomWeaponType()
 		return GetModularWeapon(5, 6+rand()%3);
 	
 	return GetStaticWeapon(1+rand()%(NUM_SW-5));
+}
+
+bool WeaponAutoPick(int Weapon)
+{
+	if (IsStaticWeapon(Weapon))
+	{
+		switch (GetStaticType(Weapon))
+		{
+			case SW_GUN1: case SW_GUN2: false;
+			default: return true;
+		};
+	}
+	
+	return true;
 }
 
 float GetProjectileKnockback(int Weapon)

@@ -147,6 +147,7 @@ float ScreenshakeAmount(int Weapon);
 float WeaponThrowForce(int Weapon);
 
 int WeaponProjectilePosType(int Weapon);
+bool WeaponAutoPick(int Weapon);
 
 int WeaponBurstCount(int Weapon);
 float WeaponBurstReload(int Weapon);

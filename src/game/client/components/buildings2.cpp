@@ -45,6 +45,9 @@ void CBuildings2::RenderLightningWall(const struct CNetObj_Building *pCurrent)
 	Graphics()->QuadsEnd();
 	
 	
+	if (!(pCurrent->m_Status & (1<<BSTATUS_ON)))
+		return;
+	
 	// lightning effect
 	
 	vec2 Out, Border;
@@ -58,11 +61,11 @@ void CBuildings2::RenderLightningWall(const struct CNetObj_Building *pCurrent)
 	
 	vec2 Dir = normalize(Pos-From);
 	
-	Graphics()->ShaderBegin(SHADER_ELECTRIC, 1.0f);
+	//Graphics()->ShaderBegin(SHADER_ELECTRIC, 1.0f);
 	Graphics()->BlendNormal();
 	Graphics()->TextureSet(-1);
 	Graphics()->QuadsBegin();
-	Graphics()->SetColor(0.5f, 0.5f, 1, 1.0f);
+	Graphics()->SetColor(frandom()*0.25f, 1.0f-frandom()*0.25f, 1, 1.0f);
 		
 	//Graphics()->SetColor(0.3f + frandom()*0.4f, 0.3f + frandom()*0.4f, 1, 1.0f);
 	int Steps = 2 + length(Pos - From) / 60;
@@ -103,7 +106,7 @@ void CBuildings2::RenderLightningWall(const struct CNetObj_Building *pCurrent)
 	}
 	
 	Graphics()->QuadsEnd();
-	Graphics()->ShaderEnd();
+	//Graphics()->ShaderEnd();
 }
 
 

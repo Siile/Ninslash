@@ -31,6 +31,11 @@ CAI::CAI(CGameContext *pGameServer, CPlayer *pPlayer)
 	Reset();
 }
 
+CAI::~CAI()
+{
+	if (m_pPath)
+		delete m_pPath;
+}
 
 void CAI::Reset()
 {
@@ -113,6 +118,11 @@ void CAI::OnCharacterSpawn(class CCharacter *pChr)
 	Reset();
 	m_WaypointPos = pChr->m_Pos;
 	m_TargetPos = pChr->m_Pos;
+}
+
+void CAI::OnCharacterDeath()
+{
+	
 }
 
 

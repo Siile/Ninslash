@@ -383,8 +383,12 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
 	
 	if (Kit == BUILDABLE_LIGHTNINGWALL)
 	{
-			new CBuilding(&m_World, Pos+vec2(0, -14), BUILDING_LIGHTNINGWALL, TEAM_NEUTRAL);
-			return true;
+		int Team = m_apPlayers[Owner]->GetTeam();
+		if (!m_pController->IsTeamplay())
+			Team = m_apPlayers[Owner]->GetCID();
+		
+		new CBuilding(&m_World, Pos+vec2(0, -14), BUILDING_LIGHTNINGWALL, Team);
+		return true;
 	}
 	
 	if (Kit == BUILDABLE_TESLACOIL)

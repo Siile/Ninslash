@@ -659,18 +659,24 @@ bool CCharacter::PickWeapon(CWeapon *pWeapon)
 	
 	bool Valid = true;
 	
-	for (int i = 0; i < NUM_SLOTS; i++)
+	if (WeaponAutoPick(pWeapon->GetWeaponType()))
 	{
-		if (GetChargedWeapon(GetWeaponType(i), 0) == GetChargedWeapon(pWeapon->GetWeaponType(), 0) && 
-			GetWeaponCharge(GetWeaponType(i)) >= GetWeaponCharge(pWeapon->GetWeaponType()) && 
-			GetWeaponFiringType(GetWeaponType(i)) != WFT_THROW && GetStaticType(GetWeaponType(i)) != SW_UPGRADE)
-			Valid = false;
-	}
-	
-	for (int i = 0; i < 4; i++)
-		if (!m_apWeapon[i])
+		for (int i = 0; i < NUM_SLOTS; i++)
 		{
-			if (Valid)
+			if (GetChargedWeapon(GetWeaponType(i), 0) == GetChargedWeapon(pWeapon->GetWeaponType(), 0) && 
+				GetWeaponCharge(GetWeaponType(i)) >= GetWeaponCharge(pWeapon->GetWeaponType()) && 
+				GetWeaponFiringType(GetWeaponType(i)) != WFT_THROW && GetStaticType(GetWeaponType(i)) != SW_UPGRADE)
+				Valid = false;
+		}
+	}
+	else
+		Valid = false;
+	
+	if (Valid)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			if (!m_apWeapon[i])
 			{
 				pWeapon->SetOwner(GetPlayer()->GetCID());
 				m_apWeapon[i] = pWeapon;
@@ -679,6 +685,7 @@ bool CCharacter::PickWeapon(CWeapon *pWeapon)
 				return true;
 			}
 		}
+	}
 		
 	return false;
 }

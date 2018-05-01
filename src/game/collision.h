@@ -102,6 +102,7 @@ public:
 	int m_PathLen;
 	
 	CCollision();
+	~CCollision();
 	void Init(class CLayers *pLayers);
 	//bool CheckPoint(float x, float y, bool IncludeDeath = false) { return IsTileSolid(round_to_int(x), round_to_int(y), IncludeDeath); }
 	

@@ -576,7 +576,7 @@ void CItems::RenderLaserFail(const struct CNetObj_LaserFail *pCurrent)
 	a = clamp(a, 0.0f, 1.0f);
 	float Ia = 1-a;
 
-	Graphics()->ShaderBegin(SHADER_ELECTRIC, 1.0f);
+	//Graphics()->ShaderBegin(SHADER_ELECTRIC, 1.0f);
 	
 	vec2 Out;
 
@@ -587,7 +587,7 @@ void CItems::RenderLaserFail(const struct CNetObj_LaserFail *pCurrent)
 	vec4 OuterColor(0.075f, 0.075f, 0.25f, 1.0f);
 	vec4 InnerColor(0.5f, 0.5f, 1.0f, 1.0f);
 
-	Graphics()->SetColor(0.5f, 0.5f, 1, 1.0f);
+	Graphics()->SetColor(frandom()*0.25f, 1.0f-frandom()*0.25f, 1, 1.0f);
 	int Steps = 1 + length(Pos - From) / 75;
 	vec2 Step = (Pos - From) / Steps;
 	Out = vec2(Dir.y, -Dir.x) * (7.0f*Ia);
@@ -605,7 +605,7 @@ void CItems::RenderLaserFail(const struct CNetObj_LaserFail *pCurrent)
 		if (i < Steps-1)
 			o2 = vec2(frandom()-frandom(), frandom()-frandom()) * (15.0f + a*70.0f);
 			
-		vec2 s2 = Out * frandom()*4.0f;
+		vec2 s2 = Out * frandom()*3.0f;
 			
 		if (i == Steps -1)
 			s2 *= 0.1f;
@@ -618,7 +618,7 @@ void CItems::RenderLaserFail(const struct CNetObj_LaserFail *pCurrent)
 								
 		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 		
-		m_pClient->m_pEffects->BulletTrail(p1+o1, p2+o2, vec4(0.5f, 0.5f, 1.0f, 0.2f));
+		m_pClient->m_pEffects->BulletTrail(p1+o1, p2+o2, vec4(0.5f, 1.0f, 1.0f, 0.2f));
 		
 		s1 = s2;
 		p1 = p2;
@@ -626,7 +626,7 @@ void CItems::RenderLaserFail(const struct CNetObj_LaserFail *pCurrent)
 	}
 	
 	Graphics()->QuadsEnd();
-	Graphics()->ShaderEnd();
+	//Graphics()->ShaderEnd();
 	Graphics()->BlendNormal();
 }
 
