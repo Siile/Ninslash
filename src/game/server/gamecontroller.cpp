@@ -117,6 +117,8 @@ void IGameController::DropWeapon(vec2 Pos, vec2 Force, CWeapon *pWeapon)
 			return;
 		}
 	}
+	
+	pWeapon->Clear();
 }
 
 
@@ -521,34 +523,49 @@ void IGameController::CreateDroppables()
 	for (int i = 0; i < MAX_DROPPABLES; i++)
 	{
 		// hearts
-		m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_HEALTH, 0);
-		m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
-		m_apPickup[m_PickupCount]->m_Dropable = true;
-		m_PickupCount++;
+		if (m_PickupCount < MAX_PICKUPS)
+		{
+			m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_HEALTH, 0);
+			m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
+			m_apPickup[m_PickupCount]->m_Dropable = true;
+			m_PickupCount++;
+		}
 
-		// armors
-		m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_AMMO, 0);
-		m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
-		m_apPickup[m_PickupCount]->m_Dropable = true;
-		m_PickupCount++;
+		// ammo
+		if (m_PickupCount < MAX_PICKUPS)
+		{
+			m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_AMMO, 0);
+			m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
+			m_apPickup[m_PickupCount]->m_Dropable = true;
+			m_PickupCount++;
+		}
 		
-		// mines
-		m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_ARMOR, 0);
-		m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
-		m_apPickup[m_PickupCount]->m_Dropable = true;
-		m_PickupCount++;
+		// armor
+		if (m_PickupCount < MAX_PICKUPS)
+		{
+			m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_ARMOR, 0);
+			m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
+			m_apPickup[m_PickupCount]->m_Dropable = true;
+			m_PickupCount++;
+		}
 		
 		// kits
-		m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_KIT, 0);
-		m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
-		m_apPickup[m_PickupCount]->m_Dropable = true;
-		m_PickupCount++;
+		if (m_PickupCount < MAX_PICKUPS)
+		{
+			m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_KIT, 0);
+			m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
+			m_apPickup[m_PickupCount]->m_Dropable = true;
+			m_PickupCount++;
+		}
 		
 		// weapons
-		m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_WEAPON, 0);
-		m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
-		m_apPickup[m_PickupCount]->m_Dropable = true;
-		m_PickupCount++;
+		if (m_PickupCount < MAX_PICKUPS)
+		{
+			m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_WEAPON, 0);
+			m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
+			m_apPickup[m_PickupCount]->m_Dropable = true;
+			m_PickupCount++;
+		}
 	}
 	
 	m_DroppablesCreated = true;
@@ -1211,6 +1228,9 @@ void IGameController::OnPlayerInfoChange(class CPlayer *pP)
 
 int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
 {
+	if (pVictim->m_IsBot && pVictim->GetPlayer()->m_pAI)
+		pVictim->GetPlayer()->m_pAI->OnCharacterDeath();
+	
 	if (g_Config.m_SvSurvivalMode)
 	{
 		// update spectator modes

@@ -311,10 +311,10 @@ int CNetConnection::Update()
 		CNetChunkResend *pResend = m_Buffer.First();
 
 		// check if we have some really old stuff laying around and abort if not acked
-		if(Now-pResend->m_FirstSendTime > time_freq()*10)
+		if(Now-pResend->m_FirstSendTime > time_freq()*20)
 		{
 			m_State = NET_CONNSTATE_ERROR;
-			SetError("Too weak connection (not acked for 10 seconds)");
+			SetError("Too weak connection (not acked for 20 seconds)");
 		}
 		else
 		{

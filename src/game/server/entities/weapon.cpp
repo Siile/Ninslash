@@ -143,11 +143,14 @@ void CWeapon::UpdateStats()
 
 bool CWeapon::Activate()
 {
+	if (m_DestructionTick)
+		return false;
+	
 	if (IsStaticWeapon(m_WeaponType))
 	{
 		switch (GetStaticType(m_WeaponType))
 		{
-			case SW_INVIS: case SW_SHIELD:
+			case SW_INVIS: case SW_SHIELD: case SW_RESPAWNER:
 			{
 				GameServer()->m_pController->TriggerWeapon(this);
 				m_DestructionTick = 1;
@@ -156,7 +159,6 @@ bool CWeapon::Activate()
 			default: break;
 		}
 	}
-	
 	
 	return true;
 }

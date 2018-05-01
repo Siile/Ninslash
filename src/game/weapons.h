@@ -46,8 +46,8 @@ enum WeaponBits
 	SW_FLAMER,
 	SW_UPGRADE,
 	SW_SHIELD,
+	SW_RESPAWNER,
 	SW_INVIS,
-	SW_SWITCH,
 	SW_BUBBLER,
 	SW_SHURIKEN,
 	NUM_SW,
@@ -147,6 +147,7 @@ float ScreenshakeAmount(int Weapon);
 float WeaponThrowForce(int Weapon);
 
 int WeaponProjectilePosType(int Weapon);
+bool WeaponAutoPick(int Weapon);
 
 int WeaponBurstCount(int Weapon);
 float WeaponBurstReload(int Weapon);

@@ -174,6 +174,8 @@ public:
 	class CWeapon *NewWeapon(int Part1, int Part2);
 	class CWeapon *NewWeapon(int Weapon);
 	
+	bool RespawnAlly(vec2 Pos, int Team);
+	
 	bool AddBuilding(int Kit, vec2 Pos, int Owner);
 	
 	void CreateProjectile(int DamageOwner, int Weapon, int Charge, vec2 Pos, vec2 Direction, class CBuilding *OwnerBuilding = NULL);
@@ -262,9 +264,6 @@ public:
 	bool IsHuman(int ClientID);
 	
 	int m_BroadcastLockTick;
-	
-	bool m_FreezeCharacters;
-	bool m_CanRespawn;
 	
 	bool m_ShowWaypoints;
 	bool m_ShowAiState;

@@ -134,7 +134,7 @@ void CStar::Tick()
 						GameServer()->m_pController->DropPickup(m_Pos + vec2(0, 0), POWERUP_KIT, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), 0);
 				}
 				
-				if (frandom() < 0.13f)
+				if (frandom() < 0.15f)
 					GameServer()->m_pController->DropWeapon(m_Pos, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_UPGRADE)));
 				
 				GameServer()->m_World.DestroyEntity(this);

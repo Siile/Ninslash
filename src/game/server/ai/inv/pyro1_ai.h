@@ -10,6 +10,7 @@ public:
 
 	virtual void DoBehavior();
 	void OnCharacterSpawn(class CCharacter *pChr);
+	void OnCharacterDeath();
 	void ReceiveDamage(int CID, int Dmg);
 
 private:

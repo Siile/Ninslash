@@ -33,6 +33,16 @@ CCollision::CCollision()
 		m_apWaypoint[i] = 0;
 }
 
+CCollision::~CCollision()
+{
+	if (m_pBlocks)
+		delete m_pBlocks;
+	
+	for (int i = 0; i < MAX_WAYPOINTS; i++)
+		if (m_apWaypoint[i])
+			delete m_apWaypoint[i];
+}
+
 void CCollision::Init(class CLayers *pLayers)
 {
 	m_pLayers = pLayers;

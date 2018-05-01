@@ -690,8 +690,8 @@ container.sprites.Add(Sprite("weapon_static8", set_weapons, 0, 9, 7, 3)) # chain
 container.sprites.Add(Sprite("weapon_static9", set_weapons, 0, 6, 7, 3)) # flamer
 container.sprites.Add(Sprite("weapon_static10", set_weapons, 2, 20, 2, 2)) # upgrade
 container.sprites.Add(Sprite("weapon_static11", set_weapons, 2, 22, 2, 3)) # shield
-container.sprites.Add(Sprite("weapon_static12", set_weapons, 2, 25, 2, 3)) # invis
-container.sprites.Add(Sprite("weapon_static13", set_weapons, 2, 16, 2, 4)) # switch
+container.sprites.Add(Sprite("weapon_static12", set_weapons, 2, 16, 2, 4)) # respawner
+container.sprites.Add(Sprite("weapon_static13", set_weapons, 2, 25, 2, 3)) # invis
 container.sprites.Add(Sprite("weapon_static14", set_weapons, 7, 6, 6, 3)) # flame rifle / bubbler
 container.sprites.Add(Sprite("weapon_static15", set_weapons, 2, 12, 4, 4)) # shuriken
 

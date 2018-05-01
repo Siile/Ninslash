@@ -174,6 +174,12 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	GameServer()->m_World.InsertEntity(this);
 	m_Alive = true;
 
+	if (pPlayer->m_pAI)
+	{
+		delete pPlayer->m_pAI;
+		pPlayer->m_pAI = NULL;
+	}
+	
 	GameServer()->m_pController->OnCharacterSpawn(this, pPlayer->m_IsBot);
 	
 	if (pPlayer->m_pAI)
@@ -600,6 +606,7 @@ void CCharacter::TriggerWeapon(CWeapon *pWeapon)
 		{
 			case SW_INVIS: GiveBuff(PLAYERITEM_INVISIBILITY); break;
 			case SW_SHIELD: GiveBuff(PLAYERITEM_SHIELD); break;
+			case SW_RESPAWNER: GameServer()->RespawnAlly(m_Pos, GetPlayer()->GetTeam()); break;
 			
 			default: break;
 		}
@@ -659,18 +666,24 @@ bool CCharacter::PickWeapon(CWeapon *pWeapon)
 	
 	bool Valid = true;
 	
-	for (int i = 0; i < NUM_SLOTS; i++)
+	if (WeaponAutoPick(pWeapon->GetWeaponType()))
 	{
-		if (GetChargedWeapon(GetWeaponType(i), 0) == GetChargedWeapon(pWeapon->GetWeaponType(), 0) && 
-			GetWeaponCharge(GetWeaponType(i)) >= GetWeaponCharge(pWeapon->GetWeaponType()) && 
-			GetWeaponFiringType(GetWeaponType(i)) != WFT_THROW && GetStaticType(GetWeaponType(i)) != SW_UPGRADE)
-			Valid = false;
-	}
-	
-	for (int i = 0; i < 4; i++)
-		if (!m_apWeapon[i])
+		for (int i = 0; i < NUM_SLOTS; i++)
 		{
-			if (Valid)
+			if (GetChargedWeapon(GetWeaponType(i), 0) == GetChargedWeapon(pWeapon->GetWeaponType(), 0) && 
+				GetWeaponCharge(GetWeaponType(i)) >= GetWeaponCharge(pWeapon->GetWeaponType()) && 
+				GetWeaponFiringType(GetWeaponType(i)) != WFT_THROW && GetStaticType(GetWeaponType(i)) != SW_UPGRADE)
+				Valid = false;
+		}
+	}
+	else
+		Valid = false;
+	
+	if (Valid)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			if (!m_apWeapon[i])
 			{
 				pWeapon->SetOwner(GetPlayer()->GetCID());
 				m_apWeapon[i] = pWeapon;
@@ -679,6 +692,7 @@ bool CCharacter::PickWeapon(CWeapon *pWeapon)
 				return true;
 			}
 		}
+	}
 		
 	return false;
 }
@@ -1338,6 +1352,9 @@ void CCharacter::UpdateCoreStatus()
 void CCharacter::Tick()
 {
 	//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "debug", "Tick");
+
+	// stress testing pickups
+	//GameServer()->m_pController->DropWeapon(m_Pos, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_UPGRADE)));
 	
 	if (m_PainSoundTimer > 0)
 		m_PainSoundTimer--;
@@ -1376,9 +1393,6 @@ void CCharacter::Tick()
 	
 	if (m_aStatus[STATUS_SPAWNING] > 0.0f)
 		return;
-	
-	if (GameServer()->m_FreezeCharacters)
-		ResetInput();
 	
 	m_Core.m_Input = m_Input;
 
@@ -1471,8 +1485,7 @@ void CCharacter::Tick()
 	// GameServer()->CreateDeath(m_Pos+vec2(frandom()*100, frandom()*100) - vec2(frandom()*100, frandom()*100), -1);
 	
 	// handle Weapons
-	if (!GameServer()->m_FreezeCharacters)
-		HandleWeapons();
+	HandleWeapons();
 
 	// Previnput
 	m_PrevInput = m_Input;
@@ -1692,6 +1705,8 @@ void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage, bool IsTurret
 	//	Weapon = 0;
 	// we got to wait 0.5 secs before respawning
 	//m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()/2;
+	
+	m_pPlayer->m_DeathTick = Server()->Tick();
 	
 	if (g_Config.m_SvSurvivalMode)
 		m_pPlayer->m_RespawnTick = Server()->Tick();

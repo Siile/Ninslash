@@ -96,6 +96,8 @@ public:
 	*/
 	class CCharacter *IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, class CEntity *pNotThis = 0);
 
+	class CCharacter *GetFriendlyCharacterInBox(vec2 TopLeft, vec2 BotRight, int Team);
+
 	class CCharacter *IntersectScythe(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, class CEntity *pNotThis = 0);
 	
 	class CBuilding *IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, int Team, class CEntity *pNotThis = 0);

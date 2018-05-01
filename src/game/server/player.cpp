@@ -17,6 +17,7 @@ IServer *CPlayer::Server() const { return m_pGameServer->Server(); }
 
 CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 {
+	m_DeathTick = 0;
 	m_pGameServer = pGameServer;
 	m_RespawnTick = Server()->Tick();
 	m_DieTick = Server()->Tick();
@@ -392,6 +393,12 @@ void CPlayer::OnDisconnect(const char *pReason)
 		str_format(aBuf, sizeof(aBuf), "leave player='%d:%s'", m_ClientID, Server()->ClientName(m_ClientID));
 		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "game", aBuf);
 	}
+	
+	if (m_pAI)
+	{
+		delete m_pAI;
+		m_pAI = NULL;
+	}
 }
 
 void CPlayer::OnPredictedInput(CNetObj_PlayerInput *NewInput)
@@ -553,6 +560,19 @@ void CPlayer::TryRespawn()
 	m_pCharacter = new(m_ClientID) CCharacter(&GameServer()->m_World);
 	m_pCharacter->Spawn(this, SpawnPos);
 	GameServer()->CreatePlayerSpawn(SpawnPos);
+}
+
+bool CPlayer::ForceRespawn(vec2 Pos)
+{
+	if (m_pCharacter)
+		return false;
+
+	m_Spawning = false;
+	m_pCharacter = new(m_ClientID) CCharacter(&GameServer()->m_World);
+	m_pCharacter->Spawn(this, Pos);
+	GameServer()->CreatePlayerSpawn(Pos);
+	
+	return true;
 }
 
 

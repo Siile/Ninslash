@@ -1018,7 +1018,7 @@ void CMapGen::GenerateLevel()
 	// lightning walls
 	if (Level > 1 + rand()%15)
 	{
-		int l = 1 + rand()%min(9, 1 + Level/5);
+		int l = 1 + rand()%min(15, 1 + Level/5);
 		for (int i = 0; i < l; i++)
 			GenerateLightningWall(pTiles);
 	}
@@ -1151,6 +1151,9 @@ void CMapGen::GenerateLevel()
 	
 	if (pTiles)
 		delete pTiles;
+	
+	if (pMaze)
+		delete pMaze;
 }
 
 
@@ -1417,6 +1420,9 @@ void CMapGen::GeneratePVPLevel()
 	
 	if (pTiles)
 		delete pTiles;
+	
+	if (pMaze)
+		delete pMaze;
 }
 
 void CMapGen::WriteBase(class CGenLayer *pTiles, int BaseNum, ivec2 Pos, float Size)

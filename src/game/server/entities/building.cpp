@@ -606,14 +606,26 @@ void CBuilding::Tick()
 	
 	if (m_Type == BUILDING_LIGHTNINGWALL)
 	{
+		// self destruct if blocks between parts
 		if (GameServer()->Collision()->IntersectBlocks(m_Pos, m_Pos+vec2(0, -m_Height)))
 			TakeDamage(200, -1, 0);
 		
-		vec2 At;
-		CCharacter *pHit = GameServer()->m_World.IntersectCharacter(m_Pos, m_Pos+vec2(0, -m_Height), 4.0f, At);
-		
-		if(pHit)
-			pHit->TakeDamage(NEUTRAL_BASE, GetBuildingWeapon(m_Type), 3, vec2(0, 0), vec2(0, 0));	
+		if (!GameServer()->m_World.GetFriendlyCharacterInBox(m_Pos+vec2(-64, -(m_Height-48)), m_Pos+vec2(64, 0), m_Team))
+		{
+			m_aStatus[BSTATUS_ON] = 1;
+			vec2 At;
+			CCharacter *pHit = GameServer()->m_World.IntersectCharacter(m_Pos, m_Pos+vec2(0, -m_Height), 4.0f, At);
+			
+			if(pHit)
+				pHit->TakeDamage(NEUTRAL_BASE, GetBuildingWeapon(m_Type), 3, vec2(0, 0), vec2(0, 0));
+		}
+		else
+		{
+			if (m_aStatus[BSTATUS_ON] == 1)
+				new CLaserFail(GameWorld(), m_Pos, m_Pos + vec2(0, -m_Height), 1);
+			
+			m_aStatus[BSTATUS_ON] = 0;
+		}
 	}
 	
 	if (m_Type == BUILDING_JUMPPAD)

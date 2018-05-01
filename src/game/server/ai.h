@@ -58,7 +58,7 @@ class CAI
 	
 	
 	int m_HookReleaseTick;
-	int m_HookTick;	
+	int m_HookTick;
 	
 protected:
 	
@@ -217,10 +217,7 @@ protected:
 public:
 	CAI(class CGameContext *pGameServer, class CPlayer *pPlayer);
 	
-	virtual ~CAI(){
-		if (m_pPath)
-			delete m_pPath;
-	}
+	virtual ~CAI();
 	
 	void TriggerEvent(int EventNum, float InHowManySeconds = 0.0f);
 
@@ -239,6 +236,7 @@ public:
 	bool m_InputChanged;
 	
 	virtual void OnCharacterSpawn(class CCharacter *pChr);
+	virtual void OnCharacterDeath();
 	
 	void Zzz(int Time);
 	void Stun(int Time);

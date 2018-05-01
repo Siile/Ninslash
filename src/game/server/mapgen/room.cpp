@@ -83,10 +83,10 @@ void CRoom::Split(bool Vertical)
 			m_H = m_H/(2 + rand()%2);
 		
 		if (!m_pChild1)
-		{
 			m_pChild1 = new CRoom(m_X, m_Y, m_W, m_H);
+		
+		if (!m_pChild2)
 			m_pChild2 = new CRoom(m_X, m_Y+m_H, m_W, h2-m_H);
-		}
 	}
 	else
 	{
@@ -98,10 +98,10 @@ void CRoom::Split(bool Vertical)
 			m_W = m_W/(2 + rand()%2);
 
 		if (!m_pChild1)
-		{
 			m_pChild1 = new CRoom(m_X, m_Y, m_W, m_H);
+		
+		if (!m_pChild2)
 			m_pChild2 = new CRoom(m_X+m_W, m_Y, w2-m_W, m_H);
-		}
 	}
 }
 

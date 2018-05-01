@@ -63,6 +63,11 @@ void CAIpyro1::OnCharacterSpawn(CCharacter *pChr)
 		m_ReactionTime = 100;
 }
 
+void CAIpyro1::OnCharacterDeath()
+{
+	if (frandom() < 0.35f)
+		GameServer()->m_pController->DropWeapon(m_Pos, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_UPGRADE)));
+}
 
 void CAIpyro1::ReceiveDamage(int CID, int Dmg)
 {
