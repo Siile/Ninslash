@@ -1477,8 +1477,26 @@ void CGameContext::OnClientEnter(int ClientID)
 void CGameContext::OnClientConnected(int ClientID, bool AI)
 {
 	// Check which team the player should be on
-	const int StartTeam = g_Config.m_SvTournamentMode ? TEAM_SPECTATORS : m_pController->GetAutoTeam(ClientID);
+	int StartTeam = g_Config.m_SvTournamentMode ? TEAM_SPECTATORS : m_pController->GetAutoTeam(ClientID);
 
+	if (m_pController->IsTeamplay() && !m_pController->IsCoop() && (g_Config.m_SvNoBotTeam == TEAM_RED || g_Config.m_SvNoBotTeam == TEAM_BLUE))
+	{
+		if (AI && StartTeam == g_Config.m_SvNoBotTeam)
+		{
+			if (StartTeam == TEAM_RED)
+				StartTeam = TEAM_BLUE;
+			else if (StartTeam == TEAM_BLUE)
+				StartTeam = TEAM_RED;
+		}
+		else if (!AI && StartTeam != g_Config.m_SvNoBotTeam)
+		{
+			if (StartTeam == TEAM_RED)
+				StartTeam = TEAM_BLUE;
+			else if (StartTeam == TEAM_BLUE)
+				StartTeam = TEAM_RED;
+		}
+	}
+	
 	m_apPlayers[ClientID] = new(ClientID) CPlayer(this, ClientID, StartTeam);
 	//players[client_id].init(client_id);
 	//players[client_id].client_id = client_id;

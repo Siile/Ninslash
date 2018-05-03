@@ -167,7 +167,7 @@ void IGameController::SetPickup(vec2 Pos, int PickupType, int PickupSubtype, int
 
 int IGameController::GetRandomWeapon()
 {
-	return GetRandomWeaponType();
+	return GetRandomWeaponType(g_Config.m_SvSurvivalMode ? true : false);
 }
 
 int IGameController::GetRandomModularWeapon()
@@ -483,20 +483,47 @@ void IGameController::AutoBalance()
 		}
 
 		// not enough players
-		if ((Red+RedBots) < g_Config.m_SvNumBots || (Blue+BlueBots) < g_Config.m_SvNumBots)
-			GameServer()->AddBot();
-
-		
-		// unbalanced teams
-		if (Red+RedBots > Blue+BlueBots && Red+RedBots > g_Config.m_SvNumBots && RedBots > 0)
-			GameServer()->KickBot(RedBotID);
-		if (Red+RedBots < Blue+BlueBots && Blue+BlueBots > g_Config.m_SvNumBots && BlueBots > 0)
-			GameServer()->KickBot(BlueBotID);
-		
-		if (Red+RedBots == Blue+BlueBots && Red+RedBots > g_Config.m_SvNumBots && RedBots > 0 && BlueBots > 0)
+		if (g_Config.m_SvNoBotTeam == TEAM_RED)
 		{
-			GameServer()->KickBot(RedBotID);
-			GameServer()->KickBot(BlueBotID);
+			if ((Blue+BlueBots) < g_Config.m_SvNumBots)
+				GameServer()->AddBot();
+			
+			if (RedBots > 0)
+				GameServer()->KickBot(RedBotID);
+			
+			if (Blue+BlueBots > g_Config.m_SvNumBots)
+				GameServer()->KickBot(BlueBotID);
+		}
+		else
+		if (g_Config.m_SvNoBotTeam == TEAM_BLUE)
+		{
+			
+			if ((Red+RedBots) < g_Config.m_SvNumBots)
+				GameServer()->AddBot();
+			
+			if (BlueBots > 0)
+				GameServer()->KickBot(BlueBotID);
+			
+			if (Red+RedBots > g_Config.m_SvNumBots)
+				GameServer()->KickBot(RedBotID);
+				
+		}
+		else
+		{
+			if ((Red+RedBots) < g_Config.m_SvNumBots || (Blue+BlueBots) < g_Config.m_SvNumBots)
+				GameServer()->AddBot();
+			
+			// unbalanced teams
+			if (Red+RedBots > Blue+BlueBots && Red+RedBots > g_Config.m_SvNumBots && RedBots > 0)
+				GameServer()->KickBot(RedBotID);
+			if (Red+RedBots < Blue+BlueBots && Blue+BlueBots > g_Config.m_SvNumBots && BlueBots > 0)
+				GameServer()->KickBot(BlueBotID);
+			
+			if (Red+RedBots == Blue+BlueBots && Red+RedBots > g_Config.m_SvNumBots && RedBots > 0 && BlueBots > 0)
+			{
+				GameServer()->KickBot(RedBotID);
+				GameServer()->KickBot(BlueBotID);
+			}
 		}
 	}
 }
@@ -1256,32 +1283,36 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 		m_SurvivalDeathTick = Server()->Tick() + Server()->TickSpeed()*1.0f;
 	}
 	
-	// pickup drops
-	if (g_Config.m_SvPickupDrops && Weapon != WEAPON_GAME)
-	{
-		// drop stuff on death
-		DropPickup(pVictim->m_Pos, POWERUP_HEALTH, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
-
-		if (pVictim->m_Kits > 0)
-			DropPickup(pVictim->m_Pos, POWERUP_KIT, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
-
-		if (pVictim->HasAmmo())
-			DropPickup(pVictim->m_Pos, POWERUP_AMMO, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
-
-		if (frandom() < 0.5f)
-			DropPickup(pVictim->m_Pos, POWERUP_AMMO, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
-			
-		if (pVictim->GetArmor() > 0)
-			DropPickup(pVictim->m_Pos, POWERUP_ARMOR, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
-
-	}
-	
 	if (pVictim->GetWeapon())
 		pVictim->GetWeapon()->OnOwnerDeath(true);
+	
+	
+	// pickup drops
+	if (!pVictim->m_IsBot || pVictim->m_DamagedByPlayer || !IsCoop())
+	{
+		if (g_Config.m_SvPickupDrops && Weapon != WEAPON_GAME)
+		{
+			// drop stuff on death
+			DropPickup(pVictim->m_Pos, POWERUP_HEALTH, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 
-	// weapon drops
-	if (g_Config.m_SvWeaponDrops)
-		pVictim->DropWeapon();
+			if (pVictim->m_Kits > 0)
+				DropPickup(pVictim->m_Pos, POWERUP_KIT, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
+
+			if (pVictim->HasAmmo())
+				DropPickup(pVictim->m_Pos, POWERUP_AMMO, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
+
+			if (frandom() < 0.5f)
+				DropPickup(pVictim->m_Pos, POWERUP_AMMO, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
+				
+			if (pVictim->GetArmor() > 0)
+				DropPickup(pVictim->m_Pos, POWERUP_ARMOR, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
+
+		}
+
+		// drop weapon
+		if (g_Config.m_SvWeaponDrops)
+			pVictim->DropWeapon();
+	}
 	
 	pVictim->ReleaseWeapons();
 	
