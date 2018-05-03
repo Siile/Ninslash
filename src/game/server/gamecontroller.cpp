@@ -49,7 +49,7 @@ IGameController::IGameController(class CGameContext *pGameServer)
 	m_aNumSpawnPoints[1] = 0;
 	m_aNumSpawnPoints[2] = 0;
 	
-	m_SurvivalStatus = 0;
+	m_SurvivalStatus = SURVIVAL_CANJOIN;
 	m_SurvivalStartTick = Server()->Tick();
 	m_SurvivalDeathTick = 0;
 	m_ClearBroadcastTick = 0;
@@ -1276,8 +1276,11 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 		//if (!pVictim->m_IsBot || pKiller)
 		//	m_SurvivalStatus = SURVIVAL_NOCANDO;
 			
-		if ((!IsCoop() && pKiller) || (!pVictim->m_IsBot && pKiller))
-			m_SurvivalStatus = SURVIVAL_NOCANDO; 
+		if (!IsCoop() && pKiller)
+			m_SurvivalStatus = SURVIVAL_NOCANDO;
+		
+		if (IsCoop() && !pVictim->m_IsBot)
+			m_SurvivalStatus = SURVIVAL_NOCANDO;
 		
 		// wait a second before ending the round if it's going to end
 		m_SurvivalDeathTick = Server()->Tick() + Server()->TickSpeed()*1.0f;
@@ -1512,7 +1515,7 @@ void IGameController::ResetSurvivalRound()
 	NewSurvivalRound();
 	m_ClearBroadcastTick = Server()->Tick() + Server()->TickSpeed()*2;
 	m_SurvivalStartTick = Server()->Tick();
-	m_SurvivalStatus = 0;
+	m_SurvivalStatus = SURVIVAL_CANJOIN;
 	
 	// reset pickups
 	{

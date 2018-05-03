@@ -41,6 +41,8 @@ private:
 	int m_TriggerLevel;
 	int m_TriggerTick;
 	
+	bool m_AutoRestart;
+	
 	void Trigger(bool IncreaseLevel);
 	
 public:

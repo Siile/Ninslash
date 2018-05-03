@@ -74,6 +74,8 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 		m_BossesLeft = 3;
 	*/
 	
+	m_AutoRestart = false;
+	
 	if (g_Config.m_SvMapGenLevel > 40)
 		g_Config.m_SvInvBosses = min(16, 1 + (g_Config.m_SvMapGenLevel-30)/7);
 	else
@@ -303,8 +305,6 @@ void CGameControllerCoop::NextLevel(int CID)
 		pPlayer->GetCharacter()->Warp();
 }
 
-
-
 void CGameControllerCoop::Tick()
 {
 	IGameController::Tick();
@@ -319,16 +319,20 @@ void CGameControllerCoop::Tick()
 			GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "inv", aBuf);
 			
 			m_TriggerTick = 0;
+			m_AutoRestart = true;
 			
 			m_GameState = STATE_GAME;
 			for (int i = 0; i < m_EnemiesLeft && GameServer()->m_pController->CountBots() < 32; i++)
 				GameServer()->AddBot();
 		}
 		// reset to first map if there's no players for 60 seconds
-		else if (Server()->Tick() > Server()->TickSpeed()*60.0f)
+		else if (m_AutoRestart && Server()->Tick() > Server()->TickSpeed()*60.0f)
 		{
+			m_AutoRestart = false;
+			
 			if (g_Config.m_SvMapGenRandSeed)
 				g_Config.m_SvMapGenSeed = rand()%32767;
+			
 			FirstMap();
 		}
 	}
