@@ -92,6 +92,7 @@ void CCharacter::Reset()
 
 bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 {
+	m_DamagedByPlayer = false;
 	m_PickedWeaponSlot = 0;
 	
 	for (int i = 0; i < NUM_PLAYERITEMS; i++)
@@ -668,11 +669,35 @@ bool CCharacter::PickWeapon(CWeapon *pWeapon)
 	
 	if (WeaponAutoPick(pWeapon->GetWeaponType()))
 	{
+		int w = pWeapon->GetWeaponType();
+		
+		// check if weapon is lower level than currently held weapons overall
+		if (WeaponMaxLevel(w) > 1)
+		{
+			float Weapons = 0.0f;
+			float WeaponLevel = 0.0f;
+			
+			for (int i = 0; i < 4; i++)
+			{
+				if (WeaponMaxLevel(GetWeaponType(i)) > 1)
+				{
+					Weapons += 1.0f;
+					WeaponLevel += GetWeaponCharge(GetWeaponType(i));
+				}
+				
+				if (Weapons > 1.0f)
+					WeaponLevel /= Weapons;
+				
+				if (GetWeaponCharge(w) < WeaponLevel && Weapons > 1.0f && GetWeaponCharge(w) < WeaponMaxLevel(w))
+					Valid = false;
+			}
+		}
+		
 		for (int i = 0; i < NUM_SLOTS; i++)
 		{
 			if (GetChargedWeapon(GetWeaponType(i), 0) == GetChargedWeapon(pWeapon->GetWeaponType(), 0) && 
 				GetWeaponCharge(GetWeaponType(i)) >= GetWeaponCharge(pWeapon->GetWeaponType()) && 
-				GetWeaponFiringType(GetWeaponType(i)) != WFT_THROW && GetStaticType(GetWeaponType(i)) != SW_UPGRADE)
+				GetStaticType(GetWeaponType(i)) != SW_UPGRADE && GetStaticType(GetWeaponType(i)) != SW_RESPAWNER)
 				Valid = false;
 		}
 	}
@@ -1866,18 +1891,17 @@ bool CCharacter::TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos)
 	
 	float Flame = WeaponFlameAmount(Weapon);
 	float Electro = WeaponElectroAmount(Weapon);
-		
-	// m_pPlayer only inflicts half damage on self
-	/*
-	if (Type != DAMAGETYPE_FLAME)
+	
+	if (From == m_pPlayer->GetCID())
 	{
-		if(From == m_pPlayer->GetCID())
+		if (GameServer()->m_pController->IsCoop())
+			Dmg = max(1, Dmg/5);
+		else
 			Dmg = max(1, Dmg/2);
 	}
-	*/
-		
-	if (From == m_pPlayer->GetCID() && GameServer()->m_pController->IsCoop())
-		Dmg = max(1, Dmg/5);
+	
+	if (From >= 0)
+		m_DamagedByPlayer = true;
 	
 	// disable self damage if weapon is forced
 	//if (g_Config.m_SvForceWeapon && From == m_pPlayer->GetCID())

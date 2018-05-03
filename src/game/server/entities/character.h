@@ -247,6 +247,7 @@ public:
 	int m_Kits;
 	
 	bool ScytheReflect();
+	bool m_DamagedByPlayer;
 	
 	int GetArmor() { return m_Armor; }
 	

@@ -136,6 +136,8 @@ void CStar::Tick()
 				
 				if (frandom() < 0.15f)
 					GameServer()->m_pController->DropWeapon(m_Pos, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_UPGRADE)));
+				else if (frandom() < 0.1f)
+					GameServer()->m_pController->DropWeapon(m_Pos, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_RESPAWNER)));
 				
 				GameServer()->m_World.DestroyEntity(this);
 				return;

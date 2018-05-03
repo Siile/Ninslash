@@ -568,9 +568,9 @@ void CWeapon::Trigger()
 			case SW_GRENADE2:
 				m_TriggerTick = Server()->Tick() + 0.05f * Server()->TickSpeed();
 			
-				new CLaser(&GameServer()->m_World, m_Pos, RandomDir(), 160.0f, m_Owner, m_WeaponType, 5, -2);
-				new CLaser(&GameServer()->m_World, m_Pos, RandomDir(), 160.0f, m_Owner, m_WeaponType, 5, -2);
-				new CLaser(&GameServer()->m_World, m_Pos, RandomDir(), 160.0f, m_Owner, m_WeaponType, 5, -2);
+				new CLaser(&GameServer()->m_World, m_Pos, RandomDir(), 160.0f, m_Owner, m_WeaponType, 4, -2);
+				new CLaser(&GameServer()->m_World, m_Pos, RandomDir(), 160.0f, m_Owner, m_WeaponType, 4, -2);
+				//new CLaser(&GameServer()->m_World, m_Pos, RandomDir(), 160.0f, m_Owner, m_WeaponType, 4, -2);
 				break;
 			default: return;
 		}

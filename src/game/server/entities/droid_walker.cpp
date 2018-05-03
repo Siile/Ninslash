@@ -111,6 +111,8 @@ void CWalker::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Weapon)
 		
 		if (frandom() < 0.10f)
 			GameServer()->m_pController->DropWeapon(m_Pos + vec2(0, -42), vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_UPGRADE)));
+		else if (frandom() < 0.05f)
+			GameServer()->m_pController->DropWeapon(m_Pos, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_RESPAWNER)));
 
 		m_DeathTick = Server()->Tick();
 		GameServer()->m_World.DestroyEntity(this);

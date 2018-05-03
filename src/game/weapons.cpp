@@ -1337,7 +1337,7 @@ float GetProjectileDamage(int Weapon)
 	return 0;
 }
 
-int GetRandomWeaponType() 
+int GetRandomWeaponType(bool IsSurvival) 
 {
 	if (rand()%13 < 5)
 		return GetModularWeapon(1+rand()%4, 1+rand()%4);
@@ -1346,7 +1346,12 @@ int GetRandomWeaponType()
 	if (rand()%12 < 3)
 		return GetModularWeapon(5, 6+rand()%3);
 	
-	return GetStaticWeapon(1+rand()%(NUM_SW-4));
+	int w = 0;
+	
+	while (!w || (!IsSurvival && IsStaticWeapon(w) && GetStaticType(w) == SW_RESPAWNER))
+		w = GetStaticWeapon(1+rand()%(NUM_SW-4));
+	
+	return w;
 }
 
 bool WeaponAutoPick(int Weapon)
