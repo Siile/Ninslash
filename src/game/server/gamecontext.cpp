@@ -1631,6 +1631,13 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				SkipSending = true;
 			}
 			
+			if ( strcmp(pMsg->m_pMessage, "/seed") == 0 )
+			{
+				char aBuf[128]; str_format(aBuf, sizeof(aBuf), "Mapgen seed: %d", g_Config.m_SvMapGenSeed);
+				SendChatTarget(ClientID, aBuf);
+				SkipSending = true;
+			}
+			
 		
 			if (!SkipSending)
 			{

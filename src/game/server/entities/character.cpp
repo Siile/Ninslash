@@ -603,14 +603,16 @@ void CCharacter::TriggerWeapon(CWeapon *pWeapon)
 	
 	if (IsStaticWeapon(w))
 	{
-		switch (GetStaticType(w))
-		{
-			case SW_INVIS: GiveBuff(PLAYERITEM_INVISIBILITY); break;
-			case SW_SHIELD: GiveBuff(PLAYERITEM_SHIELD); break;
-			case SW_RESPAWNER: GameServer()->RespawnAlly(m_Pos, GetPlayer()->GetTeam()); break;
-			
-			default: break;
-		}
+		if (GetStaticType(w) == SW_INVIS)
+			GiveBuff(PLAYERITEM_INVISIBILITY);
+		
+		if (GetStaticType(w) == SW_SHIELD)
+			GiveBuff(PLAYERITEM_SHIELD);
+		
+		if (GetStaticType(w) == SW_RESPAWNER && (!GameServer()->m_pController->IsCoop() || !m_IsBot))
+			GameServer()->RespawnAlly(m_Pos, GetPlayer()->GetTeam());
+		
+		return;
 	}
 	
 	/*
