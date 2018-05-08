@@ -69,6 +69,8 @@ protected:
 	
 	int m_MoveReactTime;
 	
+	int m_AirJump;
+	
 	// events for talking & stuff
 	bool m_Event[NUM_EVENTS];
 	int m_EventTriggerTick[NUM_EVENTS];

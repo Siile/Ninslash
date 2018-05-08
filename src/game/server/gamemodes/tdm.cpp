@@ -45,7 +45,7 @@ int CGameControllerTDM::OnCharacterDeath(class CCharacter *pVictim, class CPlaye
 	if(pKiller && Weapon != WEAPON_GAME)
 	{
 		// do team scoring
-		if(pKiller == pVictim->GetPlayer() || pKiller->GetTeam() == pVictim->GetPlayer()->GetTeam())
+		if((pKiller == pVictim->GetPlayer() || pKiller->GetTeam() == pVictim->GetPlayer()->GetTeam()) && !g_Config.m_SvSelfKillPenalty)
 			m_aTeamscore[pKiller->GetTeam()&1]--; // klant arschel
 		else
 			m_aTeamscore[pKiller->GetTeam()&1]++; // good shit
