@@ -56,8 +56,8 @@ void CAIalien1::OnCharacterSpawn(CCharacter *pChr)
 	{
 		if (frandom() < min(m_Level*0.01f, 0.5f))
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 1)));
-		if (frandom() < min(m_Level*0.01f, 0.5f))
-			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
+		else if (frandom() < min(m_Level*0.01f, 0.5f))
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 4)));
 		
 		if (frandom() < 0.5f)
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GUN1)));

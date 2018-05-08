@@ -13,6 +13,7 @@ public:
 
 private:
 	int m_SkipMoveUpdate;
+	bool SeekFriend();
 };
 
 #endif

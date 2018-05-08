@@ -73,10 +73,10 @@ void CAIrobot1::OnCharacterSpawn(CCharacter *pChr)
 	}
 	else if (m_Skin == 8)
 	{
-		m_PowerLevel = 8;
+		m_PowerLevel = 10;
 		pChr->SetHealth(100+min(Level*0.2f, 100.0f));
 		pChr->SetArmor(100+min(Level*0.2f, 100.0f));
-		pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(3, 1+rand()%3)));
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(3, 1+rand()%4), 2)));
 	}
 	
 	if (!m_Triggered)

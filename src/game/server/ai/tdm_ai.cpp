@@ -24,6 +24,17 @@ void CAItdm::OnCharacterSpawn(CCharacter *pChr)
 	Player()->SetRandomSkin();
 }
 
+bool CAItdm::SeekFriend()
+{
+	if (SeekClosestFriend())
+	{
+		m_TargetPos = m_PlayerPos;
+		return true;
+	}
+	
+	return false;
+}
+
 
 void CAItdm::DoBehavior()
 {
@@ -44,6 +55,7 @@ void CAItdm::DoBehavior()
 		if (!ShootAtClosestEnemy())
 			if (!ShootAtClosestBuilding())
 				ShootAtClosestMonster();
+		
 		ReactToPlayer();
 	}
 	else
@@ -54,7 +66,7 @@ void CAItdm::DoBehavior()
 
 	
 	
-	int f = 800+m_EnemiesInSight*100;
+	int f = 800-max(400, m_EnemiesInSight*50);
 
 	bool SeekEnemy = false;
 	
@@ -77,7 +89,10 @@ void CAItdm::DoBehavior()
 			if (m_EnemiesInSight > 0)
 			{
 				if (WeaponShootRange() - m_PlayerDistance > 200)
-					SeekRandomWaypoint();
+				{
+					if (SeekFriend() && m_PlayerDistance < 200)
+						SeekRandomWaypoint();
+				}
 			}
 		}
 		else
