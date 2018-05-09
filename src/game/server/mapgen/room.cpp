@@ -5,7 +5,7 @@
 #include "room.h"
 #include "gen_layer.h"
 
-
+// bsp map, acts as template for rooms
 CRoom::CRoom(int x, int y, int w, int h)
 {
 	m_Open = false;
@@ -23,41 +23,20 @@ CRoom::CRoom(int x, int y, int w, int h)
 	//int RoomSize = 6+rand()%10;
 	int RoomSize = 6+rand()%9;
 	
-	while (!(m_pChild1 || TooSmall() || i++ > 24))
+	if (m_H < m_W)
 	{
-		//RoomSize = 8 + min(20, x/5);
-		
-		//if (m_H + rand()%5 < m_W + rand()%5)
-		//if (m_H*(1.0f + frandom()) < m_W*(1.0f + frandom()))
-		if (m_H < m_W)
-		{
-			if (m_W > RoomSize+3)
-				Split(false);
-			if (m_H > RoomSize)
-				Split(true);
-		}
-		else
-		{
-			if (m_H > RoomSize)
-				Split(true);
-			if (m_W > RoomSize+3)
-				Split(false);
-		}
+		if (m_W > RoomSize+3)
+			Split(false);
+		if (m_H > RoomSize)
+			Split(true);
 	}
-	
-	/*
-	if (m_pChild1 && m_pChild1->TooSmall())
+	else
 	{
-		delete m_pChild1;
-		m_pChild1 = NULL;
+		if (m_H > RoomSize)
+			Split(true);
+		if (m_W > RoomSize+3)
+			Split(false);
 	}
-	
-	if (m_pChild2 && m_pChild2->TooSmall())
-	{
-		delete m_pChild2;
-		m_pChild2 = NULL;
-	}
-	*/
 }
 
 CRoom::~CRoom()

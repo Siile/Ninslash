@@ -3,7 +3,7 @@
 
 #include <base/vmath.h>
 
-#define GEN_MAX 999
+#define GEN_MAX 499
 
 class CGenLayer
 {
