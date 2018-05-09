@@ -260,7 +260,7 @@ void CGenLayer::GenerateMoreForeground()
 
 void CGenLayer::GenerateMoreBackground()
 {
-	for (int i = 0; i < 20; i++)
+	for (int i = 0; i < 10; i++)
 	{
 		bool *apTiles = new bool[m_Width*m_Height];
 		for (int x = 0; x < m_Width; x++)
@@ -282,7 +282,7 @@ void CGenLayer::GenerateBackground()
 	for (int x = 0; x < m_Width; x++)
 		for (int y = 0; y < m_Height; y++)
 		{
-			if (Get(x, y) && frandom() < 0.4f)
+			if (Get(x, y))// && frandom() < 0.5f)
 				Set(1, x, y, 0, BACKGROUND);
 			else
 				Set(0, x, y, 0, BACKGROUND);

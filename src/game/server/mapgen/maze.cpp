@@ -292,7 +292,7 @@ void CMaze::GenerateRoom(bool AutoConnect, bool MirrorMode)
 	bool Valid = false;
 	int i = 0;
 	
-	while (!Valid && i++ < 10000)
+	while (!Valid && i++ < 2000)
 	{
 		Valid = true;
 		vec2 p = vec2(2 + frandom()*(m_W-4), 2 + frandom()*(m_H-4));
@@ -378,6 +378,8 @@ void CMaze::ConnectEverything()
 	// find unconnected
 	bool Looping = true;
 	int i = 0;
+	
+	SetConnections(GetUnconnected());
 	
 	while (Looping && i++ < 1000)
 	{
@@ -474,13 +476,10 @@ void CMaze::SetConnections(ivec2 Pos)
 	if (Pos.x < 0 || Pos.y < 0 || Pos.x >= m_W || Pos.y >= m_H)
 		return;
 	
-	if (m_aConnected[Pos.x + Pos.y*m_W])
+	if (m_aConnected[Pos.x + Pos.y*m_W] || !m_aOpen[Pos.x + Pos.y*m_W])
 		return;
 	
-	if (m_aOpen[Pos.x + Pos.y*m_W])
-		m_aConnected[Pos.x + Pos.y*m_W] = true;
-	else
-		return;
+	m_aConnected[Pos.x + Pos.y*m_W] = true;
 	
 	SetConnections(Pos + ivec2(1, 0));
 	SetConnections(Pos + ivec2(-1, 0));
