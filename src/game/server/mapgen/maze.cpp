@@ -88,7 +88,7 @@ void CMaze::Generate()
 			ConnectEverything();
 		}
 		// first rounds
-		else if (Level <= 15)
+		else if (Level <= 10)
 		{
 			GenerateLinear(min(80+Level*5, 90+Level*2), Level);
 		}
@@ -191,6 +191,14 @@ void CMaze::Generate()
 		// random room structure
 		else
 		{
+			int r = min(4+Level/2, 120);
+
+			GenerateRoom();
+			
+			for (int i = 0; i < r; i++)
+				GenerateRoom(true);
+			
+			/*
 			int r = min(50, 10+Level/3);
 			
 			m_aRoom[m_Rooms++] = vec2(m_W*0.5f, m_H*(0.1f+frandom()*0.8f));
@@ -206,6 +214,7 @@ void CMaze::Generate()
 			
 			ConnectRooms();
 			ConnectEverything();
+			*/
 		}
 	}
 	else
