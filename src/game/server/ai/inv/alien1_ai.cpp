@@ -19,14 +19,7 @@ CAIalien1::CAIalien1(CGameContext *pGameServer, CPlayer *pPlayer, int Level)
 	
 	m_Level = Level;
 	
-	// "boss"
-	if (frandom() < 0.5f && g_Config.m_SvInvBosses > 0)
-	{
-		m_Skin = 11;
-		g_Config.m_SvInvBosses--;
-	}
-	else
-		m_Skin = 4;
+	m_Skin = SKIN_ALIEN1+min(Level, 2);
 
 	Player()->SetCustomSkin(m_Skin);
 }
@@ -44,29 +37,36 @@ void CAIalien1::OnCharacterSpawn(CCharacter *pChr)
 	m_StartPos = Player()->GetCharacter()->m_Pos;
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	
-	if (m_Skin == 11)
+	if (m_Skin == SKIN_ALIEN3)
+	{
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(4, 4), 2)));
+		pChr->SetHealth(60+min((m_Level-1)*7, 300));
+		pChr->SetArmor(60+min((m_Level-1)*7, 300));
+		m_PowerLevel = 8;
+		m_TriggerLevel = 15 + rand()%5;
+	}
+	if (m_Skin == SKIN_ALIEN2)
 	{
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_CHAINSAW)));
-		pChr->SetHealth(60+min(m_Level*0.2f, 80.0f));
-		pChr->SetArmor(60+min(m_Level*0.2f, 80.0f));
+		pChr->SetHealth(60+min((m_Level-1)*6, 300));
+		pChr->SetArmor(60+min((m_Level-1)*6, 300));
 		m_PowerLevel = 8;
 		m_TriggerLevel = 15 + rand()%5;
 	}
 	else
 	{
-		if (frandom() < min(m_Level*0.01f, 0.5f))
+		if (frandom() < min(m_Level*0.1f, 1.0f))
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 1)));
-		else if (frandom() < min(m_Level*0.01f, 0.5f))
+		else if (frandom() < min(m_Level*0.1f, 1.0f))
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 4)));
 		
-		if (frandom() < 0.5f)
+		if (frandom() < 0.6f)
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GUN1)));
-		else if (frandom() < 0.5f)
+		else
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GUN2)));
 		
-		pChr->SetHealth(60+min(m_Level*0.2f, 80.0f));
+		pChr->SetHealth(60+min((m_Level-1)*5, 300));
 	}
-	
 	
 	m_ShockTimer = 10;
 		

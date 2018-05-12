@@ -32,6 +32,8 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	m_GameFlags = GAMEFLAG_COOP;
 	m_GameState = STATE_STARTING;
 	
+	m_BotSpawnTick = 0;
+	
 	if (g_Config.m_SvMapGenRandSeed)
 	{
 		g_Config.m_SvMapGenSeed = rand()%32767;
@@ -48,40 +50,18 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	
 	m_RoundWin = false;
 	
-	// hordes of enemies
-	bool Defend = (g_Config.m_SvMapGenLevel > 1 && g_Config.m_SvMapGenLevel%5 == 0);
-	int e = 6 + log(float(1 + g_Config.m_SvMapGenLevel/3)) * 4;
-	e += rand()%(1+g_Config.m_SvMapGenLevel/6);
-	e += g_Config.m_SvMapGenLevel/3;
-
-	if (Defend)
-		e *= 2;
 	
-	e = min(e, 160+g_Config.m_SvMapGenLevel/10);
+	int Level = g_Config.m_SvMapGenLevel;
 	
-	m_EnemyCount = 0;
-	m_EnemiesLeft = e;
-	
-	m_BossesLeft = 0;
+	m_GroupsLeft = 2 + min(4, Level/3) + (Level%5)/3;
 	
 	m_TriggerLevel = 0;
-	
-	/*
-	if (g_Config.m_SvMapGenLevel > 40)
-		m_BossesLeft = 1 + (g_Config.m_SvMapGenLevel-40)/8;
-	
-	if (m_BossesLeft > 3)
-		m_BossesLeft = 3;
-	*/
-	
+	m_Group = 0;
+	m_GroupSpawnPos = vec2(0, 0);
+	SpawnNewGroup(false);
+		
 	m_AutoRestart = false;
 	
-	if (g_Config.m_SvMapGenLevel > 40)
-		g_Config.m_SvInvBosses = min(16, 1 + (g_Config.m_SvMapGenLevel-30)/7);
-	else
-		g_Config.m_SvInvBosses = 0;
-	
-	m_Deaths = m_EnemiesLeft;
 	m_NumEnemySpawnPos = 0;
 	m_SpawnPosRotation = 0;
 	m_TriggerTick = 0;
@@ -138,6 +118,71 @@ bool CGameControllerCoop::GetSpawnPos(int Team, vec2 *pOutPos)
 	return true;
 }
 
+vec2 CGameControllerCoop::GetBotSpawnPos()
+{
+	if (m_GroupSpawnPos.x < 1.0f)
+	{
+		vec2 p;
+		GetSpawnPos(0, &p);
+		return p;
+	}
+	
+	if (GameServer()->Collision()->IsTileSolid(m_GroupSpawnPos.x, m_GroupSpawnPos.y - 48) && !GameServer()->Collision()->IsTileSolid(m_GroupSpawnPos.x, m_GroupSpawnPos.y + 32))
+		m_GroupSpawnPos.y += 32;
+	
+	for (int i = 0; i < 9; i++)
+	{
+		vec2 p = m_GroupSpawnPos + vec2(0, -32);
+		vec2 p2 = m_GroupSpawnPos;
+		
+		vec2 r = vec2(frandom()-frandom(), frandom()-frandom())*300;
+		
+		vec2 To = p + r + vec2(0, -32);
+		vec2 To2 = p + r + vec2(0, 0);
+		
+		if (!GameServer()->Collision()->IntersectLine(p, To, 0x0, &To) && !GameServer()->Collision()->IntersectLine(p2, To2, 0x0, &To2))
+			return mix(p2, To2, frandom());
+	}
+
+	return m_GroupSpawnPos;
+}
+
+void CGameControllerCoop::RandomGroupSpawnPos()
+{
+	m_GroupSpawnPos =  m_aEnemySpawnPos[rand()%m_NumEnemySpawnPos];
+}
+
+
+
+bool CGameControllerCoop::CanSpawn(int Team, vec2 *pOutPos, bool IsBot)
+{
+	CSpawnEval Eval;
+
+	// spectators can't spawn
+	if(Team == TEAM_SPECTATORS)
+		return false;
+
+	if (IsBot)
+	{
+		if (m_BotSpawnTick > Server()->Tick())
+			return false;
+		
+		if (m_GroupSpawnPos.x < 1.0f && GetSpawnPos(1, pOutPos))
+			return true;
+	
+		vec2 Pos = GetBotSpawnPos();
+		*pOutPos = Pos;
+		
+		m_BotSpawnTick = Server()->Tick() + Server()->TickSpeed() * 0.25f;
+		
+		return true;
+	}
+	else
+		EvaluateSpawnType(&Eval, 0);
+
+	*pOutPos = Eval.m_Pos;
+	return Eval.m_Got;
+}
 
 
 void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
@@ -166,7 +211,7 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			if (g_Config.m_SvMapGenLevel > 50 && frandom() < 0.04f)
 				i = ENEMY_PYRO1;
 			*/
-			
+			/*
 			float r = min(0.35f, g_Config.m_SvMapGenLevel * 0.01f - 0.02f);
 			if (frandom() < r)
 				i = ENEMY_ROBOT1;
@@ -178,8 +223,38 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			r = min(0.04f, g_Config.m_SvMapGenLevel * 0.002f - 0.02f);
 			if (frandom() < r)
 				i = ENEMY_PYRO1;
+			*/
 			
+			int Level = 0;
 			
+			for (int i = 0; i < 9; i++)
+				if (m_EnemiesLeft < 1-i*3 + g_Config.m_SvMapGenLevel/2 - m_Group/3)
+					Level++;
+			
+			switch (m_GroupType)
+			{
+				case GROUP_ALIENS: 
+					pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer(), Level);
+					break;
+					
+				case GROUP_BUNNIES: 
+					pChr->GetPlayer()->m_pAI = new CAIbunny1(GameServer(), pChr->GetPlayer(), Level);
+					break;
+					
+				case GROUP_ROBOTS: 
+					pChr->GetPlayer()->m_pAI = new CAIrobot1(GameServer(), pChr->GetPlayer(), Level);
+					break;
+					
+				case GROUP_PYROS: 
+					pChr->GetPlayer()->m_pAI = new CAIpyro1(GameServer(), pChr->GetPlayer(), Level);
+					break;
+					
+				case GROUP_SKELETONS: 
+					pChr->GetPlayer()->m_pAI = new CAIpyro1(GameServer(), pChr->GetPlayer(), Level);
+					break;
+			};
+			
+			/*
 			switch (i)
 			{
 			case ENEMY_ALIEN1:
@@ -218,6 +293,7 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 				pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer(), g_Config.m_SvMapGenLevel);
 				break;
 			};
+			*/
 				
 			m_EnemyCount++;
 			pChr->m_SkipPickups = 999;
@@ -249,6 +325,34 @@ void CGameControllerCoop::Trigger(bool IncreaseLevel)
 	}
 }
 
+void CGameControllerCoop::SpawnNewGroup(bool AddBots)
+{
+	m_EnemyCount = 0;
+	m_EnemiesLeft = 20;
+	m_GroupSpawnTick = 0;
+	
+	
+	g_Config.m_SvInvBosses = 1;
+	
+	int Level = g_Config.m_SvMapGenLevel;
+	
+	m_GroupType = GROUP_ALIENS+((Level/3)%3+m_Group/2)%4;
+	
+	m_EnemiesLeft = max(3, 3 + min(12, Level) + m_Group - m_GroupType*2);
+	
+	if (AddBots)
+	{
+		RandomGroupSpawnPos();
+		
+		for (int i = 0; i < m_EnemiesLeft && GameServer()->m_pController->CountBots() < 24; i++)
+			GameServer()->AddBot();
+	}
+	
+	m_Deaths = m_EnemiesLeft;
+	m_Group++;
+	m_GroupsLeft--;
+}
+
 int CGameControllerCoop::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
 {
 	IGameController::OnCharacterDeath(pVictim, pKiller, Weapon);
@@ -263,13 +367,25 @@ int CGameControllerCoop::OnCharacterDeath(class CCharacter *pVictim, class CPlay
 	if (pVictim->m_IsBot && !pVictim->GetPlayer()->m_ToBeKicked)
 	{
 		if (--m_Deaths <= 0 && CountPlayersAlive(-1, true) > 0)
-			TriggerEscape();
-				
+		{
+			if (m_GroupsLeft <= 0)
+				TriggerEscape();
+			else if (!m_GroupSpawnTick)
+				m_GroupSpawnTick = Server()->Tick() + Server()->TickSpeed()*5;
+		}
+			
 		if (m_EnemiesLeft <= 0)
 			pVictim->GetPlayer()->m_ToBeKicked = true;
 		
 		if (pKiller)
+		{
 			Trigger(true);
+			
+			if (frandom() < 0.011f)
+				GameServer()->m_pController->DropWeapon(pVictim->m_Pos, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_UPGRADE)));
+			else if (frandom() < 0.011f)
+				GameServer()->m_pController->DropWeapon(pVictim->m_Pos, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_RESPAWNER)));
+		}
 	}
 	
 	if (g_Config.m_SvSurvivalMode && !pVictim->m_IsBot && CountPlayersAlive(-1, true) <= 1)
@@ -355,6 +471,10 @@ void CGameControllerCoop::Tick()
 			else
 				GameServer()->ReloadMap();
 		}
+		
+		
+		if (m_GroupSpawnTick && m_GroupSpawnTick <= Server()->Tick())
+			SpawnNewGroup();
 	}
 	
 	GameServer()->UpdateAI();
@@ -362,7 +482,7 @@ void CGameControllerCoop::Tick()
 	if (m_TriggerTick < Server()->Tick())
 	{
 		Trigger(true);
-		m_TriggerTick = Server()->Tick() + Server()->TickSpeed()*8;
+		m_TriggerTick = Server()->Tick() + Server()->TickSpeed()*4;
 	}
 	
 	// kick unwanted bots

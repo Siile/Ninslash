@@ -193,6 +193,8 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		if (GameServer()->m_pController->IsCoop())
 			m_Silent = true;
 	}
+	//else
+	//	m_apWeapon[0] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(4, 4), 4));
 
 	/*
 	int n = 0;
@@ -301,6 +303,10 @@ bool CCharacter::GiveWeapon(class CWeapon *pWeapon)
 			{
 				m_apWeapon[i] = pWeapon;
 				pWeapon->OnPlayerPick();
+				
+				if (m_IsBot && GameServer()->m_pController->IsCoop())
+					pWeapon->m_InfiniteAmmo = true;
+				
 				return true;
 			}
 		}
@@ -309,6 +315,10 @@ bool CCharacter::GiveWeapon(class CWeapon *pWeapon)
 	
 	m_apWeapon[m_WeaponSlot] = pWeapon;
 	pWeapon->OnPlayerPick();
+	
+	if (m_IsBot && GameServer()->m_pController->IsCoop())
+		pWeapon->m_InfiniteAmmo = true;
+	
 	return true;
 }
 

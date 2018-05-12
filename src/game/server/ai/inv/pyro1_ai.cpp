@@ -17,21 +17,8 @@ CAIpyro1::CAIpyro1(CGameContext *pGameServer, CPlayer *pPlayer, int Level)
 	m_Triggered = false;
 	m_TriggerLevel = 20 + rand()%20;
 	
-	m_Level = Level;
+	m_Skin = SKIN_PYRO1+min(Level, 2);
 	
-	// "boss"
-	/*
-	if (frandom() < 0.5f && g_Config.m_SvInvBosses > 0)
-	{
-		m_Skin = 9;
-		g_Config.m_SvInvBosses--;
-	}
-	else
-		m_Skin = 9;
-	*/
-	
-	m_Skin = 10;
-
 	Player()->SetCustomSkin(m_Skin);
 }
 
@@ -42,18 +29,35 @@ void CAIpyro1::OnCharacterSpawn(CCharacter *pChr)
 	m_TriggerLevel = 20 + rand()%20;
 	
 	m_WaypointDir = vec2(0, 0);
-	//Player()->SetRandomSkin();
 	
-	m_PowerLevel = 4;
+	int Level = g_Config.m_SvMapGenLevel;
+	
 	
 	m_StartPos = Player()->GetCharacter()->m_Pos;
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	
-	pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 4), 3)));
-	pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_BAZOOKA)));
+	if (m_Skin == SKIN_PYRO1)
+	{
+		if (frandom() < 0.5f)
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_FLAMER)));
+		else
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(2, 1)));
+	}
+	else if (m_Skin == SKIN_PYRO2)
+	{
+		if (frandom() < 0.5f)
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_BAZOOKA)));
+		else
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_BOUNCER)));
+	}
+	else if (m_Skin == SKIN_SKELETON1)
+	{
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 4), 3)));
+	}
 	
-	pChr->SetHealth(90+min(m_Level*0.2f, 100.0f));
-	pChr->SetArmor(80+min(m_Level*0.2f, 100.0f));
+	
+	pChr->SetHealth(90+min(Level*5.0f, 100.0f));
+	pChr->SetArmor(80+min(Level*5.0f, 100.0f));
 	m_PowerLevel = 8;
 	m_TriggerLevel = 15 + rand()%5;
 	
@@ -65,8 +69,6 @@ void CAIpyro1::OnCharacterSpawn(CCharacter *pChr)
 
 void CAIpyro1::OnCharacterDeath()
 {
-	if (frandom() < 0.35f)
-		GameServer()->m_pController->DropWeapon(m_Pos, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_UPGRADE)));
 }
 
 void CAIpyro1::ReceiveDamage(int CID, int Dmg)

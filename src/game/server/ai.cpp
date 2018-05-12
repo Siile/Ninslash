@@ -608,7 +608,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				{
 					m_AirJump = 0;
 					
-					if (GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 24, m_Pos.y-24))
+					if (GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 24, m_Pos.y))
 						m_Jump = 1;
 					else if (GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y - 64))
 						m_Down = 1;
@@ -644,7 +644,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				{
 					m_AirJump = 0;
 					
-					if (GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 24, m_Pos.y+24))
+					if (GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 24, m_Pos.y))
 						m_Jump = 1;
 					else if (GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y - 64))
 						m_Down = 1;
@@ -703,7 +703,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				}
 				else
 				{
-					if (!m_AirJump && m_PowerLevel >= 8 && Player()->GetCharacter()->GetCore().m_Vel.y > 0.0f)
+					if (!m_AirJump && m_PowerLevel >= 8 && Player()->GetCharacter()->GetCore().m_Vel.y > 0.0f && !GameServer()->Collision()->IsTileSolid(m_Pos.x-24, m_Pos.y-64))
 						m_AirJump++;
 				}
 				
@@ -746,7 +746,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				}
 				else
 				{
-					if (!m_AirJump && m_PowerLevel >= 8 && Player()->GetCharacter()->GetCore().m_Vel.y > 0.0f)
+					if (!m_AirJump && m_PowerLevel >= 8 && Player()->GetCharacter()->GetCore().m_Vel.y > 0.0f && !GameServer()->Collision()->IsTileSolid(m_Pos.x+24, m_Pos.y-64))
 						m_AirJump++;
 				}
 				

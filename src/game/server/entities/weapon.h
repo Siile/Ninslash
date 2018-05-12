@@ -66,6 +66,7 @@ public:
 	void Deactivate();
 	
 	int m_DestructionTick;
+	bool m_InfiniteAmmo;
 	
 protected:
 	vec2 m_Vel;

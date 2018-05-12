@@ -19,7 +19,6 @@ private:
 	
 	int m_ShockTimer;
 	int m_Skin;
-	int m_Level;
 };
 
 #endif

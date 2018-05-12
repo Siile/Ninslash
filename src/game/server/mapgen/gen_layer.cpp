@@ -1292,7 +1292,7 @@ ivec2 CGenLayer::GetWall()
 		return ivec2(0, 0);
 	
 	int n = 0;
-	int i = rand()%m_NumPlatforms;
+	int i = rand()%m_NumWalls;
 	
 	while (m_aWall[i].x == 0 && n++ < 9999)
 		i = rand()%m_NumWalls;

@@ -44,6 +44,21 @@ void CMaze::Generate()
 	{
 		int Level = g_Config.m_SvMapGenLevel;
 		
+		int r = min(10+Level/2, 120);
+
+		m_aRoom[m_Rooms++] = vec2(m_W*0.4f, m_H*0.5f);
+		m_aRoom[m_Rooms++] = vec2(m_W*0.6f, m_H*0.5f);
+		
+		Connect(m_aRoom[0], m_aRoom[1]);
+		
+		r = min(Level + 4, 25+rand()%9);
+			
+		for (int i = 0; i < r; i++)
+			GenerateRoom(true);
+			
+		return;
+			
+		
 		// rising acid
 		if (Level%10 == 9)
 		{
@@ -88,7 +103,7 @@ void CMaze::Generate()
 			ConnectEverything();
 		}
 		// first rounds
-		else if (Level <= 15)
+		else if (Level <= 10)
 		{
 			GenerateLinear(min(80+Level*5, 90+Level*2), Level);
 		}
@@ -191,6 +206,14 @@ void CMaze::Generate()
 		// random room structure
 		else
 		{
+			int r = min(4+Level/2, 120);
+
+			GenerateRoom();
+			
+			for (int i = 0; i < r; i++)
+				GenerateRoom(true);
+			
+			/*
 			int r = min(50, 10+Level/3);
 			
 			m_aRoom[m_Rooms++] = vec2(m_W*0.5f, m_H*(0.1f+frandom()*0.8f));
@@ -206,6 +229,7 @@ void CMaze::Generate()
 			
 			ConnectRooms();
 			ConnectEverything();
+			*/
 		}
 	}
 	else
@@ -262,6 +286,24 @@ void CMaze::Generate()
 			if (frandom() < 0.5f)
 				Connect(vec2(m_W*0.5f, m_H*0.5f), vec2(m_W*0.5f, m_H*0.8f));
 		}
+		
+		// cs test
+	/*
+		m_aRoom[m_Rooms++] = vec2(m_W*0.05f, m_H*0.5f);
+		m_aRoom[m_Rooms++] = vec2(m_W*0.5f, m_H*0.5f);
+		Connect(m_aRoom[0], m_aRoom[1]);
+		
+		m_aRoom[m_Rooms++] = vec2(m_W*0.1f, m_H*0.25f);
+		m_aRoom[m_Rooms++] = vec2(m_W*0.5f, m_H*0.25f);
+		Connect(m_aRoom[2], m_aRoom[3]);
+		Connect(m_aRoom[1], m_aRoom[3]);
+		
+		m_aRoom[m_Rooms++] = vec2(m_W*0.1f, m_H*0.8f);
+		Connect(m_aRoom[0], m_aRoom[4]);
+		
+		for (int i = 0; i < 15; i++)
+			GenerateRoom(true, true);
+		*/
 	}
 }
 
