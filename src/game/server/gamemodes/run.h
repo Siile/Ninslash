@@ -4,6 +4,14 @@
 
 #define MAX_ENEMIES 512
 
+enum GroupTypes
+{
+	GROUP_ALIENS,
+	GROUP_ROBOTS,
+	GROUP_BUNNIES,
+	GROUP_PYROS,
+	GROUP_SKELETONS,
+};
 
 class CGameControllerCoop : public IGameController
 {
@@ -29,6 +37,19 @@ private:
 	int m_RoundWinTick;
 	int m_RoundOverTick;
 	
+	// enemy grouping
+	int m_GroupsLeft;
+	int m_GroupSpawnTick;
+	vec2 m_GroupSpawnPos;
+	int m_GroupType;
+	int m_Group;
+	
+	void SpawnNewGroup(bool AddBots = true);
+	
+	vec2 GetBotSpawnPos();
+	void RandomGroupSpawnPos();
+	int m_BotSpawnTick;
+	
 	// hordes of enemies
 	int m_EnemyCount;
 	int m_EnemiesLeft;
@@ -51,6 +72,7 @@ public:
 	virtual bool OnEntity(int Index, vec2 Pos);
 	void OnCharacterSpawn(class CCharacter *pChr, bool RequestAI = false);
 	int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon);
+	bool CanSpawn(int Team, vec2 *pPos, bool IsBot = false);
 	void NextLevel(int CID = -1);
 	bool GetSpawnPos(int Team, vec2 *pOutPos);
 	virtual void Tick();

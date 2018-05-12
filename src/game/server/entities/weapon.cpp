@@ -26,6 +26,7 @@ CWeapon::CWeapon(CGameWorld *pGameWorld, int Type)
 
 void CWeapon::Reset()
 {
+	m_InfiniteAmmo = false;
 	m_MaxLevel = WeaponMaxLevel(m_WeaponType);
 	m_Disabled = false;
 	m_IsTurret = false;
@@ -68,6 +69,7 @@ void CWeapon::SetOwner(int CID)
 
 void CWeapon::OnOwnerDeath(bool IsActive)
 {
+	m_InfiniteAmmo = false;
 	m_Owner = TEAM_NEUTRAL;
 	Deactivate();
 	
@@ -230,7 +232,7 @@ bool CWeapon::Fire(float *pKnockback)
 			*pKnockback = m_KnockBack;
 		
 		// reduce ammo
-		if (m_Ammo > 0)
+		if (m_Ammo > 0 && !m_InfiniteAmmo)
 			m_Ammo--;
 		
 		return true;
@@ -246,7 +248,7 @@ bool CWeapon::Fire(float *pKnockback)
 			*pKnockback = m_KnockBack;
 		
 		// reduce ammo
-		if (m_Ammo > 0)
+		if (m_Ammo > 0 && !m_InfiniteAmmo)
 			m_Ammo--;
 		
 		return true;
@@ -264,7 +266,7 @@ bool CWeapon::Fire(float *pKnockback)
 			*pKnockback = m_KnockBack;
 		
 		// reduce ammo
-		if (m_Ammo > 0)
+		if (m_Ammo > 0 && !m_InfiniteAmmo)
 			m_Ammo--;
 		
 		if (m_FireSound >= 0)

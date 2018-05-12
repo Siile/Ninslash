@@ -8,26 +8,12 @@
 #include "robot1_ai.h"
 
 
-CAIrobot1::CAIrobot1(CGameContext *pGameServer, CPlayer *pPlayer)
+CAIrobot1::CAIrobot1(CGameContext *pGameServer, CPlayer *pPlayer, int Level)
 : CAI(pGameServer, pPlayer)
 {
 	m_SkipMoveUpdate = 0;
-	m_Skin = 2;
 	
-	int Level = g_Config.m_SvMapGenLevel;
-	
-	if (frandom() < min(0.4f, Level*0.006f))
-		m_Skin = 3;
-	
-	if (frandom() < min(0.2f, Level*0.004f))
-		m_Skin = 1;
-	
-	// "boss"
-	if (frandom() < 0.5f && g_Config.m_SvInvBosses > 0)
-	{
-		m_Skin = 8;
-		g_Config.m_SvInvBosses--;
-	}
+	m_Skin = SKIN_ROBO1+min(Level, 3);
 	
 	pPlayer->SetCustomSkin(m_Skin);
 	m_StartPos = vec2(0, 0);
@@ -48,34 +34,34 @@ void CAIrobot1::OnCharacterSpawn(CCharacter *pChr)
 	
 	int Level = g_Config.m_SvMapGenLevel;
 	
-	if (m_Skin == 2)
+	if (m_Skin == SKIN_ROBO1)
 	{
 		m_PowerLevel = 6;
-		pChr->SetHealth(50+min(Level*0.2f, 100.0f));
-		pChr->SetArmor(50+min(Level*0.2f, 100.0f));
+		pChr->SetHealth(50+min(Level*5.0f, 100.0f));
+		pChr->SetArmor(50+min(Level*5.0f, 100.0f));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(3, 4)));
 	}
-	else if (m_Skin == 3)
+	else if (m_Skin == SKIN_ROBO2)
 	{
 		m_PowerLevel = 2;
-		pChr->SetHealth(50+min(Level*0.2f, 100.0f));
-		pChr->SetArmor(100+min(Level*0.2f, 100.0f));
+		pChr->SetHealth(100+min(Level*5.0f, 300.0f));
+		pChr->SetArmor(100+min(Level*5.0f, 300.0f));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_CHAINSAW)));
 	}
-	else if (m_Skin == 1)
+	else if (m_Skin == SKIN_ROBO3)
 	{
 		m_PowerLevel = 6;
-		pChr->SetHealth(50+min(Level*0.2f, 100.0f));
-		pChr->SetArmor(70+min(Level*0.2f, 100.0f));
+		pChr->SetHealth(100+min(Level*6.0f, 400.0f));
+		pChr->SetArmor(100+min(Level*6.0f, 400.0f));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 2)));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
 	}
-	else if (m_Skin == 8)
+	else if (m_Skin == SKIN_ROBO4)
 	{
 		m_PowerLevel = 10;
-		pChr->SetHealth(100+min(Level*0.2f, 100.0f));
-		pChr->SetArmor(100+min(Level*0.2f, 100.0f));
+		pChr->SetHealth(200+min(Level*8.0f, 500.0f));
+		pChr->SetArmor(200+min(Level*8.0f, 500.0f));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(3, 1+rand()%4), 2)));
 	}
 	

@@ -6,7 +6,7 @@
 class CAIrobot1 : public CAI
 {
 public:
-	CAIrobot1(CGameContext *pGameServer, CPlayer *pPlayer);
+	CAIrobot1(CGameContext *pGameServer, CPlayer *pPlayer, int Level);
 
 	virtual void DoBehavior();
 	void OnCharacterSpawn(class CCharacter *pChr);

@@ -970,27 +970,28 @@ void CMapGen::GenerateLevel()
 	}
 	
 	// acid pools
-	for (int i = 0; i < Level+1; i++)
+	for (int i = 0; i < 2 + Level/2; i++)
 		GenerateAcid(pTiles);
 
 	// conveyor belts
-	if (Level > 10)
+	//if (Level > 10)
 	{
-		int c = rand()%(min(10, Level/5));
+		int c = rand()%(min(6, 1+Level/2));
 		for (int i = 0; i < c; i++)
 			GenerateConveyorBelt(pTiles);
 	}
 	
 	// hangables
-	if (Level > 5)
+	//if (Level > 5)
 	{
-		int c = 1+rand()%(min(11, Level/4));
+		int c = 1+rand()%(min(11, 1+Level/4));
 		for (int i = 0; i < c; i++)
 			GenerateHangables(pTiles);
 	}
 	
-	for (int i = 0; i < min(4, 1 + int(Level * 0.05f)); i++)
+	for (int i = 0; i < min(4, 2 + int(Level * 0.5f)); i++)
 		GeneratePowerupper(pTiles);
+	
 	
 	if (Level % 10 == 9)
 	{
@@ -1001,7 +1002,7 @@ void CMapGen::GenerateLevel()
 	}
 	
 	// enemy spawn positions
-	for (int i = 0; i < min(5+Level, 14) ; i++)
+	for (int i = 0; i < min(5+Level, 10) ; i++)
 		GenerateEnemySpawn(pTiles);
 	
 	
@@ -1016,13 +1017,14 @@ void CMapGen::GenerateLevel()
 		GenerateBarrel(pTiles);
 	
 	// lightning walls
-	if (Level > 1 + rand()%15)
+	if (Level > 1)
 	{
-		int l = 1 + rand()%min(15, 1 + Level/5);
+		int l = 1 + rand()%min(10, 1 + Level/2);
 		for (int i = 0; i < l; i++)
 			GenerateLightningWall(pTiles);
 	}
-		
+	
+	/*
 	bool Defend = (Level > 1 && Level%5 == 0);
 	int e = 2 + log(float(1 + Level/4)) * 5;
 
@@ -1036,61 +1038,62 @@ void CMapGen::GenerateLevel()
 		for (int i = 0; i < t; i++)
 			GenerateTurretStand(pTiles);
 	}
-	
-	/*
-	for (int i = 0; i < 3; i++)
-		GenerateTurretStand(pTiles);
 	*/
 	
+	{
+		int t = 1 + min(6, Level/3);
+		for (int i = 0; i < 3; i++)
+			GenerateTurretStand(pTiles);
+	}
 	
-	for (int i = 0; i < min(Level/3, 4) ; i++)
-		GenerateSpeaker(pTiles);
+	//for (int i = 0; i < min(Level/3, 4) ; i++)
+	//	GenerateSpeaker(pTiles);
 	
 	
 	// pickups
 	//for (int i = 0; i < (pTiles->Size()-Level*5)/700; i++)
 	
-	w = 2 + rand()%3 + (Level > 15 ? 1 : 0);
+	//w = 2 + rand()%3 + (Level > 15 ? 1 : 0);
+	
+	w = 4 + min(4, Level / 3);
 	
 	for (int i = 0; i < w; i++)
 		GenerateWeapon(pTiles, ENTITY_RANDOM_WEAPON);
 
 	GenerateWeapon(pTiles, ENTITY_KIT);
+	GenerateWeapon(pTiles, ENTITY_KIT);
 	
-	if (Level > 5)
-		GenerateWeapon(pTiles, ENTITY_KIT);
-	
-	if (Level > 15)
-		GenerateWeapon(pTiles, ENTITY_KIT);
+	if (Level > 3) GenerateWeapon(pTiles, ENTITY_KIT);
+	if (Level > 8) GenerateWeapon(pTiles, ENTITY_KIT);
 	
 	if (Level%5 == 4 || Level%7 == 6 || Level%11 == 9)
 	{
-		for (int i = 0; i < 2 + (0.3f + frandom())*min(10.0f, Level * 0.2f); i++)
+		for (int i = 0; i < 2 + (0.3f + frandom())*min(10.0f, Level * 0.8f); i++)
 			GenerateTurret(pTiles);
 		
-		if (Level > 20 && frandom() < 0.7f)
+		if (Level > 10 && frandom() < 0.7f)
 			GenerateTeslacoil(pTiles);
 	}
 	else
 	{
-		if (frandom() < 0.5f && Level > 3)
+		if (frandom() < 0.5f && Level > 2)
 			GenerateTurret(pTiles);
 		
-		if (frandom() < 0.5f && Level > 9)
+		if (frandom() < 0.5f && Level > 4)
 			GenerateTurret(pTiles);
 	}
 	
-	for (int i = 0; i < (pTiles->Size())/1100; i++)
+	for (int i = 0; i < (pTiles->Size())/900; i++)
 		GenerateHearts(pTiles);
 	
-	for (int i = 0; i < (pTiles->Size())/1100; i++)
+	for (int i = 0; i < (pTiles->Size())/900; i++)
 		GenerateAmmo(pTiles);
 	
-	for (int i = 0; i < (pTiles->Size())/1400; i++)
+	for (int i = 0; i < (pTiles->Size())/1100; i++)
 		GenerateArmor(pTiles);
 		
-	if (Level%5 == 4)
-		GenerateSwitch(pTiles);
+	//if (Level%5 == 4)
+	//	GenerateSwitch(pTiles);
 	
 	// walkers
 	if (Level%3 == 0 || Level%7 == 0 || Level%13 == 0 || Level%17 == 0)
@@ -1118,6 +1121,7 @@ void CMapGen::GenerateLevel()
 	*/
 	
 	// obstacles
+	/*
 	int Obs = Level/3 - 4;
 	
 	if (Level > 10 && frandom() < 0.3f)
@@ -1128,7 +1132,8 @@ void CMapGen::GenerateLevel()
 	
 	if (Obs > 1)
 		Obs = Obs/3 + (rand()%Obs)/2;
-	
+	*/
+	/*
 	while (Obs-- > 0)
 	{
 		switch (1+rand()%5)
@@ -1141,6 +1146,7 @@ void CMapGen::GenerateLevel()
 		case 5: GenerateDeathray(pTiles); break;
 		}
 	}
+	*/
 
 	// more enemy spawn positions
 	for (int i = 0; i < min(Level, 20); i++)
@@ -1349,13 +1355,13 @@ void CMapGen::GeneratePVPLevel()
 
 	// conveyor belts
 	{
-		int c = rand()%10;
+		int c = 2 + rand()%8;
 		for (int i = 0; i < c; i++)
 			GenerateConveyorBelt(pTiles);
 	}
 	
 	// hangables
-	int c = 1+rand()%4;
+	int c = 2+rand()%4;
 	for (int i = 0; i < c; i++)
 		GenerateHangables(pTiles);
 		
@@ -1366,7 +1372,7 @@ void CMapGen::GeneratePVPLevel()
 	//for (int i = 0; i < 2; i++)
 	//	GenerateCrawlerDroid(pTiles);
 	
-	int Obs = 1 + pTiles->NumPlatforms() / 4.0f;
+	int Obs = 3; //1 + pTiles->NumPlatforms() / 4.0f;
 	
 	GeneratePowerupper(pTiles);
 	GeneratePowerupper(pTiles);

@@ -8,7 +8,7 @@
 #include "bunny1_ai.h"
 
 
-CAIbunny1::CAIbunny1(CGameContext *pGameServer, CPlayer *pPlayer)
+CAIbunny1::CAIbunny1(CGameContext *pGameServer, CPlayer *pPlayer, int Level)
 : CAI(pGameServer, pPlayer)
 {
 	m_SkipMoveUpdate = 0;
@@ -17,15 +17,7 @@ CAIbunny1::CAIbunny1(CGameContext *pGameServer, CPlayer *pPlayer)
 	m_Triggered = false;
 	m_TriggerLevel = 5 + rand()%10;
 	
-	// "boss"
-	if (frandom() < 0.5f && g_Config.m_SvInvBosses > 0)
-	{
-		m_Skin = 7;
-		g_Config.m_SvInvBosses--;
-	}
-	else
-		m_Skin = 6;
-
+	m_Skin = SKIN_BUNNY1+min(Level, 3);
 	Player()->SetCustomSkin(m_Skin);
 }
 
@@ -37,25 +29,45 @@ void CAIbunny1::OnCharacterSpawn(CCharacter *pChr)
 	int Level = g_Config.m_SvMapGenLevel;
 	
 	m_WaypointDir = vec2(0, 0);
-	m_PowerLevel = 10;
+	m_PowerLevel = 8;
 	
 	m_StartPos = Player()->GetCharacter()->m_Pos;
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	
-	if (m_Skin == 7)
+	if (m_Skin == SKIN_FOXY1)
+	{
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(4, 1), 2)));
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD)));
+		
+		pChr->SetHealth(80+min(Level*7.0f, 320.0f));
+		m_PowerLevel = 12;
+		m_TriggerLevel = 15 + rand()%5;
+	}
+	else if (m_Skin == SKIN_BUNNY3)
 	{
 		if (frandom() < 0.5f)
-		{
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 3)));
+		else
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(3, 1)));
+		
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD)));
+		
+		pChr->SetHealth(80+min(Level*7.0f, 320.0f));
+		m_PowerLevel = 12;
+		m_TriggerLevel = 15 + rand()%5;
+	}
+	else if (m_Skin == SKIN_BUNNY2)
+	{
+		if (frandom() < 0.5f)
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 4)));
-		}
 		else
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(5, 6)));
 		
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE2)));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD)));
 		
-		pChr->SetHealth(80+min(Level*0.2f, 80.0f));
-		m_PowerLevel = 14;
+		pChr->SetHealth(80+min(Level*6.0f, 320.0f));
+		m_PowerLevel = 12;
 		m_TriggerLevel = 15 + rand()%5;
 	}
 	else
@@ -65,8 +77,7 @@ void CAIbunny1::OnCharacterSpawn(CCharacter *pChr)
 		else
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(5, 6)));
 		
-		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE2)));
-		pChr->SetHealth(40+min(Level*0.2f, 80.0f));
+		pChr->SetHealth(40+min(Level*5.0f, 220.0f));
 	}
 	
 	m_ShockTimer = 10;

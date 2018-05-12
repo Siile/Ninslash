@@ -24,6 +24,24 @@ enum TryBuyWeapon
 };
 
 
+enum Skins
+{
+	SKIN_ALIEN1,
+	SKIN_ALIEN2,
+	SKIN_ALIEN3,
+	SKIN_BUNNY1,
+	SKIN_BUNNY2,
+	SKIN_BUNNY3,
+	SKIN_FOXY1,
+	SKIN_ROBO1,
+	SKIN_ROBO2,
+	SKIN_ROBO3,
+	SKIN_ROBO4,
+	SKIN_PYRO1,
+	SKIN_PYRO2,
+	SKIN_SKELETON1,
+};
+
 
 // player object
 class CPlayer
@@ -194,6 +212,7 @@ public:
 	
 private:
 	bool m_Spectate;
+	bool m_GotSkin;
 
 	CCharacter *m_pCharacter;
 	CGameContext *m_pGameServer;
