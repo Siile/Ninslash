@@ -717,7 +717,7 @@ void CMapGen::GenerateHearts(CGenLayer *pTiles)
 			}
 			else
 			{
-				ivec2 p = pTiles->GetPlatform();
+				p = pTiles->GetPlatform();
 				
 				if (p.x == 0)
 					return;
@@ -762,7 +762,7 @@ void CMapGen::GenerateAmmo(CGenLayer *pTiles)
 			}
 			else
 			{
-				ivec2 p = pTiles->GetPlatform();
+				p = pTiles->GetPlatform();
 				
 				if (p.x == 0)
 					return;
@@ -808,7 +808,7 @@ void CMapGen::GenerateArmor(CGenLayer *pTiles)
 			}
 			else
 			{
-				ivec2 p = pTiles->GetPlatform();
+				p = pTiles->GetPlatform();
 				
 				if (p.x == 0)
 					return;
@@ -1160,6 +1160,8 @@ void CMapGen::GenerateLevel()
 	
 	if (pMaze)
 		delete pMaze;
+	
+	dbg_msg("mapgen", "Level generated");
 }
 
 
