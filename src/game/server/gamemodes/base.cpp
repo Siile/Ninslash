@@ -200,14 +200,6 @@ int CGameControllerBase::OnCharacterDeath(class CCharacter *pVictim, class CPlay
 {
 	IGameController::OnCharacterDeath(pVictim, pKiller, Weapon);
 	
-	/*
-	if (Weapon != WEAPON_GAME)
-		GameServer()->Server()->PlayerData(pVictim->GetPlayer()->GetCID())->Die();
-	else if (!pVictim->m_IsBot)
-	{
-		pVictim->SaveData();
-	}
-	*/
 
 	if (pVictim->m_IsBot && !pVictim->GetPlayer()->m_ToBeKicked)
 	{

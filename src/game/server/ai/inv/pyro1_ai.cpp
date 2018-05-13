@@ -45,7 +45,7 @@ void CAIpyro1::OnCharacterSpawn(CCharacter *pChr)
 	}
 	else if (m_Skin == SKIN_PYRO2)
 	{
-		if (frandom() < 0.5f)
+		if (frandom() < 0.35f)
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_BAZOOKA)));
 		else
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_BOUNCER)));

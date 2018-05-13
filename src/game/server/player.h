@@ -67,6 +67,8 @@ public:
 	
 	bool Spectating();
 	
+	int GetColorID();
+	
 	/*
 	int GetTeam()
 	{

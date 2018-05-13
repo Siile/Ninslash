@@ -357,13 +357,6 @@ int CGameControllerCoop::OnCharacterDeath(class CCharacter *pVictim, class CPlay
 {
 	IGameController::OnCharacterDeath(pVictim, pKiller, Weapon);
 
-	//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "inv", "OnCharacterDeath");
-		
-	if (Weapon != WEAPON_GAME)
-		GameServer()->Server()->PlayerData(pVictim->GetPlayer()->GetCID())->Die();
-	else if (!pVictim->m_IsBot)
-		pVictim->SaveData();
-		
 	if (pVictim->m_IsBot && !pVictim->GetPlayer()->m_ToBeKicked)
 	{
 		if (--m_Deaths <= 0 && CountPlayersAlive(-1, true) > 0)
@@ -454,6 +447,9 @@ void CGameControllerCoop::Tick()
 	}
 	else
 	{
+		if (g_Config.m_SvMapGenLevel > 1)
+			m_AutoRestart = true;
+			
 		// lose => restart
 		if (m_RoundOverTick && m_RoundOverTick < Server()->Tick() - Server()->TickSpeed()*2.0f)
 		{
