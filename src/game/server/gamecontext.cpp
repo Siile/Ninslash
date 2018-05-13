@@ -1542,9 +1542,6 @@ void CGameContext::OnClientDrop(int ClientID, const char *pReason)
 		if(m_apPlayers[i] && m_apPlayers[i]->m_SpectatorID == ClientID)
 			m_apPlayers[i]->m_SpectatorID = SPEC_FREEVIEW;
 	}
-	
-	if (Server()->PlayerData(ClientID))
-		Server()->PlayerData(ClientID)->Reset();
 }
 
 void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
@@ -2579,8 +2576,8 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	else
 		m_pController = new CGameControllerDM(this);
 	
-	if (str_comp(g_Config.m_SvGametype, "coop") != 0)
-		Server()->ResetPlayerData();
+	//if (str_comp(g_Config.m_SvGametype, "coop") != 0)
+	//	Server()->ResetPlayerData();
 		
 
 	// MapGen
@@ -2655,8 +2652,6 @@ void CGameContext::OnShutdown()
 			if (m_apPlayers[i])
 				m_apPlayers[i]->SaveData();
 	}
-	else
-		Server()->ResetPlayerData();
 		
 	delete m_pController;
 	m_pController = 0;

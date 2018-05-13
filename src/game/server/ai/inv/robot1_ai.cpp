@@ -56,6 +56,7 @@ void CAIrobot1::OnCharacterSpawn(CCharacter *pChr)
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 2)));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
+		pChr->m_Kits = 1;
 	}
 	else if (m_Skin == SKIN_ROBO4)
 	{
@@ -63,6 +64,7 @@ void CAIrobot1::OnCharacterSpawn(CCharacter *pChr)
 		pChr->SetHealth(200+min(Level*8.0f, 500.0f));
 		pChr->SetArmor(200+min(Level*8.0f, 500.0f));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(3, 1+rand()%4), 2)));
+		pChr->m_Kits = 1;
 	}
 	
 	if (!m_Triggered)

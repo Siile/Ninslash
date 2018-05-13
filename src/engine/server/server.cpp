@@ -287,31 +287,43 @@ CServer::CServer() : m_DemoRecorder(&m_SnapshotDelta)
 
 	m_RconClientID = IServer::RCON_CID_SERV;
 	m_RconAuthLevel = AUTHED_ADMIN;
-
-	for (int i = 0; i < MAX_CLIENTS; i++)
-		m_apPlayerData[i] = NULL;
+	
+	m_pPlayerData = NULL;
 	
 	Init();
 }
 
-
-CPlayerData *CServer::PlayerData(int ClientID)
+CPlayerData *CServer::GetPlayerData(int ClientID, int ColorID)
 {
 	if (ClientID < 0 || ClientID >= MAX_CLIENTS)
 		return NULL;
 	
-	if (!m_apPlayerData[ClientID])
-		m_apPlayerData[ClientID] = new CPlayerData();
+	/*
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf), "GetPlayerData: '%s'", m_aClients[ClientID].m_aName);
+	dbg_msg("server", aBuf);
+	*/
+						
+	if (m_pPlayerData)
+	{
+		CPlayerData *pData = m_pPlayerData->Get(m_aClients[ClientID].m_aName, ColorID);
 	
-	return m_apPlayerData[ClientID];
-}
-
-
-void CServer::ResetPlayerData()
-{
-	for (int i = 0; i < MAX_CLIENTS; i++)
-		if (m_apPlayerData[i])
-			m_apPlayerData[i]->Reset();
+		if (pData)
+			return pData;
+		else
+		{
+			CPlayerData *pNewData = new CPlayerData(m_aClients[ClientID].m_aName, ColorID);
+			m_pPlayerData->Add(pNewData);
+			return pNewData;
+		}
+	}
+	else
+	{
+		m_pPlayerData = new CPlayerData(m_aClients[ClientID].m_aName, ColorID);
+		return m_pPlayerData;
+	}
+	
+	return NULL;
 }
 
 
@@ -1426,7 +1438,57 @@ int CServer::Run()
 			int64 t = time_get();
 			int NewTicks = 0;
 
+			bool MapLoaded = false;
+			
 			// load new map TODO: don't poll this
+			// map change can be ran multiple times (template + generated map)
+			while (str_comp(g_Config.m_SvMap, m_aCurrentMap) != 0 || m_MapReload)
+			{
+				m_MapReload = 0;
+
+				// load map
+				if(LoadMap(g_Config.m_SvMap))
+				{
+					MapLoaded = true;
+				}
+				else
+				{
+					str_format(aBuf, sizeof(aBuf), "failed to load map. mapname='%s'", g_Config.m_SvMap);
+					Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
+					str_copy(g_Config.m_SvMap, m_aCurrentMap, sizeof(g_Config.m_SvMap));
+				}
+			}
+			
+			if (MapLoaded)
+			{
+				// new map loaded
+				GameServer()->OnShutdown();
+					
+				for(int c = 0; c < MAX_CLIENTS; c++)
+				{
+					m_NetServer.m_SlotTakenByBot[c] = false;
+						
+					if(m_aClients[c].m_State <= CClient::STATE_AUTH)
+						continue;
+
+					// don't send map generation template files
+					//if (!g_Config.m_SvMapGen || str_comp(g_Config.m_SvGametype, "coop") != 0 || str_comp(g_Config.m_SvMap, "generated") == 0)
+					if (!g_Config.m_SvMapGen ||  str_comp(g_Config.m_SvMap, "generated") == 0)
+						SendMap(c);
+						
+					m_aClients[c].Reset();
+					m_aClients[c].m_State = CClient::STATE_CONNECTING;
+				}
+
+				m_GameStartTime = time_get();
+				m_CurrentGameTick = 0;
+				Kernel()->ReregisterInterface(GameServer());
+				GameServer()->OnInit();
+					
+				UpdateServerInfo();
+			}
+			
+			/*
 			if(str_comp(g_Config.m_SvMap, m_aCurrentMap) != 0 || m_MapReload)
 			{
 				m_MapReload = 0;
@@ -1467,6 +1529,7 @@ int CServer::Run()
 					str_copy(g_Config.m_SvMap, m_aCurrentMap, sizeof(g_Config.m_SvMap));
 				}
 			}
+			*/
 
 			while(t > TickStartTime(m_CurrentGameTick+1))
 			{

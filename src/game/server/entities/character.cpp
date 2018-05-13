@@ -251,7 +251,10 @@ void CCharacter::RandomizeInventory()
 
 void CCharacter::SaveData()
 {
-	CPlayerData *pData = GameServer()->Server()->PlayerData(GetPlayer()->GetCID());
+	if (m_IsBot || !GameServer()->m_pController->IsCoop())
+		return;
+	
+	CPlayerData *pData = GameServer()->Server()->GetPlayerData(GetPlayer()->GetCID(), GetPlayer()->GetColorID());
 
 	pData->m_Kits = m_Kits;
 	pData->m_Armor = m_Armor;
@@ -266,24 +269,11 @@ void CCharacter::SaveData()
 		}
 		else
 			pData->m_aWeaponType[i] = 0;
-			
 	}
 	
-	/*
-	for (int i = 0; i < NUM_WEAPONS; i++)
-	{
-		if (GotWeapon(i))
-		{
-			pData->m_aAmmo[i] = max(0, m_aWeapon[i].m_Ammo);
-			pData->m_aPowerLevel[i] = m_aWeapon[i].m_PowerLevel;
-		}
-		else
-		{
-			pData->m_aAmmo[i] = -1;
-			pData->m_aPowerLevel[i] = 0;
-		}
-	}
-	*/
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf), "Data save - color=%d", GetPlayer()->GetColorID());
+	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "Character", aBuf);
 }
 
 	
@@ -1064,7 +1054,7 @@ void CCharacter::GiveStartWeapon()
 			return;
 		
 		// load saved weapons
-		CPlayerData *pData = GameServer()->Server()->PlayerData(GetPlayer()->GetCID());
+		CPlayerData *pData = GameServer()->Server()->GetPlayerData(GetPlayer()->GetCID(), GetPlayer()->GetColorID());
 		
 		bool GotItems = false;
 		
@@ -1086,6 +1076,10 @@ void CCharacter::GiveStartWeapon()
 		m_Kits = pData->m_Kits;
 		m_Armor = pData->m_Armor;
 		GetPlayer()->m_Score = pData->m_Score;
+		
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "Data load - color=%d", GetPlayer()->GetColorID());
+		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "Character", aBuf);
 		
 		return;
 	}
@@ -1742,6 +1736,8 @@ void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage, bool IsTurret
 	//	Weapon = 0;
 	// we got to wait 0.5 secs before respawning
 	//m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()/2;
+	
+	SaveData();
 	
 	m_pPlayer->m_DeathTick = Server()->Tick();
 	

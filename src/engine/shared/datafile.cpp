@@ -831,7 +831,7 @@ bool CDataFileWriter::SaveMap(class IStorage *pStorage, CDataFileReader *pFileMa
 
 			if(pLayer->m_Type == LAYERTYPE_TILES)
 			{
-			    dbg_msg("CDataFileWriter", "saving tile layer");
+			    //dbg_msg("CDataFileWriter", "saving tile layer");
 
 				CMapItemLayerTilemap Tilemap = *(reinterpret_cast<CMapItemLayerTilemap *>(pLayer));
 				CTile *pTiles = (CTile *)pFileMap->GetData(Tilemap.m_Data);

@@ -5,9 +5,11 @@
 class CPlayerData
 {
 private:
+	CPlayerData *m_pChild1;
+	CPlayerData *m_pChild2;
 
 public:
-	CPlayerData();
+	CPlayerData(const char *pName, int ColorID);
 	void Die();
 	void Reset();
 	
@@ -15,11 +17,17 @@ public:
 	int m_aWeaponAmmo[99];
 	
 	int m_aAmmo[99];
-	int m_aPowerLevel[99];
 	int m_Weapon;
 	int m_Armor;
 	int m_Kits;
 	int m_Score;
+	
+	int m_ColorID;
+	
+	char m_aName[16];
+	
+	void Add(CPlayerData *pPlayerData);
+	CPlayerData *Get(const char *pName, int ColorID);
 };
 
 #endif

@@ -576,6 +576,10 @@ bool CPlayer::ForceRespawn(vec2 Pos)
 	return true;
 }
 
+int CPlayer::GetColorID()
+{
+	return m_TeeInfos.m_ColorSkin;
+}
 
 void CPlayer::SetRandomSkin()
 {
