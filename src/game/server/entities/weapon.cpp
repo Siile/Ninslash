@@ -16,8 +16,11 @@ CWeapon::CWeapon(CGameWorld *pGameWorld, int Type)
 	else
 		m_PowerLevel = 0;
 	
-	if (IsStaticWeapon(Type) && GetStaticType(Type) == SW_UPGRADE)
-		m_PowerLevel = 3;
+	if (IsStaticWeapon(Type) && GetStaticType(Type) == SW_UPGRADE && m_PowerLevel < 4)
+	{
+		m_PowerLevel = 0;
+		m_WeaponType = GetChargedWeapon(m_WeaponType, m_PowerLevel);
+	}
 	
 	Reset();
 	
@@ -455,15 +458,54 @@ bool CWeapon::AddClip()
 
 bool CWeapon::Overcharge()
 {
-	if (m_MaxLevel > 0 && m_PowerLevel <= m_MaxLevel)
+	if (IsStaticWeapon(m_WeaponType) && GetStaticType(m_WeaponType) == SW_UPGRADE)
+	{
+		if (m_PowerLevel < 4)
+		{
+			m_PowerLevel = 4;
+			UpdateStats();
+			return true;
+		}
+	}
+	else if (m_MaxLevel > 0 && m_PowerLevel <= m_MaxLevel)
 	{
 		if (m_MaxLevel > 3 && m_PowerLevel == m_MaxLevel)
 			m_PowerLevel++;
 		
 		m_PowerLevel++;
-		
 		UpdateStats();
 		return true;
+	}
+	
+	return false;
+}
+
+bool CWeapon::Supercharge()
+{
+	if (IsStaticWeapon(m_WeaponType) && GetStaticType(m_WeaponType) == SW_UPGRADE)
+		return false;
+	
+	if (m_MaxLevel > 0 && m_PowerLevel > m_MaxLevel)
+	{
+		if (m_MaxLevel > 3)
+		{
+			if (m_PowerLevel <= m_MaxLevel+2)
+			{
+				m_PowerLevel += 2;
+				UpdateStats();
+				return true;
+			}
+		}
+		else
+		{
+			if (m_PowerLevel <= m_MaxLevel+1)
+			{
+				m_PowerLevel += 1;
+				UpdateStats();
+				return true;
+			}
+		}
+		
 	}
 	
 	return false;

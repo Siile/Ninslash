@@ -53,6 +53,7 @@ public:
 	int GetAmmo(){ return m_Ammo; }
 	
 	bool Overcharge();
+	bool Supercharge();
 	bool Upgrade();
 	
 	void SetTurret(bool TurretBit = true);

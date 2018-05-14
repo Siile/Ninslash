@@ -17,7 +17,7 @@ CAIpyro1::CAIpyro1(CGameContext *pGameServer, CPlayer *pPlayer, int Level)
 	m_Triggered = false;
 	m_TriggerLevel = 20 + rand()%20;
 	
-	m_Skin = SKIN_PYRO1+min(Level, 2);
+	m_Skin = SKIN_PYRO1+min(Level, 3);
 	
 	Player()->SetCustomSkin(m_Skin);
 }
@@ -38,10 +38,7 @@ void CAIpyro1::OnCharacterSpawn(CCharacter *pChr)
 	
 	if (m_Skin == SKIN_PYRO1)
 	{
-		if (frandom() < 0.5f)
-			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_FLAMER)));
-		else
-			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(2, 1)));
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(2, 1)));
 	}
 	else if (m_Skin == SKIN_PYRO2)
 	{
@@ -53,6 +50,10 @@ void CAIpyro1::OnCharacterSpawn(CCharacter *pChr)
 	else if (m_Skin == SKIN_SKELETON1)
 	{
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 4), 3)));
+	}
+	else if (m_Skin == SKIN_SKELETON2)
+	{
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(2, 4), 3)));
 	}
 	
 	

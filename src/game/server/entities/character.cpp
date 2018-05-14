@@ -193,8 +193,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		if (GameServer()->m_pController->IsCoop())
 			m_Silent = true;
 	}
-	//else
-	//	m_apWeapon[0] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(4, 4), 4));
 
 	/*
 	int n = 0;
@@ -259,6 +257,12 @@ void CCharacter::SaveData()
 	pData->m_Kits = m_Kits;
 	pData->m_Armor = m_Armor;
 	pData->m_Score = GetPlayer()->m_Score;
+	
+	if (g_Config.m_SvMapGenLevel > pData->m_HighestLevel)
+	{
+		pData->m_HighestLevel = g_Config.m_SvMapGenLevel;
+		pData->m_HighestLevelSeed = g_Config.m_SvMapGenSeed;
+	}
 	
 	for (int i = 0; i < NUM_SLOTS; i++)
 	{
@@ -460,13 +464,25 @@ void CCharacter::SwapItem(int Item1, int Item2)
 	CWeapon *t = m_apWeapon[Item1];
 	
 	int w1 = GetWeaponType(Item1);
-	//int w2 = GetWeaponType(Item2);
+	int w2 = GetWeaponType(Item2);
 	
-	if (IsStaticWeapon(w1) && GetStaticType(w1) == SW_UPGRADE)
+	if (IsStaticWeapon(w1) && GetStaticType(w1) == SW_UPGRADE && Item1 != Item2)
 	{
 		if (GetWeapon(Item2))
 		{
-			if (GetWeapon(Item2)->Overcharge())
+			if (GetWeaponCharge(w1) >= 4 && GetWeapon(Item2)->Supercharge())
+			{
+				m_apWeapon[Item1]->m_DestructionTick = 1;
+				m_apWeapon[Item1] = NULL;
+				
+				// supercharge sound
+				GameServer()->CreateSound(m_Pos, SOUND_UPGRADE);
+			}
+			else if (GetWeaponCharge(w1) >= 4 && GetStaticType(w2) == SW_UPGRADE)
+			{
+				GameServer()->CreateSound(m_Pos, SOUND_NEGATIVE);
+			}
+			else if (GetWeapon(Item2)->Overcharge())
 			{
 				m_apWeapon[Item1]->m_DestructionTick = 1;
 				m_apWeapon[Item1] = NULL;
@@ -474,6 +490,8 @@ void CCharacter::SwapItem(int Item1, int Item2)
 				// overcharge sound
 				GameServer()->CreateSound(m_Pos, SOUND_UPGRADE);
 			}
+			else
+				GameServer()->CreateSound(m_Pos, SOUND_NEGATIVE);
 			
 			SendInventory();
 			return;

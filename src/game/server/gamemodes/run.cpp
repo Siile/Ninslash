@@ -127,13 +127,17 @@ vec2 CGameControllerCoop::GetBotSpawnPos()
 		return p;
 	}
 	
-	if (GameServer()->Collision()->IsTileSolid(m_GroupSpawnPos.x, m_GroupSpawnPos.y - 48) && !GameServer()->Collision()->IsTileSolid(m_GroupSpawnPos.x, m_GroupSpawnPos.y + 32))
-		m_GroupSpawnPos.y += 32;
+	vec2 Pos = m_GroupSpawnPos;
+	
+	if (GameServer()->Collision()->IsTileSolid(Pos.x, Pos.y - 48) && !GameServer()->Collision()->IsTileSolid(Pos.x, Pos.y + 32))
+		Pos.y += 32;
+	else if (!GameServer()->Collision()->IsTileSolid(Pos.x, Pos.y - 48) && GameServer()->Collision()->IsTileSolid(Pos.x, Pos.y + 32))
+		Pos.y -= 32;
 	
 	for (int i = 0; i < 9; i++)
 	{
-		vec2 p = m_GroupSpawnPos + vec2(0, -32);
-		vec2 p2 = m_GroupSpawnPos;
+		vec2 p = Pos + vec2(0, -32);
+		vec2 p2 = Pos;
 		
 		vec2 r = vec2(frandom()-frandom(), frandom()-frandom())*300;
 		
@@ -144,7 +148,7 @@ vec2 CGameControllerCoop::GetBotSpawnPos()
 			return mix(p2, To2, frandom());
 	}
 
-	return m_GroupSpawnPos;
+	return Pos;
 }
 
 void CGameControllerCoop::RandomGroupSpawnPos()

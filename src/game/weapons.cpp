@@ -398,7 +398,7 @@ float GetExplosionSize(int Weapon)
 			case SW_GRENADE2: return 320.0f;
 			case SW_BUBBLER: return 80.0f;
 			case SW_BAZOOKA: return 240.0f;
-			case SW_BOUNCER: return 140.0f - (GetShotSpread(Weapon)-1)*15.0f;
+			case SW_BOUNCER: return 140.0f - max(40.0f, (GetShotSpread(Weapon)-1)*15.0f);
 			default: return 0.0f;
 		};
 	}
@@ -459,7 +459,7 @@ float GetExplosionDamage(int Weapon)
 			case SW_GRENADE2: return 30; break;
 			case SW_BUBBLER: return 14; break;
 			case SW_BAZOOKA: return 80; break;
-			case SW_BOUNCER: return 24 - max(8.0f, (GetShotSpread(Weapon)-1)*4.0f); break;
+			case SW_BOUNCER: return 24 - max(6.0f, (GetShotSpread(Weapon)-1)*4.0f); break;
 			default: return 0;
 		};
 	}
@@ -1237,7 +1237,7 @@ float WeaponBurstReload(int Weapon)
 		switch (GetStaticType(Weapon))
 		{
 			case SW_BUBBLER: return 0.2f;
-			case SW_BAZOOKA: return 1.0f - Charge * 0.5f;
+			case SW_BAZOOKA: return max(0.14f, 1.0f - Charge * 0.5f);
 			default: return 0.0f;
 		};
 	}
@@ -1282,7 +1282,7 @@ float GetProjectileDamage(int Weapon)
 			case SW_CHAINSAW: return 6.0f+Charge*4.0f;
 			case SW_BUBBLER: return 6.0f;
 			case SW_BAZOOKA: return 10.0f;
-			case SW_BOUNCER: return 0.0f;
+			case SW_BOUNCER: return 0.0f+Charge*3.0f;
 			case SW_GUN1: return 12.0f;
 			case SW_GUN2: return 35.0f;
 			default: return 0.0f;
@@ -1439,7 +1439,7 @@ float GetProjectileLife(int Weapon)
 			case SW_GUN1: return 0.6f;
 			case SW_BUBBLER: return 0.8f;
 			case SW_BAZOOKA: return 0.8f;
-			case SW_BOUNCER: return 1.2f;
+			case SW_BOUNCER: return 0.8f;
 			default: return 0.0f;
 		};
 	}
