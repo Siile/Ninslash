@@ -1610,12 +1610,12 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			
 			if ( strcmp(pMsg->m_pMessage, "/color") == 0 )
 			{
-				char aBuf[128]; str_format(aBuf, sizeof(aBuf), "Body: %d, feet: %d, skin: %d, topper: %d", m_apPlayers[ClientID]->m_TeeInfos.m_ColorBody, m_apPlayers[ClientID]->m_TeeInfos.m_ColorFeet, m_apPlayers[ClientID]->m_TeeInfos.m_ColorSkin, m_apPlayers[ClientID]->m_TeeInfos.m_ColorTopper);
+				char aBuf[128]; str_format(aBuf, sizeof(aBuf), "Body: %d, feet: %d, skin: %d, topper: %d", pPlayer->m_TeeInfos.m_ColorBody, pPlayer->m_TeeInfos.m_ColorFeet, pPlayer->m_TeeInfos.m_ColorSkin, pPlayer->m_TeeInfos.m_ColorTopper);
 				SendChatTarget(ClientID, aBuf);
 				SkipSending = true;
 			}
 			
-
+			/*
 			if ( strcmp(pMsg->m_pMessage, "/showwaypoints") == 0 )
 			{
 				m_ShowWaypoints = !m_ShowWaypoints;
@@ -1627,12 +1627,32 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				m_ShowAiState = !m_ShowAiState;
 				SkipSending = true;
 			}
+			*/
 			
 			if ( strcmp(pMsg->m_pMessage, "/seed") == 0 )
 			{
 				char aBuf[128]; str_format(aBuf, sizeof(aBuf), "Mapgen seed: %d", g_Config.m_SvMapGenSeed);
 				SendChatTarget(ClientID, aBuf);
 				SkipSending = true;
+			}
+			
+			if ( strcmp(pMsg->m_pMessage, "/jumphigh") == 0 )
+			{
+				CPlayerData *pData = Server()->GetPlayerData(pPlayer->GetCID(), pPlayer->GetColorID());
+				
+				if (pData->m_HighestLevel > g_Config.m_SvMapGenLevel)
+				{
+					char aBufVote[128]; str_format(aBufVote, sizeof(aBufVote), "Jump to level %d", pData->m_HighestLevel);
+					char aBufCmd[128]; str_format(aBufCmd, sizeof(aBufCmd), "sv_inv_fails 0; sv_mapgen_level %d; sv_mapgen_seed %d; sv_map generate_ctf1;", pData->m_HighestLevel, pData->m_HighestLevelSeed);
+					
+					StartVote(aBufVote, aBufCmd, "");
+				}
+				else
+				{
+					char aBuf[128]; str_format(aBuf, sizeof(aBuf), "This is the highest level you have been to.");
+					SendChatTarget(ClientID, aBuf);
+					SkipSending = true;
+				}
 			}
 			
 		

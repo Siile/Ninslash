@@ -1013,6 +1013,18 @@ void CPlayer::SetCustomSkin(int Type)
 		str_copy(m_TeeInfos.m_EyeName, "robo4", 64);
 	}
 	
+	if (Type == SKIN_SKELETON2)
+	{
+		m_TeeInfos.m_Body = 4;
+		m_TeeInfos.m_BloodColor = 2;
+		m_TeeInfos.m_ColorTopper = 7798528;
+		m_TeeInfos.m_ColorSkin = 0;
+		m_TeeInfos.m_ColorBody = 0;
+		m_TeeInfos.m_ColorFeet = 0;
+		str_copy(m_TeeInfos.m_TopperName, "nitters", 64);
+		str_copy(m_TeeInfos.m_EyeName, "robo2", 64);
+	}
+	
 	// pyro1
 	if (Type == SKIN_PYRO1)
 	{

@@ -62,6 +62,9 @@ void CPickup::SetRandomWeapon()
 {
 	m_Subtype = GetRandomWeaponType(g_Config.m_SvSurvivalMode ? true : false);
 	
+	if (GetStaticType(m_Subtype) == SW_UPGRADE)
+		return;
+	
 	if (WeaponMaxLevel(m_Subtype) > 0 && frandom() < 0.5f)
 		m_Subtype = GetChargedWeapon(m_Subtype, frandom()*WeaponMaxLevel(m_Subtype));
 	else if (WeaponMaxLevel(m_Subtype) > 0 && frandom() < 0.1f)

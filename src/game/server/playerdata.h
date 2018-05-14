@@ -22,6 +22,9 @@ public:
 	int m_Kits;
 	int m_Score;
 	
+	int m_HighestLevel;
+	int m_HighestLevelSeed;
+	
 	int m_ColorID;
 	
 	char m_aName[16];
