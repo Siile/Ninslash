@@ -687,10 +687,10 @@ bool CCharacter::PickWeapon(CWeapon *pWeapon)
 	
 	bool Valid = true;
 	
+	int w = pWeapon->GetWeaponType();
+	
 	if (WeaponAutoPick(pWeapon->GetWeaponType()))
 	{
-		int w = pWeapon->GetWeaponType();
-		
 		// check if weapon is lower level than currently held weapons overall
 		if (WeaponMaxLevel(w) > 1)
 		{
@@ -723,6 +723,9 @@ bool CCharacter::PickWeapon(CWeapon *pWeapon)
 	}
 	else
 		Valid = false;
+	
+	if (GetStaticType(w) == SW_UPGRADE)
+		Valid = true;
 	
 	if (Valid)
 	{

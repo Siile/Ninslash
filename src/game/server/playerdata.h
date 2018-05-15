@@ -31,6 +31,8 @@ public:
 	
 	void Add(CPlayerData *pPlayerData);
 	CPlayerData *Get(const char *pName, int ColorID);
+	
+	int GetHighScore(int Score);
 };
 
 #endif
