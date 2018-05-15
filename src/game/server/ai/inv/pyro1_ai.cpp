@@ -53,7 +53,10 @@ void CAIpyro1::OnCharacterSpawn(CCharacter *pChr)
 	}
 	else if (m_Skin == SKIN_SKELETON2)
 	{
-		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(2, 4), 3)));
+		if (frandom() < 0.5f)
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(2, 4), 3)));
+		else
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_CHAINSAW)));
 	}
 	
 	

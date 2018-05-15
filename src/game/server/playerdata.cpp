@@ -1,4 +1,5 @@
 #include <base/system.h>
+#include <base/math.h>
 
 #include "playerdata.h"
 
@@ -62,8 +63,22 @@ CPlayerData *CPlayerData::Get(const char *pName, int ColorID)
 	
 	return 0;
 }
-	
-	
+
+
+int CPlayerData::GetHighScore(int Score)
+{
+	int s = max(m_HighestLevel, Score);
+
+	if (m_pChild1)
+		s = max(s, m_pChild1->GetHighScore(s));
+
+	if (m_pChild2)
+		s = max(s, m_pChild2->GetHighScore(s));
+
+	return s;
+}
+
+
 void CPlayerData::Reset()
 {
 	for (int i = 0; i < 99; i++)

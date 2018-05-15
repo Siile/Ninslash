@@ -514,6 +514,10 @@ bool CWeapon::Supercharge()
 
 bool CWeapon::Upgrade()
 {
+	if (IsStaticWeapon(m_WeaponType) && GetStaticType(m_WeaponType) == SW_UPGRADE)
+		return false;
+	
+	
 	if (m_PowerLevel < m_MaxLevel)
 	{
 		m_PowerLevel++;

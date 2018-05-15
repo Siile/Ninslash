@@ -293,6 +293,14 @@ CServer::CServer() : m_DemoRecorder(&m_SnapshotDelta)
 	Init();
 }
 
+int CServer::GetHighScore()
+{
+	if (m_pPlayerData)
+		return m_pPlayerData->GetHighScore(1);
+	
+	return 1;
+}
+
 CPlayerData *CServer::GetPlayerData(int ClientID, int ColorID)
 {
 	if (ClientID < 0 || ClientID >= MAX_CLIENTS)

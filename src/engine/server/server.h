@@ -85,6 +85,7 @@ public:
 	class IStorage *Storage() { return m_pStorage; }
 
 	class CPlayerData *GetPlayerData(int ClientID, int ColorID);
+	int GetHighScore();
 	
 	enum
 	{
