@@ -1450,6 +1450,7 @@ int CServer::Run()
 			
 			// load new map TODO: don't poll this
 			// map change can be ran multiple times (template + generated map)
+			/*
 			while (str_comp(g_Config.m_SvMap, m_aCurrentMap) != 0 || m_MapReload)
 			{
 				m_MapReload = 0;
@@ -1496,8 +1497,9 @@ int CServer::Run()
 					
 				UpdateServerInfo();
 			}
+			*/
 			
-			/*
+			
 			if(str_comp(g_Config.m_SvMap, m_aCurrentMap) != 0 || m_MapReload)
 			{
 				m_MapReload = 0;
@@ -1538,7 +1540,7 @@ int CServer::Run()
 					str_copy(g_Config.m_SvMap, m_aCurrentMap, sizeof(g_Config.m_SvMap));
 				}
 			}
-			*/
+			
 
 			while(t > TickStartTime(m_CurrentGameTick+1))
 			{
