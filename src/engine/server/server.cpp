@@ -1453,11 +1453,12 @@ int CServer::Run()
 			while (str_comp(g_Config.m_SvMap, m_aCurrentMap) != 0 || m_MapReload)
 			{
 				m_MapReload = 0;
+				MapLoaded = true;
 
 				// load map
 				if(LoadMap(g_Config.m_SvMap))
 				{
-					MapLoaded = true;
+					
 				}
 				else
 				{
