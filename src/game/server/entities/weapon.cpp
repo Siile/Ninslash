@@ -157,15 +157,18 @@ bool CWeapon::Activate()
 		{
 			case SW_INVIS: case SW_SHIELD: case SW_RESPAWNER:
 			{
-				GameServer()->m_pController->TriggerWeapon(this);
-				m_DestructionTick = 1;
+				if (GameServer()->m_pController->TriggerWeapon(this))
+				{
+					m_DestructionTick = 1;
+					return true;
+				}
 			} break;
 			
 			default: break;
 		}
 	}
 	
-	return true;
+	return false;
 }
 
 

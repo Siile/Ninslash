@@ -260,7 +260,7 @@ public:
 	
 	void ReplaceWeapon(int Slot, int Part1, int Part2);
 	void ReleaseWeapon(class CWeapon *pWeapon = NULL);
-	void TriggerWeapon(class CWeapon *pWeapon = NULL);
+	bool TriggerWeapon(class CWeapon *pWeapon = NULL);
 	
 	bool UpgradeTurret(vec2 Pos, vec2 Dir, int Slot = -1);
 	
@@ -284,6 +284,7 @@ private:
 	int m_aStatusWeapon[NUM_STATUSS];
 	void UpdateCoreStatus();
 	
+	bool m_Spawned;
 	bool m_Alive;
 	
 	int m_AcidTimer;
