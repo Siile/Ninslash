@@ -128,7 +128,7 @@ public:
 	void DropWeapon(vec2 Pos, vec2 Force, class CWeapon *pWeapon);
 	
 	void ReleaseWeapon(class CWeapon *pWeapon);
-	void TriggerWeapon(class CWeapon *pWeapon);
+	bool TriggerWeapon(class CWeapon *pWeapon);
 	
 	int GetTimeLeft();
 	

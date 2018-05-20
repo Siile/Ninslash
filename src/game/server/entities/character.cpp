@@ -59,6 +59,7 @@ MACRO_ALLOC_POOL_ID_IMPL(CCharacter, MAX_CLIENTS)
 CCharacter::CCharacter(CGameWorld *pWorld)
 : CEntity(pWorld, CGameWorld::ENTTYPE_CHARACTER)
 {
+	m_Spawned = false;
 	m_ProximityRadius = ms_PhysSize;
 	m_HiddenHealth = 100;
 	m_MaxHealth = 10;
@@ -92,6 +93,7 @@ void CCharacter::Reset()
 
 bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 {
+	m_Spawned = true;
 	m_DamagedByPlayer = false;
 	m_PickedWeaponSlot = 0;
 	
@@ -249,7 +251,7 @@ void CCharacter::RandomizeInventory()
 
 void CCharacter::SaveData()
 {
-	if (m_IsBot || !GameServer()->m_pController->IsCoop())
+	if (m_IsBot || !m_Spawned || !GameServer()->m_pController->IsCoop())
 		return;
 	
 	CPlayerData *pData = GameServer()->Server()->GetPlayerData(GetPlayer()->GetCID(), GetPlayer()->GetColorID());
@@ -612,37 +614,28 @@ void CCharacter::ReplaceWeapon(int Slot, int Part1, int Part2)
 }
 
 
-void CCharacter::TriggerWeapon(CWeapon *pWeapon)
+bool CCharacter::TriggerWeapon(CWeapon *pWeapon)
 {
 	if (!pWeapon || GetWeapon() != pWeapon)
-		return;
+		return false;
 	
 	int w = GetWeaponType();
 	
 	if (IsStaticWeapon(w))
 	{
 		if (GetStaticType(w) == SW_INVIS)
-			GiveBuff(PLAYERITEM_INVISIBILITY);
+			return GiveBuff(PLAYERITEM_INVISIBILITY);
 		
 		if (GetStaticType(w) == SW_SHIELD)
-			GiveBuff(PLAYERITEM_SHIELD);
+			return GiveBuff(PLAYERITEM_SHIELD);
 		
 		if (GetStaticType(w) == SW_RESPAWNER && (!GameServer()->m_pController->IsCoop() || !m_IsBot))
-			GameServer()->RespawnAlly(m_Pos, GetPlayer()->GetTeam());
+			return GameServer()->RespawnAlly(m_Pos, GetPlayer()->GetTeam());
 		
-		return;
+		return false;
 	}
 	
-	/*
-	int w = GetWeaponType();
-	
-	if (IsModularWeapon(w) && GetPart(w, 1) == 5)
-	{
-		m_ChargeTick = 0;
-		m_AttackTick = Server()->Tick();
-		m_Core.m_ChargeLevel = 0;
-	}
-	*/
+	return false;
 }
 
 void CCharacter::ReleaseWeapon(CWeapon *pWeapon)
@@ -1331,7 +1324,13 @@ bool CCharacter::GiveBuff(int Item)
 	}
 	
 	if (Item == PLAYERITEM_INVISIBILITY)
+	{
+		if (m_aStatus[STATUS_INVISIBILITY] > 0)
+			return false;
+		
 		m_aStatus[STATUS_INVISIBILITY] = Server()->TickSpeed() * 15.0f;
+		return true;
+	}
 	
 	return false;
 }

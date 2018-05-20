@@ -41,7 +41,7 @@ CTurret::CTurret(CGameWorld *pGameWorld, vec2 Pos, int Team, class CWeapon *pWea
 	m_FlipY = 1;
 	
 	// upside down
-	if (GameServer()->Collision()->IsTileSolid(Pos.x, Pos.y - 45))
+	if (GameServer()->Collision()->IsTileSolid(Pos.x, Pos.y - 45) || GameServer()->Collision()->IsTileSolid(Pos.x, Pos.y - 25))
 	{
 		m_Mirror = true;
 		m_Center = vec2(0, +40);

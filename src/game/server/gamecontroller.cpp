@@ -178,15 +178,17 @@ int IGameController::GetRandomModularWeapon()
 	return GetModularWeapon(1+rand()%4, 1+rand()%4);
 }
 
-void IGameController::TriggerWeapon(class CWeapon *pWeapon)
+bool IGameController::TriggerWeapon(class CWeapon *pWeapon)
 {
 	if (!pWeapon)
-		return;
+		return false;
 	
 	CCharacter *p = GameServer()->GetPlayerChar(pWeapon->GetOwner());
 	
 	if (p)
-		p->TriggerWeapon(pWeapon);
+		return p->TriggerWeapon(pWeapon);
+	
+	return false;
 }
 
 void IGameController::ReleaseWeapon(class CWeapon *pWeapon)
