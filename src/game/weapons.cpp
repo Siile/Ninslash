@@ -498,6 +498,7 @@ int GetWeaponRenderType(int Weapon)
 	{
 		case SW_CHAINSAW: case SW_FLAMER: case SW_BAZOOKA: case SW_BOUNCER: case SW_BUBBLER: return WRT_WEAPON1;
 		case SW_GUN1: case SW_GUN2: return WRT_WEAPON2;
+		case SW_TOOL: return WRT_MELEESMALL;
 		default: return WRT_ITEM1;
 	};
 }
@@ -520,7 +521,7 @@ ivec2 GetWeaponVisualSize(int Weapon)
 		case SW_GUN1: case SW_GUN2: return ivec2(4, 2);
 		case SW_GRENADE1: case SW_GRENADE2: return ivec2(2, 3);
 		case SW_SHURIKEN: return ivec2(4, 4);
-		case SW_TOOL: return ivec2(2, 4);
+		case SW_TOOL: return ivec2(4, 2);
 		
 		case SW_UPGRADE: return ivec2(2, 2);
 		case SW_RESPAWNER: return ivec2(2, 4);
@@ -569,6 +570,7 @@ int GetWeaponFiringType(int Weapon)
 		case SW_BUBBLER: return WFT_PROJECTILE;
 		case SW_BAZOOKA: return WFT_PROJECTILE;
 		case SW_BOUNCER: return WFT_PROJECTILE;
+		case SW_TOOL: return WFT_MELEE;
 		case SW_GUN1: return WFT_PROJECTILE;
 		case SW_GUN2: return WFT_CHARGE;
 		case SW_GRENADE1: case SW_GRENADE2: return WFT_THROW;
@@ -627,6 +629,7 @@ vec2 GetWeaponRenderOffset(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_TOOL: return vec2(-20, -4);
 			case SW_UPGRADE: return vec2(9, 0);
 			case SW_RESPAWNER: return vec2(2, -5);
 			case SW_SHIELD: case SW_INVIS: return vec2(4, -3);
@@ -717,6 +720,7 @@ vec2 GetProjectileOffset(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_TOOL: return vec2(26, -4);
 			case SW_BAZOOKA: return vec2(65, -8);
 			case SW_BOUNCER: return vec2(65, -11);
 			case SW_BUBBLER: return vec2(66, -12);
@@ -749,6 +753,7 @@ float GetMeleeHitRadius(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_TOOL: return 30.0f;
 			case SW_SHURIKEN: return 20.0f;
 			case SW_CHAINSAW: return 14.0f+Charge*5.0f;
 			case SW_FLAMER: return 24.0f;
@@ -1277,6 +1282,7 @@ float GetProjectileDamage(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_TOOL: return 10.0f;
 			case SW_SHURIKEN: return 100.0f;
 			case SW_FLAMER: return 2.0f+Charge*3.0f;
 			case SW_CHAINSAW: return 6.0f+Charge*4.0f;
@@ -1481,6 +1487,7 @@ float GetWeaponFireRate(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_TOOL: return 320;
 			case SW_CHAINSAW: return 500;
 			case SW_FLAMER: return 200;
 			case SW_BAZOOKA: return 640;

@@ -20,7 +20,7 @@ CoreAction = ["IDLE", "JUMP", "WALLJUMP", "ROLL", "SLIDE", "SLIDEKICK", "FALL", 
 
 InventoryAction = ["SWAP", "COMBINE", "TAKEPART", "DROP"]
 
-Radar = ["CHARACTER", "HUMAN", "OBJECTIVE"]
+Radar = ["CHARACTER", "HUMAN", "ENEMY", "DOOR"]
 
 RawHeader = '''
 

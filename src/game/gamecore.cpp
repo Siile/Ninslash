@@ -722,14 +722,14 @@ void CCharacterCore::Tick(bool UseInput)
 		if(m_Direction < 0) // && (!m_Sliding || !Grounded))
 		{
 			if (slope > 0)
-				m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, -Accel*0.5f);
+				m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, -Accel*0.7f);
 			else
 				m_Vel.x = SaturatedAdd(-MaxSpeed+ForceTileStatus, MaxSpeed+ForceTileStatus, m_Vel.x, -Accel);
 		}
 		if(m_Direction > 0) // && (!m_Sliding || !Grounded))
 		{
 			if (slope < 0)
-				m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, Accel*0.5f);
+				m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, Accel*0.7f);
 			else
 				m_Vel.x = SaturatedAdd(-MaxSpeed+ForceTileStatus, MaxSpeed+ForceTileStatus, m_Vel.x, Accel);
 		}

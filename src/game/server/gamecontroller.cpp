@@ -648,6 +648,12 @@ void IGameController::TriggerSwitch(vec2 Pos)
 }
 
 
+void IGameController::DisplayExit(vec2 Pos)
+{
+	
+}
+
+
 void IGameController::TriggerEscape()
 {
 	float Radius = 1000000;
@@ -659,7 +665,10 @@ void IGameController::TriggerEscape()
 	{
 		CBuilding *pTarget = apEnts[i];
 		if (pTarget->m_Type == BUILDING_DOOR1)
+		{
 			pTarget->Trigger();
+			DisplayExit(pTarget->m_Pos);
+		}
 	}
 }
 

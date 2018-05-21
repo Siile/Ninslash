@@ -458,9 +458,12 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 					
 					if (Level > 0 && !(IsStaticWeapon(w) && GetStaticType(w) == SW_UPGRADE))
 					{
+						if (Level >= 5)
+							Level -= 1;
+
 						Graphics()->QuadsBegin();
 						Graphics()->SetColor(1.0f, 1.0f, 1.0f, s_Fade*1.0f);
-						RenderTools()->SelectSprite(SPRITE_WEAPONRANK1+min(Level-1, 4));
+						RenderTools()->SelectSprite(SPRITE_WEAPONRANK1+min(Level-1, 5));
 						RenderTools()->DrawSprite(p2.x, p2.y-s2*1.6f, s2*4.0f);
 						Graphics()->QuadsEnd();
 					}
@@ -1467,6 +1470,7 @@ void CInventory::MapscreenToGroup(float CenterX, float CenterY, CMapItemGroup *p
 	Graphics()->MapScreen(Points[0], Points[1], Points[2], Points[3]);
 }
 
+
 void CInventory::OnRender()
 {
 	//if(Client()->State() < IClient::STATE_ONLINE)
@@ -1514,28 +1518,37 @@ void CInventory::OnRender()
 	if (!m_Render && s_Fade < 0.01f)
 		return;
 	
-	// clamp mouse
-	/*
-	m_SelectorMouse.x = clamp(m_SelectorMouse.x, 0.0f, Screen.w-16.0f);
-	m_SelectorMouse.y = clamp(m_SelectorMouse.y, 0.0f, Screen.h-16.0f);
-	*/
-	
-	m_SelectorMouse.x = clamp(m_SelectorMouse.x, 0.0f -Graphics()->ScreenWidth()/2+20, 0.0f + Graphics()->ScreenWidth()/2-16.0f);
-	m_SelectorMouse.y = clamp(m_SelectorMouse.y, 0.0f -Graphics()->ScreenHeight()/2+20, Graphics()->ScreenHeight()/2-16.0f);
-	
-	CUIRect Screen = *UI()->Screen();
-	Graphics()->MapScreen(Screen.x, Screen.y, Screen.w, Screen.h);
 	MapscreenToGroup(0, 0, Layers()->GameGroup());
+	CUIRect Screen = *UI()->Screen();
 	Graphics()->BlendNormal();
 	
+	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
+	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
+	
+	m_SelectorMouse.x = clamp(m_SelectorMouse.x, -ScreenX1, ScreenX1-20);
+	m_SelectorMouse.y = clamp(m_SelectorMouse.y, -ScreenY1, ScreenY1-20);
 
 	if (!m_Mouse1)
 		m_Mouse1Loaded = true;
 	
 	// gui
-	DrawInventory(vec2(-Screen.w/3, Screen.h/4), vec2(Screen.w/4, Screen.h/3));
+	//DrawInventory(vec2(-Screen.w/3, Screen.h/4), vec2(Screen.w/4, Screen.h/3));
+	//DrawInventory(vec2(-Screen.w/3, Screen.h/4), vec2(Screen.w/4, Screen.h/3));
+	
+	DrawInventory(vec2(-ScreenX1/2, ScreenY1/3), vec2(ScreenX1/3, ScreenY1/2));
 	DrawBuildMode();
 
+	/*
+	{
+	Graphics()->TextureSet(-1);
+	Graphics()->QuadsBegin();
+	Graphics()->SetColor(0.5f, 0.5f, 0.5f, 0.5f);
+	IGraphics::CQuadItem QuadItem(-ScreenX1, -ScreenY1, ScreenX1*2, ScreenY1*2);
+	Graphics()->QuadsDrawTL(&QuadItem, 1);
+	Graphics()->QuadsEnd();
+	}
+	*/
+	
 	if (m_Mouse1)
 		m_Mouse1Loaded = false;
 

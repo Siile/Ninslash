@@ -156,6 +156,7 @@ public:
 	void CreateFlameHit(vec2 Pos);
 	void CreateBuildingHit(vec2 Pos);
 	void CreateDamageInd(vec2 Pos, float AngleMod, int Damage, int ClientID);
+	void CreateRepairInd(vec2 Pos);
 	void CreateExplosion(vec2 Pos, int Owner, int Weapon);
 	void SendEffect(int ClientID, int EffectID);
 	void CreateHammerHit(vec2 Pos);

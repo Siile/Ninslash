@@ -10,6 +10,7 @@ CRadar::CRadar(CGameWorld *pGameWorld, int Type, int ObjectiveID)
 	m_ObjectiveID = ObjectiveID;
 	m_TargetPos = vec2(0, 0);
 	m_Active = false;
+	m_ActiveTick = 0;
 	
 	GameWorld()->InsertEntity(this);
 }
@@ -29,6 +30,14 @@ void CRadar::Tick()
 			m_TargetPos = pCharacter->m_Pos;
 			m_Active = true;
 		}
+		else
+			m_Active = false;
+	}
+	
+	if (m_Type == RADAR_ENEMY)
+	{
+		if (m_ActiveTick > Server()->Tick())
+			m_Active = true;
 		else
 			m_Active = false;
 	}

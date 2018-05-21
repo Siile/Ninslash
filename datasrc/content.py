@@ -513,6 +513,7 @@ set_gore = SpriteSet("gore", image_gore, 8, 2)
 set_meat = SpriteSet("meat", image_meat, 8, 2)
 set_splatter = SpriteSet("splatter", image_splatter, 4, 1)
 set_blocks = SpriteSet("blocks", image_blocks, 4, 2)
+set_radar = SpriteSet("radar", image_radar, 4, 1)
 set_game = SpriteSet("game", image_game, 32, 16)
 set_flag = SpriteSet("flag", image_flag, 8, 2)
 set_weapons = SpriteSet("weapons", image_weapons, 32, 32)
@@ -574,6 +575,7 @@ container.spritesets.Add(set_particles)
 container.spritesets.Add(set_gore)
 container.spritesets.Add(set_meat)
 container.spritesets.Add(set_splatter)
+container.spritesets.Add(set_radar)
 container.spritesets.Add(set_game)
 container.spritesets.Add(set_blocks)
 container.spritesets.Add(set_flag)
@@ -651,6 +653,11 @@ container.sprites.Add(Sprite("block1_b3", set_blocks, 3, 1, 1, 1))
 
 
 
+for i in range(0, 4):
+	container.sprites.Add(Sprite("radar"+str(i+1), set_radar, i, 0, 1, 1))
+	
+	
+	
 # weapons.png
 
 for i in range(0, 4):
@@ -679,7 +686,7 @@ for i in range(0, 3):
 
 # items & weapons - mind the order
 n = 0
-container.sprites.Add(Sprite("weapon_static1", set_weapons, 6, 0, 2, 4)) # tool
+container.sprites.Add(Sprite("weapon_static1", set_weapons, 2, 4, 4, 2)) # tool
 container.sprites.Add(Sprite("weapon_static2", set_weapons, 2, 0, 4, 2)) # gun 1
 container.sprites.Add(Sprite("weapon_static3", set_weapons, 2, 2, 4, 2)) # gun 2
 container.sprites.Add(Sprite("weapon_static4", set_weapons, 0, 0, 2, 3)) # grenade 1
@@ -702,7 +709,7 @@ container.sprites.Add(Sprite("pickup_health", set_weapons, 12,0,2,2))
 container.sprites.Add(Sprite("pickup_ammo", set_weapons, 8,0,2,2))
 
 # for displaying weapon ranks / levels in inventory
-for y in range(0, 5):
+for y in range(0, 6):
 	container.sprites.Add(Sprite("weaponrank"+str(y+1), set_weapons, 18, 0+y*2, 2, 2))
 
 

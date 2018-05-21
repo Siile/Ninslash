@@ -433,6 +433,9 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon, vec2 Force)
 	if (m_Life >= 5000)
 		return;
 	
+	if (Damage < 0 && m_Life >= m_MaxLife)
+		return;
+	
 	if (m_Moving)
 	{
 		m_Vel += Force;
@@ -481,10 +484,17 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon, vec2 Force)
 	
 	m_Life -= Dmg;
 	
-	if (Dmg < 200)
-		GameServer()->CreateDamageInd(m_Pos+vec2(frandom()-frandom(), frandom()-frandom()), frandom()*pi, -Dmg, -1);
+	if (Damage > 0)
+	{
+		if (Dmg < 200)
+			GameServer()->CreateDamageInd(m_Pos+vec2(frandom()-frandom(), frandom()-frandom()), frandom()*pi, -Dmg, -1);
+		else
+			GameServer()->CreateDamageInd(m_Pos+vec2(frandom()-frandom(), frandom()-frandom()), frandom()*pi, -1, -1);
+	}
 	else
-		GameServer()->CreateDamageInd(m_Pos+vec2(frandom()-frandom(), frandom()-frandom()), frandom()*pi, -1, -1);
+	{
+		GameServer()->CreateRepairInd(m_Pos+vec2(frandom()-frandom(), frandom()-frandom()));
+	}
 	
 	if (m_Life <= 0)
 	{

@@ -21,7 +21,7 @@ MACRO_TUNING_PARAM(AirFriction, air_friction, 0.95f)
 MACRO_TUNING_PARAM(Gravity, gravity, 0.7f) // 0.5f
 
 MACRO_TUNING_PARAM(SlideFriction, slide_friction, 0.8f)
-MACRO_TUNING_PARAM(SlideSlopeAcceleration, slide_slope_acceleration, 0.4f)
+MACRO_TUNING_PARAM(SlideSlopeAcceleration, slide_slope_acceleration, 0.3f)
 MACRO_TUNING_PARAM(SlopeDeceleration, slope_deceleration, 0.0f)
 MACRO_TUNING_PARAM(SlopeAscendingControlSpeed, slope_ascending_control_speed, 10.0f)
 MACRO_TUNING_PARAM(SlopeDescendingControlSpeed, slope_descending_control_speed, 10.0f)

@@ -99,8 +99,13 @@ void CBlocks::RenderBlocks()
 	Graphics()->QuadsBegin();
 	Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
 	
-	int w = Graphics()->ScreenWidth()/32/2+4;
-	int h = Graphics()->ScreenHeight()/32/2+3;
+	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
+	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
+	
+	//int w = Graphics()->ScreenWidth()/32/2+4;
+	//int h = Graphics()->ScreenHeight()/32/2+3;
+	int w = ScreenX1/64; //ScreenX1/32-1;
+	int h = ScreenY1/64; //ScreenY1/32-1;
 	
 	int x1 = clamp(int(Center.x) - w, 1, m_Width-2);
 	int x2 = clamp(int(Center.x) + w, 1, m_Width-2);

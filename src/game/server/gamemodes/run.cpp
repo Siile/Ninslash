@@ -87,6 +87,9 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	
 	for (int i = 0; i < MAX_CLIENTS; i++)
 		new CRadar(&GameServer()->m_World, RADAR_HUMAN, i);
+	
+	m_pDoor = new CRadar(&GameServer()->m_World, RADAR_DOOR);
+	m_pEnemySpawn = new CRadar(&GameServer()->m_World, RADAR_ENEMY);
 }
 
 
@@ -154,6 +157,7 @@ vec2 CGameControllerCoop::GetBotSpawnPos()
 void CGameControllerCoop::RandomGroupSpawnPos()
 {
 	m_GroupSpawnPos =  m_aEnemySpawnPos[rand()%m_NumEnemySpawnPos];
+	m_pEnemySpawn->Activate(m_GroupSpawnPos, Server()->Tick() + Server()->TickSpeed()*5);
 }
 
 
@@ -357,6 +361,13 @@ void CGameControllerCoop::SpawnNewGroup(bool AddBots)
 	m_GroupsLeft--;
 }
 
+
+void CGameControllerCoop::DisplayExit(vec2 Pos)
+{
+	m_pDoor->Activate(Pos);	
+}
+
+
 int CGameControllerCoop::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
 {
 	IGameController::OnCharacterDeath(pVictim, pKiller, Weapon);
@@ -439,7 +450,7 @@ void CGameControllerCoop::Tick()
 				GameServer()->AddBot();
 		}
 		// reset to first map if there's no players for 60 seconds
-		else if (m_AutoRestart && Server()->Tick() > Server()->TickSpeed()*60.0f)
+		else if ((m_AutoRestart || g_Config.m_SvMapGenLevel > 1) && Server()->Tick() > Server()->TickSpeed()*60.0f)
 		{
 			m_AutoRestart = false;
 			

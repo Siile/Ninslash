@@ -75,6 +75,9 @@ void CBlock::TakeDamage(int Damage)
 	if (m_Life <= 0 || m_Type == 0)
 		return;
 	
+	if (Damage < 0 && m_Life >= m_MaxLife)
+		return;
+	
 	m_Life -= Damage;
 	//GameServer()->CreateDamageInd(m_Pos, 0, -Damage, -1);
 	

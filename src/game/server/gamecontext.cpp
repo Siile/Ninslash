@@ -206,6 +206,16 @@ void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Damage, int Client
 	}
 }
 
+void CGameContext::CreateRepairInd(vec2 Pos)
+{
+	CNetEvent_Repair *pEvent = (CNetEvent_Repair *)m_Events.Create(NETEVENTTYPE_REPAIR, sizeof(CNetEvent_Repair));
+	if(pEvent)
+	{
+		pEvent->m_X = (int)Pos.x;
+		pEvent->m_Y = (int)Pos.y;
+	}
+}
+
 void CGameContext::CreateHammerHit(vec2 Pos)
 {
 	// create the event
@@ -472,13 +482,6 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 	// for testing the collision
 	//CreateBuildingHit(Pos);
 	
-	if (GetStaticType(Weapon) == SW_FLAMER)
-		DamageBlocks(Pos, 1+Damage*0.5f, ProximityRadius*1.7f);
-	else if (GetStaticType(Weapon) == SW_CHAINSAW)
-		DamageBlocks(Pos, Damage*0.5f, 24 + ProximityRadius);
-	else
-		DamageBlocks(Pos, Damage*0.5f, ProximityRadius*0.9f);
-	
 	// player collision
 	{
 		CCharacter *apEnts[MAX_CLIENTS];
@@ -505,7 +508,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			}
 			else
 			{
-				if (GetStaticType(Weapon) == SW_CHAINSAW)
+				if (GetStaticType(Weapon) == SW_CHAINSAW || GetStaticType(Weapon) == SW_TOOL)
 					CreateEffect(FX_BLOOD2, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
 				else
 					CreateEffect(FX_BLOOD1, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
@@ -518,6 +521,16 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			pTarget->TakeDamage(DamageOwner, Weapon, Damage * Dmg, normalize(vec2(frandom()-0.5f, frandom()-0.5f))*2.0f, Pos);
 		}
 	}
+	
+	if (GetStaticType(Weapon) == SW_TOOL)
+		Damage *= -2;
+	
+	if (GetStaticType(Weapon) == SW_FLAMER)
+		DamageBlocks(Pos, 1+Damage*0.5f, ProximityRadius*1.7f);
+	else if (GetStaticType(Weapon) == SW_CHAINSAW)
+		DamageBlocks(Pos, Damage*0.5f, 24 + ProximityRadius);
+	else
+		DamageBlocks(Pos, Damage*0.5f, ProximityRadius*0.9f);
 	
 	// buildings
 	{
@@ -542,7 +555,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			{
 				if (GetStaticType(Weapon) == SW_FLAMER)
 					;
-				else if (GetStaticType(Weapon) == SW_CHAINSAW)
+				else if (GetStaticType(Weapon) == SW_CHAINSAW || GetStaticType(Weapon) == SW_TOOL)
 					CreateEffect(FX_BLOOD2, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
 				else
 					CreateEffect(FX_BLOOD1, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
@@ -574,7 +587,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			
 			if (GetStaticType(Weapon) == SW_FLAMER)
 				;
-			else if (GetStaticType(Weapon) == SW_CHAINSAW)
+			else if (GetStaticType(Weapon) == SW_CHAINSAW || GetStaticType(Weapon) == SW_TOOL)
 				CreateEffect(FX_BLOOD2, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
 			else
 				CreateEffect(FX_BLOOD1, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
@@ -608,12 +621,7 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int Charge, vec
 	
 	if (IsStaticWeapon(Weapon))
 	{
-		if (GetStaticType(Weapon) == SW_SHURIKEN)
-		{
-			CreateMeleeHit(DamageOwner, Weapon, Dmg, Pos, Direction);
-			return;
-		}
-		else if (GetStaticType(Weapon) == SW_CHAINSAW)
+		if (GetStaticType(Weapon) == SW_SHURIKEN || GetStaticType(Weapon) == SW_CHAINSAW || GetStaticType(Weapon) == SW_TOOL)
 		{
 			CreateMeleeHit(DamageOwner, Weapon, Dmg, Pos, Direction);
 			return;
@@ -720,8 +728,10 @@ void CGameContext::AmmoFill(vec2 Pos, int Weapon)
 }
 
 
+
 void CGameContext::Repair(vec2 Pos)
 {
+	/*
 	float CheckRange = 42.0f;
 	
 	// check if there's turret base near
@@ -747,6 +757,7 @@ void CGameContext::Repair(vec2 Pos)
 			CreateBuildingHit(Pos);
 		}
 	}
+	*/
 }
 
 

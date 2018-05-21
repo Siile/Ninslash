@@ -180,6 +180,8 @@ public:
 	*/
 	virtual bool CanBeMovedOnBalance(int ClientID);
 
+	virtual void DisplayExit(vec2 Pos);
+	
 	virtual void Tick();
 
 	virtual void Snap(int SnappingClient);

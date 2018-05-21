@@ -30,7 +30,7 @@ void CRadar::RenderRadar(const CNetObj_Radar *pCurrent, const CNetObj_Radar *pPr
 	
 	RPos += vec2(Graphics()->ScreenWidth()/2, Graphics()->ScreenHeight()/2) -CameraPos;
 	
-	if (abs(Pos.x - CameraPos.x) < 1000 && abs(Pos.y - CameraPos.y) < 800)
+	if ((pCurrent->m_Type == RADAR_CHARACTER || pCurrent->m_Type == RADAR_HUMAN) && abs(Pos.x - CameraPos.x) < 1000 && abs(Pos.y - CameraPos.y) < 800)
 	{
 	}
 	else
@@ -39,8 +39,12 @@ void CRadar::RenderRadar(const CNetObj_Radar *pCurrent, const CNetObj_Radar *pPr
 	Graphics()->QuadsBegin();
 	
 	Graphics()->SetColor(1, 1, 1, 1);
-	Graphics()->QuadsSetRotation(a);
+	if (pCurrent->m_Type == RADAR_CHARACTER)
+		Graphics()->QuadsSetRotation(a);
+	else
+		Graphics()->QuadsSetRotation(0);
 	
+	RenderTools()->SelectSprite(SPRITE_RADAR1+pCurrent->m_Type);
 	RenderTools()->DrawSprite(RPos.x, RPos.y, 80);
 	
 	Graphics()->QuadsEnd();
