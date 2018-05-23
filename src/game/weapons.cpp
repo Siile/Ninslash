@@ -1355,7 +1355,7 @@ int GetRandomWeaponType(bool IsSurvival)
 	int w = 0;
 	
 	while (!w || (!IsSurvival && IsStaticWeapon(w) && GetStaticType(w) == SW_RESPAWNER))
-		w = GetStaticWeapon(1+rand()%(NUM_SW-4));
+		w = GetStaticWeapon(rand()%(NUM_SW-3));
 	
 	return w;
 }
