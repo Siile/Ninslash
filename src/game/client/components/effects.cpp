@@ -1370,6 +1370,12 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 				
 			} break;
 			
+			case SW_GRENADE3:
+			{
+				Electrospark(Pos, 96);
+				Electrospark(Pos, 96);
+			} break;
+			
 			case SW_BOUNCER:
 			{
 				SpriteSheet(FX_GREEN_EXPLOSION, Pos);

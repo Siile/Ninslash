@@ -314,6 +314,11 @@ bool CWeapon::Charge()
 				m_TriggerTick = Server()->Tick() + 2.0f * Server()->TickSpeed();
 				m_DestructionTick = Server()->Tick() + 4.0f * Server()->TickSpeed();
 				break;
+			case SW_GRENADE3:
+				m_AttackTick = Server()->Tick();
+				m_TriggerTick = Server()->Tick() + 2.0f * Server()->TickSpeed();
+				m_DestructionTick = Server()->Tick() + 4.0f * Server()->TickSpeed();
+				break;
 			default: break;
 		}
 	}
@@ -623,6 +628,21 @@ void CWeapon::Trigger()
 				new CLaser(&GameServer()->m_World, m_Pos, RandomDir(), 160.0f, m_Owner, m_WeaponType, 4, -2);
 				//new CLaser(&GameServer()->m_World, m_Pos, RandomDir(), 160.0f, m_Owner, m_WeaponType, 4, -2);
 				break;
+				
+			case SW_GRENADE3:
+				m_TriggerTick = Server()->Tick() + 0.25f * Server()->TickSpeed();
+			
+				// spawn pickups
+				if (frandom() < 0.35f)
+					GameServer()->m_pController->DropPickup(m_Pos, POWERUP_HEALTH, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
+				else if (frandom() < 0.4f)
+					GameServer()->m_pController->DropPickup(m_Pos, POWERUP_AMMO, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
+				else if (frandom() < 0.6f)
+					GameServer()->m_pController->DropPickup(m_Pos, POWERUP_ARMOR, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
+				else
+					GameServer()->m_pController->DropPickup(m_Pos, POWERUP_KIT, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
+				break;
+				
 			default: return;
 		}
 	}
@@ -654,7 +674,7 @@ void CWeapon::SelfDestruct()
 	{
 		switch (GetStaticType(m_WeaponType))
 		{
-		case SW_GRENADE1: case SW_GRENADE2: GameServer()->CreateExplosion(m_Pos, m_Owner, m_WeaponType); break;
+		case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: GameServer()->CreateExplosion(m_Pos, m_Owner, m_WeaponType); break;
 		default: break;
 		}
 	}

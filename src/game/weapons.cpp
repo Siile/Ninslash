@@ -93,6 +93,7 @@ int GetProjectileTraceType(int Weapon)
 			case SW_GUN1: return 4;
 			case SW_BUBBLER: return -1;
 			case SW_SHURIKEN: return -4;
+			case SW_GRENADE3: return 7;
 			case SW_GRENADE2: return 5;
 			case SW_GRENADE1: return 4;
 			case SW_BAZOOKA: return -1;
@@ -119,8 +120,7 @@ float GetWeaponTraceThreshold(int Weapon)
 		switch (GetStaticType(Weapon))
 		{
 			case SW_SHURIKEN: return 20.0f;
-			case SW_GRENADE2: return 0.0f;
-			case SW_GRENADE1: return 0.0f;
+			case SW_GRENADE3: case SW_GRENADE2: case SW_GRENADE1: return 0.0f;
 			default: return 0.0f;
 		};
 	}
@@ -188,7 +188,7 @@ float GetProjectileSize(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
-			case SW_GRENADE1: case SW_GRENADE2: return 2.5f;
+			case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: return 2.5f;
 			case SW_SHURIKEN: return 2.5f;
 			case SW_BUBBLER: return 0.9f;
 			case SW_BAZOOKA: return 1.3f;
@@ -309,6 +309,7 @@ int GetExplosionSound(int Weapon)
 		{
 			case SW_GRENADE1: return SOUND_GRENADE_EXPLODE;
 			case SW_GRENADE2: return SOUND_GRENADE2_EXPLODE;
+			case SW_GRENADE3: return SOUND_BOUNCER_EXPLODE;
 			case SW_BAZOOKA: return SOUND_GRENADE_EXPLODE;
 			case SW_BOUNCER: return SOUND_BOUNCER_EXPLODE;
 			default: return 0;
@@ -396,6 +397,7 @@ float GetExplosionSize(int Weapon)
 			case SW_GUN1: return 80.0f;
 			case SW_GRENADE1: return 300.0f;
 			case SW_GRENADE2: return 320.0f;
+			case SW_GRENADE3: return 140.0f;
 			case SW_BUBBLER: return 80.0f;
 			case SW_BAZOOKA: return 240.0f;
 			case SW_BOUNCER: return 140.0f - max(40.0f, (GetShotSpread(Weapon)-1)*15.0f);
@@ -519,7 +521,7 @@ ivec2 GetWeaponVisualSize(int Weapon)
 		case SW_CHAINSAW: case SW_BUBBLER: return ivec2(7, 3);
 		case SW_FLAMER: case SW_BAZOOKA: case SW_BOUNCER: return ivec2(6, 3);
 		case SW_GUN1: case SW_GUN2: return ivec2(4, 2);
-		case SW_GRENADE1: case SW_GRENADE2: return ivec2(2, 3);
+		case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: return ivec2(2, 3);
 		case SW_SHURIKEN: return ivec2(4, 4);
 		case SW_TOOL: return ivec2(4, 2);
 		
@@ -573,7 +575,7 @@ int GetWeaponFiringType(int Weapon)
 		case SW_TOOL: return WFT_MELEE;
 		case SW_GUN1: return WFT_PROJECTILE;
 		case SW_GUN2: return WFT_CHARGE;
-		case SW_GRENADE1: case SW_GRENADE2: return WFT_THROW;
+		case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: return WFT_THROW;
 		case SW_SHURIKEN: return WFT_THROW;
 		default: return WFT_NONE;
 	};
@@ -601,8 +603,6 @@ float GetWeaponRenderRecoil(int Weapon)
 	
 	switch (GetStaticType(Weapon))
 	{
-		//case SW_GRENADE1: case SW_GRENADE2: return -20.0f;
-		//case SW_SHURIKEN: return -25.0f;
 		case SW_BUBBLER: return 15.0f;
 		case SW_BAZOOKA: return 18.0f;
 		case SW_BOUNCER: return 13.0f;
@@ -639,7 +639,7 @@ vec2 GetWeaponRenderOffset(int Weapon)
 			case SW_CHAINSAW: return vec2(30, 0);
 			case SW_FLAMER: return vec2(30, 0);
 			case SW_GUN1: case SW_GUN2: return vec2(16, -8);
-			case SW_GRENADE1: case SW_GRENADE2: return vec2(4, 0);
+			case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: return vec2(4, 0);
 			case SW_SHURIKEN: return vec2(0, 0);
 			default: return vec2(0, 0);
 		};
@@ -1126,7 +1126,7 @@ int AIAttackRange(int Weapon)
 		switch (GetStaticType(Weapon))
 		{
 			case SW_RESPAWNER: case SW_SHIELD: case SW_INVIS: return 800;
-			case SW_GRENADE1: case SW_GRENADE2: return 700;
+			case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: return 700;
 			case SW_GUN1: return 700;
 			case SW_GUN2: return 500;
 			case SW_SHURIKEN: return 700;
@@ -1469,7 +1469,7 @@ float WeaponThrowForce(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
-			case SW_GRENADE1: case SW_GRENADE2: return 1.0f;
+			case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: return 1.0f;
 			case SW_SHURIKEN: return 1.4f;
 			default: return 0.0f;
 		};
