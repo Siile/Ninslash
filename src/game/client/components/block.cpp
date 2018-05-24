@@ -128,27 +128,53 @@ void CBlocks::RenderBlocks()
 					
 				
 				vec2 p = vec2(x, y)*32;
-				float PixX = 1/128.0f;
-				float PixY = 1/128.0f;
+				
+				const float PixX = 1/256.0f;
+				const float PixY = 1/128.0f;
+				
+				const float x0 = 0.0f;
+				const float x1 = 1.0f/4.0f;
+				const float x2 = 2.0f/4.0f;
+				const float x3 = 3.0f/4.0f;
+				
+				const float y0 = 0.0f;
+				const float y1 = 1.0f/2.0f;
+				const float y2 = 1.0f;
 				
 				// fill
 				{
-					// todo: use constants
+					// block 1
 					if (m_pBlocks[y*m_Width+x] == 1)
-						Graphics()->QuadsSetSubsetFree(	0.0f+PixX, 0.0f+PixY,
-														2/4.0f-PixX, 0.0f+PixY,
-														0.0f+PixX, 0.5f-PixY,
-														2/4.0f-PixX, 0.5f-PixY);
+						Graphics()->QuadsSetSubsetFree(	x0+PixX, y0+PixY,
+														x1-PixX, y0+PixY,
+														x0+PixX, y1-PixY,
+														x1-PixX, y1-PixY);
 					else if (m_pBlocks[y*m_Width+x] == 2)
-						Graphics()->QuadsSetSubsetFree(	0.0f+PixX, 0.5f+PixY,
-														2/4.0f-PixX, 0.5f+PixY,
-														0.0f+PixX, 1.0f-PixY,
-														2/4.0f-PixX, 1.0f-PixY);
+						Graphics()->QuadsSetSubsetFree(	x1+PixX, y0+PixY,
+														x2-PixX, y0+PixY,
+														x1+PixX, y1-PixY,
+														x2-PixX, y1-PixY);
 					else if (m_pBlocks[y*m_Width+x] == 3)
-						Graphics()->QuadsSetSubsetFree(	2/4.0f+PixX, 0.5f+PixY,
-														1.0f-PixX, 0.5f+PixY,
-														2/4.0f+PixX, 1.0f-PixY,
-														1.0f-PixX, 1.0f-PixY);
+						Graphics()->QuadsSetSubsetFree(	x2+PixX, y0+PixY,
+														x3-PixX, y0+PixY,
+														x2+PixX, y1-PixY,
+														x3-PixX, y1-PixY);
+					// block 2
+					else if (m_pBlocks[y*m_Width+x] == 4)
+						Graphics()->QuadsSetSubsetFree(	x0+PixX, y1+PixY,
+														x1-PixX, y1+PixY,
+														x0+PixX, y2-PixY,
+														x1-PixX, y2-PixY);
+					else if (m_pBlocks[y*m_Width+x] == 5)
+						Graphics()->QuadsSetSubsetFree(	x1+PixX, y1+PixY,
+														x2-PixX, y1+PixY,
+														x1+PixX, y2-PixY,
+														x2-PixX, y2-PixY);
+					else if (m_pBlocks[y*m_Width+x] == 6)
+						Graphics()->QuadsSetSubsetFree(	x2+PixX, y1+PixY,
+														x3-PixX, y1+PixY,
+														x2+PixX, y2-PixY,
+														x3-PixX, y2-PixY);
 													
 													
 					IGraphics::CFreeformItem FreeFormItem(
@@ -160,17 +186,32 @@ void CBlocks::RenderBlocks()
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 				}
 				
+				if (m_pBlocks[y*m_Width+x] > 3)
+					continue;
+				
 				// borders
 				int Top = m_pBlocks[(y-1)*m_Width+x];
 				int Bot = m_pBlocks[(y+1)*m_Width+x];
 				int Left = m_pBlocks[y*m_Width+x-1];
 				int Right = m_pBlocks[y*m_Width+x+1];
 				
+				if (Top > 3) Top = 0;
+				if (Bot > 3) Bot = 0;
+				if (Left > 3) Left = 0;
+				if (Right > 3) Right = 0;
 				
-				Graphics()->QuadsSetSubsetFree(	2/4.0f+PixX, 0.25f+PixY,
-												3/4.0f-PixX, 0.25f+PixY,
-												2/4.0f+PixX, 0.5f-PixY,
-												3/4.0f-PixX, 0.5f-PixY);
+				const float bx0 = 6.0f/8.0f;
+				const float bx1 = 7.0f/8.0f;
+				const float bx2 = 1.0f;
+				
+				const float by0 = 0.0f;
+				const float by1 = 1.0f/4.0f;
+				const float by2 = 2.0f/4.0f;
+				
+				Graphics()->QuadsSetSubsetFree(	bx0+PixX, 0.25f+PixY,
+												bx1-PixX, 0.25f+PixY,
+												bx0+PixX, 0.5f-PixY,
+												bx1-PixX, 0.5f-PixY);
 
 				if (!Left && !Top)
 				{
@@ -225,10 +266,10 @@ void CBlocks::RenderBlocks()
 				}
 				
 				
-				Graphics()->QuadsSetSubsetFree(	2/4.0f+PixX, 0.0f+PixY,
-												3/4.0f-PixX, 0.0f+PixY,
-												2/4.0f+PixX, 0.25f-PixY,
-												3/4.0f-PixX, 0.25f-PixY);
+				Graphics()->QuadsSetSubsetFree(	bx0+PixX, 0.0f+PixY,
+												bx1-PixX, 0.0f+PixY,
+												bx0+PixX, 0.25f-PixY,
+												bx1-PixX, 0.25f-PixY);
 				
 
 				if (Left && !Top)
@@ -284,10 +325,10 @@ void CBlocks::RenderBlocks()
 				}
 				
 				
-				Graphics()->QuadsSetSubsetFree(	3/4.0f+PixX, 0.0f+PixY,
-												4/4.0f-PixX, 0.0f+PixY,
-												3/4.0f+PixX, 0.25f-PixY,
-												4/4.0f-PixX, 0.25f-PixY);
+				Graphics()->QuadsSetSubsetFree(	bx1+PixX, 0.0f+PixY,
+												bx2-PixX, 0.0f+PixY,
+												bx1+PixX, 0.25f-PixY,
+												bx2-PixX, 0.25f-PixY);
 				
 				if (!Left && Top)
 				{
@@ -342,12 +383,12 @@ void CBlocks::RenderBlocks()
 				}
 				
 
-				Graphics()->QuadsSetSubsetFree(	3/4.0f+PixX, 0.25f+PixY,
-												4/4.0f-PixX, 0.25f+PixY,
-												3/4.0f+PixX, 0.5f-PixY,
-												4/4.0f-PixX, 0.5f-PixY);
+				Graphics()->QuadsSetSubsetFree(	bx1+PixX, 0.25f+PixY,
+												bx2-PixX, 0.25f+PixY,
+												bx1+PixX, 0.5f-PixY,
+												bx2-PixX, 0.5f-PixY);
 												
-				if (Left && Top && !m_pBlocks[(y-1)*m_Width+x-1])
+				if (Left && Top && (!m_pBlocks[(y-1)*m_Width+x-1] || m_pBlocks[(y-1)*m_Width+x-1] > 3))
 				{
 					p = vec2(x, y)*32;
 					
@@ -360,7 +401,7 @@ void CBlocks::RenderBlocks()
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 				}
 				
-				if (Right && Top && !m_pBlocks[(y-1)*m_Width+x+1])
+				if (Right && Top && (!m_pBlocks[(y-1)*m_Width+x+1] || m_pBlocks[(y-1)*m_Width+x+1] > 3))
 				{
 					p = vec2(x, y)*32+vec2(16, 0);
 					
@@ -373,7 +414,7 @@ void CBlocks::RenderBlocks()
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 				}
 				
-				if (Left && Bot && !m_pBlocks[(y+1)*m_Width+x-1])
+				if (Left && Bot && (!m_pBlocks[(y+1)*m_Width+x-1] || m_pBlocks[(y+1)*m_Width+x-1] > 3))
 				{
 					p = vec2(x, y)*32+vec2(0, 16);
 					
@@ -386,7 +427,7 @@ void CBlocks::RenderBlocks()
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 				}
 				
-				if (Right && Bot && !m_pBlocks[(y+1)*m_Width+x+1])
+				if (Right && Bot && (!m_pBlocks[(y+1)*m_Width+x+1] || m_pBlocks[(y+1)*m_Width+x+1] > 3))
 				{
 					p = vec2(x, y)*32+vec2(16, 16);
 					

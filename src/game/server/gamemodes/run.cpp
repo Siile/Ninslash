@@ -53,7 +53,7 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	
 	int Level = g_Config.m_SvMapGenLevel;
 	
-	m_GroupsLeft = 2 + min(4, Level/3) + (Level%5)/3;
+	m_GroupsLeft = 2 + min(3, Level/4) + (Level%5)/3;
 	
 	m_TriggerLevel = 0;
 	m_Group = 0;
@@ -69,7 +69,6 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	// force some settings
 	g_Config.m_SvRandomWeapons = 0;
 	g_Config.m_SvOneHitKill = 0;
-	//g_Config.m_SvForceWeapon = 0;
 	g_Config.m_SvWarmup = 0;
 	g_Config.m_SvTimelimit = 0;
 	g_Config.m_SvScorelimit = 0;
@@ -116,7 +115,6 @@ bool CGameControllerCoop::GetSpawnPos(int Team, vec2 *pOutPos)
 	m_SpawnPosRotation++;
 	m_SpawnPosRotation = m_SpawnPosRotation%m_NumEnemySpawnPos;
 	
-	//int i = rand()%m_NumEnemySpawnPos;
 	*pOutPos = m_aEnemySpawnPos[m_SpawnPosRotation];
 	return true;
 }
@@ -209,30 +207,6 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 		
 			int i = ENEMY_ALIEN1;
 			
-			/*
-			if (g_Config.m_SvMapGenLevel > 10 && frandom() < 0.35f)
-				i = ENEMY_ROBOT1;
-			
-			if (g_Config.m_SvMapGenLevel > 30 && frandom() < 0.3f)
-				i = ENEMY_BUNNY1;
-			
-			if (g_Config.m_SvMapGenLevel > 50 && frandom() < 0.04f)
-				i = ENEMY_PYRO1;
-			*/
-			/*
-			float r = min(0.35f, g_Config.m_SvMapGenLevel * 0.01f - 0.02f);
-			if (frandom() < r)
-				i = ENEMY_ROBOT1;
-			
-			r = min(0.30f, g_Config.m_SvMapGenLevel * 0.005f - 0.02f);
-			if (frandom() < r)
-				i = ENEMY_BUNNY1;
-			
-			r = min(0.04f, g_Config.m_SvMapGenLevel * 0.002f - 0.02f);
-			if (frandom() < r)
-				i = ENEMY_PYRO1;
-			*/
-			
 			int Level = 0;
 			
 			for (int i = 0; i < 9; i++)
@@ -262,47 +236,6 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 					break;
 			};
 			
-			/*
-			switch (i)
-			{
-			case ENEMY_ALIEN1:
-				pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer(), g_Config.m_SvMapGenLevel);
-				break;
-					
-			case ENEMY_ALIEN2:
-				pChr->GetPlayer()->m_pAI = new CAIalien2(GameServer(), pChr->GetPlayer());
-				break;
-					
-			case ENEMY_ROBOT1:
-				pChr->GetPlayer()->m_pAI = new CAIrobot1(GameServer(), pChr->GetPlayer());
-				break;
-					
-			case ENEMY_ROBOT2:
-				pChr->GetPlayer()->m_pAI = new CAIrobot2(GameServer(), pChr->GetPlayer());
-				break;
-				
-			case ENEMY_BUNNY1:
-				pChr->GetPlayer()->m_pAI = new CAIbunny1(GameServer(), pChr->GetPlayer());
-				break;
-				
-			case ENEMY_BUNNY2:
-				pChr->GetPlayer()->m_pAI = new CAIbunny2(GameServer(), pChr->GetPlayer());
-				break;
-				
-			case ENEMY_PYRO1:
-				pChr->GetPlayer()->m_pAI = new CAIpyro1(GameServer(), pChr->GetPlayer(), g_Config.m_SvMapGenLevel);
-				break;
-				
-			case ENEMY_PYRO2:
-				pChr->GetPlayer()->m_pAI = new CAIpyro2(GameServer(), pChr->GetPlayer());
-				break;
-				
-			default:
-				pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer(), g_Config.m_SvMapGenLevel);
-				break;
-			};
-			*/
-				
 			m_EnemyCount++;
 			pChr->m_SkipPickups = 999;
 			Trigger(false);

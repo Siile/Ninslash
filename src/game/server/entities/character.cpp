@@ -200,7 +200,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_apWeapon[0] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 2), 10));
 	*/
 	
-	m_apWeapon[1] = GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE3));
+	//m_apWeapon[1] = GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE3));
 	
 	/*
 	int n = 0;

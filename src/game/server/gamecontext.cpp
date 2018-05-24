@@ -375,7 +375,7 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
 		return false;
 	
 	
-	if (Kit == BUILDABLE_BLOCK1)
+	if (Kit == BUILDABLE_BLOCK1 || Kit == BUILDABLE_BLOCK2)
 		CheckRange = 32.0f;
 
 	// check sanity
@@ -400,9 +400,10 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
 	
 
 	if (Kit == BUILDABLE_BLOCK1)
-	{
 		return AddBlock(1, Pos);
-	}
+	
+	if (Kit == BUILDABLE_BLOCK2)
+		return AddBlock(4, Pos);
 	
 	if (Kit == BUILDABLE_BARREL)
 	{

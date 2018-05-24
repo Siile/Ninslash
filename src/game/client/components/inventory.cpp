@@ -999,7 +999,7 @@ void CInventory::DrawBuildMode()
 	int Cost = 0; //BuildableCost[Selected];
 
 	
-	if (Selected != BUILDABLE_BLOCK1)
+	if (Selected != BUILDABLE_BLOCK1 && Selected != BUILDABLE_BLOCK2)
 	{
 			if (!Collision()->IsTileSolid(Pos.x, Pos.y))
 				Valid = true;
@@ -1145,7 +1145,7 @@ void CInventory::DrawBuildMode()
 	if (Selected == BUILDABLE_TESLACOIL)
 		Range = 74.0f;
 	
-	if (Selected == BUILDABLE_BLOCK1)
+	if (Selected == BUILDABLE_BLOCK1 || Selected == BUILDABLE_BLOCK2)
 		Range = 32.0f;
 			
 	if (m_pClient->BuildingNear(Pos, Range))
@@ -1214,7 +1214,7 @@ void CInventory::DrawBuildMode()
 			m_LastBlockPos = vec2(0, 0);
 		
 		// mouse click
-		if (Selected == BUILDABLE_BLOCK1 && m_Mouse1 && Valid && m_Minimized && m_Scale < 0.3f)
+		if ((Selected == BUILDABLE_BLOCK1 || Selected == BUILDABLE_BLOCK2) && m_Mouse1 && Valid && m_Minimized && m_Scale < 0.3f)
 		{
 			Pos += m_pClient->m_pCamera->m_Center;
 			

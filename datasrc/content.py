@@ -1069,6 +1069,7 @@ container.sprites.Add(Sprite("turret_fastener", set_buildings, 4, 6, 2, 2))
 
 # buildabled
 container.sprites.Add(Sprite("kit_block1", set_buildings, 6, 7, 1, 1))
+container.sprites.Add(Sprite("kit_block2", set_buildings, 7, 7, 1, 1))
 container.sprites.Add(Sprite("kit_barrel", set_buildings, 3, 2, 1, 2))
 container.sprites.Add(Sprite("kit_powerbarrel", set_buildings, 8, 2, 1, 2))
 container.sprites.Add(Sprite("kit_turret", set_buildings, 1, 4, 3, 4))

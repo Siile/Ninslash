@@ -632,6 +632,8 @@ void CWeapon::Trigger()
 			case SW_GRENADE3:
 				m_TriggerTick = Server()->Tick() + 0.25f * Server()->TickSpeed();
 			
+				GameServer()->CreateEffect(FX_SMALLELECTRIC, m_Pos);
+			
 				// spawn pickups
 				if (frandom() < 0.35f)
 					GameServer()->m_pController->DropPickup(m_Pos, POWERUP_HEALTH, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
