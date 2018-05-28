@@ -10,6 +10,7 @@ class CInventory : public CComponent
 	void DrawLayer(vec2 Pos, vec2 Size);
 	void DrawInventory(vec2 Pos, vec2 Size);
 	void RenderMouse();
+	void RenderShop(const struct CNetObj_Shop *pCurrent);
 	
 	bool m_WasActive;
 	bool m_Active;
@@ -52,6 +53,10 @@ class CInventory : public CComponent
 	float m_Scale;
 	
 	vec2 m_LastBlockPos;
+	
+	// shop actions
+	bool m_CanShop;
+	int m_SelectedShopItem;
 	
 public:
 	CInventory();

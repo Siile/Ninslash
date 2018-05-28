@@ -22,6 +22,42 @@ bool ValidForTurret(int Weapon)
 	return false;
 }
 
+int GetWeaponCost(int Weapon)
+{
+	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+	
+	float cost1 = 0;
+	float cost2 = 0;
+	
+	if (IsStaticWeapon(Weapon))
+	{
+		switch (GetStaticType(Weapon))
+		{
+			case SW_BUBBLER: cost1 = 10; cost2 = 20; break;
+			case SW_BAZOOKA: cost1 = 10; cost2 = 20; break;
+			case SW_BOUNCER: cost1 = 10; cost2 = 20; break;
+			case SW_UPGRADE: cost1 = 10; cost2 = 0; break;
+			case SW_RESPAWNER: cost1 = 10; cost2 = 0; break;
+			case SW_INVIS: cost1 = 5; cost2 = 20; break;
+			case SW_SHIELD: cost1 = 5; cost2 = 20; break;
+			case SW_CHAINSAW: cost1 = 10; cost2 = 20; break;
+			case SW_FLAMER: cost1 = 10; cost2 = 20; break;
+			case SW_GUN1: cost1 = 5; cost2 = 0; break;
+			case SW_GUN2: cost1 = 5; cost2 = 0; break;
+			case SW_GRENADE1: cost1 = 5; cost2 = 0; break;
+			case SW_GRENADE2: cost1 = 5; cost2 = 0; break;
+			case SW_GRENADE3: cost1 = 5; cost2 = 0; break;
+			default: cost1 = 10; cost2 = 20; break;
+		};
+	}
+	else
+	{
+		cost1 = 10;
+		cost2 = 20;
+	}
+	
+	return cost1 + cost2*Charge*(Charge*0.25f+0.75f);
+}
 
 float GetProjectileSprite(int Weapon)
 {
@@ -640,7 +676,7 @@ vec2 GetWeaponRenderOffset(int Weapon)
 			case SW_FLAMER: return vec2(30, 0);
 			case SW_GUN1: case SW_GUN2: return vec2(16, -8);
 			case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: return vec2(4, 0);
-			case SW_SHURIKEN: return vec2(0, 0);
+			case SW_SHURIKEN: return vec2(10, 0);
 			default: return vec2(0, 0);
 		};
 	}
@@ -1129,6 +1165,7 @@ int AIAttackRange(int Weapon)
 			case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: return 700;
 			case SW_GUN1: return 700;
 			case SW_GUN2: return 500;
+			case SW_TOOL: return 50;
 			case SW_SHURIKEN: return 700;
 			case SW_BUBBLER: return 700;
 			case SW_BAZOOKA: return 700;

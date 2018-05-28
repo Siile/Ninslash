@@ -221,6 +221,7 @@ void CItems::RenderPickup(const CNetObj_Pickup *pPrev, const CNetObj_Pickup *pCu
 			SPRITE_PICKUP_AMMO,
 			SPRITE_PICKUP_WEAPON,
 			SPRITE_PICKUP_ARMOR,
+			SPRITE_PICKUP_COIN,
 			SPRITE_PICKUP_KIT
 			};
 		RenderTools()->SelectSprite(c[pCurrent->m_Type]);

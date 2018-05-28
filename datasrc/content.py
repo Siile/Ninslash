@@ -504,6 +504,7 @@ container.images.Add(image_crawler_leg2)
 
 container.pickups.Add(Pickup("health"))
 container.pickups.Add(Pickup("armor"))
+container.pickups.Add(Pickup("coin"))
 container.pickups.Add(Pickup("weapon"))
 container.pickups.Add(Pickup("mine"))
 container.pickups.Add(Pickup("kit"))
@@ -706,6 +707,8 @@ container.sprites.Add(Sprite("weapon_static16", set_weapons, 2, 12, 4, 4)) # shu
 # pickups
 container.sprites.Add(Sprite("pickup_kit", set_weapons, 10, 0, 2, 2))
 container.sprites.Add(Sprite("pickup_armor", set_weapons, 14,0,2,2))
+container.sprites.Add(Sprite("pickup_coin", set_weapons, 16,0,2,2))
+container.sprites.Add(Sprite("pickup_bigcoin", set_weapons, 16,2,2,2))
 container.sprites.Add(Sprite("pickup_health", set_weapons, 12,0,2,2))
 container.sprites.Add(Sprite("pickup_ammo", set_weapons, 8,0,2,2))
 

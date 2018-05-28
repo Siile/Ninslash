@@ -86,7 +86,7 @@ void CWeapon::OnOwnerDeath(bool IsActive)
 	}
 	else
 	{
-		GameServer()->m_World.RemoveEntity(this);
+		GameServer()->m_World.DestroyEntity(this);
 	}
 }
 
@@ -98,7 +98,7 @@ void CWeapon::Deactivate()
 
 void CWeapon::Clear()
 {
-	GameServer()->m_World.RemoveEntity(this);
+	GameServer()->m_World.DestroyEntity(this);
 }	
 
 void CWeapon::SetPos(vec2 Pos, vec2 Vel, vec2 Direction, float Radius)
@@ -681,7 +681,7 @@ void CWeapon::SelfDestruct()
 		}
 	}
 	
-	GameServer()->m_World.RemoveEntity(this);
+	GameServer()->m_World.DestroyEntity(this);
 }
 
 

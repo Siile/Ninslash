@@ -13,6 +13,7 @@
 #include "entities/turret.h"
 #include "entities/teslacoil.h"
 #include "entities/building.h"
+#include "entities/shop.h"
 #include "entities/deathray.h"
 #include "entities/powerupper.h"
 #include "entities/droid_walker.h"
@@ -578,6 +579,15 @@ void IGameController::CreateDroppables()
 			m_PickupCount++;
 		}
 		
+		// coins
+		if (m_PickupCount < MAX_PICKUPS)
+		{
+			m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_COIN, 0);
+			m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
+			m_apPickup[m_PickupCount]->m_Dropable = true;
+			m_PickupCount++;
+		}
+		
 		// kits
 		if (m_PickupCount < MAX_PICKUPS)
 		{
@@ -740,6 +750,11 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		new CBuilding(&GameServer()->m_World, Pos, BUILDING_SCREEN, TEAM_NEUTRAL);
 		return true;
 	}
+	else if (Index == ENTITY_SHOP)
+	{
+		new CShop(&GameServer()->m_World, Pos);
+		return true;
+	}
 	else if (Index == ENTITY_LAZER)
 	{
 		new CDeathray(&GameServer()->m_World, Pos+vec2(0, -20));
@@ -781,11 +796,13 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		new CBuilding(&GameServer()->m_World, Pos, BUILDING_SPEAKER, TEAM_NEUTRAL);
 		return true;
 	}
+	/*
 	else if (Index == ENTITY_JUMPPAD)
 	{
 		new CBuilding(&GameServer()->m_World, Pos, BUILDING_JUMPPAD, TEAM_NEUTRAL);
 		return true;
 	}
+	*/
 	else if (Index == ENTITY_FLAMETRAP_RIGHT || Index == ENTITY_FLAMETRAP_LEFT)
 	{
 		CBuilding *pFlametrap = new CBuilding(&GameServer()->m_World, Pos, BUILDING_FLAMETRAP, TEAM_NEUTRAL);
@@ -1313,12 +1330,15 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 			if (pVictim->HasAmmo())
 				DropPickup(pVictim->m_Pos, POWERUP_AMMO, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 
-			if (frandom() < 0.5f)
+			else if (frandom() < 0.5f)
 				DropPickup(pVictim->m_Pos, POWERUP_AMMO, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 				
 			if (pVictim->GetArmor() > 0)
 				DropPickup(pVictim->m_Pos, POWERUP_ARMOR, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 
+			if (frandom() < 0.5f)
+				DropPickup(pVictim->m_Pos, POWERUP_COIN, pVictim->m_LatestHitVel+vec2(frandom()*8.0-frandom()*8.0, frandom()*6.0-frandom()*8.0), 0);
+				
 		}
 
 		// drop weapon

@@ -21,6 +21,7 @@ public:
 	int m_Armor;
 	int m_Kits;
 	int m_Score;
+	int m_Gold;
 	
 	int m_HighestLevel;
 	int m_HighestLevelSeed;

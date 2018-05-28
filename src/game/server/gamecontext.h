@@ -179,6 +179,8 @@ public:
 	
 	bool AddBuilding(int Kit, vec2 Pos, int Owner);
 	
+	void Shop(class CPlayer *pPlayer, int Slot);
+	
 	void CreateProjectile(int DamageOwner, int Weapon, int Charge, vec2 Pos, vec2 Direction, class CBuilding *OwnerBuilding = NULL);
 	void CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 Pos, vec2 Direction);
 

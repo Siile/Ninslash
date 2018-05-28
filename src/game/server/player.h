@@ -114,6 +114,12 @@ public:
 
 	bool m_ActionSpectator;
 	
+	int m_Gold;
+	
+	int GetGold() { return m_Gold; }
+	void ReduceGold(int Amount) { m_Gold = max(0, m_Gold-Amount); }
+	bool IncreaseGold(int Amount) { if (m_Gold < 999){ m_Gold = min(999, m_Gold+Amount); return true; } return false; }
+	
 	//
 	int m_Vote;
 	int m_VotePos;
@@ -216,7 +222,7 @@ public:
 private:
 	bool m_Spectate;
 	bool m_GotSkin;
-
+	
 	CCharacter *m_pCharacter;
 	CGameContext *m_pGameServer;
 

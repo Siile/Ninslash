@@ -14,6 +14,11 @@ CPickup::CPickup(CGameWorld *pGameWorld, int Type, int SubType, int Ammo)
 	m_Type = Type;
 	m_Subtype = SubType;
 	m_ProximityRadius = PickupPhysSize;
+	
+	if (Type == POWERUP_COIN)
+		m_BoxSize = 14;
+	else
+		m_BoxSize = 24;
 
 	m_ResetableDropable = false;
 	m_pWeapon = NULL;
@@ -94,7 +99,7 @@ bool CPickup::IsWeapon()
 void CPickup::Tick()
 {
 	//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "debug", "pickup tick");
-	if (!m_Dropable && GameServer()->Collision()->IsForceTile(m_Pos.x, m_Pos.y+24) != 0)
+	if (!m_Dropable && GameServer()->Collision()->IsForceTile(m_Pos.x, m_Pos.y+m_BoxSize) != 0)
 	{
 		m_ResetableDropable = true;
 		m_SpawnPos = m_Pos;
@@ -179,14 +184,14 @@ void CPickup::Tick()
 		m_Vel.y += 0.5f;
 		
 		bool Grounded = false;
-		if(GameServer()->Collision()->CheckPoint(m_Pos.x+12, m_Pos.y+12+5))
+		if(GameServer()->Collision()->CheckPoint(m_Pos.x+12, m_Pos.y+m_BoxSize/2+5))
 			Grounded = true;
-		if(GameServer()->Collision()->CheckPoint(m_Pos.x-12, m_Pos.y+12+5))
+		if(GameServer()->Collision()->CheckPoint(m_Pos.x-12, m_Pos.y+m_BoxSize/2+5))
 			Grounded = true;
 		
-		int OnForceTile = GameServer()->Collision()->IsForceTile(m_Pos.x-12, m_Pos.y+12+5);
+		int OnForceTile = GameServer()->Collision()->IsForceTile(m_Pos.x-12, m_Pos.y+m_BoxSize/2+5);
 		if (OnForceTile == 0)
-			OnForceTile = GameServer()->Collision()->IsForceTile(m_Pos.x+12, m_Pos.y+12+5);
+			OnForceTile = GameServer()->Collision()->IsForceTile(m_Pos.x+12, m_Pos.y+m_BoxSize/2+5);
 		
 
 		if (Grounded)
@@ -219,7 +224,7 @@ void CPickup::Tick()
 		//	m_Vel.x -= 0.3f;
 		
 		vec2 OldVel = m_Vel;
-		GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(24.0f, 24.0f), 0.5f);
+		GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(m_BoxSize, m_BoxSize), 0.5f);
 		
 		if (m_pWeapon)
 			if ((((OldVel.x < 0 && m_Vel.x > 0) || (OldVel.x > 0 && m_Vel.x < 0)) && abs(m_Vel.x) > 3.0f) ||
@@ -260,6 +265,16 @@ void CPickup::Tick()
 				
 			case POWERUP_ARMOR:
 				if(pChr->IncreaseArmor(10))
+				{
+					GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR);
+					RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;
+					m_Life = 0;
+					m_Flashing = false;
+				}
+				break;
+				
+			case POWERUP_COIN:
+				if(pChr->GetPlayer()->IncreaseGold(1))
 				{
 					GameServer()->CreateSound(m_Pos, SOUND_PICKUP_ARMOR);
 					RespawnTime = g_pData->m_aPickups[m_Type].m_Respawntime;

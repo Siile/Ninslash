@@ -1537,6 +1537,47 @@ void CGameContext::OnClientConnected(int ClientID, bool AI)
 	*/
 }
 
+
+void CGameContext::Shop(CPlayer *pPlayer, int Slot)
+{
+	if (!pPlayer->GetCharacter())
+		return;
+	
+	vec2 Pos = pPlayer->GetCharacter()->m_Pos;
+	
+	CBuilding *apEnts[32];
+	int Num = m_World.FindEntities(Pos, 400, (CEntity**)apEnts, 32, CGameWorld::ENTTYPE_BUILDING);
+
+	for (int i = 0; i < Num; ++i)
+	{
+		CBuilding *pTarget = apEnts[i];
+		
+		if (pTarget->m_Type == BUILDING_SHOP && abs(Pos.x - pTarget->m_Pos.x) < 100 && abs(Pos.y - pTarget->m_Pos.y) < 100)
+		{
+			int Item = pTarget->GetItem(Slot);
+			
+			if (Item && pPlayer->GetGold() >= GetWeaponCost(Item))
+			{
+				if (pPlayer->GetCharacter()->GiveWeapon(NewWeapon(Item)))
+				{
+					pPlayer->ReduceGold(GetWeaponCost(Item));
+					pPlayer->GetCharacter()->SendInventory();
+					pTarget->ClearItem(Slot);
+					
+					// shop sound
+					CreateSoundGlobal(SOUND_PICKUP_SHOTGUN, pPlayer->GetCID());
+					return;
+				}
+				else
+					CreateSoundGlobal(SOUND_GUI_DENIED1, pPlayer->GetCID());
+			}
+			else
+				CreateSoundGlobal(SOUND_GUI_DENIED1, pPlayer->GetCID());
+		}
+	}
+}
+
+
 void CGameContext::OnClientDrop(int ClientID, const char *pReason)
 {
 	m_LastSeen.OnClientDrop(this, ClientID);
@@ -1998,6 +2039,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				case INVENTORYACTION_SWAP: pPlayer->SwapItem(pMsg->m_Item1, pMsg->m_Item2); break;
 				case INVENTORYACTION_COMBINE: pPlayer->CombineItem(pMsg->m_Item1, pMsg->m_Item2); break;
 				case INVENTORYACTION_TAKEPART: pPlayer->TakePart(pMsg->m_Item1, pMsg->m_Slot, pMsg->m_Item2); break;
+				case INVENTORYACTION_SHOP: Shop(pPlayer, pMsg->m_Slot); break;
 				default: return;
 			};
 		}

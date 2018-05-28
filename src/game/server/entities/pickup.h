@@ -28,8 +28,9 @@ public:
 			m_SpawnTick = -1;
 			m_Flashing = false;
 			m_FlashTimer = 0;
-			ClearWeapon();
 		}
+		
+		ClearWeapon();
 	}
 	
 	void SurvivalReset();
@@ -70,6 +71,7 @@ public:
 		m_Flashing = false;
 		m_FlashTimer = 0;
 		m_Subtype = 0;
+		ClearWeapon();
 	}
 	
 	void AddForce(vec2 Force);
@@ -98,6 +100,7 @@ public:
 	float m_AngleForce;
 	
 private:
+	int m_BoxSize;
 	int m_Type;
 	int m_Subtype;
 	

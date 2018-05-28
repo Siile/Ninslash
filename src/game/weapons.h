@@ -128,6 +128,8 @@ bool WeaponAimline(int Weapon);
 
 bool AIWeaponCharge(int Weapon);
 
+int GetWeaponCost(int Weapon);
+
 vec2 GetWeaponRenderOffset(int Weapon);
 vec2 GetMuzzleRenderOffset(int Weapon);
 vec2 GetProjectileOffset(int Weapon);

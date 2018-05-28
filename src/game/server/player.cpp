@@ -34,6 +34,7 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	m_GotSkin = false;
 	
 	m_Score = 0;
+	m_Gold = 0;
 	
 	m_ActionTimer = 0;
 	

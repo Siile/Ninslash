@@ -675,6 +675,33 @@ void CMapGen::GenerateScreen(CGenLayer *pTiles)
 	pTiles->Use(x, p.y-1);
 }
 
+void CMapGen::GenerateShop(CGenLayer *pTiles)
+{
+	/*
+	ivec3 p = pTiles->GetLongPlatform();
+	
+	if (p.x == 0)
+		return;
+	int x = (p.x+p.z)/2;
+	
+	for (int y = 1; y < 6; y++)
+		if (pTiles->Get(x, p.y-y))
+			return;
+	
+	ModifTile(ivec2(x, p.y-1), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SHOP);
+	
+	pTiles->Use(x, p.y-1);
+	*/
+	
+	ivec2 p = pTiles->GetPlatform();
+	
+	if (p.x == 0)
+		return;
+	
+	ModifTile(ivec2(p.x, p.y), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SHOP);
+	pTiles->Use(p.x, p.y);
+}
+
 void CMapGen::GenerateSpeaker(CGenLayer *pTiles)
 {
 	ivec2 p = pTiles->GetTopCorner();
@@ -992,19 +1019,14 @@ void CMapGen::GenerateLevel()
 	for (int i = 0; i < min(4, 2 + int(Level * 0.5f)); i++)
 		GeneratePowerupper(pTiles);
 	
-	
-	if (Level % 10 == 9)
-	{
-		GeneratePowerupper(pTiles);
-		GeneratePowerupper(pTiles);
-		GeneratePowerupper(pTiles);
-		GeneratePowerupper(pTiles);
-	}
+	if (Level > 2)
+		GenerateShop(pTiles);
 	
 	// enemy spawn positions
-	for (int i = 0; i < min(5+Level, 10) ; i++)
+	for (int i = 0; i < 5 ; i++)
 		GenerateEnemySpawn(pTiles);
 	
+	//if (Level > 3 && frandom() < 0.75f)
 	
 	for (int i = 0; i < 4; i++)
 		GenerateScreen(pTiles);
@@ -1149,7 +1171,7 @@ void CMapGen::GenerateLevel()
 	*/
 
 	// more enemy spawn positions
-	for (int i = 0; i < min(Level, 20); i++)
+	for (int i = 0; i < min(Level, 10); i++)
 		GenerateEnemySpawn(pTiles);
 	
 	if (pRoom)
@@ -1245,6 +1267,9 @@ void CMapGen::GeneratePVPLevel()
 	// find platforms, corners etc.
 	dbg_msg("mapgen", "Scanning level");
 	pTiles->Scan();
+	
+	GenerateShop(pTiles);
+	GenerateShop(pTiles);
 	
 	// flags to ctf
 	if (str_comp(g_Config.m_SvGametype, "ctf") == 0)
@@ -1370,6 +1395,8 @@ void CMapGen::GeneratePVPLevel()
 	for (int i = 0; i < 4; i++)
 		GenerateScreen(pTiles);
 	
+	GenerateShop(pTiles);
+	GenerateShop(pTiles);
 
 	//for (int i = 0; i < 2; i++)
 	//	GenerateCrawlerDroid(pTiles);

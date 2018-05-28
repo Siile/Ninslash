@@ -108,7 +108,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	
 	m_aStatus[STATUS_SPAWNING] = 0.7f*Server()->TickSpeed();
 	
-	m_SendInventoryTick = Server()->Tick() + Server()->TickSpeed();
+	m_SendInventoryTick = Server()->Tick() + Server()->TickSpeed()*2.5f;
 	
 	m_ChangeDirTick = 0;
 	m_LastDir = 0;
@@ -200,7 +200,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_apWeapon[0] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 2), 10));
 	*/
 	
-	//m_apWeapon[1] = GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE3));
 	
 	/*
 	int n = 0;
@@ -265,6 +264,7 @@ void CCharacter::SaveData()
 	pData->m_Kits = m_Kits;
 	pData->m_Armor = m_Armor;
 	pData->m_Score = GetPlayer()->m_Score;
+	pData->m_Gold = GetPlayer()->m_Gold;
 	
 	if (g_Config.m_SvMapGenLevel > pData->m_HighestLevel)
 	{
@@ -299,7 +299,7 @@ bool CCharacter::GiveWeapon(class CWeapon *pWeapon)
 	
 	if (m_apWeapon[m_WeaponSlot])
 	{
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < NUM_SLOTS; i++)
 		{
 			if (!m_apWeapon[i])
 			{
@@ -309,6 +309,7 @@ bool CCharacter::GiveWeapon(class CWeapon *pWeapon)
 				if (m_IsBot && GameServer()->m_pController->IsCoop())
 					pWeapon->m_InfiniteAmmo = true;
 				
+				//SendInventory();
 				return true;
 			}
 		}
@@ -321,6 +322,7 @@ bool CCharacter::GiveWeapon(class CWeapon *pWeapon)
 	if (m_IsBot && GameServer()->m_pController->IsCoop())
 		pWeapon->m_InfiniteAmmo = true;
 	
+	//SendInventory();
 	return true;
 }
 
@@ -417,6 +419,9 @@ void CCharacter::Destroy()
 
 void CCharacter::SendInventory()
 {
+	if (m_IsBot)
+		return;
+	
 	CNetMsg_Sv_Inventory Msg;
 	Msg.m_Item1 = GetWeaponType(0);
 	Msg.m_Item2 = GetWeaponType(1);
@@ -430,6 +435,7 @@ void CCharacter::SendInventory()
 	Msg.m_Item10 = GetWeaponType(9);
 	Msg.m_Item11 = GetWeaponType(10);
 	Msg.m_Item12 = GetWeaponType(11);
+	Msg.m_Gold = GetPlayer()->GetGold();
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, GetPlayer()->GetCID());
 }
 
@@ -1096,6 +1102,7 @@ void CCharacter::GiveStartWeapon()
 		m_Kits = pData->m_Kits;
 		m_Armor = pData->m_Armor;
 		GetPlayer()->m_Score = pData->m_Score;
+		GetPlayer()->m_Gold = pData->m_Gold;
 		
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "Data load - color=%d", GetPlayer()->GetColorID());
@@ -1400,7 +1407,7 @@ void CCharacter::UpdateCoreStatus()
 		//	TakeDamage(vec2(0, 0), 4, m_aStatusFrom[STATUS_AFLAME], m_aStatusWeapon[STATUS_AFLAME], vec2(0, 0), DAMAGETYPE_FLAME);
 	}
 	
-	// rolling stops flames faster
+	// rolling stops flames a bit faster
 	if (m_Core.m_Roll > 0 && m_aStatus[STATUS_AFLAME] > 0)
 		m_aStatus[STATUS_AFLAME]--;
 }
@@ -1411,7 +1418,18 @@ void CCharacter::Tick()
 	//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "debug", "Tick");
 
 	// stress testing pickups
-	//GameServer()->m_pController->DropWeapon(m_Pos, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_UPGRADE)));
+	
+	//for (int i = 0; i < 50; i++)
+	//	GameServer()->m_pController->DropWeapon(m_Pos, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_UPGRADE)));
+	
+	/*
+	GameServer()->m_pController->DropPickup(m_Pos, POWERUP_HEALTH, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
+	GameServer()->m_pController->DropPickup(m_Pos, POWERUP_ARMOR, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
+	GameServer()->m_pController->DropPickup(m_Pos, POWERUP_AMMO, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
+	*/
+	
+	//GameServer()->m_pController->DropPickup(m_Pos, POWERUP_COIN, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
+	//GameServer()->m_pController->DropPickup(m_Pos, POWERUP_HEALTH, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
 	
 	if (m_PainSoundTimer > 0)
 		m_PainSoundTimer--;

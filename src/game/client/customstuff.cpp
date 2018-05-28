@@ -40,6 +40,8 @@ void CCustomStuff::Reset()
 	for (int i = 0; i < 12; i++)
 		m_aItem[i] = 0;
 	
+	m_Gold = 0;
+	
 	/*
 	int w = 1<<0 | 1<<5;
 	m_aItem[0] = w;

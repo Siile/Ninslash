@@ -196,6 +196,7 @@ public:
 	
 	bool m_Inventory;
 	int m_aItem[12];
+	int m_Gold;
 	
 	bool m_BuildMode;
 	
