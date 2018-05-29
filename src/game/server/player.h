@@ -118,7 +118,7 @@ public:
 	
 	int GetGold() { return m_Gold; }
 	void ReduceGold(int Amount) { m_Gold = max(0, m_Gold-Amount); }
-	bool IncreaseGold(int Amount) { if (m_Gold < 999){ m_Gold = min(999, m_Gold+Amount); return true; } return false; }
+	bool IncreaseGold(int Amount);
 	
 	//
 	int m_Vote;

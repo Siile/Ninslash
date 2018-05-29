@@ -656,6 +656,7 @@ void CMapGen::GenerateDeathray(CGenLayer *pTiles)
 
 void CMapGen::GenerateScreen(CGenLayer *pTiles)
 {
+	/*
 	ivec3 p = pTiles->GetLongPlatform();
 	
 	if (p.x == 0)
@@ -673,6 +674,19 @@ void CMapGen::GenerateScreen(CGenLayer *pTiles)
 		ModifTile(ivec2(x, p.y-1), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_REACTOR);
 	
 	pTiles->Use(x, p.y-1);
+	*/
+	
+	ivec2 p = pTiles->GetMedPlatform();
+	
+	if (p.x == 0)
+		return;
+	
+	if (frandom() < 0.7f)
+		ModifTile(ivec2(p.x, p.y), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SCREEN);
+	else
+		ModifTile(ivec2(p.x, p.y), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_REACTOR);
+	
+	pTiles->Use(p.x, p.y);
 }
 
 void CMapGen::GenerateShop(CGenLayer *pTiles)
@@ -693,7 +707,7 @@ void CMapGen::GenerateShop(CGenLayer *pTiles)
 	pTiles->Use(x, p.y-1);
 	*/
 	
-	ivec2 p = pTiles->GetPlatform();
+	ivec2 p = pTiles->GetMedPlatform();
 	
 	if (p.x == 0)
 		return;

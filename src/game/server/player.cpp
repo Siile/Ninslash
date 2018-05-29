@@ -66,6 +66,17 @@ CPlayer::~CPlayer()
 }
 
 
+bool CPlayer::IncreaseGold(int Amount)
+{
+	if (m_Gold < 999)
+	{
+		m_Gold = min(999, m_Gold+Amount);
+		SendInventory();
+		return true;
+	}
+
+	return false;
+}
 
 void CPlayer::SaveData()
 {
