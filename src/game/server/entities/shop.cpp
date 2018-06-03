@@ -34,7 +34,10 @@ void CShop::FillSlots()
 		if (m_aItem[i])
 			continue;
 		
-		int t = GetRandomWeaponType(false);
+		int t = GetRandomWeaponType(true);
+		
+		while (IsStaticWeapon(t) && (GetStaticType(t) == SW_GUN1 || GetStaticType(t) == SW_GUN2))
+			t = GetRandomWeaponType(true);
 		
 		if (frandom() < 0.1f)
 			t = GetStaticWeapon(SW_UPGRADE);
@@ -49,7 +52,7 @@ void CShop::FillSlots()
 				m_aItem[i] = GetChargedWeapon(t, WeaponMaxLevel(t)+2);
 			else if (frandom() < 0.1f && WeaponMaxLevel(t) < 4)
 				m_aItem[i] = GetChargedWeapon(t, WeaponMaxLevel(t)+1);
-			else if (frandom() < 0.5f)
+			else if (frandom() < 0.4f)
 				m_aItem[i] = GetChargedWeapon(t, frandom()*(WeaponMaxLevel(t)+1));
 			else
 				m_aItem[i] = t;

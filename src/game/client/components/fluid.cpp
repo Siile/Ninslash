@@ -130,6 +130,8 @@ void CFluid::AddForce(vec2 Pos, vec2 Vel)
 	
 	// global acid pool
 	//if (Pos.x > m_GlobalPool.m_Pos.x && Pos.x < m_GlobalPool.m_Pos.x + m_GlobalPool.m_Size.x)
+		
+	if (m_pClient->SurvivalAcid())
 	{
 		if (Pos.y > m_GlobalPool.m_Pos.y - 60 && Pos.y < m_GlobalPool.m_Pos.y + m_GlobalPool.m_Size.y)
 		{

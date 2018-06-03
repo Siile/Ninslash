@@ -93,6 +93,7 @@ protected:
 		MOVE_UP,
 		MOVE_UPLEFT,
 		MOVE_UPRIGHT,
+		MOVE_DOWN,
 	};
 	
 	int m_MoveType;
@@ -182,7 +183,6 @@ protected:
 	void DoJumping();
 	
 	void RandomlyStopShooting();
-	
 	
 	bool SeekRandomHuman();
 	void ShootAtClosestHuman();

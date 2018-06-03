@@ -10,6 +10,7 @@
 #include <game/collision.h>
 #include <game/gamecore.h> 
 #include "gamemodes/dm.h"
+#include "gamemodes/cs.h"
 #include "gamemodes/tdm.h"
 #include "gamemodes/ctf.h"
 #include "gamemodes/run.h"
@@ -1514,6 +1515,7 @@ void CGameContext::OnClientConnected(int ClientID, bool AI)
 	//players[client_id].client_id = client_id;
 
 	m_apPlayers[ClientID]->m_IsBot = AI;
+	m_apPlayers[ClientID]->m_TeeInfos.m_IsBot = true;
 	
 	(void)m_pController->CheckTeamBalance();
 
@@ -1538,10 +1540,10 @@ void CGameContext::OnClientConnected(int ClientID, bool AI)
 }
 
 
-void CGameContext::Shop(CPlayer *pPlayer, int Slot)
+bool CGameContext::Shop(CPlayer *pPlayer, int Slot, bool AI)
 {
 	if (!pPlayer->GetCharacter())
-		return;
+		return false;
 	
 	vec2 Pos = pPlayer->GetCharacter()->m_Pos;
 	
@@ -1556,7 +1558,7 @@ void CGameContext::Shop(CPlayer *pPlayer, int Slot)
 		{
 			int Item = pTarget->GetItem(Slot);
 			
-			if (Item && pPlayer->GetGold() >= GetWeaponCost(Item))
+			if (Item && (!AI || GetStaticType(Item) != SW_UPGRADE) && pPlayer->GetGold() >= GetWeaponCost(Item))
 			{
 				if (pPlayer->GetCharacter()->GiveWeapon(NewWeapon(Item)))
 				{
@@ -1565,8 +1567,9 @@ void CGameContext::Shop(CPlayer *pPlayer, int Slot)
 					pTarget->ClearItem(Slot);
 					
 					// shop sound
-					CreateSoundGlobal(SOUND_PICKUP_SHOTGUN, pPlayer->GetCID());
-					return;
+					//CreateSoundGlobal(SOUND_PICKUP_SHOTGUN, pPlayer->GetCID());
+					CreateSound(Pos, SOUND_PICKUP_SHOTGUN);
+					return true;
 				}
 				else
 					CreateSoundGlobal(SOUND_GUI_DENIED1, pPlayer->GetCID());
@@ -1575,6 +1578,8 @@ void CGameContext::Shop(CPlayer *pPlayer, int Slot)
 				CreateSoundGlobal(SOUND_GUI_DENIED1, pPlayer->GetCID());
 		}
 	}
+	
+	return false;
 }
 
 
@@ -1668,7 +1673,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				SkipSending = true;
 			}
 			
-			/*
+			
 			if ( strcmp(pMsg->m_pMessage, "/showwaypoints") == 0 )
 			{
 				m_ShowWaypoints = !m_ShowWaypoints;
@@ -1680,7 +1685,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				m_ShowAiState = !m_ShowAiState;
 				SkipSending = true;
 			}
-			*/
+			
 			
 			if ( strcmp(pMsg->m_pMessage, "/seed") == 0 )
 			{
@@ -2647,6 +2652,8 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	// select gametype
 	if(str_comp(g_Config.m_SvGametype, "ctf") == 0)
 		m_pController = new CGameControllerCTF(this);
+	else if(str_comp(g_Config.m_SvGametype, "def") == 0)
+		m_pController = new CGameControllerCS(this);
 	else if(str_comp(g_Config.m_SvGametype, "tdm") == 0)
 		m_pController = new CGameControllerTDM(this);
 	else if(str_comp(g_Config.m_SvGametype, "inf") == 0)

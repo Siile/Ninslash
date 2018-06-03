@@ -153,16 +153,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	
 	m_LatestHitVel = vec2(0, 0);
 	
-	// reset weapons
-	for (int i = 0; i < NUM_WEAPONS; i++)
-	{
-		m_aWeapon[i].m_Ammo = 0;
-		m_aWeapon[i].m_PowerLevel = 0;
-		m_aWeapon[i].m_Got = false;
-		m_aWeapon[i].m_Disabled = false;
-		m_aWeapon[i].m_Ready = false;
-	}
-	
 	
 	m_Core.Reset();
 	m_Core.Init(&GameServer()->m_World.m_Core, GameServer()->Collision());
@@ -1111,6 +1101,26 @@ void CCharacter::GiveStartWeapon()
 		return;
 	}
 	
+	// CS / reactor defence
+	if (str_comp(g_Config.m_SvGametype, "def") == 0)
+	{
+		bool GotItems = false;
+		
+		for (int i = 0; i < NUM_SLOTS; i++)
+			if (m_apWeapon[i])
+				GotItems = true;
+		
+		if (!GotItems)
+		{
+			if (frandom() < 0.5f)
+				m_apWeapon[0] = GameServer()->NewWeapon(GetStaticWeapon(SW_GUN1));
+			else
+				m_apWeapon[0] = GameServer()->NewWeapon(GetStaticWeapon(SW_GUN2));
+		}
+		
+		return;
+	}
+	
 	// dm, tdm, ctf
 	int w = 0;
 	
@@ -1724,7 +1734,7 @@ bool CCharacter::AddKit()
 	
 	if (m_Kits < 99)
 	{
-		m_Kits = min(m_Kits+4, 99);
+		m_Kits = min(m_Kits+5, 99);
 		return true;
 	}
 	

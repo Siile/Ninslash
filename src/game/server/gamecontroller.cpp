@@ -1336,7 +1336,7 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 			if (pVictim->GetArmor() > 0)
 				DropPickup(pVictim->m_Pos, POWERUP_ARMOR, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 
-			if (frandom() < 0.5f)
+			if (IsCoop() && frandom() < 0.5f)
 				DropPickup(pVictim->m_Pos, POWERUP_COIN, pVictim->m_LatestHitVel+vec2(frandom()*8.0-frandom()*8.0, frandom()*6.0-frandom()*8.0), 0);
 				
 		}
@@ -1540,8 +1540,8 @@ void IGameController::NewSurvivalRound()
 	
 void IGameController::ResetSurvivalRound()
 {
-	KillEveryone();
 	NewSurvivalRound();
+	KillEveryone();
 	m_ClearBroadcastTick = Server()->Tick() + Server()->TickSpeed()*2;
 	m_SurvivalStartTick = Server()->Tick();
 	m_SurvivalStatus = SURVIVAL_CANJOIN;
@@ -1562,6 +1562,22 @@ void IGameController::ResetSurvivalRound()
 		for (int i = 0; i < Num; ++i)
 			apEnts[i]->SurvivalReset();
 	}
+	
+	// cs round restart
+	/*
+	if (str_comp(g_Config.m_SvGametype, "def") == 0)
+	{
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			CPlayer *pPlayer = GameServer()->m_apPlayers[i];
+			if(!pPlayer)
+				continue;
+
+			if (pPlayer->GetTeam() != TEAM_SPECTATORS)
+				pPlayer->IncreaseGold(15);
+		}
+	}
+	*/
 }
 
 void IGameController::KillEveryone()

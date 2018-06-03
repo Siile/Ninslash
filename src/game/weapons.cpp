@@ -34,7 +34,7 @@ int GetWeaponCost(int Weapon)
 		switch (GetStaticType(Weapon))
 		{
 			case SW_BUBBLER: cost1 = 10; cost2 = 20; break;
-			case SW_BAZOOKA: cost1 = 10; cost2 = 20; break;
+			case SW_BAZOOKA: cost1 = 20; cost2 = 20; break;
 			case SW_BOUNCER: cost1 = 10; cost2 = 20; break;
 			case SW_UPGRADE: cost1 = 10; cost2 = 0; break;
 			case SW_RESPAWNER: cost1 = 10; cost2 = 0; break;
@@ -42,8 +42,8 @@ int GetWeaponCost(int Weapon)
 			case SW_SHIELD: cost1 = 5; cost2 = 20; break;
 			case SW_CHAINSAW: cost1 = 10; cost2 = 20; break;
 			case SW_FLAMER: cost1 = 10; cost2 = 20; break;
-			case SW_GUN1: cost1 = 5; cost2 = 0; break;
-			case SW_GUN2: cost1 = 5; cost2 = 0; break;
+			case SW_GUN1: cost1 = 2; cost2 = 0; break;
+			case SW_GUN2: cost1 = 2; cost2 = 0; break;
 			case SW_GRENADE1: cost1 = 5; cost2 = 0; break;
 			case SW_GRENADE2: cost1 = 5; cost2 = 0; break;
 			case SW_GRENADE3: cost1 = 5; cost2 = 0; break;
@@ -1326,7 +1326,7 @@ float GetProjectileDamage(int Weapon)
 			case SW_BUBBLER: return 6.0f;
 			case SW_BAZOOKA: return 10.0f;
 			case SW_BOUNCER: return 0.0f+Charge*3.0f;
-			case SW_GUN1: return 12.0f;
+			case SW_GUN1: return 15.0f;
 			case SW_GUN2: return 35.0f;
 			default: return 0.0f;
 		};

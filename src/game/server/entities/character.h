@@ -141,30 +141,11 @@ public:
 	int m_WeaponSlot;
 	int m_WantedSlot;
 	
-	struct CustomWeaponStat
-	{
-		int m_Ammo;
-		int m_PowerLevel;
-		bool m_Got;
-		bool m_Disabled; // gungame
-		bool m_Ready;
-	} m_aWeapon[NUM_WEAPONS];
 	
 	bool AddClip(int Weapon = -1);
 	
 	// for pickup drops, easy access
 	bool HasAmmo();
-	
-	bool GotWeapon(int Weapon)
-	{
-		if (Weapon < 0)
-			return true;
-		
-		return m_aWeapon[Weapon].m_Got; 
-	}
-		
-	bool WeaponDisabled(int CustomWeapon){ return m_aWeapon[CustomWeapon].m_Disabled; }
-	void DisableWeapon(int CustomWeapon){ m_aWeapon[CustomWeapon].m_Disabled = true; }
 	
 	bool GiveWeapon(class CWeapon *pWeapon);
 	int GetWeaponType(int Slot = -1);

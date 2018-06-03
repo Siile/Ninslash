@@ -514,7 +514,7 @@ set_gore = SpriteSet("gore", image_gore, 8, 2)
 set_meat = SpriteSet("meat", image_meat, 8, 2)
 set_splatter = SpriteSet("splatter", image_splatter, 4, 1)
 set_blocks = SpriteSet("blocks", image_blocks, 4, 2)
-set_radar = SpriteSet("radar", image_radar, 4, 1)
+set_radar = SpriteSet("radar", image_radar, 4, 2)
 set_game = SpriteSet("game", image_game, 32, 16)
 set_flag = SpriteSet("flag", image_flag, 8, 2)
 set_weapons = SpriteSet("weapons", image_weapons, 32, 32)
@@ -656,6 +656,8 @@ container.sprites.Add(Sprite("block1_b3", set_blocks, 3, 1, 1, 1))
 
 for i in range(0, 4):
 	container.sprites.Add(Sprite("radar"+str(i+1), set_radar, i, 0, 1, 1))
+for i in range(0, 4):
+	container.sprites.Add(Sprite("radar"+str(i+5), set_radar, i, 1, 1, 1))
 	
 	
 	

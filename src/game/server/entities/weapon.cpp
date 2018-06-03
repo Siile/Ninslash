@@ -636,13 +636,13 @@ void CWeapon::Trigger()
 			
 				// spawn pickups
 				if (frandom() < 0.35f)
-					GameServer()->m_pController->DropPickup(m_Pos, POWERUP_HEALTH, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
+					GameServer()->m_pController->DropPickup(m_Pos+vec2(0, -6), POWERUP_HEALTH, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
 				else if (frandom() < 0.4f)
-					GameServer()->m_pController->DropPickup(m_Pos, POWERUP_AMMO, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
+					GameServer()->m_pController->DropPickup(m_Pos+vec2(0, -6), POWERUP_AMMO, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
 				else if (frandom() < 0.6f)
-					GameServer()->m_pController->DropPickup(m_Pos, POWERUP_ARMOR, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
+					GameServer()->m_pController->DropPickup(m_Pos+vec2(0, -6), POWERUP_ARMOR, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
 				else
-					GameServer()->m_pController->DropPickup(m_Pos, POWERUP_KIT, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
+					GameServer()->m_pController->DropPickup(m_Pos+vec2(0, -6), POWERUP_KIT, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
 				break;
 				
 			default: return;
