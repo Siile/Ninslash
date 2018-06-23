@@ -17,7 +17,7 @@ CRadar::CRadar(CGameWorld *pGameWorld, int Type, int ObjectiveID)
 
 void CRadar::Reset()
 {
-	GameServer()->m_World.DestroyEntity(this);
+	//GameServer()->m_World.DestroyEntity(this);
 }
 
 void CRadar::Tick()

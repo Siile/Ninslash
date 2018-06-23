@@ -38,7 +38,9 @@ void CRadar::RenderRadar(const CNetObj_Radar *pCurrent, const CNetObj_Radar *pPr
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_RADAR].m_Id);
 	Graphics()->QuadsBegin();
 	
-	Graphics()->SetColor(1, 1, 1, 1);
+	float ca = min(1.0f, distance(Pos, CameraPos)*0.001f);
+	
+	Graphics()->SetColor(1, 1, 1, ca);
 	if (pCurrent->m_Type == RADAR_CHARACTER)
 		Graphics()->QuadsSetRotation(a);
 	else
