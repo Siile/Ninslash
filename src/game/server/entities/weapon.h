@@ -16,6 +16,8 @@ public:
 	virtual void Snap(int SnappingClient);
 	virtual void CreateProjectile();
 	
+	virtual void SurvivalReset();
+	
 	const int GetWeaponType() { return m_WeaponType; }
 	const int GetPowerLevel() { return m_PowerLevel; }
 	const int GetOwner() { return m_Owner; }
@@ -119,6 +121,10 @@ private:
 	int m_LastNoAmmoSound;
 	
 	void SelfDestruct();
+	
+	int m_BombDisarmCounter;
+	int m_BombCounter;
+	int m_BombResetTick;
 };
 
 #endif

@@ -89,6 +89,8 @@ public:
 	void AddMuzzle(int AttackTick, int Weapon);
 	int m_MuzzleTick;
 	
+	bool m_BombCarrier;
+	
 	float m_aMuzzleTime[4];
 	int m_aMuzzleWeapon[4];
 	int m_aMuzzleType[4];

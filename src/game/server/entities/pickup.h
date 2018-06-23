@@ -33,7 +33,7 @@ public:
 		ClearWeapon();
 	}
 	
-	void SurvivalReset();
+	virtual void SurvivalReset();
 	
 	void RespawnDropable()
 	{

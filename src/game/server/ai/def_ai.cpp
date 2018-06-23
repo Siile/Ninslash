@@ -27,6 +27,9 @@ void CAIdef::OnCharacterSpawn(CCharacter *pChr)
 	m_State = AISTATE_FINDSHOP;
 	m_StateTimer = 0;
 	m_Shopped = false;
+	m_ReactorPos = vec2(0.0f, 0.0f);
+	m_NextTargetTick = 0;
+	m_Role = rand()%99;
 }
 
 bool CAIdef::SeekFriend()
@@ -102,6 +105,7 @@ void CAIdef::DoBehavior()
 	else
 		ShootAtClosestBuilding();
 	
+	bool SeekWaypoint = true;
 	
 	if (m_State == AISTATE_FINDSHOP)
 	{
@@ -115,11 +119,16 @@ void CAIdef::DoBehavior()
 			m_TargetPos = m_ShopPos;
 		else
 		{
+			int ShopTime = 80;
+			
+			if (Player()->GetCharacter() && Player()->GetCharacter()->IsBombCarrier())
+				ShopTime *= 1.75f;
+			
 			// shop
-			if (!m_Shopped && m_StateTimer > 40)
+			if (!m_Shopped && m_StateTimer > ShopTime/2)
 				m_Shopped = GameServer()->Shop(Player(), m_StateTimer%4, true);
 			
-			if (m_StateTimer++ > 80)
+			if (m_StateTimer++ > ShopTime)
 			{
 				m_StateTimer = 0;
 				m_State = AISTATE_ATTACK;
@@ -128,53 +137,140 @@ void CAIdef::DoBehavior()
 	}
 	else if (m_State == AISTATE_ATTACK)
 	{
-		int f = 800-max(400, m_EnemiesInSight*50);
-
-		bool SeekEnemy = false;
-		
-		if (SeekClosestFriend())
+		// bomb carrier => find reactor
+		if (Player()->GetCharacter() && Player()->GetCharacter()->IsBombCarrier())
 		{
-			m_TargetPos = m_PlayerPos;
-			
-			if (m_PlayerDistance < f)
-				SeekEnemy = true;
+			if (GameServer()->m_pController->InBombArea(m_Pos))
+			{
+				m_TargetPos = m_Pos;
+				m_WaypointPos = m_TargetPos;
+				
+				if (GetStaticType(Player()->GetCharacter()->GetWeaponType()) == SW_BOMB)
+				{
+					m_Attack = 1;
+					m_Move = 0;
+					m_Hook = 0;
+					m_Jump = 0;
+					SeekWaypoint = false;
+				}
+				else
+					Player()->GetCharacter()->RandomizeInventory();
+			}
+			else
+			{
+				if (m_ReactorPos.x == 0.0f)
+					m_ReactorPos = GameServer()->m_pController->GetAttackPos();
+				else
+					m_TargetPos = m_ReactorPos;
+			}
 		}
 		else
-			SeekEnemy = true;
-		
-		if (SeekEnemy)
 		{
-			if (SeekClosestEnemy())
+			bool TrySeekEnemy = true;
+			bool TrySeekFriend = true;
+			
+			if (Player()->GetTeam() == TEAM_RED)
 			{
-				m_TargetPos = m_PlayerPos;
-								
-				if (m_EnemiesInSight > 0)
+				if (m_Role%5 < 3 && GameServer()->m_pController->m_BombStatus != BOMB_DISARMED)
 				{
-					if (WeaponShootRange() - m_PlayerDistance > 200)
+					if (GameServer()->m_pController->m_BombStatus != BOMB_ARMED ||  distance(m_Pos, GameServer()->m_pController->m_BombPos) > 40+frandom()*400)
 					{
-						if (SeekFriend() && m_PlayerDistance < 200)
-							SeekRandomWaypoint();
+						TrySeekEnemy = false;
+						m_TargetPos = GameServer()->m_pController->m_BombPos;
+					}
+					
+					if (GameServer()->m_pController->m_BombStatus == BOMB_ARMED)
+						TrySeekFriend = false;
+				}
+			}
+			// blue team
+			else
+			{
+				if (GameServer()->m_pController->m_BombStatus == BOMB_ARMED)
+				{
+					TrySeekEnemy = false;
+					m_TargetPos = GameServer()->m_pController->m_BombPos;
+				}
+				else
+				{
+					if (m_NextTargetTick && m_NextTargetTick > GameServer()->Server()->Tick() && m_ReactorPos.x != 0.0f)
+					{
+						m_TargetPos = m_ReactorPos;
+						TrySeekEnemy = false;
+						
+						if (GameServer()->m_pController->InBombArea(m_Pos))
+							m_NextTargetTick = 0;
+					}
+					else
+					{
+						if (m_NextTargetTick < GameServer()->Server()->Tick())
+						{
+							m_NextTargetTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed()*(5.0f + frandom()*10.0f);
+							
+							if (frandom() < 0.6f)
+								m_ReactorPos = GameServer()->m_pController->GetAttackPos();
+							else
+								m_ReactorPos = vec2(0.0f, 0.0f);
+						}
 					}
 				}
 			}
-			else
-				SeekRandomWaypoint();
+			
+			if (TrySeekEnemy)
+			{
+				// find ally or enemy
+				int f = 800-max(400, m_EnemiesInSight*50);
+
+				bool SeekEnemy = false;
+				
+				if (TrySeekFriend && SeekClosestFriend())
+				{
+					m_TargetPos = m_PlayerPos;
+					
+					if (m_PlayerDistance < f)
+						SeekEnemy = true;
+				}
+				else
+					SeekEnemy = true;
+				
+				if (SeekEnemy)
+				{
+					if (SeekClosestEnemy())
+					{
+						m_TargetPos = m_PlayerPos;
+										
+						if (m_EnemiesInSight > 0)
+						{
+							if (WeaponShootRange() - m_PlayerDistance > 200)
+							{
+								if (SeekFriend() && m_PlayerDistance < 200)
+									SeekRandomWaypoint();
+							}
+						}
+					}
+					else
+						SeekRandomWaypoint();
+				}
+			}
 		}
-	
+		
 		if (Player()->GetCharacter()->GetWeaponType() == WEAPON_NONE)
 			FindWeapon();
 		else
 			ShootAtBlocks();
 	}
 
-	if (UpdateWaypoint())
+	if (SeekWaypoint)
 	{
-		MoveTowardsWaypoint();
-	}
-	else
-	{
-		m_WaypointPos = m_TargetPos;
-		MoveTowardsWaypoint(true);
+		if (UpdateWaypoint())
+		{
+			MoveTowardsWaypoint();
+		}
+		else
+		{
+			m_WaypointPos = m_TargetPos;
+			MoveTowardsWaypoint(true);
+		}
 	}
 	
 

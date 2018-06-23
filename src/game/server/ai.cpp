@@ -8,7 +8,6 @@
 #include "entities/building.h"
 #include "entities/staticlaser.h"
 #include "entities/flag.h"
-#include "entities/bomb.h"
 #include <game/server/player.h>
 #include "gamecontext.h"
 
@@ -535,19 +534,7 @@ bool CAI::SeekBombArea()
 	return false;
 }
 
-	
-bool CAI::SeekBomb()
-{
-	CBomb *Bomb = GameServer()->m_pController->GetBomb();
-	
-	if (Bomb)
-	{
-		m_TargetPos = Bomb->m_Pos;
-		return true;
-	}
-	
-	return false;
-}
+
 
 
 

@@ -47,6 +47,8 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	m_pAI = NULL;
 	m_ToBeKicked = false;
 	
+	IncreaseGold(g_Config.m_SvStartGold);
+	
 	//m_WantedTeam = m_Team;
 	//m_Team = TEAM_SPECTATORS;
 	

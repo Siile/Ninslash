@@ -341,6 +341,8 @@ container.sounds.Add(SoundSet("bouncer_explode", FileList("audio/wp_bouncer_expl
 container.sounds.Add(SoundSet("sfx_bounce1", ["audio/sfx_bounce1.wv"]))
 
 container.sounds.Add(SoundSet("upgrade", FileList("audio/wp_upgrade-%02d.wv", 3)))
+container.sounds.Add(SoundSet("bomb_beep", FileList("audio/wp_bomb_beep-%02d.wv", 3)))
+container.sounds.Add(SoundSet("bomb_denied", ["audio/wp_bomb_denied.wv"]))
 
 container.sounds.Add(SoundSet("inv1", ["audio/inv1.wv"]))
 container.sounds.Add(SoundSet("inv2", ["audio/inv2.wv"]))
@@ -361,6 +363,7 @@ image_particles = Image("particles", "particles.png")
 image_gore = Image("gore", "gore.png")
 image_meat = Image("meat", "meat.png")
 image_guts = Image("guts", "guts.png")
+image_backbomb = Image("backbomb", "backbomb.png")
 image_brain = Image("brain", "brain.png")
 image_splatter = Image("splatter", "splatter.png")
 image_blocks = Image("blocks", "blocks.png")
@@ -432,6 +435,7 @@ container.images.Add(image_pixel)
 container.images.Add(image_radar)
 container.images.Add(image_blocks)
 container.images.Add(image_game)
+container.images.Add(image_backbomb)
 container.images.Add(image_flag)
 container.images.Add(image_weapons)
 container.images.Add(image_projectiles)
@@ -705,6 +709,7 @@ container.sprites.Add(Sprite("weapon_static13", set_weapons, 2, 16, 2, 4)) # res
 container.sprites.Add(Sprite("weapon_static14", set_weapons, 2, 25, 2, 3)) # invis
 container.sprites.Add(Sprite("weapon_static15", set_weapons, 7, 6, 6, 3)) # flame rifle / bubbler
 container.sprites.Add(Sprite("weapon_static16", set_weapons, 2, 12, 4, 4)) # shuriken
+container.sprites.Add(Sprite("weapon_static17", set_weapons, 4, 16, 3, 4)) # cs bomb
 
 # pickups
 container.sprites.Add(Sprite("pickup_kit", set_weapons, 10, 0, 2, 2))

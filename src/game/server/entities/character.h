@@ -83,12 +83,16 @@ public:
 	
 	void Teleport(vec2 Pos);
 	
+	bool GiveBomb();
+	bool IsBombCarrier();
+
 	bool IncreaseHealth(int Amount);
 	bool IncreaseAmmo(int Amount);
 	bool IncreaseArmor(int Amount);
 	
 	bool AddMine();
 	bool AddKit();
+	bool AddKits(int Amount);
 	
 	void SetArmor(int Armor);
 	void SetHealth(int Health);
@@ -151,6 +155,7 @@ public:
 	int GetWeaponType(int Slot = -1);
 	int GetWeaponSlot(){ return clamp(m_WeaponSlot, 0, 3);}
 	int GetWeaponPowerLevel(int WeaponSlot = -1);
+	int FreeSlot();
 	
 	bool PickWeapon(class CWeapon *pWeapon);
 	

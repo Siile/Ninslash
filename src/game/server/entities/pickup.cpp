@@ -112,6 +112,14 @@ void CPickup::Tick()
 		m_Ammo = 1.0f;
 	}
 	
+	if (m_Life > 0 && m_Type == POWERUP_WEAPON && GetStaticType(m_Subtype) == SW_BOMB)
+	{
+		m_Life = 9999;
+		
+		GameServer()->m_pController->m_BombPos = m_Pos;
+		GameServer()->m_pController->m_BombStatus = BOMB_IDLE;
+	}
+	
 	// wait for respawn
 	//if(m_SpawnTick > 0) - 12.5.
 	if(m_SpawnTick > 0 && (!m_Dropable || m_ResetableDropable) && !m_Flashing)
@@ -341,8 +349,8 @@ void CPickup::AddForce(vec2 Force)
 	if (m_Dropable && !m_Treasure)
 		m_Vel += Force;
 }
-	
-	
+
+
 void CPickup::SurvivalReset()
 {
 	if (!m_Dropable || m_ResetableDropable)
@@ -350,6 +358,7 @@ void CPickup::SurvivalReset()
 		m_SpawnTick = -1;
 		m_Flashing = false;
 		m_FlashTimer = 0;
+		m_Life = 0;
 			
 		if (m_ResetableDropable)
 		{
@@ -362,7 +371,10 @@ void CPickup::SurvivalReset()
 	SetRandomWeapon();
 
 	if (m_Dropable)
+	{
 		m_SpawnTick = 999;
+		m_Life = 0;
+	}
 }
 
 

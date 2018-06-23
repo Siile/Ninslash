@@ -1408,9 +1408,6 @@ void CMapGen::GeneratePVPLevel()
 		
 	for (int i = 0; i < 4; i++)
 		GenerateScreen(pTiles);
-	
-	GenerateShop(pTiles);
-	GenerateShop(pTiles);
 
 	//for (int i = 0; i < 2; i++)
 	//	GenerateCrawlerDroid(pTiles);

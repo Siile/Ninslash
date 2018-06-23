@@ -33,6 +33,7 @@ int GetWeaponCost(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_TOOL: cost1 = 5; cost2 = 0; break;
 			case SW_BUBBLER: cost1 = 10; cost2 = 20; break;
 			case SW_BAZOOKA: cost1 = 20; cost2 = 20; break;
 			case SW_BOUNCER: cost1 = 10; cost2 = 20; break;
@@ -272,6 +273,7 @@ int GetExplosionSprite(int Weapon)
 			case BUILDING_FLAMETRAP: return SPRITE_EXPLOSION1_1;
 			case BUILDING_BARREL: return SPRITE_EXPLOSION1_1;
 			case BUILDING_POWERBARREL: return SPRITE_EXPLOSION1_1;
+			case BUILDING_REACTOR: return SPRITE_EXPLOSION1_1;
 			default: return SPRITE_EXPLOSION1_1;
 		};
 	}
@@ -298,6 +300,7 @@ int GetExplosionSprite(int Weapon)
 			case SW_GRENADE1: return SPRITE_EXPLOSION1_1;
 			case SW_GRENADE2: return SPRITE_EXPLOSION1_1;
 			case SW_BAZOOKA: return SPRITE_EXPLOSION1_1;
+			case SW_BOMB: return SPRITE_EXPLOSION1_1;
 			default: return 0;
 		};
 	}
@@ -320,6 +323,7 @@ int GetExplosionSound(int Weapon)
 			case BUILDING_FLAMETRAP: return SOUND_GRENADE_EXPLODE;
 			case BUILDING_BARREL: return SOUND_GRENADE_EXPLODE;
 			case BUILDING_POWERBARREL: return SOUND_GRENADE_EXPLODE;
+			case BUILDING_REACTOR: return SOUND_GRENADE_EXPLODE;
 			default: return 0;
 		};
 	}
@@ -343,6 +347,7 @@ int GetExplosionSound(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_BOMB: return SOUND_GRENADE_EXPLODE;
 			case SW_GRENADE1: return SOUND_GRENADE_EXPLODE;
 			case SW_GRENADE2: return SOUND_GRENADE2_EXPLODE;
 			case SW_GRENADE3: return SOUND_BOUNCER_EXPLODE;
@@ -377,6 +382,7 @@ int GetWeaponFireSound(int Weapon)
 			case SW_BOUNCER: return SOUND_BOUNCER_FIRE;
 			case SW_GUN1: return SOUND_GUN_FIRE;
 			case SW_GUN2: return SOUND_LASER_FIRE;
+			case SW_BOMB: return -1;
 			case SW_GRENADE1: return -1;
 			case SW_GRENADE2: return -1;
 			default: return -1;
@@ -423,6 +429,7 @@ float GetExplosionSize(int Weapon)
 			case BUILDING_FLAMETRAP: return 150.0f;
 			case BUILDING_BARREL: return 200.0f;
 			case BUILDING_POWERBARREL: return 300.0f;
+			case BUILDING_REACTOR: return 240.0f;
 			default: return 120.0f;
 		};
 	}
@@ -430,6 +437,7 @@ float GetExplosionSize(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_BOMB: return 400.0f;
 			case SW_GUN1: return 80.0f;
 			case SW_GRENADE1: return 300.0f;
 			case SW_GRENADE2: return 320.0f;
@@ -472,6 +480,7 @@ float GetExplosionDamage(int Weapon)
 			case BUILDING_FLAMETRAP: return 40.0f;
 			case BUILDING_BARREL: return 30.0f; break;
 			case BUILDING_POWERBARREL: return 60.0f; break;
+			case BUILDING_REACTOR: return 120.0f; break;
 			default: return 0; break;
 		};
 	}
@@ -493,6 +502,7 @@ float GetExplosionDamage(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_BOMB: return 240; break;
 			case SW_GRENADE1: return 120; break;
 			case SW_GRENADE2: return 30; break;
 			case SW_BUBBLER: return 14; break;
@@ -563,6 +573,7 @@ ivec2 GetWeaponVisualSize(int Weapon)
 		
 		case SW_UPGRADE: return ivec2(2, 2);
 		case SW_RESPAWNER: return ivec2(2, 4);
+		case SW_BOMB: return ivec2(3, 4);
 		case SW_INVIS: return ivec2(2, 3);
 		case SW_SHIELD: return ivec2(2, 3);
 	};
@@ -612,6 +623,7 @@ int GetWeaponFiringType(int Weapon)
 		case SW_GUN1: return WFT_PROJECTILE;
 		case SW_GUN2: return WFT_CHARGE;
 		case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: return WFT_THROW;
+		case SW_BOMB: return WFT_ACTIVATE;
 		case SW_SHURIKEN: return WFT_THROW;
 		default: return WFT_NONE;
 	};
@@ -669,6 +681,7 @@ vec2 GetWeaponRenderOffset(int Weapon)
 			case SW_UPGRADE: return vec2(9, 0);
 			case SW_RESPAWNER: return vec2(2, -5);
 			case SW_SHIELD: case SW_INVIS: return vec2(4, -3);
+			case SW_BOMB: return vec2(8, 0);
 			case SW_BAZOOKA: return vec2(30, 0);
 			case SW_BOUNCER: return vec2(30, 0);
 			case SW_BUBBLER: return vec2(30, 0);
@@ -1166,6 +1179,7 @@ int AIAttackRange(int Weapon)
 			case SW_GUN1: return 700;
 			case SW_GUN2: return 500;
 			case SW_TOOL: return 50;
+			case SW_BOMB: return 0;
 			case SW_SHURIKEN: return 700;
 			case SW_BUBBLER: return 700;
 			case SW_BAZOOKA: return 700;
@@ -1392,7 +1406,7 @@ int GetRandomWeaponType(bool IsSurvival)
 	int w = 0;
 	
 	while (!w || (!IsSurvival && IsStaticWeapon(w) && GetStaticType(w) == SW_RESPAWNER))
-		w = GetStaticWeapon(rand()%(NUM_SW-3));
+		w = GetStaticWeapon(rand()%(NUM_SW-4));
 	
 	return w;
 }
@@ -1508,6 +1522,7 @@ float WeaponThrowForce(int Weapon)
 		{
 			case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: return 1.0f;
 			case SW_SHURIKEN: return 1.4f;
+			case SW_BOMB: return 0.4f;
 			default: return 0.0f;
 		};
 	}
@@ -1524,6 +1539,7 @@ float GetWeaponFireRate(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_BOMB: return 350;
 			case SW_TOOL: return 320;
 			case SW_CHAINSAW: return 500;
 			case SW_FLAMER: return 200;

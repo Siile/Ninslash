@@ -53,6 +53,9 @@ void CWeapon::Reset()
 	m_BurstCount = 0;
 	m_BurstMax = 0;
 	m_Stuck = false;
+	m_BombCounter = 0;
+	m_BombDisarmCounter = 0;
+	m_BombResetTick = 0;
 	
 	UpdateStats();
 	m_Ammo = m_MaxAmmo;
@@ -146,6 +149,15 @@ void CWeapon::UpdateStats()
 }
 
 
+void CWeapon::SurvivalReset()
+{
+	if (m_Released || m_DestructionTick)
+	{
+		GameServer()->m_World.DestroyEntity(this);
+	}
+}
+
+
 bool CWeapon::Activate()
 {
 	if (m_DestructionTick)
@@ -163,6 +175,38 @@ bool CWeapon::Activate()
 					return true;
 				}
 			} break;
+			
+			
+			case SW_BOMB:
+				// area check
+				if (GameServer()->m_pController->InBombArea(m_Pos))
+				{
+					m_ReloadTimer = (m_FireRate * Server()->TickSpeed()/1000)/2 + (m_FireRate * Server()->TickSpeed()/1000)*frandom()/2;
+					GameServer()->CreateSound(m_Pos, SOUND_BOMB_BEEP);
+					m_BombResetTick = Server()->Tick() + Server()->TickSpeed()*1.0f;
+					
+					if (m_BombCounter++ > 9 && GameServer()->m_pController->TriggerWeapon(this))
+					{
+						m_DestructionTick = Server()->Tick() + 20.0f * Server()->TickSpeed();
+						m_AttackTick = Server()->Tick();
+						m_BombCounter = 0;
+						m_BombDisarmCounter = 0;
+						GameServer()->m_pController->TriggerBomb();
+						
+						return true;
+					}
+				}
+				else
+				{
+					m_ReloadTimer = m_FireRate * Server()->TickSpeed()/1000 * 3.0f;
+					GameServer()->CreateSound(m_Pos, SOUND_BOMB_DENIED);
+					m_BombCounter = 0;
+					m_BombResetTick = 0;
+				}
+		
+				return false;
+				break;
+			
 			
 			default: break;
 		}
@@ -586,6 +630,13 @@ void CWeapon::Tick()
 	if (m_Released)
 		Move();
 	
+	// bomb
+	if (m_BombResetTick && m_BombResetTick < Server()->Tick())
+	{
+		m_BombResetTick = 0;
+		m_BombCounter = 0;
+	}
+	
 	
 	if (GetWeaponFiringType(m_WeaponType) == WFT_HOLD)
 	{
@@ -595,9 +646,74 @@ void CWeapon::Tick()
 	else if (m_TriggerTick && m_TriggerTick <= Server()->Tick())
 		Trigger();
 	
+	
+	// bomb
+	if (GetStaticType(m_WeaponType) == SW_BOMB)
+	{
+		// bomb sound
+		if (m_DestructionTick && m_ChargeSoundTimer-- <= 0)
+		{
+			float d = min(26.0f, (Server()->Tick() - m_AttackTick) * 0.0275f);
+			m_ChargeSoundTimer = 30 - d;
+			GameServer()->CreateSound(m_Pos, SOUND_WEAPON_CHARGE1_1+min(8, int(d/3)));
+			GameServer()->CreateSound(m_Pos, SOUND_WEAPON_CHARGE1_1+min(8, int(d/3)));
+		}
+		
+		// disarm
+		if (m_DestructionTick)
+		{
+			GameServer()->m_pController->m_BombPos = m_Pos;
+			GameServer()->m_pController->m_BombStatus = BOMB_ARMED;
+			
+			// disarm success
+			if (m_BombDisarmCounter >= 16)
+			{
+				if (m_ChargeSoundTimer < 99)
+				{
+					m_ChargeSoundTimer = 999;
+					GameServer()->m_pController->DisarmBomb();
+				}
+				m_DestructionTick = Server()->Tick() + 20.0f * Server()->TickSpeed();
+				m_AttackTick = Server()->Tick();
+				GameServer()->m_pController->m_BombStatus = BOMB_DISARMED;
+			}
+			else
+			{
+				bool Found = false;
+				
+				CCharacter *pChr = GameServer()->m_World.ClosestCharacter(m_Pos, 32.0f, 0);
+				if (pChr && pChr->IsAlive() && pChr->GetPlayer()->GetTeam() == TEAM_BLUE)
+				{
+					Found = true;
+					
+					if (m_BombCounter-- < 0)
+					{
+						m_BombCounter = 10+frandom()*10;
+						m_BombDisarmCounter++;
+						GameServer()->CreateSound(m_Pos, SOUND_BOMB_BEEP);
+					}
+				}
+				
+				if (!Found && m_BombDisarmCounter > 0)
+				{
+					m_BombCounter = 0;
+					m_BombDisarmCounter = 0;
+					GameServer()->CreateSound(m_Pos, SOUND_BOMB_DENIED);
+				}
+			}
+		}
+		else
+		{
+			if (m_Released)
+			{
+				GameServer()->m_pController->m_BombStatus = BOMB_IDLE;
+				GameServer()->m_pController->m_BombPos = m_Pos;
+			}
+		}
+	}
+	
 	// charge sound
-
-	if (m_DestructionTick && m_ChargeSoundTimer-- <= 0)
+	else if (m_DestructionTick && m_ChargeSoundTimer-- <= 0)
 	{
 		float d = min(14.0f, (Server()->Tick() - m_AttackTick) * 0.1f);
 		m_ChargeSoundTimer = 18 - d;
@@ -676,7 +792,7 @@ void CWeapon::SelfDestruct()
 	{
 		switch (GetStaticType(m_WeaponType))
 		{
-		case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: GameServer()->CreateExplosion(m_Pos, m_Owner, m_WeaponType); break;
+		case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: case SW_BOMB: GameServer()->CreateExplosion(m_Pos, m_Owner, m_WeaponType); break;
 		default: break;
 		}
 	}

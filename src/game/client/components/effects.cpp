@@ -1238,8 +1238,7 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 		
 		if (GetBuildingType(Weapon) == BUILDING_REACTOR)
 		{
-			
-			
+			SpriteExplosion(Pos, GetExplosionSize(Weapon), GetExplosionSprite(Weapon));
 		}
 		
 		

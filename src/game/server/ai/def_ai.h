@@ -26,10 +26,14 @@ private:
 	int m_State;
 	int m_StateTimer;
 	
+	vec2 m_ReactorPos;
+	int m_NextTargetTick;
 	
 	bool m_Shopped;
 	bool FindShop();
 	vec2 m_ShopPos;
+	
+	int m_Role;
 };
 
 #endif

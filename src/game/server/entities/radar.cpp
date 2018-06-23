@@ -60,6 +60,9 @@ void CRadar::Snap(int SnappingClient)
 	if (pCharacter && pCharacter->m_IsBot)
 		return;
 	
+	if (m_Type == RADAR_BOMB && ( pCharacter->IsBombCarrier() || (pCharacter->GetPlayer()->GetTeam() == TEAM_BLUE && GameServer()->m_pController->m_BombStatus != BOMB_ARMED)))
+		return;
+	
 	if(NetworkClipped(SnappingClient) || !m_Active)
 		return;
 

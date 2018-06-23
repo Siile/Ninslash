@@ -1273,7 +1273,6 @@ void CPlayers::RenderPlayer(
 		pCustomPlayerInfo->m_EffectIntensity[EFFECT_DEATHRAY] = 1.0f;
 	}	
 	
-	s = Player.m_Status;
 	if (s & (1<<STATUS_DASH))
 	{
 		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_DASH] <= 0.0f)
@@ -1281,27 +1280,28 @@ void CPlayers::RenderPlayer(
 		pCustomPlayerInfo->m_EffectIntensity[EFFECT_DASH] = 1.0f;
 	}	
 	
-	s = Player.m_Status;
 	if (s & (1<<STATUS_FUEL))
 	{
 		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] <= 0.0f)
 			m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_ITEM_FUEL, 1.0f, Position);
 		pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] = 1.0f;
-	}	
+	}
 	
-	s = Player.m_Status;
+	if (s & (1<<STATUS_BOMBCARRIER))
+		pCustomPlayerInfo->m_BombCarrier = true;
+	else
+		pCustomPlayerInfo->m_BombCarrier = false;
+	
 	if (s & (1<<STATUS_SPAWNING))
 	{
 		pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING] = 1.0f;
 	}
 	
-	s = Player.m_Status;
 	if (s & (1<<STATUS_ELECTRIC))
 	{
 		pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE] = 1.0f;
 	}
 
-	s = Player.m_Status;
 	if (s & (1<<STATUS_INVISIBILITY))
 	{
 		if (!pCustomPlayerInfo->m_LoadInvisibility && pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY] <= 0.0f)

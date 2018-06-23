@@ -65,6 +65,14 @@ void CWeapons::RenderWeapon(const CNetObj_Weapon *pPrev, const CNetObj_Weapon *p
 			ChargeLevel = 0.0f;
 	}
 	
+	if (GetStaticType(pCurrent->m_WeaponType) == SW_BOMB)
+	{
+		ChargeLevel = min(Phase1Tick*0.0011f, 1.0f);
+	
+		if (ChargeLevel == 1.0f)
+			ChargeLevel = 0.7f+cos(Phase1Tick*0.5f)*0.3f;
+	}
+		
 	//Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 0.0f, ChargeLevel);
 	RenderTools()->SetShadersForWeapon(pCurrent->m_WeaponType, ChargeLevel);
 	Graphics()->QuadsBegin();

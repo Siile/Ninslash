@@ -26,11 +26,18 @@ CGameControllerCS::CGameControllerCS(class CGameContext *pGameServer) : IGameCon
 	g_Config.m_SvWarmup = 0;
 	g_Config.m_SvTimelimit = 0;
 	g_Config.m_SvSurvivalMode = 1;
-	g_Config.m_SvSurvivalTime = 0;
 	g_Config.m_SvEnableBuilding = 1;
 	g_Config.m_SvDisablePVP = 0;
 	
+	m_pBombRadar = NULL;
+	
+	if (g_Config.m_SvSurvivalMode && g_Config.m_SvSurvivalTime && g_Config.m_SvSurvivalAcid)
+		m_GameFlags |= GAMEFLAG_ACID;
+	
+	m_RoundWinner = -1;
+	
 	m_GameState = 0;
+	m_Bomb = false;
 	
 	m_AreaCount = 0;
 	
@@ -39,6 +46,12 @@ CGameControllerCS::CGameControllerCS(class CGameContext *pGameServer) : IGameCon
 	
 	for (int i = 0; i < MAX_CLIENTS*NUM_SLOTS; i++)
 		m_aPlayerWeapon[i] = 0;
+	
+	for (int i = 0; i < MAX_CLIENTS; i++)
+		m_aPlayerArmor[i] = 0;
+	
+	for (int i = 0; i < MAX_CLIENTS; i++)
+		m_aPlayerKits[i] = 0;
 }
 
 void CGameControllerCS::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
@@ -49,15 +62,21 @@ void CGameControllerCS::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 	if (RequestAI)
 		pChr->GetPlayer()->m_pAI = new CAIdef(GameServer(), pChr->GetPlayer());
 	
-	pChr->GetPlayer()->IncreaseGold(15);
 	int c = pChr->GetPlayer()->GetCID();
 	
 	for (int i = 0; i < NUM_SLOTS; i++)
+	{
 		if (m_aPlayerWeapon[c*NUM_SLOTS + i])
 		{
 			pChr->GiveWeapon(GameServer()->NewWeapon(m_aPlayerWeapon[c*NUM_SLOTS + i]));
 			m_aPlayerWeapon[c*NUM_SLOTS + i] = 0;
 		}
+	}
+	
+	pChr->IncreaseArmor(m_aPlayerArmor[c]);
+	pChr->AddKits(m_aPlayerKits[c]);
+	m_aPlayerArmor[c] = 0;
+	m_aPlayerKits[c] = 0;
 }
 
 int CGameControllerCS::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
@@ -79,11 +98,30 @@ int CGameControllerCS::OnCharacterDeath(class CCharacter *pVictim, class CPlayer
 	return 0;
 }
 
+vec2 CGameControllerCS::GetAttackPos()
+{
+	if (!m_AreaCount)
+		return vec2(0.0f, 0.0f);
+	
+	int i = rand()%m_AreaCount;
+	
+	return vec2((m_aArea[i].x+m_aArea[i].z)/2, (m_aArea[i].y+m_aArea[i].w)/2);
+}
+
+bool CGameControllerCS::InBombArea(vec2 Pos)
+{
+	for (int i = 0; i < m_AreaCount; i++)
+	{
+		if (Pos.x > m_aArea[i].x && Pos.x < m_aArea[i].z && Pos.y > m_aArea[i].y && Pos.y < m_aArea[i].w)
+			return true;
+	}
+	
+	return false;
+}
 
 void CGameControllerCS::StartRound()
 {
 	FindReactors();
-
 }
 
 
@@ -97,16 +135,74 @@ void CGameControllerCS::NewSurvivalRound()
 		if (pChar)
 		{
 			for (int i = 0; i < NUM_SLOTS; i++)
-				m_aPlayerWeapon[c*NUM_SLOTS + i] = pChar->GetWeaponType(i);
+				if (GetStaticType(pChar->GetWeaponType(i)) != SW_BOMB)
+					m_aPlayerWeapon[c*NUM_SLOTS + i] = pChar->GetWeaponType(i);
+				
+				
+			m_aPlayerArmor[c] = pChar->GetArmor();
+			m_aPlayerKits[c] = pChar->m_Kits;
 		}
 		else
 		{
 			for (int i = 0; i < NUM_SLOTS; i++)
+			{
 				m_aPlayerWeapon[c*NUM_SLOTS + i] = 0;
+				m_aPlayerArmor[c] = 0;
+				m_aPlayerKits[c] = 0;
+			}
 		}
+		
+		if (GameServer()->m_apPlayers[c])
+			GameServer()->m_apPlayers[c]->IncreaseGold(15);
 	}
 	
+	m_Bomb = false;
+	GameServer()->SendBroadcast("Go!", -1);
 }
+
+
+void CGameControllerCS::TriggerBomb()
+{
+	// time limit display
+	m_SurvivalStartTick = Server()->Tick() - Server()->TickSpeed()*(g_Config.m_SvSurvivalTime-20.1f);
+	GameServer()->SendBroadcast("Bomb armed", -1);
+}
+
+
+void CGameControllerCS::OnSurvivalTimeOut()
+{
+	if (!m_SurvivalResetTick)
+	{
+		m_SurvivalResetTick = Server()->Tick() + Server()->TickSpeed()*4.0f;
+		m_RoundWinner = TEAM_BLUE;
+		GameServer()->SendBroadcast("Time out - Blue team wins", -1);
+		m_aTeamscore[TEAM_BLUE] += g_Config.m_SvSurvivalReward;
+	}
+}
+
+	
+void CGameControllerCS::DisarmBomb()
+{
+	if (!m_SurvivalResetTick)
+	{
+		m_SurvivalResetTick = Server()->Tick() + Server()->TickSpeed()*4.0f;
+		m_RoundWinner = TEAM_BLUE;
+		GameServer()->SendBroadcast("Bomb disarmed - Blue team wins", -1);
+		m_aTeamscore[TEAM_BLUE] += g_Config.m_SvSurvivalReward;
+	}
+}
+
+void CGameControllerCS::ReactorDestroyed()
+{
+	if (!m_SurvivalResetTick)
+	{
+		m_SurvivalResetTick = Server()->Tick() + Server()->TickSpeed()*4.0f;
+		m_RoundWinner = TEAM_RED;
+		GameServer()->SendBroadcast("Reactor destroyed - Red team wins", -1);
+		m_aTeamscore[TEAM_RED] += g_Config.m_SvSurvivalReward;
+	}
+}
+
 
 
 void CGameControllerCS::AddToArea(vec2 Pos)
@@ -186,6 +282,19 @@ void CGameControllerCS::Tick()
 	IGameController::Tick();
 	AutoBalance();
 	GameServer()->UpdateAI();
+	
+	if (!m_Bomb)
+	{
+		int i = frandom()*MAX_CLIENTS;
+		
+		if (GameServer()->GetPlayerChar(i) && GameServer()->GetPlayerChar(i)->GiveBomb())
+			m_Bomb = true;
+	}
+	
+	if (!m_pBombRadar)
+		m_pBombRadar = new CRadar(&GameServer()->m_World, RADAR_BOMB);
+	else
+		m_pBombRadar->Activate(GameServer()->m_pController->m_BombPos);
 	
 	if (!m_GameState)
 	{

@@ -217,7 +217,7 @@ void CFluid::RenderGlobalAcid()
 	vec2 Size = vec2(ScreenX1*2+StepX*2, ScreenY1*2);
 	
 	//Size.y = AcidLevel-SScreen.y;
-	Size.y = (Center.y+ScreenY1) - AcidLevel;
+	Size.y = (abs(Center.y)+ScreenY1) - AcidLevel;
 	
 	m_GlobalPool.m_Pos = Pos;
 	m_GlobalPool.m_Size = Size;
@@ -252,7 +252,14 @@ void CFluid::RenderGlobalAcid()
 			
 			float y1 = Pos.y + m_GlobalPool.m_aSurfaceY[a];
 			float y2 = Pos.y + m_GlobalPool.m_aSurfaceY[(a+1)%128];
-			
+			/*
+			IGraphics::CFreeformItem Freeform(
+				Pos.x+f*StepX+offX, y1,
+				Pos.x+(f+1)*StepX+offX, y2,
+				Pos.x+f*StepX+offX, Pos.y+Size.y,
+				Pos.x+(f+1)*StepX+offX, Pos.y+Size.y);
+				*/
+				
 			IGraphics::CFreeformItem Freeform(
 				Pos.x+f*StepX+offX, y1,
 				Pos.x+(f+1)*StepX+offX, y2,

@@ -891,8 +891,11 @@ void CCharacterCore::Tick(bool UseInput)
 				
 				if (abs(m_Vel.x) < 1.0f && abs(m_Vel.y) < 1.0f && Distance < PhysSize && m_Pos.y <= pCharCore->m_Pos.y)
 				{
-					m_Vel.y -= 1.0f;
-					m_Pos.y -= 1.0f;
+					if (!m_pCollision->CheckPoint(m_Pos.x-28.0f*0.5f, m_Pos.y-64.0f*0.5f) && !m_pCollision->CheckPoint(m_Pos.x+28.0f*0.5f, m_Pos.y-64.0f*0.5f))
+					{
+						m_Vel.y -= 1.0f;
+						m_Pos.y -= 1.0f;
+					}
 				}
 			}
 		}

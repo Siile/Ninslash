@@ -51,6 +51,7 @@ enum WeaponBits
 	SW_INVIS,
 	SW_BUBBLER,
 	SW_SHURIKEN,
+	SW_BOMB,
 	NUM_SW,
 	
 	
@@ -94,9 +95,9 @@ inline bool IsModularWeapon(int Weapon) { return (IsWeapon(Weapon) && !(Weapon &
 
 inline bool IsOnDeath(int Weapon) { return Weapon & BIT_ONDEATH ? true : false; }
 
-inline int GetBuildingType(int Weapon) { return IsBuilding(Weapon) ? (Weapon & (1023<<6))>>6 : false; }
+inline int GetBuildingType(int Weapon) { return IsBuilding(Weapon) ? (Weapon & (1023<<6))>>6 : 0; }
 inline int GetBuildingWeapon(int Building) { return BIT_BUILDING | Building<<6; }
-inline int GetDroidType(int Weapon) { return IsDroid(Weapon) ? (Weapon & (1023<<6))>>6 : false; }
+inline int GetDroidType(int Weapon) { return IsDroid(Weapon) ? (Weapon & (1023<<6))>>6 : 0; }
 inline int GetDroidWeapon(int Droid, bool OnDeath = false) { return BIT_DROID | (OnDeath ? BIT_ONDEATH : 0) | Droid<<6; }
 
 bool ValidForTurret(int Weapon);

@@ -212,6 +212,28 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 }
 
 
+bool CCharacter::GiveBomb()
+{
+	if (FreeSlot() >= 0 && GetPlayer()->GetTeam() == TEAM_RED)
+	{
+		m_apWeapon[FreeSlot()] = GameServer()->NewWeapon(GetStaticWeapon(SW_BOMB));
+		SendInventory();
+		return true;
+	}
+	
+	return false;
+}
+
+
+int CCharacter::FreeSlot()
+{
+	for (int i = 0; i < NUM_SLOTS; i++)
+		if (!m_apWeapon[i])
+			return i;
+	
+	return -1;
+}
+
 void CCharacter::RandomizeInventory()
 {
 	
@@ -625,6 +647,12 @@ bool CCharacter::TriggerWeapon(CWeapon *pWeapon)
 	
 	if (IsStaticWeapon(w))
 	{
+		if (GetStaticType(w) == SW_BOMB)
+		{
+			ReleaseWeapon();
+			return true;
+		}
+		
 		if (GetStaticType(w) == SW_INVIS)
 			return GiveBuff(PLAYERITEM_INVISIBILITY);
 		
@@ -668,9 +696,24 @@ void CCharacter::ReleaseWeapon(CWeapon *pWeapon)
 	SendInventory();
 }
 
+	
+bool CCharacter::IsBombCarrier()
+{
+	for (int i = 0; i < NUM_SLOTS; i++)
+		if (GetStaticType(GetWeaponType(i)) == SW_BOMB)
+			return true;
+	
+	return false;
+}
+	
+	
 
 bool CCharacter::PickWeapon(CWeapon *pWeapon)
 {
+	// cs | reactor defence
+	if (GetStaticType(pWeapon->GetWeaponType()) == SW_BOMB && GetPlayer()->GetTeam() != TEAM_RED)
+		return false;
+	
 	if (!GetWeapon())
 	{
 		pWeapon->SetOwner(GetPlayer()->GetCID());
@@ -820,7 +863,11 @@ void CCharacter::DropWeapon()
 	{
 		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
 		
-		GameServer()->m_pController->DropWeapon(m_Pos+vec2(0, -16), m_Core.m_Vel/1.7f + Direction*10 + vec2(0, -3), GetWeapon());
+		if (GetStaticType(GetWeaponType()) == SW_BOMB)
+			GameServer()->m_pController->DropWeapon(m_Pos+vec2(0, -16), (m_Core.m_Vel/1.7f + Direction*10 + vec2(0, -3))*0.75f, GetWeapon());
+		else
+			GameServer()->m_pController->DropWeapon(m_Pos+vec2(0, -16), m_Core.m_Vel/1.7f + Direction*10 + vec2(0, -3), GetWeapon());
+		
 		m_SkipPickups = 20;
 				
 		m_apWeapon[GetWeaponSlot()] = NULL;
@@ -1395,6 +1442,26 @@ void CCharacter::UpdateCoreStatus()
 		IncreaseHealth(2);
 	}
 	
+	// check if carrying bomb (reactor defence)
+	bool m_BombCarrier = false;
+	
+	for (int w = 0; w < NUM_SLOTS; w++)
+	{
+		if (GetStaticType(GetWeaponType(w)) == SW_BOMB && GetWeaponSlot() != w)
+		{
+			m_BombCarrier = true;
+			break;
+		}
+	}
+	
+	
+	if (m_BombCarrier)
+		m_aStatus[STATUS_BOMBCARRIER] = 100;
+	else
+		m_aStatus[STATUS_BOMBCARRIER] = 0;
+	
+	
+	// pack statuses
 	for (int i = 0; i < NUM_STATUSS; i++)
 	{
 		if (m_aStatus[i] > 0)
@@ -1403,6 +1470,7 @@ void CCharacter::UpdateCoreStatus()
 			m_aStatus[i]--;
 		}
 	}
+	
 	
 	if (g_Config.m_SvUnlimitedTurbo)
 		m_Core.m_JetpackPower = 200;
@@ -1462,6 +1530,13 @@ void CCharacter::Tick()
 		SendInventory();
 		m_SendInventoryTick = 0;
 	}
+	
+	if (IsBombCarrier())
+	{
+		GameServer()->m_pController->m_BombPos = m_Pos;
+		GameServer()->m_pController->m_BombStatus = BOMB_CARRIED;
+	}
+	
 	
 	/*
 	if(m_pPlayer->m_ForceBalanced)
@@ -1727,6 +1802,20 @@ bool CCharacter::AddMine()
 	return true;
 }
 
+bool CCharacter::AddKits(int Amount)
+{
+	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
+		return false;
+	
+	if (m_Kits < 99)
+	{
+		m_Kits = min(m_Kits+Amount, 99);
+		return true;
+	}
+	
+	return false;
+}
+
 bool CCharacter::AddKit()
 {
 	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
@@ -1778,7 +1867,15 @@ void CCharacter::ReleaseWeapons()
 	for (int i = 0; i < NUM_SLOTS; i++)
 		if (m_apWeapon[i])
 		{
-			m_apWeapon[i]->OnOwnerDeath(i == m_WeaponSlot);
+			if (GetStaticType(m_apWeapon[i]->GetWeaponType()) == SW_BOMB)
+			{
+				GameServer()->m_pController->DropWeapon(m_Pos+vec2(0, -16), (m_Core.m_Vel/1.7f + vec2(0, -3))*0.75f, m_apWeapon[i]);
+			}
+			else
+			{
+				m_apWeapon[i]->OnOwnerDeath(i == m_WeaponSlot);
+			}
+			
 			m_apWeapon[i] = NULL;
 		}
 }

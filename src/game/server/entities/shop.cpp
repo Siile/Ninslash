@@ -13,7 +13,7 @@ CShop::CShop(CGameWorld *pGameWorld, vec2 Pos)
 	m_Life = 9000;
 
 	m_Collision = false;
-	m_Autofill = true;
+	m_Autofill = false;
 	
 	for (int i = 0; i < 4; i++)
 		m_aItem[i] = 0;
@@ -85,6 +85,9 @@ void CShop::ClearItem(int Slot)
 
 void CShop::SurvivalReset()
 {
+	for (int i = 0; i < 4; i++)
+		ClearItem(i);
+	
 	FillSlots();
 }
 

@@ -231,7 +231,6 @@ public:
 	void UpdateInput(int *Data); // MAX_INPUT_SIZE
 	
 	bool SeekBombArea();
-	bool SeekBomb();
 	
 	int m_Special;
 	
