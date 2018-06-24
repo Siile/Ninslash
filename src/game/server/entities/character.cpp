@@ -710,7 +710,7 @@ bool CCharacter::IsBombCarrier()
 
 bool CCharacter::PickWeapon(CWeapon *pWeapon)
 {
-	// cs | reactor defence
+	// cs | reactor defense
 	if (GetStaticType(pWeapon->GetWeaponType()) == SW_BOMB && GetPlayer()->GetTeam() != TEAM_RED)
 		return false;
 	
@@ -1148,7 +1148,7 @@ void CCharacter::GiveStartWeapon()
 		return;
 	}
 	
-	// CS / reactor defence
+	// CS / reactor defense
 	if (str_comp(g_Config.m_SvGametype, "def") == 0)
 	{
 		bool GotItems = false;
@@ -1442,7 +1442,7 @@ void CCharacter::UpdateCoreStatus()
 		IncreaseHealth(2);
 	}
 	
-	// check if carrying bomb (reactor defence)
+	// check if carrying bomb (reactor defense)
 	bool m_BombCarrier = false;
 	
 	for (int w = 0; w < NUM_SLOTS; w++)
