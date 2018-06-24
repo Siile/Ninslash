@@ -185,7 +185,7 @@ bool CWeapon::Activate()
 					GameServer()->CreateSound(m_Pos, SOUND_BOMB_BEEP);
 					m_BombResetTick = Server()->Tick() + Server()->TickSpeed()*1.0f;
 					
-					if (m_BombCounter++ > 9 && GameServer()->m_pController->TriggerWeapon(this))
+					if (m_BombCounter++ > 11 && GameServer()->m_pController->TriggerWeapon(this))
 					{
 						m_DestructionTick = Server()->Tick() + 20.0f * Server()->TickSpeed();
 						m_AttackTick = Server()->Tick();
@@ -666,7 +666,7 @@ void CWeapon::Tick()
 			GameServer()->m_pController->m_BombStatus = BOMB_ARMED;
 			
 			// disarm success
-			if (m_BombDisarmCounter >= 16)
+			if (m_BombDisarmCounter >= 18)
 			{
 				if (m_ChargeSoundTimer < 99)
 				{
