@@ -26,6 +26,8 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 	m_DestroyOnFall = false;
 	m_BoxSize = vec2(32, 32);
 	
+	m_DestructionTriggered = false;
+	
 	m_Status = 0;
 	for (int i = 0; i < NUM_BSTATUS; i++)
 		m_aStatus[i] = 0;
@@ -229,7 +231,12 @@ void CBuilding::SurvivalReset()
 {
 	if (m_Type == BUILDING_REACTOR_DESTROYED)
 	{
-		new CBuilding(&GameServer()->m_World, m_Pos+vec2(0, 50), BUILDING_REACTOR, TEAM_NEUTRAL);
+		if (!m_DestructionTriggered)
+		{
+			new CBuilding(&GameServer()->m_World, m_Pos+vec2(0, 50), BUILDING_REACTOR, TEAM_NEUTRAL);
+			m_DestructionTriggered = true;
+		}
+		
 		Destroy();
 	}
 }
@@ -561,11 +568,16 @@ void CBuilding::Destroy()
 	}
 	else if (m_Type == BUILDING_REACTOR)
 	{
-		new CBuilding(&GameServer()->m_World, m_Pos, BUILDING_REACTOR_DESTROYED, TEAM_NEUTRAL);
+		if (!m_DestructionTriggered)
+		{
+			new CBuilding(&GameServer()->m_World, m_Pos, BUILDING_REACTOR_DESTROYED, TEAM_NEUTRAL);
+			GameServer()->m_pController->ReactorDestroyed();
+			m_DestructionTriggered = true;
+		}
+			
 		//GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
 		GameServer()->m_World.DestroyEntity(this);
 		
-		GameServer()->m_pController->ReactorDestroyed();
 		
 		//GameServer()->SendBroadcast("Reactor lost", -1);
 		//GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);

@@ -64,6 +64,8 @@ public:
 	int m_DamageOwner;
 	int m_DeathTimer;
 	
+	bool m_DestructionTriggered;
+	
 	bool Jumppad();
 	void Trigger();
 	void TakeDamage(int Damage, int Owner, int Weapon, vec2 Force = vec2(0, 0));

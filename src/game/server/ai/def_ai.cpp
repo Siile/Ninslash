@@ -173,14 +173,41 @@ void CAIdef::DoBehavior()
 			{
 				if (m_Role%5 < 3 && GameServer()->m_pController->m_BombStatus != BOMB_DISARMED)
 				{
-					if (GameServer()->m_pController->m_BombStatus != BOMB_ARMED ||  distance(m_Pos, GameServer()->m_pController->m_BombPos) > 40+frandom()*400)
+					if (GameServer()->m_pController->m_BombStatus == BOMB_IDLE)
 					{
 						TrySeekEnemy = false;
 						m_TargetPos = GameServer()->m_pController->m_BombPos;
 					}
 					
+					if (GameServer()->m_pController->m_BombStatus == BOMB_CARRIED)
+					{
+						if (distance(m_Pos, GameServer()->m_pController->m_BombPos) > 300)
+						{
+							TrySeekEnemy = false;
+							m_TargetPos = GameServer()->m_pController->m_BombPos;
+						}
+						else
+						{
+							if (m_Role%6 < 3)
+							{
+								TrySeekEnemy = true;
+								TrySeekFriend = false;
+							}
+							else
+								m_TargetPos = m_ReactorPos;
+						}
+					}
+					
 					if (GameServer()->m_pController->m_BombStatus == BOMB_ARMED)
+					{
 						TrySeekFriend = false;
+						
+						if (distance(m_Pos, GameServer()->m_pController->m_BombPos) > 60+frandom()*400)
+						{
+							TrySeekEnemy = false;
+							m_TargetPos = GameServer()->m_pController->m_BombPos;
+						}
+					}
 				}
 			}
 			// blue team
