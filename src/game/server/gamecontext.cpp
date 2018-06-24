@@ -1515,7 +1515,7 @@ void CGameContext::OnClientConnected(int ClientID, bool AI)
 	//players[client_id].client_id = client_id;
 
 	m_apPlayers[ClientID]->m_IsBot = AI;
-	m_apPlayers[ClientID]->m_TeeInfos.m_IsBot = true;
+	m_apPlayers[ClientID]->m_TeeInfos.m_IsBot = AI;
 	
 	(void)m_pController->CheckTeamBalance();
 
