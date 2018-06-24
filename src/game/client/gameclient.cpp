@@ -732,6 +732,7 @@ void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker)
 		CustomStuff()->m_aItem[9] = pMsg->m_Item10;
 		CustomStuff()->m_aItem[10] = pMsg->m_Item11;
 		CustomStuff()->m_aItem[11] = pMsg->m_Item12;
+		CustomStuff()->m_Gold = pMsg->m_Gold;
 	}
 	else if(MsgId == NETMSGTYPE_SV_SOUNDGLOBAL)
 	{
@@ -1664,6 +1665,14 @@ bool CGameClient::BuildingNear(vec2 Pos, float Range)
 		else if (Item.m_Type == NETOBJTYPE_POWERUPPER)
 		{
 			const struct CNetObj_Powerupper *pBuilding = (const CNetObj_Powerupper *)pData;
+			vec2 Pos2 = vec2(pBuilding->m_X, pBuilding->m_Y);
+			
+			if (distance(Pos2, Pos) < Range)
+				return true;
+		}
+		else if (Item.m_Type == NETOBJTYPE_SHOP)
+		{
+			const struct CNetObj_Shop *pBuilding = (const CNetObj_Shop *)pData;
 			vec2 Pos2 = vec2(pBuilding->m_X, pBuilding->m_Y);
 			
 			if (distance(Pos2, Pos) < Range)

@@ -137,9 +137,7 @@ MACRO_CONFIG_INT(SvGodBots, sv_godbots, 0, 0, 1, CFGFLAG_SERVER, "Hard bots")
 MACRO_CONFIG_INT(SvRobots, sv_robots, 0, 0, 1, CFGFLAG_SERVER, "Robot bot skins")
 
 
-MACRO_CONFIG_INT(SvStartMoney, sv_startmoney, 100, 0, 1000, CFGFLAG_SERVER, "Start money")
-MACRO_CONFIG_INT(SvMaxMoney, sv_maxmoney, 500, 0, 10000, CFGFLAG_SERVER, "Max money")
-MACRO_CONFIG_INT(SvKillMoney, sv_killmoney, 20, 0, 1000, CFGFLAG_SERVER, "Kill money")
+MACRO_CONFIG_INT(SvStartGold, sv_startgold, 0, 0, 999, CFGFLAG_SERVER, "Starting gold")
 
 
 MACRO_CONFIG_INT(SvBroadcastLock, sv_broadcastlock, 3, 0, 5, CFGFLAG_SERVER, "Broadcast lock time (seconds)")

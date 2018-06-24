@@ -8,6 +8,16 @@
 #define MAX_PICKUPS 1024
 #define MAX_DROPPABLES 60
 
+
+enum BombStatuses
+{
+	BOMB_IDLE,
+	BOMB_CARRIED,
+	BOMB_ARMED,
+	BOMB_DISARMED
+};
+
+
 /*
 	Class: Game Controller
 		Controls the main game logic. Keeping track of team and player score,
@@ -114,6 +124,7 @@ protected:
 	int m_SurvivalStatus;
 	int m_SurvivalDeathTick;
 	int m_SurvivalStartTick;
+	int m_SurvivalResetTick;
 	
 public:
 
@@ -122,6 +133,18 @@ public:
 	int GetRound(){ return m_Round; }
 
 	virtual int GetDefendingTeam();
+	virtual vec2 GetAttackPos();
+	
+	virtual bool InBombArea(vec2 Pos);
+	
+	virtual void TriggerBomb();
+	virtual void DisarmBomb();
+	virtual void ReactorDestroyed();
+	
+	virtual void OnSurvivalTimeOut();
+	
+	int m_BombStatus;
+	vec2 m_BombPos;
 	
 	void SetPickup(vec2 Pos, int PickupType, int PickupSubtype, int Amount = 1);
 	void DropPickup(vec2 Pos, int PickupType, vec2 Force, int PickupSubtype, float Ammo = -1.0f, int PowerLevel = 0);
@@ -180,6 +203,8 @@ public:
 	*/
 	virtual bool CanBeMovedOnBalance(int ClientID);
 
+	virtual void DisplayExit(vec2 Pos);
+	
 	virtual void Tick();
 
 	virtual void Snap(int SnappingClient);
@@ -232,7 +257,6 @@ public:
 	virtual bool CanSeePickup(int CID, int Type, int Subtype); // for gungame
 	virtual bool CanDropWeapon(class CCharacter *pCharacter);
 
-	virtual class CBomb *GetBomb();
 	virtual class CFlag *GetClosestBase(vec2 Pos, int Team = -1);
 	virtual class CFlag *GetRandomBase(int NotThisTeam = -1);
 	virtual class CFlag *GetUndefendedBase(int Team = -1);

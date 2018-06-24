@@ -120,6 +120,17 @@ struct CTrace
 			return;
 		}
 	
+		// grenade 3
+		if (Type == 7)
+		{
+			m_Parts = 24;
+			m_Speed = 3.0f;
+			m_Size1 = 8.0f;
+			m_Size2 = 0.0f;
+			m_LifeSpan = 1.5f;
+			m_Color = vec4(0.2f, 1.0f, 0.2f, 0.4f);
+			return;
+		}
 		
 		if (Type == -1)
 		{

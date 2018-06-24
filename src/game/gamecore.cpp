@@ -722,14 +722,14 @@ void CCharacterCore::Tick(bool UseInput)
 		if(m_Direction < 0) // && (!m_Sliding || !Grounded))
 		{
 			if (slope > 0)
-				m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, -Accel*0.5f);
+				m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, -Accel*0.7f);
 			else
 				m_Vel.x = SaturatedAdd(-MaxSpeed+ForceTileStatus, MaxSpeed+ForceTileStatus, m_Vel.x, -Accel);
 		}
 		if(m_Direction > 0) // && (!m_Sliding || !Grounded))
 		{
 			if (slope < 0)
-				m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, Accel*0.5f);
+				m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, Accel*0.7f);
 			else
 				m_Vel.x = SaturatedAdd(-MaxSpeed+ForceTileStatus, MaxSpeed+ForceTileStatus, m_Vel.x, Accel);
 		}
@@ -891,8 +891,11 @@ void CCharacterCore::Tick(bool UseInput)
 				
 				if (abs(m_Vel.x) < 1.0f && abs(m_Vel.y) < 1.0f && Distance < PhysSize && m_Pos.y <= pCharCore->m_Pos.y)
 				{
-					m_Vel.y -= 1.0f;
-					m_Pos.y -= 1.0f;
+					if (!m_pCollision->CheckPoint(m_Pos.x-28.0f*0.5f, m_Pos.y-64.0f*0.5f) && !m_pCollision->CheckPoint(m_Pos.x+28.0f*0.5f, m_Pos.y-64.0f*0.5f))
+					{
+						m_Vel.y -= 1.0f;
+						m_Pos.y -= 1.0f;
+					}
 				}
 			}
 		}
@@ -1189,32 +1192,14 @@ void CCharacterCore::Move()
 		m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(28.0f, 64.0f), 0, !m_Sliding);
 		NewPos.y += 18;
 		
+		int TopLeft = m_pCollision->CheckPoint(m_Pos.x-28.0f*0.5f, m_Pos.y-64.0f*0.5f);
+		int TopRight = m_pCollision->CheckPoint(m_Pos.x+28.0f*0.5f, m_Pos.y-64.0f*0.5f);
+		
 		// unstuck jumpkick
-		/*
-		if (!m_Input.m_Hook && abs(m_Vel.x + m_Vel.y) < 0.1f)
-		{
-			int Top = m_pCollision->CheckPoint(m_Pos.x, m_Pos.y-80);
-			int Bot = m_pCollision->CheckPoint(m_Pos.x, m_Pos.y+60);
-			
-			if (Top && !Bot)
-			{
-				int Left = m_pCollision->CheckPoint(m_Pos.x-26, m_Pos.y-40);
-				int Right = m_pCollision->CheckPoint(m_Pos.x+26, m_Pos.y-40);
-				
-				if (Left && !Right)
-				{
-					NewPos.x += 1;
-					NewPos.y += 1;
-				}
-				
-				if (Right && !Left)
-				{
-					NewPos.x -= 1;
-					NewPos.y += 1;
-				}
-			}
-		}
-		*/
+		if (TopLeft)
+			NewPos.x += 1;
+		else if (TopRight)
+			NewPos.x -= 1;
 	}
 	else
 	{

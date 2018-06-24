@@ -161,6 +161,11 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		m_Collision = false;
 		break;
 		
+	case BUILDING_SHOP:
+		m_Life = 9000;
+		m_Collision = false;
+		break;
+		
 	case BUILDING_JUMPPAD:
 		m_ProximityRadius = JumppadPhysSize;
 		m_Life = 9000;
@@ -222,7 +227,11 @@ void CBuilding::Reset()
 
 void CBuilding::SurvivalReset()
 {
-	
+	if (m_Type == BUILDING_REACTOR_DESTROYED)
+	{
+		new CBuilding(&GameServer()->m_World, m_Pos+vec2(0, 50), BUILDING_REACTOR, TEAM_NEUTRAL);
+		Destroy();
+	}
 }
 
 
@@ -384,6 +393,8 @@ bool CBuilding::Repair(int Amount)
 	if (m_Life > m_MaxLife)
 		m_Life = m_MaxLife;
 	
+	GameServer()->CreateRepairInd(m_Pos+vec2(frandom()-frandom(), frandom()-frandom()));
+	
 	return true;
 }
 
@@ -430,7 +441,18 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon, vec2 Force)
 		return;
 	}
 	
+	// reactor defense
+	if (m_Type == BUILDING_REACTOR && (GetBuildingType(Weapon) == BUILDING_REACTOR || GetStaticType(Weapon) == SW_BOMB))
+	{
+		m_Life = 0;
+		m_DeathTimer = 5;
+		return;
+	}
+	
 	if (m_Life >= 5000)
+		return;
+	
+	if (Damage < 0 && m_Life >= m_MaxLife)
 		return;
 	
 	if (m_Moving)
@@ -442,7 +464,7 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon, vec2 Force)
 	
 	if ((m_Type == BUILDING_TURRET || m_Type == BUILDING_TESLACOIL) && GameServer()->m_pController->IsCoop() && m_Team >= 0)
 	{
-		if (Owner >= 0 && Owner < MAX_CLIENTS)
+		if (Owner >= 0 && Owner < MAX_CLIENTS && Damage >= 0)
 		{
 			CPlayer *pPlayer = GameServer()->m_apPlayers[Owner];
 				
@@ -460,7 +482,7 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon, vec2 Force)
 		if (OwnerChar && GameServer()->m_pController->IsTeamplay())
 			Team = OwnerChar->GetPlayer()->GetTeam();
 	
-		if (m_Team == Team)
+		if (m_Team == Team && Damage >= 0)
 			return;
 	}
 	
@@ -479,12 +501,26 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon, vec2 Force)
 	if (Damage > 0 && Dmg == 0)
 		Dmg = 1;
 	
+	//if (Dmg == 0)
+	//	return;
+	
 	m_Life -= Dmg;
 	
-	if (Dmg < 200)
-		GameServer()->CreateDamageInd(m_Pos+vec2(frandom()-frandom(), frandom()-frandom()), frandom()*pi, -Dmg, -1);
+	if (m_Life > m_MaxLife)
+		m_Life = m_MaxLife;
+	
+	if (Damage > 0)
+	{
+		if (Dmg < 200)
+			GameServer()->CreateDamageInd(m_Pos+vec2(frandom()-frandom(), frandom()-frandom()), frandom()*pi, -Dmg, -1);
+		else
+			GameServer()->CreateDamageInd(m_Pos+vec2(frandom()-frandom(), frandom()-frandom()), frandom()*pi, -1, -1);
+	}
 	else
-		GameServer()->CreateDamageInd(m_Pos+vec2(frandom()-frandom(), frandom()-frandom()), frandom()*pi, -1, -1);
+	{
+		if (Damage < 0)
+			GameServer()->CreateRepairInd(m_Pos+vec2(frandom()-frandom(), frandom()-frandom()));
+	}
 	
 	if (m_Life <= 0)
 	{
@@ -527,11 +563,12 @@ void CBuilding::Destroy()
 	{
 		new CBuilding(&GameServer()->m_World, m_Pos, BUILDING_REACTOR_DESTROYED, TEAM_NEUTRAL);
 		//GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
-		//GameServer()->CreateExplosion(m_Pos, m_DamageOwner, GetBuildingWeapon(m_Type));
 		GameServer()->m_World.DestroyEntity(this);
 		
-		GameServer()->SendBroadcast("Reactor lost", -1);
-		GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
+		GameServer()->m_pController->ReactorDestroyed();
+		
+		//GameServer()->SendBroadcast("Reactor lost", -1);
+		//GameServer()->CreateSoundGlobal(SOUND_CTF_DROP);
 	}
 	else if (m_Type == BUILDING_FLAMETRAP)
 	{

@@ -10,7 +10,13 @@ CBlock::CBlock(CGameWorld *pGameWorld, int Type, vec2 Pos)
 {
 	m_Pos = vec2(int(Pos.x / 32)*32, int(Pos.y / 32)*32);
 	m_Type = Type;
-	m_Life = 100;
+	m_OriginalType = Type;
+	
+	if (Type == 1)
+		m_Life = 100;
+	else
+		m_Life = 250;
+	
 	m_MaxLife = m_Life;
 	
 	m_DestroyTick = 0;
@@ -75,10 +81,13 @@ void CBlock::TakeDamage(int Damage)
 	if (m_Life <= 0 || m_Type == 0)
 		return;
 	
+	if (Damage < 0 && m_Life >= m_MaxLife)
+		return;
+	
 	m_Life -= Damage;
 	//GameServer()->CreateDamageInd(m_Pos, 0, -Damage, -1);
 	
-	int NewType = mix(4, 1, float(m_Life)/float(m_MaxLife));
+	int NewType = mix(m_OriginalType+3, m_OriginalType, float(m_Life)/float(m_MaxLife));
 	if (NewType != m_Type)
 	{
 		m_Type = NewType;

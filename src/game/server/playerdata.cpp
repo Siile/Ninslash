@@ -93,6 +93,7 @@ void CPlayerData::Reset()
 	m_Weapon = 0;
 	m_Kits = 0;
 	m_Score = 0;
+	m_Gold = 0;
 	m_HighestLevel = 0;
 	m_HighestLevelSeed = 0;
 }

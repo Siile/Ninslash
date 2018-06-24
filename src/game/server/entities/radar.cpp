@@ -10,12 +10,14 @@ CRadar::CRadar(CGameWorld *pGameWorld, int Type, int ObjectiveID)
 	m_ObjectiveID = ObjectiveID;
 	m_TargetPos = vec2(0, 0);
 	m_Active = false;
+	m_ActiveTick = 0;
 	
 	GameWorld()->InsertEntity(this);
 }
 
 void CRadar::Reset()
 {
+	//GameServer()->m_World.DestroyEntity(this);
 }
 
 void CRadar::Tick()
@@ -29,6 +31,14 @@ void CRadar::Tick()
 			m_TargetPos = pCharacter->m_Pos;
 			m_Active = true;
 		}
+		else
+			m_Active = false;
+	}
+	
+	if (m_Type == RADAR_ENEMY)
+	{
+		if (m_ActiveTick > Server()->Tick())
+			m_Active = true;
 		else
 			m_Active = false;
 	}
@@ -48,6 +58,9 @@ void CRadar::Snap(int SnappingClient)
 		return;
 	
 	if (pCharacter && pCharacter->m_IsBot)
+		return;
+	
+	if (m_Type == RADAR_BOMB && ( pCharacter->IsBombCarrier() || (pCharacter->GetPlayer()->GetTeam() == TEAM_BLUE && GameServer()->m_pController->m_BombStatus != BOMB_ARMED)))
 		return;
 	
 	if(NetworkClipped(SnappingClient) || !m_Active)

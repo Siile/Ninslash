@@ -23,6 +23,9 @@ private:
 	ivec2 m_aPlatform[GEN_MAX];
 	int m_NumPlatforms;
 	
+	ivec2 m_aMedPlatform[GEN_MAX];
+	int m_NumMedPlatforms;
+	
 	ivec2 m_aOpenArea[GEN_MAX];
 	int m_NumOpenAreas;
 	
@@ -104,6 +107,7 @@ public:
 	ivec2 GetBotPlatform();
 	ivec2 GetTopPlatform();
 	ivec2 GetPlatform();
+	ivec2 GetMedPlatform();
 	ivec2 GetCeiling();
 	ivec2 GetLeftCeiling();
 	ivec2 GetRightCeiling();

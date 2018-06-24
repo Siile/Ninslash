@@ -361,15 +361,25 @@ void CMapGen::GenerateBarrel(CGenLayer *pTiles)
 {
 	ivec2 p = pTiles->GetPlatform();
 	
+	bool Dublos = false;
+	
+	if (p.x == 0)
+	{
+		p = pTiles->GetMedPlatform();
+		Dublos = true;
+	}
+	
 	if (p.x == 0)
 		return;
 	
-	if (str_comp(g_Config.m_SvGametype, "coop") == 0)
+	if (Dublos)
 	{
-		if (frandom() < 0.3f && g_Config.m_SvMapGenLevel > 15)
-			ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_POWERBARREL);
+		if (frandom() < 0.3f)
+			ModifTile(p+ivec2(-1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_POWERBARREL);
 		else
-			ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_BARREL);
+			ModifTile(p+ivec2(-1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_BARREL);
+		
+		ModifTile(p+ivec2(1, 0), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_POWERBARREL);
 	}
 	else
 	{
@@ -378,11 +388,25 @@ void CMapGen::GenerateBarrel(CGenLayer *pTiles)
 		else
 			ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_BARREL);
 	}
+	
+	if (str_comp(g_Config.m_SvGametype, "coop") == 0)
+	{
+		if (frandom() < 0.3f && g_Config.m_SvMapGenLevel > 5)
+			ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_POWERBARREL);
+		else
+			ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_BARREL);
+	}
+	else
+	{
+	}
 }
 
 void CMapGen::GenerateLightningWall(CGenLayer *pTiles)
 {
 	ivec2 p = pTiles->GetPlatform();
+	
+	if (p.x == 0)
+		p = pTiles->GetMedPlatform();
 	
 	if (p.x == 0)
 		return;
@@ -459,7 +483,7 @@ void CMapGen::GenerateMine(CGenLayer *pTiles)
 
 void CMapGen::GenerateWalker(CGenLayer *pTiles)
 {
-	ivec2 p = pTiles->GetPlatform();
+	ivec2 p = pTiles->GetMedPlatform();
 	
 	if (p.x == 0)
 		return;
@@ -587,6 +611,9 @@ void CMapGen::GeneratePowerupper(CGenLayer *pTiles)
 	ivec2 p = pTiles->GetPlatform();
 	
 	if (p.x == 0)
+		p = pTiles->GetMedPlatform();
+	
+	if (p.x == 0)
 		return;
 	
 	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_POWERUPPER);
@@ -596,6 +623,9 @@ void CMapGen::GeneratePowerupper(CGenLayer *pTiles)
 void CMapGen::GenerateEnemySpawn(CGenLayer *pTiles)
 {
 	ivec2 p = pTiles->GetPlatform();
+	
+	if (p.x == 0)
+		p = pTiles->GetMedPlatform();
 	
 	if (p.x == 0)
 		p = pTiles->GetOpenArea();
@@ -656,6 +686,7 @@ void CMapGen::GenerateDeathray(CGenLayer *pTiles)
 
 void CMapGen::GenerateScreen(CGenLayer *pTiles)
 {
+	/*
 	ivec3 p = pTiles->GetLongPlatform();
 	
 	if (p.x == 0)
@@ -673,6 +704,46 @@ void CMapGen::GenerateScreen(CGenLayer *pTiles)
 		ModifTile(ivec2(x, p.y-1), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_REACTOR);
 	
 	pTiles->Use(x, p.y-1);
+	*/
+	
+	ivec2 p = pTiles->GetMedPlatform();
+	
+	if (p.x == 0)
+		return;
+	
+	if (frandom() < 0.7f)
+		ModifTile(ivec2(p.x, p.y), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SCREEN);
+	else
+		ModifTile(ivec2(p.x, p.y), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_REACTOR);
+	
+	pTiles->Use(p.x, p.y);
+}
+
+void CMapGen::GenerateShop(CGenLayer *pTiles)
+{
+	/*
+	ivec3 p = pTiles->GetLongPlatform();
+	
+	if (p.x == 0)
+		return;
+	int x = (p.x+p.z)/2;
+	
+	for (int y = 1; y < 6; y++)
+		if (pTiles->Get(x, p.y-y))
+			return;
+	
+	ModifTile(ivec2(x, p.y-1), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SHOP);
+	
+	pTiles->Use(x, p.y-1);
+	*/
+	
+	ivec2 p = pTiles->GetMedPlatform();
+	
+	if (p.x == 0)
+		return;
+	
+	ModifTile(ivec2(p.x, p.y), m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SHOP);
+	pTiles->Use(p.x, p.y);
 }
 
 void CMapGen::GenerateSpeaker(CGenLayer *pTiles)
@@ -720,6 +791,9 @@ void CMapGen::GenerateHearts(CGenLayer *pTiles)
 				p = pTiles->GetPlatform();
 				
 				if (p.x == 0)
+					p = pTiles->GetMedPlatform();
+				
+				if (p.x == 0)
 					return;
 				
 				ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_HEALTH_1);
@@ -763,6 +837,9 @@ void CMapGen::GenerateAmmo(CGenLayer *pTiles)
 			else
 			{
 				p = pTiles->GetPlatform();
+				
+				if (p.x == 0)
+					p = pTiles->GetMedPlatform();
 				
 				if (p.x == 0)
 					return;
@@ -809,6 +886,9 @@ void CMapGen::GenerateArmor(CGenLayer *pTiles)
 			else
 			{
 				p = pTiles->GetPlatform();
+				
+				if (p.x == 0)
+					p = pTiles->GetMedPlatform();
 				
 				if (p.x == 0)
 					return;
@@ -992,19 +1072,14 @@ void CMapGen::GenerateLevel()
 	for (int i = 0; i < min(4, 2 + int(Level * 0.5f)); i++)
 		GeneratePowerupper(pTiles);
 	
-	
-	if (Level % 10 == 9)
-	{
-		GeneratePowerupper(pTiles);
-		GeneratePowerupper(pTiles);
-		GeneratePowerupper(pTiles);
-		GeneratePowerupper(pTiles);
-	}
+	if (Level > 2)
+		GenerateShop(pTiles);
 	
 	// enemy spawn positions
-	for (int i = 0; i < min(5+Level, 10) ; i++)
+	for (int i = 0; i < 5 ; i++)
 		GenerateEnemySpawn(pTiles);
 	
+	//if (Level > 3 && frandom() < 0.75f)
 	
 	for (int i = 0; i < 4; i++)
 		GenerateScreen(pTiles);
@@ -1096,6 +1171,7 @@ void CMapGen::GenerateLevel()
 	//	GenerateSwitch(pTiles);
 	
 	// walkers
+	/*
 	if (Level%3 == 0 || Level%7 == 0 || Level%13 == 0 || Level%17 == 0)
 	{
 		int w = 1+rand()%(1+min(Level/4, 4));
@@ -1103,9 +1179,25 @@ void CMapGen::GenerateLevel()
 		for (int i = 0; i < w; i++)
 			GenerateWalker(pTiles);
 	}
+	*/
+	
+	if (Level > 3)
+		GenerateWalker(pTiles);
+	
+	if (Level > 7)
+		GenerateWalker(pTiles);
+	
+	if (Level > 12)
+		GenerateWalker(pTiles);
 
+	if (Level > 4)
+		GenerateStarDroid(pTiles);
+	
+	if (Level > 8)
+		GenerateStarDroid(pTiles);
 	
 	// star droids
+	/*
 	if (Level > 5)
 		if (Level%4 == 0 || Level%7 == 0 || Level%11 == 0 || Level%17 == 0)
 		{
@@ -1114,6 +1206,7 @@ void CMapGen::GenerateLevel()
 			for (int i = 0; i < w; i++)
 				GenerateStarDroid(pTiles);
 		}
+		*/
 		
 	/*
 	for (int i = 0; i < 2; i++)
@@ -1149,7 +1242,7 @@ void CMapGen::GenerateLevel()
 	*/
 
 	// more enemy spawn positions
-	for (int i = 0; i < min(Level, 20); i++)
+	for (int i = 0; i < min(Level, 10); i++)
 		GenerateEnemySpawn(pTiles);
 	
 	if (pRoom)
@@ -1369,7 +1462,6 @@ void CMapGen::GeneratePVPLevel()
 		
 	for (int i = 0; i < 4; i++)
 		GenerateScreen(pTiles);
-	
 
 	//for (int i = 0; i < 2; i++)
 	//	GenerateCrawlerDroid(pTiles);

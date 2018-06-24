@@ -8,7 +8,6 @@
 #include "entities/building.h"
 #include "entities/staticlaser.h"
 #include "entities/flag.h"
-#include "entities/bomb.h"
 #include <game/server/player.h>
 #include "gamecontext.h"
 
@@ -535,19 +534,7 @@ bool CAI::SeekBombArea()
 	return false;
 }
 
-	
-bool CAI::SeekBomb()
-{
-	CBomb *Bomb = GameServer()->m_pController->GetBomb();
-	
-	if (Bomb)
-	{
-		m_TargetPos = Bomb->m_Pos;
-		return true;
-	}
-	
-	return false;
-}
+
 
 
 
@@ -569,6 +556,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 			case MOVE_UP: wpPos = vec2(0, -1); break;
 			case MOVE_UPLEFT: wpPos = vec2(-1, -1); break;
 			case MOVE_UPRIGHT: wpPos = vec2(1, -1); break;
+			case MOVE_DOWN: wpPos = vec2(0, 1); break;
 			
 			default: wpPos = vec2(0, 0); break;
 			
@@ -592,9 +580,9 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 			{
 				m_Move = 0;
 					
-				if (rand()%9 == 2)
+				if (rand()%29 == 2)
 					m_Move = -1;
-				else if (rand()%9 == 2)
+				else if (rand()%29 == 2)
 					m_Move = 1;
 			}
 			break;
@@ -758,6 +746,20 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 			};
 			break;
 			
+				
+			case MOVE_DOWN:
+			{
+				m_Down = 1;
+				m_Jump = 0;
+				m_Hook = 0;
+				m_Move = 0;
+				
+				if (rand()%19 == 2)
+					m_Move = -1;
+				else if (rand()%19 == 2)
+					m_Move = 1;
+			}
+			break;
 				
 			case MOVE_UP:
 			{
@@ -965,7 +967,15 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 		return true;
 	}
 	
-	if (abs(m_LastPos.x - m_WaypointPos.x) > 32)
+	if (abs(m_LastPos.x - m_WaypointPos.x)*2.0f < abs(m_LastPos.y - m_WaypointPos.y))
+	{
+		if (m_LastPos.y > m_WaypointPos.y)
+			m_MoveType = MOVE_UP;
+		else
+			m_MoveType = MOVE_DOWN;
+	}
+	else
+	//if (abs(m_LastPos.x - m_WaypointPos.x) > 32)
 	{
 		if (m_LastPos.x < m_WaypointPos.x)
 		{
@@ -981,6 +991,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				m_MoveType = MOVE_UPLEFT;
 		}
 	}
+	/*
 	else
 	{
 		if (m_LastPos.y > m_WaypointPos.y)
@@ -988,7 +999,9 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 		else
 			m_MoveType = MOVE_IDLE;
 	}
+	*/
 
+	/*
 	bool Floor = false;
 	for (int y = 1; y < 30; y++)
 		if (GameServer()->Collision()->IsTileSolid(m_Pos.x, m_Pos.y + y*32))
@@ -997,8 +1010,17 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 			break;
 		}
 	
-	if (!Floor && (m_MoveType != MOVE_UP || m_MoveType != MOVE_UPLEFT || m_MoveType != MOVE_UPRIGHT))
+	if (!Floor && (m_MoveType != MOVE_DOWN || m_MoveType != MOVE_UP || m_MoveType != MOVE_UPLEFT || m_MoveType != MOVE_UPRIGHT))
 		m_MoveType = MOVE_UP;
+	*/
+	
+	if (m_MoveType == MOVE_DOWN && GameServer()->Collision()->IsTileSolid(m_Pos.x, m_Pos.y + 40))
+	{
+		if (m_Pos.x > m_TargetPos.x)
+			m_MoveType = MOVE_LEFT;
+		else if (m_Pos.x < m_TargetPos.x)
+			m_MoveType = MOVE_LEFT;
+	}
 	
 	return false;
 }

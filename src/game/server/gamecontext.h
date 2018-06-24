@@ -156,6 +156,7 @@ public:
 	void CreateFlameHit(vec2 Pos);
 	void CreateBuildingHit(vec2 Pos);
 	void CreateDamageInd(vec2 Pos, float AngleMod, int Damage, int ClientID);
+	void CreateRepairInd(vec2 Pos);
 	void CreateExplosion(vec2 Pos, int Owner, int Weapon);
 	void SendEffect(int ClientID, int EffectID);
 	void CreateHammerHit(vec2 Pos);
@@ -177,6 +178,8 @@ public:
 	bool RespawnAlly(vec2 Pos, int Team);
 	
 	bool AddBuilding(int Kit, vec2 Pos, int Owner);
+	
+	bool Shop(class CPlayer *pPlayer, int Slot, bool AI = false);
 	
 	void CreateProjectile(int DamageOwner, int Weapon, int Charge, vec2 Pos, vec2 Direction, class CBuilding *OwnerBuilding = NULL);
 	void CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 Pos, vec2 Direction);

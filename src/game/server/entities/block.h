@@ -30,6 +30,7 @@ public:
 	void TakeDamage(int Damage);
 	
 private:
+	int m_OriginalType;
 };
 
 #endif

@@ -46,6 +46,10 @@ CGenLayer::CGenLayer(int w, int h)
 	for (int i = 0; i < GEN_MAX; i++)
 		m_aPlatform[i] = ivec2(0, 0);
 	
+	m_NumMedPlatforms = 0;
+	for (int i = 0; i < GEN_MAX; i++)
+		m_aMedPlatform[i] = ivec2(0, 0);
+	
 	m_NumOpenAreas = 0;
 	for (int i = 0; i < GEN_MAX; i++)
 		m_aOpenArea[i] = ivec2(0, 0);
@@ -124,9 +128,9 @@ void CGenLayer::CleanTiles()
 
 void CGenLayer::GenerateBoxes()
 {
-	int n = 3 + rand()%14;
+	int n = 3 + rand()%12;
 		
-	for (int k = 0; k < 10000; k++)
+	for (int k = 0; k < 5000; k++)
 	{
 		int wx = 10 + rand()%(m_Width - 20);
 		int wy = 10 + rand()%(m_Height - 20);
@@ -897,6 +901,20 @@ void CGenLayer::Scan()
 	for (int x = 2; x < m_Width-2; x++)
 		for (int y = 2; y < m_Height-2; y++)
 		{
+			if (!Used(x-2, y) && !Used(x-1, y) && !Used(x, y) && !Used(x+1, y) && !Used(x+2, y) &&
+				Get(x-2, y+1) && Get(x-1, y+1) && Get(x, y+1) && Get(x+1, y+1) && Get(x+2, y+1) && !IsNearSlope(x, y+1))
+			{
+				if (m_NumMedPlatforms < GEN_MAX)
+				{
+					m_aMedPlatform[m_NumMedPlatforms++] = ivec2(x, y);
+					Set(-1, x-2, y);
+					Set(-1, x-1, y);
+					Set(-1, x, y);
+					Set(-1, x+1, y);
+					Set(-1, x+2, y);
+				}
+			}
+			
 			if (!Used(x-1, y) && !Used(x, y) && !Used(x+1, y) &&
 				Get(x-1, y+1) && Get(x, y+1) && Get(x+1, y+1) && !IsNearSlope(x, y+1))
 			{
@@ -1077,6 +1095,27 @@ ivec3 CGenLayer::GetLongPlatform()
 	return p;
 }
 
+ivec2 CGenLayer::GetMedPlatform()
+{
+	if (m_NumMedPlatforms <= 0)
+		return ivec2(0, 0);
+	
+	int n = 0;
+	int i = rand()%m_NumMedPlatforms;
+	
+	while (m_aMedPlatform[i].x == 0 && n++ < 999)
+		i = rand()%m_NumMedPlatforms;
+	
+	if (n >= 9999)
+		return ivec2(0, 0);
+	
+	ivec2 p = m_aMedPlatform[i];
+	m_aMedPlatform[i] = ivec2(0, 0);
+	
+	return p;
+}
+
+
 ivec2 CGenLayer::GetPlatform()
 {
 	if (m_NumPlatforms <= 0)
@@ -1085,7 +1124,7 @@ ivec2 CGenLayer::GetPlatform()
 	int n = 0;
 	int i = rand()%m_NumPlatforms;
 	
-	while (m_aPlatform[i].x == 0 && n++ < 9999)
+	while (m_aPlatform[i].x == 0 && n++ < 999)
 		i = rand()%m_NumPlatforms;
 	
 	if (n >= 9999)
@@ -1186,7 +1225,7 @@ ivec2 CGenLayer::GetOpenArea()
 	int n = 0;
 	int i = rand()%m_NumOpenAreas;
 	
-	while (m_aOpenArea[i].x == 0 && n++ < 9999)
+	while (m_aOpenArea[i].x == 0 && n++ < 999)
 		i = rand()%m_NumOpenAreas;
 	
 	if (n >= 9999)
@@ -1206,7 +1245,7 @@ ivec3 CGenLayer::GetLongCeiling()
 	int n = 0;
 	int i = rand()%m_NumLongCeilings;
 	
-	while (m_aLongCeiling[i].x == 0 && n++ < 9999)
+	while (m_aLongCeiling[i].x == 0 && n++ < 999)
 		i = rand()%m_NumLongCeilings;
 	
 	if (n >= 9999)
@@ -1234,7 +1273,7 @@ ivec2 CGenLayer::GetCeiling()
 	int n = 0;
 	int i = rand()%m_NumCeilings;
 	
-	while (m_aCeiling[i].x == 0 && n++ < 9999)
+	while (m_aCeiling[i].x == 0 && n++ < 999)
 		i = rand()%m_NumCeilings;
 	
 	if (n >= 9999)
@@ -1294,7 +1333,7 @@ ivec2 CGenLayer::GetWall()
 	int n = 0;
 	int i = rand()%m_NumWalls;
 	
-	while (m_aWall[i].x == 0 && n++ < 9999)
+	while (m_aWall[i].x == 0 && n++ < 999)
 		i = rand()%m_NumWalls;
 	
 	if (n >= 9999)
@@ -1346,7 +1385,7 @@ ivec2 CGenLayer::GetTopCorner()
 	int n = 0;
 	int i = rand()%m_NumTopCorners;
 	
-	while (m_aTopCorner[i].x == 0 && n++ < 9999)
+	while (m_aTopCorner[i].x == 0 && n++ < 999)
 		i = rand()%m_NumTopCorners;
 	
 	if (n >= 9999)
@@ -1367,7 +1406,7 @@ ivec2 CGenLayer::GetSharpCorner()
 	int n = 0;
 	int i = rand()%m_NumCorners;
 	
-	while (m_aTopCorner[i].x == 0 && n++ < 9999)
+	while (m_aTopCorner[i].x == 0 && n++ < 999)
 		i = rand()%m_NumCorners;
 	
 	if (n >= 9999)
@@ -1507,6 +1546,10 @@ void CGenLayer::Use(int x, int y)
 	for (int i = 0; i < m_NumPlatforms; i++)
 		if (abs(m_aPlatform[i].x - x) < 2 && m_aPlatform[i].y == y)
 			m_aPlatform[i] = ivec2(0, 0);
+		
+	for (int i = 0; i < m_NumMedPlatforms; i++)
+		if (abs(m_aMedPlatform[i].x - x) < 3 && m_aMedPlatform[i].y == y)
+			m_aMedPlatform[i] = ivec2(0, 0);
 		
 	for (int i = 0; i < m_NumCeilings; i++)
 		if (abs(m_aCeiling[i].x - x) < 2 && m_aCeiling[i].y == y)

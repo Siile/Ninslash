@@ -40,6 +40,7 @@ enum WeaponBits
 	SW_GUN2,
 	SW_GRENADE1,
 	SW_GRENADE2,
+	SW_GRENADE3,
 	SW_BAZOOKA,
 	SW_BOUNCER,
 	SW_CHAINSAW,
@@ -50,6 +51,7 @@ enum WeaponBits
 	SW_INVIS,
 	SW_BUBBLER,
 	SW_SHURIKEN,
+	SW_BOMB,
 	NUM_SW,
 	
 	
@@ -59,6 +61,7 @@ enum WeaponBits
 	WRT_WEAPON2, // gun
 	WRT_ITEM1,
 	WRT_MELEE,
+	WRT_MELEESMALL,
 	
 	// weapon firing types
 	WFT_NONE=0,
@@ -92,9 +95,9 @@ inline bool IsModularWeapon(int Weapon) { return (IsWeapon(Weapon) && !(Weapon &
 
 inline bool IsOnDeath(int Weapon) { return Weapon & BIT_ONDEATH ? true : false; }
 
-inline int GetBuildingType(int Weapon) { return IsBuilding(Weapon) ? (Weapon & (1023<<6))>>6 : false; }
+inline int GetBuildingType(int Weapon) { return IsBuilding(Weapon) ? (Weapon & (1023<<6))>>6 : 0; }
 inline int GetBuildingWeapon(int Building) { return BIT_BUILDING | Building<<6; }
-inline int GetDroidType(int Weapon) { return IsDroid(Weapon) ? (Weapon & (1023<<6))>>6 : false; }
+inline int GetDroidType(int Weapon) { return IsDroid(Weapon) ? (Weapon & (1023<<6))>>6 : 0; }
 inline int GetDroidWeapon(int Droid, bool OnDeath = false) { return BIT_DROID | (OnDeath ? BIT_ONDEATH : 0) | Droid<<6; }
 
 bool ValidForTurret(int Weapon);
@@ -125,6 +128,8 @@ int GetExplosionSound(int Weapon);
 bool WeaponAimline(int Weapon);
 
 bool AIWeaponCharge(int Weapon);
+
+int GetWeaponCost(int Weapon);
 
 vec2 GetWeaponRenderOffset(int Weapon);
 vec2 GetMuzzleRenderOffset(int Weapon);

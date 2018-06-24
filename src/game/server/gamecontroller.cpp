@@ -5,14 +5,15 @@
 
 #include <game/generated/protocol.h>
 
-#include "entities/bomb.h"
 #include "entities/flag.h"
+#include "entities/block.h"
 #include "entities/pickup.h"
 #include "entities/weapon.h"
 #include "entities/character.h"
 #include "entities/turret.h"
 #include "entities/teslacoil.h"
 #include "entities/building.h"
+#include "entities/shop.h"
 #include "entities/deathray.h"
 #include "entities/powerupper.h"
 #include "entities/droid_walker.h"
@@ -52,7 +53,10 @@ IGameController::IGameController(class CGameContext *pGameServer)
 	m_SurvivalStatus = SURVIVAL_CANJOIN;
 	m_SurvivalStartTick = Server()->Tick();
 	m_SurvivalDeathTick = 0;
+	m_SurvivalResetTick = 0;
 	m_ClearBroadcastTick = 0;
+	
+	m_BombStatus = 0;
 	
 	// custom
 	for (int i = 0; i < MAX_PICKUPS; i++)
@@ -164,6 +168,12 @@ void IGameController::SetPickup(vec2 Pos, int PickupType, int PickupSubtype, int
 		}
 	}
 }
+
+bool IGameController::InBombArea(vec2 Pos)
+{
+	return false;
+}
+
 
 int IGameController::GetRandomWeapon()
 {
@@ -578,6 +588,15 @@ void IGameController::CreateDroppables()
 			m_PickupCount++;
 		}
 		
+		// coins
+		if (m_PickupCount < MAX_PICKUPS)
+		{
+			m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_COIN, 0);
+			m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
+			m_apPickup[m_PickupCount]->m_Dropable = true;
+			m_PickupCount++;
+		}
+		
 		// kits
 		if (m_PickupCount < MAX_PICKUPS)
 		{
@@ -620,7 +639,13 @@ void IGameController::DeathMessage()
 			GameServer()->SendBroadcast("Everybody dies", -1); break;
 	};
 }
-	
+
+
+vec2 IGameController::GetAttackPos()
+{
+	return vec2(0.0f, 0.0f);
+}
+
 	
 void IGameController::TriggerSwitch(vec2 Pos)
 {
@@ -648,6 +673,12 @@ void IGameController::TriggerSwitch(vec2 Pos)
 }
 
 
+void IGameController::DisplayExit(vec2 Pos)
+{
+	
+}
+
+
 void IGameController::TriggerEscape()
 {
 	float Radius = 1000000;
@@ -659,7 +690,10 @@ void IGameController::TriggerEscape()
 	{
 		CBuilding *pTarget = apEnts[i];
 		if (pTarget->m_Type == BUILDING_DOOR1)
+		{
 			pTarget->Trigger();
+			DisplayExit(pTarget->m_Pos);
+		}
 	}
 }
 
@@ -731,6 +765,11 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		new CBuilding(&GameServer()->m_World, Pos, BUILDING_SCREEN, TEAM_NEUTRAL);
 		return true;
 	}
+	else if (Index == ENTITY_SHOP)
+	{
+		new CShop(&GameServer()->m_World, Pos);
+		return true;
+	}
 	else if (Index == ENTITY_LAZER)
 	{
 		new CDeathray(&GameServer()->m_World, Pos+vec2(0, -20));
@@ -772,11 +811,13 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		new CBuilding(&GameServer()->m_World, Pos, BUILDING_SPEAKER, TEAM_NEUTRAL);
 		return true;
 	}
+	/*
 	else if (Index == ENTITY_JUMPPAD)
 	{
 		new CBuilding(&GameServer()->m_World, Pos, BUILDING_JUMPPAD, TEAM_NEUTRAL);
 		return true;
 	}
+	*/
 	else if (Index == ENTITY_FLAMETRAP_RIGHT || Index == ENTITY_FLAMETRAP_LEFT)
 	{
 		CBuilding *pFlametrap = new CBuilding(&GameServer()->m_World, Pos, BUILDING_FLAMETRAP, TEAM_NEUTRAL);
@@ -1304,12 +1345,21 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 			if (pVictim->HasAmmo())
 				DropPickup(pVictim->m_Pos, POWERUP_AMMO, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 
-			if (frandom() < 0.5f)
+			else if (frandom() < 0.5f)
 				DropPickup(pVictim->m_Pos, POWERUP_AMMO, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 				
 			if (pVictim->GetArmor() > 0)
 				DropPickup(pVictim->m_Pos, POWERUP_ARMOR, pVictim->m_LatestHitVel+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
 
+			
+			for (int i = 0; i < 5; i++)
+			{
+				if (pVictim->GetPlayer()->GetGold() > 0)
+				{
+					pVictim->GetPlayer()->ReduceGold(1);
+					DropPickup(pVictim->m_Pos, POWERUP_COIN, pVictim->m_LatestHitVel+vec2(frandom()*8.0-frandom()*8.0, frandom()*6.0-frandom()*8.0), 0);
+				}
+			}
 		}
 
 		// drop weapon
@@ -1386,10 +1436,6 @@ int IGameController::GetDefendingTeam()
 	return -1;
 }
 
-CBomb *IGameController::GetBomb()
-{
-	return NULL;
-}
 
 CFlag *IGameController::GetClosestBase(vec2 Pos, int Team)
 {
@@ -1511,8 +1557,8 @@ void IGameController::NewSurvivalRound()
 	
 void IGameController::ResetSurvivalRound()
 {
-	KillEveryone();
 	NewSurvivalRound();
+	KillEveryone();
 	m_ClearBroadcastTick = Server()->Tick() + Server()->TickSpeed()*2;
 	m_SurvivalStartTick = Server()->Tick();
 	m_SurvivalStatus = SURVIVAL_CANJOIN;
@@ -1533,6 +1579,38 @@ void IGameController::ResetSurvivalRound()
 		for (int i = 0; i < Num; ++i)
 			apEnts[i]->SurvivalReset();
 	}
+	
+	{
+		CBlock *apEnts[4000];
+		int Num = GameServer()->m_World.FindEntities(vec2(0, 0), 0.0f, (CEntity**)apEnts, 4000, CGameWorld::ENTTYPE_BLOCK);
+
+		for (int i = 0; i < Num; ++i)
+			apEnts[i]->SurvivalReset();
+	}
+	
+	{
+		CWeapon *apEnts[4000];
+		int Num = GameServer()->m_World.FindEntities(vec2(0, 0), 0.0f, (CEntity**)apEnts, 4000, CGameWorld::ENTTYPE_WEAPON);
+
+		for (int i = 0; i < Num; ++i)
+			apEnts[i]->SurvivalReset();
+	}
+	
+	// cs round restart
+	/*
+	if (str_comp(g_Config.m_SvGametype, "def") == 0)
+	{
+		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			CPlayer *pPlayer = GameServer()->m_apPlayers[i];
+			if(!pPlayer)
+				continue;
+
+			if (pPlayer->GetTeam() != TEAM_SPECTATORS)
+				pPlayer->IncreaseGold(15);
+		}
+	}
+	*/
 }
 
 void IGameController::KillEveryone()
@@ -1551,6 +1629,29 @@ void IGameController::KillEveryone()
 	}
 }
 
+
+void IGameController::TriggerBomb()
+{
+	
+}
+
+void IGameController::DisarmBomb()
+{
+	
+}
+
+void IGameController::ReactorDestroyed()
+{
+	
+}
+
+
+void IGameController::OnSurvivalTimeOut()
+{
+	GameServer()->SendBroadcast("Draw", -1);
+	m_SurvivalResetTick = Server()->Tick() + Server()->TickSpeed() * 3.0f;
+}
+	
 
 void IGameController::Tick()
 {
@@ -1591,74 +1692,90 @@ void IGameController::Tick()
 	if (g_Config.m_SvSurvivalMode && (IsInfection()))
 		g_Config.m_SvSurvivalMode = 0;
 	
-	// check for round time ending
-	if (!g_Config.m_SvSurvivalAcid && g_Config.m_SvSurvivalTime && g_Config.m_SvSurvivalMode && m_SurvivalStartTick < Server()->Tick() - Server()->TickSpeed() * g_Config.m_SvSurvivalTime)
+	if (m_SurvivalResetTick)
 	{
-		GameServer()->SendBroadcast("Draw", -1);
-		ResetSurvivalRound();
-	}
-	
-	// global acid level
-	if (g_Config.m_SvSurvivalAcid && g_Config.m_SvSurvivalMode && g_Config.m_SvSurvivalTime && !m_Warmup)
-	{
-		GameServer()->Collision()->m_GlobalAcid = true;
-		GameServer()->Collision()->m_Time = g_Config.m_SvSurvivalTime*Server()->TickSpeed() - ((Server()->Tick()-m_SurvivalStartTick));
-	}
-	else 
-		GameServer()->Collision()->m_GlobalAcid = false;
-				
-	// check for winning conditions
-	if (!IsCoop() && g_Config.m_SvSurvivalMode && m_SurvivalStatus == SURVIVAL_NOCANDO && m_SurvivalDeathTick < Server()->Tick())
-	{
-		// check if only the last player (or the team) alive
-		if (IsTeamplay())
+		if (m_SurvivalResetTick < Server()->Tick())
 		{
-			// draw
-			if (!CountPlayersAlive(TEAM_BLUE) && !CountPlayersAlive(TEAM_RED))
-			{
-				GameServer()->SendBroadcast("Draw", -1);
-				ResetSurvivalRound();
-			}
-			// red team wins
-			else if (!CountPlayersAlive(TEAM_BLUE) && CountPlayersAlive(TEAM_RED))
-			{
-				GameServer()->SendBroadcast("Red team wins", -1);
-				m_aTeamscore[TEAM_RED] += g_Config.m_SvSurvivalReward;
-				ResetSurvivalRound();
-			}
-			// blue team wins
-			else if (CountPlayersAlive(TEAM_BLUE) && !CountPlayersAlive(TEAM_RED))
-			{
-				GameServer()->SendBroadcast("Blue team wins", -1);
-				m_aTeamscore[TEAM_BLUE] += g_Config.m_SvSurvivalReward;
-				ResetSurvivalRound();
-			}
-			
+			m_SurvivalResetTick = 0;
+			ResetSurvivalRound();
 		}
-		else
+	}
+	else
+	{
+		// check for round time ending
+		if (!g_Config.m_SvSurvivalAcid && g_Config.m_SvSurvivalTime && g_Config.m_SvSurvivalMode && m_SurvivalStartTick < Server()->Tick() - Server()->TickSpeed() * g_Config.m_SvSurvivalTime)
 		{
-			// no one wins
-			if (!CountPlayersAlive())
-			{
-				GameServer()->SendBroadcast("Draw", -1);
-				ResetSurvivalRound();
-			}
-				
-			// a winner!
-			if (CountPlayersAlive() == 1)
-			{
-				int Winner = GetAliveCID();
-				
-				if (Winner >= 0)
-				{
-					char aBuf[64];
-					str_format(aBuf, sizeof(aBuf), "%s survives", Server()->ClientName(Winner));
-					GameServer()->SendBroadcast(aBuf, -1);
+			OnSurvivalTimeOut();
+			//ResetSurvivalRound();
+		}
+		
+		// global acid level
+		if (g_Config.m_SvSurvivalAcid && g_Config.m_SvSurvivalMode && g_Config.m_SvSurvivalTime && !m_Warmup)
+		{
+			GameServer()->Collision()->m_GlobalAcid = true;
+			GameServer()->Collision()->m_Time = g_Config.m_SvSurvivalTime*Server()->TickSpeed() - ((Server()->Tick()-m_SurvivalStartTick));
+		}
+		else 
+			GameServer()->Collision()->m_GlobalAcid = false;
 					
-					GameServer()->m_apPlayers[Winner]->m_Score += g_Config.m_SvSurvivalReward;
+		// check for winning conditions
+		if (!IsCoop() && g_Config.m_SvSurvivalMode && m_SurvivalStatus == SURVIVAL_NOCANDO && m_SurvivalDeathTick < Server()->Tick())
+		{
+			// check if only the last player (or the team) alive
+			if (IsTeamplay())
+			{
+				// draw
+				if (!CountPlayersAlive(TEAM_BLUE) && !CountPlayersAlive(TEAM_RED))
+				{
+					GameServer()->SendBroadcast("Draw", -1);
+					m_SurvivalResetTick = Server()->Tick() + Server()->TickSpeed() * 3.0f;
+					//ResetSurvivalRound();
+				}
+				// red team wins
+				else if (!CountPlayersAlive(TEAM_BLUE) && CountPlayersAlive(TEAM_RED))
+				{
+					GameServer()->SendBroadcast("Red team wins", -1);
+					m_aTeamscore[TEAM_RED] += g_Config.m_SvSurvivalReward;
+					m_SurvivalResetTick = Server()->Tick() + Server()->TickSpeed() * 3.0f;
+					//ResetSurvivalRound();
+				}
+				// blue team wins
+				else if (CountPlayersAlive(TEAM_BLUE) && !CountPlayersAlive(TEAM_RED))
+				{
+					GameServer()->SendBroadcast("Blue team wins", -1);
+					m_aTeamscore[TEAM_BLUE] += g_Config.m_SvSurvivalReward;
+					m_SurvivalResetTick = Server()->Tick() + Server()->TickSpeed() * 3.0f;
+					//ResetSurvivalRound();
 				}
 				
-				ResetSurvivalRound();
+			}
+			else
+			{
+				// no one wins
+				if (!CountPlayersAlive())
+				{
+					GameServer()->SendBroadcast("Draw", -1);
+					m_SurvivalResetTick = Server()->Tick() + Server()->TickSpeed() * 3.0f;
+					//ResetSurvivalRound();
+				}
+					
+				// a winner!
+				if (CountPlayersAlive() == 1)
+				{
+					int Winner = GetAliveCID();
+					
+					if (Winner >= 0)
+					{
+						char aBuf[64];
+						str_format(aBuf, sizeof(aBuf), "%s survives", Server()->ClientName(Winner));
+						GameServer()->SendBroadcast(aBuf, -1);
+						
+						GameServer()->m_apPlayers[Winner]->m_Score += g_Config.m_SvSurvivalReward;
+					}
+					
+					m_SurvivalResetTick = Server()->Tick() + Server()->TickSpeed() * 3.0f;
+					//ResetSurvivalRound();
+				}
 			}
 		}
 	}

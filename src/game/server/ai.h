@@ -93,6 +93,7 @@ protected:
 		MOVE_UP,
 		MOVE_UPLEFT,
 		MOVE_UPRIGHT,
+		MOVE_DOWN,
 	};
 	
 	int m_MoveType;
@@ -183,7 +184,6 @@ protected:
 	
 	void RandomlyStopShooting();
 	
-	
 	bool SeekRandomHuman();
 	void ShootAtClosestHuman();
 	void ShootAtBlocks();
@@ -231,7 +231,6 @@ public:
 	void UpdateInput(int *Data); // MAX_INPUT_SIZE
 	
 	bool SeekBombArea();
-	bool SeekBomb();
 	
 	int m_Special;
 	

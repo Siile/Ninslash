@@ -96,7 +96,6 @@ void CWalker::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Weapon)
 		}
 
 		GameServer()->CreateExplosion(m_Pos+m_Center, TEAM_NEUTRAL, GetDroidWeapon(m_Type, true));
-		m_DeathTick = Server()->Tick();
 		
 		// random pickup drop
 		for (int i = 0; i < 3; i++)
@@ -317,7 +316,7 @@ void CWalker::Tick()
 	if(Server()->Tick() > m_DamageTakenTick+15)
 		m_Status = DROIDSTATUS_IDLE;
 	
-	GameServer()->m_World.m_Core.AddMonster(m_Pos);
+	//GameServer()->m_World.m_Core.AddMonster(m_Pos);
 }
 
 

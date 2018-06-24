@@ -7,9 +7,9 @@ GameStateFlags = ["GAMEOVER", "SUDDENDEATH", "PAUSED"]
 
 Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY", "GHOST", "SUSHI", "SPLATTEE", "DEVILTEE", "ZOMG", "ZZZ", "WTF", "EYES", "QUESTION"]
 
-Powerups = ["HEALTH", "AMMO", "WEAPON", "ARMOR", "KIT"]
+Powerups = ["HEALTH", "AMMO", "WEAPON", "ARMOR", "COIN", "KIT"]
 
-Statuses = ["EMPTY", "SPAWNING", "AFLAME", "SLOWED", "ELECTRIC", "DEATHRAY", "SHIELD", "DASH", "INVISIBILITY", "HEAL", "FUEL", "SLOWMOVING"]
+Statuses = ["EMPTY", "SPAWNING", "AFLAME", "SLOWED", "ELECTRIC", "DEATHRAY", "SHIELD", "DASH", "INVISIBILITY", "HEAL", "FUEL", "SLOWMOVING", "BOMBCARRIER"]
 
 Damagetypes = ["NORMAL", "FLAME", "ELECTRIC", "FLUID"]
 
@@ -18,9 +18,9 @@ Droidtype = ["WALKER", "STAR", "CRAWLER", "FLY"]
 
 CoreAction = ["IDLE", "JUMP", "WALLJUMP", "ROLL", "SLIDE", "SLIDEKICK", "FALL", "JUMPPAD", "HANG"]
 
-InventoryAction = ["SWAP", "COMBINE", "TAKEPART", "DROP"]
+InventoryAction = ["SWAP", "COMBINE", "TAKEPART", "DROP", "SHOP"]
 
-Radar = ["CHARACTER", "HUMAN", "OBJECTIVE"]
+Radar = ["CHARACTER", "HUMAN", "ENEMY", "DOOR", "REACTOR", "BOMB"]
 
 RawHeader = '''
 
@@ -63,6 +63,7 @@ enum
 	BUILDING_REACTOR_DESTROYED,
 	BUILDING_TESLACOIL,
 	BUILDING_SCREEN,
+	BUILDING_SHOP,
 	
 	BSTATUS_REPAIR=1,
 	BSTATUS_NOPE,
@@ -263,6 +264,13 @@ Objects = [
 	
 	NetObject("Powerupper:Building", [
 		NetIntRange("m_Item", -1, 9)
+	]),
+	
+	NetObject("Shop:Building", [
+		NetIntAny("m_Item1"),
+		NetIntAny("m_Item2"),
+		NetIntAny("m_Item3"),
+		NetIntAny("m_Item4")
 	]),
 
 	NetObject("Flag", [
@@ -553,6 +561,7 @@ Messages = [
 		NetIntAny("m_Item10"),
 		NetIntAny("m_Item11"),
 		NetIntAny("m_Item12"),
+		NetIntRange("m_Gold", 0, 999),
 	]),
 
 	### Client messages / 13

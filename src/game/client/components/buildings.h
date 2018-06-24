@@ -23,6 +23,7 @@ class CBuildings : public CComponent
 	void RenderDoor1(const struct CNetObj_Building *pCurrent);
 	void RenderSpeaker(const struct CNetObj_Building *pCurrent);
 	void RenderScreen(const struct CNetObj_Building *pCurrent);
+	void RenderShop(const struct CNetObj_Shop *pCurrent);
 
 public:
 	virtual void OnReset();

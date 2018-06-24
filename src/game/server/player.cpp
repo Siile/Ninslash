@@ -34,6 +34,7 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	m_GotSkin = false;
 	
 	m_Score = 0;
+	m_Gold = 0;
 	
 	m_ActionTimer = 0;
 	
@@ -45,6 +46,8 @@ CPlayer::CPlayer(CGameContext *pGameServer, int ClientID, int Team)
 	m_IsBot = false;
 	m_pAI = NULL;
 	m_ToBeKicked = false;
+	
+	IncreaseGold(g_Config.m_SvStartGold);
 	
 	//m_WantedTeam = m_Team;
 	//m_Team = TEAM_SPECTATORS;
@@ -65,6 +68,17 @@ CPlayer::~CPlayer()
 }
 
 
+bool CPlayer::IncreaseGold(int Amount)
+{
+	if (m_Gold < 999)
+	{
+		m_Gold = min(999, m_Gold+Amount);
+		SendInventory();
+		return true;
+	}
+
+	return false;
+}
 
 void CPlayer::SaveData()
 {

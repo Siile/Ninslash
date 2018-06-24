@@ -31,6 +31,13 @@ public:
 	virtual void TickPaused();
 	virtual void Snap(int SnappingClient);
 
+	virtual int GetItem(int Slot)
+	{
+		return 0;
+	}
+	
+	virtual void ClearItem(int Slot) { }
+	
 	int m_Type;
 	int m_Team;
 	int m_Life;

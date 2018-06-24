@@ -1238,8 +1238,7 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 		
 		if (GetBuildingType(Weapon) == BUILDING_REACTOR)
 		{
-			
-			
+			SpriteExplosion(Pos, GetExplosionSize(Weapon), GetExplosionSprite(Weapon));
 		}
 		
 		
@@ -1368,6 +1367,12 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 					m_pClient->m_pParticles->Add(CParticles::GROUP_ELECTRIC, &p);
 				}
 				
+			} break;
+			
+			case SW_GRENADE3:
+			{
+				Electrospark(Pos, 96);
+				Electrospark(Pos, 96);
 			} break;
 			
 			case SW_BOUNCER:

@@ -120,13 +120,18 @@ void CFluid::AddForce(vec2 Pos, vec2 Vel)
 	}
 	
 	vec2 Center = m_pClient->m_pCamera->m_Center;
-	vec2 Screen = vec2(Graphics()->ScreenWidth(), Graphics()->ScreenHeight());
+	
+	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
+	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
+	vec2 Screen = vec2(ScreenX1*2, ScreenY1*2);
 	
 	vec2 GPos = Center;
 	GPos.x -= Screen.x/2;
 	
 	// global acid pool
 	//if (Pos.x > m_GlobalPool.m_Pos.x && Pos.x < m_GlobalPool.m_Pos.x + m_GlobalPool.m_Size.x)
+		
+	if (m_pClient->SurvivalAcid())
 	{
 		if (Pos.y > m_GlobalPool.m_Pos.y - 60 && Pos.y < m_GlobalPool.m_Pos.y + m_GlobalPool.m_Size.y)
 		{
@@ -199,19 +204,20 @@ void CFluid::RenderGlobalAcid()
 
 	
 	vec2 Center = m_pClient->m_pCamera->m_Center;
-	vec2 Screen = vec2(Graphics()->ScreenWidth(), Graphics()->ScreenHeight());
+	
+	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
+	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
 	
 	vec2 Pos = Center;
-	Pos.x -= Screen.x/2;
-	//Pos.x -= Screen.x/2 + fmod(Center.x, 16.0f);
+	Pos.x -= ScreenX1;
 	
 	Pos.y = AcidLevel;
 	
 	float StepX = 16;
-	vec2 Size = vec2(Screen.x+StepX*2, Screen.y);
+	vec2 Size = vec2(ScreenX1*2+StepX*2, ScreenY1*2);
 	
 	//Size.y = AcidLevel-SScreen.y;
-	Size.y = (Center.y+Screen.y/1.5f) - AcidLevel;
+	Size.y = (abs(Center.y)+ScreenY1) - AcidLevel;
 	
 	m_GlobalPool.m_Pos = Pos;
 	m_GlobalPool.m_Size = Size;
@@ -227,13 +233,13 @@ void CFluid::RenderGlobalAcid()
 	int offX = -fmod(abs(Center.x), 16.0f);
 	
 	// fullscreen fluid
-	if (Center.y > AcidLevel+Screen.y/2)
+	if (Center.y > AcidLevel+ScreenY1)
 	{
 		IGraphics::CFreeformItem Freeform(
-			Center.x-Screen.x/1.5f, Center.y-Screen.y/1.5f,
-			Center.x+Screen.x/1.5f, Center.y-Screen.y/1.5f,
-			Center.x-Screen.x/1.5f, Center.y+Screen.y/1.5f,
-			Center.x+Screen.x/1.5f, Center.y+Screen.y/1.5f);
+			Center.x-ScreenX1, Center.y-ScreenY1,
+			Center.x+ScreenX1, Center.y-ScreenY1,
+			Center.x-ScreenX1, Center.y+ScreenY1,
+			Center.x+ScreenX1, Center.y+ScreenY1);
 			
 		Graphics()->QuadsDrawFreeform(&Freeform, 1);
 	}
@@ -242,11 +248,18 @@ void CFluid::RenderGlobalAcid()
 		// fluid
 		for (int f = -3; f < Size.x / 16; f++)
 		{
-			int a = abs(int(f+Pos.x/16))%128;
+			int a = abs(int(f+(Pos.x)/16))%128;
 			
 			float y1 = Pos.y + m_GlobalPool.m_aSurfaceY[a];
 			float y2 = Pos.y + m_GlobalPool.m_aSurfaceY[(a+1)%128];
-			
+			/*
+			IGraphics::CFreeformItem Freeform(
+				Pos.x+f*StepX+offX, y1,
+				Pos.x+(f+1)*StepX+offX, y2,
+				Pos.x+f*StepX+offX, Pos.y+Size.y,
+				Pos.x+(f+1)*StepX+offX, Pos.y+Size.y);
+				*/
+				
 			IGraphics::CFreeformItem Freeform(
 				Pos.x+f*StepX+offX, y1,
 				Pos.x+(f+1)*StepX+offX, y2,

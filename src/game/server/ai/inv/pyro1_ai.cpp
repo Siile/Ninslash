@@ -36,6 +36,10 @@ void CAIpyro1::OnCharacterSpawn(CCharacter *pChr)
 	m_StartPos = Player()->GetCharacter()->m_Pos;
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	
+	
+	if (frandom() < 0.4f)
+		pChr->GetPlayer()->IncreaseGold(frandom()*6);
+	
 	if (m_Skin == SKIN_PYRO1)
 	{
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(2, 1)));
@@ -60,8 +64,8 @@ void CAIpyro1::OnCharacterSpawn(CCharacter *pChr)
 	}
 	
 	
-	pChr->SetHealth(90+min(Level*5.0f, 100.0f));
-	pChr->SetArmor(80+min(Level*5.0f, 100.0f));
+	pChr->SetHealth(90+min(Level*3.0f, 100.0f));
+	pChr->SetArmor(80+min(Level*3.0f, 100.0f));
 	m_PowerLevel = 8;
 	m_TriggerLevel = 15 + rand()%5;
 	

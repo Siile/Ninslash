@@ -26,6 +26,7 @@ class CMapGen
 	
 	void GenerateEnd(class CGenLayer *pTiles);
 	
+	void GenerateShop(class CGenLayer *pTiles);
 	void GenerateScreen(class CGenLayer *pTiles);
 	void GenerateSpeaker(class CGenLayer *pTiles);
 	void GeneratePowerupper(class CGenLayer *pTiles);

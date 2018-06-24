@@ -108,7 +108,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	
 	m_aStatus[STATUS_SPAWNING] = 0.7f*Server()->TickSpeed();
 	
-	m_SendInventoryTick = Server()->Tick() + Server()->TickSpeed();
+	m_SendInventoryTick = Server()->Tick() + Server()->TickSpeed()*2.5f;
 	
 	m_ChangeDirTick = 0;
 	m_LastDir = 0;
@@ -153,16 +153,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	
 	m_LatestHitVel = vec2(0, 0);
 	
-	// reset weapons
-	for (int i = 0; i < NUM_WEAPONS; i++)
-	{
-		m_aWeapon[i].m_Ammo = 0;
-		m_aWeapon[i].m_PowerLevel = 0;
-		m_aWeapon[i].m_Got = false;
-		m_aWeapon[i].m_Disabled = false;
-		m_aWeapon[i].m_Ready = false;
-	}
-	
 	
 	m_Core.Reset();
 	m_Core.Init(&GameServer()->m_World.m_Core, GameServer()->Collision());
@@ -197,6 +187,11 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	}
 
 	/*
+	m_apWeapon[0] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 2), 10));
+	*/
+	
+	
+	/*
 	int n = 0;
 	//m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD));
 	//m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_INVIS));
@@ -216,6 +211,28 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	return true;
 }
 
+
+bool CCharacter::GiveBomb()
+{
+	if (FreeSlot() >= 0 && GetPlayer()->GetTeam() == TEAM_RED)
+	{
+		m_apWeapon[FreeSlot()] = GameServer()->NewWeapon(GetStaticWeapon(SW_BOMB));
+		SendInventory();
+		return true;
+	}
+	
+	return false;
+}
+
+
+int CCharacter::FreeSlot()
+{
+	for (int i = 0; i < NUM_SLOTS; i++)
+		if (!m_apWeapon[i])
+			return i;
+	
+	return -1;
+}
 
 void CCharacter::RandomizeInventory()
 {
@@ -259,6 +276,7 @@ void CCharacter::SaveData()
 	pData->m_Kits = m_Kits;
 	pData->m_Armor = m_Armor;
 	pData->m_Score = GetPlayer()->m_Score;
+	pData->m_Gold = GetPlayer()->m_Gold;
 	
 	if (g_Config.m_SvMapGenLevel > pData->m_HighestLevel)
 	{
@@ -293,7 +311,7 @@ bool CCharacter::GiveWeapon(class CWeapon *pWeapon)
 	
 	if (m_apWeapon[m_WeaponSlot])
 	{
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < NUM_SLOTS; i++)
 		{
 			if (!m_apWeapon[i])
 			{
@@ -303,6 +321,7 @@ bool CCharacter::GiveWeapon(class CWeapon *pWeapon)
 				if (m_IsBot && GameServer()->m_pController->IsCoop())
 					pWeapon->m_InfiniteAmmo = true;
 				
+				//SendInventory();
 				return true;
 			}
 		}
@@ -315,6 +334,7 @@ bool CCharacter::GiveWeapon(class CWeapon *pWeapon)
 	if (m_IsBot && GameServer()->m_pController->IsCoop())
 		pWeapon->m_InfiniteAmmo = true;
 	
+	//SendInventory();
 	return true;
 }
 
@@ -411,6 +431,9 @@ void CCharacter::Destroy()
 
 void CCharacter::SendInventory()
 {
+	if (m_IsBot)
+		return;
+	
 	CNetMsg_Sv_Inventory Msg;
 	Msg.m_Item1 = GetWeaponType(0);
 	Msg.m_Item2 = GetWeaponType(1);
@@ -424,6 +447,7 @@ void CCharacter::SendInventory()
 	Msg.m_Item10 = GetWeaponType(9);
 	Msg.m_Item11 = GetWeaponType(10);
 	Msg.m_Item12 = GetWeaponType(11);
+	Msg.m_Gold = GetPlayer()->GetGold();
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, GetPlayer()->GetCID());
 }
 
@@ -623,6 +647,12 @@ bool CCharacter::TriggerWeapon(CWeapon *pWeapon)
 	
 	if (IsStaticWeapon(w))
 	{
+		if (GetStaticType(w) == SW_BOMB)
+		{
+			ReleaseWeapon();
+			return true;
+		}
+		
 		if (GetStaticType(w) == SW_INVIS)
 			return GiveBuff(PLAYERITEM_INVISIBILITY);
 		
@@ -666,9 +696,24 @@ void CCharacter::ReleaseWeapon(CWeapon *pWeapon)
 	SendInventory();
 }
 
+	
+bool CCharacter::IsBombCarrier()
+{
+	for (int i = 0; i < NUM_SLOTS; i++)
+		if (GetStaticType(GetWeaponType(i)) == SW_BOMB)
+			return true;
+	
+	return false;
+}
+	
+	
 
 bool CCharacter::PickWeapon(CWeapon *pWeapon)
 {
+	// cs | reactor defence
+	if (GetStaticType(pWeapon->GetWeaponType()) == SW_BOMB && GetPlayer()->GetTeam() != TEAM_RED)
+		return false;
+	
 	if (!GetWeapon())
 	{
 		pWeapon->SetOwner(GetPlayer()->GetCID());
@@ -818,7 +863,11 @@ void CCharacter::DropWeapon()
 	{
 		GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
 		
-		GameServer()->m_pController->DropWeapon(m_Pos+vec2(0, -16), m_Core.m_Vel/1.7f + Direction*10 + vec2(0, -3), GetWeapon());
+		if (GetStaticType(GetWeaponType()) == SW_BOMB)
+			GameServer()->m_pController->DropWeapon(m_Pos+vec2(0, -16), (m_Core.m_Vel/1.7f + Direction*10 + vec2(0, -3))*0.75f, GetWeapon());
+		else
+			GameServer()->m_pController->DropWeapon(m_Pos+vec2(0, -16), m_Core.m_Vel/1.7f + Direction*10 + vec2(0, -3), GetWeapon());
+		
 		m_SkipPickups = 20;
 				
 		m_apWeapon[GetWeaponSlot()] = NULL;
@@ -1090,10 +1139,31 @@ void CCharacter::GiveStartWeapon()
 		m_Kits = pData->m_Kits;
 		m_Armor = pData->m_Armor;
 		GetPlayer()->m_Score = pData->m_Score;
+		GetPlayer()->m_Gold = pData->m_Gold;
 		
 		char aBuf[256];
 		str_format(aBuf, sizeof(aBuf), "Data load - color=%d", GetPlayer()->GetColorID());
 		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "Character", aBuf);
+		
+		return;
+	}
+	
+	// CS / reactor defence
+	if (str_comp(g_Config.m_SvGametype, "def") == 0)
+	{
+		bool GotItems = false;
+		
+		for (int i = 0; i < NUM_SLOTS; i++)
+			if (m_apWeapon[i])
+				GotItems = true;
+		
+		if (!GotItems)
+		{
+			if (frandom() < 0.5f)
+				m_apWeapon[0] = GameServer()->NewWeapon(GetStaticWeapon(SW_GUN1));
+			else
+				m_apWeapon[0] = GameServer()->NewWeapon(GetStaticWeapon(SW_GUN2));
+		}
 		
 		return;
 	}
@@ -1372,6 +1442,26 @@ void CCharacter::UpdateCoreStatus()
 		IncreaseHealth(2);
 	}
 	
+	// check if carrying bomb (reactor defence)
+	bool m_BombCarrier = false;
+	
+	for (int w = 0; w < NUM_SLOTS; w++)
+	{
+		if (GetStaticType(GetWeaponType(w)) == SW_BOMB && GetWeaponSlot() != w)
+		{
+			m_BombCarrier = true;
+			break;
+		}
+	}
+	
+	
+	if (m_BombCarrier)
+		m_aStatus[STATUS_BOMBCARRIER] = 100;
+	else
+		m_aStatus[STATUS_BOMBCARRIER] = 0;
+	
+	
+	// pack statuses
 	for (int i = 0; i < NUM_STATUSS; i++)
 	{
 		if (m_aStatus[i] > 0)
@@ -1380,6 +1470,7 @@ void CCharacter::UpdateCoreStatus()
 			m_aStatus[i]--;
 		}
 	}
+	
 	
 	if (g_Config.m_SvUnlimitedTurbo)
 		m_Core.m_JetpackPower = 200;
@@ -1394,7 +1485,7 @@ void CCharacter::UpdateCoreStatus()
 		//	TakeDamage(vec2(0, 0), 4, m_aStatusFrom[STATUS_AFLAME], m_aStatusWeapon[STATUS_AFLAME], vec2(0, 0), DAMAGETYPE_FLAME);
 	}
 	
-	// rolling stops flames faster
+	// rolling stops flames a bit faster
 	if (m_Core.m_Roll > 0 && m_aStatus[STATUS_AFLAME] > 0)
 		m_aStatus[STATUS_AFLAME]--;
 }
@@ -1405,7 +1496,18 @@ void CCharacter::Tick()
 	//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "debug", "Tick");
 
 	// stress testing pickups
-	//GameServer()->m_pController->DropWeapon(m_Pos, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_UPGRADE)));
+	
+	//for (int i = 0; i < 50; i++)
+	//	GameServer()->m_pController->DropWeapon(m_Pos, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_UPGRADE)));
+	
+	/*
+	GameServer()->m_pController->DropPickup(m_Pos, POWERUP_HEALTH, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
+	GameServer()->m_pController->DropPickup(m_Pos, POWERUP_ARMOR, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
+	GameServer()->m_pController->DropPickup(m_Pos, POWERUP_AMMO, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
+	*/
+	
+	//GameServer()->m_pController->DropPickup(m_Pos, POWERUP_COIN, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
+	//GameServer()->m_pController->DropPickup(m_Pos, POWERUP_HEALTH, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
 	
 	if (m_PainSoundTimer > 0)
 		m_PainSoundTimer--;
@@ -1428,6 +1530,13 @@ void CCharacter::Tick()
 		SendInventory();
 		m_SendInventoryTick = 0;
 	}
+	
+	if (IsBombCarrier())
+	{
+		GameServer()->m_pController->m_BombPos = m_Pos;
+		GameServer()->m_pController->m_BombStatus = BOMB_CARRIED;
+	}
+	
 	
 	/*
 	if(m_pPlayer->m_ForceBalanced)
@@ -1693,6 +1802,20 @@ bool CCharacter::AddMine()
 	return true;
 }
 
+bool CCharacter::AddKits(int Amount)
+{
+	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
+		return false;
+	
+	if (m_Kits < 99)
+	{
+		m_Kits = min(m_Kits+Amount, 99);
+		return true;
+	}
+	
+	return false;
+}
+
 bool CCharacter::AddKit()
 {
 	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
@@ -1700,7 +1823,7 @@ bool CCharacter::AddKit()
 	
 	if (m_Kits < 99)
 	{
-		m_Kits = min(m_Kits+4, 99);
+		m_Kits = min(m_Kits+5, 99);
 		return true;
 	}
 	
@@ -1744,7 +1867,15 @@ void CCharacter::ReleaseWeapons()
 	for (int i = 0; i < NUM_SLOTS; i++)
 		if (m_apWeapon[i])
 		{
-			m_apWeapon[i]->OnOwnerDeath(i == m_WeaponSlot);
+			if (GetStaticType(m_apWeapon[i]->GetWeaponType()) == SW_BOMB)
+			{
+				GameServer()->m_pController->DropWeapon(m_Pos+vec2(0, -16), (m_Core.m_Vel/1.7f + vec2(0, -3))*0.75f, m_apWeapon[i]);
+			}
+			else
+			{
+				m_apWeapon[i]->OnOwnerDeath(i == m_WeaponSlot);
+			}
+			
 			m_apWeapon[i] = NULL;
 		}
 }

@@ -10,6 +10,7 @@
 #include <game/collision.h>
 #include <game/gamecore.h> 
 #include "gamemodes/dm.h"
+#include "gamemodes/cs.h"
 #include "gamemodes/tdm.h"
 #include "gamemodes/ctf.h"
 #include "gamemodes/run.h"
@@ -206,6 +207,16 @@ void CGameContext::CreateDamageInd(vec2 Pos, float Angle, int Damage, int Client
 	}
 }
 
+void CGameContext::CreateRepairInd(vec2 Pos)
+{
+	CNetEvent_Repair *pEvent = (CNetEvent_Repair *)m_Events.Create(NETEVENTTYPE_REPAIR, sizeof(CNetEvent_Repair));
+	if(pEvent)
+	{
+		pEvent->m_X = (int)Pos.x;
+		pEvent->m_Y = (int)Pos.y;
+	}
+}
+
 void CGameContext::CreateHammerHit(vec2 Pos)
 {
 	// create the event
@@ -365,7 +376,7 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
 		return false;
 	
 	
-	if (Kit == BUILDABLE_BLOCK1)
+	if (Kit == BUILDABLE_BLOCK1 || Kit == BUILDABLE_BLOCK2)
 		CheckRange = 32.0f;
 
 	// check sanity
@@ -390,9 +401,10 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
 	
 
 	if (Kit == BUILDABLE_BLOCK1)
-	{
 		return AddBlock(1, Pos);
-	}
+	
+	if (Kit == BUILDABLE_BLOCK2)
+		return AddBlock(4, Pos);
 	
 	if (Kit == BUILDABLE_BARREL)
 	{
@@ -472,13 +484,6 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 	// for testing the collision
 	//CreateBuildingHit(Pos);
 	
-	if (GetStaticType(Weapon) == SW_FLAMER)
-		DamageBlocks(Pos, 1+Damage*0.5f, ProximityRadius*1.7f);
-	else if (GetStaticType(Weapon) == SW_CHAINSAW)
-		DamageBlocks(Pos, Damage*0.5f, 24 + ProximityRadius);
-	else
-		DamageBlocks(Pos, Damage*0.5f, ProximityRadius*0.9f);
-	
 	// player collision
 	{
 		CCharacter *apEnts[MAX_CLIENTS];
@@ -505,7 +510,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			}
 			else
 			{
-				if (GetStaticType(Weapon) == SW_CHAINSAW)
+				if (GetStaticType(Weapon) == SW_CHAINSAW || GetStaticType(Weapon) == SW_TOOL)
 					CreateEffect(FX_BLOOD2, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
 				else
 					CreateEffect(FX_BLOOD1, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
@@ -518,6 +523,16 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			pTarget->TakeDamage(DamageOwner, Weapon, Damage * Dmg, normalize(vec2(frandom()-0.5f, frandom()-0.5f))*2.0f, Pos);
 		}
 	}
+	
+	if (GetStaticType(Weapon) == SW_TOOL)
+		Damage *= -2;
+	
+	if (GetStaticType(Weapon) == SW_FLAMER)
+		DamageBlocks(Pos, 1+Damage*0.5f, ProximityRadius*1.7f);
+	else if (GetStaticType(Weapon) == SW_CHAINSAW)
+		DamageBlocks(Pos, Damage*0.5f, 24 + ProximityRadius);
+	else
+		DamageBlocks(Pos, Damage*0.5f, ProximityRadius*0.9f);
 	
 	// buildings
 	{
@@ -542,7 +557,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			{
 				if (GetStaticType(Weapon) == SW_FLAMER)
 					;
-				else if (GetStaticType(Weapon) == SW_CHAINSAW)
+				else if (GetStaticType(Weapon) == SW_CHAINSAW || GetStaticType(Weapon) == SW_TOOL)
 					CreateEffect(FX_BLOOD2, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
 				else
 					CreateEffect(FX_BLOOD1, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
@@ -574,7 +589,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			
 			if (GetStaticType(Weapon) == SW_FLAMER)
 				;
-			else if (GetStaticType(Weapon) == SW_CHAINSAW)
+			else if (GetStaticType(Weapon) == SW_CHAINSAW || GetStaticType(Weapon) == SW_TOOL)
 				CreateEffect(FX_BLOOD2, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
 			else
 				CreateEffect(FX_BLOOD1, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
@@ -608,12 +623,7 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int Charge, vec
 	
 	if (IsStaticWeapon(Weapon))
 	{
-		if (GetStaticType(Weapon) == SW_SHURIKEN)
-		{
-			CreateMeleeHit(DamageOwner, Weapon, Dmg, Pos, Direction);
-			return;
-		}
-		else if (GetStaticType(Weapon) == SW_CHAINSAW)
+		if (GetStaticType(Weapon) == SW_SHURIKEN || GetStaticType(Weapon) == SW_CHAINSAW || GetStaticType(Weapon) == SW_TOOL)
 		{
 			CreateMeleeHit(DamageOwner, Weapon, Dmg, Pos, Direction);
 			return;
@@ -720,8 +730,10 @@ void CGameContext::AmmoFill(vec2 Pos, int Weapon)
 }
 
 
+
 void CGameContext::Repair(vec2 Pos)
 {
+	/*
 	float CheckRange = 42.0f;
 	
 	// check if there's turret base near
@@ -747,6 +759,7 @@ void CGameContext::Repair(vec2 Pos)
 			CreateBuildingHit(Pos);
 		}
 	}
+	*/
 }
 
 
@@ -1502,6 +1515,7 @@ void CGameContext::OnClientConnected(int ClientID, bool AI)
 	//players[client_id].client_id = client_id;
 
 	m_apPlayers[ClientID]->m_IsBot = AI;
+	m_apPlayers[ClientID]->m_TeeInfos.m_IsBot = true;
 	
 	(void)m_pController->CheckTeamBalance();
 
@@ -1524,6 +1538,50 @@ void CGameContext::OnClientConnected(int ClientID, bool AI)
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
 	*/
 }
+
+
+bool CGameContext::Shop(CPlayer *pPlayer, int Slot, bool AI)
+{
+	if (!pPlayer->GetCharacter())
+		return false;
+	
+	vec2 Pos = pPlayer->GetCharacter()->m_Pos;
+	
+	CBuilding *apEnts[32];
+	int Num = m_World.FindEntities(Pos, 400, (CEntity**)apEnts, 32, CGameWorld::ENTTYPE_BUILDING);
+
+	for (int i = 0; i < Num; ++i)
+	{
+		CBuilding *pTarget = apEnts[i];
+		
+		if (pTarget->m_Type == BUILDING_SHOP && abs(Pos.x - pTarget->m_Pos.x) < 100 && abs(Pos.y - pTarget->m_Pos.y) < 100)
+		{
+			int Item = pTarget->GetItem(Slot);
+			
+			if (Item && (!AI || GetStaticType(Item) != SW_UPGRADE) && pPlayer->GetGold() >= GetWeaponCost(Item))
+			{
+				if (pPlayer->GetCharacter()->GiveWeapon(NewWeapon(Item)))
+				{
+					pPlayer->ReduceGold(GetWeaponCost(Item));
+					pPlayer->GetCharacter()->SendInventory();
+					pTarget->ClearItem(Slot);
+					
+					// shop sound
+					//CreateSoundGlobal(SOUND_PICKUP_SHOTGUN, pPlayer->GetCID());
+					CreateSound(Pos, SOUND_PICKUP_SHOTGUN);
+					return true;
+				}
+				else
+					CreateSoundGlobal(SOUND_GUI_DENIED1, pPlayer->GetCID());
+			}
+			else
+				CreateSoundGlobal(SOUND_GUI_DENIED1, pPlayer->GetCID());
+		}
+	}
+	
+	return false;
+}
+
 
 void CGameContext::OnClientDrop(int ClientID, const char *pReason)
 {
@@ -1615,7 +1673,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				SkipSending = true;
 			}
 			
-			/*
+			
 			if ( strcmp(pMsg->m_pMessage, "/showwaypoints") == 0 )
 			{
 				m_ShowWaypoints = !m_ShowWaypoints;
@@ -1627,7 +1685,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				m_ShowAiState = !m_ShowAiState;
 				SkipSending = true;
 			}
-			*/
+			
 			
 			if ( strcmp(pMsg->m_pMessage, "/seed") == 0 )
 			{
@@ -1986,6 +2044,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				case INVENTORYACTION_SWAP: pPlayer->SwapItem(pMsg->m_Item1, pMsg->m_Item2); break;
 				case INVENTORYACTION_COMBINE: pPlayer->CombineItem(pMsg->m_Item1, pMsg->m_Item2); break;
 				case INVENTORYACTION_TAKEPART: pPlayer->TakePart(pMsg->m_Item1, pMsg->m_Slot, pMsg->m_Item2); break;
+				case INVENTORYACTION_SHOP: Shop(pPlayer, pMsg->m_Slot); break;
 				default: return;
 			};
 		}
@@ -2593,6 +2652,8 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	// select gametype
 	if(str_comp(g_Config.m_SvGametype, "ctf") == 0)
 		m_pController = new CGameControllerCTF(this);
+	else if(str_comp(g_Config.m_SvGametype, "def") == 0)
+		m_pController = new CGameControllerCS(this);
 	else if(str_comp(g_Config.m_SvGametype, "tdm") == 0)
 		m_pController = new CGameControllerTDM(this);
 	else if(str_comp(g_Config.m_SvGametype, "inf") == 0)

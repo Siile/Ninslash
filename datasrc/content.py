@@ -341,6 +341,8 @@ container.sounds.Add(SoundSet("bouncer_explode", FileList("audio/wp_bouncer_expl
 container.sounds.Add(SoundSet("sfx_bounce1", ["audio/sfx_bounce1.wv"]))
 
 container.sounds.Add(SoundSet("upgrade", FileList("audio/wp_upgrade-%02d.wv", 3)))
+container.sounds.Add(SoundSet("bomb_beep", FileList("audio/wp_bomb_beep-%02d.wv", 3)))
+container.sounds.Add(SoundSet("bomb_denied", ["audio/wp_bomb_denied.wv"]))
 
 container.sounds.Add(SoundSet("inv1", ["audio/inv1.wv"]))
 container.sounds.Add(SoundSet("inv2", ["audio/inv2.wv"]))
@@ -361,6 +363,7 @@ image_particles = Image("particles", "particles.png")
 image_gore = Image("gore", "gore.png")
 image_meat = Image("meat", "meat.png")
 image_guts = Image("guts", "guts.png")
+image_backbomb = Image("backbomb", "backbomb.png")
 image_brain = Image("brain", "brain.png")
 image_splatter = Image("splatter", "splatter.png")
 image_blocks = Image("blocks", "blocks.png")
@@ -432,6 +435,7 @@ container.images.Add(image_pixel)
 container.images.Add(image_radar)
 container.images.Add(image_blocks)
 container.images.Add(image_game)
+container.images.Add(image_backbomb)
 container.images.Add(image_flag)
 container.images.Add(image_weapons)
 container.images.Add(image_projectiles)
@@ -504,6 +508,7 @@ container.images.Add(image_crawler_leg2)
 
 container.pickups.Add(Pickup("health"))
 container.pickups.Add(Pickup("armor"))
+container.pickups.Add(Pickup("coin"))
 container.pickups.Add(Pickup("weapon"))
 container.pickups.Add(Pickup("mine"))
 container.pickups.Add(Pickup("kit"))
@@ -513,6 +518,7 @@ set_gore = SpriteSet("gore", image_gore, 8, 2)
 set_meat = SpriteSet("meat", image_meat, 8, 2)
 set_splatter = SpriteSet("splatter", image_splatter, 4, 1)
 set_blocks = SpriteSet("blocks", image_blocks, 4, 2)
+set_radar = SpriteSet("radar", image_radar, 4, 2)
 set_game = SpriteSet("game", image_game, 32, 16)
 set_flag = SpriteSet("flag", image_flag, 8, 2)
 set_weapons = SpriteSet("weapons", image_weapons, 32, 32)
@@ -574,6 +580,7 @@ container.spritesets.Add(set_particles)
 container.spritesets.Add(set_gore)
 container.spritesets.Add(set_meat)
 container.spritesets.Add(set_splatter)
+container.spritesets.Add(set_radar)
 container.spritesets.Add(set_game)
 container.spritesets.Add(set_blocks)
 container.spritesets.Add(set_flag)
@@ -651,6 +658,13 @@ container.sprites.Add(Sprite("block1_b3", set_blocks, 3, 1, 1, 1))
 
 
 
+for i in range(0, 4):
+	container.sprites.Add(Sprite("radar"+str(i+1), set_radar, i, 0, 1, 1))
+for i in range(0, 4):
+	container.sprites.Add(Sprite("radar"+str(i+5), set_radar, i, 1, 1, 1))
+	
+	
+	
 # weapons.png
 
 for i in range(0, 4):
@@ -679,30 +693,34 @@ for i in range(0, 3):
 
 # items & weapons - mind the order
 n = 0
-container.sprites.Add(Sprite("weapon_static1", set_weapons, 6, 0, 2, 4)) # tool
+container.sprites.Add(Sprite("weapon_static1", set_weapons, 2, 4, 4, 2)) # tool
 container.sprites.Add(Sprite("weapon_static2", set_weapons, 2, 0, 4, 2)) # gun 1
 container.sprites.Add(Sprite("weapon_static3", set_weapons, 2, 2, 4, 2)) # gun 2
 container.sprites.Add(Sprite("weapon_static4", set_weapons, 0, 0, 2, 3)) # grenade 1
 container.sprites.Add(Sprite("weapon_static5", set_weapons, 0, 3, 2, 3)) # grenade 2
-container.sprites.Add(Sprite("weapon_static6", set_weapons, 7, 9, 6, 3)) # bazooka
-container.sprites.Add(Sprite("weapon_static7", set_weapons, 6, 12, 6, 3)) # bouncer
-container.sprites.Add(Sprite("weapon_static8", set_weapons, 0, 9, 7, 3)) # chainsaw
-container.sprites.Add(Sprite("weapon_static9", set_weapons, 0, 6, 7, 3)) # flamer
-container.sprites.Add(Sprite("weapon_static10", set_weapons, 2, 20, 2, 2)) # upgrade
-container.sprites.Add(Sprite("weapon_static11", set_weapons, 2, 22, 2, 3)) # shield
-container.sprites.Add(Sprite("weapon_static12", set_weapons, 2, 16, 2, 4)) # respawner
-container.sprites.Add(Sprite("weapon_static13", set_weapons, 2, 25, 2, 3)) # invis
-container.sprites.Add(Sprite("weapon_static14", set_weapons, 7, 6, 6, 3)) # flame rifle / bubbler
-container.sprites.Add(Sprite("weapon_static15", set_weapons, 2, 12, 4, 4)) # shuriken
+container.sprites.Add(Sprite("weapon_static6", set_weapons, 6, 0, 2, 3)) # supply grenade
+container.sprites.Add(Sprite("weapon_static7", set_weapons, 7, 9, 6, 3)) # bazooka
+container.sprites.Add(Sprite("weapon_static8", set_weapons, 6, 12, 6, 3)) # bouncer
+container.sprites.Add(Sprite("weapon_static9", set_weapons, 0, 9, 7, 3)) # chainsaw
+container.sprites.Add(Sprite("weapon_static10", set_weapons, 0, 6, 7, 3)) # flamer
+container.sprites.Add(Sprite("weapon_static11", set_weapons, 2, 20, 2, 2)) # upgrade
+container.sprites.Add(Sprite("weapon_static12", set_weapons, 2, 22, 2, 3)) # shield
+container.sprites.Add(Sprite("weapon_static13", set_weapons, 2, 16, 2, 4)) # respawner
+container.sprites.Add(Sprite("weapon_static14", set_weapons, 2, 25, 2, 3)) # invis
+container.sprites.Add(Sprite("weapon_static15", set_weapons, 7, 6, 6, 3)) # flame rifle / bubbler
+container.sprites.Add(Sprite("weapon_static16", set_weapons, 2, 12, 4, 4)) # shuriken
+container.sprites.Add(Sprite("weapon_static17", set_weapons, 4, 16, 3, 4)) # cs bomb
 
 # pickups
 container.sprites.Add(Sprite("pickup_kit", set_weapons, 10, 0, 2, 2))
 container.sprites.Add(Sprite("pickup_armor", set_weapons, 14,0,2,2))
+container.sprites.Add(Sprite("pickup_coin", set_weapons, 16,0,2,2))
+container.sprites.Add(Sprite("pickup_bigcoin", set_weapons, 16,2,2,2))
 container.sprites.Add(Sprite("pickup_health", set_weapons, 12,0,2,2))
 container.sprites.Add(Sprite("pickup_ammo", set_weapons, 8,0,2,2))
 
 # for displaying weapon ranks / levels in inventory
-for y in range(0, 5):
+for y in range(0, 6):
 	container.sprites.Add(Sprite("weaponrank"+str(y+1), set_weapons, 18, 0+y*2, 2, 2))
 
 
@@ -1061,6 +1079,7 @@ container.sprites.Add(Sprite("turret_fastener", set_buildings, 4, 6, 2, 2))
 
 # buildabled
 container.sprites.Add(Sprite("kit_block1", set_buildings, 6, 7, 1, 1))
+container.sprites.Add(Sprite("kit_block2", set_buildings, 7, 7, 1, 1))
 container.sprites.Add(Sprite("kit_barrel", set_buildings, 3, 2, 1, 2))
 container.sprites.Add(Sprite("kit_powerbarrel", set_buildings, 8, 2, 1, 2))
 container.sprites.Add(Sprite("kit_turret", set_buildings, 1, 4, 3, 4))

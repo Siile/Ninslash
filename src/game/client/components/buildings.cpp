@@ -128,6 +128,17 @@ void CBuildings::RenderScreen(const struct CNetObj_Building *pCurrent)
 	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y+18), ATLAS_SCREEN, aAnimList[Anim], Time, vec2(1.0f, 1.0f)*0.7f, 0, 0);
 }
 
+void CBuildings::RenderShop(const CNetObj_Shop *pCurrent)
+{
+	float Time = CustomStuff()->m_SawbladeAngle*0.1f;
+	
+	int Anim = ANIM_IDLE;
+	
+	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y+18), ATLAS_SHOP, aAnimList[Anim], Time, vec2(1.0f, 1.0f)*0.7f, 0, 0);
+
+	// shop items rendered in inventory.cpp
+}
+
 
 void CBuildings::RenderSpeaker(const struct CNetObj_Building *pCurrent)
 {
@@ -700,6 +711,8 @@ void CBuildings::OnRender()
 		}
 		else if(Item.m_Type == NETOBJTYPE_POWERUPPER)
 			RenderPowerupper((const CNetObj_Powerupper *)pData);
+		else if(Item.m_Type == NETOBJTYPE_SHOP)
+			RenderShop((const CNetObj_Shop *)pData);
 		else if (Item.m_Type == NETOBJTYPE_BUILDING)
 		{
 			const struct CNetObj_Building *pBuilding = (const CNetObj_Building *)pData;
@@ -770,6 +783,12 @@ void CBuildings::OnRender()
 			case BUILDING_SCREEN:
 				RenderScreen(pBuilding);
 				break;
+				
+			/*
+			case BUILDING_SHOP:
+				RenderShop(pBuilding);
+				break;
+				*/
 				
 			default:;
 			};

@@ -53,7 +53,7 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	
 	int Level = g_Config.m_SvMapGenLevel;
 	
-	m_GroupsLeft = 2 + min(4, Level/3) + (Level%5)/3;
+	m_GroupsLeft = 2 + min(3, Level/4) + (Level%5)/3;
 	
 	m_TriggerLevel = 0;
 	m_Group = 0;
@@ -69,7 +69,6 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	// force some settings
 	g_Config.m_SvRandomWeapons = 0;
 	g_Config.m_SvOneHitKill = 0;
-	//g_Config.m_SvForceWeapon = 0;
 	g_Config.m_SvWarmup = 0;
 	g_Config.m_SvTimelimit = 0;
 	g_Config.m_SvScorelimit = 0;
@@ -87,6 +86,9 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	
 	for (int i = 0; i < MAX_CLIENTS; i++)
 		new CRadar(&GameServer()->m_World, RADAR_HUMAN, i);
+	
+	m_pDoor = new CRadar(&GameServer()->m_World, RADAR_DOOR);
+	m_pEnemySpawn = new CRadar(&GameServer()->m_World, RADAR_ENEMY);
 }
 
 
@@ -113,7 +115,6 @@ bool CGameControllerCoop::GetSpawnPos(int Team, vec2 *pOutPos)
 	m_SpawnPosRotation++;
 	m_SpawnPosRotation = m_SpawnPosRotation%m_NumEnemySpawnPos;
 	
-	//int i = rand()%m_NumEnemySpawnPos;
 	*pOutPos = m_aEnemySpawnPos[m_SpawnPosRotation];
 	return true;
 }
@@ -129,6 +130,14 @@ vec2 CGameControllerCoop::GetBotSpawnPos()
 	
 	vec2 Pos = m_GroupSpawnPos;
 	
+	for (int i = 0; i < 99; i++)
+	{
+		Pos = m_GroupSpawnPos + vec2(frandom()-frandom(), frandom()-frandom()) * 400;
+		if (!GameServer()->Collision()->TestBox(Pos, vec2(28.0f, 64.0f)))
+			return Pos;
+	}
+	
+	/*
 	if (GameServer()->Collision()->IsTileSolid(Pos.x, Pos.y - 48) && !GameServer()->Collision()->IsTileSolid(Pos.x, Pos.y + 32))
 		Pos.y += 32;
 	else if (!GameServer()->Collision()->IsTileSolid(Pos.x, Pos.y - 48) && GameServer()->Collision()->IsTileSolid(Pos.x, Pos.y + 32))
@@ -147,13 +156,15 @@ vec2 CGameControllerCoop::GetBotSpawnPos()
 		if (!GameServer()->Collision()->IntersectLine(p, To, 0x0, &To) && !GameServer()->Collision()->IntersectLine(p2, To2, 0x0, &To2))
 			return mix(p2, To2, frandom());
 	}
+	*/
 
-	return Pos;
+	return m_GroupSpawnPos;
 }
 
 void CGameControllerCoop::RandomGroupSpawnPos()
 {
 	m_GroupSpawnPos =  m_aEnemySpawnPos[rand()%m_NumEnemySpawnPos];
+	m_pEnemySpawn->Activate(m_GroupSpawnPos, Server()->Tick() + Server()->TickSpeed()*5);
 }
 
 
@@ -205,30 +216,6 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 		
 			int i = ENEMY_ALIEN1;
 			
-			/*
-			if (g_Config.m_SvMapGenLevel > 10 && frandom() < 0.35f)
-				i = ENEMY_ROBOT1;
-			
-			if (g_Config.m_SvMapGenLevel > 30 && frandom() < 0.3f)
-				i = ENEMY_BUNNY1;
-			
-			if (g_Config.m_SvMapGenLevel > 50 && frandom() < 0.04f)
-				i = ENEMY_PYRO1;
-			*/
-			/*
-			float r = min(0.35f, g_Config.m_SvMapGenLevel * 0.01f - 0.02f);
-			if (frandom() < r)
-				i = ENEMY_ROBOT1;
-			
-			r = min(0.30f, g_Config.m_SvMapGenLevel * 0.005f - 0.02f);
-			if (frandom() < r)
-				i = ENEMY_BUNNY1;
-			
-			r = min(0.04f, g_Config.m_SvMapGenLevel * 0.002f - 0.02f);
-			if (frandom() < r)
-				i = ENEMY_PYRO1;
-			*/
-			
 			int Level = 0;
 			
 			for (int i = 0; i < 9; i++)
@@ -258,47 +245,6 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 					break;
 			};
 			
-			/*
-			switch (i)
-			{
-			case ENEMY_ALIEN1:
-				pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer(), g_Config.m_SvMapGenLevel);
-				break;
-					
-			case ENEMY_ALIEN2:
-				pChr->GetPlayer()->m_pAI = new CAIalien2(GameServer(), pChr->GetPlayer());
-				break;
-					
-			case ENEMY_ROBOT1:
-				pChr->GetPlayer()->m_pAI = new CAIrobot1(GameServer(), pChr->GetPlayer());
-				break;
-					
-			case ENEMY_ROBOT2:
-				pChr->GetPlayer()->m_pAI = new CAIrobot2(GameServer(), pChr->GetPlayer());
-				break;
-				
-			case ENEMY_BUNNY1:
-				pChr->GetPlayer()->m_pAI = new CAIbunny1(GameServer(), pChr->GetPlayer());
-				break;
-				
-			case ENEMY_BUNNY2:
-				pChr->GetPlayer()->m_pAI = new CAIbunny2(GameServer(), pChr->GetPlayer());
-				break;
-				
-			case ENEMY_PYRO1:
-				pChr->GetPlayer()->m_pAI = new CAIpyro1(GameServer(), pChr->GetPlayer(), g_Config.m_SvMapGenLevel);
-				break;
-				
-			case ENEMY_PYRO2:
-				pChr->GetPlayer()->m_pAI = new CAIpyro2(GameServer(), pChr->GetPlayer());
-				break;
-				
-			default:
-				pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer(), g_Config.m_SvMapGenLevel);
-				break;
-			};
-			*/
-				
 			m_EnemyCount++;
 			pChr->m_SkipPickups = 999;
 			Trigger(false);
@@ -356,6 +302,13 @@ void CGameControllerCoop::SpawnNewGroup(bool AddBots)
 	m_Group++;
 	m_GroupsLeft--;
 }
+
+
+void CGameControllerCoop::DisplayExit(vec2 Pos)
+{
+	m_pDoor->Activate(Pos);	
+}
+
 
 int CGameControllerCoop::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
 {
@@ -439,7 +392,7 @@ void CGameControllerCoop::Tick()
 				GameServer()->AddBot();
 		}
 		// reset to first map if there's no players for 60 seconds
-		else if (m_AutoRestart && Server()->Tick() > Server()->TickSpeed()*60.0f)
+		else if ((m_AutoRestart || g_Config.m_SvMapGenLevel > 1) && Server()->Tick() > Server()->TickSpeed()*60.0f)
 		{
 			m_AutoRestart = false;
 			

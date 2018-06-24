@@ -66,6 +66,9 @@ private:
 	
 	void Trigger(bool IncreaseLevel);
 	
+	class CRadar *m_pDoor;
+	class CRadar *m_pEnemySpawn;
+	
 public:
 	CGameControllerCoop(class CGameContext *pGameServer);
 	
@@ -76,6 +79,8 @@ public:
 	void NextLevel(int CID = -1);
 	bool GetSpawnPos(int Team, vec2 *pOutPos);
 	virtual void Tick();
+	
+	void DisplayExit(vec2 Pos);
 	
 	enum GameState
 	{
