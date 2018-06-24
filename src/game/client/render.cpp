@@ -2597,7 +2597,7 @@ void CRenderTools::RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, CSkeleto
 					
 					if (strcmp(pAttachment->m_Name, "body") == 0)
 					{
-						// bomb for cs / reactor defence
+						// bomb for cs / reactor defense
 						if (PlayerInfo && PlayerInfo->m_BombCarrier)
 						{
 							Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BACKBOMB].m_Id);

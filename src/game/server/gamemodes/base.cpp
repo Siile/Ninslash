@@ -189,7 +189,7 @@ void CGameControllerBase::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 		if (!pChr->GetPlayer()->m_Welcomed)
 		{
 			pChr->GetPlayer()->m_Welcomed = true;
-			GameServer()->SendBroadcast("Reactor defence", pChr->GetPlayer()->GetCID());
+			GameServer()->SendBroadcast("Reactor defense", pChr->GetPlayer()->GetCID());
 		}
 	}
 }
