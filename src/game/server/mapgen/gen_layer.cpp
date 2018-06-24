@@ -128,9 +128,9 @@ void CGenLayer::CleanTiles()
 
 void CGenLayer::GenerateBoxes()
 {
-	int n = 3 + rand()%14;
+	int n = 3 + rand()%12;
 		
-	for (int k = 0; k < 10000; k++)
+	for (int k = 0; k < 5000; k++)
 	{
 		int wx = 10 + rand()%(m_Width - 20);
 		int wy = 10 + rand()%(m_Height - 20);

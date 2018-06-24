@@ -1,17 +1,10 @@
 
 shop.png
-size: 512,256
+size: 256,256
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
 frame
-  rotate: false
-  xy: 167, 2
-  size: 163, 249
-  orig: 163, 249
-  offset: 0, 0
-  index: -1
-glow
   rotate: false
   xy: 2, 2
   size: 163, 249

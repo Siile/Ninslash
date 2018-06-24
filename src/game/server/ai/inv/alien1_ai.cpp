@@ -37,19 +37,22 @@ void CAIalien1::OnCharacterSpawn(CCharacter *pChr)
 	m_StartPos = Player()->GetCharacter()->m_Pos;
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	
+	if (frandom() < 0.4f)
+		pChr->GetPlayer()->IncreaseGold(frandom()*4);
+	
 	if (m_Skin == SKIN_ALIEN3)
 	{
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(4, 4), 2)));
-		pChr->SetHealth(60+min((m_Level-1)*7, 300));
-		pChr->SetArmor(60+min((m_Level-1)*7, 300));
+		pChr->SetHealth(60+min((m_Level-1)*5, 300));
+		pChr->SetArmor(60+min((m_Level-1)*5, 300));
 		m_PowerLevel = 8;
 		m_TriggerLevel = 15 + rand()%5;
 	}
 	if (m_Skin == SKIN_ALIEN2)
 	{
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_CHAINSAW)));
-		pChr->SetHealth(60+min((m_Level-1)*6, 300));
-		pChr->SetArmor(60+min((m_Level-1)*6, 300));
+		pChr->SetHealth(60+min((m_Level-1)*4, 300));
+		pChr->SetArmor(60+min((m_Level-1)*4, 300));
 		m_PowerLevel = 8;
 		m_TriggerLevel = 15 + rand()%5;
 	}
@@ -65,7 +68,7 @@ void CAIalien1::OnCharacterSpawn(CCharacter *pChr)
 		else
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GUN2)));
 		
-		pChr->SetHealth(60+min((m_Level-1)*5, 300));
+		pChr->SetHealth(60+min((m_Level-1)*3, 300));
 	}
 	
 	m_ShockTimer = 10;
