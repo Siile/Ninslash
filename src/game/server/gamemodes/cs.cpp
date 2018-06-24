@@ -176,7 +176,7 @@ void CGameControllerCS::OnSurvivalTimeOut()
 		m_SurvivalResetTick = Server()->Tick() + Server()->TickSpeed()*4.0f;
 		m_RoundWinner = TEAM_BLUE;
 		GameServer()->SendBroadcast("Time out - Blue team wins", -1);
-		m_aTeamscore[TEAM_BLUE] += g_Config.m_SvSurvivalReward;
+		m_aTeamscore[TEAM_BLUE] += g_Config.m_SvSurvivalReward; 
 	}
 }
 
