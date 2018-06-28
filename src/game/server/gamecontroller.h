@@ -126,6 +126,8 @@ protected:
 	int m_SurvivalStartTick;
 	int m_SurvivalResetTick;
 	
+	bool m_SurvivalDeathReset;
+	
 public:
 
 	// CSTT & CSBB
@@ -178,6 +180,9 @@ public:
 	bool IsInfection() const;
 	bool IsGameOver() const { return m_GameOverTick != -1; }
 
+	// called when client connects
+	void OnPlayerJoin();
+	
 	IGameController(class CGameContext *pGameServer);
 	virtual ~IGameController();
 

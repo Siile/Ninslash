@@ -166,6 +166,7 @@ void CGameControllerCS::TriggerBomb()
 	// time limit display
 	m_SurvivalStartTick = Server()->Tick() - Server()->TickSpeed()*(g_Config.m_SvSurvivalTime-20.1f);
 	GameServer()->SendBroadcast("Bomb armed", -1);
+	m_SurvivalDeathReset = false;
 }
 
 

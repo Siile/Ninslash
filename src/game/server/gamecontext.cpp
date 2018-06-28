@@ -1510,6 +1510,9 @@ void CGameContext::OnClientConnected(int ClientID, bool AI)
 		}
 	}
 	
+	if (!AI)
+		m_pController->OnPlayerJoin();
+	
 	m_apPlayers[ClientID] = new(ClientID) CPlayer(this, ClientID, StartTeam);
 	//players[client_id].init(client_id);
 	//players[client_id].client_id = client_id;
@@ -1519,6 +1522,7 @@ void CGameContext::OnClientConnected(int ClientID, bool AI)
 	
 	(void)m_pController->CheckTeamBalance();
 
+	
 #ifdef CONF_DEBUG
 	if(g_Config.m_DbgDummies)
 	{
