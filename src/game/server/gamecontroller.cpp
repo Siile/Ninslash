@@ -1554,9 +1554,16 @@ void IGameController::NewSurvivalRound()
 	
 }
 	
-	
+void IGameController::OnPlayerJoin()
+{
+	if (g_Config.m_SvSurvivalMode && !CountPlayers())
+		ResetSurvivalRound();
+}
+
+
 void IGameController::ResetSurvivalRound()
 {
+	m_SurvivalDeathReset = true;
 	NewSurvivalRound();
 	KillEveryone();
 	m_ClearBroadcastTick = Server()->Tick() + Server()->TickSpeed()*2;
@@ -1719,7 +1726,7 @@ void IGameController::Tick()
 			GameServer()->Collision()->m_GlobalAcid = false;
 					
 		// check for winning conditions
-		if (!IsCoop() && g_Config.m_SvSurvivalMode && m_SurvivalStatus == SURVIVAL_NOCANDO && m_SurvivalDeathTick < Server()->Tick())
+		if (!IsCoop() && m_SurvivalDeathReset && g_Config.m_SvSurvivalMode && m_SurvivalStatus == SURVIVAL_NOCANDO && m_SurvivalDeathTick < Server()->Tick())
 		{
 			// check if only the last player (or the team) alive
 			if (IsTeamplay())

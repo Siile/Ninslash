@@ -2127,6 +2127,8 @@ bool CCharacter::TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos)
 		{
 			GameServer()->CreateEffect(FX_SHIELDHIT, DmgPos);
 			m_ShieldHealth -= Dmg + (g_Config.m_SvOneHitKill ? 1000 : 0);
+			
+			m_LatestHitVel = Force/2;
 			return false;
 		}
 		else
