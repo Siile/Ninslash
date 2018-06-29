@@ -40,6 +40,9 @@ void CRadar::RenderRadar(const CNetObj_Radar *pCurrent, const CNetObj_Radar *pPr
 	
 	float ca = min(1.0f, distance(Pos, CameraPos)*0.001f);
 	
+	if (pCurrent->m_Type == RADAR_REACTOR)
+		ca *= 0.5f;
+	
 	Graphics()->SetColor(1, 1, 1, ca);
 	if (pCurrent->m_Type == RADAR_CHARACTER || pCurrent->m_Type == RADAR_HUMAN)
 		Graphics()->QuadsSetRotation(a);
