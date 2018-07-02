@@ -1309,7 +1309,11 @@ void CMapGen::GeneratePVPLevel()
 	}
 	
 	pTiles->GenerateSlopes();
-	Mirror(pTiles);
+	
+	if (str_comp(g_Config.m_SvGametype, "dm") == 0 && g_Config.m_SvSurvivalMode)
+		; // battle royale
+	else
+		Mirror(pTiles);
 	
 	pTiles->RemoveSingles();
 	
