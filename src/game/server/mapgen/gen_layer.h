@@ -82,6 +82,7 @@ public:
 	int Height() { return m_Height; }
 	
 	int NumPlatforms() { return m_NumPlatforms; }
+	int NumMedPlatforms() { return m_NumMedPlatforms; }
 	int NumTopCorners() { return m_NumTopCorners; }
 
 	void GenerateFences();
