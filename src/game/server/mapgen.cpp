@@ -1075,12 +1075,28 @@ void CMapGen::GenerateLevel()
 	if (Level > 2)
 		GenerateShop(pTiles);
 	
+	
+	
+	if (Level > 3)
+		GenerateWalker(pTiles);
+
+	if (Level > 7)
+		GenerateWalker(pTiles);
+	
+	if (Level > 12)
+		GenerateWalker(pTiles);
+	
+	if (Level > 17)
+		GenerateWalker(pTiles);
+	
+	
 	// enemy spawn positions
 	for (int i = 0; i < 5 ; i++)
 		GenerateEnemySpawn(pTiles);
 	
-	//if (Level > 3 && frandom() < 0.75f)
-	
+	//if (Level > 3 && frandom() < 0.75f)		
+
+
 	for (int i = 0; i < 4; i++)
 		GenerateScreen(pTiles);
 	
@@ -1180,6 +1196,7 @@ void CMapGen::GenerateLevel()
 	}
 	*/
 	
+	/*
 	if (Level > 3)
 		GenerateWalker(pTiles);
 	
@@ -1188,6 +1205,7 @@ void CMapGen::GenerateLevel()
 	
 	if (Level > 12)
 		GenerateWalker(pTiles);
+	*/
 
 	if (Level > 4)
 		GenerateStarDroid(pTiles);
