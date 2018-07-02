@@ -1088,7 +1088,7 @@ void CMapGen::GenerateLevel()
 	// barrels
 	int b = max(4, 15 - Level/3)+rand()%3;
 	
-	for (int i = 0; i < pTiles->NumPlatforms() / b; i++)
+	for (int i = 0; i < (pTiles->NumPlatforms() + pTiles->NumMedPlatforms()) / b; i++)
 		GenerateBarrel(pTiles);
 	
 	// lightning walls
@@ -1309,8 +1309,10 @@ void CMapGen::GeneratePVPLevel()
 	
 	pTiles->GenerateSlopes();
 	
+	bool BR = false;
+	
 	if (str_comp(g_Config.m_SvGametype, "dm") == 0 && g_Config.m_SvSurvivalMode)
-		; // battle royale
+		BR = true; // battle royale
 	else
 		Mirror(pTiles);
 	
@@ -1474,10 +1476,13 @@ void CMapGen::GeneratePVPLevel()
 	GeneratePowerupper(pTiles);
 	GeneratePowerupper(pTiles);
 	
+	if (BR)
+		GeneratePowerupper(pTiles);
+	
 	// barrels
 	int b = 5 + rand()%3;
 	
-	for (int i = 0; i < pTiles->NumPlatforms() / b; i++)
+	for (int i = 0; i < (pTiles->NumPlatforms() + pTiles->NumMedPlatforms()) / b; i++)
 		GenerateBarrel(pTiles);
 
 	/*
@@ -1485,7 +1490,7 @@ void CMapGen::GeneratePVPLevel()
 		GenerateSpeaker(pTiles);
 	*/
 	
-	w = 2 + pTiles->NumPlatforms() / 5.0f;
+	w = 2 + (pTiles->NumPlatforms() + pTiles->NumMedPlatforms()) / 5.0f;
 	
 	for (int i = 0; i < w; i++)
 		GenerateWeapon(pTiles, ENTITY_RANDOM_WEAPON);
