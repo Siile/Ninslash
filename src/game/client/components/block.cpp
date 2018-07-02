@@ -100,10 +100,6 @@ void CBlocks::RenderBlocks()
 	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
 	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
 	
-	char aBuf[128];
-	str_format(aBuf, sizeof(aBuf), "Screen x: %d", int(ScreenX1-ScreenX0));
-	dbg_msg("test", aBuf);
-	
 	//int w = Graphics()->ScreenWidth()/32/2+4;
 	//int h = Graphics()->ScreenHeight()/32/2+3;
 	int w = int(ScreenX1-ScreenX0)/64+1; //ScreenX1/32-1;
@@ -205,10 +201,6 @@ void CBlocks::RenderBlocks()
 				const float bx0 = 6.0f/8.0f;
 				const float bx1 = 7.0f/8.0f;
 				const float bx2 = 1.0f;
-				
-				const float by0 = 0.0f;
-				const float by1 = 1.0f/4.0f;
-				const float by2 = 2.0f/4.0f;
 				
 				Graphics()->QuadsSetSubsetFree(	bx0+PixX, 0.25f+PixY,
 												bx1-PixX, 0.25f+PixY,

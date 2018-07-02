@@ -1116,7 +1116,6 @@ void CMapGen::GenerateLevel()
 	*/
 	
 	{
-		int t = 1 + min(6, Level/3);
 		for (int i = 0; i < 3; i++)
 			GenerateTurretStand(pTiles);
 	}
