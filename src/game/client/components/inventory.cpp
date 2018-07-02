@@ -287,7 +287,10 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
 	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
 	
-	Pos += vec2(-ScreenX1/4, ScreenY1/4)*(1.0f - m_Scale);
+	int ScreenX = int(ScreenX1-ScreenX0);
+	int ScreenY = int(ScreenY1-ScreenY0);
+	
+	Pos += vec2(-ScreenX/4, ScreenY/4)*(1.0f - m_Scale);
 	
 	vec2 Tab1Pos = Pos + vec2(-Size.x*0.8f, -Size.y*1.125f);
 	vec2 Tab2Pos = Pos + vec2(-Size.x*0.47f, -Size.y*1.125f);

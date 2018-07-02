@@ -90,8 +90,6 @@ void CBlocks::RenderBlocks()
 	MapscreenToGroup(0, 0, Layers()->GameGroup());
 	Graphics()->BlendNormal();
 	*/
-
-	CUIRect Screen = *UI()->Screen();
 	
 	vec2 Center = m_pClient->m_pCamera->m_Center / 32;
 
@@ -104,8 +102,8 @@ void CBlocks::RenderBlocks()
 	
 	//int w = Graphics()->ScreenWidth()/32/2+4;
 	//int h = Graphics()->ScreenHeight()/32/2+3;
-	int w = ScreenX1/64; //ScreenX1/32-1;
-	int h = ScreenY1/64; //ScreenY1/32-1;
+	int w = int(ScreenX1-ScreenX0)/64+1; //ScreenX1/32-1;
+	int h = int(ScreenY1-ScreenY0)/64+1; //ScreenY1/32-1;
 	
 	int x1 = clamp(int(Center.x) - w, 1, m_Width-2);
 	int x2 = clamp(int(Center.x) + w, 1, m_Width-2);
@@ -203,10 +201,6 @@ void CBlocks::RenderBlocks()
 				const float bx0 = 6.0f/8.0f;
 				const float bx1 = 7.0f/8.0f;
 				const float bx2 = 1.0f;
-				
-				const float by0 = 0.0f;
-				const float by1 = 1.0f/4.0f;
-				const float by2 = 2.0f/4.0f;
 				
 				Graphics()->QuadsSetSubsetFree(	bx0+PixX, 0.25f+PixY,
 												bx1-PixX, 0.25f+PixY,

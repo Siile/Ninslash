@@ -270,6 +270,21 @@ void CMaze::Generate()
 		}
 		*/
 		
+		
+		// battle royale
+		if (str_comp(g_Config.m_SvGametype, "dm") == 0 && g_Config.m_SvSurvivalMode)
+		{
+			m_aRoom[m_Rooms++] = vec2(m_W*0.4f, m_H*0.6f);
+			m_aRoom[m_Rooms++] = vec2(m_W*0.6f, m_H*0.6f);
+			Connect(m_aRoom[0], m_aRoom[1]);
+			Connect(m_aRoom[0], vec2(m_W*0.5f, m_H*0.1f));
+			Connect(m_aRoom[1], vec2(m_W*0.5f, m_H*0.1f));
+			
+				
+			for (int i = 0; i < 30; i++)
+				GenerateRoom(true);
+		}
+		else
 		{
 			m_aRoom[m_Rooms++] = vec2(m_W*0.1f, m_H*0.5f);
 			m_aRoom[m_Rooms++] = vec2(m_W*0.5f, m_H*0.5f);
