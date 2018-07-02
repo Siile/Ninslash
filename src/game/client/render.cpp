@@ -2552,7 +2552,7 @@ void CRenderTools::RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, CSkeleto
 						Graphics()->TextureSet(pInfo->m_TopperTexture);
 						SybsetType = 1;
 					}
-					else if (strcmp(pAttachment->m_Name, "mask") == 0 && pInfo->m_Mask == 0)
+					else if (strcmp(pAttachment->m_Name, "mask") == 0 && pInfo->m_Mask == 1)
 					{
 						Graphics()->TextureSet(g_pData->m_aImages[IMAGE_TEXASMASK].m_Id);
 						SybsetType = 1;
