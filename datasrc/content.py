@@ -428,7 +428,10 @@ image_fuel = Image("fuel", "gui/fuel.png")
 image_circular = Image("circular", "gui/circular.png")
 image_gui_window1 = Image("gui_window1", "gui/window1.png")
 
-image_texasmask = Image("texasmask", "texasmask.png")
+image_mask1 = Image("mask1", "masks/mask1.png")
+image_mask2 = Image("mask2", "masks/mask2.png")
+image_mask3 = Image("mask3", "masks/mask3.png")
+image_mask4 = Image("mask4", "masks/mask4.png")
 
 container.images.Add(image_null)
 container.images.Add(image_pixel)
@@ -493,7 +496,6 @@ container.images.Add(image_takeoff)
 container.images.Add(image_flame)
 container.images.Add(image_flame1)
 container.images.Add(image_cbelt)
-container.images.Add(image_texasmask)
 container.images.Add(image_hp)
 container.images.Add(image_fuel)
 container.images.Add(image_circular)
@@ -505,6 +507,10 @@ container.images.Add(image_jet)
 container.images.Add(image_green_explosion)
 container.images.Add(image_crawler_leg1)
 container.images.Add(image_crawler_leg2)
+container.images.Add(image_mask1)
+container.images.Add(image_mask2)
+container.images.Add(image_mask3)
+container.images.Add(image_mask4)
 
 container.pickups.Add(Pickup("health"))
 container.pickups.Add(Pickup("armor"))
@@ -691,7 +697,7 @@ for i in range(0, 3):
 	container.sprites.Add(Sprite("weapon_part2_"+str(5+i), set_weapons, 24, 26+i*2, 8, 2))
 
 
-# items & weapons - mind the order
+# items & weapons - mind the order | sw_ staticweapon
 n = 0
 container.sprites.Add(Sprite("weapon_static1", set_weapons, 2, 4, 4, 2)) # tool
 container.sprites.Add(Sprite("weapon_static2", set_weapons, 2, 0, 4, 2)) # gun 1
@@ -706,10 +712,16 @@ container.sprites.Add(Sprite("weapon_static10", set_weapons, 0, 6, 7, 3)) # flam
 container.sprites.Add(Sprite("weapon_static11", set_weapons, 2, 20, 2, 2)) # upgrade
 container.sprites.Add(Sprite("weapon_static12", set_weapons, 2, 22, 2, 3)) # shield
 container.sprites.Add(Sprite("weapon_static13", set_weapons, 2, 16, 2, 4)) # respawner
-container.sprites.Add(Sprite("weapon_static14", set_weapons, 2, 25, 2, 3)) # invis
-container.sprites.Add(Sprite("weapon_static15", set_weapons, 7, 6, 6, 3)) # flame rifle / bubbler
-container.sprites.Add(Sprite("weapon_static16", set_weapons, 2, 12, 4, 4)) # shuriken
-container.sprites.Add(Sprite("weapon_static17", set_weapons, 4, 16, 3, 4)) # cs bomb
+
+container.sprites.Add(Sprite("weapon_static14", set_weapons, 14, 5, 4, 4)) # mask1 / hp
+container.sprites.Add(Sprite("weapon_static15", set_weapons, 14, 9, 4, 4)) # mask2 / speed
+container.sprites.Add(Sprite("weapon_static16", set_weapons, 14, 13, 4, 4)) # mask3 / protection
+container.sprites.Add(Sprite("weapon_static17", set_weapons, 14, 17, 4, 4)) # mask4 / 
+
+container.sprites.Add(Sprite("weapon_static18", set_weapons, 2, 25, 2, 3)) # invis
+container.sprites.Add(Sprite("weapon_static19", set_weapons, 7, 6, 6, 3)) # flame rifle / bubbler
+container.sprites.Add(Sprite("weapon_static20", set_weapons, 2, 12, 4, 4)) # shuriken
+container.sprites.Add(Sprite("weapon_static21", set_weapons, 4, 16, 3, 4)) # cs bomb
 
 # pickups
 container.sprites.Add(Sprite("pickup_kit", set_weapons, 10, 0, 2, 2))

@@ -525,7 +525,21 @@ bool CCollision::GetBlock(int x, int y)
 	int Nx = clamp(x/32, 0, m_Width-1);
 	int Ny = clamp(y/32, 0, m_Height-1);
 	
-	return m_pBlocks[Ny*m_Width+Nx];
+	if (Nx > 0 && Ny > 0 && Nx < m_Width-1 && Ny < m_Height-1)
+		return m_pBlocks[Ny*m_Width+Nx];
+	
+	return 0;
+}
+
+bool CCollision::CanBuildBlock(int x, int y)
+{
+	int Nx = clamp(x/32, 0, m_Width-1);
+	int Ny = clamp(y/32, 0, m_Height-1);
+	
+	if (Nx > 0 && Ny > 0 && Nx < m_Width-1 && Ny < m_Height-1)
+		return true;
+	
+	return false;
 }
 
 int CCollision::GetTile(int x, int y)
@@ -536,7 +550,7 @@ int CCollision::GetTile(int x, int y)
 	if (m_pTiles[Ny*m_Width+Nx].m_Index == ENTITY_SAWBLADE + ENTITY_OFFSET)
 		return COLFLAG_SOLID;
 	
-	if (m_pBlocks[Ny*m_Width+Nx])
+	if (m_pBlocks[Ny*m_Width+Nx] && Nx > 0 && Ny > 0 && Nx < m_Width-1 && Ny < m_Height-1)
 		return COLFLAG_SOLID;
 	
 	if (m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_MOVELEFT || m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_MOVERIGHT)

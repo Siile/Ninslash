@@ -145,6 +145,7 @@ public:
 	int m_WeaponSlot;
 	int m_WantedSlot;
 	
+	int GetMask();
 	
 	bool AddClip(int Weapon = -1);
 	

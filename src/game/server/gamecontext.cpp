@@ -253,7 +253,7 @@ int CGameContext::CreateDeathray(vec2 Pos)
 
 bool CGameContext::BuildableSpot(vec2 Pos)
 {
-	if (Collision()->GetCollisionAt(Pos.x, Pos.y)&CCollision::COLFLAG_SOLID)
+	if (Collision()->GetCollisionAt(Pos.x, Pos.y)&CCollision::COLFLAG_SOLID || !Collision()->CanBuildBlock(Pos))
 		return false;
 	
 	// todo: other entities

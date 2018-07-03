@@ -921,14 +921,6 @@ void CGameClient::ProcessEvents()
 			g_GameClient.m_pEffects->PlayerDeath(vec2(ev->m_X, ev->m_Y), ev->m_ClientID);
 			CustomStuff()->m_aPlayerInfo[ev->m_ClientID].Reset();
 		}
-		/*
-		else if(Item.m_Type == NETEVENTTYPE_BLOCK)
-		{
-			CNetEvent_Block *ev = (CNetEvent_Block *)pData;
-			g_GameClient.m_pEffects->PlayerSpawn(vec2(ev->m_X, ev->m_Y));
-			Collision()->SetBlock(ivec2(ev->m_X, ev->m_Y), ev->m_Type);
-		}
-		*/
 		else if(Item.m_Type == NETEVENTTYPE_SOUNDWORLD)
 		{
 			CNetEvent_SoundWorld *ev = (CNetEvent_SoundWorld *)pData;

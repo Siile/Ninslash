@@ -1280,17 +1280,19 @@ void CPlayers::RenderPlayer(
 		pCustomPlayerInfo->m_EffectIntensity[EFFECT_DASH] = 1.0f;
 	}	
 	
-	if (s & (1<<STATUS_FUEL))
-	{
-		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] <= 0.0f)
-			m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_ITEM_FUEL, 1.0f, Position);
-		pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] = 1.0f;
-	}
-	
 	if (s & (1<<STATUS_BOMBCARRIER))
 		pCustomPlayerInfo->m_BombCarrier = true;
 	else
 		pCustomPlayerInfo->m_BombCarrier = false;
+	
+	// get mask / gear
+	pCustomPlayerInfo->m_Mask = s>>STATUS_MASK1;
+	
+	if (pCustomPlayerInfo->m_Mask < 0 || pCustomPlayerInfo->m_Mask > 4)
+		pCustomPlayerInfo->m_Mask = 0;
+	
+	//char aBuf[128]; str_format(aBuf, sizeof(aBuf), "Mask = %d", pCustomPlayerInfo->m_Mask);
+	//dbg_msg("Player", aBuf);
 	
 	if (s & (1<<STATUS_SPAWNING))
 	{
@@ -1402,18 +1404,6 @@ void CPlayers::RenderPlayer(
 	else
 		pCustomPlayerInfo->m_Shield = false;
 
-	
-	
-	s = Player.m_Status;
-	if (s & (1<<STATUS_HEAL) && pCustomPlayerInfo->m_Heal == 0.0f)
-	{
-		m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_ITEM_HEAL, 1.0f, Position);
-		pCustomPlayerInfo->m_Heal = 0.01f;
-	}
-	
-	if (pCustomPlayerInfo->m_Heal > 0.0f && pCustomPlayerInfo->m_Heal < 1.0f)
-		RenderTools()->RenderHeal(Position+vec2(0, -30), vec2(64, 128), pCustomPlayerInfo->m_Heal);
-		
 	
 	//if (pInfo.m_Local)
 	//	m_pClient->m_pEffects->Light(Position+vec2(0, -32), 512+128);

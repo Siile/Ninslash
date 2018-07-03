@@ -202,7 +202,11 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_FLAMER));
 	*/
 	
-	//m_apWeapon[0] = GameServer()->NewWeapon(GetStaticWeapon(SW_GUN1));
+	m_apWeapon[0] = GameServer()->NewWeapon(GetStaticWeapon(SW_BAZOOKA));
+	m_apWeapon[1] = GameServer()->NewWeapon(GetStaticWeapon(SW_MASK1));
+	m_apWeapon[5] = GameServer()->NewWeapon(GetStaticWeapon(SW_MASK2));
+	m_apWeapon[6] = GameServer()->NewWeapon(GetStaticWeapon(SW_MASK3));
+	m_apWeapon[7] = GameServer()->NewWeapon(GetStaticWeapon(SW_MASK4));
 	//m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 6));
 	
 	GiveStartWeapon();
@@ -1310,14 +1314,6 @@ void CCharacter::SelectItem(int Item)
 	if (m_aItem[Item] <= 0)
 		return;
 	
-	/*
-	if (Item == PLAYERITEM_HEAL && m_aStatus[STATUS_HEAL] <= 0)
-	{
-		m_aStatus[STATUS_HEAL] = Server()->TickSpeed() * 0.75f;
-		m_aItem[Item]--;
-	}
-	*/
-
 	if (Item == PLAYERITEM_RAGE && m_aStatus[STATUS_DASH] <= 0)
 	{
 		m_aStatus[STATUS_DASH] = Server()->TickSpeed() * 20.0f;
@@ -1371,17 +1367,6 @@ bool CCharacter::GiveBuff(int Item)
 	if (Item == PLAYERITEM_UPGRADE)
 		return UpgradeWeapon();
 		
-	//if (Item == PLAYERITEM_HEAL)
-	//	m_aStatus[STATUS_HEAL] = Server()->TickSpeed() * 0.75f;
-
-	/*
-	if (Item == PLAYERITEM_RAGE)
-		m_aStatus[STATUS_DASH] = Server()->TickSpeed() * 20.0f;
-	
-	if (Item == PLAYERITEM_FUEL)
-		m_aStatus[STATUS_FUEL] = Server()->TickSpeed() * 20.0f;
-	*/
-	
 	if (Item == PLAYERITEM_SHIELD)
 	{
 		if (m_aStatus[STATUS_SHIELD] > 0)
@@ -1419,6 +1404,18 @@ void CCharacter::GiveRandomBuff()
 }
 
 
+int CCharacter::GetMask()
+{
+	for (int i = 0; i < 4; i++)
+	{
+		int w = GetStaticType(GetWeaponType(i));
+		if (w >= SW_MASK1 && w <= SW_MASK4 && GetWeaponSlot() != i)
+			return w-(SW_MASK1-1);
+	}
+	
+	return 0;
+}
+
 
 void CCharacter::UpdateCoreStatus()
 {
@@ -1435,11 +1432,6 @@ void CCharacter::UpdateCoreStatus()
 		m_ShieldHealth = 0;
 		m_aStatus[STATUS_SHIELD] = 0;
 		m_ShieldRadius = 0;
-	}
-	
-	if (m_aStatus[STATUS_HEAL] > 0)
-	{
-		IncreaseHealth(2);
 	}
 	
 	// check if carrying bomb (reactor defense)
@@ -1460,6 +1452,10 @@ void CCharacter::UpdateCoreStatus()
 	else
 		m_aStatus[STATUS_BOMBCARRIER] = 0;
 	
+	/*
+	m_aStatus[STATUS_MASK1] = 10;
+	m_aStatus[STATUS_MASK2] = 10;
+	*/
 	
 	// pack statuses
 	for (int i = 0; i < NUM_STATUSS; i++)
@@ -1471,6 +1467,8 @@ void CCharacter::UpdateCoreStatus()
 		}
 	}
 	
+	// store mask to status
+	m_Core.m_Status |= GetMask() << STATUS_MASK1;
 	
 	if (g_Config.m_SvUnlimitedTurbo)
 		m_Core.m_JetpackPower = 200;

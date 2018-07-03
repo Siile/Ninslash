@@ -761,11 +761,13 @@ void CRenderTools::RenderPortrait(CTeeRenderInfo *pInfo, vec2 Pos, int EyeType)
 						Graphics()->TextureSet(pInfo->m_TopperTexture);
 						SybsetType = 1;
 					}
-					else if (strcmp(pAttachment->m_Name, "mask") == 0 && pInfo->m_Mask == 1)
+					/*
+					else if (strcmp(pAttachment->m_Name, "mask") == 0 && (PlayerInfo && PlayerInfo->m_Mask))
 					{
-						Graphics()->TextureSet(g_pData->m_aImages[IMAGE_TEXASMASK].m_Id);
+						Graphics()->TextureSet(g_pData->m_aImages[IMAGE_MASK1+PlayerInfo->m_Mask-1].m_Id);
 						SybsetType = 1;
 					}
+					*/
 					else if (strcmp(pAttachment->m_Name, "eyes") == 0)
 					{
 						Graphics()->TextureSet(pInfo->m_EyeTexture);
@@ -2552,9 +2554,10 @@ void CRenderTools::RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, CSkeleto
 						Graphics()->TextureSet(pInfo->m_TopperTexture);
 						SybsetType = 1;
 					}
-					else if (strcmp(pAttachment->m_Name, "mask") == 0 && pInfo->m_Mask == 1)
+					else if (strcmp(pAttachment->m_Name, "mask") == 0 && (PlayerInfo && PlayerInfo->m_Mask > 0))
 					{
-						Graphics()->TextureSet(g_pData->m_aImages[IMAGE_TEXASMASK].m_Id);
+						Graphics()->TextureSet(g_pData->m_aImages[IMAGE_MASK1+PlayerInfo->m_Mask-1].m_Id);
+						//Graphics()->TextureSet(g_pData->m_aImages[IMAGE_MASK1].m_Id);
 						SybsetType = 1;
 					}
 					else if (strcmp(pAttachment->m_Name, "eyes") == 0)

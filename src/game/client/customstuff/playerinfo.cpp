@@ -47,6 +47,7 @@ void CPlayerInfo::Reset()
 	m_Charged = true;
 	m_ChargeFailed = false;
 	m_BombCarrier = false;
+	m_Mask = 0;
 	
 	m_FGHandPos = vec2(0, 0);
 	m_Angle = 0;
@@ -70,7 +71,6 @@ void CPlayerInfo::Reset()
 	m_InUse = false;
 	
 	m_Shield = false;
-	m_Heal = 0.0f;
 	
 	m_DamageTick = 0;
 	
@@ -631,13 +631,6 @@ void CPlayerInfo::Tick()
 	if (m_LoadInvisibility)
 	{
 		m_EffectIntensity[EFFECT_INVISIBILITY] = min(1.0f, m_EffectIntensity[EFFECT_INVISIBILITY] + 0.03f);
-	}
-	
-	if (m_Heal > 0.0f)
-	{
-		m_Heal += 0.015f;
-		if (m_Heal >= 2.0f)
-			m_Heal = 0.0f;
 	}
 	
 	m_EffectState += 0.03f;

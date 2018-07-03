@@ -126,6 +126,9 @@ public:
 	
 	int IsInFluid(float x, float y);
 	
+	bool CanBuildBlock(int x, int y);
+	bool CanBuildBlock(vec2 Pos) { return CanBuildBlock(round_to_int(Pos.x), round_to_int(Pos.y)); }
+	
 	int GetWidth() { return m_Width; };
 	int GetHeight() { return m_Height; };
 	int FastIntersectLine(vec2 Pos0, vec2 Pos1);
