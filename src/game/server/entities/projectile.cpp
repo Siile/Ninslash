@@ -120,8 +120,10 @@ void CProjectile::Tick()
 	
 	float r = 6.0f * GetProjectileSize(m_Weapon);
 	
-	TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, r, CurPos, OwnerChar);
-	ReflectChr = GameServer()->m_World.IntersectScythe(PrevPos, CurPos, r+45.0f, CurPos, OwnerChar);
+	ReflectChr = GameServer()->m_World.IntersectReflect(PrevPos, CurPos, r*0.8f, CurPos, OwnerChar);
+	
+	if (!ReflectChr)
+		TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, r, CurPos, OwnerChar);
 	
 	int Team = m_Owner;
 	
@@ -160,7 +162,7 @@ void CProjectile::Tick()
 		m_Direction.y *= -1;
 		m_Direction.x *= -1;
 		
-		vec2 d = ReflectChr->m_Pos-m_Pos;
+		vec2 d = (ReflectChr->m_Pos+vec2(0, -24))-PrevPos;
 		d += vec2(frandom()-frandom(), frandom()-frandom()) * length(d) * 0.4f;
 		m_Direction = -normalize(d);
 		GameServer()->CreateBuildingHit(CurPos);

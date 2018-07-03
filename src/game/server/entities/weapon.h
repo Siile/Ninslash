@@ -125,6 +125,8 @@ private:
 	int m_BombDisarmCounter;
 	int m_BombCounter;
 	int m_BombResetTick;
+	
+	int m_SkipPickTick;
 };
 
 #endif

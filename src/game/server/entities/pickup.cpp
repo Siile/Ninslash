@@ -112,12 +112,17 @@ void CPickup::Tick()
 		m_Ammo = 1.0f;
 	}
 	
-	if (m_Life > 0 && m_Type == POWERUP_WEAPON && GetStaticType(m_Subtype) == SW_BOMB)
+	if (m_Life > 0 && m_Type == POWERUP_WEAPON)
 	{
-		m_Life = 9999;
-		
-		GameServer()->m_pController->m_BombPos = m_Pos;
-		GameServer()->m_pController->m_BombStatus = BOMB_IDLE;
+		if (GetStaticType(m_Subtype) == SW_BOMB)
+		{
+			m_Life = 9999;
+			
+			GameServer()->m_pController->m_BombPos = m_Pos;
+			GameServer()->m_pController->m_BombStatus = BOMB_IDLE;
+		}
+		else if (GetStaticType(m_Subtype) == SW_BALL)
+			m_Life = 9999;
 	}
 	
 	// wait for respawn

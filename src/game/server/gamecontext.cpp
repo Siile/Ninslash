@@ -479,6 +479,15 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 	float ProximityRadius = GetMeleeHitRadius(Weapon);
 	float Damage = GetProjectileDamage(Weapon);
 	
+	// melee damage mask
+	if (GetStaticType(Weapon) != SW_FLAMER)
+	{
+		CCharacter *pChr = GetPlayerChar(DamageOwner);
+		
+		if (pChr && pChr->GetMask() == 5)
+			Dmg *= 1.5f;
+	}
+	
 	//AddBlock(1, Pos);
 	
 	// for testing the collision

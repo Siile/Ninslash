@@ -1288,11 +1288,8 @@ void CPlayers::RenderPlayer(
 	// get mask / gear
 	pCustomPlayerInfo->m_Mask = s>>STATUS_MASK1;
 	
-	if (pCustomPlayerInfo->m_Mask < 0 || pCustomPlayerInfo->m_Mask > 4)
+	if (pCustomPlayerInfo->m_Mask < 0 || pCustomPlayerInfo->m_Mask > 5)
 		pCustomPlayerInfo->m_Mask = 0;
-	
-	//char aBuf[128]; str_format(aBuf, sizeof(aBuf), "Mask = %d", pCustomPlayerInfo->m_Mask);
-	//dbg_msg("Player", aBuf);
 	
 	if (s & (1<<STATUS_SPAWNING))
 	{

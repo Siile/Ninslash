@@ -262,6 +262,8 @@ void CCharacterCore::Tick(bool UseInput)
 	float JetpackControlSpeed = 9.5f * ControlSpeed;
 	float JetpackControlAccel = 2.2f;
 	
+	float DashPower = float(m_pWorld->m_Tuning.m_DashPower);
+	
 	m_OnWall = false;
 	
 	// rage
@@ -286,6 +288,23 @@ void CCharacterCore::Tick(bool UseInput)
 		SlideControlSpeed *= 0.8f;
 		JetpackControlAccel *= 0.8f;
 		HandJetpackImpulse *= 0.8f;
+	}
+	
+	int Mask = m_Status>>STATUS_MASK1;
+	
+	if (Mask == 2)
+	{
+		Friction /= 1.1f;
+		MaxSpeed *= 1.15f;
+		Accel *= 1.1f;
+		JumpPower *= 1.15f;
+		WallrunPower *= 1.15f;
+		HandJetpackControlSpeed *= 1.15f;
+		HandJetpackImpulse *= 1.1f;
+		JetpackControlSpeed *= 1.15f;
+		SlideControlSpeed *= 1.15f;
+		JetpackControlAccel *= 1.1f;
+		DashPower *= 1.15f;
 	}
 	
 	
@@ -832,7 +851,7 @@ void CCharacterCore::Tick(bool UseInput)
 		m_DashTimer--;
 		
 		//vec2 d = GetDirection(m_DashAngle)*16.0f * vec2(-1, -1);
-		vec2 d = GetDirection(m_DashAngle)*max(length(m_Vel)*1.05f, float(m_pWorld->m_Tuning.m_DashPower));
+		vec2 d = GetDirection(m_DashAngle)*max(length(m_Vel)*1.05f, DashPower);
 		//m_Vel = d;
 		m_Vel += (d - m_Vel) / 3.0f;
 	}

@@ -96,6 +96,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_Spawned = true;
 	m_DamagedByPlayer = false;
 	m_PickedWeaponSlot = 0;
+	m_MaskEffectTick = 0;
 	
 	for (int i = 0; i < NUM_PLAYERITEMS; i++)
 		m_aItem[i] = 0;
@@ -202,11 +203,9 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_FLAMER));
 	*/
 	
-	m_apWeapon[0] = GameServer()->NewWeapon(GetStaticWeapon(SW_BAZOOKA));
-	m_apWeapon[1] = GameServer()->NewWeapon(GetStaticWeapon(SW_MASK1));
-	m_apWeapon[5] = GameServer()->NewWeapon(GetStaticWeapon(SW_MASK2));
-	m_apWeapon[6] = GameServer()->NewWeapon(GetStaticWeapon(SW_MASK3));
-	m_apWeapon[7] = GameServer()->NewWeapon(GetStaticWeapon(SW_MASK4));
+	//m_apWeapon[0] = GameServer()->NewWeapon(GetModularWeapon(1, 4));
+	//m_apWeapon[1] = GameServer()->NewWeapon(GetStaticWeapon(SW_BALL));
+	//m_apWeapon[2] = GameServer()->NewWeapon(GetStaticWeapon(SW_MASK5));
 	//m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 6));
 	
 	GiveStartWeapon();
@@ -991,10 +990,13 @@ void CCharacter::Jumppad()
 
 
 
-bool CCharacter::ScytheReflect()
+bool CCharacter::Reflect()
 {
 	//if (m_ScytheTick > Server()->Tick()-Server()->TickSpeed()*0.2f)
 	//	return true;
+
+	if (GetMask() == 3 && frandom() < 0.4f)
+		return true;
 
 	return false;
 }
@@ -1409,7 +1411,7 @@ int CCharacter::GetMask()
 	for (int i = 0; i < 4; i++)
 	{
 		int w = GetStaticType(GetWeaponType(i));
-		if (w >= SW_MASK1 && w <= SW_MASK4 && GetWeaponSlot() != i)
+		if (w >= SW_MASK1 && w <= SW_MASK5 && GetWeaponSlot() != i)
 			return w-(SW_MASK1-1);
 	}
 	
@@ -1535,6 +1537,16 @@ void CCharacter::Tick()
 		GameServer()->m_pController->m_BombStatus = BOMB_CARRIED;
 	}
 	
+	if (GetMask() == 1)
+	{
+		if (!m_MaskEffectTick || m_MaskEffectTick < Server()->Tick())
+		{
+			IncreaseHealth(1);
+			m_MaskEffectTick = Server()->Tick()+Server()->TickSpeed()*0.5f;
+		}
+	}
+	else
+		m_MaskEffectTick = 0;
 	
 	/*
 	if(m_pPlayer->m_ForceBalanced)
@@ -1829,8 +1841,6 @@ bool CCharacter::AddKit()
 }
 
 
-
-// use armor points as clips
 bool CCharacter::AddClip(int Weapon)
 {
 	if (GetWeapon() && GetWeapon()->AddClip())
@@ -1845,6 +1855,17 @@ bool CCharacter::AddClip(int Weapon)
 
 bool CCharacter::IncreaseAmmo(int Amount)
 {
+	if (GetMask() == 4)
+	{
+		if (AddClip())
+		{
+			AddClip();
+			return true;
+		}
+		
+		return false;
+	}
+	
 	return AddClip();
 }
 

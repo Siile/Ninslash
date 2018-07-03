@@ -869,6 +869,11 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 			Type = POWERUP_WEAPON;
 			SubType = 0;
 		}
+		else if(Index == ENTITY_BALL)
+		{
+			Type = POWERUP_WEAPON;
+			SubType = GetStaticType(SW_BALL);
+		}
 	}
 
 	if(Type != -1)

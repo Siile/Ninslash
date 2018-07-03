@@ -432,6 +432,7 @@ image_mask1 = Image("mask1", "masks/mask1.png")
 image_mask2 = Image("mask2", "masks/mask2.png")
 image_mask3 = Image("mask3", "masks/mask3.png")
 image_mask4 = Image("mask4", "masks/mask4.png")
+image_mask5 = Image("mask5", "masks/mask5.png")
 
 container.images.Add(image_null)
 container.images.Add(image_pixel)
@@ -511,6 +512,7 @@ container.images.Add(image_mask1)
 container.images.Add(image_mask2)
 container.images.Add(image_mask3)
 container.images.Add(image_mask4)
+container.images.Add(image_mask5)
 
 container.pickups.Add(Pickup("health"))
 container.pickups.Add(Pickup("armor"))
@@ -717,11 +719,13 @@ container.sprites.Add(Sprite("weapon_static14", set_weapons, 14, 5, 4, 4)) # mas
 container.sprites.Add(Sprite("weapon_static15", set_weapons, 14, 9, 4, 4)) # mask2 / speed
 container.sprites.Add(Sprite("weapon_static16", set_weapons, 14, 13, 4, 4)) # mask3 / protection
 container.sprites.Add(Sprite("weapon_static17", set_weapons, 14, 17, 4, 4)) # mask4 / 
+container.sprites.Add(Sprite("weapon_static18", set_weapons, 14, 21, 4, 4)) # mask5 / wooden
 
-container.sprites.Add(Sprite("weapon_static18", set_weapons, 2, 25, 2, 3)) # invis
-container.sprites.Add(Sprite("weapon_static19", set_weapons, 7, 6, 6, 3)) # flame rifle / bubbler
-container.sprites.Add(Sprite("weapon_static20", set_weapons, 2, 12, 4, 4)) # shuriken
-container.sprites.Add(Sprite("weapon_static21", set_weapons, 4, 16, 3, 4)) # cs bomb
+container.sprites.Add(Sprite("weapon_static19", set_weapons, 2, 25, 2, 3)) # invis
+container.sprites.Add(Sprite("weapon_static20", set_weapons, 7, 6, 6, 3)) # flame rifle / bubbler
+container.sprites.Add(Sprite("weapon_static21", set_weapons, 2, 12, 4, 4)) # shuriken
+container.sprites.Add(Sprite("weapon_static22", set_weapons, 4, 16, 3, 4)) # cs bomb
+container.sprites.Add(Sprite("weapon_static23", set_weapons, 10, 28, 4, 4)) # ball
 
 # pickups
 container.sprites.Add(Sprite("pickup_kit", set_weapons, 10, 0, 2, 2))

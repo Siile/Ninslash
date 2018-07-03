@@ -39,7 +39,10 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 	CCharacter *pHit = GameServer()->m_World.IntersectCharacter(m_Pos, To, 0.f, At, pOwnerChar);
 	if(!pHit)
 		return false;
-
+	
+	if (pHit->GetPlayer()->GetCID() == m_IgnoreScythe)
+		return false;
+	
 	m_From = From;
 	m_Pos = At;
 	m_Energy = -1;
@@ -63,7 +66,7 @@ bool CLaser::HitScythe(vec2 From, vec2 To)
 {
 	vec2 At;
 	CCharacter *pOwnerChar = GameServer()->GetPlayerChar(m_Owner);
-	CCharacter *pHit = GameServer()->m_World.IntersectScythe(m_Pos, To, 50.0f, At, pOwnerChar);
+	CCharacter *pHit = GameServer()->m_World.IntersectReflect(m_Pos, To, 0.0f, At, pOwnerChar);
 	if(!pHit)
 		return false;
 
@@ -73,9 +76,10 @@ bool CLaser::HitScythe(vec2 From, vec2 To)
 	m_From = From;
 	m_Pos = At;
 	
-	vec2 d = pHit->m_Pos-m_Pos;
-	d += vec2(frandom()-frandom(), frandom()-frandom()) * length(d) * 0.4f;
-	m_Dir = -normalize(d);
+	//vec2 d = (pHit->m_Pos+vec2(0, -24))-From;
+	//d += vec2(frandom()-frandom(), frandom()-frandom()) * length(d) * 0.4f;
+	//m_Dir = -normalize(d);
+	m_Dir = normalize(vec2(frandom()-0.5f, frandom()-0.5f));
 	
 	GameServer()->CreateBuildingHit(m_Pos);
 	m_IgnoreScythe = pHit->GetPlayer()->GetCID();

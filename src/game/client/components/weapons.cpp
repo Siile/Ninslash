@@ -72,6 +72,9 @@ void CWeapons::RenderWeapon(const CNetObj_Weapon *pPrev, const CNetObj_Weapon *p
 		if (ChargeLevel == 1.0f)
 			ChargeLevel = 0.7f+cos(Phase1Tick*0.5f)*0.3f;
 	}
+	
+	if (GetStaticType(pCurrent->m_WeaponType) == SW_BALL)
+		ChargeLevel = 0;
 		
 	//Graphics()->ShaderBegin(SHADER_COLORSWAP, 1.0f, 0.0f, ChargeLevel);
 	RenderTools()->SetShadersForWeapon(pCurrent->m_WeaponType, ChargeLevel);

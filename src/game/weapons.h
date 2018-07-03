@@ -52,10 +52,12 @@ enum WeaponBits
 	SW_MASK2,
 	SW_MASK3,
 	SW_MASK4,
+	SW_MASK5,
 	SW_INVIS,
 	SW_BUBBLER,
 	SW_SHURIKEN,
 	SW_BOMB,
+	SW_BALL,
 	NUM_SW,
 	
 	

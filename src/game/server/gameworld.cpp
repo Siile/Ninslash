@@ -428,7 +428,7 @@ CCharacter *CGameWorld::GetFriendlyCharacterInBox(vec2 TopLeft, vec2 BotRight, i
 }
 
 
-CCharacter *CGameWorld::IntersectScythe(vec2 Pos0, vec2 Pos1, float Radius, vec2& NewPos, CEntity *pNotThis)
+CCharacter *CGameWorld::IntersectReflect(vec2 Pos0, vec2 Pos1, float Radius, vec2& NewPos, CEntity *pNotThis)
 {
 	// Find other players
 	float ClosestLen = distance(Pos0, Pos1) * 100.0f;
@@ -457,7 +457,7 @@ CCharacter *CGameWorld::IntersectScythe(vec2 Pos0, vec2 Pos1, float Radius, vec2
 			}
 		}
 
-		if (!p->ScytheReflect())
+		if (!p->Reflect())
 			continue;
 		
 		vec2 IntersectPos = closest_point_on_line(Pos0, Pos1, p->m_Pos);
@@ -466,8 +466,8 @@ CCharacter *CGameWorld::IntersectScythe(vec2 Pos0, vec2 Pos1, float Radius, vec2
 		//if (abs(GetAngle(normalize(p->m_Pos - IntersectPos)) - GetAngle(normalize(p->GetVel()))) > pi/4.0f)
 		//	continue;
 		
-		float Len = distance(p->m_Pos + vec2(0, -10), IntersectPos);
-		if(Len < p->m_ProximityRadius+Radius+p->GetWeaponPowerLevel()*10.0f)
+		float Len = distance(p->m_Pos + vec2(0, -32), IntersectPos);
+		if(Len < p->m_ProximityRadius+Radius)
 		{
 			Len = distance(Pos0, IntersectPos);
 			if(Len < ClosestLen)
