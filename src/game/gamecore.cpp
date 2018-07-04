@@ -1206,13 +1206,13 @@ void CCharacterCore::Move()
 		m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(28.0f, 64.0f), 0, !m_Sliding);
 		NewPos.y += 18;
 		
-		int TopLeft = m_pCollision->CheckPoint(m_Pos.x-28.0f*0.5f, m_Pos.y-64.0f*0.5f);
-		int TopRight = m_pCollision->CheckPoint(m_Pos.x+28.0f*0.5f, m_Pos.y-64.0f*0.5f);
+		int TopLeft = m_pCollision->CheckPoint(m_Pos.x-28.0f*0.5f, m_Pos.y-(64.0f)*0.5f-18);
+		int TopRight = m_pCollision->CheckPoint(m_Pos.x+28.0f*0.5f, m_Pos.y-(64.0f)*0.5f-18);
 		
 		// unstuck jumpkick
-		if (TopLeft)
+		if (TopLeft && !TopRight)
 			NewPos.x += 1;
-		else if (TopRight)
+		else if (TopRight && !TopLeft)
 			NewPos.x -= 1;
 	}
 	else

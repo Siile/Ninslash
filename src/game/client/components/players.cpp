@@ -368,8 +368,10 @@ void CPlayers::RenderPlayer(
 				
 				pCustomPlayerInfo->m_MeleeAnimState = 1.0f;
 				pCustomPlayerInfo->m_MeleeState = MELEE_DOWN;
-				if (GetStaticType(Player.m_Weapon) != SW_TOOL)
+				
+				if (!IsStaticWeapon(Player.m_Weapon) || GetStaticType(Player.m_Weapon) != SW_TOOL)
 					m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), Flip, Charge);
+				
 				pCustomPlayerInfo->m_WeaponRecoil += Direction * 15;
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*95, vec2(frandom()-frandom(), frandom()-frandom())*30);
@@ -381,8 +383,10 @@ void CPlayers::RenderPlayer(
 				
 				pCustomPlayerInfo->m_MeleeAnimState = 1.0f;
 				pCustomPlayerInfo->m_MeleeState = MELEE_UP;
-				if (GetStaticType(Player.m_Weapon) != SW_TOOL)
+				
+				if (!IsStaticWeapon(Player.m_Weapon) || GetStaticType(Player.m_Weapon) != SW_TOOL)
 					m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), !Flip, Charge);
+				
 				pCustomPlayerInfo->m_WeaponRecoil += Direction * 15;
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*95, vec2(frandom()-frandom(), frandom()-frandom())*30);

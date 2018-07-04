@@ -2227,7 +2227,7 @@ void CRenderTools::RenderWeapon(int Weapon, vec2 Pos, vec2 Dir, float Size, bool
 	if (!IsWeapon(Weapon))
 		return;
 	
-	if (KillMessage && GetStaticType(Weapon) == SW_TOOL)
+	if (KillMessage && IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_TOOL)
 		return;
 	
 	ivec2 WSize = GetWeaponVisualSize(Weapon);

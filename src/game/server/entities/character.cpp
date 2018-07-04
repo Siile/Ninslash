@@ -203,7 +203,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_FLAMER));
 	*/
 	
-	//m_apWeapon[0] = GameServer()->NewWeapon(GetModularWeapon(1, 4));
+	//m_apWeapon[0] = GameServer()->NewWeapon(GetModularWeapon(3, 1));
 	//m_apWeapon[1] = GameServer()->NewWeapon(GetStaticWeapon(SW_BALL));
 	//m_apWeapon[2] = GameServer()->NewWeapon(GetStaticWeapon(SW_MASK5));
 	//m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 6));
@@ -250,8 +250,11 @@ void CCharacter::RandomizeInventory()
 		
 		if (!m_apWeapon[j] || j == m_WeaponSlot)
 			continue;
-		
+	
 		bool CanSwitch = true;
+		
+		int wt = GetStaticType(GetWeaponType(j));
+		if (i == 0 && (wt == SW_BOMB || (wt >= SW_MASK1 && wt <= SW_MASK5)))
 		
 		if ((m_apWeapon[i] && !m_apWeapon[i]->CanSwitch()) || (m_apWeapon[j] && !m_apWeapon[j]->CanSwitch()))
 			CanSwitch = false;
@@ -1777,6 +1780,10 @@ bool CCharacter::IncreaseHealth(int Amount)
 {
 	if(m_HiddenHealth >= m_MaxHealth)
 		return false;
+	
+	if (GetMask() == 4)
+		Amount *= 2;
+	
 	m_HiddenHealth = clamp(m_HiddenHealth+Amount, 0, m_MaxHealth);
 	
 	//GetPlayer()->m_InterestPoints += 40;
@@ -1875,6 +1882,9 @@ bool CCharacter::IncreaseArmor(int Amount)
 	if(m_Armor >= 100)
 		return false;
 	
+	if (GetMask() == 4)
+		Amount *= 2;
+		
 	m_Armor = clamp(m_Armor+Amount, 0, 100);
 	return true;
 }

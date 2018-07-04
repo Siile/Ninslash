@@ -1425,6 +1425,7 @@ bool WeaponAutoPick(int Weapon)
 		switch (GetStaticType(Weapon))
 		{
 			case SW_GUN1: case SW_GUN2: return false;
+			case SW_MASK1: case SW_MASK2: case SW_MASK3: case SW_MASK4: case SW_MASK5: return false;
 			default: return true;
 		};
 	}

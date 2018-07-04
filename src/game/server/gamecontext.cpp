@@ -519,7 +519,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			}
 			else
 			{
-				if (GetStaticType(Weapon) == SW_CHAINSAW || GetStaticType(Weapon) == SW_TOOL)
+				if (GetStaticType(Weapon) == SW_CHAINSAW || (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_TOOL))
 					CreateEffect(FX_BLOOD2, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
 				else
 					CreateEffect(FX_BLOOD1, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
@@ -533,7 +533,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 		}
 	}
 	
-	if (GetStaticType(Weapon) == SW_TOOL)
+	if (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_TOOL)
 		Damage *= -2;
 	
 	if (GetStaticType(Weapon) == SW_FLAMER)
@@ -566,7 +566,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			{
 				if (GetStaticType(Weapon) == SW_FLAMER)
 					;
-				else if (GetStaticType(Weapon) == SW_CHAINSAW || GetStaticType(Weapon) == SW_TOOL)
+				else if (GetStaticType(Weapon) == SW_CHAINSAW || (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_TOOL))
 					CreateEffect(FX_BLOOD2, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
 				else
 					CreateEffect(FX_BLOOD1, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
@@ -598,7 +598,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			
 			if (GetStaticType(Weapon) == SW_FLAMER)
 				;
-			else if (GetStaticType(Weapon) == SW_CHAINSAW || GetStaticType(Weapon) == SW_TOOL)
+			else if (GetStaticType(Weapon) == SW_CHAINSAW || (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_TOOL))
 				CreateEffect(FX_BLOOD2, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
 			else
 				CreateEffect(FX_BLOOD1, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
@@ -632,7 +632,7 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int Charge, vec
 	
 	if (IsStaticWeapon(Weapon))
 	{
-		if (GetStaticType(Weapon) == SW_SHURIKEN || GetStaticType(Weapon) == SW_CHAINSAW || GetStaticType(Weapon) == SW_TOOL)
+		if (GetStaticType(Weapon) == SW_SHURIKEN || GetStaticType(Weapon) == SW_CHAINSAW || (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_TOOL))
 		{
 			CreateMeleeHit(DamageOwner, Weapon, Dmg, Pos, Direction);
 			return;

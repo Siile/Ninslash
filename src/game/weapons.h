@@ -79,18 +79,35 @@ enum WeaponBits
 	WFT_ACTIVATE // some items
 };
 
+
+static const char *s_TipText[NUM_SW] = {
+	"Repair tool",
+	"",
+	"",
+	"Grenade",
+	"Electric grenade",
+	"Supply grenade",
+	"",
+	"",
+	"",
+	"",
+	"Weapon upgrade",
+	"Energy shield",
+	"Respawn device",
+	"Mask of regeneration",
+	"Mask of speed",
+	"Mask of protection",
+	"Mask of plenty",
+	"Mask of melee",
+	"Invisibility device",
+	"",
+	"",
+	"Bomb (for destroying reactors)",
+	""
+};
  
 
 #define WEAPON_GAME_SIZE 15
-
-
-inline int GetPart(int Weapon, int Group){ return (Weapon & (15<<(4+Group*4)))>>(4+Group*4); }
-inline int GetModularWeapon(int Part1, int Part2){ return (!Part1 && !Part2) ? 0 : (Part2<<8 | Part1<<4 | BIT_WEAPON); }
-inline int GetStaticWeapon(int Weapon){ return (Weapon<<4 | BIT_STATICWEAPON | BIT_WEAPON); }
-inline int GetStaticType(int Weapon){ return 255 & (Weapon>>4); }
-
-inline int GetChargedWeapon(int Weapon, int Charge){ return (Weapon & (15<<4 | 15<<8 | 15)) | Charge<<12; }
-inline int GetWeaponCharge(int Weapon){ return (Weapon & (15<<12))>>12; }
 
 inline bool IsWeapon(int Weapon) { return (Weapon & BIT_WEAPON) ? true : false; }
 inline bool IsTurret(int Weapon) { return (IsWeapon(Weapon) && (Weapon & BIT_TURRET)) ? true : false; }
@@ -98,6 +115,15 @@ inline bool IsBuilding(int Weapon) { return (!IsWeapon(Weapon) && (Weapon & BIT_
 inline bool IsDroid(int Weapon) { return (!IsWeapon(Weapon) && (Weapon & BIT_DROID)) ? true : false; }
 inline bool IsStaticWeapon(int Weapon) { return (IsWeapon(Weapon) && (Weapon & BIT_STATICWEAPON)) ? true : false; }
 inline bool IsModularWeapon(int Weapon) { return (IsWeapon(Weapon) && !(Weapon & BIT_STATICWEAPON)) ? true : false; }
+
+inline int GetPart(int Weapon, int Group){ return (Weapon & (15<<(4+Group*4)))>>(4+Group*4); }
+inline int GetModularWeapon(int Part1, int Part2){ return (!Part1 && !Part2) ? 0 : (Part2<<8 | Part1<<4 | BIT_WEAPON); }
+inline int GetStaticWeapon(int Weapon){ return (Weapon<<4 | BIT_STATICWEAPON | BIT_WEAPON); }
+inline int GetStaticType(int Weapon){ return IsStaticWeapon(Weapon) ? 255 & (Weapon>>4) : 0; }
+
+inline int GetChargedWeapon(int Weapon, int Charge){ return (Weapon & (15<<4 | 15<<8 | 15)) | Charge<<12; }
+inline int GetWeaponCharge(int Weapon){ return (Weapon & (15<<12))>>12; }
+
 
 inline bool IsOnDeath(int Weapon) { return Weapon & BIT_ONDEATH ? true : false; }
 
