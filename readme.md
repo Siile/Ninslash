@@ -1,18 +1,18 @@
 <div align="center">
-<img alt="Ninslash" src="http://ninslash.com/png/logo.png" /><br>
+<img alt="Ninslash logo" src="http://ninslash.com/png/logo.png" /><br>
 <br>
 <br>
 <br>
 <a href="http://ninslash.com/download/"><strong>&gt;&gt; Download &lt;&lt;</strong></a><br>
 <br>
 <br>
-<img alt="Ninslash" src="http://ninslash.com/png/0.4.4.png" /><br>
+<img alt="Gameplay pic" src="http://ninslash.com/png/0.4.4.png" /><br>
 </div>
 <br>
 <br>
-#Compiling in windows<br>
+# Compiling in windows<br>
 <br>
-##Required tools<br>
+## Required tools<br>
 <a href="http://ninslash.com/tools/bam-0.4.0.zip">Bam 0.4.0</a><br>
 <a href="https://www.python.org/downloads/">Python (tested with 3.7.0)</a><br>
 <a href="https://visualstudio.microsoft.com/vs/older-downloads/">Visual Studio Express 2010</a><br>
@@ -25,8 +25,7 @@
 4. Define Visual Studio environment (%comspec% /k ""C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"" x86)<br>
 5. Run Bam (c:\bam\bam release)<br>
 <br>
-<img alt="Ninslash" src="http://ninslash.com/png/compile.png" /><br>
-<br>
+<img alt="Cmd screenshot" src="http://ninslash.com/tools/compile.png" /><br>
 <br>
 <br>
 If you're using unix, having a look at <a href="https://github.com/Siile/Ninslash/blob/master/circle.yml">circleci instructions</a> might be helpful<br>
