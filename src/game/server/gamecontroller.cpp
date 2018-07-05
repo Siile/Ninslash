@@ -872,7 +872,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		else if(Index == ENTITY_BALL)
 		{
 			Type = POWERUP_WEAPON;
-			SubType = GetStaticType(SW_BALL);
+			SubType = GetStaticWeapon(SW_BALL);
 		}
 	}
 
@@ -886,7 +886,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		}
 		*/
 		
-		if (Type == POWERUP_WEAPON)
+		if (Type == POWERUP_WEAPON && !SubType)
 			SubType = GetRandomWeapon();
 		
 		CPickup *pPickup = new CPickup(&GameServer()->m_World, Type, SubType);

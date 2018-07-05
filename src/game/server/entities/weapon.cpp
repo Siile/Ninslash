@@ -596,7 +596,7 @@ void CWeapon::Tick()
 		m_WeaponType = GetChargedWeapon(m_WeaponType, m_PowerLevel);
 	
 	// pick me up!
-	if ((m_Stuck && m_Owner < 0) || GetStaticType(m_WeaponType) == SW_BALL)
+	if ((m_Stuck && m_Owner < 0) || (GetStaticType(m_WeaponType) == SW_BALL && m_Released))
 	{
 		CCharacter *pChr = GameServer()->m_World.ClosestCharacter(m_Pos, 18.0f, 0);
 		if(pChr && pChr->IsAlive() && (pChr->GetPlayer()->GetCID() != m_Owner || m_SkipPickTick < Server()->Tick()))
