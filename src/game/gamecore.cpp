@@ -1250,9 +1250,13 @@ void CCharacterCore::Move()
 		{
 			vec2 BPos = pBallCore->m_Pos;
 			float OffsetY = -32;
+			float Force = 1.0f;
 		
 			if (m_Action == COREACTION_SLIDEKICK && m_ActionState > 2 &&  m_ActionState < 10)
+			{
 				OffsetY = -16;
+				Force = 2.0f;
+			}
 			
 			if (m_Slide != 0 || m_Roll != 0)
 				OffsetY = -8;
@@ -1273,11 +1277,9 @@ void CCharacterCore::Move()
 					float theta = atan2((Pos.y - BPos.y), (Pos.x - BPos.x));
 					float overlap = 54 - D;
 					
-					vec2 BVel = -vec2(overlap * cos(theta), overlap * sin(theta));
-					//pBallCore->m_Pos.x -= overlap * cos(theta);
-					//pBallCore->m_Pos.y -= overlap * sin(theta);
+					vec2 BVel = -vec2(cos(theta), sin(theta)) * overlap;
+					m_pCollision->MoveBox(&pBallCore->m_Pos, &BVel, vec2(54.0f, 54.0f), 0.0f);
 					
-					m_pCollision->MoveBox(&pBallCore->m_Pos, &BVel, vec2(54.0f, 54.0f), 0.9f);
 					
 					BPos = pBallCore->m_Pos;
 					D = distance(Pos, BPos);
@@ -1295,7 +1297,7 @@ void CCharacterCore::Move()
 					float dx2F = (v2 * cos(theta2 - phi) * (m2-m1) + 2*m1*v1*cos(theta1 - phi)) / (m1+m2) * cos(phi) + v2*sin(theta2-phi) * cos(phi+pi/2);
 					float dy2F = (v2 * cos(theta2 - phi) * (m2-m1) + 2*m1*v1*cos(theta1 - phi)) / (m1+m2) * sin(phi) + v2*sin(theta2-phi) * sin(phi+pi/2);
 
-					pBallCore->m_Vel = vec2(dx2F, dy2F);//*0.8f;
+					pBallCore->m_Vel = vec2(dx2F, dy2F);
 					break;
 				}
 				

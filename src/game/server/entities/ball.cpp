@@ -74,8 +74,7 @@ void CBall::TickDefered()
 		m_ReckoningCore.Write(&Predicted);
 		m_Core.Write(&Current);
 
-		// only allow dead reackoning for a top of 3 seconds
-		if(m_ReckoningTick+Server()->TickSpeed()*3 < Server()->Tick() || mem_comp(&Predicted, &Current, sizeof(CNetObj_Ball)) != 0)
+		if(m_ReckoningTick+Server()->TickSpeed()*0.5f < Server()->Tick() || mem_comp(&Predicted, &Current, sizeof(CNetObj_Ball)) != 0)
 		{
 			m_ReckoningTick = Server()->Tick();
 			m_SendCore = m_Core;
