@@ -10,6 +10,7 @@ class CCharacterCore;
 class CCollision
 {
 	friend class CCharacterCore;
+	friend class CBallCore;
 	class CTile *m_pTiles;
 	int m_Width;
 	int m_Height;

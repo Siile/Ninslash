@@ -63,6 +63,7 @@
 #include "components/spark.h"
 #include "components/radar.h"
 #include "components/players.h"
+#include "components/ball.h"
 #include "components/nameplates.h"
 #include "components/scoreboard.h"
 #include "components/skins.h"
@@ -111,6 +112,7 @@ static CSpectator gs_Spectator;
 
 static CDroids gs_Droids;
 static CPlayers gs_Players;
+static CBalls gs_Balls;
 static CNamePlates gs_NamePlates;
 static CItems gs_Items;
 static CWeapons gs_Weapons;
@@ -222,6 +224,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderMonsterSpawn);
 	m_All.Add(&m_pParticles->m_RenderTakeoff);
 	m_All.Add(&gs_Players);
+	m_All.Add(&gs_Balls);
 	m_All.Add(m_pBuildings2);
 	m_All.Add(m_pWeapons);
 	m_All.Add(&m_pParticles->m_RenderMeat);
@@ -578,6 +581,25 @@ static void Evolve(CNetObj_Character *pCharacter, int Tick)
 	}
 
 	TempCore.Write(pCharacter);
+}
+
+static void EvolveBall(CNetObj_Ball *pBall, int Tick)
+{
+	CWorldCore TempWorld;
+	CBallCore TempCore;
+	mem_zero(&TempCore, sizeof(TempCore));
+	TempCore.Init(&TempWorld, g_GameClient.Collision());
+	TempCore.Read(pBall);
+
+	while(pBall->m_Tick < Tick)
+	{
+		pBall->m_Tick++;
+		TempCore.Tick();
+		TempCore.Move();
+		TempCore.Quantize();
+	}
+
+	TempCore.Write(pBall);
 }
 
 
@@ -1099,6 +1121,21 @@ void CGameClient::OnNewSnapshot()
 						Evolve(&m_Snap.m_aCharacters[Item.m_ID].m_Cur, Client()->GameTick());
 				}
 			}
+			else if(Item.m_Type == NETOBJTYPE_BALL)
+			{
+				const void *pOld = Client()->SnapFindItem(IClient::SNAP_PREV, NETOBJTYPE_BALL, 0);
+				m_Snap.m_Ball.m_Cur = *((const CNetObj_Ball *)pData);
+				if(pOld)
+				{
+					m_Snap.m_Ball.m_Active = true;
+					m_Snap.m_Ball.m_Prev = *((const CNetObj_Ball *)pOld);
+
+					if(m_Snap.m_Ball.m_Prev.m_Tick)
+						EvolveBall(&m_Snap.m_Ball.m_Prev, Client()->PrevGameTick());
+					if(m_Snap.m_Ball.m_Cur.m_Tick)
+						EvolveBall(&m_Snap.m_Ball.m_Cur, Client()->GameTick());
+				}
+			}
 			else if(Item.m_Type == NETOBJTYPE_SPECTATORINFO)
 			{
 				m_Snap.m_pSpectatorInfo = (const CNetObj_SpectatorInfo *)pData;
@@ -1141,11 +1178,6 @@ void CGameClient::OnNewSnapshot()
 			}
 			else if(Item.m_Type == NETOBJTYPE_DROID)
 			{
-				const CNetObj_Droid *pMonster = (const CNetObj_Droid *)pData;
-				if (m_Snap.m_MonsterCount < MAX_DROIDS)
-					m_Snap.m_aMonsterPos[m_Snap.m_MonsterCount] = vec2(pMonster->m_X, pMonster->m_Y);
-				
-				m_Snap.m_MonsterCount++;
 			}
 			else if(Item.m_Type == NETOBJTYPE_BUILDING)
 			{
@@ -1276,7 +1308,7 @@ void CGameClient::OnPredict()
 		if(m_Snap.m_pLocalCharacter)
 			m_PredictedChar.Read(m_Snap.m_pLocalCharacter);
 		if(m_Snap.m_pLocalPrevCharacter)
-			m_PredictedPrevChar.Read(m_Snap.m_pLocalPrevCharacter);
+			m_PredictedPrevChar.Read(m_Snap.m_pLocalPrevCharacter);  
 		return;
 	}
 
@@ -1295,15 +1327,6 @@ void CGameClient::OnPredict()
 		g_GameClient.m_aClients[i].m_Predicted.Read(&m_Snap.m_aCharacters[i].m_Cur);
 	}
 	
-	// search for monsters
-	for(int i = 0; i < MAX_DROIDS; i++)
-	{
-		if(m_Snap.m_aMonsterPos[i].x == 0)
-			continue;
-
-		World.m_aMonsterPos[i] = m_Snap.m_aMonsterPos[i];
-	}
-	
 	// search for jumppads
 	for(int i = 0; i < MAX_IMPACTS; i++)
 	{
@@ -1312,6 +1335,15 @@ void CGameClient::OnPredict()
 
 		World.m_aImpactPos[i] = m_Snap.m_aImpactPos[i];
 	}
+	
+	// search for the ball
+	if (m_Snap.m_Ball.m_Active)
+	{
+		g_GameClient.m_PredictedBall.Init(&World, Collision());
+		World.m_pBall = &g_GameClient.m_PredictedBall;
+		g_GameClient.m_PredictedBall.Read(&m_Snap.m_Ball.m_Cur);
+	}
+	
 
 	// predict
 	for(int Tick = Client()->GameTick()+1; Tick <= Client()->PredGameTick(); Tick++)
@@ -1337,8 +1369,10 @@ void CGameClient::OnPredict()
 			}
 			else
 				World.m_apCharacters[c]->Tick(false);
-
 		}
+		
+		if (World.m_pBall)
+			World.m_pBall->Tick();
 
 		// move all players and quantize their data
 		for(int c = 0; c < MAX_CLIENTS; c++)
@@ -1348,6 +1382,13 @@ void CGameClient::OnPredict()
 
 			World.m_apCharacters[c]->Move();
 			World.m_apCharacters[c]->Quantize();
+		}
+		
+		// move ball
+		if (World.m_pBall)
+		{
+			World.m_pBall->Move();
+			World.m_pBall->Quantize();
 		}
 
 		// check if we want to trigger effects

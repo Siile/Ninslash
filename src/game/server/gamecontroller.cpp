@@ -5,6 +5,7 @@
 
 #include <game/generated/protocol.h>
 
+#include "entities/ball.h"
 #include "entities/flag.h"
 #include "entities/block.h"
 #include "entities/pickup.h"
@@ -871,8 +872,11 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		}
 		else if(Index == ENTITY_BALL)
 		{
-			Type = POWERUP_WEAPON;
-			SubType = GetStaticType(SW_BALL);
+			//Type = POWERUP_WEAPON;
+			//SubType = GetStaticWeapon(SW_BALL);
+			
+			CBall *pBall = new CBall(&GameServer()->m_World);
+			pBall->Spawn(Pos);
 		}
 	}
 
@@ -886,7 +890,7 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		}
 		*/
 		
-		if (Type == POWERUP_WEAPON)
+		if (Type == POWERUP_WEAPON && !SubType)
 			SubType = GetRandomWeapon();
 		
 		CPickup *pPickup = new CPickup(&GameServer()->m_World, Type, SubType);

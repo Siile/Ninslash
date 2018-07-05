@@ -58,13 +58,16 @@ void CPickup::Reset()
 	
 		ClearWeapon();
 		
-		if (m_Type == POWERUP_WEAPON)
+		if (m_Type == POWERUP_WEAPON && GetStaticType(m_Subtype) != SW_BALL)
 			SetRandomWeapon();
 	}
 }
 
 void CPickup::SetRandomWeapon()
 {
+	if (GetStaticType(m_Subtype) == SW_BALL)
+		return;
+	
 	m_Subtype = GetRandomWeaponType(g_Config.m_SvSurvivalMode ? true : false);
 	
 	if (GetStaticType(m_Subtype) == SW_UPGRADE)

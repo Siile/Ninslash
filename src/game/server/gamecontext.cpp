@@ -1297,7 +1297,6 @@ void CGameContext::OnTick()
 
 	// copy tuning
 	m_World.m_Core.m_Tuning = m_Tuning;
-	m_World.m_Core.ClearMonsters();
 	m_World.m_Core.ClearImpacts();
 	m_World.Tick();
 

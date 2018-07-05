@@ -308,6 +308,19 @@ Objects = [
 		NetIntRange("m_FlagCarrierBlue", 'FLAG_MISSING', 'MAX_CLIENTS-1'),
 	]),
 
+	NetObject("BallCore", [
+		NetIntAny("m_Tick"),
+		NetIntAny("m_X"),
+		NetIntAny("m_Y"),
+		NetIntAny("m_VelX"),
+		NetIntAny("m_VelY"),
+		NetIntAny("m_Angle"),
+		NetIntAny("m_Status"),
+	]),
+	
+	NetObject("Ball:BallCore", [
+	]),
+	
 	NetObject("CharacterCore", [
 		NetIntAny("m_Tick"),
 		NetIntAny("m_X"),

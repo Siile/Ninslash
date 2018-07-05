@@ -1,5 +1,3 @@
-
-
 #ifndef GAME_GAMECORE_H
 #define GAME_GAMECORE_H
 
@@ -221,8 +219,9 @@ public:
 	CWorldCore()
 	{
 		mem_zero(m_apCharacters, sizeof(m_apCharacters));
+		//mem_zero(m_pBall, sizeof(m_pBall));
+		m_pBall = 0;
 		
-		ClearMonsters();
 		ClearImpacts();
 	}
 
@@ -242,33 +241,46 @@ public:
 		m_Impact++;
 	}
 	
-	void ClearMonsters()
-	{
-		m_Monster = 0;
-		
-		for (int i = 0; i < MAX_DROIDS; i++)
-			m_aMonsterPos[i] = vec2(0, 0);
-	}
-	
-	void AddMonster(vec2 Pos)
-	{
-		if (m_Monster < MAX_DROIDS)
-			m_aMonsterPos[m_Monster] = Pos;
-	
-		m_Monster++;
-	}
-	
 	CTuningParams m_Tuning;
 	class CCharacterCore *m_apCharacters[MAX_CLIENTS];
-
-	int m_Monster;
-	vec2 m_aMonsterPos[MAX_DROIDS];
+	class CBallCore *m_pBall;
 	
 	// jumppad impact to gore
 	int m_Impact;
 	vec4 m_aImpactPos[MAX_IMPACTS];
 };
 
+
+class CBallCore
+{
+	CWorldCore *m_pWorld;
+	CCollision *m_pCollision;
+	
+public:
+	vec2 m_Pos;
+	vec2 m_Vel;
+	float m_Angle;
+	float m_AngleForce;
+	int m_Status;
+	
+	CBallCore();
+	void Init(CWorldCore *pWorld, CCollision *pCollision);
+	void Reset();
+	void Tick();
+	void Move();
+	
+	void Read(const CNetObj_BallCore *pObjCore);
+	void Write(CNetObj_BallCore *pObjCore);
+	void Quantize();
+	
+	bool Status(int i)
+	{
+		if (m_Status & (1<<i))
+			return true;
+
+		return false;
+	}
+};
 
 
 class CCharacterCore
