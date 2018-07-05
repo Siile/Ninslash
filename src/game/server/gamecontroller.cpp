@@ -872,16 +872,11 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		}
 		else if(Index == ENTITY_BALL)
 		{
-<<<<<<< HEAD
 			//Type = POWERUP_WEAPON;
 			//SubType = GetStaticWeapon(SW_BALL);
 			
 			CBall *pBall = new CBall(&GameServer()->m_World);
 			pBall->Spawn(Pos);
-=======
-			Type = POWERUP_WEAPON;
-			SubType = GetStaticWeapon(SW_BALL);
->>>>>>> 2f69246008bd6aaa9e8ceab1ba0dd34217ecf8e4
 		}
 	}
 
