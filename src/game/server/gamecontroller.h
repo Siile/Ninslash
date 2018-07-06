@@ -63,7 +63,6 @@ protected:
 	int m_Round;
 	int m_GameState;
 	
-	class CBall *m_pBall;
 	
 	//
 	CGameContext *GameServer() const { return m_pGameServer; }
@@ -129,6 +128,8 @@ protected:
 	
 public:
 
+	class CBall *m_pBall;
+	
 	// CSTT & CSBB
 	int GetRoundState(){ return m_GameState; }
 	int GetRound(){ return m_Round; }

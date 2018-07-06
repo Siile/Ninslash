@@ -8,7 +8,7 @@
 #include "ball.h"
 
 #include <game/server/ai.h>
-#include <game/server/ai/tdm_ai.h>
+#include <game/server/ai/ball_ai.h>
 
 
 CGameControllerBall::CGameControllerBall(class CGameContext *pGameServer) : IGameController(pGameServer)
@@ -33,8 +33,8 @@ void CGameControllerBall::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 	IGameController::OnCharacterSpawn(pChr);
 	
 	// init AI
-	//if (RequestAI)
-	//	pChr->GetPlayer()->m_pAI = new CAItdm(GameServer(), pChr->GetPlayer());
+	if (RequestAI)
+		pChr->GetPlayer()->m_pAI = new CAIball(GameServer(), pChr->GetPlayer());
 }
 
 int CGameControllerBall::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
@@ -127,7 +127,7 @@ void CGameControllerBall::Tick()
 			GameServer()->CreateSoundGlobal(SOUND_CTF_CAPTURE);
 			GameServer()->SendBroadcast("Blue team scores!", -1);
 			m_aTeamscore[TEAM_BLUE]++;
-			m_RoundEndTick = Server()->Tick() + Server()->TickSpeed()*3;
+			m_RoundEndTick = Server()->Tick() + Server()->TickSpeed()*1;
 		}
 			
 		if (InMapArea(TEAM_BLUE, m_pBall->GetPosition()))
@@ -135,7 +135,7 @@ void CGameControllerBall::Tick()
 			GameServer()->CreateSoundGlobal(SOUND_CTF_CAPTURE);
 			GameServer()->SendBroadcast("Red team scores!", -1);
 			m_aTeamscore[TEAM_RED]++;
-			m_RoundEndTick = Server()->Tick() + Server()->TickSpeed()*3;
+			m_RoundEndTick = Server()->Tick() + Server()->TickSpeed()*1;
 		}
 	}
 	else if (m_RoundEndTick <= Server()->Tick())
