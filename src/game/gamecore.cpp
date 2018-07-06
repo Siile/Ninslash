@@ -1272,10 +1272,10 @@ void CCharacterCore::Move()
 				
 				float D = distance(Pos, BPos);
 				
-				if (D <= 54)
+				if (D <= 50)
 				{
 					float theta = atan2((Pos.y - BPos.y), (Pos.x - BPos.x));
-					float overlap = 54 - D;
+					float overlap = 50 - D;
 					
 					vec2 BVel = -vec2(cos(theta), sin(theta)) * overlap;
 					m_pCollision->MoveBox(&pBallCore->m_Pos, &BVel, vec2(54.0f, 54.0f), 0.0f);

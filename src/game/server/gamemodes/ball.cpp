@@ -101,6 +101,22 @@ void CGameControllerBall::Tick()
 	AutoBalance();
 	GameServer()->UpdateAI();
 	
+	
+	if (!GameServer()->m_pController->CountHumans())
+	{
+		
+	}
+	else
+	{
+		
+		
+	}
+		
+	if (m_RoundStartTick)
+	{
+		
+	}
+	
 	if (m_pBall)
 	{
 		/*
