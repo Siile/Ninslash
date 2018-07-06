@@ -1297,6 +1297,7 @@ void CGameClient::OnPredict()
 	// store the previous values so we can detect prediction errors
 	CCharacterCore BeforePrevChar = m_PredictedPrevChar;
 	CCharacterCore BeforeChar = m_PredictedChar;
+	
 
 	// we can't predict without our own id or own character
 	if(m_Snap.m_LocalClientID == -1 || !m_Snap.m_aCharacters[m_Snap.m_LocalClientID].m_Active)
@@ -1372,7 +1373,12 @@ void CGameClient::OnPredict()
 		}
 		
 		if (World.m_pBall)
+		{
+			if(Tick == Client()->PredGameTick())
+				m_PredictedPrevBall = *World.m_pBall;
+		
 			World.m_pBall->Tick();
+		}
 
 		// move all players and quantize their data
 		for(int c = 0; c < MAX_CLIENTS; c++)

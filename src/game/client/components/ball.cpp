@@ -47,43 +47,27 @@ void CBalls::RenderBall(const CNetObj_Ball *pPrevBall, const CNetObj_Ball *pBall
 	bool NewTick = m_pClient->m_NewTick;
 	float IntraTick = Client()->IntraGameTick();
 	
-	
-	float Angle = mix(pPrevBall->m_Angle, pBall->m_Angle, Client()->IntraGameTick()) / 256.0f;
-	
-	if (pBall->m_Angle > (256.0f * pi) && pPrevBall->m_Angle < 0)
+	if(g_Config.m_ClPredict && Client()->State() != IClient::STATE_DEMOPLAYBACK)
 	{
-		float ca = pBall->m_Angle - 256.0f * 2 * pi;
-		Angle = mix((float)pPrevBall->m_Angle, ca, Client()->IntraGameTick()) / 256.0f;
-	}
-	else if (pBall->m_Angle < 0 && pPrevBall->m_Angle > (256.0f * pi))
-	{
-		float ca = pBall->m_Angle + 256.0f * 2 * pi;
-		Angle = mix((float)pPrevBall->m_Angle, ca, Client()->IntraGameTick()) / 256.0f;
+		m_pClient->m_PredictedBall.Write(&Ball);
+		m_pClient->m_PredictedPrevBall.Write(&Prev);
+		IntraTick = Client()->PredIntraGameTick();
+		NewTick = m_pClient->m_NewPredictedTick;
 	}
 	
+	float Angle = mix(Prev.m_Angle, Ball.m_Angle, IntraTick) / 256.0f;
 	
-	// use preditect players if needed
-	/*
-	if(pInfo.m_Local && g_Config.m_ClPredict && Client()->State() != IClient::STATE_DEMOPLAYBACK)
+	if (Ball.m_Angle > (256.0f * pi) && Prev.m_Angle < 0)
 	{
-		if(!m_pClient->m_Snap.m_pLocalCharacter || (m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_GAMEOVER))
-		{
-		}
-		else
-		{
-			// m_PredictedChar.Write causes crash on some conditions when joining the game! todo: fix somehow 
-			// apply predicted results
-			m_pClient->m_PredictedChar.Write(&Player);
-			m_pClient->m_PredictedPrevChar.Write(&Prev);
-			IntraTick = Client()->PredIntraGameTick();
-			NewTick = m_pClient->m_NewPredictedTick;
-		}
+		float ca = Ball.m_Angle - 256.0f * 2 * pi;
+		Angle = mix((float)Prev.m_Angle, ca, IntraTick) / 256.0f;
+	}
+	else if (Ball.m_Angle < 0 && Prev.m_Angle > (256.0f * pi))
+	{
+		float ca = Ball.m_Angle + 256.0f * 2 * pi;
+		Angle = mix((float)Prev.m_Angle, ca, IntraTick) / 256.0f;
 	}
 
-	vec2 Direction = GetDirection((int)(Angle*256.0f));
-	vec2 Position = mix(vec2(Prev.m_X, Prev.m_Y), vec2(Ball.m_X, Ball.m_Y), IntraTick);
-	vec2 Vel = mix(vec2(Prev.m_VelX/256.0f, Prev.m_VelY/256.0f), vec2(Ball.m_VelX/256.0f, Ball.m_VelY/256.0f), IntraTick);
-	*/
 	
 	vec2 Position = mix(vec2(Prev.m_X, Prev.m_Y), vec2(Ball.m_X, Ball.m_Y), IntraTick);
 	

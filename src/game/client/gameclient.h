@@ -131,6 +131,9 @@ public:
 	CCharacterCore m_PredictedPrevChar;
 	CCharacterCore m_PredictedChar;
 
+	CBallCore m_PredictedPrevBall;
+	CBallCore m_PredictedBall;
+	
 	// snap pointers
 	struct CSnapState
 	{
@@ -236,8 +239,6 @@ public:
 
 	CClientData m_aClients[MAX_CLIENTS];
 	
-	CBallCore m_PredictedBall;
-
 	CRenderTools m_RenderTools;
 
 	void AddPlayerSplatter(vec2 Pos, vec4 Color);
