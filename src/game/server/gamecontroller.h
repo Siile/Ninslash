@@ -147,6 +147,8 @@ public:
 	
 	virtual void OnSurvivalTimeOut();
 	
+	void ResetBallRound();
+	
 	int m_BombStatus;
 	vec2 m_BombPos;
 	

@@ -25,6 +25,8 @@ public:
 	virtual void TickPaused();
 	virtual void Snap(int SnappingClient);
 
+	void RoundReset();
+	
 	bool Spawn(vec2 Pos);
 	bool Remove();
 	
@@ -36,7 +38,8 @@ private:
 	// the player core for the physics
 	CBallCore m_Core;
 	bool m_ForceCoreSend;
-
+	vec2 m_OriginalPos;
+	
 	// info for dead reckoning
 	int m_ReckoningTick; // tick that we are performing dead reckoning From
 	CBallCore m_SendCore; // core that we should send

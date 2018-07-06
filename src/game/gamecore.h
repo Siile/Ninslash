@@ -272,6 +272,7 @@ public:
 	void Reset();
 	void Tick();
 	void Move();
+	void PlayerHit();
 	
 	void Read(const CNetObj_BallCore *pObjCore);
 	void Write(CNetObj_BallCore *pObjCore);

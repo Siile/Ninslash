@@ -1280,7 +1280,7 @@ void CCharacterCore::Move()
 					vec2 BVel = -vec2(cos(theta), sin(theta)) * overlap;
 					m_pCollision->MoveBox(&pBallCore->m_Pos, &BVel, vec2(54.0f, 54.0f), 0.0f);
 					
-					pBallCore->m_ForceCoreSend = true;
+					pBallCore->PlayerHit();
 					
 					BPos = pBallCore->m_Pos;
 					D = distance(Pos, BPos);
@@ -1488,18 +1488,34 @@ void CBallCore::Reset()
 	m_Angle = 0.0f;
 	m_AngleForce = 0.0f;
 	m_Status = 0;
+	m_Status |= 1 << BALLSTATUS_STATIONARY;
 	m_ForceCoreSend = false;
 	m_TriggeredEvents = 0;
 }
 
+
+void CBallCore::PlayerHit()
+{
+	m_ForceCoreSend = true;
+	if (m_Status & (1<<BALLSTATUS_STATIONARY))
+		m_Status ^= 1 << BALLSTATUS_STATIONARY;
+}
+
+
 void CBallCore::Tick()
 {
+	if (m_Status & (1<<BALLSTATUS_STATIONARY))
+		return;
+	
 	m_TriggeredEvents = 0;
 	m_Vel.y += 0.5f;
 }
 
 void CBallCore::Move()
 {
+	if (m_Status & (1<<BALLSTATUS_STATIONARY))
+		return;
+	
 	bool Grounded = false;
 	if (m_pCollision->CheckPoint(m_Pos.x+27, m_Pos.y+27+5))
 		Grounded = true;

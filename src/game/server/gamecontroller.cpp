@@ -1598,6 +1598,15 @@ void IGameController::OnPlayerJoin()
 		ResetSurvivalRound();
 }
 
+void IGameController::ResetBallRound()
+{
+	KillEveryone();
+	
+	if (!m_pBall)
+		return;
+	
+	m_pBall->RoundReset();
+}
 
 void IGameController::ResetSurvivalRound()
 {

@@ -12,6 +12,8 @@ Powerups = ["HEALTH", "AMMO", "WEAPON", "ARMOR", "COIN", "KIT"]
 # keep masks at the end
 Statuses = ["SPAWNING", "AFLAME", "SLOWED", "ELECTRIC", "DEATHRAY", "SHIELD", "DASH", "INVISIBILITY", "SLOWMOVING", "BOMBCARRIER", "MASK1", "MASK2", "MASK3"]
 
+BallStatuses = ["STATIONARY"]
+
 Damagetypes = ["NORMAL", "FLAME", "ELECTRIC", "FLUID"]
 
 Droidstatus = ["IDLE", "HURT", "ELECTRIC", "TERMINATED"]
@@ -148,6 +150,7 @@ Enums = [
 	Enum("POWERUP", Powerups),
 	Enum("EMOTICON", Emoticons),
 	Enum("STATUS", Statuses),
+	Enum("BALLSTATUS", BallStatuses),
 	Enum("DAMAGETYPE", Damagetypes),
 	Enum("DROIDSTATUS", Droidstatus),
 	Enum("DROIDTYPE", Droidtype),

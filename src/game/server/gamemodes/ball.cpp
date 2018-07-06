@@ -117,18 +117,31 @@ void CGameControllerBall::Tick()
 		
 	}
 	
-	if (m_pBall)
+	if (!m_pBall)
+		return;
+	
+	if (!m_RoundEndTick)
 	{
-		/*
 		if (InMapArea(TEAM_RED, m_pBall->GetPosition()))
 		{
+			GameServer()->CreateSoundGlobal(SOUND_CTF_CAPTURE);
 			GameServer()->SendBroadcast("Blue team scores!", -1);
+			m_aTeamscore[TEAM_BLUE]++;
+			m_RoundEndTick = Server()->Tick() + Server()->TickSpeed()*3;
 		}
-		
+			
 		if (InMapArea(TEAM_BLUE, m_pBall->GetPosition()))
 		{
+			GameServer()->CreateSoundGlobal(SOUND_CTF_CAPTURE);
 			GameServer()->SendBroadcast("Red team scores!", -1);
+			m_aTeamscore[TEAM_RED]++;
+			m_RoundEndTick = Server()->Tick() + Server()->TickSpeed()*3;
 		}
-		*/
+	}
+	else if (m_RoundEndTick <= Server()->Tick())
+	{
+		GameServer()->SendBroadcast("Go!", -1);
+		ResetBallRound();
+		m_RoundEndTick = 0;
 	}
 }

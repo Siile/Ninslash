@@ -12,6 +12,7 @@ CBall::CBall(CGameWorld *pWorld)
 {
 	m_ProximityRadius = ms_PhysSize;
 	m_ForceCoreSend = false;
+	m_OriginalPos = vec2(0, 0);
 }
 
 
@@ -24,6 +25,9 @@ bool CBall::Spawn(vec2 Pos)
 {
 	m_Pos = Pos;
 
+	if (m_OriginalPos.x == 0)
+		m_OriginalPos = m_Pos;
+	
 	m_Core.Reset();
 	m_Core.Init(&GameServer()->m_World.m_Core, GameServer()->Collision());
 	m_Core.m_Pos = m_Pos;
@@ -39,10 +43,18 @@ bool CBall::Spawn(vec2 Pos)
 	return true;
 }
 
+void CBall::RoundReset()
+{
+	if (m_OriginalPos.x != 0)
+		m_Pos = m_OriginalPos;
+	
+	m_Core.Reset();
+	m_Core.m_Pos = m_Pos;
+}
 
 void CBall::Destroy()
 {
-	GameServer()->m_World.m_Core.m_pBall = 0;
+	//GameServer()->m_World.m_Core.m_pBall = 0;
 }
 
 
