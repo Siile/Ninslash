@@ -70,11 +70,15 @@ void CBalls::RenderBall(const CNetObj_Ball *pPrevBall, const CNetObj_Ball *pBall
 
 	
 	vec2 Position = mix(vec2(Prev.m_X, Prev.m_Y), vec2(Ball.m_X, Ball.m_Y), IntraTick);
+
+
+	float BallSize = m_pClient->m_Tuning.m_BallSize;
 	
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BALL].m_Id);
 	Graphics()->QuadsBegin();
 	Graphics()->QuadsSetRotation(Angle);
-	IGraphics::CQuadItem QuadItem(Position.x, Position.y, 84, 84);
+	//IGraphics::CQuadItem QuadItem(Position.x, Position.y, 84-54+BallSize, 84-54+BallSize);
+	IGraphics::CQuadItem QuadItem(Position.x, Position.y, BallSize*1.5f, BallSize*1.5f);
 	//IGraphics::CQuadItem QuadItem(Ball.m_X, Ball.m_Y, 48, 48);
 	Graphics()->QuadsDraw(&QuadItem, 1);
 	Graphics()->QuadsEnd();

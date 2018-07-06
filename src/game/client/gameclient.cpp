@@ -1301,7 +1301,55 @@ void CGameClient::OnPredict()
 
 	// we can't predict without our own id or own character
 	if(m_Snap.m_LocalClientID == -1 || !m_Snap.m_aCharacters[m_Snap.m_LocalClientID].m_Active)
+	{
+		CWorldCore World;
+		World.m_Tuning = m_Tuning;
+		
+		// predict only ball
+		if (m_Snap.m_Ball.m_Active)
+		{
+			g_GameClient.m_PredictedBall.Init(&World, Collision());
+			World.m_pBall = &g_GameClient.m_PredictedBall;
+			g_GameClient.m_PredictedBall.Read(&m_Snap.m_Ball.m_Cur);
+		}
+		
+		for(int Tick = Client()->GameTick()+1; Tick <= Client()->PredGameTick(); Tick++)
+		{
+			m_LastNewPredictedTick = Tick;
+			m_NewPredictedTick = true;
+				
+			if (World.m_pBall)
+			{
+				if(Tick == Client()->PredGameTick())
+					m_PredictedPrevBall = *World.m_pBall;
+			
+				World.m_pBall->Tick();
+			}
+		
+			if (World.m_pBall)
+			{
+				World.m_pBall->Move();
+				World.m_pBall->Quantize();
+			}
+		
+			// check if we want to trigger effects
+			if(Tick > m_LastNewPredictedTick)
+			{
+				// ball events
+				if (World.m_pBall)
+				{
+					vec2 Pos = World.m_pBall->m_Pos;
+					int Events = World.m_pBall->m_TriggeredEvents;
+					
+					if(Events&COREEVENT_BALL_BOUNCE)
+						g_GameClient.m_pSounds->PlayAndRecord(CSounds::CHN_WORLD, SOUND_PLAYER_JUMP, 1.0f, Pos);
+				}
+			}
+		}
+		m_PredictedTick = Client()->PredGameTick();
+		
 		return;
+	}
 
 	// don't predict anything if we are paused
 	if(m_Snap.m_pGameInfoObj && m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED)

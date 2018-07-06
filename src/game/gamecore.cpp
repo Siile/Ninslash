@@ -1248,6 +1248,8 @@ void CCharacterCore::Move()
 			
 		if (pBallCore)
 		{
+			float BallSize = m_pWorld->m_Tuning.m_BallSize;
+	
 			vec2 BPos = pBallCore->m_Pos;
 			float OffsetY = -32;
 			float Force = 1.0f;
@@ -1272,13 +1274,13 @@ void CCharacterCore::Move()
 				
 				float D = distance(Pos, BPos);
 				
-				if (D <= 50)
+				if (D <= BallSize*0.70f+16)
 				{
 					float theta = atan2((Pos.y - BPos.y), (Pos.x - BPos.x));
-					float overlap = 50 - D;
+					float overlap = BallSize*0.70f+16 - D;
 					
 					vec2 BVel = -vec2(cos(theta), sin(theta)) * overlap;
-					m_pCollision->MoveBox(&pBallCore->m_Pos, &BVel, vec2(54.0f, 54.0f), 0.0f);
+					m_pCollision->MoveBox(&pBallCore->m_Pos, &BVel, vec2(BallSize, BallSize), 0.0f);
 					
 					pBallCore->PlayerHit();
 					
@@ -1488,7 +1490,7 @@ void CBallCore::Reset()
 	m_Angle = 0.0f;
 	m_AngleForce = 0.0f;
 	m_Status = 0;
-	m_Status |= 1 << BALLSTATUS_STATIONARY;
+	//m_Status |= 1 << BALLSTATUS_STATIONARY;
 	m_ForceCoreSend = false;
 	m_TriggeredEvents = 0;
 }
@@ -1504,10 +1506,11 @@ void CBallCore::PlayerHit()
 
 void CBallCore::Tick()
 {
+	m_TriggeredEvents = 0;
+	
 	if (m_Status & (1<<BALLSTATUS_STATIONARY))
 		return;
 	
-	m_TriggeredEvents = 0;
 	m_Vel.y += 0.5f;
 }
 
@@ -1516,15 +1519,17 @@ void CBallCore::Move()
 	if (m_Status & (1<<BALLSTATUS_STATIONARY))
 		return;
 	
+	float BallSize = m_pWorld->m_Tuning.m_BallSize;
+	
 	bool Grounded = false;
-	if (m_pCollision->CheckPoint(m_Pos.x+27, m_Pos.y+27+5))
+	if (m_pCollision->CheckPoint(m_Pos.x+BallSize/2, m_Pos.y+BallSize/2+5))
 		Grounded = true;
-	else if (m_pCollision->CheckPoint(m_Pos.x-27, m_Pos.y+27+5))
+	else if (m_pCollision->CheckPoint(m_Pos.x-BallSize/2, m_Pos.y+BallSize/2+5))
 		Grounded = true;
 	
-	int OnForceTile = m_pCollision->IsForceTile(m_Pos.x-27, m_Pos.y+27+5);
+	int OnForceTile = m_pCollision->IsForceTile(m_Pos.x-BallSize/2, m_Pos.y+BallSize/2+5);
 	if (OnForceTile == 0)
-		OnForceTile = m_pCollision->IsForceTile(m_Pos.x+27, m_Pos.y+27+5);
+		OnForceTile = m_pCollision->IsForceTile(m_Pos.x+BallSize/2, m_Pos.y+BallSize/2+5);
 	
 	if (Grounded)
 	{
@@ -1541,8 +1546,9 @@ void CBallCore::Move()
 		m_AngleForce *= 0.99f;
 	}
 	
+	vec2 NewPos = m_Pos;
 	vec2 OldVel = m_Vel;
-	m_pCollision->MoveBox(&m_Pos, &m_Vel, vec2(54.0f, 54.0f), 0.8f);
+	m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(BallSize, BallSize), 0.8f);
 	
 
 	if ((((OldVel.x < 0 && m_Vel.x > 0) || (OldVel.x > 0 && m_Vel.x < 0)) && abs(m_Vel.x) > 3.0f) ||
@@ -1550,6 +1556,8 @@ void CBallCore::Move()
 		m_TriggeredEvents |= COREEVENT_BALL_BOUNCE;
 	
 	m_Angle += clamp(m_AngleForce*0.04f, -0.3f, 0.3f);
+	
+	m_Pos = NewPos;
 }
 
 void CBallCore::Write(CNetObj_BallCore *pObjCore)
