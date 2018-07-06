@@ -1280,6 +1280,7 @@ void CCharacterCore::Move()
 					vec2 BVel = -vec2(cos(theta), sin(theta)) * overlap;
 					m_pCollision->MoveBox(&pBallCore->m_Pos, &BVel, vec2(54.0f, 54.0f), 0.0f);
 					
+					pBallCore->m_ForceCoreSend = true;
 					
 					BPos = pBallCore->m_Pos;
 					D = distance(Pos, BPos);
@@ -1487,6 +1488,7 @@ void CBallCore::Reset()
 	m_Angle = 0.0f;
 	m_AngleForce = 0.0f;
 	m_Status = 0;
+	m_ForceCoreSend = false;
 }
 
 void CBallCore::Tick()
@@ -1539,7 +1541,9 @@ void CBallCore::Write(CNetObj_BallCore *pObjCore)
 	pObjCore->m_VelX = round_to_int(m_Vel.x*256.0f);
 	pObjCore->m_VelY = round_to_int(m_Vel.y*256.0f);
 	
-	pObjCore->m_Angle = (int)(m_Angle*256.0f);
+	pObjCore->m_Angle = round_to_int(m_Angle*256.0f);
+	pObjCore->m_AngleForce = round_to_int(m_AngleForce*256.0f);
+	
 	pObjCore->m_Status = m_Status;
 }
 
@@ -1550,6 +1554,9 @@ void CBallCore::Read(const CNetObj_BallCore *pObjCore)
 	
 	m_Vel.x = pObjCore->m_VelX/256.0f;
 	m_Vel.y = pObjCore->m_VelY/256.0f;
+	
+	m_Angle = pObjCore->m_Angle/256.0f;
+	m_AngleForce = pObjCore->m_AngleForce/256.0f;
 	
 	m_Status = pObjCore->m_Status;
 }

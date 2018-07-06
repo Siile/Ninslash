@@ -315,6 +315,7 @@ Objects = [
 		NetIntAny("m_VelX"),
 		NetIntAny("m_VelY"),
 		NetIntAny("m_Angle"),
+		NetIntAny("m_AngleForce"),
 		NetIntAny("m_Status"),
 	]),
 	

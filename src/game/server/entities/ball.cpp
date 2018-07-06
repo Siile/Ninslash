@@ -11,6 +11,7 @@ CBall::CBall(CGameWorld *pWorld)
 : CEntity(pWorld, CGameWorld::ENTTYPE_BALL)
 {
 	m_ProximityRadius = ms_PhysSize;
+	m_ForceCoreSend = false;
 }
 
 
@@ -48,6 +49,12 @@ void CBall::Destroy()
 void CBall::Tick()
 {
 	m_Core.Tick();
+	
+	if (m_Core.m_ForceCoreSend)
+	{
+		m_Core.m_ForceCoreSend = false;
+		m_ForceCoreSend = true;
+	}
 }
 
 void CBall::TickDefered()
@@ -74,8 +81,9 @@ void CBall::TickDefered()
 		m_ReckoningCore.Write(&Predicted);
 		m_Core.Write(&Current);
 
-		if(m_ReckoningTick+Server()->TickSpeed()*0.5f < Server()->Tick() || mem_comp(&Predicted, &Current, sizeof(CNetObj_Ball)) != 0)
+		if(m_ForceCoreSend || m_ReckoningTick+Server()->TickSpeed()*0.5f < Server()->Tick() || mem_comp(&Predicted, &Current, sizeof(CNetObj_Ball)) != 0)
 		{
+			m_ForceCoreSend = false;
 			m_ReckoningTick = Server()->Tick();
 			m_SendCore = m_Core;
 			m_ReckoningCore = m_Core;

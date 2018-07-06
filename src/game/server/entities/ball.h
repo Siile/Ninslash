@@ -35,6 +35,7 @@ public:
 private:
 	// the player core for the physics
 	CBallCore m_Core;
+	bool m_ForceCoreSend;
 
 	// info for dead reckoning
 	int m_ReckoningTick; // tick that we are performing dead reckoning From

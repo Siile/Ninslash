@@ -262,6 +262,7 @@ public:
 	float m_Angle;
 	float m_AngleForce;
 	int m_Status;
+	bool m_ForceCoreSend;
 	
 	CBallCore();
 	void Init(CWorldCore *pWorld, CCollision *pCollision);

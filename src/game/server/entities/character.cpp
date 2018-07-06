@@ -1,5 +1,3 @@
-
-
 #include <new>
 #include <engine/shared/config.h>
 #include <game/server/gamecontext.h>
