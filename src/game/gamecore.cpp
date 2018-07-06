@@ -1489,10 +1489,12 @@ void CBallCore::Reset()
 	m_AngleForce = 0.0f;
 	m_Status = 0;
 	m_ForceCoreSend = false;
+	m_TriggeredEvents = 0;
 }
 
 void CBallCore::Tick()
 {
+	m_TriggeredEvents = 0;
 	m_Vel.y += 0.5f;
 }
 
@@ -1520,9 +1522,16 @@ void CBallCore::Move()
 	{
 		//m_Vel.x *= 0.99f;
 		//m_Vel.y *= 0.99f;
+		m_AngleForce *= 0.99f;
 	}
 	
+	vec2 OldVel = m_Vel;
 	m_pCollision->MoveBox(&m_Pos, &m_Vel, vec2(54.0f, 54.0f), 0.8f);
+	
+
+	if ((((OldVel.x < 0 && m_Vel.x > 0) || (OldVel.x > 0 && m_Vel.x < 0)) && abs(m_Vel.x) > 3.0f) ||
+		(((OldVel.y < 0 && m_Vel.y > 0) || (OldVel.y > 0 && m_Vel.y < 0)) && abs(m_Vel.y) > 3.0f))
+		m_TriggeredEvents |= COREEVENT_BALL_BOUNCE;
 	
 	m_Angle += clamp(m_AngleForce*0.04f, -0.3f, 0.3f);
 }

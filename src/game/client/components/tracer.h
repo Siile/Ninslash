@@ -137,8 +137,8 @@ struct CTrace
 		{
 			m_Parts = 24;
 			m_Speed = 3.0f;
-			m_Size1 = 28.0f;
-			m_Size2 = 0.0f;
+			m_Size1 = 40.0f;
+			m_Size2 = 20.0f;
 			m_LifeSpan = 1.5f;
 			m_Color = vec4(0.5f, 0.75f, 1.0f, 0.4f);
 			return;

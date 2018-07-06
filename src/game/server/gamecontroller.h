@@ -1,5 +1,3 @@
-
-
 #ifndef GAME_SERVER_GAMECONTROLLER_H
 #define GAME_SERVER_GAMECONTROLLER_H
 
@@ -65,6 +63,7 @@ protected:
 	int m_Round;
 	int m_GameState;
 	
+	class CBall *m_pBall;
 	
 	//
 	CGameContext *GameServer() const { return m_pGameServer; }
@@ -142,6 +141,9 @@ public:
 	virtual void TriggerBomb();
 	virtual void DisarmBomb();
 	virtual void ReactorDestroyed();
+	
+	virtual void AddMapArea(int Team, vec2 Pos);
+	virtual bool InMapArea(int Team, vec2 Pos);
 	
 	virtual void OnSurvivalTimeOut();
 	

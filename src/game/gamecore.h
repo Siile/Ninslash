@@ -209,6 +209,7 @@ enum
 	COREEVENT_GROUND_JUMP=0x01,
 	COREEVENT_AIR_JUMP=0x02,
 	COREEVENT_SLIDEKICK=0x04,
+	COREEVENT_BALL_BOUNCE=0x08,
 };
 
 
@@ -263,6 +264,8 @@ public:
 	float m_AngleForce;
 	int m_Status;
 	bool m_ForceCoreSend;
+	
+	int m_TriggeredEvents;
 	
 	CBallCore();
 	void Init(CWorldCore *pWorld, CCollision *pCollision);

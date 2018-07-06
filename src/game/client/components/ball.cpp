@@ -94,7 +94,9 @@ void CBalls::RenderBall(const CNetObj_Ball *pPrevBall, const CNetObj_Ball *pBall
 	//IGraphics::CQuadItem QuadItem(Ball.m_X, Ball.m_Y, 48, 48);
 	Graphics()->QuadsDraw(&QuadItem, 1);
 	Graphics()->QuadsEnd();
-		
+	
+	m_pClient->m_pTracers->Add(8, -609, Position, Position, 0, 0);
+	
 	/*
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_EMOTICONS].m_Id);
 		Graphics()->QuadsBegin();

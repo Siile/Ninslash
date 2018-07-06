@@ -1397,6 +1397,17 @@ void CGameClient::OnPredict()
 			m_LastNewPredictedTick = Tick;
 			m_NewPredictedTick = true;
 
+			// ball events
+			if (World.m_pBall)
+			{
+				vec2 Pos = World.m_pBall->m_Pos;
+				int Events = World.m_pBall->m_TriggeredEvents;
+				
+				if(Events&COREEVENT_BALL_BOUNCE)
+					g_GameClient.m_pSounds->PlayAndRecord(CSounds::CHN_WORLD, SOUND_PLAYER_JUMP, 1.0f, Pos);
+			}
+			
+			// player events
 			if(m_Snap.m_LocalClientID != -1 && World.m_apCharacters[m_Snap.m_LocalClientID])
 			{
 				vec2 Pos = World.m_apCharacters[m_Snap.m_LocalClientID]->m_Pos;

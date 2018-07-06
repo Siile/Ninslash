@@ -11,6 +11,7 @@
 #include <game/gamecore.h> 
 #include "gamemodes/dm.h"
 #include "gamemodes/cs.h"
+#include "gamemodes/ball.h"
 #include "gamemodes/tdm.h"
 #include "gamemodes/ctf.h"
 #include "gamemodes/run.h"
@@ -2674,6 +2675,8 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		m_pController = new CGameControllerBase(this);
 	else if(str_comp(g_Config.m_SvGametype, "coop") == 0)
 		m_pController = new CGameControllerCoop(this);
+	else if(str_comp(g_Config.m_SvGametype, "ball") == 0)
+		m_pController = new CGameControllerBall(this);
 	else
 		m_pController = new CGameControllerDM(this);
 	

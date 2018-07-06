@@ -58,6 +58,7 @@ IGameController::IGameController(class CGameContext *pGameServer)
 	m_ClearBroadcastTick = 0;
 	
 	m_BombStatus = 0;
+	m_pBall = 0;
 	
 	// custom
 	for (int i = 0; i < MAX_PICKUPS; i++)
@@ -212,6 +213,7 @@ void IGameController::ReleaseWeapon(class CWeapon *pWeapon)
 	if (p)
 		p->ReleaseWeapon(pWeapon);
 }
+
 
 void IGameController::ClearPickups()
 {
@@ -875,8 +877,22 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 			//Type = POWERUP_WEAPON;
 			//SubType = GetStaticWeapon(SW_BALL);
 			
-			CBall *pBall = new CBall(&GameServer()->m_World);
-			pBall->Spawn(Pos);
+			if (!m_pBall)
+			{
+				m_pBall = new CBall(&GameServer()->m_World);
+				m_pBall->Spawn(Pos);
+			}
+			else return false;
+		}
+		else if(Index == ENTITY_RED_AREA)
+		{
+			AddMapArea(TEAM_RED, Pos);
+			return true;
+		}
+		else if(Index == ENTITY_BLUE_AREA)
+		{
+			AddMapArea(TEAM_BLUE, Pos);
+			return true;
 		}
 	}
 
@@ -899,6 +915,19 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		return true;
 	}
 
+	return false;
+}
+
+
+
+void IGameController::AddMapArea(int Team, vec2 Pos)
+{
+	
+}
+
+
+bool IGameController::InMapArea(int Team, vec2 Pos)
+{
 	return false;
 }
 
