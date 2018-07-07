@@ -11,12 +11,14 @@
 #include <game/gamecore.h> 
 #include "gamemodes/dm.h"
 #include "gamemodes/cs.h"
+#include "gamemodes/ball.h"
 #include "gamemodes/tdm.h"
 #include "gamemodes/ctf.h"
 #include "gamemodes/run.h"
 #include "gamemodes/base.h"
 #include "gamemodes/texasrun.h"
 
+#include <game/server/entities/ball.h>
 #include <game/server/entities/block.h>
 #include <game/server/entities/pickup.h>
 #include <game/server/entities/projectile.h>
@@ -253,7 +255,7 @@ int CGameContext::CreateDeathray(vec2 Pos)
 
 bool CGameContext::BuildableSpot(vec2 Pos)
 {
-	if (Collision()->GetCollisionAt(Pos.x, Pos.y)&CCollision::COLFLAG_SOLID)
+	if (Collision()->GetCollisionAt(Pos.x, Pos.y)&CCollision::COLFLAG_SOLID || !Collision()->CanBuildBlock(Pos))
 		return false;
 	
 	// todo: other entities
@@ -479,6 +481,15 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 	float ProximityRadius = GetMeleeHitRadius(Weapon);
 	float Damage = GetProjectileDamage(Weapon);
 	
+	// melee damage mask
+	if (GetStaticType(Weapon) != SW_FLAMER)
+	{
+		CCharacter *pChr = GetPlayerChar(DamageOwner);
+		
+		if (pChr && pChr->GetMask() == 5)
+			Dmg *= 1.5f;
+	}
+	
 	//AddBlock(1, Pos);
 	
 	// for testing the collision
@@ -510,7 +521,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			}
 			else
 			{
-				if (GetStaticType(Weapon) == SW_CHAINSAW || GetStaticType(Weapon) == SW_TOOL)
+				if (GetStaticType(Weapon) == SW_CHAINSAW || (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_TOOL))
 					CreateEffect(FX_BLOOD2, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
 				else
 					CreateEffect(FX_BLOOD1, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
@@ -524,7 +535,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 		}
 	}
 	
-	if (GetStaticType(Weapon) == SW_TOOL)
+	if (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_TOOL)
 		Damage *= -2;
 	
 	if (GetStaticType(Weapon) == SW_FLAMER)
@@ -557,7 +568,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			{
 				if (GetStaticType(Weapon) == SW_FLAMER)
 					;
-				else if (GetStaticType(Weapon) == SW_CHAINSAW || GetStaticType(Weapon) == SW_TOOL)
+				else if (GetStaticType(Weapon) == SW_CHAINSAW || (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_TOOL))
 					CreateEffect(FX_BLOOD2, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
 				else
 					CreateEffect(FX_BLOOD1, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
@@ -589,7 +600,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			
 			if (GetStaticType(Weapon) == SW_FLAMER)
 				;
-			else if (GetStaticType(Weapon) == SW_CHAINSAW || GetStaticType(Weapon) == SW_TOOL)
+			else if (GetStaticType(Weapon) == SW_CHAINSAW || (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_TOOL))
 				CreateEffect(FX_BLOOD2, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
 			else
 				CreateEffect(FX_BLOOD1, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
@@ -623,7 +634,7 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int Charge, vec
 	
 	if (IsStaticWeapon(Weapon))
 	{
-		if (GetStaticType(Weapon) == SW_SHURIKEN || GetStaticType(Weapon) == SW_CHAINSAW || GetStaticType(Weapon) == SW_TOOL)
+		if (GetStaticType(Weapon) == SW_SHURIKEN || GetStaticType(Weapon) == SW_CHAINSAW || (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_TOOL))
 		{
 			CreateMeleeHit(DamageOwner, Weapon, Dmg, Pos, Direction);
 			return;
@@ -821,6 +832,22 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon)
 						
 		if((int)Dmg && Dmg > 0.0f)
 			apBuildings[i]->TakeDamage((int)Dmg*Dmg2, Owner, Weapon, ForceDir*Dmg*0.3f);
+	}
+	
+	// ball
+	if (m_pController->m_pBall)
+	{
+		vec2 BPos = m_pController->m_pBall->m_Pos;
+		vec2 Diff = BPos - Pos - vec2(0, 8);
+		vec2 ForceDir(0,1);
+		float l = length(Diff);
+		if(l)
+			ForceDir = normalize(Diff);
+		l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
+		float Dmg = GetExplosionDamage(Weapon) * l;
+							
+		if((int)Dmg && Dmg > 0.0f)
+			m_pController->m_pBall->AddForce(ForceDir*Dmg*0.3f); //
 	}
 	
 	{
@@ -1288,7 +1315,6 @@ void CGameContext::OnTick()
 
 	// copy tuning
 	m_World.m_Core.m_Tuning = m_Tuning;
-	m_World.m_Core.ClearMonsters();
 	m_World.m_Core.ClearImpacts();
 	m_World.Tick();
 
@@ -2666,6 +2692,8 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		m_pController = new CGameControllerBase(this);
 	else if(str_comp(g_Config.m_SvGametype, "coop") == 0)
 		m_pController = new CGameControllerCoop(this);
+	else if(str_comp(g_Config.m_SvGametype, "ball") == 0)
+		m_pController = new CGameControllerBall(this);
 	else
 		m_pController = new CGameControllerDM(this);
 	

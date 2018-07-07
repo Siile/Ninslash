@@ -5,6 +5,7 @@
 #include "entity.h"
 #include "gamecontext.h"
 #include "entities/turret.h"
+#include "entities/ball.h"
 #include "entities/building.h"
 #include "entities/droid.h"
 
@@ -301,6 +302,26 @@ CBuilding *CGameWorld::IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec
 }
 
 
+CBall *CGameWorld::IntersectBall(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos)
+{
+	float ClosestLen = distance(Pos0, Pos1) * 100.0f;
+	CDroid *pClosest = 0;
+
+	if (!GameServer()->m_pController->m_pBall)
+		return NULL;
+	
+	CBall *pBall = GameServer()->m_pController->m_pBall;
+	
+	vec2 IntersectPos = closest_point_on_line(Pos0, Pos1, pBall->m_Pos);
+	float Len = distance(pBall->m_Pos, IntersectPos);
+	
+	if(Len < pBall->m_ProximityRadius+Radius)
+		return pBall;
+
+	return NULL;
+}
+
+
 CDroid *CGameWorld::IntersectWalker(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos)
 {
 	float ClosestLen = distance(Pos0, Pos1) * 100.0f;
@@ -428,7 +449,7 @@ CCharacter *CGameWorld::GetFriendlyCharacterInBox(vec2 TopLeft, vec2 BotRight, i
 }
 
 
-CCharacter *CGameWorld::IntersectScythe(vec2 Pos0, vec2 Pos1, float Radius, vec2& NewPos, CEntity *pNotThis)
+CCharacter *CGameWorld::IntersectReflect(vec2 Pos0, vec2 Pos1, float Radius, vec2& NewPos, CEntity *pNotThis)
 {
 	// Find other players
 	float ClosestLen = distance(Pos0, Pos1) * 100.0f;
@@ -457,7 +478,7 @@ CCharacter *CGameWorld::IntersectScythe(vec2 Pos0, vec2 Pos1, float Radius, vec2
 			}
 		}
 
-		if (!p->ScytheReflect())
+		if (!p->Reflect())
 			continue;
 		
 		vec2 IntersectPos = closest_point_on_line(Pos0, Pos1, p->m_Pos);
@@ -466,8 +487,8 @@ CCharacter *CGameWorld::IntersectScythe(vec2 Pos0, vec2 Pos1, float Radius, vec2
 		//if (abs(GetAngle(normalize(p->m_Pos - IntersectPos)) - GetAngle(normalize(p->GetVel()))) > pi/4.0f)
 		//	continue;
 		
-		float Len = distance(p->m_Pos + vec2(0, -10), IntersectPos);
-		if(Len < p->m_ProximityRadius+Radius+p->GetWeaponPowerLevel()*10.0f)
+		float Len = distance(p->m_Pos + vec2(0, -32), IntersectPos);
+		if(Len < p->m_ProximityRadius+Radius)
 		{
 			Len = distance(Pos0, IntersectPos);
 			if(Len < ClosestLen)

@@ -1,5 +1,3 @@
-
-
 #ifndef GAME_CLIENT_GAMECLIENT_H
 #define GAME_CLIENT_GAMECLIENT_H
 
@@ -133,6 +131,9 @@ public:
 	CCharacterCore m_PredictedPrevChar;
 	CCharacterCore m_PredictedChar;
 
+	CBallCore m_PredictedPrevBall;
+	CBallCore m_PredictedBall;
+	
 	// snap pointers
 	struct CSnapState
 	{
@@ -153,10 +154,6 @@ public:
 		int m_LocalClientID;
 		int m_NumPlayers;
 		int m_aTeamSize[2];
-
-		// monster positions
-		int m_MonsterCount;
-		vec2 m_aMonsterPos[MAX_DROIDS];
 		
 		// jumppad positions
 		int m_ImpactCount;
@@ -185,6 +182,21 @@ public:
 		};
 
 		CCharacterInfo m_aCharacters[MAX_CLIENTS];
+		
+		//
+		struct CBallInfo
+		{
+			bool m_Active;
+			
+			// snapshots
+			CNetObj_Ball m_Prev;
+			CNetObj_Ball m_Cur;
+
+			// interpolated position
+			vec2 m_Position;
+		};
+
+		CBallInfo m_Ball;
 	};
 
 	CSnapState m_Snap;
@@ -226,7 +238,7 @@ public:
 	};
 
 	CClientData m_aClients[MAX_CLIENTS];
-
+	
 	CRenderTools m_RenderTools;
 
 	void AddPlayerSplatter(vec2 Pos, vec4 Color);

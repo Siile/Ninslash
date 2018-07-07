@@ -10,6 +10,7 @@ class CCharacterCore;
 class CCollision
 {
 	friend class CCharacterCore;
+	friend class CBallCore;
 	class CTile *m_pTiles;
 	int m_Width;
 	int m_Height;
@@ -125,6 +126,9 @@ public:
 	int GetCollisionAt(float x, float y) { return GetTile(round_to_int(x), round_to_int(y)); }
 	
 	int IsInFluid(float x, float y);
+	
+	bool CanBuildBlock(int x, int y);
+	bool CanBuildBlock(vec2 Pos) { return CanBuildBlock(round_to_int(Pos.x), round_to_int(Pos.y)); }
 	
 	int GetWidth() { return m_Width; };
 	int GetHeight() { return m_Height; };

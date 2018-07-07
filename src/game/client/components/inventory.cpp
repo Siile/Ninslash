@@ -290,7 +290,7 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 	int ScreenX = int(ScreenX1-ScreenX0);
 	int ScreenY = int(ScreenY1-ScreenY0);
 	
-	Pos += vec2(-ScreenX/4, ScreenY/4)*(1.0f - m_Scale);
+	Pos += vec2(-ScreenX/8, ScreenY/4)*(1.0f - m_Scale);
 	
 	vec2 Tab1Pos = Pos + vec2(-Size.x*0.8f, -Size.y*1.125f);
 	vec2 Tab2Pos = Pos + vec2(-Size.x*0.47f, -Size.y*1.125f);
@@ -641,6 +641,28 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 		Graphics()->QuadsEnd();
 	}
 
+	
+	TextRender()->TextColor(0.9f, 0.9f, 0.9f, 1);
+	
+	// hint texts
+	for (int x = 0; x < 4; x++)
+	{
+		for (int y = 0; y < 3; y++)
+		{
+			float s = 112 * s_Fade * (m_Scale*0.75f + 0.25f);
+			float s2 = s*0.5f;
+			vec2 GSize = Size - vec2(8, 8);
+			vec2 p = Pos-GSize + vec2(x+0.5f, y+0.5f)*GSize/vec2(4, 3)*2;
+			
+			if (x+y*4 == Selected && CustomStuff()->m_aItem[Selected] > 0 && abs(m_SelectorMouse.x - p.x) < s2 && abs(m_SelectorMouse.y - p.y) < s2)
+			{
+				if (IsStaticWeapon(CustomStuff()->m_aItem[Selected]))
+					TextRender()->Text(0, p.x-s2*0.8f, p.y-s2, s2*0.25f, s_TipText[GetStaticType(CustomStuff()->m_aItem[Selected])], -1);
+			}
+		}
+	}
+	
+	TextRender()->TextColor(1, 1, 1, 1);
 	
 	// selected weapon / crafting
 	/*
@@ -1188,6 +1210,9 @@ void CInventory::DrawBuildMode()
 		
 		if (!Collision()->IsTileSolid(Pos.x, Pos.y) && (Top || Bot || Left || Right))
 			Valid = true;
+		
+		if (!Collision()->CanBuildBlock(Pos))
+			Valid = false;
 	}
 					
 	// not too close to other buildings
@@ -1808,6 +1833,9 @@ void CInventory::OnRender()
 	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
 	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
 	
+	int ScreenX = int(ScreenX1-ScreenX0);
+	int ScreenY = int(ScreenY1-ScreenY0);
+	
 	m_SelectorMouse.x = clamp(m_SelectorMouse.x, -ScreenX1, ScreenX1-20);
 	m_SelectorMouse.y = clamp(m_SelectorMouse.y, -ScreenY1, ScreenY1-20);
 
@@ -1815,10 +1843,8 @@ void CInventory::OnRender()
 		m_Mouse1Loaded = true;
 	
 	// gui
-	//DrawInventory(vec2(-Screen.w/3, Screen.h/4), vec2(Screen.w/4, Screen.h/3));
-	//DrawInventory(vec2(-Screen.w/3, Screen.h/4), vec2(Screen.w/4, Screen.h/3));
-	
-	DrawInventory(vec2(-ScreenX1/2, ScreenY1/3), vec2(ScreenX1/3, ScreenY1/2));
+	//DrawInventory(vec2(-ScreenX1/2, ScreenY1/3), vec2(ScreenX1/3, ScreenY1/2));
+	DrawInventory(vec2(-ScreenX/3.5f, ScreenY/6), vec2(ScreenX/6, ScreenY/4));
 	DrawBuildMode();
 
 	/*

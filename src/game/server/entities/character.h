@@ -145,6 +145,7 @@ public:
 	int m_WeaponSlot;
 	int m_WantedSlot;
 	
+	int GetMask();
 	
 	bool AddClip(int Weapon = -1);
 	
@@ -232,7 +233,7 @@ public:
 	
 	int m_Kits;
 	
-	bool ScytheReflect();
+	bool Reflect();
 	bool m_DamagedByPlayer;
 	
 	int GetArmor() { return m_Armor; }
@@ -264,6 +265,8 @@ private:
 	int m_LastStatusEffect;
 	
 	int m_PrevWeapon;
+	
+	int m_MaskEffectTick;
 	
 	int m_aStatus[NUM_STATUSS];
 	int m_aStatusFrom[NUM_STATUSS];

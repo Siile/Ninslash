@@ -1,5 +1,3 @@
-
-
 #include <new>
 #include <engine/shared/config.h>
 #include <game/server/gamecontext.h>
@@ -96,6 +94,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_Spawned = true;
 	m_DamagedByPlayer = false;
 	m_PickedWeaponSlot = 0;
+	m_MaskEffectTick = 0;
 	
 	for (int i = 0; i < NUM_PLAYERITEMS; i++)
 		m_aItem[i] = 0;
@@ -202,7 +201,9 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_FLAMER));
 	*/
 	
-	//m_apWeapon[0] = GameServer()->NewWeapon(GetStaticWeapon(SW_GUN1));
+	//m_apWeapon[0] = GameServer()->NewWeapon(GetModularWeapon(3, 1));
+	//m_apWeapon[1] = GameServer()->NewWeapon(GetStaticWeapon(SW_BALL));
+	//m_apWeapon[2] = GameServer()->NewWeapon(GetStaticWeapon(SW_MASK5));
 	//m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 6));
 	
 	GiveStartWeapon();
@@ -247,8 +248,11 @@ void CCharacter::RandomizeInventory()
 		
 		if (!m_apWeapon[j] || j == m_WeaponSlot)
 			continue;
-		
+	
 		bool CanSwitch = true;
+		
+		int wt = GetStaticType(GetWeaponType(j));
+		if (i == 0 && (wt == SW_BOMB || (wt >= SW_MASK1 && wt <= SW_MASK5)))
 		
 		if ((m_apWeapon[i] && !m_apWeapon[i]->CanSwitch()) || (m_apWeapon[j] && !m_apWeapon[j]->CanSwitch()))
 			CanSwitch = false;
@@ -987,10 +991,13 @@ void CCharacter::Jumppad()
 
 
 
-bool CCharacter::ScytheReflect()
+bool CCharacter::Reflect()
 {
 	//if (m_ScytheTick > Server()->Tick()-Server()->TickSpeed()*0.2f)
 	//	return true;
+
+	if (GetMask() == 3 && frandom() < 0.6f)
+		return true;
 
 	return false;
 }
@@ -1310,14 +1317,6 @@ void CCharacter::SelectItem(int Item)
 	if (m_aItem[Item] <= 0)
 		return;
 	
-	/*
-	if (Item == PLAYERITEM_HEAL && m_aStatus[STATUS_HEAL] <= 0)
-	{
-		m_aStatus[STATUS_HEAL] = Server()->TickSpeed() * 0.75f;
-		m_aItem[Item]--;
-	}
-	*/
-
 	if (Item == PLAYERITEM_RAGE && m_aStatus[STATUS_DASH] <= 0)
 	{
 		m_aStatus[STATUS_DASH] = Server()->TickSpeed() * 20.0f;
@@ -1371,17 +1370,6 @@ bool CCharacter::GiveBuff(int Item)
 	if (Item == PLAYERITEM_UPGRADE)
 		return UpgradeWeapon();
 		
-	//if (Item == PLAYERITEM_HEAL)
-	//	m_aStatus[STATUS_HEAL] = Server()->TickSpeed() * 0.75f;
-
-	/*
-	if (Item == PLAYERITEM_RAGE)
-		m_aStatus[STATUS_DASH] = Server()->TickSpeed() * 20.0f;
-	
-	if (Item == PLAYERITEM_FUEL)
-		m_aStatus[STATUS_FUEL] = Server()->TickSpeed() * 20.0f;
-	*/
-	
 	if (Item == PLAYERITEM_SHIELD)
 	{
 		if (m_aStatus[STATUS_SHIELD] > 0)
@@ -1419,6 +1407,18 @@ void CCharacter::GiveRandomBuff()
 }
 
 
+int CCharacter::GetMask()
+{
+	for (int i = 0; i < 4; i++)
+	{
+		int w = GetStaticType(GetWeaponType(i));
+		if (w >= SW_MASK1 && w <= SW_MASK5 && GetWeaponSlot() != i)
+			return w-(SW_MASK1-1);
+	}
+	
+	return 0;
+}
+
 
 void CCharacter::UpdateCoreStatus()
 {
@@ -1435,11 +1435,6 @@ void CCharacter::UpdateCoreStatus()
 		m_ShieldHealth = 0;
 		m_aStatus[STATUS_SHIELD] = 0;
 		m_ShieldRadius = 0;
-	}
-	
-	if (m_aStatus[STATUS_HEAL] > 0)
-	{
-		IncreaseHealth(2);
 	}
 	
 	// check if carrying bomb (reactor defense)
@@ -1460,6 +1455,10 @@ void CCharacter::UpdateCoreStatus()
 	else
 		m_aStatus[STATUS_BOMBCARRIER] = 0;
 	
+	/*
+	m_aStatus[STATUS_MASK1] = 10;
+	m_aStatus[STATUS_MASK2] = 10;
+	*/
 	
 	// pack statuses
 	for (int i = 0; i < NUM_STATUSS; i++)
@@ -1471,6 +1470,8 @@ void CCharacter::UpdateCoreStatus()
 		}
 	}
 	
+	// store mask to status
+	m_Core.m_Status |= GetMask() << STATUS_MASK1;
 	
 	if (g_Config.m_SvUnlimitedTurbo)
 		m_Core.m_JetpackPower = 200;
@@ -1537,6 +1538,38 @@ void CCharacter::Tick()
 		GameServer()->m_pController->m_BombStatus = BOMB_CARRIED;
 	}
 	
+	if (GetMask() == 1)
+	{
+		if (!m_MaskEffectTick || m_MaskEffectTick < Server()->Tick())
+		{
+			IncreaseHealth(1);
+			m_MaskEffectTick = Server()->Tick()+Server()->TickSpeed()*0.5f;
+		}
+	}
+	else
+		m_MaskEffectTick = 0;
+	
+	
+	if (g_Config.m_SvInfiniteGrenades)
+	{
+		bool GotGrenade = false;
+		
+		for (int w = 0; w < 4; w++)
+		{
+			if (GetStaticType(GetWeaponType(w)) == SW_GRENADE1)
+				GotGrenade = true;
+		}
+		
+		if (!GotGrenade)
+		{
+			int Slot = rand()%4;
+			if (GetWeaponType(Slot) == 0 && Slot != GetWeaponSlot())
+			{
+				m_apWeapon[Slot] = GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1));
+				SendInventory();
+			}
+		}
+	}
 	
 	/*
 	if(m_pPlayer->m_ForceBalanced)
@@ -1767,6 +1800,10 @@ bool CCharacter::IncreaseHealth(int Amount)
 {
 	if(m_HiddenHealth >= m_MaxHealth)
 		return false;
+	
+	if (GetMask() == 4)
+		Amount *= 2;
+	
 	m_HiddenHealth = clamp(m_HiddenHealth+Amount, 0, m_MaxHealth);
 	
 	//GetPlayer()->m_InterestPoints += 40;
@@ -1831,8 +1868,6 @@ bool CCharacter::AddKit()
 }
 
 
-
-// use armor points as clips
 bool CCharacter::AddClip(int Weapon)
 {
 	if (GetWeapon() && GetWeapon()->AddClip())
@@ -1847,6 +1882,17 @@ bool CCharacter::AddClip(int Weapon)
 
 bool CCharacter::IncreaseAmmo(int Amount)
 {
+	if (GetMask() == 4)
+	{
+		if (AddClip())
+		{
+			AddClip();
+			return true;
+		}
+		
+		return false;
+	}
+	
 	return AddClip();
 }
 
@@ -1856,6 +1902,9 @@ bool CCharacter::IncreaseArmor(int Amount)
 	if(m_Armor >= 100)
 		return false;
 	
+	if (GetMask() == 4)
+		Amount *= 2;
+		
 	m_Armor = clamp(m_Armor+Amount, 0, 100);
 	return true;
 }
@@ -1864,6 +1913,19 @@ bool CCharacter::IncreaseArmor(int Amount)
 
 void CCharacter::ReleaseWeapons()
 {
+	// drop mask
+	for (int i = 0; i < 4; i++)
+	{
+		int w = GetStaticType(GetWeaponType(i));
+		
+		if (w >= SW_MASK1 && w <= SW_MASK5 && GetWeaponSlot() != i)
+		{
+			GameServer()->m_pController->DropWeapon(m_Pos+vec2(0, -16), (m_Core.m_Vel/1.7f + vec2(0, -3))*0.75f, m_apWeapon[i]);
+			m_apWeapon[i] = NULL;
+			break;
+		}
+	}
+	
 	for (int i = 0; i < NUM_SLOTS; i++)
 		if (m_apWeapon[i])
 		{

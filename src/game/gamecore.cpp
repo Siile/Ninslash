@@ -262,6 +262,8 @@ void CCharacterCore::Tick(bool UseInput)
 	float JetpackControlSpeed = 9.5f * ControlSpeed;
 	float JetpackControlAccel = 2.2f;
 	
+	float DashPower = float(m_pWorld->m_Tuning.m_DashPower);
+	
 	m_OnWall = false;
 	
 	// rage
@@ -286,6 +288,23 @@ void CCharacterCore::Tick(bool UseInput)
 		SlideControlSpeed *= 0.8f;
 		JetpackControlAccel *= 0.8f;
 		HandJetpackImpulse *= 0.8f;
+	}
+	
+	int Mask = m_Status>>STATUS_MASK1;
+	
+	if (Mask == 2)
+	{
+		Friction /= 1.1f;
+		MaxSpeed *= 1.15f;
+		Accel *= 1.1f;
+		JumpPower *= 1.15f;
+		WallrunPower *= 1.15f;
+		HandJetpackControlSpeed *= 1.15f;
+		HandJetpackImpulse *= 1.1f;
+		JetpackControlSpeed *= 1.15f;
+		SlideControlSpeed *= 1.15f;
+		JetpackControlAccel *= 1.1f;
+		DashPower *= 1.15f;
 	}
 	
 	
@@ -832,7 +851,7 @@ void CCharacterCore::Tick(bool UseInput)
 		m_DashTimer--;
 		
 		//vec2 d = GetDirection(m_DashAngle)*16.0f * vec2(-1, -1);
-		vec2 d = GetDirection(m_DashAngle)*max(length(m_Vel)*1.05f, float(m_pWorld->m_Tuning.m_DashPower));
+		vec2 d = GetDirection(m_DashAngle)*max(length(m_Vel)*1.05f, DashPower);
 		//m_Vel = d;
 		m_Vel += (d - m_Vel) / 3.0f;
 	}
@@ -900,29 +919,6 @@ void CCharacterCore::Tick(bool UseInput)
 			}
 		}
 		
-		// monster collision
-		/*
-		if (m_Roll == 0 && m_Slide == 0)
-		{
-			for(int i = 0; i < MAX_DROIDS; i++)
-			{
-				vec2 MonsterPos = m_pWorld->m_aMonsterPos[i];
-					
-				if(MonsterPos.x == 0)
-					continue;
-
-				// handle player <-> monster collision
-				float Distance = distance(m_Pos, MonsterPos);
-				vec2 Dir = normalize(m_Pos - MonsterPos);
-				if(Distance < PhysSize*1.65f && Distance > 0.0f)
-				{
-					//m_Status |= 1 << STATUS_ELECTRIC;
-					m_Vel = Dir*12.0f; // + vec2(0, -4);
-					m_MonsterDamage = true;
-				}
-			}
-		}
-		*/
 		
 		// jumppads
 		if (m_Action != COREACTION_JUMPPAD || (m_Action == COREACTION_JUMPPAD && m_ActionState > 12))
@@ -1023,11 +1019,6 @@ void CCharacterCore::Tick(bool UseInput)
 	s = m_Status;
 	if (s & (1<<STATUS_ELECTRIC))
 		m_Vel.x *= 0.85f;
-	
-	// infinite fuel effect
-	s = m_Status;
-	if (s & (1<<STATUS_FUEL))
-		m_JetpackPower = 200;
 	
 	// fluid collision
 	if (IsInFluid())
@@ -1192,13 +1183,13 @@ void CCharacterCore::Move()
 		m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(28.0f, 64.0f), 0, !m_Sliding);
 		NewPos.y += 18;
 		
-		int TopLeft = m_pCollision->CheckPoint(m_Pos.x-28.0f*0.5f, m_Pos.y-64.0f*0.5f);
-		int TopRight = m_pCollision->CheckPoint(m_Pos.x+28.0f*0.5f, m_Pos.y-64.0f*0.5f);
+		int TopLeft = m_pCollision->CheckPoint(m_Pos.x-28.0f*0.5f, m_Pos.y-(64.0f)*0.5f-18);
+		int TopRight = m_pCollision->CheckPoint(m_Pos.x+28.0f*0.5f, m_Pos.y-(64.0f)*0.5f-18);
 		
 		// unstuck jumpkick
-		if (TopLeft)
+		if (TopLeft && !TopRight)
 			NewPos.x += 1;
-		else if (TopRight)
+		else if (TopRight && !TopLeft)
 			NewPos.x -= 1;
 	}
 	else
@@ -1249,10 +1240,79 @@ void CCharacterCore::Move()
 	}
 	*/
 	
+	// ball collision
+	if (true)
+	{
+		// ball
+		CBallCore *pBallCore = m_pWorld->m_pBall;
+			
+		if (pBallCore)
+		{
+			float BallSize = m_pWorld->m_Tuning.m_BallSize;
 	
+			vec2 BPos = pBallCore->m_Pos;
+			float OffsetY = -32;
+			float Force = 1.0f;
+		
+			if (m_Action == COREACTION_SLIDEKICK && m_ActionState > 2 &&  m_ActionState < 10)
+			{
+				OffsetY = -16;
+				Force = 2.0f;
+			}
+			
+			if (m_Slide != 0 || m_Roll != 0)
+				OffsetY = -8;
+		
+			float Distance = distance(m_Pos, NewPos);
+			int End = Distance+1;
+			vec2 LastPos = m_Pos;
+		
+			for(int i = 0; i < End; i++)
+			{
+				float a = i/Distance;
+				vec2 Pos = mix(m_Pos, NewPos, a)+vec2(0, OffsetY);
+				
+				float D = distance(Pos, BPos);
+				
+				if (D <= BallSize*0.70f+16)
+				{
+					float theta = atan2((Pos.y - BPos.y), (Pos.x - BPos.x));
+					float overlap = BallSize*0.70f+16 - D;
+					
+					vec2 BVel = -vec2(cos(theta), sin(theta)) * overlap;
+					m_pCollision->MoveBox(&pBallCore->m_Pos, &BVel, vec2(BallSize, BallSize), 0.0f);
+					
+					pBallCore->PlayerHit();
+					
+					BPos = pBallCore->m_Pos;
+					D = distance(Pos, BPos);
+					
+					float theta1 = GetAngle(m_Vel);
+					float theta2 = GetAngle(pBallCore->m_Vel);
+					float phi = atan2(BPos.y - Pos.y, BPos.x - Pos.x);
+					float m1 = 1.0f;
+					float m2 = 0.5f;
+					float v1 = length(m_Vel);
+					float v2 = length(pBallCore->m_Vel);
+					
+					float dx1F = (v1 * cos(theta1 - phi) * (m1-m2) + 2*m2*v2*cos(theta2 - phi)) / (m1+m2) * cos(phi) + v1*sin(theta1-phi) * cos(phi+pi/2);
+					float dy1F = (v1 * cos(theta1 - phi) * (m1-m2) + 2*m2*v2*cos(theta2 - phi)) / (m1+m2) * sin(phi) + v1*sin(theta1-phi) * sin(phi+pi/2);
+					float dx2F = (v2 * cos(theta2 - phi) * (m2-m1) + 2*m1*v1*cos(theta1 - phi)) / (m1+m2) * cos(phi) + v2*sin(theta2-phi) * cos(phi+pi/2);
+					float dy2F = (v2 * cos(theta2 - phi) * (m2-m1) + 2*m1*v1*cos(theta1 - phi)) / (m1+m2) * sin(phi) + v2*sin(theta2-phi) * sin(phi+pi/2);
+
+					pBallCore->m_Vel = vec2(dx2F, dy2F);
+					m_Vel -= vec2(dx1F, dy1F)*0.1f;
+					break;
+				}
+				
+			}
+		}
+	}
+	
+	
+	// check player collision
 	if ((m_Action == COREACTION_SLIDEKICK && m_ActionState > 2 &&  m_ActionState < 10) || (m_pWorld && m_pWorld->m_Tuning.m_PlayerCollision && m_Roll == 0 && m_Slide == 0))
 	{
-		// check player collision
 		float Distance = distance(m_Pos, NewPos);
 		int End = Distance+1;
 		vec2 LastPos = m_Pos;
@@ -1260,6 +1320,7 @@ void CCharacterCore::Move()
 		{
 			float a = i/Distance;
 			vec2 Pos = mix(m_Pos, NewPos, a);
+			
 			for(int p = 0; p < MAX_CLIENTS; p++)
 			{
 				CCharacterCore *pCharCore = m_pWorld->m_apCharacters[p];
@@ -1318,44 +1379,7 @@ void CCharacterCore::Move()
 			LastPos = Pos;
 		}
 	}
-	
-	// monster collision
-	/*
-	if(m_pWorld)
-	{
-		float Distance = distance(m_Pos, NewPos);
-		int End = Distance+1;
-		vec2 LastPos = m_Pos;
-		for(int i = 0; i < End; i++)
-		{
-			float a = i/Distance;
-			vec2 Pos = mix(m_Pos, NewPos, a);
-			for(int p = 0; p < MAX_DROIDS; p++)
-			{
-				vec2 MonsterPos = m_pWorld->m_aMonsterPos[p];
-				
-				if(MonsterPos.x == 0)
-					continue;
-				
-				float D = distance(Pos, MonsterPos);
-				if(D < 28.0f && D > 0.0f)
-				{
-					if(a > 0.0f)
-						m_Pos = LastPos;
-					else if(distance(NewPos, MonsterPos) > D)
-						m_Pos = NewPos;
 
-					return;
-					
-					// for testing purposes
-					//m_Status |= 1 << STATUS_ELECTRIC;
-				}
-			}
-			LastPos = Pos;
-		}
-	}
-	*/
-	
 
 	m_Pos = NewPos;
 }
@@ -1438,6 +1462,153 @@ void CCharacterCore::Read(const CNetObj_CharacterCore *pObjCore)
 void CCharacterCore::Quantize()
 {
 	CNetObj_CharacterCore Core;
+	Write(&Core);
+	Read(&Core);
+}
+
+
+
+
+/*
+	- - - - - BALL - - - - -
+*/
+
+CBallCore::CBallCore()
+{
+	Init(NULL, NULL);
+}
+
+void CBallCore::Init(CWorldCore *pWorld, CCollision *pCollision)
+{
+	m_pWorld = pWorld;
+	m_pCollision = pCollision;
+}
+
+void CBallCore::Reset()
+{
+	m_Pos = vec2(0,0);
+	m_Vel = vec2(0,0);
+	m_Angle = 0.0f;
+	m_AngleForce = 0.0f;
+	m_Status = 0;
+	m_Status |= 1 << BALLSTATUS_STATIONARY;
+	m_ForceCoreSend = false;
+	m_TriggeredEvents = 0;
+}
+
+
+void CBallCore::PlayerHit()
+{
+	m_ForceCoreSend = true;
+	if (m_Status & (1<<BALLSTATUS_STATIONARY))
+		m_Status ^= 1 << BALLSTATUS_STATIONARY;
+}
+
+
+void CBallCore::Tick()
+{
+	m_TriggeredEvents = 0;
+	
+	if (m_Status & (1<<BALLSTATUS_STATIONARY))
+		return;
+	
+	m_Vel.y += 0.5f;
+}
+
+void CBallCore::Move()
+{
+	if (m_Status & (1<<BALLSTATUS_STATIONARY))
+		return;
+	
+	// limit speed
+	if (length(m_Vel) > 30.0f)
+		m_Vel = normalize(m_Vel)*30.0f;
+	
+	float BallSize = m_pWorld->m_Tuning.m_BallSize;
+	
+	bool Grounded = false;
+	if (m_pCollision->CheckPoint(m_Pos.x+BallSize/2, m_Pos.y+BallSize/2+5))
+		Grounded = true;
+	else if (m_pCollision->CheckPoint(m_Pos.x-BallSize/2, m_Pos.y+BallSize/2+5))
+		Grounded = true;
+	
+	int OnForceTile = m_pCollision->IsForceTile(m_Pos.x-BallSize/2, m_Pos.y+BallSize/2+5);
+	if (OnForceTile == 0)
+		OnForceTile = m_pCollision->IsForceTile(m_Pos.x+BallSize/2, m_Pos.y+BallSize/2+5);
+	
+	if (Grounded)
+	{
+		if (OnForceTile)
+			m_Vel.x = (m_Vel.x + OnForceTile*0.4f) * 0.925f;
+		
+		//m_Vel.x *= 0.8f;
+		m_AngleForce += (m_Vel.x- OnForceTile*0.55f*8.0f - m_AngleForce) / 2.0f;
+		m_Vel.x *= 0.99f;
+		m_Vel.y *= 0.99f;
+	}
+	else
+	{
+		//m_Vel.x *= 0.99f;
+		//m_Vel.y *= 0.99f;
+		m_AngleForce *= 0.99f;
+	}
+	
+	vec2 NewPos = m_Pos;
+	vec2 OldVel = m_Vel;
+	m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(BallSize, BallSize), 0.8f);
+	
+
+	if ((((OldVel.x < 0 && m_Vel.x > 0) || (OldVel.x > 0 && m_Vel.x < 0)) && abs(m_Vel.x) > 3.0f) ||
+		(((OldVel.y < 0 && m_Vel.y > 0) || (OldVel.y > 0 && m_Vel.y < 0)) && abs(m_Vel.y) > 3.0f))
+		m_TriggeredEvents |= COREEVENT_BALL_BOUNCE;
+	
+	m_Angle += clamp(m_AngleForce*0.04f, -0.3f, 0.3f);
+	
+	m_Pos = NewPos;
+}
+
+float CBallCore::BallSize()
+{
+	return m_pWorld->m_Tuning.m_BallSize;
+}
+
+void CBallCore::Write(CNetObj_BallCore *pObjCore)
+{
+	if (!m_pWorld || !m_pCollision || !m_pCollision->m_pTiles || !m_pCollision->m_pLayers)
+	{
+		dbg_msg("Error", "CCharacterCore::Write(): m_pWorld or m_pCollision are NULL!");
+		return;
+	}
+
+	pObjCore->m_X = round_to_int(m_Pos.x);
+	pObjCore->m_Y = round_to_int(m_Pos.y);
+	
+	pObjCore->m_VelX = round_to_int(m_Vel.x*256.0f);
+	pObjCore->m_VelY = round_to_int(m_Vel.y*256.0f);
+	
+	pObjCore->m_Angle = round_to_int(m_Angle*256.0f);
+	pObjCore->m_AngleForce = round_to_int(m_AngleForce*256.0f);
+	
+	pObjCore->m_Status = m_Status;
+}
+
+void CBallCore::Read(const CNetObj_BallCore *pObjCore)
+{
+	m_Pos.x = pObjCore->m_X;
+	m_Pos.y = pObjCore->m_Y;
+	
+	m_Vel.x = pObjCore->m_VelX/256.0f;
+	m_Vel.y = pObjCore->m_VelY/256.0f;
+	
+	m_Angle = pObjCore->m_Angle/256.0f;
+	m_AngleForce = pObjCore->m_AngleForce/256.0f;
+	
+	m_Status = pObjCore->m_Status;
+}
+
+void CBallCore::Quantize()
+{
+	CNetObj_BallCore Core;
 	Write(&Core);
 	Read(&Core);
 }

@@ -2,6 +2,7 @@
 #include <game/server/gamecontext.h>
 #include <game/weapons.h>
 #include "projectile.h"
+#include "ball.h"
 #include "building.h"
 #include "droid.h"
 #include "electro.h"
@@ -120,8 +121,10 @@ void CProjectile::Tick()
 	
 	float r = 6.0f * GetProjectileSize(m_Weapon);
 	
-	TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, r, CurPos, OwnerChar);
-	ReflectChr = GameServer()->m_World.IntersectScythe(PrevPos, CurPos, r+45.0f, CurPos, OwnerChar);
+	ReflectChr = GameServer()->m_World.IntersectReflect(PrevPos, CurPos, r*0.8f, CurPos, OwnerChar);
+	
+	if (!ReflectChr)
+		TargetChr = GameServer()->m_World.IntersectCharacter(PrevPos, CurPos, r, CurPos, OwnerChar);
 	
 	int Team = m_Owner;
 	
@@ -131,6 +134,9 @@ void CProjectile::Tick()
 	CBuilding *TargetBuilding = NULL;
 	
 	TargetBuilding = GameServer()->m_World.IntersectBuilding(PrevPos, CurPos, r, CurPos, Team);
+	
+	CBall *Ball = NULL;
+	Ball = GameServer()->m_World.IntersectBall(PrevPos, CurPos, r, CurPos);
 	
 	
 	if (m_OwnerBuilding == TargetBuilding)
@@ -160,7 +166,7 @@ void CProjectile::Tick()
 		m_Direction.y *= -1;
 		m_Direction.x *= -1;
 		
-		vec2 d = ReflectChr->m_Pos-m_Pos;
+		vec2 d = (ReflectChr->m_Pos+vec2(0, -24))-PrevPos;
 		d += vec2(frandom()-frandom(), frandom()-frandom()) * length(d) * 0.4f;
 		m_Direction = -normalize(d);
 		GameServer()->CreateBuildingHit(CurPos);
@@ -180,7 +186,7 @@ void CProjectile::Tick()
 			GameServer()->DamageBlocks(CurPos+vec2(4, 4), m_Damage, 1);
 	}
 	
-	if(TargetMonster || TargetBuilding || TargetChr || Collide || m_LifeSpan < 0 || GameLayerClipped(CurPos))
+	if(Ball || TargetMonster || TargetBuilding || TargetChr || Collide || m_LifeSpan < 0 || GameLayerClipped(CurPos))
 	{
 		if(TargetChr)
 		{
@@ -200,6 +206,12 @@ void CProjectile::Tick()
 		if (TargetMonster)
 		{
 			TargetMonster->TakeDamage(m_Direction * max(0.001f, m_Force), m_Damage, m_Owner, CurPos, m_Weapon);
+		}
+		
+		if (Ball)
+		{
+			vec2 Force = m_Direction * max(0.001f, m_Force);
+			Ball->AddForce(Force);
 		}
 		
 		if (m_LifeSpan < 0)

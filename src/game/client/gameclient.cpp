@@ -63,6 +63,7 @@
 #include "components/spark.h"
 #include "components/radar.h"
 #include "components/players.h"
+#include "components/ball.h"
 #include "components/nameplates.h"
 #include "components/scoreboard.h"
 #include "components/skins.h"
@@ -111,6 +112,7 @@ static CSpectator gs_Spectator;
 
 static CDroids gs_Droids;
 static CPlayers gs_Players;
+static CBalls gs_Balls;
 static CNamePlates gs_NamePlates;
 static CItems gs_Items;
 static CWeapons gs_Weapons;
@@ -222,6 +224,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderMonsterSpawn);
 	m_All.Add(&m_pParticles->m_RenderTakeoff);
 	m_All.Add(&gs_Players);
+	m_All.Add(&gs_Balls);
 	m_All.Add(m_pBuildings2);
 	m_All.Add(m_pWeapons);
 	m_All.Add(&m_pParticles->m_RenderMeat);
@@ -580,6 +583,25 @@ static void Evolve(CNetObj_Character *pCharacter, int Tick)
 	TempCore.Write(pCharacter);
 }
 
+static void EvolveBall(CNetObj_Ball *pBall, int Tick)
+{
+	CWorldCore TempWorld;
+	CBallCore TempCore;
+	mem_zero(&TempCore, sizeof(TempCore));
+	TempCore.Init(&TempWorld, g_GameClient.Collision());
+	TempCore.Read(pBall);
+
+	while(pBall->m_Tick < Tick)
+	{
+		pBall->m_Tick++;
+		TempCore.Tick();
+		TempCore.Move();
+		TempCore.Quantize();
+	}
+
+	TempCore.Write(pBall);
+}
+
 
 void CGameClient::OnRender()
 {
@@ -921,14 +943,6 @@ void CGameClient::ProcessEvents()
 			g_GameClient.m_pEffects->PlayerDeath(vec2(ev->m_X, ev->m_Y), ev->m_ClientID);
 			CustomStuff()->m_aPlayerInfo[ev->m_ClientID].Reset();
 		}
-		/*
-		else if(Item.m_Type == NETEVENTTYPE_BLOCK)
-		{
-			CNetEvent_Block *ev = (CNetEvent_Block *)pData;
-			g_GameClient.m_pEffects->PlayerSpawn(vec2(ev->m_X, ev->m_Y));
-			Collision()->SetBlock(ivec2(ev->m_X, ev->m_Y), ev->m_Type);
-		}
-		*/
 		else if(Item.m_Type == NETEVENTTYPE_SOUNDWORLD)
 		{
 			CNetEvent_SoundWorld *ev = (CNetEvent_SoundWorld *)pData;
@@ -1107,6 +1121,21 @@ void CGameClient::OnNewSnapshot()
 						Evolve(&m_Snap.m_aCharacters[Item.m_ID].m_Cur, Client()->GameTick());
 				}
 			}
+			else if(Item.m_Type == NETOBJTYPE_BALL)
+			{
+				const void *pOld = Client()->SnapFindItem(IClient::SNAP_PREV, NETOBJTYPE_BALL, 0);
+				m_Snap.m_Ball.m_Cur = *((const CNetObj_Ball *)pData);
+				if(pOld)
+				{
+					m_Snap.m_Ball.m_Active = true;
+					m_Snap.m_Ball.m_Prev = *((const CNetObj_Ball *)pOld);
+
+					if(m_Snap.m_Ball.m_Prev.m_Tick)
+						EvolveBall(&m_Snap.m_Ball.m_Prev, Client()->PrevGameTick());
+					if(m_Snap.m_Ball.m_Cur.m_Tick)
+						EvolveBall(&m_Snap.m_Ball.m_Cur, Client()->GameTick());
+				}
+			}
 			else if(Item.m_Type == NETOBJTYPE_SPECTATORINFO)
 			{
 				m_Snap.m_pSpectatorInfo = (const CNetObj_SpectatorInfo *)pData;
@@ -1149,11 +1178,6 @@ void CGameClient::OnNewSnapshot()
 			}
 			else if(Item.m_Type == NETOBJTYPE_DROID)
 			{
-				const CNetObj_Droid *pMonster = (const CNetObj_Droid *)pData;
-				if (m_Snap.m_MonsterCount < MAX_DROIDS)
-					m_Snap.m_aMonsterPos[m_Snap.m_MonsterCount] = vec2(pMonster->m_X, pMonster->m_Y);
-				
-				m_Snap.m_MonsterCount++;
 			}
 			else if(Item.m_Type == NETOBJTYPE_BUILDING)
 			{
@@ -1273,18 +1297,72 @@ void CGameClient::OnPredict()
 	// store the previous values so we can detect prediction errors
 	CCharacterCore BeforePrevChar = m_PredictedPrevChar;
 	CCharacterCore BeforeChar = m_PredictedChar;
+	
 
 	// we can't predict without our own id or own character
+	/*
 	if(m_Snap.m_LocalClientID == -1 || !m_Snap.m_aCharacters[m_Snap.m_LocalClientID].m_Active)
+	{
+		CWorldCore World;
+		World.m_Tuning = m_Tuning;
+		
+		// predict only ball
+		if (m_Snap.m_Ball.m_Active)
+		{
+			g_GameClient.m_PredictedBall.Init(&World, Collision());
+			World.m_pBall = &g_GameClient.m_PredictedBall;
+			g_GameClient.m_PredictedBall.Read(&m_Snap.m_Ball.m_Cur);
+		}
+		
+		for(int Tick = Client()->GameTick()+1; Tick <= Client()->PredGameTick(); Tick++)
+		{
+			m_LastNewPredictedTick = Tick;
+			m_NewPredictedTick = true;
+				
+			if (World.m_pBall)
+			{
+				if(Tick == Client()->PredGameTick())
+					m_PredictedPrevBall = *World.m_pBall;
+			
+				World.m_pBall->Tick();
+			}
+		
+			if (World.m_pBall)
+			{
+				World.m_pBall->Move();
+				World.m_pBall->Quantize();
+			}
+		
+			// check if we want to trigger effects
+			if(Tick > m_LastNewPredictedTick)
+			{
+				// ball events
+				if (World.m_pBall)
+				{
+					vec2 Pos = World.m_pBall->m_Pos;
+					int Events = World.m_pBall->m_TriggeredEvents;
+					
+					if(Events&COREEVENT_BALL_BOUNCE)
+						g_GameClient.m_pSounds->PlayAndRecord(CSounds::CHN_WORLD, SOUND_PLAYER_JUMP, 1.0f, Pos);
+				}
+			}
+		}
+		m_PredictedTick = Client()->PredGameTick();
+		
 		return;
+	}
+	*/
 
 	// don't predict anything if we are paused
 	if(m_Snap.m_pGameInfoObj && m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED)
 	{
+		if (m_Snap.m_LocalClientID == -1 || !m_Snap.m_aCharacters[m_Snap.m_LocalClientID].m_Active)
+			return;
+		
 		if(m_Snap.m_pLocalCharacter)
 			m_PredictedChar.Read(m_Snap.m_pLocalCharacter);
 		if(m_Snap.m_pLocalPrevCharacter)
-			m_PredictedPrevChar.Read(m_Snap.m_pLocalPrevCharacter);
+			m_PredictedPrevChar.Read(m_Snap.m_pLocalPrevCharacter);  
 		return;
 	}
 
@@ -1303,15 +1381,6 @@ void CGameClient::OnPredict()
 		g_GameClient.m_aClients[i].m_Predicted.Read(&m_Snap.m_aCharacters[i].m_Cur);
 	}
 	
-	// search for monsters
-	for(int i = 0; i < MAX_DROIDS; i++)
-	{
-		if(m_Snap.m_aMonsterPos[i].x == 0)
-			continue;
-
-		World.m_aMonsterPos[i] = m_Snap.m_aMonsterPos[i];
-	}
-	
 	// search for jumppads
 	for(int i = 0; i < MAX_IMPACTS; i++)
 	{
@@ -1320,6 +1389,15 @@ void CGameClient::OnPredict()
 
 		World.m_aImpactPos[i] = m_Snap.m_aImpactPos[i];
 	}
+	
+	// search for the ball
+	if (m_Snap.m_Ball.m_Active)
+	{
+		g_GameClient.m_PredictedBall.Init(&World, Collision());
+		World.m_pBall = &g_GameClient.m_PredictedBall;
+		g_GameClient.m_PredictedBall.Read(&m_Snap.m_Ball.m_Cur);
+	}
+	
 
 	// predict
 	for(int Tick = Client()->GameTick()+1; Tick <= Client()->PredGameTick(); Tick++)
@@ -1345,7 +1423,14 @@ void CGameClient::OnPredict()
 			}
 			else
 				World.m_apCharacters[c]->Tick(false);
-
+		}
+		
+		if (World.m_pBall)
+		{
+			if(Tick == Client()->PredGameTick())
+				m_PredictedPrevBall = *World.m_pBall;
+		
+			World.m_pBall->Tick();
 		}
 
 		// move all players and quantize their data
@@ -1357,6 +1442,13 @@ void CGameClient::OnPredict()
 			World.m_apCharacters[c]->Move();
 			World.m_apCharacters[c]->Quantize();
 		}
+		
+		// move ball
+		if (World.m_pBall)
+		{
+			World.m_pBall->Move();
+			World.m_pBall->Quantize();
+		}
 
 		// check if we want to trigger effects
 		if(Tick > m_LastNewPredictedTick)
@@ -1364,6 +1456,17 @@ void CGameClient::OnPredict()
 			m_LastNewPredictedTick = Tick;
 			m_NewPredictedTick = true;
 
+			// ball events
+			if (World.m_pBall)
+			{
+				vec2 Pos = World.m_pBall->m_Pos;
+				int Events = World.m_pBall->m_TriggeredEvents;
+				
+				if(Events&COREEVENT_BALL_BOUNCE)
+					g_GameClient.m_pSounds->PlayAndRecord(CSounds::CHN_WORLD, SOUND_PLAYER_JUMP, 1.0f, Pos);
+			}
+			
+			// player events
 			if(m_Snap.m_LocalClientID != -1 && World.m_apCharacters[m_Snap.m_LocalClientID])
 			{
 				vec2 Pos = World.m_apCharacters[m_Snap.m_LocalClientID]->m_Pos;

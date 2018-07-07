@@ -90,6 +90,7 @@ public:
 	int m_MuzzleTick;
 	
 	bool m_BombCarrier;
+	int m_Mask;
 	
 	float m_aMuzzleTime[4];
 	int m_aMuzzleWeapon[4];
@@ -152,7 +153,6 @@ public:
 	CSkeletonAnimation *Animation() { return m_pAnimation; }
 	
 	bool m_Shield;
-	float m_Heal;
 	
 	int m_NextSplatter;
 	float m_aSplatter[8];

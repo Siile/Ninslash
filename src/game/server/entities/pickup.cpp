@@ -58,17 +58,29 @@ void CPickup::Reset()
 	
 		ClearWeapon();
 		
-		if (m_Type == POWERUP_WEAPON)
+		if (m_Type == POWERUP_WEAPON && GetStaticType(m_Subtype) != SW_BALL)
 			SetRandomWeapon();
 	}
 }
 
 void CPickup::SetRandomWeapon()
 {
+	if (GetStaticType(m_Subtype) == SW_BALL)
+		return;
+	
 	m_Subtype = GetRandomWeaponType(g_Config.m_SvSurvivalMode ? true : false);
 	
 	if (GetStaticType(m_Subtype) == SW_UPGRADE)
 		return;
+	
+	
+	if (str_comp(g_Config.m_SvGametype, "ball") == 0)
+	{
+		if (frandom() < 0.7f)
+			m_Subtype = GetChargedWeapon(m_Subtype, frandom()*WeaponMaxLevel(m_Subtype));
+		else
+			m_Subtype = GetChargedWeapon(m_Subtype, WeaponMaxLevel(m_Subtype));
+	}
 	
 	if (WeaponMaxLevel(m_Subtype) > 0 && frandom() < 0.5f)
 		m_Subtype = GetChargedWeapon(m_Subtype, frandom()*WeaponMaxLevel(m_Subtype));
@@ -112,12 +124,17 @@ void CPickup::Tick()
 		m_Ammo = 1.0f;
 	}
 	
-	if (m_Life > 0 && m_Type == POWERUP_WEAPON && GetStaticType(m_Subtype) == SW_BOMB)
+	if (m_Life > 0 && m_Type == POWERUP_WEAPON)
 	{
-		m_Life = 9999;
-		
-		GameServer()->m_pController->m_BombPos = m_Pos;
-		GameServer()->m_pController->m_BombStatus = BOMB_IDLE;
+		if (GetStaticType(m_Subtype) == SW_BOMB)
+		{
+			m_Life = 9999;
+			
+			GameServer()->m_pController->m_BombPos = m_Pos;
+			GameServer()->m_pController->m_BombStatus = BOMB_IDLE;
+		}
+		else if (GetStaticType(m_Subtype) == SW_BALL)
+			m_Life = 9999;
 	}
 	
 	// wait for respawn
@@ -348,6 +365,10 @@ void CPickup::AddForce(vec2 Force)
 {
 	if (m_Dropable && !m_Treasure)
 		m_Vel += Force;
+	
+	// limit speed
+	if (length(m_Vel) > 30.0f)
+		m_Vel = normalize(m_Vel)*30.0f;
 }
 
 

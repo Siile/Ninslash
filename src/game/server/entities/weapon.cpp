@@ -29,6 +29,7 @@ CWeapon::CWeapon(CGameWorld *pGameWorld, int Type)
 
 void CWeapon::Reset()
 {
+	m_SkipPickTick = 0;
 	m_InfiniteAmmo = false;
 	m_MaxLevel = WeaponMaxLevel(m_WeaponType);
 	m_Disabled = false;
@@ -349,6 +350,10 @@ bool CWeapon::Charge()
 	{
 		switch (GetStaticType(m_WeaponType))
 		{
+			case SW_BALL:
+				m_AttackTick = Server()->Tick();
+				break;
+				
 			case SW_GRENADE1:
 				m_AttackTick = Server()->Tick();
 				m_DestructionTick = Server()->Tick() + 2.0f * Server()->TickSpeed();
@@ -404,6 +409,8 @@ bool CWeapon::ReleaseCharge(float *pKnockback)
 		//	Throw();
 		
 		m_ReloadTimer = m_FireRate * Server()->TickSpeed() / 1000;
+		
+		m_SkipPickTick = Server()->Tick() + Server()->TickSpeed()*0.1f;
 		
 		return true;
 	}
@@ -589,10 +596,10 @@ void CWeapon::Tick()
 		m_WeaponType = GetChargedWeapon(m_WeaponType, m_PowerLevel);
 	
 	// pick me up!
-	if (m_Stuck && m_Owner < 0)
+	if ((m_Stuck && m_Owner < 0) || (GetStaticType(m_WeaponType) == SW_BALL && m_Released))
 	{
 		CCharacter *pChr = GameServer()->m_World.ClosestCharacter(m_Pos, 18.0f, 0);
-		if(pChr && pChr->IsAlive())
+		if(pChr && pChr->IsAlive() && (pChr->GetPlayer()->GetCID() != m_Owner || m_SkipPickTick < Server()->Tick()))
 		{
 			if (pChr->PickWeapon(this))
 			{
@@ -646,6 +653,13 @@ void CWeapon::Tick()
 	else if (m_TriggerTick && m_TriggerTick <= Server()->Tick())
 		Trigger();
 	
+	
+	/*
+	if (m_Released && GetStaticType(m_WeaponType) == SW_BALL)
+	{
+		m_Charge = max(m_Charge-2, 0);
+	}
+	*/
 	
 	// bomb
 	if (GetStaticType(m_WeaponType) == SW_BOMB)
@@ -833,7 +847,13 @@ void CWeapon::Move()
 	}
 	
 	vec2 OldVel = m_Vel;
-	GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(18.0f, 18.0f), 0.5f);
+	
+	
+	if (GetStaticType(m_WeaponType) == SW_BALL)
+		GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(18.0f, 18.0f), 0.9f);
+	else
+		GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(18.0f, 18.0f), 0.5f);
+	
 	
 	if ((((OldVel.x < 0 && m_Vel.x > 0) || (OldVel.x > 0 && m_Vel.x < 0)) && abs(m_Vel.x) > 3.0f) ||
 		(((OldVel.y < 0 && m_Vel.y > 0) || (OldVel.y > 0 && m_Vel.y < 0)) && abs(m_Vel.y) > 3.0f))

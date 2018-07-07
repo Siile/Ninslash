@@ -368,8 +368,10 @@ void CPlayers::RenderPlayer(
 				
 				pCustomPlayerInfo->m_MeleeAnimState = 1.0f;
 				pCustomPlayerInfo->m_MeleeState = MELEE_DOWN;
-				if (GetStaticType(Player.m_Weapon) != SW_TOOL)
+				
+				if (!IsStaticWeapon(Player.m_Weapon) || GetStaticType(Player.m_Weapon) != SW_TOOL)
 					m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), Flip, Charge);
+				
 				pCustomPlayerInfo->m_WeaponRecoil += Direction * 15;
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*95, vec2(frandom()-frandom(), frandom()-frandom())*30);
@@ -381,8 +383,10 @@ void CPlayers::RenderPlayer(
 				
 				pCustomPlayerInfo->m_MeleeAnimState = 1.0f;
 				pCustomPlayerInfo->m_MeleeState = MELEE_UP;
-				if (GetStaticType(Player.m_Weapon) != SW_TOOL)
+				
+				if (!IsStaticWeapon(Player.m_Weapon) || GetStaticType(Player.m_Weapon) != SW_TOOL)
 					m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), !Flip, Charge);
+				
 				pCustomPlayerInfo->m_WeaponRecoil += Direction * 15;
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*95, vec2(frandom()-frandom(), frandom()-frandom())*30);
@@ -1280,17 +1284,16 @@ void CPlayers::RenderPlayer(
 		pCustomPlayerInfo->m_EffectIntensity[EFFECT_DASH] = 1.0f;
 	}	
 	
-	if (s & (1<<STATUS_FUEL))
-	{
-		if (pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] <= 0.0f)
-			m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_ITEM_FUEL, 1.0f, Position);
-		pCustomPlayerInfo->m_EffectIntensity[EFFECT_FUEL] = 1.0f;
-	}
-	
 	if (s & (1<<STATUS_BOMBCARRIER))
 		pCustomPlayerInfo->m_BombCarrier = true;
 	else
 		pCustomPlayerInfo->m_BombCarrier = false;
+	
+	// get mask / gear
+	pCustomPlayerInfo->m_Mask = s>>STATUS_MASK1;
+	
+	if (pCustomPlayerInfo->m_Mask < 0 || pCustomPlayerInfo->m_Mask > 5)
+		pCustomPlayerInfo->m_Mask = 0;
 	
 	if (s & (1<<STATUS_SPAWNING))
 	{
@@ -1402,18 +1405,6 @@ void CPlayers::RenderPlayer(
 	else
 		pCustomPlayerInfo->m_Shield = false;
 
-	
-	
-	s = Player.m_Status;
-	if (s & (1<<STATUS_HEAL) && pCustomPlayerInfo->m_Heal == 0.0f)
-	{
-		m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_ITEM_HEAL, 1.0f, Position);
-		pCustomPlayerInfo->m_Heal = 0.01f;
-	}
-	
-	if (pCustomPlayerInfo->m_Heal > 0.0f && pCustomPlayerInfo->m_Heal < 1.0f)
-		RenderTools()->RenderHeal(Position+vec2(0, -30), vec2(64, 128), pCustomPlayerInfo->m_Heal);
-		
 	
 	//if (pInfo.m_Local)
 	//	m_pClient->m_pEffects->Light(Position+vec2(0, -32), 512+128);

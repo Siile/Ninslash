@@ -848,7 +848,7 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 			{
 				Graphics()->ShaderBegin(SHADER_GRAYSCALE, 0.0f);
 				Graphics()->QuadsBegin();
-				RenderTools()->SelectSprite(SPRITE_WEAPON_SLOT);
+				//RenderTools()->SelectSprite(SPRITE_WEAPON_SLOT);
 			
 				if (g_Config.m_GfxShaders)
 					Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -865,14 +865,6 @@ void CHud::RenderHealthAndAmmo(const CNetObj_Character *pCharacter)
 			}
 			
 			RenderTools()->SetShadersForWeapon(w);
-			Graphics()->QuadsBegin();
-			Graphics()->SetColor(1, 1, 1, 1.0f);
-				
-			RenderTools()->SelectSprite(SPRITE_WEAPON_SLOT);
-				
-			RenderTools()->DrawSprite(x, y, 24);
-			Graphics()->QuadsEnd();	
-			
 			
 			// weapon
 			Graphics()->QuadsBegin();

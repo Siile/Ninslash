@@ -9,6 +9,7 @@ MACRO_TUNING_PARAM(ControlSpeed, control_speed, 1.0f)
 MACRO_TUNING_PARAM(JumpPower, jump_power, 12.2f)
 
 
+MACRO_TUNING_PARAM(BallSize, ball_size, 50.0f)
 
 MACRO_TUNING_PARAM(GroundControlSpeed, ground_control_speed, 450.0f / TicksPerSecond) // 11 = fast
 MACRO_TUNING_PARAM(GroundControlAccel, ground_control_accel, 75.0f / TicksPerSecond)

@@ -1508,7 +1508,7 @@ void CMapGen::GeneratePVPLevel()
 		GenerateSpeaker(pTiles);
 	*/
 	
-	w = 2 + (pTiles->NumPlatforms() + pTiles->NumMedPlatforms()) / 5.0f;
+	w = 2 + (pTiles->NumPlatforms() + pTiles->NumMedPlatforms()) / 4.0f;
 	
 	for (int i = 0; i < w; i++)
 		GenerateWeapon(pTiles, ENTITY_RANDOM_WEAPON);
@@ -1516,13 +1516,13 @@ void CMapGen::GeneratePVPLevel()
 	for (int i = 0; i < 5; i++)
 		GenerateWeapon(pTiles, ENTITY_KIT);
 	
-	for (int i = 0; i < (pTiles->Size())/800; i++)
+	for (int i = 0; i < (pTiles->Size())/750; i++)
 		GenerateHearts(pTiles);
 	
-	for (int i = 0; i < (pTiles->Size())/800; i++)
+	for (int i = 0; i < (pTiles->Size())/750; i++)
 		GenerateAmmo(pTiles);
 	
-	for (int i = 0; i < (pTiles->Size())/1200; i++)
+	for (int i = 0; i < (pTiles->Size())/1000; i++)
 		GenerateArmor(pTiles);
 
 

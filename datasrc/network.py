@@ -9,7 +9,10 @@ Emoticons = ["OOP", "EXCLAMATION", "HEARTS", "DROP", "DOTDOT", "MUSIC", "SORRY",
 
 Powerups = ["HEALTH", "AMMO", "WEAPON", "ARMOR", "COIN", "KIT"]
 
-Statuses = ["EMPTY", "SPAWNING", "AFLAME", "SLOWED", "ELECTRIC", "DEATHRAY", "SHIELD", "DASH", "INVISIBILITY", "HEAL", "FUEL", "SLOWMOVING", "BOMBCARRIER"]
+# keep masks at the end
+Statuses = ["SPAWNING", "AFLAME", "SLOWED", "ELECTRIC", "DEATHRAY", "SHIELD", "DASH", "INVISIBILITY", "SLOWMOVING", "BOMBCARRIER", "MASK1", "MASK2", "MASK3"]
+
+BallStatuses = ["STATIONARY"]
 
 Damagetypes = ["NORMAL", "FLAME", "ELECTRIC", "FLUID"]
 
@@ -147,6 +150,7 @@ Enums = [
 	Enum("POWERUP", Powerups),
 	Enum("EMOTICON", Emoticons),
 	Enum("STATUS", Statuses),
+	Enum("BALLSTATUS", BallStatuses),
 	Enum("DAMAGETYPE", Damagetypes),
 	Enum("DROIDSTATUS", Droidstatus),
 	Enum("DROIDTYPE", Droidtype),
@@ -307,6 +311,20 @@ Objects = [
 		NetIntRange("m_FlagCarrierBlue", 'FLAG_MISSING', 'MAX_CLIENTS-1'),
 	]),
 
+	NetObject("BallCore", [
+		NetIntAny("m_Tick"),
+		NetIntAny("m_X"),
+		NetIntAny("m_Y"),
+		NetIntAny("m_VelX"),
+		NetIntAny("m_VelY"),
+		NetIntAny("m_Angle"),
+		NetIntAny("m_AngleForce"),
+		NetIntAny("m_Status"),
+	]),
+	
+	NetObject("Ball:BallCore", [
+	]),
+	
 	NetObject("CharacterCore", [
 		NetIntAny("m_Tick"),
 		NetIntAny("m_X"),

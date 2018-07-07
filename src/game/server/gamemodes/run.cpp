@@ -133,7 +133,7 @@ vec2 CGameControllerCoop::GetBotSpawnPos()
 	for (int i = 0; i < 99; i++)
 	{
 		Pos = m_GroupSpawnPos + vec2(frandom()-frandom(), frandom()-frandom()) * 400;
-		if (!GameServer()->Collision()->TestBox(Pos, vec2(28.0f, 64.0f)))
+		if (!GameServer()->Collision()->TestBox(Pos, vec2(32.0f, 74.0f)))
 			return Pos;
 	}
 	

@@ -1,5 +1,3 @@
-
-
 #ifndef GAME_SERVER_GAMECONTROLLER_H
 #define GAME_SERVER_GAMECONTROLLER_H
 
@@ -130,6 +128,8 @@ protected:
 	
 public:
 
+	class CBall *m_pBall;
+	
 	// CSTT & CSBB
 	int GetRoundState(){ return m_GameState; }
 	int GetRound(){ return m_Round; }
@@ -139,11 +139,18 @@ public:
 	
 	virtual bool InBombArea(vec2 Pos);
 	
+	virtual vec2 GetGoalArea(int Team);
+	
 	virtual void TriggerBomb();
 	virtual void DisarmBomb();
 	virtual void ReactorDestroyed();
 	
+	virtual void AddMapArea(int Team, vec2 Pos);
+	virtual bool InMapArea(int Team, vec2 Pos);
+	
 	virtual void OnSurvivalTimeOut();
+	
+	void ResetBallRound();
 	
 	int m_BombStatus;
 	vec2 m_BombPos;
