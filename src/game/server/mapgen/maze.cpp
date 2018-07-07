@@ -281,7 +281,7 @@ void CMaze::Generate()
 			Connect(m_aRoom[1], vec2(m_W*0.5f, m_H*0.1f));
 			
 				
-			for (int i = 0; i < 30; i++)
+			for (int i = 0; i < 36; i++)
 				GenerateRoom(true);
 		}
 		else
