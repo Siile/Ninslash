@@ -30,6 +30,8 @@ public:
 	bool Spawn(vec2 Pos);
 	bool Remove();
 	
+	void AddForce(vec2 Force);
+	
 	CBallCore GetCore(){ return m_Core; }
 	vec2 GetPosition(){ return m_Core.m_Pos; }
 	vec2 GetVel(){ return m_Core.m_Vel; }

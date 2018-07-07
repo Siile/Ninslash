@@ -2,6 +2,7 @@
 #include <game/server/gamecontext.h>
 #include <game/weapons.h>
 #include "projectile.h"
+#include "ball.h"
 #include "building.h"
 #include "droid.h"
 #include "electro.h"
@@ -134,6 +135,9 @@ void CProjectile::Tick()
 	
 	TargetBuilding = GameServer()->m_World.IntersectBuilding(PrevPos, CurPos, r, CurPos, Team);
 	
+	CBall *Ball = NULL;
+	Ball = GameServer()->m_World.IntersectBall(PrevPos, CurPos, r, CurPos);
+	
 	
 	if (m_OwnerBuilding == TargetBuilding)
 		TargetBuilding = NULL;
@@ -182,7 +186,7 @@ void CProjectile::Tick()
 			GameServer()->DamageBlocks(CurPos+vec2(4, 4), m_Damage, 1);
 	}
 	
-	if(TargetMonster || TargetBuilding || TargetChr || Collide || m_LifeSpan < 0 || GameLayerClipped(CurPos))
+	if(Ball || TargetMonster || TargetBuilding || TargetChr || Collide || m_LifeSpan < 0 || GameLayerClipped(CurPos))
 	{
 		if(TargetChr)
 		{
@@ -202,6 +206,12 @@ void CProjectile::Tick()
 		if (TargetMonster)
 		{
 			TargetMonster->TakeDamage(m_Direction * max(0.001f, m_Force), m_Damage, m_Owner, CurPos, m_Weapon);
+		}
+		
+		if (Ball)
+		{
+			vec2 Force = m_Direction * max(0.001f, m_Force);
+			Ball->AddForce(Force);
 		}
 		
 		if (m_LifeSpan < 0)

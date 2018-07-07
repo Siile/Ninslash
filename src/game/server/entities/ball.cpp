@@ -31,6 +31,7 @@ bool CBall::Spawn(vec2 Pos)
 	m_Core.Reset();
 	m_Core.Init(&GameServer()->m_World.m_Core, GameServer()->Collision());
 	m_Core.m_Pos = m_Pos;
+	m_ProximityRadius = m_Core.BallSize();
 
 	GameServer()->m_World.m_Core.m_pBall = &m_Core;
 
@@ -57,6 +58,12 @@ void CBall::Destroy()
 	//GameServer()->m_World.m_Core.m_pBall = 0;
 }
 
+
+void CBall::AddForce(vec2 Force)
+{
+	m_Core.m_Vel += Force;
+	m_Core.PlayerHit();
+}
 
 void CBall::Tick()
 {

@@ -40,7 +40,17 @@ void CAIball::DoBehavior()
 	m_Attack = 0;
 
 	HeadToMovingDirection();
-
+	
+	if (Player()->GetCharacter()->GetWeaponType() != WEAPON_NONE)
+	{
+		SeekClosestEnemyInSight();
+		
+		// if we see a player
+		if (m_EnemiesInSight > 0)
+			ShootAtClosestEnemy();
+	}
+	
+	
 	if (!GameServer()->m_pController->m_pBall)
 	{
 		m_ReactionTime = 2;
@@ -60,6 +70,10 @@ void CAIball::DoBehavior()
 		m_TargetPos = BallPos - normalize(m_aGoalPos[!m_Team]-BallPos)*frandom()*300;
 	else
 		m_TargetPos = BallPos;
+	
+	
+	if (Player()->GetCharacter()->GetWeaponType() == WEAPON_NONE)
+		FindWeapon();
 	
 	m_WaypointPos = m_TargetPos;
 	MoveTowardsWaypoint(false);

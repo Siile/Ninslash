@@ -5,6 +5,7 @@
 #include "entity.h"
 #include "gamecontext.h"
 #include "entities/turret.h"
+#include "entities/ball.h"
 #include "entities/building.h"
 #include "entities/droid.h"
 
@@ -298,6 +299,26 @@ CBuilding *CGameWorld::IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec
 	}
 
 	return pClosest;
+}
+
+
+CBall *CGameWorld::IntersectBall(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos)
+{
+	float ClosestLen = distance(Pos0, Pos1) * 100.0f;
+	CDroid *pClosest = 0;
+
+	if (!GameServer()->m_pController->m_pBall)
+		return NULL;
+	
+	CBall *pBall = GameServer()->m_pController->m_pBall;
+	
+	vec2 IntersectPos = closest_point_on_line(Pos0, Pos1, pBall->m_Pos);
+	float Len = distance(pBall->m_Pos, IntersectPos);
+	
+	if(Len < pBall->m_ProximityRadius+Radius)
+		return pBall;
+
+	return NULL;
 }
 
 

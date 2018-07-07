@@ -1,3 +1,4 @@
+#include <engine/shared/config.h>
 #include <engine/shared/protocol.h>
 #include <game/generated/client_data.h>
 
@@ -1403,6 +1404,19 @@ float GetProjectileDamage(int Weapon)
 
 int GetRandomWeaponType(bool IsSurvival) 
 {
+	if (str_comp(g_Config.m_SvGametype, "ball") == 0)
+	{
+		if (rand()%13 < 5)
+			return GetModularWeapon(1, 1+rand()%4);
+		if (rand()%13 < 5)
+			return GetModularWeapon(4, 1+rand()%4);
+		if (rand()%13 < 5)
+			return GetModularWeapon(2, 1+rand()%4);
+		else
+			return GetStaticWeapon(SW_BAZOOKA);
+	}
+	
+	
 	if (rand()%13 < 5)
 		return GetModularWeapon(1+rand()%4, 1+rand()%4);
 	

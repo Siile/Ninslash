@@ -18,6 +18,7 @@
 #include "gamemodes/base.h"
 #include "gamemodes/texasrun.h"
 
+#include <game/server/entities/ball.h>
 #include <game/server/entities/block.h>
 #include <game/server/entities/pickup.h>
 #include <game/server/entities/projectile.h>
@@ -831,6 +832,22 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon)
 						
 		if((int)Dmg && Dmg > 0.0f)
 			apBuildings[i]->TakeDamage((int)Dmg*Dmg2, Owner, Weapon, ForceDir*Dmg*0.3f);
+	}
+	
+	// ball
+	if (m_pController->m_pBall)
+	{
+		vec2 BPos = m_pController->m_pBall->m_Pos;
+		vec2 Diff = BPos - Pos - vec2(0, 8);
+		vec2 ForceDir(0,1);
+		float l = length(Diff);
+		if(l)
+			ForceDir = normalize(Diff);
+		l = 1-clamp((l-InnerRadius)/(Radius-InnerRadius), 0.0f, 1.0f);
+		float Dmg = GetExplosionDamage(Weapon) * l;
+							
+		if((int)Dmg && Dmg > 0.0f)
+			m_pController->m_pBall->AddForce(ForceDir*Dmg*0.3f); //
 	}
 	
 	{

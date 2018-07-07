@@ -1301,6 +1301,7 @@ void CCharacterCore::Move()
 					float dy2F = (v2 * cos(theta2 - phi) * (m2-m1) + 2*m1*v1*cos(theta1 - phi)) / (m1+m2) * sin(phi) + v2*sin(theta2-phi) * sin(phi+pi/2);
 
 					pBallCore->m_Vel = vec2(dx2F, dy2F);
+					m_Vel -= vec2(dx1F, dy1F)*0.1f;
 					break;
 				}
 				
@@ -1519,6 +1520,10 @@ void CBallCore::Move()
 	if (m_Status & (1<<BALLSTATUS_STATIONARY))
 		return;
 	
+	// limit speed
+	if (length(m_Vel) > 30.0f)
+		m_Vel = normalize(m_Vel)*30.0f;
+	
 	float BallSize = m_pWorld->m_Tuning.m_BallSize;
 	
 	bool Grounded = false;
@@ -1560,6 +1565,11 @@ void CBallCore::Move()
 	m_Angle += clamp(m_AngleForce*0.04f, -0.3f, 0.3f);
 	
 	m_Pos = NewPos;
+}
+
+float CBallCore::BallSize()
+{
+	return m_pWorld->m_Tuning.m_BallSize;
 }
 
 void CBallCore::Write(CNetObj_BallCore *pObjCore)

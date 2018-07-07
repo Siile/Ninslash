@@ -73,6 +73,15 @@ void CPickup::SetRandomWeapon()
 	if (GetStaticType(m_Subtype) == SW_UPGRADE)
 		return;
 	
+	
+	if (str_comp(g_Config.m_SvGametype, "ball") == 0)
+	{
+		if (frandom() < 0.7f)
+			m_Subtype = GetChargedWeapon(m_Subtype, frandom()*WeaponMaxLevel(m_Subtype));
+		else
+			m_Subtype = GetChargedWeapon(m_Subtype, WeaponMaxLevel(m_Subtype));
+	}
+	
 	if (WeaponMaxLevel(m_Subtype) > 0 && frandom() < 0.5f)
 		m_Subtype = GetChargedWeapon(m_Subtype, frandom()*WeaponMaxLevel(m_Subtype));
 	else if (WeaponMaxLevel(m_Subtype) > 0 && frandom() < 0.1f)
@@ -356,6 +365,10 @@ void CPickup::AddForce(vec2 Force)
 {
 	if (m_Dropable && !m_Treasure)
 		m_Vel += Force;
+	
+	// limit speed
+	if (length(m_Vel) > 30.0f)
+		m_Vel = normalize(m_Vel)*30.0f;
 }
 
 

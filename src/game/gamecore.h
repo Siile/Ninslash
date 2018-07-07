@@ -278,6 +278,8 @@ public:
 	void Write(CNetObj_BallCore *pObjCore);
 	void Quantize();
 	
+	float BallSize();
+	
 	bool Status(int i)
 	{
 		if (m_Status & (1<<i))
