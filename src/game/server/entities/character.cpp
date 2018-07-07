@@ -996,7 +996,7 @@ bool CCharacter::Reflect()
 	//if (m_ScytheTick > Server()->Tick()-Server()->TickSpeed()*0.2f)
 	//	return true;
 
-	if (GetMask() == 3 && frandom() < 0.4f)
+	if (GetMask() == 3 && frandom() < 0.6f)
 		return true;
 
 	return false;
@@ -1549,6 +1549,28 @@ void CCharacter::Tick()
 	else
 		m_MaskEffectTick = 0;
 	
+	
+	if (g_Config.m_SvInfiniteGrenades)
+	{
+		bool GotGrenade = false;
+		
+		for (int w = 0; w < 4; w++)
+		{
+			if (GetStaticType(GetWeaponType(w)) == SW_GRENADE1)
+				GotGrenade = true;
+		}
+		
+		if (!GotGrenade)
+		{
+			int Slot = rand()%4;
+			if (GetWeaponType(Slot) == 0 && Slot != GetWeaponSlot())
+			{
+				m_apWeapon[Slot] = GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1));
+				SendInventory();
+			}
+		}
+	}
+	
 	/*
 	if(m_pPlayer->m_ForceBalanced)
 	{
@@ -1891,6 +1913,19 @@ bool CCharacter::IncreaseArmor(int Amount)
 
 void CCharacter::ReleaseWeapons()
 {
+	// drop mask
+	for (int i = 0; i < 4; i++)
+	{
+		int w = GetStaticType(GetWeaponType(i));
+		
+		if (w >= SW_MASK1 && w <= SW_MASK5 && GetWeaponSlot() != i)
+		{
+			GameServer()->m_pController->DropWeapon(m_Pos+vec2(0, -16), (m_Core.m_Vel/1.7f + vec2(0, -3))*0.75f, m_apWeapon[i]);
+			m_apWeapon[i] = NULL;
+			break;
+		}
+	}
+	
 	for (int i = 0; i < NUM_SLOTS; i++)
 		if (m_apWeapon[i])
 		{
