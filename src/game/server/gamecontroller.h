@@ -139,6 +139,8 @@ public:
 	
 	virtual bool InBombArea(vec2 Pos);
 	
+	virtual vec2 GetGoalArea(int Team);
+	
 	virtual void TriggerBomb();
 	virtual void DisarmBomb();
 	virtual void ReactorDestroyed();

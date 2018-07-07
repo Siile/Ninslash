@@ -176,6 +176,10 @@ bool IGameController::InBombArea(vec2 Pos)
 	return false;
 }
 
+vec2 IGameController::GetGoalArea(int Team)
+{
+	return vec2(0, 0);
+}
 
 int IGameController::GetRandomWeapon()
 {

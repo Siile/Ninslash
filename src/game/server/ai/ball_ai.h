@@ -15,8 +15,10 @@ private:
 	int m_SkipMoveUpdate;
 	bool SeekFriend();
 	
-	vec2 m_EnemyGoalPos;
-	vec2 m_OwnGoalPos;
+	int m_Team;
+	int m_Role;
+	
+	vec2 m_aGoalPos[2];
 };
 
 #endif

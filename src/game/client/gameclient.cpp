@@ -1300,6 +1300,7 @@ void CGameClient::OnPredict()
 	
 
 	// we can't predict without our own id or own character
+	/*
 	if(m_Snap.m_LocalClientID == -1 || !m_Snap.m_aCharacters[m_Snap.m_LocalClientID].m_Active)
 	{
 		CWorldCore World;
@@ -1350,10 +1351,14 @@ void CGameClient::OnPredict()
 		
 		return;
 	}
+	*/
 
 	// don't predict anything if we are paused
 	if(m_Snap.m_pGameInfoObj && m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED)
 	{
+		if (m_Snap.m_LocalClientID == -1 || !m_Snap.m_aCharacters[m_Snap.m_LocalClientID].m_Active)
+			return;
+		
 		if(m_Snap.m_pLocalCharacter)
 			m_PredictedChar.Read(m_Snap.m_pLocalCharacter);
 		if(m_Snap.m_pLocalPrevCharacter)

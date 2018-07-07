@@ -1490,7 +1490,7 @@ void CBallCore::Reset()
 	m_Angle = 0.0f;
 	m_AngleForce = 0.0f;
 	m_Status = 0;
-	//m_Status |= 1 << BALLSTATUS_STATIONARY;
+	m_Status |= 1 << BALLSTATUS_STATIONARY;
 	m_ForceCoreSend = false;
 	m_TriggeredEvents = 0;
 }
@@ -1533,9 +1533,11 @@ void CBallCore::Move()
 	
 	if (Grounded)
 	{
-		//m_Vel.x = (m_Vel.x + OnForceTile*0.7f) * 0.925f;
+		if (OnForceTile)
+			m_Vel.x = (m_Vel.x + OnForceTile*0.4f) * 0.925f;
+		
 		//m_Vel.x *= 0.8f;
-		m_AngleForce += (m_Vel.x - m_AngleForce) / 2.0f;
+		m_AngleForce += (m_Vel.x- OnForceTile*0.55f*8.0f - m_AngleForce) / 2.0f;
 		m_Vel.x *= 0.99f;
 		m_Vel.y *= 0.99f;
 	}

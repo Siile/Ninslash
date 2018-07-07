@@ -16,7 +16,7 @@ CGameControllerBall::CGameControllerBall(class CGameContext *pGameServer) : IGam
 	m_pGameType = "BALL";
 	m_GameFlags = GAMEFLAG_TEAMS;
 	
-	g_Config.m_SvDisablePVP = 1;
+	//g_Config.m_SvDisablePVP = 1;
 	
 	m_GoalArea[TEAM_RED] = vec4(0, 0, 0, 0);
 	m_GoalArea[TEAM_BLUE] = vec4(0, 0, 0, 0);
@@ -78,6 +78,14 @@ bool CGameControllerBall::InMapArea(int Team, vec2 Pos)
 		return true;
 	
 	return false;
+}
+
+vec2 CGameControllerBall::GetGoalArea(int Team)
+{
+	if (Team != TEAM_RED && Team != TEAM_BLUE)
+		return vec2(0, 0);
+	
+	return vec2((m_GoalArea[Team].x+m_GoalArea[Team].z)/2, (m_GoalArea[Team].y+m_GoalArea[Team].w)/2);
 }
 
 
