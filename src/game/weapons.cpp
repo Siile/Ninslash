@@ -1406,9 +1406,7 @@ int GetRandomWeaponType(bool IsSurvival)
 {
 	if (str_comp(g_Config.m_SvGametype, "ball") == 0)
 	{
-		if (rand()%13 < 5)
-			return GetModularWeapon(1, 1+rand()%4);
-		if (rand()%13 < 5)
+		if (rand()%13 < 8)
 			return GetModularWeapon(4, 1+rand()%4);
 		if (rand()%13 < 5)
 			return GetModularWeapon(2, 1+rand()%4);

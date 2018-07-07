@@ -26,6 +26,7 @@ CGameControllerBall::CGameControllerBall(class CGameContext *pGameServer) : IGam
 	
 	m_RoundStartTick = 0;
 	m_RoundEndTick = 0;
+	m_GoTick = 0;
 }
 
 void CGameControllerBall::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
@@ -148,8 +149,16 @@ void CGameControllerBall::Tick()
 	}
 	else if (m_RoundEndTick <= Server()->Tick())
 	{
-		GameServer()->SendBroadcast("Go!", -1);
+		GameServer()->SendBroadcast("", -1);
 		ResetBallRound();
 		m_RoundEndTick = 0;
+		m_GoTick = Server()->Tick() + Server()->TickSpeed()*1;
+	}
+	
+	if (m_GoTick && m_GoTick <= Server()->Tick())
+	{
+		m_GoTick = 0;
+		GameServer()->SendBroadcast("Go!", -1);
+		GameServer()->CreateSoundGlobal(SOUND_CTF_RETURN);
 	}
 }

@@ -21,5 +21,6 @@ public:
 	
 	int m_RoundStartTick;
 	int m_RoundEndTick;
+	int m_GoTick;
 };
 #endif
