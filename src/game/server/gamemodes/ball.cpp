@@ -103,7 +103,7 @@ void CGameControllerBall::Snap(int SnappingClient)
 }
 
 
-
+ 
 void CGameControllerBall::Tick()
 {
 	IGameController::Tick();
