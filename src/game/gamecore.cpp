@@ -871,9 +871,48 @@ void CCharacterCore::Tick(bool UseInput)
 	if (m_Action == COREACTION_JUMPPAD && m_ActionState < 28)
 		m_Anim = 6;
 	
+	m_BallHitVel = vec2(0, 0);
 
 	if(m_pWorld)
 	{
+		// ball collision
+		CBallCore *pBallCore = m_pWorld->m_pBall;
+			
+		if (pBallCore)
+		{
+			float BallSize = m_pWorld->m_Tuning.m_BallSize;
+			vec2 BPos = pBallCore->m_Pos;
+			float OffsetY = -26;
+		
+			if (m_Action == COREACTION_SLIDEKICK && m_ActionState > 2 &&  m_ActionState < 10)
+				OffsetY = -14;
+			
+			if (m_Slide != 0 || m_Roll != 0)
+				OffsetY = -6;
+		
+			vec2 Pos = m_Pos + vec2(0, OffsetY);
+		
+			float Distance = distance(Pos, BPos);
+			vec2 Dir = normalize(Pos - BPos);
+		
+			if (Distance <= BallSize*0.80f+16)
+			{
+				float a = ((BallSize*0.80f+16) - Distance);
+				float Velocity = 0.5f;
+				
+				m_BallHitVel = m_Vel;
+
+				// make sure that we don't add excess force by checking the
+				// direction against the current velocity. if not zero.
+				if (length(m_Vel) > 0.0001)
+					Velocity = 1-(dot(normalize(m_Vel), Dir)+1)/2;
+
+				m_Vel += Dir*a*(Velocity*0.75f);
+				m_Vel *= 0.85f;
+			}
+		}
+		
+		
 		for(int i = 0; i < MAX_CLIENTS; i++)
 		{
 			CCharacterCore *pCharCore = m_pWorld->m_apCharacters[i];
@@ -1251,17 +1290,17 @@ void CCharacterCore::Move()
 			float BallSize = m_pWorld->m_Tuning.m_BallSize;
 	
 			vec2 BPos = pBallCore->m_Pos;
-			float OffsetY = -32;
+			float OffsetY = -26;
 			float Force = 1.0f;
 		
 			if (m_Action == COREACTION_SLIDEKICK && m_ActionState > 2 &&  m_ActionState < 10)
 			{
-				OffsetY = -16;
+				OffsetY = -14;
 				Force = 2.0f;
 			}
 			
 			if (m_Slide != 0 || m_Roll != 0)
-				OffsetY = -8;
+				OffsetY = -6;
 		
 			float Distance = distance(m_Pos, NewPos);
 			int End = Distance+1;
@@ -1274,10 +1313,15 @@ void CCharacterCore::Move()
 				
 				float D = distance(Pos, BPos);
 				
-				if (D <= BallSize*0.70f+16)
+				if (D <= BallSize*0.80f+16)
 				{
+					if(a > 0.0f)
+						m_Pos = LastPos;
+					else if(distance(NewPos, BPos) > D)
+						m_Pos = NewPos;
+					
 					float theta = atan2((Pos.y - BPos.y), (Pos.x - BPos.x));
-					float overlap = BallSize*0.70f+16 - D;
+					float overlap = BallSize*0.80f+16 - D;
 					
 					vec2 BVel = -vec2(cos(theta), sin(theta)) * overlap;
 					m_pCollision->MoveBox(&pBallCore->m_Pos, &BVel, vec2(BallSize, BallSize), 0.0f);
@@ -1287,12 +1331,12 @@ void CCharacterCore::Move()
 					BPos = pBallCore->m_Pos;
 					D = distance(Pos, BPos);
 					
-					float theta1 = GetAngle(m_Vel);
+					float theta1 = GetAngle(m_BallHitVel);
 					float theta2 = GetAngle(pBallCore->m_Vel);
 					float phi = atan2(BPos.y - Pos.y, BPos.x - Pos.x);
 					float m1 = 1.0f;
 					float m2 = 0.5f;
-					float v1 = length(m_Vel);
+					float v1 = length(m_BallHitVel);
 					float v2 = length(pBallCore->m_Vel);
 					
 					float dx1F = (v1 * cos(theta1 - phi) * (m1-m2) + 2*m2*v2*cos(theta2 - phi)) / (m1+m2) * cos(phi) + v1*sin(theta1-phi) * cos(phi+pi/2);
@@ -1300,11 +1344,13 @@ void CCharacterCore::Move()
 					float dx2F = (v2 * cos(theta2 - phi) * (m2-m1) + 2*m1*v1*cos(theta1 - phi)) / (m1+m2) * cos(phi) + v2*sin(theta2-phi) * cos(phi+pi/2);
 					float dy2F = (v2 * cos(theta2 - phi) * (m2-m1) + 2*m1*v1*cos(theta1 - phi)) / (m1+m2) * sin(phi) + v2*sin(theta2-phi) * sin(phi+pi/2);
 
-					pBallCore->m_Vel = vec2(dx2F, dy2F);
-					m_Vel -= vec2(dx1F, dy1F)*0.1f;
+					pBallCore->m_Vel = vec2(dx2F, dy2F)*0.9f;
+					//m_Vel -= vec2(dx1F, dy1F)*0.1f;
 					break;
 				}
 				
+				
+				LastPos = Pos;
 			}
 		}
 	}
@@ -1555,7 +1601,7 @@ void CBallCore::Move()
 	
 	vec2 NewPos = m_Pos;
 	vec2 OldVel = m_Vel;
-	m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(BallSize, BallSize), 0.8f);
+	m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(BallSize, BallSize), 0.7f);
 	
 
 	if ((((OldVel.x < 0 && m_Vel.x > 0) || (OldVel.x > 0 && m_Vel.x < 0)) && abs(m_Vel.x) > 3.0f) ||

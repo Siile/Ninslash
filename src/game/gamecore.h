@@ -307,6 +307,8 @@ public:
 	vec2 m_Pos;
 	vec2 m_Vel;
 	
+	vec2 m_BallHitVel;
+	
 	bool m_PlayerCollision;
 	bool m_MonsterDamage;
 	bool m_FluidDamage;
