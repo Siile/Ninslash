@@ -154,6 +154,7 @@ void CServerBrowser::Filter()
 		else if(g_Config.m_BrFilterPure &&
 			(str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "DM") != 0 &&
 			str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "TDM") != 0 &&
+			str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "BALL") != 0 &&
 			str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "DEF") != 0 &&
 			str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "INF") != 0 &&
 			str_comp(m_ppServerlist[i]->m_Info.m_aGameType, "INV") != 0 &&
