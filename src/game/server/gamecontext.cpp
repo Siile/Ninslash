@@ -847,7 +847,10 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon)
 		float Dmg = GetExplosionDamage(Weapon) * l;
 							
 		if((int)Dmg && Dmg > 0.0f)
+		{
 			m_pController->m_pBall->AddForce(ForceDir*Dmg*0.3f); //
+			m_pController->m_LastBallToucher = Owner;
+		}
 	}
 	
 	{

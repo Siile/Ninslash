@@ -1420,6 +1420,11 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 	// give or take scores
 	if(!pKiller || Weapon == WEAPON_GAME)
 		return 0;
+	
+	// no kill scores for ball modes
+	if (m_pBall)
+		return 0;
+	
 	if(pKiller == pVictim->GetPlayer())
 	{
 		if (!(IsInfection() && pVictim->GetPlayer()->GetTeam() == TEAM_BLUE) && g_Config.m_SvSelfKillPenalty)
