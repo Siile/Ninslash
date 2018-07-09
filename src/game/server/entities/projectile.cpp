@@ -212,6 +212,7 @@ void CProjectile::Tick()
 		{
 			vec2 Force = m_Direction * max(0.001f, m_Force);
 			Ball->AddForce(Force);
+			GameServer()->m_pController->m_LastBallToucher = m_Owner;
 		}
 		
 		if (m_LifeSpan < 0)
