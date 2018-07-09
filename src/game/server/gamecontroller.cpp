@@ -1,5 +1,3 @@
-
-
 #include <engine/shared/config.h>
 #include <game/mapitems.h>
 
@@ -40,7 +38,8 @@ IGameController::IGameController(class CGameContext *pGameServer)
 	m_aTeamscore[TEAM_RED] = 0;
 	m_aTeamscore[TEAM_BLUE] = 0;
 	m_aMapWish[0] = 0;
-
+	m_LastBallToucher = -1;
+	
 	m_UnbalancedTick = -1;
 	m_ForceBalanced = false;
 

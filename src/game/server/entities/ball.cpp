@@ -24,6 +24,7 @@ void CBall::Reset()
 bool CBall::Spawn(vec2 Pos)
 {
 	m_Pos = Pos;
+	GameServer()->m_pController->m_LastBallToucher = -1;
 
 	if (m_OriginalPos.x == 0)
 		m_OriginalPos = m_Pos;
@@ -46,6 +47,7 @@ bool CBall::Spawn(vec2 Pos)
 
 void CBall::RoundReset()
 {
+	GameServer()->m_pController->m_LastBallToucher = -1;
 	if (m_OriginalPos.x != 0)
 		m_Pos = m_OriginalPos;
 	
@@ -74,6 +76,9 @@ void CBall::Tick()
 		m_Core.m_ForceCoreSend = false;
 		m_ForceCoreSend = true;
 	}
+	
+	if (m_Core.m_Pos.x < -1000 || m_Core.m_Pos.x > GameServer()->Collision()->GetWidth()*32+1000 || m_Core.m_Pos.y < -1000 || m_Core.m_Pos.y > GameServer()->Collision()->GetWidth()*32+1000)
+		RoundReset();
 }
 
 void CBall::TickDefered()

@@ -133,23 +133,35 @@ void CGameControllerBall::Tick()
 	{
 		if (InMapArea(TEAM_RED, m_pBall->GetPosition()))
 		{
+			char aBuf[256];
+			if (m_LastBallToucher >= 0)
+				str_format(aBuf, sizeof(aBuf), "%s scores for blue team!", Server()->ClientName(m_LastBallToucher));
+			else
+				str_format(aBuf, sizeof(aBuf), "Blue team scores!");
+			
 			GameServer()->CreateSoundGlobal(SOUND_CTF_CAPTURE);
-			GameServer()->SendBroadcast("Blue team scores!", -1);
+			GameServer()->SendBroadcast(aBuf, -1);
 			m_aTeamscore[TEAM_BLUE]++;
 			m_RoundEndTick = Server()->Tick() + Server()->TickSpeed()*1;
 		}
 			
 		if (InMapArea(TEAM_BLUE, m_pBall->GetPosition()))
 		{
+			char aBuf[256];
+			if (m_LastBallToucher >= 0)
+				str_format(aBuf, sizeof(aBuf), "%s scores for red team!", Server()->ClientName(m_LastBallToucher));
+			else
+				str_format(aBuf, sizeof(aBuf), "Red team scores!");
+			
 			GameServer()->CreateSoundGlobal(SOUND_CTF_CAPTURE);
-			GameServer()->SendBroadcast("Red team scores!", -1);
+			GameServer()->SendBroadcast(aBuf, -1);
 			m_aTeamscore[TEAM_RED]++;
 			m_RoundEndTick = Server()->Tick() + Server()->TickSpeed()*1;
 		}
 	}
 	else if (m_RoundEndTick <= Server()->Tick())
 	{
-		GameServer()->SendBroadcast("", -1);
+		//GameServer()->SendBroadcast("", -1);
 		ResetBallRound();
 		m_RoundEndTick = 0;
 		m_GoTick = Server()->Tick() + Server()->TickSpeed()*1;

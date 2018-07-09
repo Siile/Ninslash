@@ -130,6 +130,8 @@ public:
 
 	class CBall *m_pBall;
 	
+	int m_LastBallToucher;
+	
 	// CSTT & CSBB
 	int GetRoundState(){ return m_GameState; }
 	int GetRound(){ return m_Round; }
