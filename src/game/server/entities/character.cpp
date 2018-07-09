@@ -1608,6 +1608,9 @@ void CCharacter::Tick()
 	m_Core.m_ClientID = GetPlayer()->GetCID();
 	m_Core.Tick(true);
 	
+	if (m_Core.m_BallHitVel.x != 0.0f || m_Core.m_BallHitVel.y != 0.0f)
+		GameServer()->m_pController->m_LastBallToucher = GetPlayer()->GetCID();
+	
 	// anti head stuck
 	if(GameServer()->Collision()->CheckPoint(m_Pos.x, m_Pos.y-m_ProximityRadius/3.f-42) && (!m_Core.IsGrounded() && m_Core.m_Slide == 0))
 	{
