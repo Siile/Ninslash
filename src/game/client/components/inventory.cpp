@@ -642,27 +642,30 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 	}
 
 	
-	TextRender()->TextColor(0.9f, 0.9f, 0.9f, 1);
-	
 	// hint texts
-	for (int x = 0; x < 4; x++)
+	if (m_Tab == 0)
 	{
-		for (int y = 0; y < 3; y++)
+		TextRender()->TextColor(0.9f, 0.9f, 0.9f, 1);
+		
+		for (int x = 0; x < 4; x++)
 		{
-			float s = 112 * s_Fade * (m_Scale*0.75f + 0.25f);
-			float s2 = s*0.5f;
-			vec2 GSize = Size - vec2(8, 8);
-			vec2 p = Pos-GSize + vec2(x+0.5f, y+0.5f)*GSize/vec2(4, 3)*2;
-			
-			if (x+y*4 == Selected && CustomStuff()->m_aItem[Selected] > 0 && abs(m_SelectorMouse.x - p.x) < s2 && abs(m_SelectorMouse.y - p.y) < s2)
+			for (int y = 0; y < 3; y++)
 			{
-				if (IsStaticWeapon(CustomStuff()->m_aItem[Selected]))
-					TextRender()->Text(0, p.x-s2*0.8f, p.y-s2, s2*0.25f, s_TipText[GetStaticType(CustomStuff()->m_aItem[Selected])], -1);
+				float s = 112 * s_Fade * (m_Scale*0.75f + 0.25f);
+				float s2 = s*0.5f;
+				vec2 GSize = Size - vec2(8, 8);
+				vec2 p = Pos-GSize + vec2(x+0.5f, y+0.5f)*GSize/vec2(4, 3)*2;
+				
+				if (x+y*4 == Selected && CustomStuff()->m_aItem[Selected] > 0 && abs(m_SelectorMouse.x - p.x) < s2 && abs(m_SelectorMouse.y - p.y) < s2)
+				{
+					if (IsStaticWeapon(CustomStuff()->m_aItem[Selected]))
+						TextRender()->Text(0, p.x-s2*0.8f, p.y-s2, s2*0.25f, s_TipText[GetStaticType(CustomStuff()->m_aItem[Selected])], -1);
+				}
 			}
 		}
+		
+		TextRender()->TextColor(1, 1, 1, 1);
 	}
-	
-	TextRender()->TextColor(1, 1, 1, 1);
 	
 	// selected weapon / crafting
 	/*
