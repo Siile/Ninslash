@@ -609,11 +609,31 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 						Graphics()->QuadsBegin();
 						
 						Graphics()->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
-						RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+Cost);
-						RenderTools()->DrawSprite(p.x-1, p.y-1, s*2.0f);
-						RenderTools()->DrawSprite(p.x+1, p.y-1, s*2.0f);
-						RenderTools()->DrawSprite(p.x+1, p.y+1, s*2.0f);
-						RenderTools()->DrawSprite(p.x-1, p.y+1, s*2.0f);
+						
+						if (Cost < 10)
+						{
+							RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+Cost);
+							RenderTools()->DrawSprite(p.x-1, p.y-1, s*2.0f);
+							RenderTools()->DrawSprite(p.x+1, p.y-1, s*2.0f);
+							RenderTools()->DrawSprite(p.x+1, p.y+1, s*2.0f);
+							RenderTools()->DrawSprite(p.x-1, p.y+1, s*2.0f);
+						}
+						else
+						{
+							int second = Cost%10;
+							int first = (Cost-second)/10;
+							RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+first);
+							RenderTools()->DrawSprite(p.x-1-s*0.5f, p.y-1, s*2.0f);
+							RenderTools()->DrawSprite(p.x+1-s*0.5f, p.y-1, s*2.0f);
+							RenderTools()->DrawSprite(p.x+1-s*0.5f, p.y+1, s*2.0f);
+							RenderTools()->DrawSprite(p.x-1-s*0.5f, p.y+1, s*2.0f);
+							
+							RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+second);
+							RenderTools()->DrawSprite(p.x-1+s*0.5f, p.y-1, s*2.0f);
+							RenderTools()->DrawSprite(p.x+1+s*0.5f, p.y-1, s*2.0f);
+							RenderTools()->DrawSprite(p.x+1+s*0.5f, p.y+1, s*2.0f);
+							RenderTools()->DrawSprite(p.x-1+s*0.5f, p.y+1, s*2.0f);
+						}
 					
 						Graphics()->QuadsEnd();
 						Graphics()->ShaderEnd();
@@ -630,8 +650,20 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 					else
 						Graphics()->SetColor(0.9f, 0.9f, 0.9f, 1.0f);
 					
-					RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+Cost);
-					RenderTools()->DrawSprite(p.x, p.y, s*2.0f);
+					if (Cost < 10)
+					{
+						RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+Cost);
+						RenderTools()->DrawSprite(p.x, p.y, s*2.0f);
+					}
+					else
+					{
+						int second = Cost%10;
+						int first = (Cost-second)/10;
+						RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+first);
+						RenderTools()->DrawSprite(p.x-s*0.5f, p.y, s*2.0f);
+						RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+second);
+						RenderTools()->DrawSprite(p.x+s*0.5f, p.y, s*2.0f);
+					}
 				}
 				
 				Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
