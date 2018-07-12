@@ -889,6 +889,9 @@ void CCharacterCore::Tick(bool UseInput)
 			
 			if (m_Slide != 0 || m_Roll != 0)
 				OffsetY = -6;
+			
+			if (m_DashTimer > 0)
+				OffsetY = -12;
 		
 			vec2 Pos = m_Pos + vec2(0, OffsetY);
 		
@@ -1301,6 +1304,9 @@ void CCharacterCore::Move()
 			
 			if (m_Slide != 0 || m_Roll != 0)
 				OffsetY = -6;
+			
+			if (m_DashTimer > 0)
+				OffsetY = -12;
 		
 			float Distance = distance(m_Pos, NewPos);
 			int End = Distance+1;
@@ -1336,6 +1342,7 @@ void CCharacterCore::Move()
 					float phi = atan2(BPos.y - Pos.y, BPos.x - Pos.x);
 					float m1 = 1.0f;
 					float m2 = 0.5f;
+					
 					float v1 = length(m_BallHitVel);
 					float v2 = length(pBallCore->m_Vel);
 					
@@ -1344,7 +1351,18 @@ void CCharacterCore::Move()
 					float dx2F = (v2 * cos(theta2 - phi) * (m2-m1) + 2*m1*v1*cos(theta1 - phi)) / (m1+m2) * cos(phi) + v2*sin(theta2-phi) * cos(phi+pi/2);
 					float dy2F = (v2 * cos(theta2 - phi) * (m2-m1) + 2*m1*v1*cos(theta1 - phi)) / (m1+m2) * sin(phi) + v2*sin(theta2-phi) * sin(phi+pi/2);
 
-					pBallCore->m_Vel = vec2(dx2F, dy2F)*0.9f;
+					//if (pBallCore->m_Status & (1<<BALLSTATUS_SUPER))
+					//	m_Vel -= vec2(dx1F, dy1F)*0.6f;
+					
+					if (m_DashTimer > 0)
+					{
+						pBallCore->m_Vel = vec2(dx2F, dy2F)*1.3f;
+						
+						if (length(pBallCore->m_Vel) > 15.0f)
+							pBallCore->m_Status |= 1 << BALLSTATUS_SUPER;
+					}
+					else
+						pBallCore->m_Vel = vec2(dx2F, dy2F)*0.9f;
 					//m_Vel -= vec2(dx1F, dy1F)*0.1f;
 					break;
 				}
@@ -1558,7 +1576,13 @@ void CBallCore::Tick()
 	if (m_Status & (1<<BALLSTATUS_STATIONARY))
 		return;
 	
-	m_Vel.y += 0.5f;
+	if (m_Status & (1<<BALLSTATUS_SUPER) && length(m_Vel) < 15.0f)
+		m_Status ^= 1 << BALLSTATUS_SUPER;
+	
+	if (m_Status & (1<<BALLSTATUS_SUPER))
+		m_Vel.y += 0.45f;
+	else
+		m_Vel.y += 0.5f;
 }
 
 void CBallCore::Move()
@@ -1567,8 +1591,17 @@ void CBallCore::Move()
 		return;
 	
 	// limit speed
-	if (length(m_Vel) > 30.0f)
-		m_Vel = normalize(m_Vel)*30.0f;
+	float Limit = 30.0f;
+	float Elastic = 0.7f;
+	
+	if (m_Status & (1<<BALLSTATUS_SUPER))
+	{
+		Limit = 40.0f;
+		Elastic = 0.85f;
+	}
+	
+	if (length(m_Vel) > Limit)
+		m_Vel = normalize(m_Vel)*Limit;
 	
 	float BallSize = m_pWorld->m_Tuning.m_BallSize;
 	
@@ -1601,7 +1634,10 @@ void CBallCore::Move()
 	
 	vec2 NewPos = m_Pos;
 	vec2 OldVel = m_Vel;
-	m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(BallSize, BallSize), 0.7f);
+	
+	
+	
+	m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(BallSize, BallSize), Elastic);
 	
 
 	if ((((OldVel.x < 0 && m_Vel.x > 0) || (OldVel.x > 0 && m_Vel.x < 0)) && abs(m_Vel.x) > 3.0f) ||

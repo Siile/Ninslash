@@ -74,6 +74,9 @@ void CBalls::RenderBall(const CNetObj_Ball *pPrevBall, const CNetObj_Ball *pBall
 
 	float BallSize = m_pClient->m_Tuning.m_BallSize;
 	
+	if (Ball.m_Status & (1<<BALLSTATUS_SUPER))
+		Graphics()->PlayerShaderBegin(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+	
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BALL].m_Id);
 	Graphics()->QuadsBegin();
 	Graphics()->QuadsSetRotation(Angle);
@@ -82,6 +85,8 @@ void CBalls::RenderBall(const CNetObj_Ball *pPrevBall, const CNetObj_Ball *pBall
 	//IGraphics::CQuadItem QuadItem(Ball.m_X, Ball.m_Y, 48, 48);
 	Graphics()->QuadsDraw(&QuadItem, 1);
 	Graphics()->QuadsEnd();
+	
+	Graphics()->ShaderEnd();
 	
 	m_pClient->m_pTracers->Add(8, -609, Position, Position, 0, 0);
 	
