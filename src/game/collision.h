@@ -17,10 +17,10 @@ class CCollision
 	class CLayers *m_pLayers;
 	bool *m_pBlocks;
 	
-	int SolidState(int x, int y, bool IncludeDeath = false);
+	int SolidState(int x, int y, bool IncludeDeath = false, bool Down = false);
 	int ForceState(int x, int y);
 	
-	int GetTile(int x, int y);
+	int GetTile(int x, int y, bool Down = true);
 	bool GetBlock(int x, int y);
 	
 	int m_WaypointCount;
@@ -58,6 +58,7 @@ public:
 		COLFLAG_MOVELEFT=129,
 		COLFLAG_MOVERIGHT=130,
 		COLFLAG_HANG=131,
+		COLFLAG_PLATFORM=132,
 	};
 	
 	enum
@@ -117,8 +118,10 @@ public:
 	bool IsHangTile(float x, float y);
 	bool IsHangTile(vec2 Pos){ return IsHangTile(Pos.x, Pos.y); }
 	
-	int CheckPoint(float x, float y, bool IncludeDeath = false) { return SolidState(round_to_int(x), round_to_int(y), IncludeDeath); }
-	bool CheckPoint(vec2 Pos) { return CheckPoint(Pos.x, Pos.y); }
+	bool IsPlatform(float x, float y);
+	
+	int CheckPoint(float x, float y, bool IncludeDeath = false, bool Down = true) { return SolidState(round_to_int(x), round_to_int(y), IncludeDeath, Down); }
+	bool CheckPoint(vec2 Pos, bool Down = true) { return CheckPoint(Pos.x, Pos.y, false, Down); }
 	
 	bool CheckBlocks(float x, float y) { return GetBlock(round_to_int(x), round_to_int(y)); }
 	bool CheckBlocks(vec2 Pos) { return CheckBlocks(Pos.x, Pos.y); }
@@ -138,8 +141,8 @@ public:
 	
 	// return bounced (true) or not (false)
 	bool MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, int *pBounces, bool IgnoreCollision = false);
-	void MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, float Elasticity, bool check_speed = true);
-	int TestBox(vec2 Pos, vec2 Size);
+	void MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, float Elasticity, bool check_speed = true, bool Down = false);
+	int TestBox(vec2 Pos, vec2 Size, bool Down = false);
 
 	// MapGen
 	bool ModifTile(ivec2 pos, int group, int layer, int tile, int flags, int reserved);

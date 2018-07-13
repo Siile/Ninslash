@@ -112,12 +112,23 @@ bool CCharacterCore::IsGrounded()
 		return true;
 	
 	for(int i = -PhysSize/2; i <= PhysSize/2; i++) {
-		if(m_pCollision->CheckPoint(m_Pos.x+i, m_Pos.y+PhysSize/2+5)) {
+		if(m_pCollision->CheckPoint(m_Pos.x+i, m_Pos.y+PhysSize/2+5, false, PlatformState())) {
 			return true;
 		}
 	}
 	
 	return false;
+}
+
+
+bool CCharacterCore::PlatformState()
+{
+	float PhysSize = 28.0f;
+	
+	if (m_pCollision->IsPlatform(m_Pos.x-PhysSize/2, m_Pos.y+PhysSize/2+24) || m_pCollision->IsPlatform(m_Pos.x+PhysSize/2, m_Pos.y+PhysSize/2+24))
+		return m_Slide == 0 && m_Roll == 0 && abs(m_Vel.x) < 5.0f && m_Down;
+	
+	return true;
 }
 
 int CCharacterCore::IsOnForceTile()
@@ -611,12 +622,13 @@ void CCharacterCore::Tick(bool UseInput)
 				}
 			}
 			
+			bool Down = PlatformState();
 			
 			if (Grounded)
 			{
 				if (!(m_Jumped&1) && !m_Roll)
 				{
-					if (!m_pCollision->CheckPoint(m_Pos.x, m_Pos.y-64))
+					if (!m_pCollision->CheckPoint(m_Pos.x, m_Pos.y-64, false, Down))
 					{
 						// lazy timer for jump animations
 						if (m_Slide > 0)
@@ -719,10 +731,7 @@ void CCharacterCore::Tick(bool UseInput)
 	else if(slope != 0 && m_Direction == -slope && !m_Sliding) {
 		MaxSpeed = SlopeAscendingControlSpeed;
 		float diff = SlopeDeceleration*fabs(m_Vel.x - MaxSpeed);
-		/*if(m_Vel.x > MaxSpeed)
-			m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, -SlopeDeceleration);
-		if(m_Vel.x < -MaxSpeed)
-			m_Vel.x = SaturatedAdd(-MaxSpeed, MaxSpeed, m_Vel.x, SlopeDeceleration);*/
+		
 		if(m_Vel.x > MaxSpeed)
 			m_Vel.x -= diff;
 		if(m_Vel.x < -MaxSpeed)
@@ -755,21 +764,16 @@ void CCharacterCore::Tick(bool UseInput)
 	}
 	
 	if(m_Sliding && slope != 0) {
-		//std::cerr << "Fric1..." << m_Pos.x << std::endl;
 		m_Vel.x = SaturatedAdd(-SlideControlSpeed, SlideControlSpeed, m_Vel.x, slope*SlideSlopeAcceleration);
-		//m_Vel.y = slope*SaturatedAdd(-SlideControlSpeed, SlideControlSpeed, m_Vel.y, slope*SlideSlopeAcceleration);
 	}
 	else if(m_Sliding && Grounded) {
-		//std::cerr << "Fric2..." << m_Pos.x << ", " << SlideFriction << std::endl;
 		m_Vel.x *= SlideFriction;
 	}
 	else if(m_Direction == 0 && m_Slide == 0) {
-		//std::cerr << "Fric3..." << m_Pos.x << std::endl;
 		if(slope != 0 && !m_Jumped) {
 			m_Vel.x *= Friction;// /invsqrt2;
 			m_Vel.y *= Friction;// /invsqrt2;
 		} else {
-			//m_Vel.x *= Friction;
 			m_Vel.x = (m_Vel.x + ForceTileStatus) * Friction;
 		}
 	}
@@ -835,11 +839,6 @@ void CCharacterCore::Tick(bool UseInput)
 	// roll dash
 	if (m_Roll > 4 && !m_DashTimer && m_Input.m_Jump && ((m_Vel.x < 0) == (Dir.x < 0)) && Dir.y < 0.25f)
 	{
-		/*
-			m_Slide = 5;
-			m_Anim = 3 * (m_Vel.x < 0.0f ? -1 : 1);
-			m_Roll = 0;
-		*/
 		m_DashTimer = 4;
 		m_DashAngle = m_Angle;
 		
@@ -850,9 +849,7 @@ void CCharacterCore::Tick(bool UseInput)
 	{
 		m_DashTimer--;
 		
-		//vec2 d = GetDirection(m_DashAngle)*16.0f * vec2(-1, -1);
 		vec2 d = GetDirection(m_DashAngle)*max(length(m_Vel)*1.05f, DashPower);
-		//m_Vel = d;
 		m_Vel += (d - m_Vel) / 3.0f;
 	}
 	
@@ -1036,7 +1033,6 @@ void CCharacterCore::Tick(bool UseInput)
 				m_Vel.y = 0.0f;
 				m_Action = COREACTION_HANG;
 				m_ActionState = 0;
-				//m_Pos.y = (int(m_Pos.y/32))*32 + int(m_Pos.y)%32;
 				m_Pos.y -= (int(m_Pos.y)%32-26)/2.0f; // 26
 				
 				if (!LoadJetpack)
@@ -1216,17 +1212,21 @@ void CCharacterCore::Move()
 
 	float VelY = m_Vel.y;
 	
+	bool Down = PlatformState();
+	
+	if (VelY < 0.0f)
+		Down = true;
 	
 	vec2 NewPos = m_Pos;
 	
 	if ((m_Slide == 0 && m_Roll == 0) || m_Wallrun != 0)
 	{
 		NewPos.y -= 18;
-		m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(28.0f, 64.0f), 0, !m_Sliding);
+		m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(28.0f, 64.0f), 0, !m_Sliding, Down);
 		NewPos.y += 18;
 		
-		int TopLeft = m_pCollision->CheckPoint(m_Pos.x-28.0f*0.5f, m_Pos.y-(64.0f)*0.5f-18);
-		int TopRight = m_pCollision->CheckPoint(m_Pos.x+28.0f*0.5f, m_Pos.y-(64.0f)*0.5f-18);
+		int TopLeft = m_pCollision->CheckPoint(m_Pos.x-28.0f*0.5f, m_Pos.y-(64.0f)*0.5f-18, false, true);
+		int TopRight = m_pCollision->CheckPoint(m_Pos.x+28.0f*0.5f, m_Pos.y-(64.0f)*0.5f-18, false, true);
 		
 		// unstuck jumpkick
 		if (TopLeft && !TopRight)
@@ -1237,7 +1237,7 @@ void CCharacterCore::Move()
 	else
 	{
 		NewPos.y -= 10;
-		m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(28.0f, 48.0f), 0, !m_Sliding);
+		m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(28.0f, 48.0f), 0, !m_Sliding, Down);
 		NewPos.y += 10;
 	}
 	
@@ -1569,6 +1569,22 @@ void CBallCore::PlayerHit()
 }
 
 
+const float CBallCore::BallSize()
+{
+	return m_pWorld->m_Tuning.m_BallSize;
+}
+
+bool CBallCore::PlatformState()
+{
+	float PhysSize = BallSize();
+	
+	if (m_pCollision->IsPlatform(m_Pos.x-PhysSize/2, m_Pos.y+PhysSize/2+24) || m_pCollision->IsPlatform(m_Pos.x+PhysSize/2, m_Pos.y+PhysSize/2+24))
+		return m_Vel.y < 0.0f;
+	
+	return true;
+}
+
+
 void CBallCore::Tick()
 {
 	m_TriggeredEvents = 0;
@@ -1594,6 +1610,8 @@ void CBallCore::Move()
 	float Limit = 30.0f;
 	float Elastic = 0.7f;
 	
+	bool Down = PlatformState();
+	
 	if (m_Status & (1<<BALLSTATUS_SUPER))
 	{
 		Limit = 40.0f;
@@ -1606,9 +1624,9 @@ void CBallCore::Move()
 	float BallSize = m_pWorld->m_Tuning.m_BallSize;
 	
 	bool Grounded = false;
-	if (m_pCollision->CheckPoint(m_Pos.x+BallSize/2, m_Pos.y+BallSize/2+5))
+	if (m_pCollision->CheckPoint(m_Pos.x+BallSize/2, m_Pos.y+BallSize/2+5, false, Down))
 		Grounded = true;
-	else if (m_pCollision->CheckPoint(m_Pos.x-BallSize/2, m_Pos.y+BallSize/2+5))
+	else if (m_pCollision->CheckPoint(m_Pos.x-BallSize/2, m_Pos.y+BallSize/2+5, false, Down))
 		Grounded = true;
 	
 	int OnForceTile = m_pCollision->IsForceTile(m_Pos.x-BallSize/2, m_Pos.y+BallSize/2+5);
@@ -1637,7 +1655,7 @@ void CBallCore::Move()
 	
 	
 	
-	m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(BallSize, BallSize), Elastic);
+	m_pCollision->MoveBox(&NewPos, &m_Vel, vec2(BallSize, BallSize), Elastic, false, Down);
 	
 
 	if ((((OldVel.x < 0 && m_Vel.x > 0) || (OldVel.x > 0 && m_Vel.x < 0)) && abs(m_Vel.x) > 3.0f) ||
@@ -1647,11 +1665,6 @@ void CBallCore::Move()
 	m_Angle += clamp(m_AngleForce*0.04f, -0.3f, 0.3f);
 	
 	m_Pos = NewPos;
-}
-
-float CBallCore::BallSize()
-{
-	return m_pWorld->m_Tuning.m_BallSize;
 }
 
 void CBallCore::Write(CNetObj_BallCore *pObjCore)

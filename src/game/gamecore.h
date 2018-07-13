@@ -278,7 +278,8 @@ public:
 	void Write(CNetObj_BallCore *pObjCore);
 	void Quantize();
 	
-	float BallSize();
+	bool PlatformState();
+	const float BallSize();
 	
 	bool Status(int i)
 	{
@@ -364,6 +365,7 @@ public:
 	void Tick(bool UseInput);
 	void Move();
 	
+	bool PlatformState();
 	bool IsGrounded();
 	int IsOnForceTile();
 	bool IsInFluid();

@@ -195,7 +195,7 @@ void CPlayers::RenderPlayer(
 	*/
 	
 	bool Stationary = Player.m_VelX <= 1 + ForceState && Player.m_VelX >= -1 + ForceState;
-	bool InAir = !Collision()->CheckPoint(Player.m_X, Player.m_Y+16);
+	bool InAir = !Collision()->CheckPoint(Player.m_X, Player.m_Y+16, false, false);
 	bool WantOtherDir = (Player.m_Direction == -1 && Vel.x > 0) || (Player.m_Direction == 1 && Vel.x < 0);
 
 	// flip feet animation when needed

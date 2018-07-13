@@ -824,10 +824,12 @@ void CWeapon::Move()
 	
 	//m_Vel.y = min(m_Vel.y, 25.0f);
 	
+	bool Down = m_Vel.y < 0.0f;
+	
 	bool Grounded = false;
-	if(GameServer()->Collision()->CheckPoint(m_Pos.x+12, m_Pos.y+12+5))
+	if(GameServer()->Collision()->CheckPoint(m_Pos.x+12, m_Pos.y+12+5, false, Down))
 		Grounded = true;
-	if(GameServer()->Collision()->CheckPoint(m_Pos.x-12, m_Pos.y+12+5))
+	if(GameServer()->Collision()->CheckPoint(m_Pos.x-12, m_Pos.y+12+5, false, Down))
 		Grounded = true;
 		
 	int OnForceTile = GameServer()->Collision()->IsForceTile(m_Pos.x-12, m_Pos.y+12+5);
@@ -873,7 +875,7 @@ void CWeapon::Move()
 			// todo: correct sound & effect
 		}
 		
-		if (abs(m_Vel.x) < 0.1f && abs(m_Vel.y) < 1.0f && GameServer()->Collision()->IsTileSolid(m_Pos.x, m_Pos.y+10.0f))
+		if (abs(m_Vel.x) < 0.1f && abs(m_Vel.y) < 1.0f && GameServer()->Collision()->IsTileSolid(m_Pos.x, m_Pos.y+10.0f, Down))
 		{
 			m_Stuck = true;
 			m_Owner = -1;

@@ -208,10 +208,12 @@ void CPickup::Tick()
 	{
 		m_Vel.y += 0.5f;
 		
+		bool Down = m_Vel.y < 0.0f;
+	
 		bool Grounded = false;
-		if(GameServer()->Collision()->CheckPoint(m_Pos.x+12, m_Pos.y+m_BoxSize/2+5))
+		if(GameServer()->Collision()->CheckPoint(m_Pos.x+12, m_Pos.y+m_BoxSize/2+5, false, Down))
 			Grounded = true;
-		if(GameServer()->Collision()->CheckPoint(m_Pos.x-12, m_Pos.y+m_BoxSize/2+5))
+		if(GameServer()->Collision()->CheckPoint(m_Pos.x-12, m_Pos.y+m_BoxSize/2+5, false, Down))
 			Grounded = true;
 		
 		int OnForceTile = GameServer()->Collision()->IsForceTile(m_Pos.x-12, m_Pos.y+m_BoxSize/2+5);

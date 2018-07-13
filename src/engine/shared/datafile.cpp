@@ -815,6 +815,7 @@ bool CDataFileWriter::SaveMap(class IStorage *pStorage, CDataFileReader *pFileMa
 		COLFLAG_MOVELEFT=129,
 		COLFLAG_MOVERIGHT=130,
 		COLFLAG_HANG=131,
+		COLFLAG_PLATFORM=132,
 	};
 
 	int LayerStart, LayerCount=0, LayerNum, GroupStart, GroupCount=0, GroupNum;
@@ -844,7 +845,7 @@ bool CDataFileWriter::SaveMap(class IStorage *pStorage, CDataFileReader *pFileMa
                         {
                             const int tpos = o*Tilemap.m_Width+u;
                             const int index = pTiles[tpos].m_Index;
-                            if (index <= 132)
+                            if (index <= 133)
                             {
                                 if (index&COLFLAG_DEATH) pTiles[tpos].m_Index = TILE_DEATH;
                                 if (index&COLFLAG_SOLID) pTiles[tpos].m_Index = TILE_SOLID;
@@ -856,6 +857,7 @@ bool CDataFileWriter::SaveMap(class IStorage *pStorage, CDataFileReader *pFileMa
                                 if (index == COLFLAG_MOVELEFT) pTiles[tpos].m_Index = TILE_MOVELEFT;
                                 if (index == COLFLAG_MOVERIGHT) pTiles[tpos].m_Index = TILE_MOVERIGHT;
                                 if (index == COLFLAG_HANG) pTiles[tpos].m_Index = TILE_HANG;
+                                if (index == COLFLAG_PLATFORM) pTiles[tpos].m_Index = TILE_PLATFORM;
                             }
                         }
                     }

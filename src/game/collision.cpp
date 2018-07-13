@@ -101,6 +101,9 @@ void CCollision::Init(class CLayers *pLayers)
 		case TILE_HANG:
 			m_pTiles[i].m_Index = COLFLAG_HANG;
 			break;
+		case TILE_PLATFORM:
+			m_pTiles[i].m_Index = COLFLAG_PLATFORM;
+			break;
 		default:
 			m_pTiles[i].m_Index = 0;
 		}
@@ -542,7 +545,7 @@ bool CCollision::CanBuildBlock(int x, int y)
 	return false;
 }
 
-int CCollision::GetTile(int x, int y)
+int CCollision::GetTile(int x, int y, bool Down)
 {
 	int Nx = clamp(x/32, 0, m_Width-1);
 	int Ny = clamp(y/32, 0, m_Height-1);
@@ -554,6 +557,9 @@ int CCollision::GetTile(int x, int y)
 		return COLFLAG_SOLID;
 	
 	if (m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_MOVELEFT || m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_MOVERIGHT)
+		return COLFLAG_SOLID;
+	
+	if (!Down && m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_PLATFORM)
 		return COLFLAG_SOLID;
 	
 	return m_pTiles[Ny*m_Width+Nx].m_Index > 128 ? 0 : m_pTiles[Ny*m_Width+Nx].m_Index;
@@ -612,6 +618,18 @@ bool CCollision::IsHangTile(float x, float y)
 	return false;
 }
 
+
+bool CCollision::IsPlatform(float x, float y)
+{
+	int Nx = clamp(round_to_int(x)/32, 0, m_Width-1);
+	int Ny = clamp(round_to_int(y)/32, 0, m_Height-1);
+	
+	if (m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_PLATFORM)
+		return true;
+	
+	return false;
+}
+
 bool CCollision::IsSawblade(float x, float y)
 {
 	int Nx = clamp(round_to_int(x)/32, 0, m_Width-1);
@@ -624,9 +642,9 @@ bool CCollision::IsSawblade(float x, float y)
 }
 
 
-int CCollision::SolidState(int x, int y, bool IncludeDeath)
+int CCollision::SolidState(int x, int y, bool IncludeDeath, bool Down)
 {
-	unsigned char sol = GetTile(x, y);
+	unsigned char sol = GetTile(x, y, Down);
 
 	if(sol& COLFLAG_SOLID || (IncludeDeath && (sol&COLFLAG_DEATH || sol&COLFLAG_INSTADEATH)))
 		return true;
@@ -784,32 +802,32 @@ bool CCollision::MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, i
 	return Bounced;
 }
 
-int CCollision::TestBox(vec2 Pos, vec2 Size)
+int CCollision::TestBox(vec2 Pos, vec2 Size, bool Down)
 {
 	Size *= 0.5f;
 	int r;
 	for(int x = 0; x <= Size.x; x++) {
-		if( (r = CheckPoint(Pos.x+x, Pos.y-Size.y)) )
+		if( (r = CheckPoint(Pos.x+x, Pos.y-Size.y, false, true)) )
 			return r;
-		if( (r = CheckPoint(Pos.x+x, Pos.y+Size.y)) )
+		if( (r = CheckPoint(Pos.x+x, Pos.y+Size.y, false, Down)) )
 			return r;
 		
-		if( (r = CheckPoint(Pos.x-x, Pos.y-Size.y)) )
+		if( (r = CheckPoint(Pos.x-x, Pos.y-Size.y, false, true)) )
 			return r;
-		if( (r = CheckPoint(Pos.x-x, Pos.y+Size.y)) )
+		if( (r = CheckPoint(Pos.x-x, Pos.y+Size.y, false, Down)) )
 			return r;
 	}
 	
 	for(int y = 0; y <= Size.y; y++) {
 		int r;
-		if( (r = CheckPoint(Pos.x-Size.x, Pos.y+y)) )
+		if( (r = CheckPoint(Pos.x-Size.x, Pos.y+y, false, true)) )
 			return r;
-		if( (r = CheckPoint(Pos.x+Size.x, Pos.y+y)) )
+		if( (r = CheckPoint(Pos.x+Size.x, Pos.y+y, false, true)) )
 			return r;
 		
-		if( (r = CheckPoint(Pos.x-Size.x, Pos.y-y)) )
+		if( (r = CheckPoint(Pos.x-Size.x, Pos.y-y, false, true)) )
 			return r;
-		if( (r = CheckPoint(Pos.x+Size.x, Pos.y-y)) )
+		if( (r = CheckPoint(Pos.x+Size.x, Pos.y-y, false, true)) )
 			return r;
 	}
 			
@@ -824,11 +842,14 @@ int CCollision::TestBox(vec2 Pos, vec2 Size)
 	return 0;
 }
 
-void CCollision::MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, float Elasticity, bool check_speed)
+void CCollision::MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, float Elasticity, bool check_speed, bool Down)
 {
 	// do the move
 	vec2 Pos = *pInoutPos;
 	vec2 Vel = *pInoutVel;
+	
+	if (Vel.y < 0.0f)
+		Down = true;
 
 	float Distance = length(Vel);
 	int Max = (int)Distance;
@@ -844,7 +865,7 @@ void CCollision::MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, float Elas
 				//amount = 0;
 
 			vec2 NewPos = Pos + Vel*Fraction; // TODO: this row is not nice
-			int rr = TestBox(vec2(NewPos.x, NewPos.y), Size);
+			int rr = TestBox(vec2(NewPos.x, NewPos.y), Size, Down);
 			
 			/*if (rr == SS_COL_RL || rr == SS_COL_RR) {
 				std::cerr << "COL: " << rr << std::endl;
@@ -864,7 +885,7 @@ void CCollision::MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, float Elas
 				int Hits = 0;
 				int r = 0;
 				
-				if( (r = TestBox(vec2(Pos.x, NewPos.y), Size)) )
+				if( (r = TestBox(vec2(Pos.x, NewPos.y), Size, Down)) )
 				{
 					//bool taken_care = false;
 					NewPos.y = Pos.y;
@@ -894,7 +915,7 @@ void CCollision::MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, float Elas
 					//NewPos.y = Pos.y;
 				}
 
-				if( (r = TestBox(vec2(NewPos.x, Pos.y), Size)) )
+				if( (r = TestBox(vec2(NewPos.x, Pos.y), Size, Down)) )
 				{
 					
 					/*bool climbing = false;
@@ -1041,6 +1062,9 @@ bool CCollision::ModifTile(ivec2 pos, int group, int layer, int tile, int flags,
 			break;
         case TILE_HANG:
             m_pTiles[tpos].m_Index = COLFLAG_HANG;
+            break;
+        case TILE_PLATFORM:
+            m_pTiles[tpos].m_Index = COLFLAG_PLATFORM;
             break;
         default:
             if(tile <= 128)
