@@ -629,7 +629,7 @@ void CCharacterCore::Tick(bool UseInput)
 			{
 				if (!(m_Jumped&1) && !m_Roll)
 				{
-					if (!m_pCollision->CheckPoint(m_Pos.x, m_Pos.y-64, false, Down))
+					if (!m_pCollision->CheckPoint(m_Pos.x, m_Pos.y-64, false, true))
 					{
 						// lazy timer for jump animations
 						if (m_Slide > 0)
