@@ -238,6 +238,7 @@ void CCharacterCore::Tick(bool UseInput)
 	// get ground state
 
 	bool Grounded = IsGrounded();
+	bool InFluid = IsInFluid();
 	int slope = SlopeState();
 	
 	/*
@@ -624,7 +625,7 @@ void CCharacterCore::Tick(bool UseInput)
 			
 			bool Down = PlatformState();
 			
-			if (Grounded)
+			if (Grounded || (InFluid && m_Vel.y >= 0.0f))
 			{
 				if (!(m_Jumped&1) && !m_Roll)
 				{
@@ -641,6 +642,7 @@ void CCharacterCore::Tick(bool UseInput)
 						{
 							m_Action = COREACTION_JUMP;
 							m_ActionState = 0;
+							
 							m_Vel.y = -JumpPower;
 						}
 						else
@@ -698,7 +700,7 @@ void CCharacterCore::Tick(bool UseInput)
 		}
 		
 		// hand turbo boost
-		if(m_Input.m_Hook && m_JetpackPower > 0 && !IsInFluid())
+		if(m_Input.m_Hook && m_JetpackPower > 0 && !InFluid)
 		{
 			if ((TargetDirection.x > 0 && m_Vel.x < HandJetpackControlSpeed + ForceTileStatus) || (TargetDirection.x < 0 && m_Vel.x > -HandJetpackControlSpeed + ForceTileStatus))
 				m_Vel.x += TargetDirection.x*HandJetpackImpulse;
@@ -1059,9 +1061,9 @@ void CCharacterCore::Tick(bool UseInput)
 		m_Vel.x *= 0.85f;
 	
 	// fluid collision
-	if (IsInFluid())
+	if (InFluid)
 	{
-		m_Vel *= 0.9f;
+		m_Vel *= 0.85f;
 		m_Jetpack = false;;
 		m_HandJetpack = 0;
 		m_FluidDamage = true;
