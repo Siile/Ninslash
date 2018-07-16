@@ -456,6 +456,29 @@ void CCharacter::SendInventory()
 }
 
 
+void CCharacter::InventoryRoll()
+{
+	if (m_WeaponSlot < 0 || m_WeaponSlot >= NUM_SLOTS)
+		return;
+	
+	int w1 = m_WeaponSlot;
+	int w2 = (m_WeaponSlot+4)%NUM_SLOTS;
+	int w3 = (m_WeaponSlot+8)%NUM_SLOTS;
+	
+	if ((m_apWeapon[w1] && !m_apWeapon[w1]->CanSwitch()) || (m_apWeapon[w2] && !m_apWeapon[w2]->CanSwitch()) || (m_apWeapon[w3] && !m_apWeapon[w3]->CanSwitch()))
+		return;
+	
+	CWeapon *pW1 = m_apWeapon[w1];
+	m_apWeapon[w1] = m_apWeapon[w2];
+	m_apWeapon[w2] = m_apWeapon[w3];
+	m_apWeapon[w3] = pW1;
+	
+	GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
+	
+	SendInventory();
+}
+
+	
 void CCharacter::DropItem(int Slot, vec2 Pos)
 {
 	if (Slot < 0 || Slot >= 12)

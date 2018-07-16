@@ -29,6 +29,7 @@ CInventory::CInventory()
 	m_ResetMouse = true;
 	m_WantedTab = -1;
 	m_LastBlockPos = vec2(0, 0);
+	m_StupidLock = false;
 }
 
 void CInventory::ConKeyInventory(IConsole::IResult *pResult, void *pUserData)
@@ -71,11 +72,36 @@ void CInventory::ConKeyBuildmenu(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+
+void CInventory::ConInventoryRoll(IConsole::IResult *pResult, void *pUserData)
+{
+	((CInventory *)pUserData)->InventoryRoll();
+}
+
+void CInventory::InventoryRoll()
+{
+	if (m_StupidLock)
+	{
+		m_StupidLock = false;
+		return;
+	}
+	else
+		m_StupidLock = true;
+	
+	CNetMsg_Cl_InventoryAction Msg;
+	Msg.m_Type = INVENTORYACTION_ROLL;
+	Msg.m_Slot = 0;
+	Msg.m_Item1 = 0;
+	Msg.m_Item2 = 0;
+	Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+}
+
 void CInventory::OnConsoleInit()
 {
 	//Console()->Register("+gamepaditempicker", "", CFGFLAG_CLIENT, ConKeyItemPicker, this, "Open item selector");
 	Console()->Register("+inventory", "", CFGFLAG_CLIENT, ConKeyInventory, this, "Open inventory");
 	Console()->Register("+buildmenu", "", CFGFLAG_CLIENT, ConKeyBuildmenu, this, "Open build menu");
+	Console()->Register("+inventoryroll", "", CFGFLAG_CLIENT, ConInventoryRoll, this, "Roll inventory");
 }
 
 void CInventory::OnReset()

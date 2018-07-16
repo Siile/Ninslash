@@ -2074,6 +2074,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			CNetMsg_Cl_InventoryAction *pMsg = (CNetMsg_Cl_InventoryAction *)pRawMsg;
 			switch (pMsg->m_Type)
 			{
+				case INVENTORYACTION_ROLL: pPlayer->InventoryRoll(); break;
 				case INVENTORYACTION_DROP: pPlayer->DropItem(pMsg->m_Slot, vec2(pMsg->m_Item1, pMsg->m_Item2)); break;
 				case INVENTORYACTION_SWAP: pPlayer->SwapItem(pMsg->m_Item1, pMsg->m_Item2); break;
 				case INVENTORYACTION_COMBINE: pPlayer->CombineItem(pMsg->m_Item1, pMsg->m_Item2); break;

@@ -21,7 +21,7 @@ Droidtype = ["WALKER", "STAR", "CRAWLER", "FLY"]
 
 CoreAction = ["IDLE", "JUMP", "WALLJUMP", "ROLL", "SLIDE", "SLIDEKICK", "FALL", "JUMPPAD", "HANG"]
 
-InventoryAction = ["SWAP", "COMBINE", "TAKEPART", "DROP", "SHOP"]
+InventoryAction = ["SWAP", "COMBINE", "TAKEPART", "DROP", "SHOP", "ROLL"]
 
 Radar = ["CHARACTER", "HUMAN", "ENEMY", "DOOR", "REACTOR", "BOMB"]
 

@@ -685,6 +685,7 @@ static CKeyInfo gs_aKeys[] =
 	{ "Next weapon", "+nextweapon", 0 },
 	{ "Prev. weapon", "+prevweapon", 0 },
 	{ "Drop weapon", "+dropweapon", 0 },
+	{ "Inventory roll", "+inventoryroll", 0 },
 	
 	// voting
 	{ "Vote yes", "vote yes", 0 },
@@ -851,7 +852,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, WeaponSettings.x, WeaponSettings.y, 14.0f*UI()->Scale(), Localize("Weapons & Items"), -1);
 
 			WeaponSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &WeaponSettings);
-			UiDoGetButtons(6, 15, WeaponSettings);
+			UiDoGetButtons(6, 16, WeaponSettings);
 		}
 	}
 	else
@@ -875,7 +876,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, VotingSettings.x, VotingSettings.y, 14.0f*UI()->Scale(), Localize("Voting"), -1);
 
 			VotingSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &VotingSettings);
-			UiDoGetButtons(15, 17, VotingSettings);
+			UiDoGetButtons(16, 18, VotingSettings);
 		}
 
 		// chat settings
@@ -888,7 +889,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, ChatSettings.x, ChatSettings.y, 14.0f*UI()->Scale(), Localize("Chat"), -1);
 
 			ChatSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &ChatSettings);
-			UiDoGetButtons(17, 20, ChatSettings);
+			UiDoGetButtons(18, 22, ChatSettings);
 		}
 
 		// misc settings
@@ -901,7 +902,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, MiscSettings.x, MiscSettings.y, 14.0f*UI()->Scale(), Localize("Miscellaneous"), -1);
 
 			MiscSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &MiscSettings);
-			UiDoGetButtons(20, 28, MiscSettings);
+			UiDoGetButtons(21, 29, MiscSettings);
 		}
 	}
 	
