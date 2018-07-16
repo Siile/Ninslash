@@ -2450,7 +2450,7 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 
 
 // render player character
-void CRenderTools::RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, CSkeletonAnimation *AnimData, float Rotation, CAnimSkeletonInfo *pSkeleton, CTextureAtlas *pAtlas, CPlayerInfo *PlayerInfo)
+void CRenderTools::RenderSkeleton(vec2 Position, const CTeeRenderInfo *pInfo, CSkeletonAnimation *AnimData, float Rotation, CAnimSkeletonInfo *pSkeleton, CTextureAtlas *pAtlas, CPlayerInfo *PlayerInfo)
 {
 	dbg_assert(pSkeleton != 0x0, "missing skeleton information");
 	
