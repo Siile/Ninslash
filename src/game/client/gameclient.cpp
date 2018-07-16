@@ -228,6 +228,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(m_pBuildings2);
 	m_All.Add(m_pWeapons);
 	m_All.Add(&m_pParticles->m_RenderMeat);
+	m_All.Add(&m_pParticles->m_RenderLazer);
 	m_All.Add(&m_pBlood->m_RenderBlood);
 	m_All.Add(&m_pBlood->m_RenderAcid);
 	m_All.Add(&m_pSplatter->m_RenderSplatter);
@@ -247,7 +248,6 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderFlame1);
 	m_All.Add(&m_pParticles->m_RenderSwordHits);
 	m_All.Add(&m_pParticles->m_RenderBloodFX);
-	m_All.Add(&m_pParticles->m_RenderLazer);
 	m_All.Add(&m_pSpark->m_RenderSpark);
 	m_All.Add(&m_pSpark->m_RenderArea1);
 	m_All.Add(m_pFluid);

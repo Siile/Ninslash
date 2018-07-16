@@ -113,6 +113,7 @@ void CPickup::Tick()
 	//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "debug", "pickup tick");
 	if (!m_Dropable && GameServer()->Collision()->IsForceTile(m_Pos.x, m_Pos.y+m_BoxSize) != 0)
 	{
+		m_SkipAutoRespawn = false;
 		m_ResetableDropable = true;
 		m_SpawnPos = m_Pos;
 		m_Life = 280;
@@ -195,9 +196,9 @@ void CPickup::Tick()
 		m_FlashTimer--;
 		
 		if (m_FlashTimer <= 0)
-			m_FlashTimer = 20;
+			m_FlashTimer = 16;
 			
-		if (m_FlashTimer > 10)
+		if (m_FlashTimer > 8)
 			m_SpawnTick = 999;
 		else
 			m_SpawnTick = -1;
