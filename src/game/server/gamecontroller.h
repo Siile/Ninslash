@@ -28,8 +28,6 @@ class IGameController
 
 	class CGameContext *m_pGameServer;
 	class IServer *m_pServer;
-
-	
 	
 	// store pickup pointers
 	class CPickup *m_apPickup[MAX_PICKUPS];

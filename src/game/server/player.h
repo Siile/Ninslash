@@ -1,28 +1,11 @@
-
-
 #ifndef GAME_SERVER_PLAYER_H
 #define GAME_SERVER_PLAYER_H
 
-// this include should perhaps be removed
 #include "entities/character.h"
 #include "gamecontext.h"
 #include "ai.h"
 
 #include <game/weapons.h>
-
-
-
-enum TryBuyWeapon
-{
-	 BUY_OK = 0,
-	 BUY_NOCHARACTER = -1,
-	 BUY_NOPOINTS = -2,
-	 BUY_HASALREADY = -3,
-	 BUY_NOWEAPON = -4,
-	 BUY_CLIPSFULL = -5,
-	 BUY_INVALIDWEAPON = -6
-};
-
 
 enum Skins
 {
@@ -147,12 +130,6 @@ public:
 		int m_BloodColor;
 	} m_TeeInfos;
 	
-	// gungame
-	struct
-	{
-		int m_Kills;
-		int m_Deaths;
-	} m_Statistics;
 	
 	float m_InterestPoints;
 	

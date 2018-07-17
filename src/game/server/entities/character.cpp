@@ -1802,7 +1802,6 @@ void CCharacter::TickPaused()
 {
 	++m_AttackTick;
 	++m_DamageTakenTick;
-	++m_Ninja.m_ActivationTick;
 	++m_ReckoningTick;
 	if(m_LastAction != -1)
 		++m_LastAction;
@@ -1838,34 +1837,6 @@ bool CCharacter::IncreaseHealth(int Amount)
 	m_HiddenHealth = clamp(m_HiddenHealth+Amount, 0, m_MaxHealth);
 	
 	//GetPlayer()->m_InterestPoints += 40;
-	
-	return true;
-}
-
-
-bool CCharacter::AddMine()
-{
-	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
-		return false;
-	
-	if (frandom()*10 < 5)
-	{
-		if (m_aItem[PLAYERITEM_LANDMINE] < MAX_PLAYERITEMS)
-			m_aItem[PLAYERITEM_LANDMINE]++;
-		else if (m_aItem[PLAYERITEM_ELECTROMINE] < MAX_PLAYERITEMS)
-			m_aItem[PLAYERITEM_ELECTROMINE]++;
-		else
-			return false;
-	}
-	else
-	{
-		if (m_aItem[PLAYERITEM_ELECTROMINE] < MAX_PLAYERITEMS)
-			m_aItem[PLAYERITEM_ELECTROMINE]++;
-		else if (m_aItem[PLAYERITEM_LANDMINE] < MAX_PLAYERITEMS)
-			m_aItem[PLAYERITEM_LANDMINE]++;
-		else
-			return false;
-	}
 	
 	return true;
 }
@@ -2327,7 +2298,15 @@ void CCharacter::TakeSawbladeDamage(vec2 SawbladePos)
 
 	m_Core.m_Vel += normalize(m_Pos-SawbladePos)*2.0f;
 	
-	m_HiddenHealth -= 5 + (g_Config.m_SvOneHitKill ? 1000 : 0);
+	
+	if (m_Armor > 0)
+	{
+		m_Armor = max(m_Armor-3, 0);
+		m_HiddenHealth -= 2 + (g_Config.m_SvOneHitKill ? 1000 : 0);
+	}
+	else
+		m_HiddenHealth -= 5 + (g_Config.m_SvOneHitKill ? 1000 : 0);
+	
 	m_DamageTakenTick = Server()->Tick();
 	
 	// check for death

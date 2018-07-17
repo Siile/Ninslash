@@ -447,7 +447,7 @@ float GetExplosionSize(int Weapon)
 			case SW_GRENADE3: return 140.0f;
 			case SW_BUBBLER: return 80.0f;
 			case SW_BAZOOKA: return 240.0f;
-			case SW_BOUNCER: return 140.0f - max(40.0f, (GetShotSpread(Weapon)-1)*15.0f);
+			case SW_BOUNCER: return 140.0f - max(30.0f, (GetShotSpread(Weapon)-1)*15.0f);
 			default: return 0.0f;
 		};
 	}
@@ -1062,7 +1062,7 @@ int GetShotSpread(int Weapon)
 	int Spread = 1;
 	
 	if (Part1 == 1 && Part2 == 2) Spread = 5+Charge*2.0f;
-	if (Part1 == 2 && Part2 == 2) Spread = 4+Charge*2.0f;
+	if (Part1 == 2 && Part2 == 2) Spread = 4+Charge*1.0f;
 	if (Part1 == 3 && Part2 == 2) Spread = 5+Charge*2.0f;
 	if (Part1 == 4 && Part2 == 2) Spread = 4+Charge*2.0f;
 	

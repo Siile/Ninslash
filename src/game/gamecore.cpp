@@ -125,7 +125,7 @@ bool CCharacterCore::PlatformState()
 {
 	float PhysSize = 28.0f;
 	
-	if (m_pCollision->IsPlatform(m_Pos.x-PhysSize/2, m_Pos.y+PhysSize/2+24) || m_pCollision->IsPlatform(m_Pos.x+PhysSize/2, m_Pos.y+PhysSize/2+24))
+	if (m_pCollision->IsPlatform(m_Pos.x-PhysSize/2, m_Pos.y+PhysSize/2+31) || m_pCollision->IsPlatform(m_Pos.x+PhysSize/2, m_Pos.y+PhysSize/2+31))
 		return m_Slide == 0 && m_Roll == 0 && abs(m_Vel.x) < 5.0f && m_Down;
 	
 	return true;

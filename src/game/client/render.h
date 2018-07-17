@@ -255,7 +255,7 @@ public:
 	template<typename TKeyframe>
 	static void RenderEvalSkeletonAnim(TKeyframe *pKeyFrame, int NumKeyframes, float Time, typename TKeyframe::KeyframeReturnType *pResult);
 
-	void SetShadersForPlayer(class CPlayerInfo *pCustomPlayerInfo);
+	void SetShadersForPlayer(const class CPlayerInfo *pCustomPlayerInfo);
 	void SetShadersForWeapon(class CPlayerInfo *pCustomPlayerInfo);
 	void SetShadersForWeapon(int Weapon, float Charge = 0.0f, float Visibility = 1.0f, float Electro = 0.0f, float Damage = 0.0f, float Deathray = 0.0f);
 

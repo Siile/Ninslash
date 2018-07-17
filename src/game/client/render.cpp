@@ -1901,7 +1901,7 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 	}
 }
 
-void CRenderTools::SetShadersForPlayer(CPlayerInfo *pCustomPlayerInfo)
+void CRenderTools::SetShadersForPlayer(const CPlayerInfo *pCustomPlayerInfo)
 {
 	float Visibility = max(pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING], pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY]);
 	float Electro = pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE];
@@ -2051,6 +2051,7 @@ void CRenderTools::RenderForegroundHand(CPlayerInfo *PlayerInfo)
 	if (d.x < 0)
 		FlipY = true;
 	
+	SetShadersForPlayer(PlayerInfo);
 	
 	// hand
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HANDS].m_Id);
@@ -2066,6 +2067,7 @@ void CRenderTools::RenderForegroundHand(CPlayerInfo *PlayerInfo)
 	}
 		
 	Graphics()->QuadsEnd();
+	Graphics()->ShaderEnd();
 }
 
 
