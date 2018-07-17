@@ -66,6 +66,8 @@ enum
 	
 	// row 3
 	ENTITY_SHOP = 16*2 + 1,
+	ENTITY_BLOCK1,
+	ENTITY_BLOCK2,
 	
 	// row 4
 	ENTITY_ENEMYSPAWN = 16*3 + 1,

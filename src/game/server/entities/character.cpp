@@ -465,6 +465,9 @@ void CCharacter::InventoryRoll()
 	int w2 = (m_WeaponSlot+4)%NUM_SLOTS;
 	int w3 = (m_WeaponSlot+8)%NUM_SLOTS;
 	
+	if (!m_apWeapon[w1] && !m_apWeapon[w2] && !m_apWeapon[w3])
+		return;
+	
 	if ((m_apWeapon[w1] && !m_apWeapon[w1]->CanSwitch()) || (m_apWeapon[w2] && !m_apWeapon[w2]->CanSwitch()) || (m_apWeapon[w3] && !m_apWeapon[w3]->CanSwitch()))
 		return;
 	

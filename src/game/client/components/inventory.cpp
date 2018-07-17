@@ -604,7 +604,7 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 		Graphics()->QuadsEnd();
 		
 		// kit costs
-		int LocalKits = clamp(CustomStuff()->m_LocalKits ,0, 9);
+		int LocalKits = clamp(CustomStuff()->m_LocalKits ,0, 99);
 
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 		Graphics()->QuadsBegin();
@@ -973,7 +973,7 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 		// mouse click
 		if (m_MouseTrigger && !m_Moved && !m_Mouse1 && Selected >= 0)
 		{
-			int LocalKits = clamp(CustomStuff()->m_LocalKits ,0, 9);
+			int LocalKits = clamp(CustomStuff()->m_LocalKits ,0, 99);
 			
 			if (LocalKits >= BuildableCost[Selected])
 			{

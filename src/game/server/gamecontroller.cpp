@@ -776,6 +776,16 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		new CShop(&GameServer()->m_World, Pos);
 		return true;
 	}
+	else if (Index == ENTITY_BLOCK1)
+	{
+		new CBlock(&GameServer()->m_World, 1, Pos);
+		return true;
+	}
+	else if (Index == ENTITY_BLOCK2)
+	{
+		new CBlock(&GameServer()->m_World, 4, Pos);
+		return true;
+	}
 	else if (Index == ENTITY_LAZER)
 	{
 		new CDeathray(&GameServer()->m_World, Pos+vec2(0, -20));
