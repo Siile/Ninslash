@@ -592,6 +592,13 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				m_Move = -1;
 				m_Down = 0;
 				
+				
+				// drop down from platforms
+				if (m_WaypointPos.y > m_Pos.y && abs(Player()->GetCharacter()->GetCore().m_Vel.x) < 2.0f && GameServer()->Collision()->IsPlatform(m_Pos.x, m_Pos.y+48))
+				{
+					m_Down = 1;
+				}
+				
 				if (Player()->GetCharacter()->IsGrounded())
 				{
 					m_AirJump = 0;
@@ -618,7 +625,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 						m_Down = 1;
 				}
 				
-				if (Player()->GetCharacter()->IsGrounded() && m_EnemyInLine && abs(Player()->GetCharacter()->GetCore().m_Vel.x) > 9)
+				if (Player()->GetCharacter()->IsGrounded() && m_EnemyInLine && abs(Player()->GetCharacter()->GetCore().m_Vel.x) > 8)
 					m_Down = 1;
 			}
 			break;
@@ -627,6 +634,12 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 			{
 				m_Move = 1;
 				m_Down = 0;
+				
+				// drop down from platforms
+				if (m_WaypointPos.y > m_Pos.y && abs(Player()->GetCharacter()->GetCore().m_Vel.x) < 2.0f && GameServer()->Collision()->IsPlatform(m_Pos.x, m_Pos.y+48))
+				{
+					m_Down = 1;
+				}
 				
 				if (Player()->GetCharacter()->IsGrounded() )
 				{
@@ -654,7 +667,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 						m_Down = 1;
 				}
 				
-				if (Player()->GetCharacter()->IsGrounded() && m_EnemyInLine && abs(Player()->GetCharacter()->GetCore().m_Vel.x) > 9)
+				if (Player()->GetCharacter()->IsGrounded() && m_EnemyInLine && abs(Player()->GetCharacter()->GetCore().m_Vel.x) > 8)
 					m_Down = 1;
 			}
 			break;
@@ -754,10 +767,13 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				m_Hook = 0;
 				m_Move = 0;
 				
-				if (rand()%19 == 2)
-					m_Move = -1;
-				else if (rand()%19 == 2)
-					m_Move = 1;
+				if (GameServer()->Collision()->IsTileSolid(m_Pos.x, m_Pos.y+48))
+				{
+					if (rand()%9 < 4)
+						m_Move = -1;
+					else if (rand()%9 < 4)
+						m_Move = 1;
+				}
 			}
 			break;
 				
