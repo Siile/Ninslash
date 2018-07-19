@@ -1,6 +1,5 @@
 #include "playerinfo.h"
 
-
 #include <game/generated/client_data.h>
 #include <base/math.h>
 
@@ -8,8 +7,6 @@
 #include <game/weapons.h>
 #include <game/client/render.h>
 #include <engine/shared/config.h>
-
-
 
 
 CPlayerInfo::CPlayerInfo()

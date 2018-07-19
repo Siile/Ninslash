@@ -105,7 +105,7 @@ public:
 	
 	void Reset();
 	
-	int GetAnimation(){ return m_Anim; }
+	int GetAnimation() const { return m_Anim; }
 	
 	void SetAnimation(int Anim, float Speed = 0.0f);
 	void SetSpeed(float Speed);

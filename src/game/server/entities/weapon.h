@@ -49,10 +49,10 @@ public:
 	void SetCharge(int Charge);
 	void SetPos(vec2 Pos, vec2 Vel, vec2 Direction, float Radius);
 	
-	bool FullAuto(){ return m_FullAuto; }
+	bool FullAuto() const { return m_FullAuto; }
 	
-	bool UsesAmmo(){ return m_MaxAmmo > 0 ? true : false; }
-	int GetAmmo(){ return m_Ammo; }
+	bool UsesAmmo() const { return m_MaxAmmo > 0 ? true : false; }
+	int GetAmmo() const { return m_Ammo; }
 	
 	bool Overcharge();
 	bool Supercharge();

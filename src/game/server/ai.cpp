@@ -767,6 +767,10 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				m_Hook = 0;
 				m_Move = 0;
 				
+				if (GameServer()->Collision()->IsPlatform(m_Pos.x, m_Pos.y+48))
+				{
+				}
+				else
 				if (GameServer()->Collision()->IsTileSolid(m_Pos.x, m_Pos.y+48))
 				{
 					if (rand()%9 < 4)
