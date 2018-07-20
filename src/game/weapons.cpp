@@ -205,6 +205,7 @@ vec2 GetWeaponColorswap(int Weapon)
 	if (Part1 == 3) return vec2(0.9f-Charge*0.2f, 1.0f-Charge*0.6f);
 	if (Part1 == 4) return vec2(0.8f-Charge*0.6f, 0.1f-Charge*0.1f);
 	if (Part1 == 5) return vec2(0.0f+Charge*0.35f, 0.0f+Charge*0.8f);
+	if (Part1 == 6) return vec2(0.0f+Charge*0.35f, 0.0f+Charge*0.8f);
 	
 	return vec2(0, 0);
 }
@@ -1261,6 +1262,9 @@ float WeaponElectroAmount(int Weapon)
 		}
 		
 		if (Part1 == 5 && Part2 == 6 && Charge > 0.5f)
+			return 0.0f + Charge * 0.5f;
+		
+		if (Part1 == 6 && Part2 == 6 && Charge > 0.5f)
 			return 0.0f + Charge * 0.5f;
 		
 		return 0.0f;	
