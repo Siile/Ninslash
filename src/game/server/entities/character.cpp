@@ -185,8 +185,8 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 			m_Silent = true;
 	}
 	
-	//m_apWeapon[0] = GameServer()->NewWeapon(GetModularWeapon(6, 6));
-	m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 9));
+	//m_apWeapon[0] = GameServer()->NewWeapon(GetModularWeapon(5, 9));
+	//m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 9));
 	//m_apWeapon[2] = GameServer()->NewWeapon(GetModularWeapon(6, 9));
 
 	/*
@@ -556,6 +556,20 @@ void CCharacter::SwapItem(int Item1, int Item2)
 			SendInventory();
 			return;
 		}
+	}
+	
+	// combine melee
+	if (IsModularWeapon(w1) && IsModularWeapon(w2) && GetPart(w1, 0) == 5 && GetPart(w2, 0) == 5 && GetPart(w1, 1) == GetPart(w2, 1))
+	{
+		m_apWeapon[Item1]->m_DestructionTick = 1;
+		m_apWeapon[Item1] = NULL;
+		m_apWeapon[Item2]->m_DestructionTick = 1;
+		m_apWeapon[Item2] = NULL;
+		m_apWeapon[Item2] = new CWeapon(&GameServer()->m_World, GetChargedWeapon(GetModularWeapon(6, GetPart(w1, 1)), max(GetWeaponCharge(w1), GetWeaponCharge(w2))));
+		
+		GameServer()->CreateSound(m_Pos, SOUND_UPGRADE);
+		SendInventory();
+		return;
 	}
 	
 	// swap slots
@@ -1630,7 +1644,7 @@ void CCharacter::Tick()
 	if ((m_Core.m_Vel.y < RecoilCap && m_Recoil.y > 0) || (m_Core.m_Vel.y > -RecoilCap && m_Recoil.y < 0))
 		m_Core.m_Vel.y += m_Recoil.y*0.7f;
 	
-	m_Recoil *= 0.75f;
+	m_Recoil *= 0.6f;
 	
 	if (m_Core.m_KickDamage >= 0 && m_Core.m_KickDamage < MAX_CLIENTS)
 	{
@@ -2111,6 +2125,8 @@ bool CCharacter::TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos)
 
 	if (m_ShieldHealth <= 0)
 		m_Recoil += Force;
+	else
+		m_Recoil += Force / 2;
 	
 	// signal AI
 	if (Dmg > 0 && GetPlayer()->m_pAI && Weapon >= 0)
@@ -2199,7 +2215,6 @@ bool CCharacter::TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos)
 			GameServer()->CreateEffect(FX_SHIELDHIT, DmgPos);
 			m_ShieldHealth -= Dmg + (g_Config.m_SvOneHitKill ? 1000 : 0);
 			
-			m_LatestHitVel = Force/2;
 			return false;
 		}
 		else

@@ -1045,8 +1045,7 @@ void CPlayers::RenderPlayer(
 	}
 	
 	// scythe sound & impact to particles
-	/*
-	if (Player.m_Weapon == WEAPON_SCYTHE && !Paused)
+	if (IsModularWeapon(Player.m_Weapon) && GetPart(Player.m_Weapon, 0) == 6 && !Paused)
 	{
 		if (pCustomPlayerInfo->MeleeSound())
 		{
@@ -1054,7 +1053,7 @@ void CPlayers::RenderPlayer(
 		}
 	
 		vec2 p = Position + pCustomPlayerInfo->MeleeOffset();
-		float r = 50.0f;
+		float r = 70.0f;
 		if (pCustomPlayerInfo->MeleeImpact() > 0)
 		{
 			CustomStuff()->AddImpact(vec4(p.x-r, p.y-r, p.x, p.y), CCustomStuff::IMPACT_SCYTHE, vec2(0.4f, -1.5f));
@@ -1068,7 +1067,6 @@ void CPlayers::RenderPlayer(
 			CustomStuff()->AddImpact(vec4(p.x-r*0.8f, p.y, p.x+r*0.8f, p.y+r), CCustomStuff::IMPACT_SCYTHE, vec2(0.4f, -1.0f));
 		}
 	}
-	*/
 	
 	
 	// body on flame

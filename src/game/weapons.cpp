@@ -399,8 +399,8 @@ int GetWeaponFireSound(int Weapon)
 	if (Part1 == 3) return SOUND_BASE3_FIRE;
 	if (Part1 == 4) return SOUND_BASE4_FIRE;
 	if (Part1 == 5) return SOUND_HAMMER_FIRE;
-	if (Part1 == 6) return SOUND_HAMMER_FIRE;
-	if (Part1 == 7) return SOUND_HAMMER_FIRE;
+	if (Part1 == 6) return -1;
+	if (Part1 == 7) return -1;
 	
 	return -1;
 }
@@ -848,7 +848,7 @@ float GetMeleeHitRadius(int Weapon)
 			case 6: return 52.0f+Charge*17.0f;
 			case 7: return 52.0f+Charge*17.0f;
 			case 8: return 46.0f+Charge*17.0f;
-			case 9: return 52.0f+Charge*17.0f;
+			case 9: return 52.0f+Charge*22.0f;
 			default: return 0.0f;
 		};
 	}
@@ -1427,10 +1427,10 @@ float GetProjectileDamage(int Weapon)
 		}
 		else if (Part1 == 6)
 		{
-			if (Part2 == 6) return 2+Charge*4.0f;
-			if (Part2 == 7) return 2+Charge*4.0f;
-			if (Part2 == 8) return 2+Charge*4.0f;
-			if (Part2 == 9) return 2+Charge*4.0f;
+			if (Part2 == 6) return (35+Charge*15.0f)/4;
+			if (Part2 == 7) return (30+Charge*10.0f)/4;
+			if (Part2 == 8) return (40+Charge*20.0f)/4;
+			if (Part2 == 9) return (20+Charge*20.0f)/4;
 		}
 	}
 	
@@ -1453,9 +1453,9 @@ int GetRandomWeaponType(bool IsSurvival)
 	if (rand()%13 < 5)
 		return GetModularWeapon(1+rand()%4, 1+rand()%4);
 	
-	// swords
+	// swords / melee
 	if (rand()%12 < 3)
-		return GetModularWeapon(5, 6+rand()%3);
+		return GetModularWeapon(5, 6+rand()%4);
 	
 	int w = 0;
 	
@@ -1501,9 +1501,9 @@ float GetProjectileKnockback(int Weapon)
 		
 		if (Part1 == 1)
 		{
-			if (Part2 == 1) return 3.0f+Charge*5.0f;
+			if (Part2 == 1) return 3.0f+Charge*4.0f;
 			if (Part2 == 2) return 2.0f;
-			if (Part2 == 3) return 4.0f+Charge*5.0f;
+			if (Part2 == 3) return 4.0f+Charge*4.0f;
 			if (Part2 == 4) return 2.0f;
 		}
 		
@@ -1522,10 +1522,10 @@ float GetProjectileKnockback(int Weapon)
 		
 		if (Part1 == 4)
 		{
-			if (Part2 == 1) return 6.0f+Charge*6.0f;
-			if (Part2 == 2) return 3.0f+Charge*4.0f;
-			if (Part2 == 3) return 8.0f+Charge*6.0f;
-			if (Part2 == 4) return 5.0f+Charge*5.0f;
+			if (Part2 == 1) return 6.0f+Charge*5.0f;
+			if (Part2 == 2) return 3.0f+Charge*3.0f;
+			if (Part2 == 3) return 8.0f+Charge*5.0f;
+			if (Part2 == 4) return 5.0f+Charge*4.0f;
 		}
 		
 		if (Part1 == 5)
@@ -1533,15 +1533,15 @@ float GetProjectileKnockback(int Weapon)
 			if (Part2 == 6) return 5.0f+Charge*5.0f;
 			if (Part2 == 7) return 3.0f+Charge*3.0f;
 			if (Part2 == 8) return 7.0f+Charge*7.0f;
-			if (Part2 == 9) return 17.0f+Charge*7.0f;
+			if (Part2 == 9) return 15.0f+Charge*10.0f;
 		}
 		
 		if (Part1 == 6)
 		{
-			if (Part2 == 6) return 2.0f+Charge*2.0f;
-			if (Part2 == 7) return 1.0f+Charge*1.0f;
-			if (Part2 == 8) return 3.0f+Charge*3.0f;
-			if (Part2 == 9) return 5.0f+Charge*5.0f;
+			if (Part2 == 6) return (5.0f+Charge*5.0f)/4;
+			if (Part2 == 7) return (3.0f+Charge*3.0f)/4;
+			if (Part2 == 8) return (7.0f+Charge*7.0f)/4;
+			if (Part2 == 9) return (15.0f+Charge*10.0f)/4;
 		}
 	}
 	
@@ -1653,7 +1653,7 @@ float GetWeaponFireRate(int Weapon)
 		case 6: v -= Charge*35.0f; v *= 1.0f; break;
 		case 7: v -= Charge*50.0f; v *= 0.8f; break;
 		case 8: v -= Charge*35.0f; v *= 1.2f; break;
-		case 9: v -= Charge*30.0f; v *= 1.3f; break;
+		case 9: v -= Charge*40.0f; v *= 1.1f; break;
 		default: break;
 	};
 	
@@ -1672,10 +1672,10 @@ float GetWeaponKnockback(int Weapon)
 		
 		if (Part1 == 1)
 		{
-			if (Part2 == 1) return 1.5f+Charge*1.25f;
+			if (Part2 == 1) return 1.5f+Charge*1.2f;
 			if (Part2 == 2) return 2.0f+Charge*1.25f;
-			if (Part2 == 3) return 2.0f+Charge*1.25f;
-			if (Part2 == 4) return 1.0f+Charge*1.25f;
+			if (Part2 == 3) return 2.0f+Charge*1.2f;
+			if (Part2 == 4) return 1.0f+Charge*1.0f;
 		}
 		
 		if (Part1 == 2)
@@ -1683,7 +1683,7 @@ float GetWeaponKnockback(int Weapon)
 			if (Part2 == 1) return 2.0f+Charge*1.25f;
 			if (Part2 == 2) return 3.0f+Charge*1.25f;
 			if (Part2 == 3) return 2.0f+Charge*1.25f;
-			if (Part2 == 4) return 1.5f+Charge*1.25f;
+			if (Part2 == 4) return 1.5f+Charge*1.2f;
 		}
 		
 		if (Part1 == 3)
@@ -1693,10 +1693,10 @@ float GetWeaponKnockback(int Weapon)
 		
 		if (Part1 == 4)
 		{
-			if (Part2 == 1) return 1.5f+Charge*1.25f;
+			if (Part2 == 1) return 1.5f+Charge*1.2f;
 			if (Part2 == 2) return 2.0f+Charge*1.25f;
-			if (Part2 == 3) return 2.0f+Charge*1.25f;
-			if (Part2 == 4) return 1.0f+Charge*1.25f;
+			if (Part2 == 3) return 2.0f+Charge*1.2f;
+			if (Part2 == 4) return 1.0f+Charge*1.0f;
 		}
 	}
 	

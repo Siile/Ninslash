@@ -522,7 +522,14 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 				if (GetStaticType(Weapon) == SW_CHAINSAW || (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_TOOL))
 					CreateEffect(FX_BLOOD2, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
 				else if (GetWeaponRenderType(Weapon) != WRT_SPIN)
-					CreateEffect(FX_BLOOD1, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
+				{
+					// hammer
+					if (GetPart(Weapon, 1) == 9)
+						CreateEffect(FX_BLOOD3, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
+					// swords
+					else
+						CreateEffect(FX_BLOOD1, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
+				}
 			}
 			
 			float f = WeaponFlameAmount(Weapon);
@@ -534,7 +541,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			if (GetWeaponRenderType(Weapon) == WRT_SPIN)
 				pTarget->TakeDamage(DamageOwner, Weapon, Damage * Dmg, normalize(pTarget->m_Pos-WeaponPos)*Knockback, mix(Pos, pTarget->m_Pos + vec2(0, -24), 0.75f));
 			else
-				pTarget->TakeDamage(DamageOwner, Weapon, Damage * Dmg, normalize(pTarget->m_Pos-WeaponPos)*Knockback, Pos);
+				pTarget->TakeDamage(DamageOwner, Weapon, Damage * Dmg, (normalize(pTarget->m_Pos-WeaponPos)+normalize(Direction))*Knockback*0.5f, Pos);
 		}
 	}
 	

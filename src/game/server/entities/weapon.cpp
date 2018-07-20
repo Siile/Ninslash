@@ -751,7 +751,14 @@ void CWeapon::Trigger()
 {
 	if (GetWeaponFiringType(m_WeaponType) == WFT_HOLD)
 	{
-		CreateProjectile();
+		if (GetWeaponRenderType(m_WeaponType) == WRT_SPIN)
+		{
+			if (Server()->Tick()%2 == 0)
+				CreateProjectile();
+		}
+		else
+			CreateProjectile();
+		
 		return;
 	}
 	

@@ -1030,7 +1030,23 @@ void CEffects::SpriteSheet(int FX, vec2 Pos)
 			//m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_HAMMER_HIT, 1.0f, Pos);
 		}
 		break;
-		
+
+	// hammer hit
+	case FX_BLOOD3:
+		{
+			CParticle p;
+			p.SetDefault();
+			p.m_Spr = SPRITE_BLOODFX1_1;
+			p.m_Frames = 6;
+			p.m_Pos = Pos;
+			p.m_LifeSpan = 0.25f;
+			p.m_StartSize = 110;
+			p.m_EndSize = 110;
+			p.m_Rot = frandom()*pi*2;
+			m_pClient->m_pParticles->Add(CParticles::GROUP_BLOODFX, &p);
+			m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_KICKHIT, 1.0f, Pos);
+		}
+		break;
 		
 	case FX_MONSTERDEATH:
 		{
