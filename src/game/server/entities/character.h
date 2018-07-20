@@ -226,7 +226,7 @@ public:
 	
 	int m_Kits;
 	
-	bool Reflect();
+	int Reflect();
 	bool m_DamagedByPlayer;
 	
 	int GetArmor() const { return m_Armor; }

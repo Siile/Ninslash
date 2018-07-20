@@ -863,6 +863,8 @@ void CGameClient::ProcessEvents()
 			// 0 - 200
 			int BloodAmount = ev->m_Damage * g_Config.m_GoreBlood / 30.0f;
 			
+			if (ev->m_Damage > 0 && BloodAmount <= 0)
+				BloodAmount = 1;
 			
 			if (BloodAmount > 0)
 			{

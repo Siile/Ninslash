@@ -466,7 +466,6 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
 }
 
 
-
 void CGameContext::ClearFlameHits()
 {
 	for (int i = 0; i < MAX_CLIENTS; i++)
@@ -474,12 +473,11 @@ void CGameContext::ClearFlameHits()
 }
 
 
-
-
-void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 Pos, vec2 Direction)
+void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 Pos, vec2 Direction, vec2 WeaponPos)
 {
 	float ProximityRadius = GetMeleeHitRadius(Weapon);
 	float Damage = GetProjectileDamage(Weapon);
+	float Knockback = GetProjectileKnockback(Weapon);
 	
 	// melee damage mask
 	if (GetStaticType(Weapon) != SW_FLAMER)
@@ -523,7 +521,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			{
 				if (GetStaticType(Weapon) == SW_CHAINSAW || (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_TOOL))
 					CreateEffect(FX_BLOOD2, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
-				else
+				else if (GetWeaponRenderType(Weapon) != WRT_SPIN)
 					CreateEffect(FX_BLOOD1, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
 			}
 			
@@ -531,7 +529,12 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			if (f > 0.0f)
 				pTarget->SetAflame(f, DamageOwner, Weapon);
 			
-			pTarget->TakeDamage(DamageOwner, Weapon, Damage * Dmg, normalize(vec2(frandom()-0.5f, frandom()-0.5f))*2.0f, Pos);
+			//pTarget->TakeDamage(DamageOwner, Weapon, Damage * Dmg, normalize(vec2(frandom()-0.5f, frandom()-0.5f))*2.0f, Pos);
+			
+			if (GetWeaponRenderType(Weapon) == WRT_SPIN)
+				pTarget->TakeDamage(DamageOwner, Weapon, Damage * Dmg, normalize(pTarget->m_Pos-WeaponPos)*Knockback, mix(Pos, pTarget->m_Pos + vec2(0, -24), 0.75f));
+			else
+				pTarget->TakeDamage(DamageOwner, Weapon, Damage * Dmg, normalize(pTarget->m_Pos-WeaponPos)*Knockback, Pos);
 		}
 	}
 	
@@ -566,14 +569,14 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			
 			if (pTarget->m_Collision)
 			{
-				if (GetStaticType(Weapon) == SW_FLAMER)
+				if (GetStaticType(Weapon) == SW_FLAMER || GetWeaponRenderType(Weapon) == WRT_SPIN)
 					;
 				else if (GetStaticType(Weapon) == SW_CHAINSAW || (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_TOOL))
 					CreateEffect(FX_BLOOD2, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
 				else
 					CreateEffect(FX_BLOOD1, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
 				
-				pTarget->TakeDamage(Damage * Dmg, DamageOwner, Weapon);
+				pTarget->TakeDamage(Damage * Dmg, DamageOwner, Weapon, normalize(pTarget->m_Pos-WeaponPos)*Knockback*0.5f);
 				
 				if (GetStaticType(Weapon) == SW_FLAMER)
 					CreateFlameHit((Pos+pTarget->m_Pos)/2.0f+vec2(frandom()-frandom(), frandom()-frandom())*8.0f);
@@ -596,9 +599,9 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			if (pTarget->m_Health <= 0)
 				continue;
 
-			pTarget->TakeDamage(vec2(0, 0), Damage * Dmg, DamageOwner, vec2(0, 0), Weapon);
+			pTarget->TakeDamage(normalize(pTarget->m_Pos-WeaponPos)*Knockback*0.5f, Damage * Dmg, DamageOwner, vec2(0, 0), Weapon);
 			
-			if (GetStaticType(Weapon) == SW_FLAMER)
+			if (GetStaticType(Weapon) == SW_FLAMER || GetWeaponRenderType(Weapon) == WRT_SPIN)
 				;
 			else if (GetStaticType(Weapon) == SW_CHAINSAW || (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_TOOL))
 				CreateEffect(FX_BLOOD2, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
@@ -609,7 +612,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 }
 
 
-void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int Charge, vec2 Pos, vec2 Direction, CBuilding *OwnerBuilding)
+void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int Charge, vec2 Pos, vec2 Direction, vec2 WeaponPos, CBuilding *OwnerBuilding)
 {
 	// less damage for bots in co-op
 	float Dmg = 1.0f;
@@ -626,7 +629,7 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int Charge, vec
 	{
 		if (GetPart(Weapon, 0) > 4)
 		{
-			CreateMeleeHit(DamageOwner, Weapon, Dmg, Pos, Direction);
+			CreateMeleeHit(DamageOwner, Weapon, Dmg, Pos, Direction, WeaponPos);
 			//CreateMeleeHit(DamageOwner, Weapon, Dmg, Pos+GetProjectileOffset(Weapon)*Direction, Direction);
 			return;
 		}
@@ -636,7 +639,7 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int Charge, vec
 	{
 		if (GetStaticType(Weapon) == SW_SHURIKEN || GetStaticType(Weapon) == SW_CHAINSAW || (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_TOOL))
 		{
-			CreateMeleeHit(DamageOwner, Weapon, Dmg, Pos, Direction);
+			CreateMeleeHit(DamageOwner, Weapon, Dmg, Pos, Direction, WeaponPos);
 			return;
 		}
 		else if (GetStaticType(Weapon) == SW_FLAMER)
@@ -647,7 +650,7 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int Charge, vec
 				vec2 To = Pos+Direction*i*58;
 				
 				Collision()->IntersectLine(Pos, To, 0x0, &To);
-				CreateMeleeHit(DamageOwner, Weapon, Dmg, To, Direction);
+				CreateMeleeHit(DamageOwner, Weapon, Dmg, To, Direction, WeaponPos);
 			
 				// to visualize hit points
 				//CreateFlameHit(To);

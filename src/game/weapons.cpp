@@ -536,6 +536,9 @@ int GetWeaponRenderType(int Weapon)
 		int Part1 = GetPart(Weapon, 0);
 		int Part2 = GetPart(Weapon, 1);
 		
+		if (Part1 == 6)
+			return WRT_SPIN;
+		
 		if (Part1 > 4 || Part2 > 5)
 			return WRT_MELEE;
 		
@@ -559,6 +562,9 @@ ivec2 GetWeaponVisualSize(int Weapon)
 	if (IsModularWeapon(Weapon))
 	{
 		if (GetWeaponRenderType(Weapon) == WRT_MELEE)
+			return ivec2(3, 2);
+		
+		if (GetWeaponRenderType(Weapon) == WRT_SPIN)
 			return ivec2(3, 2);
 		
 		// WRT_WEAPON1
@@ -590,7 +596,13 @@ ivec2 GetWeaponVisualSize2(int Weapon)
 {
 	if (IsModularWeapon(Weapon))
 	{
+		if (GetPart(Weapon, 1) == 9)
+			return ivec2(8, 4);
+		
 		if (GetWeaponRenderType(Weapon) == WRT_MELEE)
+			return ivec2(8, 2);
+		
+		if (GetWeaponRenderType(Weapon) == WRT_SPIN)
 			return ivec2(8, 2);
 		
 		// WRT_WEAPON1
@@ -611,10 +623,12 @@ int GetWeaponFiringType(int Weapon)
 		if (GetPart(Weapon, 1) == 5)
 			return WFT_CHARGE;
 		
-		if (GetPart(Weapon, 0) > 4)
-			return WFT_MELEE;
-		
-		return WFT_PROJECTILE;
+		switch (GetPart(Weapon, 0))
+		{
+		case 5: return WFT_MELEE;
+		case 6: return WFT_HOLD;
+		default: return WFT_PROJECTILE;
+		};
 	}
 	
 	switch (GetStaticType(Weapon))
@@ -675,6 +689,9 @@ vec2 GetWeaponRenderOffset(int Weapon)
 	{
 		if (GetWeaponRenderType(Weapon) == WRT_MELEE)
 			return vec2(-12, -2);
+		
+		//if (GetWeaponRenderType(Weapon) == WRT_SPIN)
+		//	return vec2(-12, -2);
 		
 		return vec2(24, 0);
 	}
@@ -759,6 +776,9 @@ vec2 GetProjectileOffset(int Weapon)
 {
 	if (IsModularWeapon(Weapon))
 	{
+		if (GetPart(Weapon, 0) == 6)
+			return vec2(0, -14);
+		
 		switch (GetPart(Weapon, 1))
 		{
 			case 1: return vec2(60, -11);
@@ -820,11 +840,15 @@ float GetMeleeHitRadius(int Weapon)
 	
 	if (IsModularWeapon(Weapon))
 	{
+		if (GetPart(Weapon, 0) == 6)
+			return 80;
+		
 		switch (GetPart(Weapon, 1))
 		{
 			case 6: return 52.0f+Charge*17.0f;
 			case 7: return 52.0f+Charge*17.0f;
 			case 8: return 46.0f+Charge*17.0f;
+			case 9: return 52.0f+Charge*17.0f;
 			default: return 0.0f;
 		};
 	}
@@ -1164,6 +1188,9 @@ int AIAttackRange(int Weapon)
 		if (Part1 == 4)
 			return 900;
 		
+		if (Part1 == 6)
+			return 120;
+		
 		if (Part2 > 5)
 			return 250;
 		
@@ -1396,6 +1423,14 @@ float GetProjectileDamage(int Weapon)
 			if (Part2 == 6) return 35+Charge*15.0f;
 			if (Part2 == 7) return 30+Charge*10.0f;
 			if (Part2 == 8) return 40+Charge*20.0f;
+			if (Part2 == 9) return 20+Charge*20.0f;
+		}
+		else if (Part1 == 6)
+		{
+			if (Part2 == 6) return 2+Charge*4.0f;
+			if (Part2 == 7) return 2+Charge*4.0f;
+			if (Part2 == 8) return 2+Charge*4.0f;
+			if (Part2 == 9) return 2+Charge*4.0f;
 		}
 	}
 	
@@ -1491,6 +1526,22 @@ float GetProjectileKnockback(int Weapon)
 			if (Part2 == 2) return 3.0f+Charge*4.0f;
 			if (Part2 == 3) return 8.0f+Charge*6.0f;
 			if (Part2 == 4) return 5.0f+Charge*5.0f;
+		}
+		
+		if (Part1 == 5)
+		{
+			if (Part2 == 6) return 5.0f+Charge*5.0f;
+			if (Part2 == 7) return 3.0f+Charge*3.0f;
+			if (Part2 == 8) return 7.0f+Charge*7.0f;
+			if (Part2 == 9) return 17.0f+Charge*7.0f;
+		}
+		
+		if (Part1 == 6)
+		{
+			if (Part2 == 6) return 2.0f+Charge*2.0f;
+			if (Part2 == 7) return 1.0f+Charge*1.0f;
+			if (Part2 == 8) return 3.0f+Charge*3.0f;
+			if (Part2 == 9) return 5.0f+Charge*5.0f;
 		}
 	}
 	
@@ -1588,6 +1639,7 @@ float GetWeaponFireRate(int Weapon)
 		case 3: v = 370; break;
 		case 4: v = 500; v -= Charge*60.0f; break;
 		case 5: v = 400; break;
+		case 6: return 50; break;
 		default: v = 300; break;
 	};
 	
@@ -1601,6 +1653,7 @@ float GetWeaponFireRate(int Weapon)
 		case 6: v -= Charge*35.0f; v *= 1.0f; break;
 		case 7: v -= Charge*50.0f; v *= 0.8f; break;
 		case 8: v -= Charge*35.0f; v *= 1.2f; break;
+		case 9: v -= Charge*30.0f; v *= 1.3f; break;
 		default: break;
 	};
 	

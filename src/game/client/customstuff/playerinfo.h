@@ -123,6 +123,7 @@ public:
 	
 	float MeleeAngle();
 	float MeleeSize();
+	float MeleeSpeed();
 	bool MeleeFlip();
 	bool MeleeEffectFlip();
 	vec2 MeleeOffset();

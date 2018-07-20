@@ -184,6 +184,10 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		if (GameServer()->m_pController->IsCoop())
 			m_Silent = true;
 	}
+	
+	//m_apWeapon[0] = GameServer()->NewWeapon(GetModularWeapon(6, 6));
+	m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 9));
+	//m_apWeapon[2] = GameServer()->NewWeapon(GetModularWeapon(6, 9));
 
 	/*
 	m_apWeapon[0] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 2), 10));
@@ -1017,15 +1021,18 @@ void CCharacter::Jumppad()
 
 
 
-bool CCharacter::Reflect()
+int CCharacter::Reflect()
 {
 	//if (m_ScytheTick > Server()->Tick()-Server()->TickSpeed()*0.2f)
 	//	return true;
 
 	if (GetMask() == 3 && frandom() < 0.6f)
-		return true;
+		return m_ProximityRadius;
+	
+	if (GetWeapon() && GetWeapon()->Reflect())
+		return GetWeapon()->Reflect();
 
-	return false;
+	return 0;
 }
 
 
@@ -1615,7 +1622,7 @@ void CCharacter::Tick()
 	
 	m_Core.m_Input = m_Input;
 
-	float RecoilCap = 15.0f;
+	float RecoilCap = 17.5f;
 	
 	if ((m_Core.m_Vel.x < RecoilCap && m_Recoil.x > 0) || (m_Core.m_Vel.x > -RecoilCap && m_Recoil.x < 0))
 		m_Core.m_Vel.x += m_Recoil.x*0.7f;
@@ -1623,7 +1630,7 @@ void CCharacter::Tick()
 	if ((m_Core.m_Vel.y < RecoilCap && m_Recoil.y > 0) || (m_Core.m_Vel.y > -RecoilCap && m_Recoil.y < 0))
 		m_Core.m_Vel.y += m_Recoil.y*0.7f;
 	
-	m_Recoil *= 0.5f;
+	m_Recoil *= 0.75f;
 	
 	if (m_Core.m_KickDamage >= 0 && m_Core.m_KickDamage < MAX_CLIENTS)
 	{

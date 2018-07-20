@@ -68,6 +68,7 @@ enum WeaponBits
 	WRT_ITEM1,
 	WRT_MELEE,
 	WRT_MELEESMALL,
+	WRT_SPIN,
 	
 	// weapon firing types
 	WFT_NONE=0,

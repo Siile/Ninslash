@@ -330,6 +330,14 @@ bool CWeapon::Fire(float *pKnockback)
 }
 
 
+int CWeapon::Reflect()
+{
+	if (m_TriggerTick && m_TriggerTick > Server()->Tick() && IsModularWeapon(m_WeaponType) && GetPart(m_WeaponType, 0) == 6)
+		return 80;
+	
+	return 0;
+}
+
 int CWeapon::GetCharge()
 {
 	return m_Charge;
@@ -456,7 +464,7 @@ void CWeapon::CreateProjectile()
 	if (wft == WFT_PROJECTILE || wft == WFT_HOLD)
 		GameServer()->Collision()->IntersectLine(m_Pos, ProjStartPos, 0x0, &ProjStartPos);
 	
-	GameServer()->CreateProjectile(m_Owner, m_WeaponType, m_Charge, ProjStartPos, m_Direction);
+	GameServer()->CreateProjectile(m_Owner, m_WeaponType, m_Charge, ProjStartPos, m_Direction, m_Pos+vec2(0, 20));
 	
 	if (m_FireSound >= 0 && GetWeaponFiringType(m_WeaponType) != WFT_HOLD)
 	{

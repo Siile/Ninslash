@@ -54,6 +54,8 @@ public:
 	bool UsesAmmo() const { return m_MaxAmmo > 0 ? true : false; }
 	int GetAmmo() const { return m_Ammo; }
 	
+	int Reflect();
+	
 	bool Overcharge();
 	bool Supercharge();
 	bool Upgrade();

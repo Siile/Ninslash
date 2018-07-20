@@ -478,7 +478,9 @@ CCharacter *CGameWorld::IntersectReflect(vec2 Pos0, vec2 Pos1, float Radius, vec
 			}
 		}
 
-		if (!p->Reflect())
+		int Reflect = p->Reflect();
+		
+		if (!Reflect)
 			continue;
 		
 		vec2 IntersectPos = closest_point_on_line(Pos0, Pos1, p->m_Pos);
@@ -488,7 +490,7 @@ CCharacter *CGameWorld::IntersectReflect(vec2 Pos0, vec2 Pos1, float Radius, vec
 		//	continue;
 		
 		float Len = distance(p->m_Pos + vec2(0, -32), IntersectPos);
-		if(Len < p->m_ProximityRadius+Radius)
+		if(Len < Reflect+Radius)
 		{
 			Len = distance(Pos0, IntersectPos);
 			if(Len < ClosestLen)

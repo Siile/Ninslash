@@ -399,6 +399,17 @@ void CPlayers::RenderPlayer(
 			CustomStuff()->AddImpact(vec4(p.x-r, p.y-r, p.x+r, p.y+r), CCustomStuff::IMPACT_HIT, normalize(p-Position+vec2(0, -0.3f)));
 		}
 	}
+	// spinning weapons / scythe
+	else if (IsModularWeapon(Player.m_Weapon) && GetPart(Player.m_Weapon, 0) == 6)
+	{
+		// melee attack effect
+		if (pCustomPlayerInfo->m_MeleeTick < Player.m_AttackTick && !Paused)
+		{
+			pCustomPlayerInfo->m_MeleeTick = Player.m_AttackTick;
+			pCustomPlayerInfo->FireMelee();
+		}
+	}
+	
 	/*
 	else if (Player.m_Weapon == WEAPON_TOOL)
 	{
@@ -1034,6 +1045,7 @@ void CPlayers::RenderPlayer(
 	}
 	
 	// scythe sound & impact to particles
+	/*
 	if (Player.m_Weapon == WEAPON_SCYTHE && !Paused)
 	{
 		if (pCustomPlayerInfo->MeleeSound())
@@ -1056,6 +1068,7 @@ void CPlayers::RenderPlayer(
 			CustomStuff()->AddImpact(vec4(p.x-r*0.8f, p.y, p.x+r*0.8f, p.y+r), CCustomStuff::IMPACT_SCYTHE, vec2(0.4f, -1.0f));
 		}
 	}
+	*/
 	
 	
 	// body on flame

@@ -224,8 +224,8 @@ void CStar::Fire()
 		
 		GameServer()->CreateSound(m_Pos, SOUND_STAR_FIRE);
 		
-		GameServer()->CreateProjectile(NEUTRAL_BASE, GetDroidWeapon(m_Type), 0, TurretPos+normalize(m_Target*-1)*30.0f, m_Target*-1);
-		GameServer()->CreateProjectile(NEUTRAL_BASE, GetDroidWeapon(m_Type), 0, TurretPos+normalize(m_Target*-1)*30.0f+vec2(-m_Dir * 64, 0), m_Target*-1);
+		GameServer()->CreateProjectile(NEUTRAL_BASE, GetDroidWeapon(m_Type), 0, TurretPos+normalize(m_Target*-1)*30.0f, m_Target*-1, TurretPos);
+		GameServer()->CreateProjectile(NEUTRAL_BASE, GetDroidWeapon(m_Type), 0, TurretPos+normalize(m_Target*-1)*30.0f+vec2(-m_Dir * 64, 0), m_Target*-1, TurretPos);
 		
 		m_AttackTick = Server()->Tick();
 	}
