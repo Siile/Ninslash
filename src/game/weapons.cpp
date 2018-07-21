@@ -1151,6 +1151,22 @@ float WeaponFlameAmount(int Weapon)
 		};
 	}
 	
+	if (IsModularWeapon(Weapon))
+	{
+		float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+		
+		int Part1 = GetPart(Weapon, 0);
+		int Part2 = GetPart(Weapon, 1);
+	
+		if (Part1 == 5 && Part2 == 7 && Charge > 0.5f)
+			return 0.0f + Charge * 0.5f;
+		
+		if (Part1 == 6 && Part2 == 7 && Charge > 0.5f)
+			return 0.0f + Charge * 0.5f;
+		
+		return 0.0f;	
+	}
+	
 	if (IsBuilding(Weapon))
 	{
 		switch (GetBuildingType(Weapon))
