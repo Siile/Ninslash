@@ -330,6 +330,14 @@ bool CWeapon::Fire(float *pKnockback)
 }
 
 
+int CWeapon::Reflect()
+{
+	if (m_TriggerTick && m_TriggerTick > Server()->Tick() && IsModularWeapon(m_WeaponType) && GetPart(m_WeaponType, 0) == 6)
+		return 80;
+	
+	return 0;
+}
+
 int CWeapon::GetCharge()
 {
 	return m_Charge;
@@ -456,7 +464,7 @@ void CWeapon::CreateProjectile()
 	if (wft == WFT_PROJECTILE || wft == WFT_HOLD)
 		GameServer()->Collision()->IntersectLine(m_Pos, ProjStartPos, 0x0, &ProjStartPos);
 	
-	GameServer()->CreateProjectile(m_Owner, m_WeaponType, m_Charge, ProjStartPos, m_Direction);
+	GameServer()->CreateProjectile(m_Owner, m_WeaponType, m_Charge, ProjStartPos, m_Direction, m_Pos+vec2(0, 20));
 	
 	if (m_FireSound >= 0 && GetWeaponFiringType(m_WeaponType) != WFT_HOLD)
 	{
@@ -743,7 +751,14 @@ void CWeapon::Trigger()
 {
 	if (GetWeaponFiringType(m_WeaponType) == WFT_HOLD)
 	{
-		CreateProjectile();
+		if (GetWeaponRenderType(m_WeaponType) == WRT_SPIN)
+		{
+			if (Server()->Tick()%2 == 0)
+				CreateProjectile();
+		}
+		else
+			CreateProjectile();
+		
 		return;
 	}
 	
@@ -824,10 +839,12 @@ void CWeapon::Move()
 	
 	//m_Vel.y = min(m_Vel.y, 25.0f);
 	
+	bool Down = m_Vel.y < 0.0f;
+	
 	bool Grounded = false;
-	if(GameServer()->Collision()->CheckPoint(m_Pos.x+12, m_Pos.y+12+5))
+	if(GameServer()->Collision()->CheckPoint(m_Pos.x+12, m_Pos.y+12+5, false, Down))
 		Grounded = true;
-	if(GameServer()->Collision()->CheckPoint(m_Pos.x-12, m_Pos.y+12+5))
+	if(GameServer()->Collision()->CheckPoint(m_Pos.x-12, m_Pos.y+12+5, false, Down))
 		Grounded = true;
 		
 	int OnForceTile = GameServer()->Collision()->IsForceTile(m_Pos.x-12, m_Pos.y+12+5);
@@ -873,7 +890,7 @@ void CWeapon::Move()
 			// todo: correct sound & effect
 		}
 		
-		if (abs(m_Vel.x) < 0.1f && abs(m_Vel.y) < 1.0f && GameServer()->Collision()->IsTileSolid(m_Pos.x, m_Pos.y+10.0f))
+		if (abs(m_Vel.x) < 0.1f && abs(m_Vel.y) < 1.0f && GameServer()->Collision()->IsTileSolid(m_Pos.x, m_Pos.y+10.0f, Down))
 		{
 			m_Stuck = true;
 			m_Owner = -1;

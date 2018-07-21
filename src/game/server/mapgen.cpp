@@ -1329,8 +1329,11 @@ void CMapGen::GeneratePVPLevel()
 	
 	bool BR = false;
 	
-	if (str_comp(g_Config.m_SvGametype, "dm") == 0 && g_Config.m_SvSurvivalMode)
-		BR = true; // battle royale
+	if (str_comp(g_Config.m_SvGametype, "dm") == 0)
+	{
+		if (g_Config.m_SvSurvivalMode)
+			BR = true; // battle royale
+	}
 	else
 		Mirror(pTiles);
 	

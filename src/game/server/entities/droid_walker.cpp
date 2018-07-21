@@ -335,8 +335,8 @@ void CWalker::Fire()
 		
 		GameServer()->CreateSound(m_Pos, SOUND_WALKER_FIRE);
 		
-		GameServer()->CreateProjectile(NEUTRAL_BASE, GetDroidWeapon(m_Type), 0, TurretPos+normalize(m_Target*-1)*32.0f, m_Target*-1);
-		GameServer()->CreateProjectile(NEUTRAL_BASE, GetDroidWeapon(m_Type), 0, TurretPos+normalize(m_Target*-1)*32.0f+vec2(m_Dir * 4, -8), m_Target*-1);
+		GameServer()->CreateProjectile(NEUTRAL_BASE, GetDroidWeapon(m_Type), 0, TurretPos+normalize(m_Target*-1)*32.0f, m_Target*-1, TurretPos);
+		GameServer()->CreateProjectile(NEUTRAL_BASE, GetDroidWeapon(m_Type), 0, TurretPos+normalize(m_Target*-1)*32.0f+vec2(m_Dir * 4, -8), m_Target*-1, TurretPos);
 		
 		m_AttackTick = Server()->Tick();
 		

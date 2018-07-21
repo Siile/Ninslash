@@ -72,6 +72,7 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 	case BUILDING_LAZER:
 		m_ProximityRadius = LazerPhysSize;
 		m_Life = 100;
+		m_Collision = false;
 		break;
 	
 	case BUILDING_BASE:

@@ -53,8 +53,6 @@ void CCustomStuff::Reset()
 	m_aItem[3] = w;
 	*/
 	
-	m_Local.m_Buff = -1;
-	
 	m_DoorTimer = 0.0f;
 	m_CameraShake = 0.0f;
 	
@@ -231,9 +229,6 @@ vec4 CCustomStuff::BloodColor(int ClientID)
 void CCustomStuff::Tick(bool Paused)
 {
 	m_Tick++;
-	
-	if (!m_LocalAlive)
-		m_Local.m_Buff = -1;
 
 	// Client side building animation
 	m_SawbladeAngle += 0.07f;
@@ -330,7 +325,6 @@ void CCustomStuff::Tick(bool Paused)
 	if (m_LocalTeam == TEAM_SPECTATORS)
 	{
 		m_BuildMode = false;
-		m_Local.m_Buff = -1;
 	}
 }
 

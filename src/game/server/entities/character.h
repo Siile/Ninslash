@@ -69,7 +69,6 @@ public:
 	void ReleaseWeapons();
 	
 	void Die(int Killer, int Weapon, bool SkipKillMessage = false, bool IsTurret = false);
-	//bool TakeDamage(vec2 Force, int Dmg, int From, int Weapon, vec2 Pos, int Type = DAMAGETYPE_NORMAL, bool IsTurret = false);
 	bool TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos);
 	void SetAflame(float Duration, int From, int Weapon);
 	void TakeDeathtileDamage();
@@ -90,7 +89,6 @@ public:
 	bool IncreaseAmmo(int Amount);
 	bool IncreaseArmor(int Amount);
 	
-	bool AddMine();
 	bool AddKit();
 	bool AddKits(int Amount);
 	
@@ -134,11 +132,6 @@ public:
 	int m_DeathTileTimer;
 	
 	int m_BombStatus;
-	
-	void ElectroShock()
-	{
-		m_Core.m_Vel /= 1.5f;
-	}
 	
 	bool UpgradeWeapon();
 	
@@ -233,12 +226,13 @@ public:
 	
 	int m_Kits;
 	
-	bool Reflect();
+	int Reflect();
 	bool m_DamagedByPlayer;
 	
-	int GetArmor() { return m_Armor; }
+	int GetArmor() const { return m_Armor; }
 	
 	// inventory
+	void InventoryRoll();
 	void DropItem(int Slot, vec2 Pos);
 	void SwapItem(int Item1, int Item2);
 	void CombineItem(int Item1, int Item2);
@@ -291,9 +285,6 @@ private:
 	CCharacter *m_LockedTo;
 	
 	int m_PainSoundTimer;
-	
-	// weapon info
-	CEntity *m_apHitObjects[10];
 
 	int m_ReloadTimer;
 
@@ -322,15 +313,6 @@ private:
 
 	int m_Health;
 	int m_Armor;
-	
-	// ninja
-	struct
-	{
-		vec2 m_ActivationDir;
-		int m_ActivationTick;
-		int m_CurrentMoveTime;
-		int m_OldVelAmount;
-	} m_Ninja;
 	
 	// the player core for the physics
 	CCharacterCore m_Core;

@@ -123,6 +123,7 @@ public:
 	
 	float MeleeAngle();
 	float MeleeSize();
+	float MeleeSpeed();
 	bool MeleeFlip();
 	bool MeleeEffectFlip();
 	vec2 MeleeOffset();
@@ -150,7 +151,7 @@ public:
 	
 	bool m_HideName;
 	
-	CSkeletonAnimation *Animation() { return m_pAnimation; }
+	CSkeletonAnimation *Animation() const { return m_pAnimation; }
 	
 	bool m_Shield;
 	

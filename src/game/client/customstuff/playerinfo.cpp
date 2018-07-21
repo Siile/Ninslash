@@ -1,6 +1,5 @@
 #include "playerinfo.h"
 
-
 #include <game/generated/client_data.h>
 #include <base/math.h>
 
@@ -8,8 +7,6 @@
 #include <game/weapons.h>
 #include <game/client/render.h>
 #include <engine/shared/config.h>
-
-
 
 
 CPlayerInfo::CPlayerInfo()
@@ -313,6 +310,11 @@ vec2 CPlayerInfo::MeleeEffectOffset()
 	return p;
 }
 
+float CPlayerInfo::MeleeSpeed()
+{
+	return m_Melee.m_TurnSpeed;
+}
+
 bool CPlayerInfo::MeleeFront()
 {
 	return m_Melee.m_Front;
@@ -450,10 +452,9 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 	}
 	
 	// spinning melee weapon
-	//float TurnSpeedCap = 0.15f;
-	//float TurnAmount = 0.03f;
+	float TurnSpeedCap = 0.15f;
+	float TurnAmount = 0.03f;
 	
-	/*
 	if (m_Melee.m_EffectFrame > 0)
 	{
 		if (++m_Melee.m_EffectFrame > 7*3)
@@ -463,7 +464,7 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 	if (m_Melee.m_FireTimer > 0)
 	{
 		m_Melee.m_FireTimer--;
-		TurnSpeedCap = 0.5f + m_WeaponPowerLevel*0.1f;
+		TurnSpeedCap = 0.5f;// + m_WeaponPowerLevel*0.1f;
 		TurnAmount = 0.04f;
 		
 		if ((Animation()->m_Flip && m_Melee.m_TurnSpeed > 0.0f) ||
@@ -490,7 +491,6 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 		m_Melee.m_FrontChangeAngle += pi*2.0f * ((m_Melee.m_Angle > m_Melee.m_FrontChangeAngle) ? 1.0f : -1.0f);
 		m_Melee.m_Front = !m_Melee.m_Front;
 	}
-	*/
 
 
 	// adjust skeleton a bit

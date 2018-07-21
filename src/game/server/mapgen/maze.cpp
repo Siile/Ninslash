@@ -46,12 +46,12 @@ void CMaze::Generate()
 		
 		int r = min(10+Level/2, 120);
 
-		m_aRoom[m_Rooms++] = vec2(m_W*0.4f, m_H*0.5f);
-		m_aRoom[m_Rooms++] = vec2(m_W*0.6f, m_H*0.5f);
+		m_aRoom[m_Rooms++] = vec2(m_W*0.4f, m_H*(0.05f+frandom()*0.8f));
+		m_aRoom[m_Rooms++] = vec2(m_W*0.6f, m_aRoom[0].y);
 		
 		Connect(m_aRoom[0], m_aRoom[1]);
 		
-		r = min(Level + 4, 25+rand()%9);
+		r = min(Level + 4, 30+rand()%9);
 			
 		for (int i = 0; i < r; i++)
 			GenerateRoom(true);
@@ -271,18 +271,34 @@ void CMaze::Generate()
 		*/
 		
 		
-		// battle royale
-		if (str_comp(g_Config.m_SvGametype, "dm") == 0 && g_Config.m_SvSurvivalMode)
+		if (str_comp(g_Config.m_SvGametype, "dm") == 0)
 		{
-			m_aRoom[m_Rooms++] = vec2(m_W*0.4f, m_H*0.6f);
-			m_aRoom[m_Rooms++] = vec2(m_W*0.6f, m_H*0.6f);
-			Connect(m_aRoom[0], m_aRoom[1]);
-			Connect(m_aRoom[0], vec2(m_W*0.5f, m_H*0.1f));
-			Connect(m_aRoom[1], vec2(m_W*0.5f, m_H*0.1f));
-			
+			// battle royale
+			if (g_Config.m_SvSurvivalMode)
+			{
+				m_aRoom[m_Rooms++] = vec2(m_W*0.4f, m_H*0.6f);
+				m_aRoom[m_Rooms++] = vec2(m_W*0.6f, m_H*0.6f);
+				Connect(m_aRoom[0], m_aRoom[1]);
+				Connect(m_aRoom[0], vec2(m_W*0.5f, m_H*0.1f));
+				Connect(m_aRoom[1], vec2(m_W*0.5f, m_H*0.1f));
 				
-			for (int i = 0; i < 36; i++)
-				GenerateRoom(true);
+					
+				for (int i = 0; i < 36; i++)
+					GenerateRoom(true);
+			}
+			else
+			{
+				/*
+				m_aRoom[m_Rooms++] = vec2(m_W*0.4f, m_H*0.6f);
+				m_aRoom[m_Rooms++] = vec2(m_W*0.6f, m_H*0.6f);
+				Connect(m_aRoom[0], m_aRoom[1]);
+				*/
+				
+				m_aRoom[m_Rooms++] = vec2(m_W*(0.3f+frandom()*0.4f), m_H*(0.3f+frandom()*0.4f));
+				
+				for (int i = 0; i < (m_W*m_H)/2000; i++)
+					GenerateRoom(true);
+			}
 		}
 		else
 		{

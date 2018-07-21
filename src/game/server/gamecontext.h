@@ -181,8 +181,8 @@ public:
 	
 	bool Shop(class CPlayer *pPlayer, int Slot, bool AI = false);
 	
-	void CreateProjectile(int DamageOwner, int Weapon, int Charge, vec2 Pos, vec2 Direction, class CBuilding *OwnerBuilding = NULL);
-	void CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 Pos, vec2 Direction);
+	void CreateProjectile(int DamageOwner, int Weapon, int Charge, vec2 Pos, vec2 Direction, vec2 WeaponPos, class CBuilding *OwnerBuilding = NULL);
+	void CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 Pos, vec2 Direction, vec2 WeaponPos);
 
 	void ClearFlameHits();
 	

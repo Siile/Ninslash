@@ -195,7 +195,7 @@ void CPlayers::RenderPlayer(
 	*/
 	
 	bool Stationary = Player.m_VelX <= 1 + ForceState && Player.m_VelX >= -1 + ForceState;
-	bool InAir = !Collision()->CheckPoint(Player.m_X, Player.m_Y+16);
+	bool InAir = !Collision()->CheckPoint(Player.m_X, Player.m_Y+16, false, false);
 	bool WantOtherDir = (Player.m_Direction == -1 && Vel.x > 0) || (Player.m_Direction == 1 && Vel.x < 0);
 
 	// flip feet animation when needed
@@ -399,6 +399,17 @@ void CPlayers::RenderPlayer(
 			CustomStuff()->AddImpact(vec4(p.x-r, p.y-r, p.x+r, p.y+r), CCustomStuff::IMPACT_HIT, normalize(p-Position+vec2(0, -0.3f)));
 		}
 	}
+	// spinning weapons / scythe
+	else if (IsModularWeapon(Player.m_Weapon) && GetPart(Player.m_Weapon, 0) == 6)
+	{
+		// melee attack effect
+		if (pCustomPlayerInfo->m_MeleeTick < Player.m_AttackTick && !Paused)
+		{
+			pCustomPlayerInfo->m_MeleeTick = Player.m_AttackTick;
+			pCustomPlayerInfo->FireMelee();
+		}
+	}
+	
 	/*
 	else if (Player.m_Weapon == WEAPON_TOOL)
 	{
@@ -1034,7 +1045,7 @@ void CPlayers::RenderPlayer(
 	}
 	
 	// scythe sound & impact to particles
-	if (Player.m_Weapon == WEAPON_SCYTHE && !Paused)
+	if (IsModularWeapon(Player.m_Weapon) && GetPart(Player.m_Weapon, 0) == 6 && !Paused)
 	{
 		if (pCustomPlayerInfo->MeleeSound())
 		{
@@ -1042,7 +1053,7 @@ void CPlayers::RenderPlayer(
 		}
 	
 		vec2 p = Position + pCustomPlayerInfo->MeleeOffset();
-		float r = 50.0f;
+		float r = 70.0f;
 		if (pCustomPlayerInfo->MeleeImpact() > 0)
 		{
 			CustomStuff()->AddImpact(vec4(p.x-r, p.y-r, p.x, p.y), CCustomStuff::IMPACT_SCYTHE, vec2(0.4f, -1.5f));

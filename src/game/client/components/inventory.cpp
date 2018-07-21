@@ -29,6 +29,7 @@ CInventory::CInventory()
 	m_ResetMouse = true;
 	m_WantedTab = -1;
 	m_LastBlockPos = vec2(0, 0);
+	m_StupidLock = false;
 }
 
 void CInventory::ConKeyInventory(IConsole::IResult *pResult, void *pUserData)
@@ -71,11 +72,36 @@ void CInventory::ConKeyBuildmenu(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+
+void CInventory::ConInventoryRoll(IConsole::IResult *pResult, void *pUserData)
+{
+	((CInventory *)pUserData)->InventoryRoll();
+}
+
+void CInventory::InventoryRoll()
+{
+	if (m_StupidLock)
+	{
+		m_StupidLock = false;
+		return;
+	}
+	else
+		m_StupidLock = true;
+	
+	CNetMsg_Cl_InventoryAction Msg;
+	Msg.m_Type = INVENTORYACTION_ROLL;
+	Msg.m_Slot = 0;
+	Msg.m_Item1 = 0;
+	Msg.m_Item2 = 0;
+	Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+}
+
 void CInventory::OnConsoleInit()
 {
 	//Console()->Register("+gamepaditempicker", "", CFGFLAG_CLIENT, ConKeyItemPicker, this, "Open item selector");
 	Console()->Register("+inventory", "", CFGFLAG_CLIENT, ConKeyInventory, this, "Open inventory");
 	Console()->Register("+buildmenu", "", CFGFLAG_CLIENT, ConKeyBuildmenu, this, "Open build menu");
+	Console()->Register("+inventoryroll", "", CFGFLAG_CLIENT, ConInventoryRoll, this, "Roll inventory");
 }
 
 void CInventory::OnReset()
@@ -578,7 +604,7 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 		Graphics()->QuadsEnd();
 		
 		// kit costs
-		int LocalKits = clamp(CustomStuff()->m_LocalKits ,0, 9);
+		int LocalKits = clamp(CustomStuff()->m_LocalKits ,0, 99);
 
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
 		Graphics()->QuadsBegin();
@@ -609,11 +635,31 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 						Graphics()->QuadsBegin();
 						
 						Graphics()->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
-						RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+Cost);
-						RenderTools()->DrawSprite(p.x-1, p.y-1, s*2.0f);
-						RenderTools()->DrawSprite(p.x+1, p.y-1, s*2.0f);
-						RenderTools()->DrawSprite(p.x+1, p.y+1, s*2.0f);
-						RenderTools()->DrawSprite(p.x-1, p.y+1, s*2.0f);
+						
+						if (Cost < 10)
+						{
+							RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+Cost);
+							RenderTools()->DrawSprite(p.x-1, p.y-1, s*2.0f);
+							RenderTools()->DrawSprite(p.x+1, p.y-1, s*2.0f);
+							RenderTools()->DrawSprite(p.x+1, p.y+1, s*2.0f);
+							RenderTools()->DrawSprite(p.x-1, p.y+1, s*2.0f);
+						}
+						else
+						{
+							int second = Cost%10;
+							int first = (Cost-second)/10;
+							RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+first);
+							RenderTools()->DrawSprite(p.x-1-s*0.5f, p.y-1, s*2.0f);
+							RenderTools()->DrawSprite(p.x+1-s*0.5f, p.y-1, s*2.0f);
+							RenderTools()->DrawSprite(p.x+1-s*0.5f, p.y+1, s*2.0f);
+							RenderTools()->DrawSprite(p.x-1-s*0.5f, p.y+1, s*2.0f);
+							
+							RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+second);
+							RenderTools()->DrawSprite(p.x-1+s*0.5f, p.y-1, s*2.0f);
+							RenderTools()->DrawSprite(p.x+1+s*0.5f, p.y-1, s*2.0f);
+							RenderTools()->DrawSprite(p.x+1+s*0.5f, p.y+1, s*2.0f);
+							RenderTools()->DrawSprite(p.x-1+s*0.5f, p.y+1, s*2.0f);
+						}
 					
 						Graphics()->QuadsEnd();
 						Graphics()->ShaderEnd();
@@ -630,8 +676,20 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 					else
 						Graphics()->SetColor(0.9f, 0.9f, 0.9f, 1.0f);
 					
-					RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+Cost);
-					RenderTools()->DrawSprite(p.x, p.y, s*2.0f);
+					if (Cost < 10)
+					{
+						RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+Cost);
+						RenderTools()->DrawSprite(p.x, p.y, s*2.0f);
+					}
+					else
+					{
+						int second = Cost%10;
+						int first = (Cost-second)/10;
+						RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+first);
+						RenderTools()->DrawSprite(p.x-s*0.5f, p.y, s*2.0f);
+						RenderTools()->SelectSprite(SPRITE_GUINUMBER_0+second);
+						RenderTools()->DrawSprite(p.x+s*0.5f, p.y, s*2.0f);
+					}
 				}
 				
 				Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -915,7 +973,7 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 		// mouse click
 		if (m_MouseTrigger && !m_Moved && !m_Mouse1 && Selected >= 0)
 		{
-			int LocalKits = clamp(CustomStuff()->m_LocalKits ,0, 9);
+			int LocalKits = clamp(CustomStuff()->m_LocalKits ,0, 99);
 			
 			if (LocalKits >= BuildableCost[Selected])
 			{

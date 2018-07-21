@@ -1638,7 +1638,85 @@ void CRenderTools::RenderArm(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec
 
 void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec2 Dir, vec2 Pos)
 {
-	if (GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_MELEE)
+	if (GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_SPIN)
+	{
+		float WeaponAngle = PlayerInfo->MeleeAngle();
+		int WeaponDir = PlayerInfo->MeleeFlip() ? -1 : 1;
+		bool FlipY = false;
+		vec2 Size = vec2(256, 256)*0.4f;
+		
+		if (WeaponDir > 0)
+			FlipY = PlayerInfo->MeleeEffectFlip();
+		else
+			FlipY = !PlayerInfo->MeleeEffectFlip();
+		
+		vec2 WeaponPos = Pos + PlayerInfo->m_Weapon2Recoil;
+		vec2 Offset = vec2(0, 0) + PlayerInfo->MeleeOffset();
+		
+		vec2 p = vec2(WeaponPos.x + Offset.x, WeaponPos.y + Offset.y);
+		
+		RenderArm(PlayerInfo, pInfo, WeaponPos + Offset, Pos);
+		
+		float WAngle = WeaponAngle;//*WeaponDir;
+		int Flags = 0; //(FlipY ? SPRITE_FLAG_FLIP_Y : 0) + (WeaponDir < 0 ? SPRITE_FLAG_FLIP_X : 0);
+		Flags = (FlipY ? SPRITE_FLAG_FLIP_Y : 0) ^ (WeaponDir < 0 ? SPRITE_FLAG_FLIP_Y : 0);
+		
+		float Alpha2 = 1.0f;
+		
+		SetShadersForWeapon(PlayerInfo);
+		
+		// "shadow"
+		float Speed = PlayerInfo->MeleeSpeed();
+		
+		if (abs(Speed) > 0.3f)
+		{
+			float WAngle2 = WAngle - Speed*0.8f;
+			RenderWeapon(PlayerInfo->m_Weapon, p, vec2(cos(WAngle2), sin(WAngle2))*WeaponDir, WEAPON_GAME_SIZE, true, Flags, 0.25f);
+			
+			WAngle2 = WAngle - Speed*0.4f;
+			RenderWeapon(PlayerInfo->m_Weapon, p, vec2(cos(WAngle2), sin(WAngle2))*WeaponDir, WEAPON_GAME_SIZE, true, Flags, 0.5f);
+		}
+		
+		RenderWeapon(PlayerInfo->m_Weapon, p, vec2(cos(WAngle), sin(WAngle))*WeaponDir, WEAPON_GAME_SIZE, true, Flags, Alpha2);
+		
+		
+		/*
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_SCYTHE].m_Id);
+		int Sprite = SPRITE_SCYTHE1+PlayerInfo->MeleeFrame();
+			
+		Graphics()->QuadsBegin();
+		Graphics()->SetColor(0.1f, 1.0f, 0.1f, 1);
+		
+		Graphics()->QuadsSetRotation(WeaponAngle);
+			
+		{
+			SelectSprite(Sprite, (FlipY ? SPRITE_FLAG_FLIP_Y : 0) + (WeaponDir < 0 ? SPRITE_FLAG_FLIP_X : 0));
+			IGraphics::CQuadItem QuadItem(WeaponPos.x + Offset.x, WeaponPos.y + Offset.y, Size.x*PlayerInfo->MeleeSize(), Size.y*PlayerInfo->MeleeSize());
+			Graphics()->QuadsDraw(&QuadItem, 1);
+		}
+		
+		Graphics()->QuadsEnd();
+		*/
+			
+		// render hand
+		float HandBaseSize = 16.0f;		
+			
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HANDS].m_Id);
+		Graphics()->QuadsBegin();
+		Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, pInfo->m_ColorSkin.a);
+
+		Graphics()->QuadsSetRotation(WeaponAngle-pi/2);
+		{
+			SelectSprite(SPRITE_HAND1_1+pInfo->m_Body*4);
+			IGraphics::CQuadItem QuadItem(WeaponPos.x+ Offset.x, WeaponPos.y+ Offset.y, 2*HandBaseSize, 2*HandBaseSize);
+			Graphics()->QuadsDraw(&QuadItem, 1);
+		}
+			
+		Graphics()->QuadsEnd();
+	}
+	
+	
+	else if (GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_MELEE)
 	{
 		float WeaponAngle = pi/2.0f - abs(GetAngle(Dir)-pi/2.0f);
 		
@@ -1726,7 +1804,7 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 		HandPos += DirX * Offset.x;
 		HandPos += DirY * Offset.y;
 		
-		int Flags = (FlipY ? 0 : SPRITE_FLAG_FLIP_Y) + (WeaponDir < 0 ? SPRITE_FLAG_FLIP_X : 0);
+		int Flags = 0; //(FlipY ? 0 : SPRITE_FLAG_FLIP_Y) + (WeaponDir < 0 ? SPRITE_FLAG_FLIP_X : 0);
 		Flags = (FlipY ? SPRITE_FLAG_FLIP_Y : 0) ^ (WeaponDir < 0 ? SPRITE_FLAG_FLIP_Y : 0);
 	
 		float WAngle = WeaponAngle*WeaponDir;
@@ -1901,7 +1979,7 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 	}
 }
 
-void CRenderTools::SetShadersForPlayer(CPlayerInfo *pCustomPlayerInfo)
+void CRenderTools::SetShadersForPlayer(const CPlayerInfo *pCustomPlayerInfo)
 {
 	float Visibility = max(pCustomPlayerInfo->m_EffectIntensity[EFFECT_SPAWNING], pCustomPlayerInfo->m_EffectIntensity[EFFECT_INVISIBILITY]);
 	float Electro = pCustomPlayerInfo->m_EffectIntensity[EFFECT_ELECTRODAMAGE];
@@ -1990,19 +2068,12 @@ void CRenderTools::RenderScythe(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 
 	RenderArm(PlayerInfo, pInfo, WeaponPos + Offset, Pos);
 	
-	
+	/*
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_SCYTHE].m_Id);
 	int Sprite = SPRITE_SCYTHE1+PlayerInfo->MeleeFrame();
 		
 	Graphics()->QuadsBegin();
-	/*
-	if (PlayerInfo->m_WeaponPowerLevel == 0)
-		Graphics()->SetColor(0.1f, 0.1f, 1, 1);
-	else if (PlayerInfo->m_WeaponPowerLevel == 1)
-		Graphics()->SetColor(1.0f, 0.1f, 0.1f, 1);
-	else
-		*/
-		Graphics()->SetColor(0.1f, 1.0f, 0.1f, 1);
+	Graphics()->SetColor(0.1f, 1.0f, 0.1f, 1);
 	
 	Graphics()->QuadsSetRotation(WeaponAngle);
 		
@@ -2013,6 +2084,7 @@ void CRenderTools::RenderScythe(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 	}
 	
 	Graphics()->QuadsEnd();
+	*/
 		
 	// render hand
 	float HandBaseSize = 16.0f;		
@@ -2051,6 +2123,7 @@ void CRenderTools::RenderForegroundHand(CPlayerInfo *PlayerInfo)
 	if (d.x < 0)
 		FlipY = true;
 	
+	SetShadersForPlayer(PlayerInfo);
 	
 	// hand
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HANDS].m_Id);
@@ -2066,6 +2139,7 @@ void CRenderTools::RenderForegroundHand(CPlayerInfo *PlayerInfo)
 	}
 		
 	Graphics()->QuadsEnd();
+	Graphics()->ShaderEnd();
 }
 
 
@@ -2164,7 +2238,7 @@ void CRenderTools::RenderFreeHand(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo
 	}
 	
 	
-	if (Hand == HAND_WEAPON && (GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_MELEE || GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_ITEM1 || GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_WEAPON2))
+	if (Hand == HAND_WEAPON && (GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_SPIN || GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_MELEESMALL || GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_MELEE || GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_ITEM1 || GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_WEAPON2))
 	{
 		vec2 DirX = d;
 		vec2 DirY(-d.y,d.x);
@@ -2275,9 +2349,10 @@ void CRenderTools::RenderWeapon(int Weapon, vec2 Pos, vec2 Dir, float Size, bool
 		Graphics()->SetColor(1, 1, 1, 1);
 	}
 	
-	if (GetWeaponRenderType(Weapon) == WRT_MELEE)
+	if (GetWeaponRenderType(Weapon) == WRT_SPIN || GetWeaponRenderType(Weapon) == WRT_MELEE)
 	{
-		Pos -= Dir * Size * (WSize.x)/2;
+		if (GetWeaponRenderType(Weapon) == WRT_MELEE)
+			Pos -= Dir * Size * (WSize.x)/2;
 		
 		// back outlines
 		if (Part1 >= 0)
@@ -2289,7 +2364,19 @@ void CRenderTools::RenderWeapon(int Weapon, vec2 Pos, vec2 Dir, float Size, bool
 			Graphics()->QuadsDraw(&QuadItem, 1);
 		}
 		
-		// front
+		// back blade
+		if (Part1 == 5)
+		{
+			Graphics()->QuadsSetRotation(GetAngle(Dir)+pi);
+			Graphics()->SetColor(1, 1, 1, Alpha2);
+			SelectSprite(SPRITE_WEAPON_PART2_0+Part2, Flags);
+			IGraphics::CQuadItem QuadItem2(Pos.x-Dir.x*Size*7/2, Pos.y-Dir.y*Size*7/2, Size*WSize2.x, Size*WSize2.y);
+			Graphics()->QuadsDraw(&QuadItem2, 1);
+			Graphics()->QuadsSetRotation(GetAngle(Dir));
+		}
+		
+		
+		// front / blade
 		if (Part2 >= 0)
 		{
 			Graphics()->SetColor(1, 1, 1, Alpha2);
@@ -2398,7 +2485,16 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 
 	SetShadersForPlayer(PlayerInfo);
 	
-	if (GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_MELEE || GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_MELEESMALL)
+	
+	
+	if (GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_SPIN)
+	{
+		if (PlayerInfo->m_Hang || !PlayerInfo->MeleeFront())
+			RenderMelee(PlayerInfo, pInfo, Dir, Position);
+		else
+			RenderFreeHand(PlayerInfo, pInfo, HAND_FREE, Dir, Position, true);
+	}
+	else if (GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_MELEE || GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_MELEESMALL)
 	{
 		if (PlayerInfo->m_Hang)
 			RenderMelee(PlayerInfo, pInfo, Dir, Position);
@@ -2426,7 +2522,14 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 	RenderSkeleton(Position+vec2(0, 16), pInfo, PlayerInfo->Animation(), 0, Skelebank()->m_lSkeletons[Atlas], Skelebank()->m_lAtlases[Atlas], PlayerInfo);
 	SetShadersForPlayer(PlayerInfo);
 
-	if (GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_MELEE || GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_MELEESMALL)
+	if (GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_SPIN)
+	{
+		if (!PlayerInfo->m_Hang && PlayerInfo->MeleeFront())
+			RenderMelee(PlayerInfo, pInfo, Dir, Position);
+		else
+			RenderFreeHand(PlayerInfo, pInfo, HAND_FREE, Dir, Position, true);
+	}
+	else if (GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_MELEE || GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_MELEESMALL)
 	{
 		if (!PlayerInfo->m_Hang)
 			RenderMelee(PlayerInfo, pInfo, Dir, Position);
@@ -2450,7 +2553,7 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 
 
 // render player character
-void CRenderTools::RenderSkeleton(vec2 Position, CTeeRenderInfo *pInfo, CSkeletonAnimation *AnimData, float Rotation, CAnimSkeletonInfo *pSkeleton, CTextureAtlas *pAtlas, CPlayerInfo *PlayerInfo)
+void CRenderTools::RenderSkeleton(vec2 Position, const CTeeRenderInfo *pInfo, CSkeletonAnimation *AnimData, float Rotation, CAnimSkeletonInfo *pSkeleton, CTextureAtlas *pAtlas, CPlayerInfo *PlayerInfo)
 {
 	dbg_assert(pSkeleton != 0x0, "missing skeleton information");
 	

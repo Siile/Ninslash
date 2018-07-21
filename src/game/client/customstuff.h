@@ -148,10 +148,7 @@ public:
 		return false;
 	}
 	
-	int GetSpriteFrame(int Speed, int Range)
-	{
-		return (m_Tick / Speed)%Range;
-	}
+	int GetSpriteFrame(int Speed, int Range) const { return (m_Tick / Speed)%Range; }
 	
 	int m_aTurretFlame[512];
 	float m_aJumppad[512];
@@ -175,19 +172,6 @@ public:
 			m_CameraShake = Amount;
 	}
 	
-	struct CLocal
-	{
-		int m_Buff;
-		int m_BuffStartTick;
-		
-		CLocal()
-		{
-			m_Buff = -1;
-			m_BuffStartTick = 0;
-		}
-	};
-	
-	CLocal m_Local;
 	
 	bool m_LocalAlive;
 	vec2 m_LocalPos;
@@ -229,12 +213,12 @@ public:
 	
 	int m_SelectedWeapon;
 
-	int LocalTick(){ return m_Tick; }
+	int LocalTick() const { return m_Tick; }
 	int m_WeaponDropTick;
 	int m_SwitchTick;
 	
 	void SetCameraTarget(vec2 Center){ m_CameraTargetCenter = Center; }
-	vec2 GetCameraCenter(){ return m_CameraCenter; }
+	vec2 GetCameraCenter() const { return m_CameraCenter; }
 	
 	CCustomStuff(CGameClient *pClient);
 	~CCustomStuff();

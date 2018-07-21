@@ -184,6 +184,10 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		if (GameServer()->m_pController->IsCoop())
 			m_Silent = true;
 	}
+	
+	//m_apWeapon[0] = GameServer()->NewWeapon(GetModularWeapon(5, 9));
+	//m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 9));
+	//m_apWeapon[2] = GameServer()->NewWeapon(GetModularWeapon(6, 9));
 
 	/*
 	m_apWeapon[0] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 2), 10));
@@ -456,6 +460,32 @@ void CCharacter::SendInventory()
 }
 
 
+void CCharacter::InventoryRoll()
+{
+	if (m_WeaponSlot < 0 || m_WeaponSlot >= NUM_SLOTS)
+		return;
+	
+	int w1 = m_WeaponSlot;
+	int w2 = (m_WeaponSlot+4)%NUM_SLOTS;
+	int w3 = (m_WeaponSlot+8)%NUM_SLOTS;
+	
+	if (!m_apWeapon[w1] && !m_apWeapon[w2] && !m_apWeapon[w3])
+		return;
+	
+	if ((m_apWeapon[w1] && !m_apWeapon[w1]->CanSwitch()) || (m_apWeapon[w2] && !m_apWeapon[w2]->CanSwitch()) || (m_apWeapon[w3] && !m_apWeapon[w3]->CanSwitch()))
+		return;
+	
+	CWeapon *pW1 = m_apWeapon[w1];
+	m_apWeapon[w1] = m_apWeapon[w2];
+	m_apWeapon[w2] = m_apWeapon[w3];
+	m_apWeapon[w3] = pW1;
+	
+	GameServer()->CreateSound(m_Pos, SOUND_WEAPON_SWITCH);
+	
+	SendInventory();
+}
+
+	
 void CCharacter::DropItem(int Slot, vec2 Pos)
 {
 	if (Slot < 0 || Slot >= 12)
@@ -526,6 +556,20 @@ void CCharacter::SwapItem(int Item1, int Item2)
 			SendInventory();
 			return;
 		}
+	}
+	
+	// combine melee
+	if (IsModularWeapon(w1) && IsModularWeapon(w2) && GetPart(w1, 0) == 5 && GetPart(w2, 0) == 5 && GetPart(w1, 1) == GetPart(w2, 1))
+	{
+		m_apWeapon[Item1]->m_DestructionTick = 1;
+		m_apWeapon[Item1] = NULL;
+		m_apWeapon[Item2]->m_DestructionTick = 1;
+		m_apWeapon[Item2] = NULL;
+		m_apWeapon[Item2] = new CWeapon(&GameServer()->m_World, GetChargedWeapon(GetModularWeapon(6, GetPart(w1, 1)), max(GetWeaponCharge(w1), GetWeaponCharge(w2))));
+		
+		GameServer()->CreateSound(m_Pos, SOUND_UPGRADE);
+		SendInventory();
+		return;
 	}
 	
 	// swap slots
@@ -991,15 +1035,18 @@ void CCharacter::Jumppad()
 
 
 
-bool CCharacter::Reflect()
+int CCharacter::Reflect()
 {
 	//if (m_ScytheTick > Server()->Tick()-Server()->TickSpeed()*0.2f)
 	//	return true;
 
 	if (GetMask() == 3 && frandom() < 0.6f)
-		return true;
+		return m_ProximityRadius;
+	
+	if (GetWeapon() && GetWeapon()->Reflect())
+		return GetWeapon()->Reflect();
 
-	return false;
+	return 0;
 }
 
 
@@ -1589,7 +1636,7 @@ void CCharacter::Tick()
 	
 	m_Core.m_Input = m_Input;
 
-	float RecoilCap = 15.0f;
+	float RecoilCap = 17.5f;
 	
 	if ((m_Core.m_Vel.x < RecoilCap && m_Recoil.x > 0) || (m_Core.m_Vel.x > -RecoilCap && m_Recoil.x < 0))
 		m_Core.m_Vel.x += m_Recoil.x*0.7f;
@@ -1597,7 +1644,7 @@ void CCharacter::Tick()
 	if ((m_Core.m_Vel.y < RecoilCap && m_Recoil.y > 0) || (m_Core.m_Vel.y > -RecoilCap && m_Recoil.y < 0))
 		m_Core.m_Vel.y += m_Recoil.y*0.7f;
 	
-	m_Recoil *= 0.5f;
+	m_Recoil *= 0.6f;
 	
 	if (m_Core.m_KickDamage >= 0 && m_Core.m_KickDamage < MAX_CLIENTS)
 	{
@@ -1705,14 +1752,15 @@ void CCharacter::TickDefered()
 	//lastsentcore
 	vec2 StartPos = m_Core.m_Pos;
 	vec2 StartVel = m_Core.m_Vel;
-	bool StuckBefore = GameServer()->Collision()->TestBox(m_Core.m_Pos, vec2(28.0f, 28.0f));
+	//bool StuckBefore = GameServer()->Collision()->TestBox(m_Core.m_Pos, vec2(28.0f, 28.0f));
 
 	m_Core.Move();
-	bool StuckAfterMove = GameServer()->Collision()->TestBox(m_Core.m_Pos, vec2(28.0f, 28.0f));
+	//bool StuckAfterMove = GameServer()->Collision()->TestBox(m_Core.m_Pos, vec2(28.0f, 28.0f));
 	m_Core.Quantize();
-	bool StuckAfterQuant = GameServer()->Collision()->TestBox(m_Core.m_Pos, vec2(28.0f, 28.0f));
+	//bool StuckAfterQuant = GameServer()->Collision()->TestBox(m_Core.m_Pos, vec2(28.0f, 28.0f));
 	m_Pos = m_Core.m_Pos;
 
+	/*
 	if(!StuckBefore && (StuckAfterMove || StuckAfterQuant))
 	{
 		// Hackish solution to get rid of strict-aliasing warning
@@ -1738,6 +1786,7 @@ void CCharacter::TickDefered()
 			StartVelX.u, StartVelY.u);
 		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 	}
+	*/
 
 	int Events = m_Core.m_TriggeredEvents;
 	int Mask = CmaskAllExceptOne(m_pPlayer->GetCID());
@@ -1774,7 +1823,6 @@ void CCharacter::TickPaused()
 {
 	++m_AttackTick;
 	++m_DamageTakenTick;
-	++m_Ninja.m_ActivationTick;
 	++m_ReckoningTick;
 	if(m_LastAction != -1)
 		++m_LastAction;
@@ -1810,34 +1858,6 @@ bool CCharacter::IncreaseHealth(int Amount)
 	m_HiddenHealth = clamp(m_HiddenHealth+Amount, 0, m_MaxHealth);
 	
 	//GetPlayer()->m_InterestPoints += 40;
-	
-	return true;
-}
-
-
-bool CCharacter::AddMine()
-{
-	if (GameServer()->m_pController->IsInfection() && GetPlayer()->GetTeam() == TEAM_BLUE)
-		return false;
-	
-	if (frandom()*10 < 5)
-	{
-		if (m_aItem[PLAYERITEM_LANDMINE] < MAX_PLAYERITEMS)
-			m_aItem[PLAYERITEM_LANDMINE]++;
-		else if (m_aItem[PLAYERITEM_ELECTROMINE] < MAX_PLAYERITEMS)
-			m_aItem[PLAYERITEM_ELECTROMINE]++;
-		else
-			return false;
-	}
-	else
-	{
-		if (m_aItem[PLAYERITEM_ELECTROMINE] < MAX_PLAYERITEMS)
-			m_aItem[PLAYERITEM_ELECTROMINE]++;
-		else if (m_aItem[PLAYERITEM_LANDMINE] < MAX_PLAYERITEMS)
-			m_aItem[PLAYERITEM_LANDMINE]++;
-		else
-			return false;
-	}
 	
 	return true;
 }
@@ -2105,6 +2125,8 @@ bool CCharacter::TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos)
 
 	if (m_ShieldHealth <= 0)
 		m_Recoil += Force;
+	else
+		m_Recoil += Force / 2;
 	
 	// signal AI
 	if (Dmg > 0 && GetPlayer()->m_pAI && Weapon >= 0)
@@ -2193,7 +2215,6 @@ bool CCharacter::TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos)
 			GameServer()->CreateEffect(FX_SHIELDHIT, DmgPos);
 			m_ShieldHealth -= Dmg + (g_Config.m_SvOneHitKill ? 1000 : 0);
 			
-			m_LatestHitVel = Force/2;
 			return false;
 		}
 		else
@@ -2299,7 +2320,15 @@ void CCharacter::TakeSawbladeDamage(vec2 SawbladePos)
 
 	m_Core.m_Vel += normalize(m_Pos-SawbladePos)*2.0f;
 	
-	m_HiddenHealth -= 5 + (g_Config.m_SvOneHitKill ? 1000 : 0);
+	
+	if (m_Armor > 0)
+	{
+		m_Armor = max(m_Armor-3, 0);
+		m_HiddenHealth -= 2 + (g_Config.m_SvOneHitKill ? 1000 : 0);
+	}
+	else
+		m_HiddenHealth -= 5 + (g_Config.m_SvOneHitKill ? 1000 : 0);
+	
 	m_DamageTakenTick = Server()->Tick();
 	
 	// check for death

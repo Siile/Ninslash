@@ -700,6 +700,8 @@ for i in range(0, 5):
 for i in range(0, 3):
 	container.sprites.Add(Sprite("weapon_part2_"+str(5+i), set_weapons, 24, 26+i*2, 8, 2))
 
+container.sprites.Add(Sprite("weapon_part2_8", set_weapons, 24, 22, 8, 4))
+
 
 # items & weapons - mind the order | sw_ staticweapon
 n = 0

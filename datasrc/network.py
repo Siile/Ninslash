@@ -12,7 +12,7 @@ Powerups = ["HEALTH", "AMMO", "WEAPON", "ARMOR", "COIN", "KIT"]
 # keep masks at the end
 Statuses = ["SPAWNING", "AFLAME", "SLOWED", "ELECTRIC", "DEATHRAY", "SHIELD", "DASH", "INVISIBILITY", "SLOWMOVING", "BOMBCARRIER", "MASK1", "MASK2", "MASK3"]
 
-BallStatuses = ["STATIONARY"]
+BallStatuses = ["STATIONARY", "SUPER"]
 
 Damagetypes = ["NORMAL", "FLAME", "ELECTRIC", "FLUID"]
 
@@ -21,7 +21,7 @@ Droidtype = ["WALKER", "STAR", "CRAWLER", "FLY"]
 
 CoreAction = ["IDLE", "JUMP", "WALLJUMP", "ROLL", "SLIDE", "SLIDEKICK", "FALL", "JUMPPAD", "HANG"]
 
-InventoryAction = ["SWAP", "COMBINE", "TAKEPART", "DROP", "SHOP"]
+InventoryAction = ["SWAP", "COMBINE", "TAKEPART", "DROP", "SHOP", "ROLL"]
 
 Radar = ["CHARACTER", "HUMAN", "ENEMY", "DOOR", "REACTOR", "BOMB"]
 
@@ -90,6 +90,7 @@ enum
 	FX_LAZERLOAD,
 	FX_BLOOD1,
 	FX_BLOOD2,
+	FX_BLOOD3,
 	FX_MONSTERDEATH,
 	FX_MONSTERSPAWN,
 	FX_TAKEOFF,
