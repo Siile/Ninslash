@@ -509,6 +509,9 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			if (GetStaticType(Weapon) == SW_FLAMER && Collision()->IntersectLine(Pos, pTarget->m_Pos, NULL, NULL))
 				continue;
 			
+			if (m_pController->IsCoop() && !pTarget->m_IsBot && !IsBot(DamageOwner))
+				continue;
+			
 			
 			if (GetStaticType(Weapon) == SW_FLAMER)
 			{

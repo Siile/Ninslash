@@ -521,6 +521,9 @@ void CCharacter::SwapItem(int Item1, int Item2)
 	if (Item1 < 0 || Item1 >= NUM_SLOTS || Item2 >= NUM_SLOTS)
 		return;
 	
+	if (Item1 == Item2)
+		return;
+	
 	CWeapon *t = m_apWeapon[Item1];
 	
 	int w1 = GetWeaponType(Item1);
@@ -561,6 +564,9 @@ void CCharacter::SwapItem(int Item1, int Item2)
 	// combine melee
 	if (IsModularWeapon(w1) && IsModularWeapon(w2) && GetPart(w1, 0) == 5 && GetPart(w2, 0) == 5 && GetPart(w1, 1) == GetPart(w2, 1))
 	{
+		if (!m_apWeapon[Item1]->CanSwitch() || !m_apWeapon[Item2]->CanSwitch())
+			return;
+		
 		m_apWeapon[Item1]->m_DestructionTick = 1;
 		m_apWeapon[Item1] = NULL;
 		m_apWeapon[Item2]->m_DestructionTick = 1;

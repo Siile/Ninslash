@@ -2107,7 +2107,7 @@ void CRenderTools::RenderScythe(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 
 void CRenderTools::RenderForegroundHand(CPlayerInfo *PlayerInfo)
 {
-	if (!PlayerInfo->m_Hang)
+	if (!PlayerInfo->m_InUse || !PlayerInfo->m_Hang)
 		return;
 	
 	bool FlipY = false;
