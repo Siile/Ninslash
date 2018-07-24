@@ -19,7 +19,7 @@ CAIalien1::CAIalien1(CGameContext *pGameServer, CPlayer *pPlayer, int Level)
 	
 	m_Level = Level;
 	
-	m_Skin = SKIN_ALIEN1+min(Level, 2);
+	m_Skin = SKIN_ALIEN1+min(Level, 3);
 
 	Player()->SetCustomSkin(m_Skin);
 }
@@ -48,7 +48,15 @@ void CAIalien1::OnCharacterSpawn(CCharacter *pChr)
 		m_PowerLevel = 8;
 		m_TriggerLevel = 15 + rand()%5;
 	}
-	if (m_Skin == SKIN_ALIEN2)
+	else if (m_Skin == SKIN_ALIEN4)
+	{
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 1), 2)));
+		pChr->SetHealth(60+min((m_Level-1)*5, 200));
+		pChr->SetArmor(60+min((m_Level-1)*5, 350));
+		m_PowerLevel = 12;
+		m_TriggerLevel = 15 + rand()%5;
+	}
+	else if (m_Skin == SKIN_ALIEN2)
 	{
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_CHAINSAW)));
 		pChr->SetHealth(60+min((m_Level-1)*4, 300));

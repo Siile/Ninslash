@@ -13,7 +13,7 @@ CAIrobot1::CAIrobot1(CGameContext *pGameServer, CPlayer *pPlayer, int Level)
 {
 	m_SkipMoveUpdate = 0;
 	
-	m_Skin = SKIN_ROBO1+min(Level, 3);
+	m_Skin = SKIN_ROBO1+min(Level, 4);
 	
 	pPlayer->SetCustomSkin(m_Skin);
 	m_StartPos = vec2(0, 0);
@@ -68,6 +68,13 @@ void CAIrobot1::OnCharacterSpawn(CCharacter *pChr)
 		pChr->SetArmor(200+min(Level*5.0f, 400.0f));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(3, 1+rand()%4), 2)));
 		pChr->m_Kits = 1;
+	}
+	else if (m_Skin == SKIN_ROBO5)
+	{
+		m_PowerLevel = 14;
+		pChr->SetHealth(200+min(Level*5.0f, 200.0f));
+		pChr->SetArmor(200+min(Level*5.0f, 400.0f));
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(6, 9), 2)));
 	}
 	
 	if (!m_Triggered)
