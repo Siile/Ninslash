@@ -184,6 +184,11 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 		if (GameServer()->m_pController->IsCoop())
 			m_Silent = true;
 	}
+	else
+	{
+		//m_apWeapon[0] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(2, 1), 15));
+		//m_apWeapon[1] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 3), 15));
+	}
 	
 	//m_apWeapon[0] = GameServer()->NewWeapon(GetModularWeapon(5, 9));
 	//m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 9));
@@ -241,7 +246,6 @@ int CCharacter::FreeSlot()
 
 void CCharacter::RandomizeInventory()
 {
-	
 	for (int x = 0; x < 16; x++)
 	{
 		int i = rand()%4;
@@ -255,8 +259,17 @@ void CCharacter::RandomizeInventory()
 	
 		bool CanSwitch = true;
 		
-		int wt = GetStaticType(GetWeaponType(j));
-		if (i == 0 && (wt == SW_BOMB || (wt >= SW_MASK1 && wt <= SW_MASK5)))
+		int wt1 = GetStaticType(GetWeaponType(i));
+		int wt2 = GetStaticType(GetWeaponType(j));
+
+		if ((i > 0 && i <= 3) || (j > 0 && j <= 3))
+		{
+			if ((wt1 >= SW_MASK1 && wt1 <= SW_MASK5) || (wt2 >= SW_MASK1 && wt2 <= SW_MASK5))
+				continue;
+		}
+		
+		if (i == 0 && (wt2 == SW_BOMB || (wt2 >= SW_MASK1 && wt2 <= SW_MASK5)))
+			continue;
 		
 		if ((m_apWeapon[i] && !m_apWeapon[i]->CanSwitch()) || (m_apWeapon[j] && !m_apWeapon[j]->CanSwitch()))
 			CanSwitch = false;
@@ -800,7 +813,7 @@ bool CCharacter::PickWeapon(CWeapon *pWeapon)
 				if (Weapons > 1.0f)
 					WeaponLevel /= Weapons;
 				
-				if (GetWeaponCharge(w) < WeaponLevel && Weapons > 1.0f && GetWeaponCharge(w) < WeaponMaxLevel(w))
+				if (GetWeaponCharge(w) < WeaponLevel && Weapons > 0.0f && GetWeaponCharge(w) < WeaponMaxLevel(w))
 					Valid = false;
 			}
 		}
@@ -1943,15 +1956,18 @@ bool CCharacter::IncreaseArmor(int Amount)
 void CCharacter::ReleaseWeapons()
 {
 	// drop mask
-	for (int i = 0; i < 4; i++)
+	if (!m_IsBot || !GameServer()->m_pController->IsCoop())
 	{
-		int w = GetStaticType(GetWeaponType(i));
-		
-		if (w >= SW_MASK1 && w <= SW_MASK5 && GetWeaponSlot() != i)
+		for (int i = 0; i < 4; i++)
 		{
-			GameServer()->m_pController->DropWeapon(m_Pos+vec2(0, -16), (m_Core.m_Vel/1.7f + vec2(0, -3))*0.75f, m_apWeapon[i]);
-			m_apWeapon[i] = NULL;
-			break;
+			int w = GetStaticType(GetWeaponType(i));
+			
+			if (w >= SW_MASK1 && w <= SW_MASK5 && GetWeaponSlot() != i)
+			{
+				GameServer()->m_pController->DropWeapon(m_Pos+vec2(0, -16), (m_Core.m_Vel/1.7f + vec2(0, -3))*0.75f, m_apWeapon[i]);
+				m_apWeapon[i] = NULL;
+				break;
+			}
 		}
 	}
 	

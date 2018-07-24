@@ -1206,7 +1206,7 @@ int AIAttackRange(int Weapon)
 			return 900;
 		
 		if (Part1 == 6)
-			return 120;
+			return 200;
 		
 		if (Part2 > 5)
 			return 250;
@@ -1491,7 +1491,7 @@ bool WeaponAutoPick(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
-			case SW_GUN1: case SW_GUN2: return false;
+			case SW_GUN1: case SW_GUN2: case SW_TOOL: return false;
 			case SW_MASK1: case SW_MASK2: case SW_MASK3: case SW_MASK4: case SW_MASK5: return false;
 			default: return true;
 		};

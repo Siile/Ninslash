@@ -331,9 +331,9 @@ int CGameControllerCoop::OnCharacterDeath(class CCharacter *pVictim, class CPlay
 		{
 			Trigger(true);
 			
-			if (frandom() < 0.011f)
+			if (frandom() < 0.013f)
 				GameServer()->m_pController->DropWeapon(pVictim->m_Pos, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_UPGRADE)));
-			else if (frandom() < 0.011f)
+			else if (frandom() < 0.013f)
 				GameServer()->m_pController->DropWeapon(pVictim->m_Pos, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_RESPAWNER)));
 		}
 	}
