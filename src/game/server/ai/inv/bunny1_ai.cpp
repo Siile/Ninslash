@@ -17,7 +17,7 @@ CAIbunny1::CAIbunny1(CGameContext *pGameServer, CPlayer *pPlayer, int Level)
 	m_Triggered = false;
 	m_TriggerLevel = 5 + rand()%10;
 	
-	m_Skin = SKIN_BUNNY1+min(Level, 3);
+	m_Skin = SKIN_BUNNY1+min(Level, 4);
 	Player()->SetCustomSkin(m_Skin);
 }
 
@@ -57,6 +57,19 @@ void CAIbunny1::OnCharacterSpawn(CCharacter *pChr)
 		
 		pChr->SetHealth(80+min(Level*5.0f, 320.0f));
 		m_PowerLevel = 12;
+		m_TriggerLevel = 15 + rand()%5;
+	}
+	else if (m_Skin == SKIN_BUNNY4)
+	{
+		if (frandom() < 0.5f)
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(6, 6)));
+		else
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(6, 7)));
+		
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD)));
+		
+		pChr->SetHealth(80+min(Level*5.0f, 320.0f));
+		m_PowerLevel = 14;
 		m_TriggerLevel = 15 + rand()%5;
 	}
 	else if (m_Skin == SKIN_BUNNY2)
