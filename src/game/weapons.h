@@ -110,104 +110,103 @@ static const char *s_TipText[NUM_SW] = {
 
 #define WEAPON_GAME_SIZE 15
 
-inline bool IsWeapon(int Weapon) { return (Weapon & BIT_WEAPON) ? true : false; }
-inline bool IsTurret(int Weapon) { return (IsWeapon(Weapon) && (Weapon & BIT_TURRET)) ? true : false; }
-inline bool IsBuilding(int Weapon) { return (!IsWeapon(Weapon) && (Weapon & BIT_BUILDING)) ? true : false; }
-inline bool IsDroid(int Weapon) { return (!IsWeapon(Weapon) && (Weapon & BIT_DROID)) ? true : false; }
-inline bool IsStaticWeapon(int Weapon) { return (IsWeapon(Weapon) && (Weapon & BIT_STATICWEAPON)) ? true : false; }
-inline bool IsModularWeapon(int Weapon) { return (IsWeapon(Weapon) && !(Weapon & BIT_STATICWEAPON)) ? true : false; }
+inline const bool IsWeapon(int Weapon) { return (Weapon & BIT_WEAPON) ? true : false; }
+inline const bool IsTurret(int Weapon) { return (IsWeapon(Weapon) && (Weapon & BIT_TURRET)) ? true : false; }
+inline const bool IsBuilding(int Weapon) { return (!IsWeapon(Weapon) && (Weapon & BIT_BUILDING)) ? true : false; }
+inline const bool IsDroid(int Weapon) { return (!IsWeapon(Weapon) && (Weapon & BIT_DROID)) ? true : false; }
+inline const bool IsStaticWeapon(int Weapon) { return (IsWeapon(Weapon) && (Weapon & BIT_STATICWEAPON)) ? true : false; }
+inline bool const IsModularWeapon(int Weapon) { return (IsWeapon(Weapon) && !(Weapon & BIT_STATICWEAPON)) ? true : false; }
 
-inline int GetPart(int Weapon, int Group){ return (Weapon & (15<<(4+Group*4)))>>(4+Group*4); }
-inline int GetModularWeapon(int Part1, int Part2){ return (!Part1 && !Part2) ? 0 : (Part2<<8 | Part1<<4 | BIT_WEAPON); }
-inline int GetStaticWeapon(int Weapon){ return (Weapon<<4 | BIT_STATICWEAPON | BIT_WEAPON); }
-inline int GetStaticType(int Weapon){ return IsStaticWeapon(Weapon) ? 255 & (Weapon>>4) : 0; }
+inline const int GetPart(int Weapon, int Group){ return (Weapon & (15<<(4+Group*4)))>>(4+Group*4); }
+inline const int GetModularWeapon(int Part1, int Part2){ return (!Part1 && !Part2) ? 0 : (Part2<<8 | Part1<<4 | BIT_WEAPON); }
+inline const int GetStaticWeapon(int Weapon){ return (Weapon<<4 | BIT_STATICWEAPON | BIT_WEAPON); }
+inline const int GetStaticType(int Weapon){ return IsStaticWeapon(Weapon) ? 255 & (Weapon>>4) : 0; }
 
-inline int GetChargedWeapon(int Weapon, int Charge){ return (Weapon & (15<<4 | 15<<8 | 15)) | Charge<<12; }
-inline int GetWeaponCharge(int Weapon){ return (Weapon & (15<<12))>>12; }
+inline const int GetChargedWeapon(int Weapon, int Charge){ return (Weapon & (15<<4 | 15<<8 | 15)) | Charge<<12; }
+inline const int GetWeaponCharge(int Weapon){ return (Weapon & (15<<12))>>12; }
 
+inline const bool IsOnDeath(int Weapon) { return Weapon & BIT_ONDEATH ? true : false; }
 
-inline bool IsOnDeath(int Weapon) { return Weapon & BIT_ONDEATH ? true : false; }
+inline const int GetBuildingType(int Weapon) { return IsBuilding(Weapon) ? (Weapon & (1023<<6))>>6 : 0; }
+inline const int GetBuildingWeapon(int Building) { return BIT_BUILDING | Building<<6; }
+inline const int GetDroidType(int Weapon) { return IsDroid(Weapon) ? (Weapon & (1023<<6))>>6 : 0; }
+inline const int GetDroidWeapon(int Droid, bool OnDeath = false) { return BIT_DROID | (OnDeath ? BIT_ONDEATH : 0) | Droid<<6; }
 
-inline int GetBuildingType(int Weapon) { return IsBuilding(Weapon) ? (Weapon & (1023<<6))>>6 : 0; }
-inline int GetBuildingWeapon(int Building) { return BIT_BUILDING | Building<<6; }
-inline int GetDroidType(int Weapon) { return IsDroid(Weapon) ? (Weapon & (1023<<6))>>6 : 0; }
-inline int GetDroidWeapon(int Droid, bool OnDeath = false) { return BIT_DROID | (OnDeath ? BIT_ONDEATH : 0) | Droid<<6; }
+const bool ValidForTurret(int Weapon);
 
-bool ValidForTurret(int Weapon);
+const int GetShotSpread(int Weapon);
+const float GetProjectileSpread(int Weapon);
+const float GetExplosionSize(int Weapon);
+const float GetExplosionDamage(int Weapon);
+const float GetProjectileSize(int Weapon);
+const float GetProjectileSpeed(int Weapon);
+const float GetProjectileCurvature(int Weapon);
+const float GetProjectileDamage(int Weapon);
+const float GetProjectileKnockback(int Weapon);
+const float GetProjectileLife(int Weapon);
+const float GetProjectileSprite(int Weapon);
+const float GetMeleeHitRadius(int Weapon);
+const vec2 GetWeaponColorswap(int Weapon);
+const float GetWeaponRenderRecoil(int Weapon);
 
-int GetShotSpread(int Weapon);
-float GetProjectileSpread(int Weapon);
-float GetExplosionSize(int Weapon);
-float GetExplosionDamage(int Weapon);
-float GetProjectileSize(int Weapon);
-float GetProjectileSpeed(int Weapon);
-float GetProjectileCurvature(int Weapon);
-float GetProjectileDamage(int Weapon);
-float GetProjectileKnockback(int Weapon);
-float GetProjectileLife(int Weapon);
-float GetProjectileSprite(int Weapon);
-float GetMeleeHitRadius(int Weapon);
-vec2 GetWeaponColorswap(int Weapon);
-float GetWeaponRenderRecoil(int Weapon);
+const int GetProjectileTraceType(int Weapon);
+const float GetWeaponTraceThreshold(int Weapon);
 
-int GetProjectileTraceType(int Weapon);
-float GetWeaponTraceThreshold(int Weapon);
+const int GetWeaponRenderType(int Weapon);
+const int GetWeaponFiringType(int Weapon);
+const int GetExplosionSprite(int Weapon);
+const int GetExplosionSound(int Weapon);
 
-int GetWeaponRenderType(int Weapon);
-int GetWeaponFiringType(int Weapon);
-int GetExplosionSprite(int Weapon);
-int GetExplosionSound(int Weapon);
+const bool WeaponAimline(int Weapon);
 
-bool WeaponAimline(int Weapon);
+const bool AIWeaponCharge(int Weapon);
 
-bool AIWeaponCharge(int Weapon);
+const int GetWeaponCost(int Weapon);
 
-int GetWeaponCost(int Weapon);
+const vec2 GetWeaponRenderOffset(int Weapon);
+const vec2 GetMuzzleRenderOffset(int Weapon);
+const vec2 GetProjectileOffset(int Weapon);
 
-vec2 GetWeaponRenderOffset(int Weapon);
-vec2 GetMuzzleRenderOffset(int Weapon);
-vec2 GetProjectileOffset(int Weapon);
+const float GetWeaponFireRate(int Weapon);
+const float GetWeaponKnockback(int Weapon);
+const bool GetWeaponFullAuto(int Weapon);
+const bool IsProjectileBouncy(int Weapon);
+const bool IsExplosiveProjectile(int Weapon);
+const int GetWeaponMaxAmmo(int Weapon);
+const bool WeaponUseAmmo(int Weapon);
+const bool IsFlammableProjectile(int Weapon);
+const float WeaponFlameAmount(int Weapon);
+const float WeaponElectroAmount(int Weapon);
 
-float GetWeaponFireRate(int Weapon);
-float GetWeaponKnockback(int Weapon);
-bool GetWeaponFullAuto(int Weapon);
-bool IsProjectileBouncy(int Weapon);
-bool IsExplosiveProjectile(int Weapon);
-int GetWeaponMaxAmmo(int Weapon);
-bool WeaponUseAmmo(int Weapon);
-bool IsFlammableProjectile(int Weapon);
-float WeaponFlameAmount(int Weapon);
-float WeaponElectroAmount(int Weapon);
+const float ScreenshakeDistance(int Weapon);
+const float ScreenshakeAmount(int Weapon);
 
-float ScreenshakeDistance(int Weapon);
-float ScreenshakeAmount(int Weapon);
+const float WeaponThrowForce(int Weapon);
 
-float WeaponThrowForce(int Weapon);
+const int WeaponProjectilePosType(int Weapon);
+const bool WeaponAutoPick(int Weapon);
 
-int WeaponProjectilePosType(int Weapon);
-bool WeaponAutoPick(int Weapon);
+const int WeaponBurstCount(int Weapon);
+const float WeaponBurstReload(int Weapon);
 
-int WeaponBurstCount(int Weapon);
-float WeaponBurstReload(int Weapon);
+const ivec2 GetWeaponVisualSize(int Weapon);
+const ivec2 GetWeaponVisualSize2(int Weapon);
 
-ivec2 GetWeaponVisualSize(int Weapon);
-ivec2 GetWeaponVisualSize2(int Weapon);
+const int WeaponMaxLevel(int Weapon);
 
-int WeaponMaxLevel(int Weapon);
+const bool IsLaserWeapon(int Weapon);
+const int GetLaserRange(int Weapon);
+const int GetLaserCharge(int Weapon);
 
-bool IsLaserWeapon(int Weapon);
-int GetLaserRange(int Weapon);
-int GetLaserCharge(int Weapon);
+const int AIAttackRange(int Weapon);
 
-int AIAttackRange(int Weapon);
+const float GetWeaponLevelCharge(int Weapon);
 
-float GetWeaponLevelCharge(int Weapon);
+const int GetRandomWeaponType(bool IsSurvival);
+const int GetMuzzleType(int Weapon);
+const int GetMuzzleAmount(int Weapon);
 
-int GetRandomWeaponType(bool IsSurvival);
-int GetMuzzleType(int Weapon);
-int GetMuzzleAmount(int Weapon);
-
-int GetWeaponFireSound(int Weapon);
-int GetWeaponFireSound2(int Weapon);
+const int GetWeaponFireSound(int Weapon);
+const int GetWeaponFireSound2(int Weapon);
 
 #endif

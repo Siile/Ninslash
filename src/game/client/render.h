@@ -62,6 +62,23 @@ enum
 };
 
 
+enum BoneSpecialType
+{
+	BST_NONE,
+	BST_WEAPON,
+	BST_WEAPON0,
+	BST_WEAPON1,
+	BST_WEAPON2,
+	BST_WEAPON_TEAM,
+	BST_THRUST1,
+	BST_THRUST2,
+	BST_BODY,
+	BST_FFOOT,
+	BST_BFOOT,
+	BST_HEAD
+};
+
+
 // bone animation
 class CAnimBone
 {
@@ -70,6 +87,7 @@ public:
 
 	string m_Name; // needed for animation
 
+	int m_SpecialType;
 	vec2 m_Position;
 	vec2 m_Scale;
 	float m_Rotation;
@@ -94,18 +112,51 @@ enum
 	ATTACHMENT_SKINNED_MESH,
 };
 
+enum AttachmentSpecialTypes
+{
+	AST_NONE,
+	AST_1_TEAM,
+	AST_2_TEAM,
+	AST_3_TEAM,
+	AST_4_TEAM,
+	AST_WEAPON,
+	AST_WEAPON_TEAM,
+	AST_EYES,
+	AST_HAT,
+	AST_MASK,
+	AST_BODY,
+	AST_HEAD,
+	AST_HEAD_ASSET,
+	AST_ARM,
+	AST_FOOT,
+	AST_HAND,
+	AST_SPLATTER1,
+	AST_SPLATTER2,
+	AST_SPLATTER3,
+	AST_SPLATTER4,
+	AST_SPLATTER5,
+	AST_SPLATTER6,
+	AST_SPLATTER7,
+	AST_SPLATTER8,
+	AST_TEAM,
+	AST_JET,
+	AST_JET1,
+	AST_JET2,
+};
+
 class CAnimAttachment
 {
 public:
 	string m_Name;
 	int m_Type;
+	int m_SpecialType;
 };
 
 class CAnimAttachmentSprite : public CAnimAttachment
 {
 public:
-	CAnimAttachmentSprite() { m_Type = ATTACHMENT_SPRITE; }
-
+	CAnimAttachmentSprite() { m_Type = ATTACHMENT_SPRITE; m_SpecialType = AST_NONE; }
+	
 	vec2 m_Position;
 	vec2 m_Scale;
 	float m_Rotation;
