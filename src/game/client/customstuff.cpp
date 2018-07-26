@@ -244,10 +244,12 @@ void CCustomStuff::Tick(bool Paused)
 	m_ChargeAngle += 0.1f;
 	
 	if (m_DoorTimer > 0.0f)
+	{
 		m_DoorTimer += 0.01f;
 	
-	if (m_DoorTimer > 1.0f)
-		m_DoorTimer = 0.0f;
+		if (m_DoorTimer > 1.0f)
+			m_DoorTimer = 0.0f;
+	}
 	
 	if (m_WeaponSignalTimer > 0.0f)
 		m_WeaponSignalTimer -= 0.035f;

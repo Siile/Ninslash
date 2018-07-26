@@ -276,7 +276,6 @@ public:
 	void RenderHeal(vec2 Pos, vec2 Size, float State);
 	
 	void RenderMelee(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec2 Dir, vec2 Pos);
-	void RenderScythe(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec2 Dir, vec2 Pos);
 	
 	void RenderArm(class CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec2 Pos, vec2 PlayerPos);
 	
