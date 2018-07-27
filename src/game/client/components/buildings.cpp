@@ -154,20 +154,56 @@ void CBuildings::RenderGenerator(const struct CNetObj_Building *pCurrent)
 	
 	float c = sin(CustomStuff()->m_SawbladeAngle*0.25f)*0.3f + 0.7f;
 	
-	Graphics()->SetColor(0, c, 1, 1);
+	//team color
+	if (m_pClient->m_Snap.m_pGameInfoObj)
+	{
+		int Flags = m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags;
+		int Team = pCurrent->m_Team;
+	
+		if ((Flags & GAMEFLAG_TEAMS) && !(Flags & GAMEFLAG_INFECTION))
+		{
+			if (Team == TEAM_RED)
+				Graphics()->SetColor(1, c, 0, 1);
+			else if (Team == TEAM_BLUE)
+				Graphics()->SetColor(0, c, 1, 1);
+		}
+		else if (Team == TEAM_RED)
+		{
+			vec4 pc = CustomStuff()->m_LocalColor;
+			Graphics()->SetColor(pc.r, pc.g, pc.b, 1);
+		}
+	}
+	else
+		Graphics()->SetColor(0, c, 1, 1);
+	
 	RenderTools()->SelectSprite(SPRITE_GENERATOR_COLOR);
 	RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y, 192);
 	Graphics()->QuadsEnd();
 	
-	//RenderTools()->SetShadersForWeapon(0, 0, 1.0f, 1.0f, 0, 0);
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GENERATOR_SHIELD].m_Id);
-	Graphics()->QuadsBegin();
 	
-	Graphics()->SetColor(0, 0.5f+c*0.5f, 1, 0.5f);
-	RenderTools()->SelectSprite(SPRITE_GENERATOR_SHIELD);
-	RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y, 512+256);
-	Graphics()->QuadsEnd();
-	//Graphics()->ShaderEnd();
+	bool Repair = pCurrent->m_Status & (1<<BSTATUS_REPAIR);
+	float Time = pCurrent->m_X * 0.432f + pCurrent->m_Y * 0.2354f + CustomStuff()->m_SawbladeAngle * 0.1f;
+	
+	if (Repair)
+	{
+		Time += CustomStuff()->m_SawbladeAngle * 0.15f;
+		
+		if (frandom() < 0.15f)
+			m_pClient->m_pEffects->Electrospark(vec2(pCurrent->m_X, pCurrent->m_Y)+vec2(frandom()-frandom(), frandom()-frandom()) * 50.0f, 40+frandom()*20, vec2(0, 0));
+	}
+	
+	// repair sprite
+	if (Repair && (CustomStuff()->LocalTick()/12+(pCurrent->m_X/8 + pCurrent->m_Y/32))%8 < 4)
+	{
+		Graphics()->QuadsBegin();
+		RenderTools()->SelectSprite(SPRITE_STATUS_REPAIR);
+		Graphics()->SetColor(1, 1, 1, 1);
+		
+		Graphics()->QuadsSetRotation(0);
+		
+		RenderTools()->DrawSprite(pCurrent->m_X-34, pCurrent->m_Y-52, 52);
+		Graphics()->QuadsEnd();
+	}
 }
 
 

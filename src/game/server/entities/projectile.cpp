@@ -199,8 +199,27 @@ void CProjectile::Tick()
 		if(TargetBuilding)
 		{
 			vec2 Force = m_Direction * max(0.001f, m_Force);
-			TargetBuilding->TakeDamage(m_Damage, m_Owner, m_Weapon, Force);
-			GameServer()->CreateBuildingHit(CurPos);
+			
+			if (TargetBuilding->m_Type == BUILDING_GENERATOR)
+			{
+				TargetBuilding->m_DamagePos = CurPos;
+				
+				if (distance(TargetBuilding->m_Pos, CurPos) > TargetBuilding->m_ProximityRadius)
+				{
+					GameServer()->CreateEffect(FX_SHIELDHIT, CurPos);
+					TargetBuilding->TakeDamage(m_Damage/3, m_Owner, m_Weapon, Force);
+				}
+				else
+				{
+					GameServer()->CreateBuildingHit(CurPos);
+					TargetBuilding->TakeDamage(m_Damage, m_Owner, m_Weapon, Force);
+				}
+			}
+			else
+			{
+				GameServer()->CreateBuildingHit(CurPos);
+				TargetBuilding->TakeDamage(m_Damage, m_Owner, m_Weapon, Force);
+			}
 		}
 		
 		if (TargetMonster)

@@ -619,7 +619,7 @@ void CParticles::RenderGroup(int Group)
 			float Size = mix(m_aParticles[i].m_StartSize, m_aParticles[i].m_EndSize*1.0f, a);
 			RenderTools()->SelectSprite(m_aParticles[i].m_Spr + a*m_aParticles[i].m_Frames);
 			Graphics()->QuadsSetRotation(m_aParticles[i].m_Rot);
-			Graphics()->SetColor(m_aParticles[i].m_Color.r, m_aParticles[i].m_Color.g, m_aParticles[i].m_Color.b, 1);
+			Graphics()->SetColor(m_aParticles[i].m_Color.r, m_aParticles[i].m_Color.g, m_aParticles[i].m_Color.b, m_aParticles[i].m_Color.a);
 			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
 			Graphics()->QuadsDraw(&QuadItem, 1);
 

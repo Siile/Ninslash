@@ -271,6 +271,7 @@ const int GetExplosionSprite(int Weapon)
 			case BUILDING_BARREL: return SPRITE_EXPLOSION1_1;
 			case BUILDING_POWERBARREL: return SPRITE_EXPLOSION1_1;
 			case BUILDING_REACTOR: return SPRITE_EXPLOSION1_1;
+			case BUILDING_GENERATOR: return SPRITE_EXPLOSION1_1;
 			default: return SPRITE_EXPLOSION1_1;
 		};
 	}
@@ -321,6 +322,7 @@ const int GetExplosionSound(int Weapon)
 			case BUILDING_BARREL: return SOUND_GRENADE_EXPLODE;
 			case BUILDING_POWERBARREL: return SOUND_GRENADE_EXPLODE;
 			case BUILDING_REACTOR: return SOUND_GRENADE_EXPLODE;
+			case BUILDING_GENERATOR: return SOUND_GRENADE_EXPLODE;
 			default: return 0;
 		};
 	}
@@ -422,11 +424,12 @@ const float GetExplosionSize(int Weapon)
 		switch (GetBuildingType(Weapon))
 		{
 			case BUILDING_TURRET: return 80.0f;
-			case BUILDING_TESLACOIL: return 350.0f;
+			case BUILDING_TESLACOIL: return 240.0f;
 			case BUILDING_FLAMETRAP: return 150.0f;
 			case BUILDING_BARREL: return 200.0f;
 			case BUILDING_POWERBARREL: return 300.0f;
 			case BUILDING_REACTOR: return 240.0f;
+			case BUILDING_GENERATOR: return 150.0f;
 			default: return 120.0f;
 		};
 	}
@@ -473,11 +476,12 @@ const float GetExplosionDamage(int Weapon)
 		switch (GetBuildingType(Weapon)) 
 		{
 			case BUILDING_TURRET: return 20.0f;
-			case BUILDING_TESLACOIL: return 120.0f;
+			case BUILDING_TESLACOIL: return 60.0f;
 			case BUILDING_FLAMETRAP: return 40.0f;
 			case BUILDING_BARREL: return 30.0f; break;
 			case BUILDING_POWERBARREL: return 60.0f; break;
 			case BUILDING_REACTOR: return 120.0f; break;
+			case BUILDING_GENERATOR: return 40.0f; break;
 			default: return 0; break;
 		};
 	}

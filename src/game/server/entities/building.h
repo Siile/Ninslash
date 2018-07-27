@@ -72,6 +72,8 @@ public:
 	void TakeDamage(int Damage, int Owner, int Weapon, vec2 Force = vec2(0, 0));
 	void Destroy();
 	
+	vec2 m_DamagePos;
+	
 protected:
 	void UpdateStatus();
 	float m_Bounciness;

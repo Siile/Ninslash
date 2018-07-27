@@ -18,6 +18,18 @@ enum Buildables
 	NUM_BUILDABLES
 };
 
+static const char *s_BuildTipText[NUM_BUILDABLES] = {
+	"Block",
+	"Hard block",
+	"Barrel",
+	"Power barrel",
+	"Turret stand",
+	"Flamer",
+	"Electric wall",
+	"Teslacoil",
+	"Shield generator"
+};
+
 const int BuildableCost[NUM_BUILDABLES] =
 {
 	1, // BUILDABLE_BLOCK1,
@@ -28,7 +40,7 @@ const int BuildableCost[NUM_BUILDABLES] =
 	4, // BUILDABLE_FLAMETRAP,
 	5, // BUILDABLE_LIGHTNINGWALL,
 	15, // BUILDABLE_TESLACOIL,
-	0, // BUILDABLE_GENERATOR,
+	20, // BUILDABLE_GENERATOR,
 };
 
 const int BuildableSize[NUM_BUILDABLES] =

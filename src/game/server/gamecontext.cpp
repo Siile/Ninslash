@@ -579,7 +579,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			CBuilding *pTarget = apEnts[i];
 			
 			// skip own buildings in co-op
-			if (m_pController->IsCoop() && (pTarget->m_Type == BUILDING_TURRET || pTarget->m_Type == BUILDING_TESLACOIL || pTarget->m_Type == BUILDING_REACTOR))
+			if (m_pController->IsCoop() && (pTarget->m_Type == BUILDING_TURRET || pTarget->m_Type == BUILDING_GENERATOR || pTarget->m_Type == BUILDING_TESLACOIL || pTarget->m_Type == BUILDING_REACTOR))
 				if (DamageOwner >= 0 && DamageOwner < MAX_CLIENTS)
 				{
 					CPlayer *pPlayer = m_apPlayers[DamageOwner];

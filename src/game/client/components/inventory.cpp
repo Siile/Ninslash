@@ -30,6 +30,7 @@ CInventory::CInventory()
 	m_WantedTab = -1;
 	m_LastBlockPos = vec2(0, 0);
 	m_StupidLock = false;
+	m_MinimizedReleased = true;
 }
 
 void CInventory::ConKeyInventory(IConsole::IResult *pResult, void *pUserData)
@@ -402,13 +403,17 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 	{
 		if (abs(m_SelectorMouse.x - Pos.x) < Size.x && abs(m_SelectorMouse.y - Pos.y) < Size.y)
 		{
-			m_Minimized = false;
-			m_pClient->m_pControls->m_SelectedBuilding = 0;
-			m_SelectedBuilding = -1;
+			if (m_MinimizedReleased)
+			{
+				m_Minimized = false;
+				m_pClient->m_pControls->m_SelectedBuilding = 0;
+				m_SelectedBuilding = -1;
+			}
 		
 			// gui open sound
-		
 		}
+		else
+			m_MinimizedReleased = true;
 	}
 	
 	if (abs(m_SelectorMouse.x - Pos.x) < Size.x && abs(m_SelectorMouse.y - Pos.y) < Size.y)
@@ -724,6 +729,26 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 		
 		TextRender()->TextColor(1, 1, 1, 1);
 	}
+	else if (m_Tab == 1)
+	{
+		TextRender()->TextColor(0.9f, 0.9f, 0.9f, 1);
+		
+		for (int x = 0; x < 4; x++)
+		{
+			for (int y = 0; y < 3; y++)
+			{
+				float s = 112 * s_Fade * (m_Scale*0.75f + 0.25f);
+				float s2 = s*0.5f;
+				vec2 GSize = Size - vec2(8, 8);
+				vec2 p = Pos-GSize + vec2(x+0.5f, y+0.5f)*GSize/vec2(4, 3)*2;
+				
+				if (x+y*4 < NUM_BUILDABLES && abs(m_SelectorMouse.x - p.x) < s2 && abs(m_SelectorMouse.y - p.y) < s2)
+					TextRender()->Text(0, p.x-s2*0.8f, p.y-s2, s2*0.25f, s_BuildTipText[x+y*4], -1);
+			}
+		}
+		
+		TextRender()->TextColor(1, 1, 1, 1);
+	}
 	
 	// selected weapon / crafting
 	/*
@@ -981,6 +1006,7 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 				m_pClient->m_pControls->m_SelectedBuilding = Selected+1;
 				m_SelectedBuilding = Selected;
 				m_Minimized = true;
+				m_MinimizedReleased = false;
 				
 				m_pClient->m_pControls->m_BuildMode = true;
 			}
