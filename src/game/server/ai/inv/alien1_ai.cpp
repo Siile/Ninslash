@@ -50,7 +50,7 @@ void CAIalien1::OnCharacterSpawn(CCharacter *pChr)
 	}
 	else if (m_Skin == SKIN_ALIEN4)
 	{
-		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 1), 2)));
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 1), 4)));
 		pChr->SetHealth(60+min((m_Level-1)*5, 200));
 		pChr->SetArmor(60+min((m_Level-1)*5, 350));
 		m_PowerLevel = 12;
@@ -102,7 +102,15 @@ void CAIalien1::ReceiveDamage(int CID, int Dmg)
 	if (frandom() < Dmg*0.03f)
 		m_ShockTimer = 2 + Dmg/2;
 	
-	m_Attack = 0;
+	if (m_PowerLevel < 10)
+		m_Attack = 0;
+	
+	if (m_AttackOnDamage)
+	{
+		m_Attack = 1;
+		m_InputChanged = true;
+		m_AttackOnDamageTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed();
+	}
 }
 
 
@@ -198,6 +206,9 @@ void CAIalien1::DoBehavior()
 	
 	Player()->GetCharacter()->m_SkipPickups = 999;
 	RandomlyStopShooting();
+	
+	if (m_AttackOnDamageTick > GameServer()->Server()->Tick())
+		m_Attack = 1;
 	
 	// next reaction in
 	m_ReactionTime = 1 + rand()%3;

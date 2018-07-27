@@ -75,6 +75,7 @@ void CAIrobot1::OnCharacterSpawn(CCharacter *pChr)
 		pChr->SetHealth(200+min(Level*5.0f, 200.0f));
 		pChr->SetArmor(200+min(Level*5.0f, 400.0f));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(6, 9), 2)));
+		m_AttackOnDamage = true;
 	}
 	
 	if (!m_Triggered)
@@ -86,6 +87,13 @@ void CAIrobot1::ReceiveDamage(int CID, int Dmg)
 {
 	if (CID >= 0 && frandom() < Dmg*0.01f)
 		m_Triggered = true;
+	
+	if (m_AttackOnDamage)
+	{
+		m_Attack = 1;
+		m_InputChanged = true;
+		m_AttackOnDamageTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed();
+	}
 }
 
 
@@ -162,6 +170,9 @@ void CAIrobot1::DoBehavior()
 	
 	Player()->GetCharacter()->m_SkipPickups = 999;
 	RandomlyStopShooting();
+	
+	if (m_AttackOnDamageTick > GameServer()->Server()->Tick())
+		m_Attack = 1;
 	
 	// next reaction in
 	m_ReactionTime = 1 + rand()%3;

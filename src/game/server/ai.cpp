@@ -54,6 +54,9 @@ void CAI::Reset()
 	m_PowerLevel = 0;
 	m_DispersionTick = 0;
 	
+	m_AttackOnDamage = false;
+	m_AttackOnDamageTick = 0;
+	
 	m_Sleep = 0;
 	m_Stun = 0;
 	m_ReactionTime = 20;
