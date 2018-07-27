@@ -1766,7 +1766,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					char aBufVote[128]; str_format(aBufVote, sizeof(aBufVote), "Jump to level %d", pData->m_HighestLevel);
 					//char aBufReason[128]; str_format(aBufReason, sizeof(aBufReason), "Server highest: %d", pData->GetHighScore(1));
-					char aBufCmd[128]; str_format(aBufCmd, sizeof(aBufCmd), "sv_inv_fails 0; sv_mapgen_level %d; sv_mapgen_seed %d; sv_map generate_ctf1;", pData->m_HighestLevel, pData->m_HighestLevelSeed);
+					char aBufCmd[128]; str_format(aBufCmd, sizeof(aBufCmd), "sv_inv_fails 0; sv_mapgen_level %d; sv_mapgen_seed %d; sv_map generate_inv2;", pData->m_HighestLevel, pData->m_HighestLevelSeed);
 					
 					StartVote(aBufVote, aBufCmd, "");
 				}
