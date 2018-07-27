@@ -579,13 +579,36 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			CBuilding *pTarget = apEnts[i];
 			
 			// skip own buildings in co-op
-			if (m_pController->IsCoop() && (pTarget->m_Type == BUILDING_TURRET || pTarget->m_Type == BUILDING_GENERATOR || pTarget->m_Type == BUILDING_TESLACOIL || pTarget->m_Type == BUILDING_REACTOR))
+			if (m_pController->IsCoop())
+			{
+				if (pTarget->m_Type == BUILDING_TURRET || pTarget->m_Type == BUILDING_GENERATOR || pTarget->m_Type == BUILDING_TESLACOIL || pTarget->m_Type == BUILDING_REACTOR)
+				{
+					if (DamageOwner >= 0 && DamageOwner < MAX_CLIENTS)
+					{
+						CPlayer *pPlayer = m_apPlayers[DamageOwner];
+						if(pTarget->m_Team >= 0 && pPlayer && !pPlayer->m_IsBot && Damage > 0)
+							continue;
+					}
+				}
+			}
+			else if (m_pController->IsTeamplay())
+			{
 				if (DamageOwner >= 0 && DamageOwner < MAX_CLIENTS)
 				{
 					CPlayer *pPlayer = m_apPlayers[DamageOwner];
-					if(pTarget->m_Team >= 0 && pPlayer && !pPlayer->m_IsBot && Damage > 0)
+					if(pPlayer && pPlayer->GetTeam() == pTarget->m_Team && Damage > 0)
 						continue;
 				}
+			}
+			else
+			{
+				if (DamageOwner >= 0 && DamageOwner < MAX_CLIENTS)
+				{
+					CPlayer *pPlayer = m_apPlayers[DamageOwner];
+					if(pPlayer && pPlayer->GetCID() == pTarget->m_Team && Damage > 0)
+						continue;
+				}
+			}
 			
 			if (pTarget->m_Collision)
 			{
