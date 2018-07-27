@@ -26,6 +26,7 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 	m_DestroyOnFall = false;
 	m_BoxSize = vec2(32, 32);
 	
+	m_DamagePos = vec2(0.0f, 0.0f);
 	m_DestructionTriggered = false;
 	
 	m_Status = 0;
@@ -154,9 +155,11 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		m_Collision = false;
 		break;
 		
-	case BUILDING_SPEAKER:
-		m_Life = 9000;
-		m_Collision = false;
+	case BUILDING_GENERATOR:
+		m_Life = 200;
+		//m_Center = vec2(0, -40);
+		m_Collision = true;
+		m_ProximityRadius = GeneratorPhysSize;
 		break;
 		
 	case BUILDING_SCREEN:
@@ -418,6 +421,13 @@ void CBuilding::UpdateStatus()
 		else
 			m_aStatus[BSTATUS_REPAIR] = 0;
 	}
+	else if (m_Type == BUILDING_GENERATOR)
+	{
+		if (m_Life < 80)
+			m_aStatus[BSTATUS_REPAIR] = 1;
+		else
+			m_aStatus[BSTATUS_REPAIR] = 0;
+	}
 	
 	m_Status = 0;
 	
@@ -517,17 +527,24 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon, vec2 Force)
 	if (m_Life > m_MaxLife)
 		m_Life = m_MaxLife;
 	
+	vec2 DmgPos = m_DamagePos;
+	
+	if (DmgPos.x == 0.0f)
+		DmgPos = m_Pos+vec2(frandom()-frandom(), frandom()-frandom());
+	
+	m_DamagePos = vec2(0.0f, 0.0f);
+	
 	if (Damage > 0)
 	{
 		if (Dmg < 200)
-			GameServer()->CreateDamageInd(m_Pos+vec2(frandom()-frandom(), frandom()-frandom()), frandom()*pi, -Dmg, -1);
+			GameServer()->CreateDamageInd(DmgPos, frandom()*pi, -Dmg, -1);
 		else
-			GameServer()->CreateDamageInd(m_Pos+vec2(frandom()-frandom(), frandom()-frandom()), frandom()*pi, -1, -1);
+			GameServer()->CreateDamageInd(DmgPos, frandom()*pi, -1, -1);
 	}
 	else
 	{
 		if (Damage < 0)
-			GameServer()->CreateRepairInd(m_Pos+vec2(frandom()-frandom(), frandom()-frandom()));
+			GameServer()->CreateRepairInd(DmgPos);
 	}
 	
 	if (m_Life <= 0)
@@ -822,5 +839,19 @@ void CBuilding::Snap(int SnappingClient)
 	pP->m_Y = (int)m_Pos.y;
 	pP->m_Status = m_Status;
 	pP->m_Type = m_Type;
-	pP->m_Team = m_Team;
+	
+	if (m_Type != BUILDING_GENERATOR)
+		pP->m_Team = m_Team;
+	else
+	{
+		if (GameServer()->m_pController->IsTeamplay())
+			pP->m_Team = m_Team;
+		else
+		{
+			if (SnappingClient == m_Team)
+				pP->m_Team = TEAM_RED;
+			else
+				pP->m_Team = -1;
+		}
+	}
 }

@@ -70,14 +70,17 @@ void CAIpyro1::OnCharacterSpawn(CCharacter *pChr)
 		if (frandom() < 0.5f)
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 2), 2)));
 		else
-			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(5, 9)));
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(5, 9), 3)));
 	}
 	else if (m_Skin == SKIN_PYRO3)
 	{
 		if (frandom() < 0.35f)
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_FLAMER)));
 		else
+		{
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(6, 7), 4)));
+			m_AttackOnDamage = true;
+		}
 		
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_MASK3)));
 	}
@@ -105,6 +108,13 @@ void CAIpyro1::ReceiveDamage(int CID, int Dmg)
 	
 	//m_ShockTimer = 10;
 	//m_Attack = 0;
+	
+	if (m_AttackOnDamage)
+	{
+		m_Attack = 1;
+		m_InputChanged = true;
+		m_AttackOnDamageTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed();
+	}
 }
 
 
@@ -200,6 +210,9 @@ void CAIpyro1::DoBehavior()
 	
 	Player()->GetCharacter()->m_SkipPickups = 999;
 	RandomlyStopShooting();
+	
+	if (m_AttackOnDamageTick > GameServer()->Server()->Tick())
+		m_Attack = 1;
 	
 	// next reaction in
 	m_ReactionTime = 1 + rand()%3;

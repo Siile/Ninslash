@@ -746,17 +746,6 @@ void CMapGen::GenerateShop(CGenLayer *pTiles)
 	pTiles->Use(p.x, p.y);
 }
 
-void CMapGen::GenerateSpeaker(CGenLayer *pTiles)
-{
-	ivec2 p = pTiles->GetTopCorner();
-	
-	if (p.x == 0)
-		return;
-	
-	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_SPEAKER);
-	pTiles->Use(p.x, p.y);
-}
-
 void CMapGen::GenerateHearts(CGenLayer *pTiles)
 {
 	ivec2 p = pTiles->GetTopCorner();
@@ -1136,10 +1125,6 @@ void CMapGen::GenerateLevel()
 			GenerateTurretStand(pTiles);
 	}
 	
-	//for (int i = 0; i < min(Level/3, 4) ; i++)
-	//	GenerateSpeaker(pTiles);
-	
-	
 	// pickups
 	//for (int i = 0; i < (pTiles->Size()-Level*5)/700; i++)
 	
@@ -1505,11 +1490,6 @@ void CMapGen::GeneratePVPLevel()
 	
 	for (int i = 0; i < (pTiles->NumPlatforms() + pTiles->NumMedPlatforms()) / b; i++)
 		GenerateBarrel(pTiles);
-
-	/*
-	for (int i = 0; i < 4 ; i++)
-		GenerateSpeaker(pTiles);
-	*/
 	
 	w = 2 + (pTiles->NumPlatforms() + pTiles->NumMedPlatforms()) / 4.0f;
 	

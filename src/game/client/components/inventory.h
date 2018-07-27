@@ -62,6 +62,8 @@ class CInventory : public CComponent
 	bool m_CanShop;
 	int m_SelectedShopItem;
 	
+	bool m_MinimizedReleased;
+	
 public:
 	CInventory();
 

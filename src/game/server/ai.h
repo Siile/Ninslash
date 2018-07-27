@@ -69,6 +69,9 @@ protected:
 	
 	int m_MoveReactTime;
 	
+	bool m_AttackOnDamage;
+	int m_AttackOnDamageTick;
+	
 	int m_AirJump;
 	
 	// events for talking & stuff

@@ -19,6 +19,7 @@ const int SwitchPhysSize = 10;
 const int DoorPhysSize = 40;
 const int ReactorPhysSize = 50;
 const int JumppadPhysSize = 60;
+const int GeneratorPhysSize = 50;
 
 class CBuilding : public CEntity
 {
@@ -70,6 +71,8 @@ public:
 	void Trigger();
 	void TakeDamage(int Damage, int Owner, int Weapon, vec2 Force = vec2(0, 0));
 	void Destroy();
+	
+	vec2 m_DamagePos;
 	
 protected:
 	void UpdateStatus();

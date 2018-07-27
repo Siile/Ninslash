@@ -5,14 +5,7 @@
 #include "weapons.h"
 
 
-enum WeaponParts1
-{
-	PART_
-	
-};
-
-
-bool ValidForTurret(int Weapon)
+const bool ValidForTurret(int Weapon)
 {
 	if (IsModularWeapon(Weapon) && GetWeaponFiringType(Weapon) == WFT_PROJECTILE)
 		return true;
@@ -23,9 +16,9 @@ bool ValidForTurret(int Weapon)
 	return false;
 }
 
-int GetWeaponCost(int Weapon)
+const int GetWeaponCost(int Weapon)
 {
-	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+	const float Charge = GetWeaponLevelCharge(Weapon);
 	
 	float cost1 = 0;
 	float cost2 = 0;
@@ -61,7 +54,7 @@ int GetWeaponCost(int Weapon)
 	return cost1 + cost2*Charge*(Charge*0.25f+0.75f);
 }
 
-float GetProjectileSprite(int Weapon)
+const float GetProjectileSprite(int Weapon)
 {
 	if (IsDroid(Weapon))
 	{
@@ -85,8 +78,8 @@ float GetProjectileSprite(int Weapon)
 	}
 	
 	
-	int Part1 = GetPart(Weapon, 0);
-	int Part2 = GetPart(Weapon, 1);
+	const int Part1 = GetPart(Weapon, 0);
+	const int Part2 = GetPart(Weapon, 1);
 	
 	if (Part1 == 1 && Part2 == 1) return 1;
 	if (Part1 == 1 && Part2 == 2) return 0;
@@ -111,7 +104,7 @@ float GetProjectileSprite(int Weapon)
 	return 0;
 }
 
-int GetProjectileTraceType(int Weapon)
+const int GetProjectileTraceType(int Weapon)
 {
 
 	if (IsDroid(Weapon))
@@ -142,7 +135,7 @@ int GetProjectileTraceType(int Weapon)
 	}
 	
 	
-	int Part1 = GetPart(Weapon, 0);
+	const int Part1 = GetPart(Weapon, 0);
 	
 	if (Part1 == 3) return -3;
 	if (Part1 == 2) return -1;
@@ -152,7 +145,7 @@ int GetProjectileTraceType(int Weapon)
 	return 1;
 }
 
-float GetWeaponTraceThreshold(int Weapon)
+const float GetWeaponTraceThreshold(int Weapon)
 {
 	if (IsStaticWeapon(Weapon))
 	{
@@ -168,7 +161,7 @@ float GetWeaponTraceThreshold(int Weapon)
 }
 
 
-bool AIWeaponCharge(int Weapon)
+const bool AIWeaponCharge(int Weapon)
 {
 	if (GetWeaponFiringType(Weapon) == WFT_THROW || GetWeaponFiringType(Weapon) == WFT_CHARGE)
 		return true;
@@ -176,15 +169,15 @@ bool AIWeaponCharge(int Weapon)
 	return false;
 }
 
-float GetWeaponLevelCharge(int Weapon)
+const float GetWeaponLevelCharge(int Weapon)
 {
 	return GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
 }
 
 
-vec2 GetWeaponColorswap(int Weapon)
+const vec2 GetWeaponColorswap(int Weapon)
 {
-	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+	const float Charge = GetWeaponLevelCharge(Weapon);
 	
 	if (IsStaticWeapon(Weapon))
 	{
@@ -198,7 +191,7 @@ vec2 GetWeaponColorswap(int Weapon)
 		};
 	}
 	
-	int Part1 = GetPart(Weapon, 0);
+	const int Part1 = GetPart(Weapon, 0);
 	
 	if (Part1 == 1) return vec2(0.0f+Charge*0.25f, 0.0f+Charge*0.6f);
 	if (Part1 == 2) return vec2(0.0f+Charge*0.25f, 0.0f+Charge*0.8f);
@@ -210,7 +203,7 @@ vec2 GetWeaponColorswap(int Weapon)
 	return vec2(0, 0);
 }
 
-float GetProjectileSize(int Weapon)
+const float GetProjectileSize(int Weapon)
 {
 	if (IsDroid(Weapon))
 	{
@@ -222,7 +215,7 @@ float GetProjectileSize(int Weapon)
 		};
 	}
 	
-	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+	const float Charge = GetWeaponLevelCharge(Weapon);
 	
 	if (IsStaticWeapon(Weapon))
 	{
@@ -239,8 +232,8 @@ float GetProjectileSize(int Weapon)
 		};
 	}
 	
-	int Part1 = GetPart(Weapon, 0);
-	int Part2 = GetPart(Weapon, 1);
+	const int Part1 = GetPart(Weapon, 0);
+	const int Part2 = GetPart(Weapon, 1);
 	
 	float Size;
 	
@@ -266,7 +259,7 @@ float GetProjectileSize(int Weapon)
 	return Size;
 }
 
-int GetExplosionSprite(int Weapon)
+const int GetExplosionSprite(int Weapon)
 {
 	if (IsBuilding(Weapon))
 	{
@@ -278,6 +271,7 @@ int GetExplosionSprite(int Weapon)
 			case BUILDING_BARREL: return SPRITE_EXPLOSION1_1;
 			case BUILDING_POWERBARREL: return SPRITE_EXPLOSION1_1;
 			case BUILDING_REACTOR: return SPRITE_EXPLOSION1_1;
+			case BUILDING_GENERATOR: return SPRITE_EXPLOSION1_1;
 			default: return SPRITE_EXPLOSION1_1;
 		};
 	}
@@ -316,7 +310,7 @@ int GetExplosionSprite(int Weapon)
 	return 0;
 }
 
-int GetExplosionSound(int Weapon)
+const int GetExplosionSound(int Weapon)
 {
 	if (IsBuilding(Weapon))
 	{
@@ -328,6 +322,7 @@ int GetExplosionSound(int Weapon)
 			case BUILDING_BARREL: return SOUND_GRENADE_EXPLODE;
 			case BUILDING_POWERBARREL: return SOUND_GRENADE_EXPLODE;
 			case BUILDING_REACTOR: return SOUND_GRENADE_EXPLODE;
+			case BUILDING_GENERATOR: return SOUND_GRENADE_EXPLODE;
 			default: return 0;
 		};
 	}
@@ -361,7 +356,7 @@ int GetExplosionSound(int Weapon)
 		};
 	}
 	
-	int Part1 = GetPart(Weapon, 0);
+	const int Part1 = GetPart(Weapon, 0);
 	
 	if (Part1 == 2)
 		return SOUND_GRENADE_EXPLODE;
@@ -370,7 +365,7 @@ int GetExplosionSound(int Weapon)
 }
 
 
-int GetWeaponFireSound(int Weapon)
+const int GetWeaponFireSound(int Weapon)
 {
 	if (IsStaticWeapon(Weapon))
 	{
@@ -393,7 +388,7 @@ int GetWeaponFireSound(int Weapon)
 		};
 	}
 	
-	int Part1 = GetPart(Weapon, 0);
+	const int Part1 = GetPart(Weapon, 0);
 	
 	if (Part1 == 1) return SOUND_BASE1_FIRE;
 	if (Part1 == 2) return SOUND_BASE2_FIRE;
@@ -406,7 +401,7 @@ int GetWeaponFireSound(int Weapon)
 	return -1;
 }
 
-int GetWeaponFireSound2(int Weapon)
+const int GetWeaponFireSound2(int Weapon)
 {
 	if (!IsModularWeapon(Weapon))
 		return -1;
@@ -422,18 +417,19 @@ int GetWeaponFireSound2(int Weapon)
 }
 
 
-float GetExplosionSize(int Weapon)
+const float GetExplosionSize(int Weapon)
 {
 	if (IsBuilding(Weapon))
 	{
 		switch (GetBuildingType(Weapon))
 		{
 			case BUILDING_TURRET: return 80.0f;
-			case BUILDING_TESLACOIL: return 350.0f;
+			case BUILDING_TESLACOIL: return 240.0f;
 			case BUILDING_FLAMETRAP: return 150.0f;
 			case BUILDING_BARREL: return 200.0f;
 			case BUILDING_POWERBARREL: return 300.0f;
 			case BUILDING_REACTOR: return 240.0f;
+			case BUILDING_GENERATOR: return 150.0f;
 			default: return 120.0f;
 		};
 	}
@@ -473,18 +469,19 @@ float GetExplosionSize(int Weapon)
 	return Size;
 }
 
-float GetExplosionDamage(int Weapon)
+const float GetExplosionDamage(int Weapon)
 {
 	if (IsBuilding(Weapon))
 	{
 		switch (GetBuildingType(Weapon)) 
 		{
 			case BUILDING_TURRET: return 20.0f;
-			case BUILDING_TESLACOIL: return 120.0f;
+			case BUILDING_TESLACOIL: return 60.0f;
 			case BUILDING_FLAMETRAP: return 40.0f;
 			case BUILDING_BARREL: return 30.0f; break;
 			case BUILDING_POWERBARREL: return 60.0f; break;
 			case BUILDING_REACTOR: return 120.0f; break;
+			case BUILDING_GENERATOR: return 40.0f; break;
 			default: return 0; break;
 		};
 	}
@@ -516,7 +513,7 @@ float GetExplosionDamage(int Weapon)
 		};
 	}
 	
-	int Part1 = GetPart(Weapon, 0);
+	const int Part1 = GetPart(Weapon, 0);
 	
 	if (Part1 != 2)
 		return 0;
@@ -527,15 +524,15 @@ float GetExplosionDamage(int Weapon)
 }
 
 
-int GetWeaponRenderType(int Weapon)
+const int GetWeaponRenderType(int Weapon)
 {
 	if (Weapon == WEAPON_NONE)
 		return WRT_NONE;
 	
 	if (IsModularWeapon(Weapon))
 	{
-		int Part1 = GetPart(Weapon, 0);
-		int Part2 = GetPart(Weapon, 1);
+		const int Part1 = GetPart(Weapon, 0);
+		const int Part2 = GetPart(Weapon, 1);
 		
 		if (Part1 == 6)
 			return WRT_SPIN;
@@ -558,7 +555,7 @@ int GetWeaponRenderType(int Weapon)
 	};
 }
 
-ivec2 GetWeaponVisualSize(int Weapon)
+const ivec2 GetWeaponVisualSize(int Weapon)
 {
 	if (IsModularWeapon(Weapon))
 	{
@@ -593,7 +590,7 @@ ivec2 GetWeaponVisualSize(int Weapon)
 	return ivec2(0, 0);
 }
 
-ivec2 GetWeaponVisualSize2(int Weapon)
+const ivec2 GetWeaponVisualSize2(int Weapon)
 {
 	if (IsModularWeapon(Weapon))
 	{
@@ -614,7 +611,7 @@ ivec2 GetWeaponVisualSize2(int Weapon)
 }
 
 
-int GetWeaponFiringType(int Weapon)
+const int GetWeaponFiringType(int Weapon)
 {
 	if (Weapon == WEAPON_NONE)
 		return WFT_NONE;
@@ -653,7 +650,7 @@ int GetWeaponFiringType(int Weapon)
 }
 
 
-float GetWeaponRenderRecoil(int Weapon)
+const float GetWeaponRenderRecoil(int Weapon)
 {
 	if (IsModularWeapon(Weapon))
 	{
@@ -684,7 +681,7 @@ float GetWeaponRenderRecoil(int Weapon)
 }
 
 
-vec2 GetWeaponRenderOffset(int Weapon)
+const vec2 GetWeaponRenderOffset(int Weapon)
 {
 	if (IsModularWeapon(Weapon))
 	{
@@ -723,7 +720,7 @@ vec2 GetWeaponRenderOffset(int Weapon)
 	return vec2(0, 0);
 }
 
-vec2 GetMuzzleRenderOffset(int Weapon)
+const vec2 GetMuzzleRenderOffset(int Weapon)
 {
 	if (GetStaticType(Weapon) == SW_GUN1)
 		return vec2(20, -5);
@@ -752,7 +749,7 @@ vec2 GetMuzzleRenderOffset(int Weapon)
 }
 
 
-int WeaponProjectilePosType(int Weapon)
+const int WeaponProjectilePosType(int Weapon)
 {
 	if (IsDroid(Weapon))
 	{
@@ -773,7 +770,7 @@ int WeaponProjectilePosType(int Weapon)
 	return 0;
 }
 
-vec2 GetProjectileOffset(int Weapon)
+const vec2 GetProjectileOffset(int Weapon)
 {
 	if (IsModularWeapon(Weapon))
 	{
@@ -812,7 +809,7 @@ vec2 GetProjectileOffset(int Weapon)
 }
 
 
-float ScreenshakeAmount(int Weapon)
+const float ScreenshakeAmount(int Weapon)
 {
 	float d = GetExplosionDamage(Weapon) * 0.2f;
 	
@@ -823,9 +820,9 @@ float ScreenshakeAmount(int Weapon)
 }
 
 
-float GetMeleeHitRadius(int Weapon)
+const float GetMeleeHitRadius(int Weapon)
 {
-	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+	const float Charge = GetWeaponLevelCharge(Weapon);
 	
 	if (IsStaticWeapon(Weapon))
 	{
@@ -858,7 +855,7 @@ float GetMeleeHitRadius(int Weapon)
 }
 
 
-bool WeaponAimline(int Weapon)
+const bool WeaponAimline(int Weapon)
 {
 	if (IsModularWeapon(Weapon) && (GetPart(Weapon, 0) == 4 || GetPart(Weapon, 1) == 3))
 		return true;
@@ -866,7 +863,7 @@ bool WeaponAimline(int Weapon)
 	return false;
 }
 
-bool IsLaserWeapon(int Weapon)
+const bool IsLaserWeapon(int Weapon)
 {
 	if (IsModularWeapon(Weapon) && GetPart(Weapon, 0) == 3 && (GetPart(Weapon, 1) == 2 || GetPart(Weapon, 1) == 3))
 		return true;
@@ -875,7 +872,7 @@ bool IsLaserWeapon(int Weapon)
 }
 
 
-int WeaponMaxLevel(int Weapon)
+const int WeaponMaxLevel(int Weapon)
 {
 	if (IsModularWeapon(Weapon))
 		return 4;
@@ -897,13 +894,13 @@ int WeaponMaxLevel(int Weapon)
 }
 
 
-int GetLaserCharge(int Weapon)
+const int GetLaserCharge(int Weapon)
 {
 	if (IsModularWeapon(Weapon))
 	{
 		if (GetPart(Weapon, 0) == 3)
 		{
-			float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+			const float Charge = GetWeaponLevelCharge(Weapon);
 			
 			if (GetPart(Weapon, 1) == 2) return -1;
 			if (GetPart(Weapon, 1) == 3) return 60 + Charge*60;
@@ -913,7 +910,7 @@ int GetLaserCharge(int Weapon)
 	return 0;
 }
 
-int GetLaserRange(int Weapon)
+const int GetLaserRange(int Weapon)
 {
 	if (IsModularWeapon(Weapon))
 	{
@@ -927,7 +924,7 @@ int GetLaserRange(int Weapon)
 	return 0;
 }
 
-int GetMuzzleType(int Weapon)
+const int GetMuzzleType(int Weapon)
 {
 	if (GetStaticType(Weapon) == SW_GUN2)
 		return 1;
@@ -950,7 +947,7 @@ int GetMuzzleType(int Weapon)
 	return 0;
 }
 
-int GetMuzzleAmount(int Weapon)
+const int GetMuzzleAmount(int Weapon)
 {
 	if (IsModularWeapon(Weapon))
 	{
@@ -965,7 +962,7 @@ int GetMuzzleAmount(int Weapon)
 	return 10;
 }
 
-float GetProjectileSpeed(int Weapon)
+const float GetProjectileSpeed(int Weapon)
 {
 	if (IsDroid(Weapon))
 	{
@@ -987,10 +984,10 @@ float GetProjectileSpeed(int Weapon)
 	if (GetStaticType(Weapon) == SW_BOUNCER)
 		return 1500.0f;
 	
-	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+	const float Charge = GetWeaponLevelCharge(Weapon);
 	
-	int Part1 = GetPart(Weapon, 0);
-	int Part2 = GetPart(Weapon, 1);
+	const int Part1 = GetPart(Weapon, 0);
+	const int Part2 = GetPart(Weapon, 1);
 	
 	float Speed;
 	
@@ -1018,7 +1015,7 @@ float GetProjectileSpeed(int Weapon)
 	return Speed;
 }
 
-float GetProjectileCurvature(int Weapon)
+const float GetProjectileCurvature(int Weapon)
 {
 	if (IsDroid(Weapon))
 	{
@@ -1040,8 +1037,8 @@ float GetProjectileCurvature(int Weapon)
 	if (GetStaticType(Weapon) == SW_BOUNCER)
 		return 0.0f;
 	
-	int Part1 = GetPart(Weapon, 0);
-	int Part2 = GetPart(Weapon, 1);
+	const int Part1 = GetPart(Weapon, 0);
+	const int Part2 = GetPart(Weapon, 1);
 	
 	float Curvature;
 	
@@ -1069,9 +1066,9 @@ float GetProjectileCurvature(int Weapon)
 	return Curvature;
 }
 
-int GetShotSpread(int Weapon)
+const int GetShotSpread(int Weapon)
 {
-	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+	const float Charge = GetWeaponLevelCharge(Weapon);
 	
 	if (IsStaticWeapon(Weapon))
 	{
@@ -1081,8 +1078,8 @@ int GetShotSpread(int Weapon)
 		return 1;
 	}
 	
-	int Part1 = GetPart(Weapon, 0);
-	int Part2 = GetPart(Weapon, 1);
+	const int Part1 = GetPart(Weapon, 0);
+	const int Part2 = GetPart(Weapon, 1);
 	
 	int Spread = 1;
 	
@@ -1094,7 +1091,7 @@ int GetShotSpread(int Weapon)
 	return Spread;
 }
 
-float GetProjectileSpread(int Weapon)
+const float GetProjectileSpread(int Weapon)
 {
 	if (GetStaticType(Weapon) == SW_GUN1)
 		return 0.06f;
@@ -1102,7 +1099,7 @@ float GetProjectileSpread(int Weapon)
 	if (GetStaticType(Weapon) == SW_BUBBLER)
 		return 0.04f;
 	
-	int Part2 = GetPart(Weapon, 1);
+	const int Part2 = GetPart(Weapon, 1);
 	
 	float Spread = 0.05f;
 	
@@ -1111,7 +1108,7 @@ float GetProjectileSpread(int Weapon)
 	return Spread;
 }
 
-bool IsFlammableProjectile(int Weapon)
+const bool IsFlammableProjectile(int Weapon)
 {
 	if (Weapon == WEAPON_ACID)
 		return 0.0f;
@@ -1139,7 +1136,7 @@ bool IsFlammableProjectile(int Weapon)
 }
 
 
-float WeaponFlameAmount(int Weapon)
+const float WeaponFlameAmount(int Weapon)
 {
 	if (IsStaticWeapon(Weapon))
 	{
@@ -1153,10 +1150,10 @@ float WeaponFlameAmount(int Weapon)
 	
 	if (IsModularWeapon(Weapon))
 	{
-		float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+		const float Charge = GetWeaponLevelCharge(Weapon);
 		
-		int Part1 = GetPart(Weapon, 0);
-		int Part2 = GetPart(Weapon, 1);
+		const int Part1 = GetPart(Weapon, 0);
+		const int Part2 = GetPart(Weapon, 1);
 	
 		if (Part1 == 5 && Part2 == 7 && Charge > 0.5f)
 			return 0.0f + Charge * 0.5f;
@@ -1179,7 +1176,7 @@ float WeaponFlameAmount(int Weapon)
 	return 0.0f;
 }
 
-int AIAttackRange(int Weapon)
+const int AIAttackRange(int Weapon)
 {
 	// seeing distance for free hands / no weapon
 	if (Weapon == 0)
@@ -1187,8 +1184,8 @@ int AIAttackRange(int Weapon)
 	
 	if (IsModularWeapon(Weapon))
 	{
-		int Part1 = GetPart(Weapon, 0);
-		int Part2 = GetPart(Weapon, 1);
+		const int Part1 = GetPart(Weapon, 0);
+		const int Part2 = GetPart(Weapon, 1);
 	
 		if (Part2 == 2)
 			return 600;
@@ -1246,7 +1243,7 @@ int AIAttackRange(int Weapon)
 }
 
 
-float WeaponElectroAmount(int Weapon)
+const float WeaponElectroAmount(int Weapon)
 {
 	if (Weapon == WEAPON_ACID)
 		return 0.0f;
@@ -1264,10 +1261,10 @@ float WeaponElectroAmount(int Weapon)
 	
 	if (IsModularWeapon(Weapon))
 	{
-		float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+		const float Charge = GetWeaponLevelCharge(Weapon);
 		
-		int Part1 = GetPart(Weapon, 0);
-		int Part2 = GetPart(Weapon, 1);
+		const int Part1 = GetPart(Weapon, 0);
+		const int Part2 = GetPart(Weapon, 1);
 	
 		if (Part1 == 3)
 		{
@@ -1308,9 +1305,9 @@ float WeaponElectroAmount(int Weapon)
 	return 0.0f;
 }
 
-int WeaponBurstCount(int Weapon)
+const int WeaponBurstCount(int Weapon)
 {
-	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+	const float Charge = GetWeaponLevelCharge(Weapon);
 	
 	if (IsStaticWeapon(Weapon))
 	{
@@ -1326,8 +1323,8 @@ int WeaponBurstCount(int Weapon)
 	
 	if (IsModularWeapon(Weapon))
 	{
-		int Part1 = GetPart(Weapon, 0);
-		int Part2 = GetPart(Weapon, 1);
+		const int Part1 = GetPart(Weapon, 0);
+		const int Part2 = GetPart(Weapon, 1);
 	
 		if (Part1 == 1 && Part2 == 2) return 2+Charge*2.0f;
 		if (Part1 == 3 && Part2 == 4) return 3+Charge*4.0f;
@@ -1339,9 +1336,9 @@ int WeaponBurstCount(int Weapon)
 	return 0;
 }
 
-float WeaponBurstReload(int Weapon)
+const float WeaponBurstReload(int Weapon)
 {
-	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+	const float Charge = GetWeaponLevelCharge(Weapon);
 	
 	if (IsStaticWeapon(Weapon))
 	{
@@ -1355,8 +1352,8 @@ float WeaponBurstReload(int Weapon)
 	
 	if (IsModularWeapon(Weapon))
 	{
-		int Part1 = GetPart(Weapon, 0);
-		int Part2 = GetPart(Weapon, 1);
+		const int Part1 = GetPart(Weapon, 0);
+		const int Part2 = GetPart(Weapon, 1);
 	
 		if (Part1 == 1 && Part2 == 2) return 0.4f;
 		if (Part1 == 3 && Part2 == 4) return 0.25f;
@@ -1370,9 +1367,9 @@ float WeaponBurstReload(int Weapon)
 }
 
 
-float GetProjectileDamage(int Weapon)
+const float GetProjectileDamage(int Weapon)
 {
-	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+	const float Charge = GetWeaponLevelCharge(Weapon);
 	
 	if (IsDroid(Weapon))
 	{
@@ -1403,8 +1400,8 @@ float GetProjectileDamage(int Weapon)
 
 	if (IsModularWeapon(Weapon))
 	{
-		int Part1 = GetPart(Weapon, 0);
-		int Part2 = GetPart(Weapon, 1);
+		const int Part1 = GetPart(Weapon, 0);
+		const int Part2 = GetPart(Weapon, 1);
 		
 		if (Part1 == 1)
 		{
@@ -1457,7 +1454,7 @@ float GetProjectileDamage(int Weapon)
 	return 0;
 }
 
-int GetRandomWeaponType(bool IsSurvival) 
+const int GetRandomWeaponType(bool IsSurvival) 
 {
 	if (str_comp(g_Config.m_SvGametype, "ball") == 0)
 	{
@@ -1485,7 +1482,7 @@ int GetRandomWeaponType(bool IsSurvival)
 	return w;
 }
 
-bool WeaponAutoPick(int Weapon)
+const bool WeaponAutoPick(int Weapon)
 {
 	if (IsStaticWeapon(Weapon))
 	{
@@ -1500,7 +1497,7 @@ bool WeaponAutoPick(int Weapon)
 	return true;
 }
 
-float GetProjectileKnockback(int Weapon)
+const float GetProjectileKnockback(int Weapon)
 {
 	if (IsDroid(Weapon))
 	{
@@ -1514,10 +1511,10 @@ float GetProjectileKnockback(int Weapon)
 	
 	if (IsModularWeapon(Weapon))
 	{
-		float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+		const float Charge = GetWeaponLevelCharge(Weapon);
 		
-		int Part1 = GetPart(Weapon, 0);
-		int Part2 = GetPart(Weapon, 1);
+		const int Part1 = GetPart(Weapon, 0);
+		const int Part2 = GetPart(Weapon, 1);
 		
 		if (Part1 == 1)
 		{
@@ -1568,7 +1565,7 @@ float GetProjectileKnockback(int Weapon)
 	return 0.0f;
 }
 
-float GetProjectileLife(int Weapon)
+const float GetProjectileLife(int Weapon)
 {
 	if (IsDroid(Weapon))
 	{
@@ -1594,18 +1591,18 @@ float GetProjectileLife(int Weapon)
 	
 	float v = 1100.0f / GetProjectileSpeed(Weapon) / ((GetShotSpread(Weapon)+2.0f)/3.0f);
 	
-	int Part2 = GetPart(Weapon, 1);
+	const int Part2 = GetPart(Weapon, 1);
 	
 	if (Part2 == 2)
 	{
-		float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+		const float Charge = GetWeaponLevelCharge(Weapon);
 		v *= (1.0f + Charge*0.25f);
 	}
 	
 	return v;
 }
 
-float WeaponThrowForce(int Weapon)
+const float WeaponThrowForce(int Weapon)
 {
 	if (IsStaticWeapon(Weapon))
 	{
@@ -1622,10 +1619,10 @@ float WeaponThrowForce(int Weapon)
 	return 0.0f;
 }
 
-float GetWeaponFireRate(int Weapon)
+const float GetWeaponFireRate(int Weapon)
 {
 	// 0.0f <= Charge <= 1.0f
-	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+	const float Charge = GetWeaponLevelCharge(Weapon);
 	
 	if (IsStaticWeapon(Weapon))
 	{
@@ -1644,8 +1641,8 @@ float GetWeaponFireRate(int Weapon)
 		};
 	}
 	
-	int Part1 = GetPart(Weapon, 0);
-	int Part2 = GetPart(Weapon, 1);
+	const int Part1 = GetPart(Weapon, 0);
+	const int Part2 = GetPart(Weapon, 1);
 	
 	if (Part1 == 1 && Part2 == 2) return 500;
 	if (Part1 == 3 && Part2 == 4) return 500 - Charge*30.0f;
@@ -1681,14 +1678,14 @@ float GetWeaponFireRate(int Weapon)
 }
 
 
-float GetWeaponKnockback(int Weapon)
+const float GetWeaponKnockback(int Weapon)
 {
 	if (IsModularWeapon(Weapon))
 	{
-		float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+		const float Charge = GetWeaponLevelCharge(Weapon);
 		
-		int Part1 = GetPart(Weapon, 0);
-		int Part2 = GetPart(Weapon, 1);
+		const int Part1 = GetPart(Weapon, 0);
+		const int Part2 = GetPart(Weapon, 1);
 		
 		if (Part1 == 1)
 		{
@@ -1724,9 +1721,9 @@ float GetWeaponKnockback(int Weapon)
 }
 
 
-bool GetWeaponFullAuto(int Weapon)
+const bool GetWeaponFullAuto(int Weapon)
 {
-	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+	const float Charge = GetWeaponLevelCharge(Weapon);
 	
 	// modular weapons
 	if (IsModularWeapon(Weapon))
@@ -1734,7 +1731,7 @@ bool GetWeaponFullAuto(int Weapon)
 		if (Charge > 0.9f)
 			return true;
 		
-		int Part2 = GetPart(Weapon, 1);
+		const int Part2 = GetPart(Weapon, 1);
 		
 		if (Part2 == 2 || Part2 == 3)
 			return false;
@@ -1752,7 +1749,7 @@ bool GetWeaponFullAuto(int Weapon)
 	return true;
 }
 
-bool IsProjectileBouncy(int Weapon)
+const bool IsProjectileBouncy(int Weapon)
 {
 	if (GetStaticType(Weapon) == SW_BOUNCER)
 		return true;
@@ -1761,23 +1758,23 @@ bool IsProjectileBouncy(int Weapon)
 }
 
 
-bool IsExplosiveProjectile(int Weapon)
+const bool IsExplosiveProjectile(int Weapon)
 {
 	return true;
 }
 
 
-int GetWeaponMaxAmmo(int Weapon)
+const int GetWeaponMaxAmmo(int Weapon)
 {
 	// 0.0f <= Charge <= 1.0f
-	float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+	const float Charge = GetWeaponLevelCharge(Weapon);
 	
 	if (IsModularWeapon(Weapon))
 	{
 		int v = 0;
 		
-		int Part1 = GetPart(Weapon, 0);
-		int Part2 = GetPart(Weapon, 1);
+		const int Part1 = GetPart(Weapon, 0);
+		const int Part2 = GetPart(Weapon, 1);
 		
 		if (Part1 == 1)
 		{
@@ -1831,14 +1828,14 @@ int GetWeaponMaxAmmo(int Weapon)
 	return 0;
 }
 
-bool WeaponUseAmmo(int Weapon)
+const bool WeaponUseAmmo(int Weapon)
 {
 	if (IsModularWeapon(Weapon) && GetPart(Weapon, 0) < 5)
 		return true;
 	
 	if (IsStaticWeapon(Weapon))
 	{
-		float Charge = GetWeaponCharge(Weapon) / float(max(1, WeaponMaxLevel(Weapon)));
+		const float Charge = GetWeaponLevelCharge(Weapon);
 		
 		switch (GetStaticType(Weapon))
 		{

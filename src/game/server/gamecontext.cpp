@@ -447,6 +447,16 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
 		return true;
 	}
 	
+	if (Kit == BUILDABLE_GENERATOR)
+	{
+		int Team = m_apPlayers[Owner]->GetTeam();
+		if (!m_pController->IsTeamplay())
+			Team = m_apPlayers[Owner]->GetCID();
+		
+		CBuilding *Generator = new CBuilding(&m_World, Pos+vec2(0, -34), BUILDING_GENERATOR, Team);
+		return true;
+	}
+	
 	if (Kit == BUILDABLE_FLAMETRAP)
 	{
 			CBuilding *pFlametrap = new CBuilding(&m_World, Pos+vec2(0, -18), BUILDING_FLAMETRAP, TEAM_NEUTRAL);
@@ -569,13 +579,36 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			CBuilding *pTarget = apEnts[i];
 			
 			// skip own buildings in co-op
-			if (m_pController->IsCoop() && (pTarget->m_Type == BUILDING_TURRET || pTarget->m_Type == BUILDING_TESLACOIL || pTarget->m_Type == BUILDING_REACTOR))
+			if (m_pController->IsCoop())
+			{
+				if (pTarget->m_Type == BUILDING_TURRET || pTarget->m_Type == BUILDING_GENERATOR || pTarget->m_Type == BUILDING_TESLACOIL || pTarget->m_Type == BUILDING_REACTOR)
+				{
+					if (DamageOwner >= 0 && DamageOwner < MAX_CLIENTS)
+					{
+						CPlayer *pPlayer = m_apPlayers[DamageOwner];
+						if(pTarget->m_Team >= 0 && pPlayer && !pPlayer->m_IsBot && Damage > 0)
+							continue;
+					}
+				}
+			}
+			else if (m_pController->IsTeamplay())
+			{
 				if (DamageOwner >= 0 && DamageOwner < MAX_CLIENTS)
 				{
 					CPlayer *pPlayer = m_apPlayers[DamageOwner];
-					if(pTarget->m_Team >= 0 && pPlayer && !pPlayer->m_IsBot && Damage > 0)
+					if(pPlayer && pPlayer->GetTeam() == pTarget->m_Team && Damage > 0)
 						continue;
 				}
+			}
+			else
+			{
+				if (DamageOwner >= 0 && DamageOwner < MAX_CLIENTS)
+				{
+					CPlayer *pPlayer = m_apPlayers[DamageOwner];
+					if(pPlayer && pPlayer->GetCID() == pTarget->m_Team && Damage > 0)
+						continue;
+				}
+			}
 			
 			if (pTarget->m_Collision)
 			{
@@ -1756,7 +1789,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				{
 					char aBufVote[128]; str_format(aBufVote, sizeof(aBufVote), "Jump to level %d", pData->m_HighestLevel);
 					//char aBufReason[128]; str_format(aBufReason, sizeof(aBufReason), "Server highest: %d", pData->GetHighScore(1));
-					char aBufCmd[128]; str_format(aBufCmd, sizeof(aBufCmd), "sv_inv_fails 0; sv_mapgen_level %d; sv_mapgen_seed %d; sv_map generate_ctf1;", pData->m_HighestLevel, pData->m_HighestLevelSeed);
+					char aBufCmd[128]; str_format(aBufCmd, sizeof(aBufCmd), "sv_inv_fails 0; sv_mapgen_level %d; sv_mapgen_seed %d; sv_map generate_inv2;", pData->m_HighestLevel, pData->m_HighestLevelSeed);
 					
 					StartVote(aBufVote, aBufCmd, "");
 				}

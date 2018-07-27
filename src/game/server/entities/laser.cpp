@@ -122,8 +122,28 @@ bool CLaser::HitBuilding(vec2 From, vec2 To)
 	m_Pos = At;
 	m_Energy = -1;
 
-	pHit->TakeDamage(m_Damage, m_Owner, m_Weapon);
-	GameServer()->CreateBuildingHit(m_Pos);
+	if (pHit->m_Type == BUILDING_GENERATOR)
+	{
+		pHit->m_DamagePos = m_Pos;
+		
+		if (distance(pHit->m_Pos, m_Pos) > pHit->m_ProximityRadius)
+		{
+			GameServer()->CreateEffect(FX_SHIELDHIT, m_Pos);
+			pHit->TakeDamage(m_Damage/3, m_Owner, m_Weapon);
+		}
+		else
+		{
+			GameServer()->CreateBuildingHit(m_Pos);
+			pHit->TakeDamage(m_Damage, m_Owner, m_Weapon);
+		}
+	}
+	else
+	{
+		GameServer()->CreateBuildingHit(m_Pos);
+		pHit->TakeDamage(m_Damage, m_Owner, m_Weapon);
+	}
+	
+	
 	return true;
 }
 

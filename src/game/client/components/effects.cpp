@@ -1166,6 +1166,7 @@ void CEffects::SpriteSmoke(vec2 Pos, float Size, vec4 Color)
 void CEffects::Explosion(vec2 Pos, int Weapon)
 {
 	// add to flow
+	/*
 	if (GetExplosionSprite(Weapon))
 	{
 		for(int y = -8; y <= 8; y++)
@@ -1178,6 +1179,7 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 				m_pClient->m_pFlow->Add(Pos+vec2(x,y)*16, normalize(vec2(x,y))*5000.0f*a, 10.0f);
 			}
 	}
+	*/
 
 	
 	if (IsDroid(Weapon))
@@ -1245,6 +1247,25 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 		if (GetBuildingType(Weapon) == BUILDING_TESLACOIL)
 		{
 			SpriteExplosion(Pos, GetExplosionSize(Weapon), GetExplosionSprite(Weapon));
+		}
+		
+		if (GetBuildingType(Weapon) == BUILDING_GENERATOR)
+		{
+			SpriteExplosion(Pos, GetExplosionSize(Weapon), GetExplosionSprite(Weapon));
+			
+			{
+				CParticle p;
+				p.SetDefault();
+				p.m_Spr = SPRITE_ELECTRIC1;
+				p.m_Frames = 8;
+				p.m_Pos = Pos;
+				p.m_LifeSpan = 0.20f;
+				p.m_StartSize = 600;
+				p.m_EndSize = p.m_StartSize*1.3f;
+				p.m_Color = vec4(1, 1, 1, 0.35f);
+				p.m_Rot = frandom()*pi*2;
+				m_pClient->m_pParticles->Add(CParticles::GROUP_ELECTRIC, &p);
+			}
 		}
 		
 		if (GetBuildingType(Weapon) == BUILDING_FLAMETRAP)

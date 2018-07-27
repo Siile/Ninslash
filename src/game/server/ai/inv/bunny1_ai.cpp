@@ -66,7 +66,11 @@ void CAIbunny1::OnCharacterSpawn(CCharacter *pChr)
 		else
 			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(6, 7)));
 		
+		m_AttackOnDamage = true;
+		
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD)));
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD)));
+		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_MASK2)));
 		
 		pChr->SetHealth(80+min(Level*5.0f, 320.0f));
 		m_PowerLevel = 14;
@@ -107,6 +111,13 @@ void CAIbunny1::ReceiveDamage(int CID, int Dmg)
 {
 	//if (CID >= 0 && frandom() < Dmg*0.03f)
 		m_Triggered = true;
+	
+	if (m_AttackOnDamage)
+	{
+		m_Attack = 1;
+		m_InputChanged = true;
+		m_AttackOnDamageTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed();
+	}
 }
 
 
@@ -196,6 +207,9 @@ void CAIbunny1::DoBehavior()
 	
 	Player()->GetCharacter()->m_SkipPickups = 999;
 	RandomlyStopShooting();
+	
+	if (m_AttackOnDamageTick > GameServer()->Server()->Tick())
+		m_Attack = 1;
 	
 	// next reaction in
 	m_ReactionTime = 1 + rand()%3;

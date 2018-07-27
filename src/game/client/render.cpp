@@ -77,7 +77,7 @@ void CAnimSkeletonInfo::UpdateBones(float Time, CSpineAnimation *pAnimation, CSk
 			Rotation = (360.0f - Rotation)*pi/180.0f;
 
 
-			if (strcmp(pBone->m_Name, "weapon") == 0 || strcmp(pBone->m_Name, "weapon_team") == 0)
+			if (pBone->m_SpecialType == BST_WEAPON || pBone->m_SpecialType == BST_WEAPON_TEAM)
 			{
 				if (WeaponAngle > 180)
 				{
@@ -92,49 +92,49 @@ void CAnimSkeletonInfo::UpdateBones(float Time, CSpineAnimation *pAnimation, CSk
 			// star droids
 			if (pDroidAnim)
 			{
-				if (strcmp(pBone->m_Name, "thrust1") == 0 || strcmp(pBone->m_Name, "thrust2") == 0)
+				if (pBone->m_SpecialType == BST_THRUST1 || pBone->m_SpecialType == BST_THRUST2)
 				{
 					Rotation += pDroidAnim->m_aValue[CDroidAnim::VEL_X] - pDroidAnim->m_aValue[CDroidAnim::BODY_ANGLE];
 
-					if (strcmp(pBone->m_Name, "thrust1") == 0)
+					if (pBone->m_SpecialType == BST_THRUST1)
 					{
 						//pDroidAnim->m_aVectorValue[CDroidAnim::THRUST1_POS] = Position;
 						pDroidAnim->m_aVectorValue[CDroidAnim::THRUST1_VEL] = vec2(sin(Rotation), cos(Rotation));
 					}
-					else if (strcmp(pBone->m_Name, "thrust2") == 0)
+					else if (pBone->m_SpecialType == BST_THRUST2)
 					{
 						//pDroidAnim->m_aVectorValue[CDroidAnim::THRUST2_POS] = Position;
 						pDroidAnim->m_aVectorValue[CDroidAnim::THRUST2_VEL] = vec2(sin(Rotation), cos(Rotation));
 					}
 				}
 				
-				if (strcmp(pBone->m_Name, "body") == 0)
+				else if (pBone->m_SpecialType == BST_BODY)
 					Rotation += pDroidAnim->m_aValue[CDroidAnim::BODY_ANGLE];
 				
-				if (strcmp(pBone->m_Name, "weapon0") == 0 || strcmp(pBone->m_Name, "weapon1") == 0 || strcmp(pBone->m_Name, "weapon2") == 0)
+				else if (pBone->m_SpecialType == BST_WEAPON0 || pBone->m_SpecialType == BST_WEAPON1 || pBone->m_SpecialType == BST_WEAPON2)
 					Rotation = pDroidAnim->m_aValue[CDroidAnim::TURRET_ANGLE]*pi/180.0f  - pDroidAnim->m_aValue[CDroidAnim::BODY_ANGLE];
 			}
 			else
 			// walkers
-			if (strcmp(pBone->m_Name, "weapon0") == 0 || strcmp(pBone->m_Name, "weapon1") == 0 || strcmp(pBone->m_Name, "weapon2") == 0)
+			if (pBone->m_SpecialType == BST_WEAPON0 || pBone->m_SpecialType == BST_WEAPON1 || pBone->m_SpecialType == BST_WEAPON2)
 			{
 				Rotation = WeaponAngle*pi/180.0f;
 			}
 			
 			if (pAnimData)
 			{
-				if (pAnimData->m_Anim != PANIM_IDLE && (strcmp(pBone->m_Name, "ffoot") == 0 || strcmp(pBone->m_Name, "bfoot") == 0))
+				if (pAnimData->m_Anim != PANIM_IDLE && (pBone->m_SpecialType == BST_FFOOT || pBone->m_SpecialType == BST_BFOOT))
 				{
 					Position += pAnimData->m_FeetDir;
 				}
 				
-				if (strcmp(pBone->m_Name, "body") == 0)
+				if (pBone->m_SpecialType == BST_BODY)
 				{
 					Position += vec2(pAnimData->m_HeadOffset.y, pAnimData->m_HeadOffset.x) * 0.5f;
 					Rotation += pAnimData->m_BodyTilt;
 				}
 				
-				if (strcmp(pBone->m_Name, "head") == 0)
+				if (pBone->m_SpecialType == BST_HEAD)
 				{
 					Position += pAnimData->m_HeadOffset;
 					Rotation += pAnimData->m_HeadTilt + pAnimData->m_HeadTiltCorrect;
@@ -173,6 +173,41 @@ void CRenderTools::LoadSkeletonFromSpine(CAnimSkeletonInfo *pSkeleton,
 		const CSpineBone &rBone = lBones[i];
 		CAnimBone *pBone = new CAnimBone;
 		pBone->m_Name = rBone.m_Name;
+		pBone->m_SpecialType = BST_NONE;
+		
+		if (strcmp(pBone->m_Name, "weapon") == 0)
+			pBone->m_SpecialType = BST_WEAPON;
+		
+		else if (strcmp(pBone->m_Name, "weapon0") == 0)
+			pBone->m_SpecialType = BST_WEAPON0;
+		
+		else if (strcmp(pBone->m_Name, "weapon1") == 0)
+			pBone->m_SpecialType = BST_WEAPON1;
+		
+		else if (strcmp(pBone->m_Name, "weapon2") == 0)
+			pBone->m_SpecialType = BST_WEAPON2;
+		
+		else if (strcmp(pBone->m_Name, "weapon_team") == 0)
+			pBone->m_SpecialType = BST_WEAPON_TEAM;
+		
+		else if (strcmp(pBone->m_Name, "thrust1") == 0)
+			pBone->m_SpecialType = BST_THRUST1;
+		
+		else if (strcmp(pBone->m_Name, "thrust2") == 0)
+			pBone->m_SpecialType = BST_THRUST2;
+		
+		else if (strcmp(pBone->m_Name, "body") == 0)
+			pBone->m_SpecialType = BST_BODY;
+		
+		else if (strcmp(pBone->m_Name, "ffoot") == 0)
+			pBone->m_SpecialType = BST_FFOOT;
+		
+		else if (strcmp(pBone->m_Name, "bfoot") == 0)
+			pBone->m_SpecialType = BST_BFOOT;
+		
+		else if (strcmp(pBone->m_Name, "head") == 0)
+			pBone->m_SpecialType = BST_HEAD;
+		
 		pBone->m_pParent = 0x0;
 		pBone->m_Position.x = rBone.m_X;
 		pBone->m_Position.y = -rBone.m_Y;
@@ -241,6 +276,88 @@ void CRenderTools::LoadSkeletonFromSpine(CAnimSkeletonInfo *pSkeleton,
 					{
 						CAnimAttachmentSprite *pAnimAttachment = new CAnimAttachmentSprite();
 						pAnimAttachment->m_Name = Attachment.m_Name;
+						
+						if (strcmp(pAnimAttachment->m_Name, "mask") == 0)
+							pAnimAttachment->m_SpecialType = AST_MASK;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "1_team") == 0)
+							pAnimAttachment->m_SpecialType = AST_1_TEAM;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "2_team") == 0)
+							pAnimAttachment->m_SpecialType = AST_2_TEAM;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "3_team") == 0)
+							pAnimAttachment->m_SpecialType = AST_3_TEAM;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "4_team") == 0)
+							pAnimAttachment->m_SpecialType = AST_4_TEAM;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "weapon") == 0)
+							pAnimAttachment->m_SpecialType = AST_WEAPON;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "weapon_team") == 0)
+							pAnimAttachment->m_SpecialType = AST_WEAPON_TEAM;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "eyes") == 0)
+							pAnimAttachment->m_SpecialType = AST_EYES;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "hat") == 0)
+							pAnimAttachment->m_SpecialType = AST_HAT;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "body") == 0)
+							pAnimAttachment->m_SpecialType = AST_BODY;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "head") == 0)
+							pAnimAttachment->m_SpecialType = AST_HEAD;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "head_asset") == 0)
+							pAnimAttachment->m_SpecialType = AST_HEAD_ASSET;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "arm") == 0)
+							pAnimAttachment->m_SpecialType = AST_ARM;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "foot") == 0)
+							pAnimAttachment->m_SpecialType = AST_FOOT;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "hand") == 0)
+							pAnimAttachment->m_SpecialType = AST_HAND;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "splatter1") == 0)
+							pAnimAttachment->m_SpecialType = AST_SPLATTER1;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "splatter2") == 0)
+							pAnimAttachment->m_SpecialType = AST_SPLATTER2;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "splatter3") == 0)
+							pAnimAttachment->m_SpecialType = AST_SPLATTER3;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "splatter4") == 0)
+							pAnimAttachment->m_SpecialType = AST_SPLATTER4;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "splatter5") == 0)
+							pAnimAttachment->m_SpecialType = AST_SPLATTER5;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "splatter6") == 0)
+							pAnimAttachment->m_SpecialType = AST_SPLATTER6;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "splatter7") == 0)
+							pAnimAttachment->m_SpecialType = AST_SPLATTER7;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "splatter8") == 0)
+							pAnimAttachment->m_SpecialType = AST_SPLATTER8;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "team") == 0)
+							pAnimAttachment->m_SpecialType = AST_TEAM;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "jet") == 0)
+							pAnimAttachment->m_SpecialType = AST_JET;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "jet1") == 0)
+							pAnimAttachment->m_SpecialType = AST_JET1;
+						
+						else if (strcmp(pAnimAttachment->m_Name, "jet2") == 0)
+							pAnimAttachment->m_SpecialType = AST_JET2;
+						
 
 						pAnimAttachment->m_Position = vec2(Attachment.m_Region.m_X, -Attachment.m_Region.m_Y);
 						pAnimAttachment->m_Scale = vec2(Attachment.m_Region.m_ScaleX, Attachment.m_Region.m_ScaleY);
@@ -698,19 +815,6 @@ void CRenderTools::RenderPortrait(CTeeRenderInfo *pInfo, vec2 Pos, int EyeType)
 
 			string Attachment = pSlot->m_AttachmentSetup; // default attachment
 
-			// evaluate animations
-			if(pAnimation)
-			{
-				//CSpineSlotTimeline *pSlotTimeline = 0x0;
-
-				// find timelines
-				{
-					//auto SlotTimelineIter = pAnimation->m_lSlotTimeline.find(pSlot->m_Name);
-					//if(SlotTimelineIter != pAnimation->m_lSlotTimeline.end())
-					//	pSlotTimeline = &SlotTimelineIter->second;	
-				}
-			}
-
 			// find attachment
 			auto SlotIter = pSkeleton->m_lSkins["default"].find(pSlot->m_Name);
 			if (SlotIter == pSkeleton->m_lSkins["default"].end())
@@ -728,12 +832,10 @@ void CRenderTools::RenderPortrait(CTeeRenderInfo *pInfo, vec2 Pos, int EyeType)
 				{
 					CAnimAttachmentSprite *pAttachment = (CAnimAttachmentSprite *) pAttachmentBase;
 					
-					// skip all but these
-					if (!strcmp(pAttachment->m_Name, "head") == 0 &&
-						!strcmp(pAttachment->m_Name, "head_asset") == 0 &&
-						!strcmp(pAttachment->m_Name, "hat") == 0 &&
-						!strcmp(pAttachment->m_Name, "mask") == 0 &&
-						!strcmp(pAttachment->m_Name, "eyes") == 0)
+					if (pAttachment->m_SpecialType != AST_HEAD &&
+						pAttachment->m_SpecialType != AST_HEAD_ASSET &&
+						pAttachment->m_SpecialType != AST_HAT &&
+						pAttachment->m_SpecialType != AST_EYES)
 						continue;
 					
 					CTextureAtlasSprite *pSprite = &pAtlas->m_lSprites[pAttachment->m_Name];
@@ -756,19 +858,12 @@ void CRenderTools::RenderPortrait(CTeeRenderInfo *pInfo, vec2 Pos, int EyeType)
 					int SybsetType = 0;
 
 					// render some slots with user selected texture with 
-					if (strcmp(pAttachment->m_Name, "hat") == 0)
+					if (pAttachment->m_SpecialType == AST_HAT)
 					{
 						Graphics()->TextureSet(pInfo->m_TopperTexture);
 						SybsetType = 1;
 					}
-					/*
-					else if (strcmp(pAttachment->m_Name, "mask") == 0 && (PlayerInfo && PlayerInfo->m_Mask))
-					{
-						Graphics()->TextureSet(g_pData->m_aImages[IMAGE_MASK1+PlayerInfo->m_Mask-1].m_Id);
-						SybsetType = 1;
-					}
-					*/
-					else if (strcmp(pAttachment->m_Name, "eyes") == 0)
+					else if (pAttachment->m_SpecialType == AST_EYES)
 					{
 						Graphics()->TextureSet(pInfo->m_EyeTexture);
 						SybsetType = 2;
@@ -779,10 +874,10 @@ void CRenderTools::RenderPortrait(CTeeRenderInfo *pInfo, vec2 Pos, int EyeType)
 					Graphics()->QuadsBegin();
 					
 
-					if (strcmp(pAttachment->m_Name, "hat") == 0)
+					if (pAttachment->m_SpecialType == AST_HAT)
 						Graphics()->SetColor(pInfo->m_ColorTopper.r, pInfo->m_ColorTopper.g, pInfo->m_ColorTopper.b, 1);
 					
-					if (strcmp(pAttachment->m_Name, "head") == 0)
+					if (pAttachment->m_SpecialType == AST_HEAD)
 						Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, 1);
 					
 
@@ -867,21 +962,6 @@ void CRenderTools::RenderSkeleton(vec2 Pos, int Atlas, const char *Anim, float T
 
 			string Attachment = pSlot->m_AttachmentSetup; // default attachment
 
-			// evaluate animations
-			/*
-			if(pAnimation)
-			{
-				CSpineSlotTimeline *pSlotTimeline = 0x0;
-
-				// find timelines
-				{
-					auto SlotTimelineIter = pAnimation->m_lSlotTimeline.find(pSlot->m_Name);
-					if(SlotTimelineIter != pAnimation->m_lSlotTimeline.end())
-						pSlotTimeline = &SlotTimelineIter->second;	
-				}
-			}
-			*/
-
 			// find attachment
 			auto SlotIter = pSkeleton->m_lSkins["default"].find(pSlot->m_Name);
 			if (SlotIter == pSkeleton->m_lSkins["default"].end())
@@ -952,7 +1032,7 @@ void CRenderTools::RenderSkeleton(vec2 Pos, int Atlas, const char *Anim, float T
 						}
 					}
 					
-					else if (strcmp(pAttachment->m_Name, "team") == 0)
+					else if (pAttachment->m_SpecialType == AST_TEAM)
 					{
 						if (Team == TEAM_RED)
 							Graphics()->SetColor(1.0f, 0.3f, 0.0f, 1);
@@ -1183,20 +1263,6 @@ void CRenderTools::RenderStarDroid(vec2 Pos, int Anim, float Time, int Dir, floa
 
 			string Attachment = pSlot->m_AttachmentSetup; // default attachment
 
-			// evaluate animations
-			/*
-			if(pAnimation)
-			{
-				CSpineSlotTimeline *pSlotTimeline = 0x0;
-
-				// find timelines
-				{
-					auto SlotTimelineIter = pAnimation->m_lSlotTimeline.find(pSlot->m_Name);
-					if(SlotTimelineIter != pAnimation->m_lSlotTimeline.end())
-						pSlotTimeline = &SlotTimelineIter->second;	
-				}
-			}
-			*/
 
 			// find attachment
 			auto SlotIter = pSkeleton->m_lSkins["default"].find(pSlot->m_Name);
@@ -1225,9 +1291,6 @@ void CRenderTools::RenderStarDroid(vec2 Pos, int Anim, float Time, int Dir, floa
 
 					mat33 AttachmentParent = CalcTransformationMatrix(pAttachment->m_Position, pAttachment->m_Scale, pAttachment->m_Rotation);
 
-					//if (strcmp(pAttachment->m_Name, "jet1") == 0 || strcmp(pAttachment->m_Name, "jet2") == 0 || strcmp(pAttachment->m_Name, "jet") == 0)
-					//	pAttachment->m_Scale = vec2(1, 1) * (frandom() * 0.2f + 0.5f);
-					
 					vec3 p0, p1, p2, p3;
 					p0 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(-pAttachment->m_Width/2.0f, -pAttachment->m_Height/2.0f, 1.0f);
 					p1 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(pAttachment->m_Width/2.0f, -pAttachment->m_Height/2.0f, 1.0f);
@@ -1237,7 +1300,7 @@ void CRenderTools::RenderStarDroid(vec2 Pos, int Anim, float Time, int Dir, floa
 
 					int SybsetType = 0;
 					
-					if (strcmp(pAttachment->m_Name, "jet1") == 0 || strcmp(pAttachment->m_Name, "jet2") == 0 || strcmp(pAttachment->m_Name, "jet") == 0)
+					if (pAttachment->m_SpecialType == AST_JET1 || pAttachment->m_SpecialType == AST_JET2 || pAttachment->m_SpecialType == AST_JET)
 					{
 						if (Status != DROIDSTATUS_TERMINATED)
 						{
@@ -1247,12 +1310,12 @@ void CRenderTools::RenderStarDroid(vec2 Pos, int Anim, float Time, int Dir, floa
 							vec3 p = (p0+p1+p2+p3)/4.0f;
 							
 							
-							if (strcmp(pSlot->m_Name, "jet1") == 0)
+							if (pAttachment->m_SpecialType == AST_JET1)
 							{
 								pDroidAnim->m_aVectorValue[CDroidAnim::THRUST1_POS] = vec2(p.x, p.y);
 								pDroidAnim->m_aVectorValue[CDroidAnim::THRUST1_VEL] = normalize(vec2(p1.x-p0.x, p1.y-p0.y));
 							}
-							else if (strcmp(pSlot->m_Name, "jet2") == 0)
+							else if (pAttachment->m_SpecialType == AST_JET2)
 							{
 								pDroidAnim->m_aVectorValue[CDroidAnim::THRUST2_POS] = vec2(p.x, p.y);
 								pDroidAnim->m_aVectorValue[CDroidAnim::THRUST2_VEL] = normalize(vec2(p1.x-p0.x, p1.y-p0.y));
@@ -1389,9 +1452,6 @@ void CRenderTools::RenderCrawlerDroid(vec2 Pos, int Anim, float Time, int Dir, f
 
 					mat33 AttachmentParent = CalcTransformationMatrix(pAttachment->m_Position, pAttachment->m_Scale, pAttachment->m_Rotation);
 
-					//if (strcmp(pAttachment->m_Name, "jet1") == 0 || strcmp(pAttachment->m_Name, "jet2") == 0 || strcmp(pAttachment->m_Name, "jet") == 0)
-					//	pAttachment->m_Scale = vec2(1, 1) * (frandom() * 0.2f + 0.5f);
-					
 					vec3 p0, p1, p2, p3;
 					p0 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(-pAttachment->m_Width/2.0f, -pAttachment->m_Height/2.0f, 1.0f);
 					p1 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(pAttachment->m_Width/2.0f, -pAttachment->m_Height/2.0f, 1.0f);
@@ -2024,86 +2084,6 @@ void CRenderTools::SetShadersForWeapon(int Weapon, float Charge, float Visibilit
 }
 
 
-void CRenderTools::RenderScythe(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, vec2 Dir, vec2 Pos)
-{
-	
-	float WeaponAngle = PlayerInfo->MeleeAngle();
-	int WeaponDir = PlayerInfo->MeleeFlip() ? -1 : 1;
-	bool FlipY = false;
-	vec2 Size = vec2(256, 256)*0.4f;
-	
-	vec2 WeaponPos = Pos + PlayerInfo->m_Weapon2Recoil;
-	vec2 Offset = vec2(0, 0) + PlayerInfo->MeleeOffset();
-	
-	SetShadersForWeapon(PlayerInfo);
-	
-	// render effect
-	/*
-	if (PlayerInfo->MeleeEffectFrame() != -1)
-	{
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_FX_SCYTHE].m_Id);
-		int Sprite = SPRITE_FX_SCYTHE1+PlayerInfo->MeleeEffectFrame();
-
-		vec2 p = Pos + PlayerInfo->m_Weapon2Recoil;
-		p += PlayerInfo->MeleeEffectOffset();
-		
-		Graphics()->QuadsBegin();
-		Graphics()->QuadsSetRotation(pi/8.0f*(WeaponDir > 0.0f ? -1.0f : 1.0f));
-		Graphics()->SetColor(0.5f, 0.5f, 0.5f, 0.5f);
-		
-		if (WeaponDir > 0)
-			FlipY = !PlayerInfo->MeleeEffectFlip();
-		else
-			FlipY = PlayerInfo->MeleeEffectFlip();
-
-		{
-			SelectSprite(Sprite, (FlipY ? SPRITE_FLAG_FLIP_Y : 0) + (WeaponDir > 0 ? SPRITE_FLAG_FLIP_X : 0));
-			IGraphics::CQuadItem QuadItem(p.x, p.y, Size.x*2.1f, Size.y*1.5f);
-			Graphics()->QuadsDraw(&QuadItem, 1);
-		}
-		
-		Graphics()->QuadsEnd();
-	}
-	*/
-
-	RenderArm(PlayerInfo, pInfo, WeaponPos + Offset, Pos);
-	
-	/*
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_SCYTHE].m_Id);
-	int Sprite = SPRITE_SCYTHE1+PlayerInfo->MeleeFrame();
-		
-	Graphics()->QuadsBegin();
-	Graphics()->SetColor(0.1f, 1.0f, 0.1f, 1);
-	
-	Graphics()->QuadsSetRotation(WeaponAngle);
-		
-	{
-		SelectSprite(Sprite, (FlipY ? SPRITE_FLAG_FLIP_Y : 0) + (WeaponDir < 0 ? SPRITE_FLAG_FLIP_X : 0));
-		IGraphics::CQuadItem QuadItem(WeaponPos.x + Offset.x, WeaponPos.y + Offset.y, Size.x*PlayerInfo->MeleeSize(), Size.y*PlayerInfo->MeleeSize());
-		Graphics()->QuadsDraw(&QuadItem, 1);
-	}
-	
-	Graphics()->QuadsEnd();
-	*/
-		
-	// render hand
-	float HandBaseSize = 16.0f;		
-		
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HANDS].m_Id);
-	Graphics()->QuadsBegin();
-	Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, pInfo->m_ColorSkin.a);
-
-	Graphics()->QuadsSetRotation(WeaponAngle+pi);
-	{
-		SelectSprite(SPRITE_HAND1_1+pInfo->m_Body*4);
-		IGraphics::CQuadItem QuadItem(WeaponPos.x+ Offset.x, WeaponPos.y+ Offset.y, 2*HandBaseSize, 2*HandBaseSize);
-		Graphics()->QuadsDraw(&QuadItem, 1);
-	}
-		
-	Graphics()->QuadsEnd();
-}
-
-
 
 void CRenderTools::RenderForegroundHand(CPlayerInfo *PlayerInfo)
 {
@@ -2577,8 +2557,6 @@ void CRenderTools::RenderSkeleton(vec2 Position, const CTeeRenderInfo *pInfo, CS
 	}
 
 	pSkeleton->UpdateBones(Time, pAnimation, AnimData);
-	
-	//int Foot = 0;
 
 	if(pAtlas)
 	{
@@ -2621,9 +2599,6 @@ void CRenderTools::RenderSkeleton(vec2 Position, const CTeeRenderInfo *pInfo, CS
 				{
 					CAnimAttachmentSprite *pAttachment = (CAnimAttachmentSprite *) pAttachmentBase;
 					
-					//if (AnimData->m_FlipBody && strcmp(pAttachment->m_Name, "body") == 0)
-					//	Scale.x *= -1;
-					
 					CTextureAtlasSprite *pSprite = &pAtlas->m_lSprites[pAttachment->m_Name];
 					if(!pSprite)
 						continue;
@@ -2638,7 +2613,7 @@ void CRenderTools::RenderSkeleton(vec2 Position, const CTeeRenderInfo *pInfo, CS
 					
 					// for blinking eyes without changing sprite
 					float HeightScale = 1.0f;
-					if (AnimData->m_Eyes == 4 && strcmp(pAttachment->m_Name, "eyes") == 0)
+					if (AnimData->m_Eyes == 4 && pAttachment->m_SpecialType == AST_EYES)
 						HeightScale = 0.4f;
 					
 					vec3 p0, p1, p2, p3;
@@ -2652,18 +2627,18 @@ void CRenderTools::RenderSkeleton(vec2 Position, const CTeeRenderInfo *pInfo, CS
 					int SybsetType = 0;
 					
 					// render some slots with user selected texture 
-					if (strcmp(pAttachment->m_Name, "hat") == 0)
+					if (pAttachment->m_SpecialType == AST_HAT)
 					{
 						Graphics()->TextureSet(pInfo->m_TopperTexture);
 						SybsetType = 1;
 					}
-					else if (strcmp(pAttachment->m_Name, "mask") == 0 && (PlayerInfo && PlayerInfo->m_Mask > 0))
+					else if (pAttachment->m_SpecialType == AST_MASK && (PlayerInfo && PlayerInfo->m_Mask > 0))
 					{
 						Graphics()->TextureSet(g_pData->m_aImages[IMAGE_MASK1+PlayerInfo->m_Mask-1].m_Id);
 						//Graphics()->TextureSet(g_pData->m_aImages[IMAGE_MASK1].m_Id);
 						SybsetType = 1;
 					}
-					else if (strcmp(pAttachment->m_Name, "eyes") == 0)
+					else if (pAttachment->m_SpecialType == AST_EYES)
 					{
 						Graphics()->TextureSet(pInfo->m_EyeTexture);
 						SybsetType = 2;
@@ -2673,7 +2648,7 @@ void CRenderTools::RenderSkeleton(vec2 Position, const CTeeRenderInfo *pInfo, CS
 					
 					
 					// turbo effect to feet
-					if (((PlayerInfo && PlayerInfo->m_Jetpack) || AnimData->GetAnimation() == PANIM_SLIDEKICK) && strcmp(pAttachment->m_Name, "foot") == 0)// && Foot++ == 1)
+					if (((PlayerInfo && PlayerInfo->m_Jetpack) || AnimData->GetAnimation() == PANIM_SLIDEKICK) && pAttachment->m_SpecialType == AST_FOOT)
 					{
 						bool Kicking = AnimData->GetAnimation() == PANIM_SLIDEKICK;
 						
@@ -2701,7 +2676,7 @@ void CRenderTools::RenderSkeleton(vec2 Position, const CTeeRenderInfo *pInfo, CS
 					}
 					
 					
-					if (strcmp(pAttachment->m_Name, "body") == 0)
+					if (pAttachment->m_SpecialType == AST_BODY)
 					{
 						// bomb for cs / reactor defense
 						if (PlayerInfo && PlayerInfo->m_BombCarrier)
@@ -2733,32 +2708,32 @@ void CRenderTools::RenderSkeleton(vec2 Position, const CTeeRenderInfo *pInfo, CS
 					Graphics()->QuadsBegin();
 					
 					
-					if (strcmp(pAttachment->m_Name, "body") == 0)
+					if (pAttachment->m_SpecialType == AST_BODY)
 						Graphics()->SetColor(pInfo->m_ColorBody.r, pInfo->m_ColorBody.g, pInfo->m_ColorBody.b, 1);
 						
 						
-					if (strcmp(pAttachment->m_Name, "hat") == 0)
+					else if (pAttachment->m_SpecialType == AST_HAT)
 					{
 						Graphics()->SetColor(pInfo->m_ColorTopper.r, pInfo->m_ColorTopper.g, pInfo->m_ColorTopper.b, 1);
 					}
 					
-					if (strcmp(pAttachment->m_Name, "head") == 0)
+					else if (pAttachment->m_SpecialType == AST_HEAD)
 					{
 						Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, 1);
 						
 					}
 					
-					if (strcmp(pAttachment->m_Name, "arm") == 0)
+					else if (pAttachment->m_SpecialType == AST_ARM)
 					{
 						vec3 p = (p0+p1+p2+p3) / 4.0f - vec3(Position.x, Position.y, 0);
 						if (PlayerInfo)
 							PlayerInfo->m_ArmPos = vec2(p.x, p.y+18);
 					}
 					
-					if (strcmp(pAttachment->m_Name, "foot") == 0)
+					else if (pAttachment->m_SpecialType == AST_FOOT)
 						Graphics()->SetColor(pInfo->m_ColorFeet.r, pInfo->m_ColorFeet.g, pInfo->m_ColorFeet.b, 1);
 					
-					if (strcmp(pAttachment->m_Name, "hand") == 0)
+					else if (pAttachment->m_SpecialType == AST_HAND)
 					{
 						if (PlayerInfo)
 						{
@@ -2768,29 +2743,24 @@ void CRenderTools::RenderSkeleton(vec2 Position, const CTeeRenderInfo *pInfo, CS
 						
 						Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, 0);
 					}
-
-					/*
-					if (strcmp(pAttachment->m_Name, "head") == 0)
-						Graphics()->SetColor(SkinColor*1.4f, SkinColor*1.2f, SkinColor, 1);
-					*/
 					
 					if (PlayerInfo)
 					{
-						if (strcmp(pAttachment->m_Name, "splatter1") == 0)
+						if (pAttachment->m_SpecialType == AST_SPLATTER1)
 							Graphics()->SetColor(PlayerInfo->m_aSplatterColor[0].r, PlayerInfo->m_aSplatterColor[0].g, PlayerInfo->m_aSplatterColor[0].b, PlayerInfo->m_aSplatter[0]);
-						if (strcmp(pAttachment->m_Name, "splatter2") == 0)
+						if (pAttachment->m_SpecialType == AST_SPLATTER2)
 							Graphics()->SetColor(PlayerInfo->m_aSplatterColor[1].r, PlayerInfo->m_aSplatterColor[1].g, PlayerInfo->m_aSplatterColor[1].b, PlayerInfo->m_aSplatter[1]);
-						if (strcmp(pAttachment->m_Name, "splatter3") == 0)
+						if (pAttachment->m_SpecialType == AST_SPLATTER3)
 							Graphics()->SetColor(PlayerInfo->m_aSplatterColor[2].r, PlayerInfo->m_aSplatterColor[2].g, PlayerInfo->m_aSplatterColor[2].b, PlayerInfo->m_aSplatter[2]);
-						if (strcmp(pAttachment->m_Name, "splatter4") == 0)
+						if (pAttachment->m_SpecialType == AST_SPLATTER4)
 							Graphics()->SetColor(PlayerInfo->m_aSplatterColor[3].r, PlayerInfo->m_aSplatterColor[3].g, PlayerInfo->m_aSplatterColor[3].b, PlayerInfo->m_aSplatter[3]);
-						if (strcmp(pAttachment->m_Name, "splatter5") == 0)
+						if (pAttachment->m_SpecialType == AST_SPLATTER5)
 							Graphics()->SetColor(PlayerInfo->m_aSplatterColor[4].r, PlayerInfo->m_aSplatterColor[4].g, PlayerInfo->m_aSplatterColor[4].b, PlayerInfo->m_aSplatter[4]);
-						if (strcmp(pAttachment->m_Name, "splatter6") == 0)
+						if (pAttachment->m_SpecialType == AST_SPLATTER6)
 							Graphics()->SetColor(PlayerInfo->m_aSplatterColor[5].r, PlayerInfo->m_aSplatterColor[5].g, PlayerInfo->m_aSplatterColor[5].b, PlayerInfo->m_aSplatter[5]);
-						if (strcmp(pAttachment->m_Name, "splatter7") == 0)
+						if (pAttachment->m_SpecialType == AST_SPLATTER7)
 							Graphics()->SetColor(PlayerInfo->m_aSplatterColor[6].r, PlayerInfo->m_aSplatterColor[6].g, PlayerInfo->m_aSplatterColor[6].b, PlayerInfo->m_aSplatter[6]);
-						if (strcmp(pAttachment->m_Name, "splatter8") == 0)
+						if (pAttachment->m_SpecialType == AST_SPLATTER8)
 							Graphics()->SetColor(PlayerInfo->m_aSplatterColor[7].r, PlayerInfo->m_aSplatterColor[7].g, PlayerInfo->m_aSplatterColor[7].b, PlayerInfo->m_aSplatter[7]);
 					}
 
@@ -3049,14 +3019,12 @@ void CRenderTools::RenderBuilding(vec2 Position, CAnimSkeletonInfo *pSkeleton, C
 					Graphics()->TextureSet(pPage->m_TexId);
 					Graphics()->QuadsBegin();
 
-					
-					if (strcmp(pAttachment->m_Name, "1_team") == 0 || 
-						strcmp(pAttachment->m_Name, "2_team") == 0 || 
-						strcmp(pAttachment->m_Name, "3_team") == 0 || 
-						strcmp(pAttachment->m_Name, "4_team") == 0 || 
-						strcmp(pAttachment->m_Name, "weapon_team") == 0)
+					if (pAttachment->m_SpecialType == AST_1_TEAM || 
+						pAttachment->m_SpecialType == AST_2_TEAM || 
+						pAttachment->m_SpecialType == AST_3_TEAM || 
+						pAttachment->m_SpecialType == AST_4_TEAM || 
+						pAttachment->m_SpecialType == AST_WEAPON_TEAM)
 						Graphics()->SetColor(TeamColor.r, TeamColor.g, TeamColor.b, TeamColor.a);
-					
 					
 					
 					vec2 t0, t1, t2, t3;
