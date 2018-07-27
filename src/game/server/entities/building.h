@@ -19,6 +19,7 @@ const int SwitchPhysSize = 10;
 const int DoorPhysSize = 40;
 const int ReactorPhysSize = 50;
 const int JumppadPhysSize = 60;
+const int GeneratorPhysSize = 50;
 
 class CBuilding : public CEntity
 {

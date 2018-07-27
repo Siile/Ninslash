@@ -28,12 +28,6 @@ CCustomStuff::~CCustomStuff()
 
 void CCustomStuff::Reset()
 {
-	for (int i = 0; i < MAX_BG_SOUNDS; i++)
-	{
-		m_aBGSound[i] = 0;
-		m_aBGEffect[i] = 0;
-	}
-	
 	m_ChargeAngle = 0;
 	m_Inventory = false;
 	

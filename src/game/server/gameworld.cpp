@@ -257,7 +257,7 @@ CBuilding *CGameWorld::IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec
 		//if (p->m_Team >= 0)
 		//	continue;
 		
-		if (GameServer()->m_pController->IsCoop() && Team >= 0 && p->m_Team >= 0 && (p->m_Type == BUILDING_TURRET || p->m_Type == BUILDING_TESLACOIL || p->m_Type == BUILDING_REACTOR))
+		if (GameServer()->m_pController->IsCoop() && Team >= 0 && p->m_Team >= 0 && (p->m_Type == BUILDING_TURRET || p->m_Type == BUILDING_GENERATOR || p->m_Type == BUILDING_TESLACOIL || p->m_Type == BUILDING_REACTOR))
 		{
 			if (Team >= 0 && Team < MAX_CLIENTS)
 			{
@@ -286,7 +286,7 @@ CBuilding *CGameWorld::IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec
 		
 		vec2 IntersectPos = closest_point_on_line(Pos0, Pos1, p->m_Pos);
 		float Len = distance(p->m_Pos + p->m_Center, IntersectPos);
-		if(Len < p->m_ProximityRadius+Radius)
+		if(Len < p->m_ProximityRadius+Radius || (p->m_Type == BUILDING_GENERATOR && Len < 230+Radius && distance(p->m_Pos + p->m_Center, Pos0) >= 230+Radius))
 		{
 			Len = distance(Pos0, IntersectPos);
 			if(Len < ClosestLen)

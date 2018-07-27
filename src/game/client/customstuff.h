@@ -10,7 +10,6 @@
 #include "customstuff/playerinfo.h"
 #include "customstuff/droidanim.h"
 
-#define MAX_BG_SOUNDS 64
 #define MAX_TURRETMUZZLES 64
 
 enum Pickers
@@ -81,9 +80,6 @@ public:
 	void SetTurretMuzzle(ivec2 Pos, int AttackTick, int Weapon);
 	
 	CTurretMuzzle GetTurretMuzzle(ivec2 Pos);
-	
-	int64 m_aBGSound[MAX_BG_SOUNDS];
-	int64 m_aBGEffect[MAX_BG_SOUNDS];
 	
 	int m_Impact;
 	int m_aImpactState[MAX_IMPACTS];

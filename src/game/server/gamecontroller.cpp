@@ -822,9 +822,9 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		new CBuilding(&GameServer()->m_World, Pos, BUILDING_DOOR1, TEAM_NEUTRAL);
 		return true;
 	}
-	else if (Index == ENTITY_SPEAKER)
+	else if (Index == ENTITY_GENERATOR)
 	{
-		new CBuilding(&GameServer()->m_World, Pos, BUILDING_SPEAKER, TEAM_NEUTRAL);
+		new CBuilding(&GameServer()->m_World, Pos+vec2(0, -59), BUILDING_GENERATOR, TEAM_NEUTRAL);
 		return true;
 	}
 	/*

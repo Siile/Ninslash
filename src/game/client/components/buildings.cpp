@@ -140,53 +140,34 @@ void CBuildings::RenderShop(const CNetObj_Shop *pCurrent)
 }
 
 
-void CBuildings::RenderSpeaker(const struct CNetObj_Building *pCurrent)
+void CBuildings::RenderGenerator(const struct CNetObj_Building *pCurrent)
 {
-	if (!g_Config.m_SndEnvironmental)
-		return;
-	
-	bool Flip = false;
-	vec2 p = vec2(pCurrent->m_X, pCurrent->m_Y);
-	
-	if (Collision()->CheckPoint(pCurrent->m_X - 48, pCurrent->m_Y))
-		Flip = true;
-	
-	// sound
-	int64 currentTime = time_get();
-	
-	int i = (pCurrent->m_X/64 + pCurrent->m_Y/17)%MAX_BG_SOUNDS;
-	
-	if (currentTime > CustomStuff()->m_aBGSound[i])
-	{
-		CustomStuff()->m_aBGSound[i] = currentTime+int(time_freq()*3.7f);
-		m_pClient->m_pSounds->PlayAt(CSounds::CHN_WORLD, SOUND_BG1+i%13, 1.0f, p);
-	}
-	
-	if (currentTime > CustomStuff()->m_aBGEffect[i])
-	{
-		vec2 o = vec2(-28, 28);
-		if (Flip)
-			o.x *= -1;
-		
-		if (frandom() < 0.3f)
-			CustomStuff()->m_aBGEffect[i] = currentTime+(time_freq()*3.7f)/16.0f;
-		else
-			CustomStuff()->m_aBGEffect[i] = currentTime+(time_freq()*3.7f)/8.0f;
-		
-		m_pClient->m_pEffects->Electrospark(p+o, 48, o*2.0f+vec2(frandom()-frandom(), frandom()-frandom()) * 20.0f);
-	}
-	
 	// render
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
 	Graphics()->QuadsBegin();
 	
-	RenderTools()->SelectSprite(SPRITE_SPEAKER, Flip ? SPRITE_FLAG_FLIP_X : 0);
-	
 	Graphics()->SetColor(1, 1, 1, 1);
 	Graphics()->QuadsSetRotation(0);
 		
-	RenderTools()->DrawSprite(p.x, p.y, 128);
+	RenderTools()->SelectSprite(SPRITE_GENERATOR);
+	RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y, 192);
+	
+	float c = sin(CustomStuff()->m_SawbladeAngle*0.25f)*0.3f + 0.7f;
+	
+	Graphics()->SetColor(0, c, 1, 1);
+	RenderTools()->SelectSprite(SPRITE_GENERATOR_COLOR);
+	RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y, 192);
 	Graphics()->QuadsEnd();
+	
+	//RenderTools()->SetShadersForWeapon(0, 0, 1.0f, 1.0f, 0, 0);
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GENERATOR_SHIELD].m_Id);
+	Graphics()->QuadsBegin();
+	
+	Graphics()->SetColor(0, 0.5f+c*0.5f, 1, 0.5f);
+	RenderTools()->SelectSprite(SPRITE_GENERATOR_SHIELD);
+	RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y, 512+256);
+	Graphics()->QuadsEnd();
+	//Graphics()->ShaderEnd();
 }
 
 
@@ -776,8 +757,8 @@ void CBuildings::OnRender()
 				RenderDoor1(pBuilding);
 				break;
 				
-			case BUILDING_SPEAKER:
-				RenderSpeaker(pBuilding);
+			case BUILDING_GENERATOR:
+				RenderGenerator(pBuilding);
 				break;
 				
 			case BUILDING_SCREEN:

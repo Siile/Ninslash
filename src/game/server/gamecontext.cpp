@@ -447,6 +447,16 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
 		return true;
 	}
 	
+	if (Kit == BUILDABLE_GENERATOR)
+	{
+		int Team = m_apPlayers[Owner]->GetTeam();
+		if (!m_pController->IsTeamplay())
+			Team = m_apPlayers[Owner]->GetCID();
+		
+		CBuilding *Generator = new CBuilding(&m_World, Pos+vec2(0, -34), BUILDING_GENERATOR, Team);
+		return true;
+	}
+	
 	if (Kit == BUILDABLE_FLAMETRAP)
 	{
 			CBuilding *pFlametrap = new CBuilding(&m_World, Pos+vec2(0, -18), BUILDING_FLAMETRAP, TEAM_NEUTRAL);

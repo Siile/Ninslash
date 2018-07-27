@@ -154,9 +154,11 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		m_Collision = false;
 		break;
 		
-	case BUILDING_SPEAKER:
-		m_Life = 9000;
-		m_Collision = false;
+	case BUILDING_GENERATOR:
+		m_Life = 1000;
+		//m_Center = vec2(0, -40);
+		m_Collision = true;
+		m_ProximityRadius = GeneratorPhysSize;
 		break;
 		
 	case BUILDING_SCREEN:
