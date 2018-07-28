@@ -286,7 +286,7 @@ CBuilding *CGameWorld::IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec
 		
 		vec2 IntersectPos = closest_point_on_line(Pos0, Pos1, p->m_Pos);
 		float Len = distance(p->m_Pos + p->m_Center, IntersectPos);
-		if(Len < p->m_ProximityRadius+Radius || (p->m_Type == BUILDING_GENERATOR && Len < 230+Radius && distance(p->m_Pos + p->m_Center, Pos0) >= 230+Radius))
+		if(Len < p->m_ProximityRadius+Radius || (p->m_Type == BUILDING_GENERATOR && Len < 240+Radius && distance(p->m_Pos + p->m_Center, Pos0) >= 240+Radius))
 		{
 			Len = distance(Pos0, IntersectPos);
 			if(Len < ClosestLen)
