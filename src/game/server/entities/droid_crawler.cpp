@@ -109,77 +109,7 @@ void CCrawler::MoveDead()
 
 void CCrawler::Move()
 {
-	m_Vel.y += 0.8f;
-	m_Vel *= 0.99f;
 	
-	GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(60.0f, 60.0f), 0, false);
-	
-	if (abs(m_Vel.x) < 1.0f && frandom() < 0.015f)
-		m_Move = (frandom() < 0.5f) ? -1 : 1;
-	
-	const int OffY = m_JumpTick ? 50 : 80;
-	
-	vec2 To = m_Pos + vec2(0, OffY);
-	
-	if (GameServer()->Collision()->IntersectLine(m_Pos, To, 0x0, &To))
-	{
-		float VelY = m_Pos.y-(To.y-OffY)*0.0002f;
-		
-		if (VelY > 0.0f && !m_JumpTick)
-		{
-			m_Vel.y -= min(1.4f, VelY);
-			m_Vel.y *= 0.99f;
-		}
-		
-		m_Vel.x *= 0.8f;
-		
-		if (abs(m_Vel.x) < 8.0f)
-			m_Vel.x += m_Move * 0.9f;
-		
-		if (!m_JumpTick && frandom() < 0.02f)
-		{
-			m_JumpTick = Server()->Tick() + Server()->TickSpeed()*0.25f;
-		}
-		
-		if (m_JumpTick && m_JumpTick < Server()->Tick())
-		//if (m_JumpTick && abs(m_Pos.y - (To.y-5)) < 10.0f)
-		{
-			//m_Vel.y = -16;
-			m_JumpForce = -7.0f;
-			
-			//if (abs(m_Vel.x) < 10.0f)
-			//	m_Vel.x *= 1.25f;
-			//m_JumpTick = 0;
-		}
-		
-		m_Vel.y += m_JumpForce;
-		m_Vel.x -= m_JumpForce*m_Move*0.25f;
-		
-		if (m_JumpForce < -0.1f)
-			m_Anim = DROIDANIM_JUMPATTACK;
-		else
-			m_Anim = DROIDANIM_ATTACK;
-	}
-	else if (m_JumpTick && m_JumpTick < Server()->Tick())
-		m_JumpTick = 0;
-	else if (frandom() < 0.01f)
-		m_Vel.x += (frandom()-frandom()) * 2.0f;
-	
-	m_Vel.x -= m_JumpForce*m_Move*0.1f;
-	m_JumpForce *= 0.9f;
-	
-	// attack
-	if (m_Anim == DROIDANIM_JUMPATTACK || m_Anim == DROIDANIM_ATTACK)
-	{
-		if (m_AttackCount++ > 3)
-		{
-			m_AttackCount = 0;
-			vec2 ProjPos = To+vec2(m_Move*54.0f, -20.0f);
-			GameServer()->CreateProjectile(NEUTRAL_BASE, GetDroidWeapon(m_Type), 0, ProjPos, normalize(m_Pos - ProjPos), m_Pos);
-		}
-	}
-
-	//	GameServer()->CreateBuildingHit(To+vec2(m_Move*60.0f, -20.0f));
 }
 
 void CCrawler::Tick()
@@ -472,16 +402,6 @@ bool CCrawler::Target()
 		{
 			m_Move = -1;
 		}
-		
-		/*
-		if ((m_Dir < 0 && pCharacter->m_Pos.x > m_Pos.x) || 
-			(m_Dir > 0 && pCharacter->m_Pos.x < m_Pos.x))
-		{
-			m_Dir *= -1;
-			m_State = CCrawler::IDLE;
-			m_StateChangeTick = Server()->Tick() + Server()->TickSpeed() * (1 + frandom());
-		}
-		*/
 
 		int Distance = distance(pCharacter->m_Pos, m_Pos);
 		if (Distance < 700 && !GameServer()->Collision()->FastIntersectLine(pCharacter->m_Pos+vec2(0, -24), m_Pos))
@@ -518,7 +438,7 @@ bool CCrawler::FindTarget()
 		if (GameServer()->m_pController->IsCoop() && pCharacter->m_IsBot)
 			continue;
 			
-		if (abs(m_Pos.x - pCharacter->m_Pos.x) < 500 && abs(m_Pos.y - pCharacter->m_Pos.y) < 120)
+		if (abs(m_Pos.x - pCharacter->m_Pos.x) < 600 && abs(m_Pos.y - pCharacter->m_Pos.y) < 220)
 		{
 			if (!GameServer()->Collision()->FastIntersectLine(pCharacter->m_Pos+vec2(0, -24), m_Pos))
 			{

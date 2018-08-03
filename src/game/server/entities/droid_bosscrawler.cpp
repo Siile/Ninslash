@@ -73,7 +73,7 @@ void CBossCrawler::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Weapo
 	
 	GameServer()->CreateDamageInd(DmgPos, GetAngle(-Force), -Dmg, -1);
 	
-	m_Vel += Force*0.4f;
+	m_Vel += Force*0.5f;
 	
 	if (length(m_Vel) > 20.0f)
 		m_Vel = normalize(m_Vel)*20.0f;

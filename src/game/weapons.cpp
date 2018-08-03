@@ -1100,7 +1100,7 @@ const int GetShotSpread(int Weapon)
 	if (Part1 == 1 && Part2 == 2) Spread = 5+Charge*2.0f;
 	if (Part1 == 2 && Part2 == 2) Spread = 4+Charge*1.0f;
 	if (Part1 == 3 && Part2 == 2) Spread = 5+Charge*2.0f;
-	if (Part1 == 4 && Part2 == 2) Spread = 4+Charge*2.0f;
+	if (Part1 == 4 && Part2 == 2) Spread = 4+Charge*1.0f;
 	
 	return Spread;
 }
