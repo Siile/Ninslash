@@ -836,6 +836,15 @@ const float GetMeleeHitRadius(int Weapon)
 		};
 	}
 	
+	if (IsDroid(Weapon))
+	{
+		switch (GetDroidType(Weapon))
+		{
+			case DROIDTYPE_CRAWLER: return 40.0f;
+			default: return 0.0f;
+		};
+	}
+	
 	if (IsModularWeapon(Weapon))
 	{
 		if (GetPart(Weapon, 0) == 6)
@@ -1377,6 +1386,7 @@ const float GetProjectileDamage(int Weapon)
 		{
 			case DROIDTYPE_WALKER: return 6.0f;
 			case DROIDTYPE_STAR: return 14.0f;
+			case DROIDTYPE_CRAWLER: return 6.0f;
 			default: return 0.0f;
 		};
 	}
@@ -1505,6 +1515,7 @@ const float GetProjectileKnockback(int Weapon)
 		{
 			case DROIDTYPE_WALKER: return 1.0f;
 			case DROIDTYPE_STAR: return 2.0f;
+			case DROIDTYPE_CRAWLER: return 24.0f;
 			default: return 0.0f;
 		};
 	}

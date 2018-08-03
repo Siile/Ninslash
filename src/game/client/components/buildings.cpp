@@ -174,7 +174,8 @@ void CBuildings::RenderGenerator(const struct CNetObj_Building *pCurrent, const 
 			vec4 pc = CustomStuff()->m_LocalColor;
 			Graphics()->SetColor(pc.r, pc.g, pc.b, 1);
 		}
-		Graphics()->SetColor(0.5f, c, 1, 1);
+		else
+			Graphics()->SetColor(0.5f, c, 1, 1);
 	}
 	else
 		Graphics()->SetColor(0.5f, c, 1, 1);

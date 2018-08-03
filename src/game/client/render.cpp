@@ -1385,7 +1385,7 @@ void CRenderTools::RenderCrawlerDroid(vec2 Pos, int Anim, float Time, int Dir, f
 	if (Dir == 1)
 		Scale.x *= -1;
 	
-	mat33 TransformationWorld = CalcTransformationMatrix(Position, Scale, 0.0f);
+	mat33 TransformationWorld = CalcTransformationMatrix(Position, Scale, Angle);
 	
 	CSpineAnimation *pAnimation = 0x0;
 	
@@ -1475,6 +1475,8 @@ void CRenderTools::RenderCrawlerDroid(vec2 Pos, int Anim, float Time, int Dir, f
 						Graphics()->TextureSet(pPage->m_TexId);
 						Graphics()->QuadsBegin();
 						
+						Graphics()->SetColor(1, 1, 1, 1);
+						
 						if (SybsetType == 1)
 						{
 							Graphics()->QuadsSetSubsetFree(0, 0,1, 0, 0, 1, 1, 1);
@@ -1521,6 +1523,10 @@ void CRenderTools::RenderCrawlerLegs(CDroidAnim *pDroidAnim)
 {
 	//vec2 Pos = pDroidAnim->m_Pos;
 	int Dir = pDroidAnim->m_Dir;
+	const vec2 Offset = vec2(0, -32);
+	
+	if (abs(pDroidAnim->m_aVectorValue[CDroidAnim::ATTACH1_POS].x - pDroidAnim->m_aLegPos[0].x) > 300 || abs(pDroidAnim->m_aVectorValue[CDroidAnim::ATTACH1_POS].y - pDroidAnim->m_aLegPos[0].y) > 300)
+		return;	
 	
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_CRAWLER_LEG2].m_Id);
 	Graphics()->QuadsBegin();
@@ -1528,7 +1534,7 @@ void CRenderTools::RenderCrawlerLegs(CDroidAnim *pDroidAnim)
 	
 	for (int i = 0; i < 4; i++)
 	{
-		vec2 LegPos = pDroidAnim->m_aLegPos[i];
+		vec2 LegPos = pDroidAnim->m_aLegPos[i]+Offset;
 
 		vec2 p;
 
@@ -1573,10 +1579,28 @@ void CRenderTools::RenderCrawlerLegs(CDroidAnim *pDroidAnim)
 		
 	for (int i = 0; i < 4; i++)
 	{
+		/*
+		if (i == 0 || i == 1)
+		{
+			if (pDroidAnim->m_Dir == 1 && pDroidAnim->m_Anim == DROIDANIM_JUMPATTACK)
+				Graphics()->QuadsSetRotation(Angle+1.0f);
+			else
+				Graphics()->QuadsSetRotation(Angle-0.03f);
+		}
+		else
+		{
+			if (pDroidAnim->m_Dir == -1 && pDroidAnim->m_Anim == DROIDANIM_JUMPATTACK)
+				Graphics()->QuadsSetRotation(Angle-1.0f);
+			else
+				Graphics()->QuadsSetRotation(Angle+0.03f);
+		}
+		*/
+		
 		Graphics()->QuadsSetRotation(pDroidAnim->m_aLegAngle[i]);
+		
 		SelectSprite(SPRITE_CRAWLER_LEG, i < 2 ? SPRITE_FLAG_FLIP_X : 0);
 		
-		vec2 p = pDroidAnim->m_aLegPos[i];
+		vec2 p = pDroidAnim->m_aLegPos[i]+Offset;
 	
 		IGraphics::CQuadItem QuadItem(p.x, p.y, Size.x, Size.y);
 		Graphics()->QuadsDraw(&QuadItem, 1);

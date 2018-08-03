@@ -20,7 +20,7 @@ CCrawler::CCrawler(CGameWorld *pGameWorld, vec2 Pos)
 void CCrawler::Reset()
 {
 	m_Center = vec2(0, 0);
-	m_Health = 140;
+	m_Health = 500;
 	m_Pos = m_StartPos;
 	m_Status = DROIDSTATUS_IDLE;
 	m_Dir = -1;
@@ -43,54 +43,40 @@ void CCrawler::Reset()
 	m_AngleTimer = frandom()*pi;
 	m_DamageTakenTick = 0;
 	m_Move = 0;
+	m_JumpTick = 0;
+	m_JumpForce = 0.0f;
+	m_AttackCount = 0;
 }
 
 
 
-void CCrawler::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type)
+void CCrawler::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Weapon)
 {
-	// skip everything while spawning
-	//if (m_aStatus[STATUS_SPAWNING] > 0.0f)
-	//	return false;
-	
 	if (g_Config.m_SvOneHitKill)
 		Dmg = 1000;
 
 	vec2 DmgPos = m_Pos + m_Center;
 	
-	if (m_TargetIndex < 0 && frandom() < 0.3f)
-	{
-		SetState(CCrawler::TURN);
-		
-		if (m_AttackTimer > 0)
-			m_AttackTimer = 20;
-		else
-			m_AttackTimer--;
-	}
-	
-	// create healthmod indicator
-	if (Type == DAMAGETYPE_NORMAL)
+	// create damage indicator
+	if (WeaponElectroAmount(Weapon) > 0.0f)
+		m_Status = DROIDSTATUS_ELECTRIC;
+	else if (WeaponFlameAmount(Weapon) > 0.0f)
+		m_Status = DROIDSTATUS_HURT;
+	else
 	{
 		if (Pos.x != 0 && Pos.y != 0)
 			DmgPos = Pos;
-		//	DmgPos = (DmgPos + Pos) / 2.0f;
 		
 		GameServer()->CreateBuildingHit(DmgPos);
-
 		m_Status = DROIDSTATUS_HURT;
 	}
-	else
-	if (Type == DAMAGETYPE_ELECTRIC)
-	{
-		//GameServer()->SendEffect(m_pPlayer->GetCID(), EFFECT_ELECTRODAMAGE);
-		m_Status = DROIDSTATUS_ELECTRIC;
-	}
-	else if (Type == DAMAGETYPE_FLAME)
-		m_Status = DROIDSTATUS_HURT;
 	
 	GameServer()->CreateDamageInd(DmgPos, GetAngle(-Force), -Dmg, -1);
 	
 	m_Vel += Force*0.75f;
+	
+	if (length(m_Vel) > 20.0f)
+		m_Vel = normalize(m_Vel)*20.0f;
 	
 	m_Health -= Dmg;
 	
@@ -105,25 +91,6 @@ void CCrawler::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type)
 			if (pChr)
 				pChr->SetEmote(EMOTE_HAPPY, Server()->Tick() + Server()->TickSpeed());
 		}
-
-		m_DamageTakenTick = Server()->Tick();
-		
-		/*
-		GameServer()->CreateExplosion(m_Pos+m_Center, NEUTRAL_BASE, WEAPON_HAMMER, 0, false, false);
-		GameServer()->CreateSound(m_Pos+m_Center, SOUND_GRENADE_EXPLODE);
-		m_DeathTick = Server()->Tick();
-		
-		// random pickup drop
-		if (frandom()*10 < 4)
-			GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_AMMO, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
-		else if (frandom()*10 < 4)
-			GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_HEALTH, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);
-		else if (frandom()*10 < 4)
-			GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_ARMOR, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);			
-		else
-			GameServer()->m_pController->DropPickup(m_Pos + vec2(0, -42), POWERUP_KIT, Force+vec2(frandom()*6.0-frandom()*6.0, frandom()*6.0-frandom()*6.0), 0);			
-		*/
-		return;
 	}
 
 	m_DamageTakenTick = Server()->Tick();
@@ -143,25 +110,215 @@ void CCrawler::MoveDead()
 void CCrawler::Move()
 {
 	m_Vel.y += 0.8f;
-	m_Vel *= 0.97f;
+	m_Vel *= 0.99f;
 	
-	GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(80.0f, 80.0f), 0, false);
+	GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(60.0f, 60.0f), 0, false);
 	
-	if (!m_Move)
-		m_Move = frandom() < 0.5f ? -1 : 1;
+	if (abs(m_Vel.x) < 1.0f && frandom() < 0.015f)
+		m_Move = (frandom() < 0.5f) ? -1 : 1;
 	
-	m_Vel.x += m_Move * 1.0f;
+	const int OffY = m_JumpTick ? 50 : 80;
+	
+	vec2 To = m_Pos + vec2(0, OffY);
+	
+	if (GameServer()->Collision()->IntersectLine(m_Pos, To, 0x0, &To))
+	{
+		float VelY = m_Pos.y-(To.y-OffY)*0.0002f;
+		
+		if (VelY > 0.0f && !m_JumpTick)
+		{
+			m_Vel.y -= min(1.4f, VelY);
+			m_Vel.y *= 0.99f;
+		}
+		
+		m_Vel.x *= 0.8f;
+		
+		if (abs(m_Vel.x) < 8.0f)
+			m_Vel.x += m_Move * 0.9f;
+		
+		if (!m_JumpTick && frandom() < 0.02f)
+		{
+			m_JumpTick = Server()->Tick() + Server()->TickSpeed()*0.25f;
+		}
+		
+		if (m_JumpTick && m_JumpTick < Server()->Tick())
+		//if (m_JumpTick && abs(m_Pos.y - (To.y-5)) < 10.0f)
+		{
+			//m_Vel.y = -16;
+			m_JumpForce = -7.0f;
+			
+			//if (abs(m_Vel.x) < 10.0f)
+			//	m_Vel.x *= 1.25f;
+			//m_JumpTick = 0;
+		}
+		
+		m_Vel.y += m_JumpForce;
+		m_Vel.x -= m_JumpForce*m_Move*0.25f;
+		
+		if (m_JumpForce < -0.1f)
+			m_Anim = DROIDANIM_JUMPATTACK;
+		else
+			m_Anim = DROIDANIM_ATTACK;
+	}
+	else if (m_JumpTick && m_JumpTick < Server()->Tick())
+		m_JumpTick = 0;
+	else if (frandom() < 0.01f)
+		m_Vel.x += (frandom()-frandom()) * 2.0f;
+	
+	m_Vel.x -= m_JumpForce*m_Move*0.1f;
+	m_JumpForce *= 0.9f;
+	
+	// attack
+	if (m_Anim == DROIDANIM_JUMPATTACK || m_Anim == DROIDANIM_ATTACK)
+	{
+		if (m_AttackCount++ > 3)
+		{
+			m_AttackCount = 0;
+			vec2 ProjPos = To+vec2(m_Move*54.0f, -20.0f);
+			GameServer()->CreateProjectile(NEUTRAL_BASE, GetDroidWeapon(m_Type), 0, ProjPos, normalize(m_Pos - ProjPos), m_Pos);
+		}
+	}
+
+	//	GameServer()->CreateBuildingHit(To+vec2(m_Move*60.0f, -20.0f));
 }
 
 void CCrawler::Tick()
 {
-
-	if (!Target())
-		FindTarget();
-		
-	m_Target = (m_NewTarget+m_Target)/3;
+	//m_Target = (m_NewTarget+m_Target)/3;
 	
-	Move();
+	//Move();
+	
+	m_Vel.y += 0.8f;
+	m_Vel *= 0.99f;
+	
+	GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(60.0f, 60.0f), 0, false);
+	
+	const int OffY = m_JumpTick ? 50 : 80;
+	
+	vec2 To = m_Pos + vec2(0, OffY);
+	
+	if (m_Health <= 0)
+	{
+		float OldVelY = m_Vel.y;
+		
+		if (Server()->Tick() > m_DamageTakenTick+30 || OldVelY > 12.0f)
+		{
+			if (Server()->Tick() > m_DamageTakenTick+90 || abs(m_Vel.y) < 0.2f)
+			{
+				GameServer()->CreateExplosion(m_Pos+m_Center, TEAM_NEUTRAL, GetDroidWeapon(m_Type, true));
+				m_DeathTick = Server()->Tick();
+				
+				for (int i = 0; i < 3; i++)
+				{
+					if (frandom() < 0.3f)
+						GameServer()->m_pController->DropPickup(m_Pos + vec2(0, 0), POWERUP_AMMO, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), 0);
+					else if (frandom() < 0.3f)
+						GameServer()->m_pController->DropPickup(m_Pos + vec2(0, 0), POWERUP_ARMOR, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), 0);
+					else
+						GameServer()->m_pController->DropPickup(m_Pos + vec2(0, 0), POWERUP_KIT, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), 0);
+				}
+				
+				if (frandom() < 0.25f)
+					GameServer()->m_pController->DropWeapon(m_Pos, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_UPGRADE)));
+				else if (frandom() < 0.15f)
+					GameServer()->m_pController->DropWeapon(m_Pos, vec2(frandom()*6.0-frandom()*6.0, 0-frandom()*14.0), GameServer()->NewWeapon(GetStaticWeapon(SW_RESPAWNER)));
+				
+				GameServer()->m_World.DestroyEntity(this);
+				return;
+			}
+		}
+		
+		m_Status = DROIDSTATUS_TERMINATED;
+		return;
+	}
+	
+	if (GameServer()->Collision()->IntersectLine(m_Pos, To, 0x0, &To))
+	{
+		if (abs(m_Vel.x) < 1.0f && frandom() < 0.05f)
+			m_Move = (frandom() < 0.5f) ? -1 : 1;
+	
+		float VelY = m_Pos.y-(To.y-OffY)*0.0002f;
+		
+		if (VelY > 0.0f && !m_JumpTick)
+		{
+			m_Vel.y -= min(1.4f, VelY);
+			m_Vel.y *= 0.99f;
+		}
+		
+		m_Vel.x *= 0.8f;
+		
+		if (m_Anim == DROIDANIM_ATTACK)
+		{
+			if (abs(m_Vel.x) < 15.0f)
+				m_Vel.x += m_Move * 1.8f;
+		}
+		else if (abs(m_Vel.x) < 8.0f)
+			m_Vel.x += m_Move * 0.9f;
+		
+		if (!m_JumpTick && (frandom() < 0.01f || (abs(m_Vel.x) < 0.15f && frandom() < 0.4f) || (abs(m_Target.x) > 300 && frandom() < 0.05f)))
+		{
+			m_JumpTick = Server()->Tick() + Server()->TickSpeed()*0.25f;
+		}
+		
+		if (m_JumpTick && m_JumpTick < Server()->Tick())
+		//if (m_JumpTick && abs(m_Pos.y - (To.y-5)) < 10.0f)
+		{
+			//m_Vel.y = -16;
+			if (abs(m_Target.x) > 300)
+				m_JumpForce = -5.0f;
+			else
+				m_JumpForce = -7.0f-frandom()*3.0f;
+			
+			//if (abs(m_Vel.x) < 10.0f)
+			//	m_Vel.x *= 1.25f;
+			//m_JumpTick = 0;
+		}
+		
+		m_Vel.y += m_JumpForce;
+		m_Vel.x -= m_JumpForce*m_Move*0.25f;
+		
+		if (m_JumpForce < -0.1f)
+			m_Anim = DROIDANIM_JUMPATTACK;
+		else if (abs(m_Target.x) > 20 && abs(m_Target.x) < 400)
+			m_Anim = DROIDANIM_ATTACK;
+		else
+			m_Anim = DROIDANIM_IDLE;
+	}
+	else if (m_JumpTick && m_JumpTick < Server()->Tick())
+		m_JumpTick = 0;
+	else if (frandom() < 0.02f)
+		m_Vel.x += (frandom()-frandom()) * 2.0f;
+	
+	m_Vel.x -= m_JumpForce*m_Move*0.1f;
+	m_JumpForce *= 0.9f;
+	
+
+	
+	m_Dir = m_Move;
+	
+	if (Target())
+	{
+		
+	}
+	else
+	{
+		FindTarget();
+		m_Anim = DROIDANIM_IDLE;
+	}
+	
+	// attack
+	if (m_Anim == DROIDANIM_JUMPATTACK || m_Anim == DROIDANIM_ATTACK)
+	{
+		if (m_AttackCount++ > 3)
+		{
+			m_AttackCount = 0;
+			vec2 ProjPos = To+vec2(m_Move*54.0f, -20.0f);
+			GameServer()->CreateProjectile(NEUTRAL_BASE, GetDroidWeapon(m_Type), 0, ProjPos, normalize(m_Pos - ProjPos), m_Pos);
+		}
+	}
+	
+	if(Server()->Tick() > m_DamageTakenTick+15)
+		m_Status = DROIDSTATUS_IDLE;
 	
 	/*
 	vec2 To = m_Pos+vec2(frandom()-frandom(), frandom()-frandom())*500;
@@ -296,7 +453,7 @@ void CCrawler::Fire()
 
 bool CCrawler::Target()
 {
-	vec2 TurretPos = m_Pos+m_Center;
+	vec2 TurretPos = m_Pos;
 	
 	if (m_TargetIndex >= 0 && m_TargetIndex < MAX_CLIENTS)
 	{
@@ -307,6 +464,16 @@ bool CCrawler::Target()
 		if (!pCharacter->IsAlive() || pCharacter->Invisible())
 			return false;
 		
+		if (m_Move == -1 && pCharacter->m_Pos.x > m_Pos.x && frandom() < 0.15f)
+		{
+			m_Move = 1;
+		}
+		if (m_Move == 1 && pCharacter->m_Pos.x < m_Pos.x && frandom() < 0.15f)
+		{
+			m_Move = -1;
+		}
+		
+		/*
 		if ((m_Dir < 0 && pCharacter->m_Pos.x > m_Pos.x) || 
 			(m_Dir > 0 && pCharacter->m_Pos.x < m_Pos.x))
 		{
@@ -314,16 +481,19 @@ bool CCrawler::Target()
 			m_State = CCrawler::IDLE;
 			m_StateChangeTick = Server()->Tick() + Server()->TickSpeed() * (1 + frandom());
 		}
+		*/
 
-		int Distance = distance(pCharacter->m_Pos, TurretPos);
-		if (Distance < 700 && !GameServer()->Collision()->FastIntersectLine(pCharacter->m_Pos+vec2(0, -24), TurretPos))
+		int Distance = distance(pCharacter->m_Pos, m_Pos);
+		if (Distance < 700 && !GameServer()->Collision()->FastIntersectLine(pCharacter->m_Pos+vec2(0, -24), m_Pos))
 		{
-			vec2 r = vec2(sin(Server()->Tick()*0.075f), cos(Server()->Tick()*0.075f))*Distance*0.1f;
-			m_NewTarget = r + TurretPos - ((pCharacter->m_Pos+vec2(0, -24)) + pCharacter->GetCore().m_Vel * 2.0f);
+			m_Target = pCharacter->m_Pos - m_Pos;
 			return true;
 		}
 		else
+		{
+			m_Target = vec2(0, 0);
 			return false;
+		}
 	}
 	
 	return false;
@@ -335,7 +505,6 @@ bool CCrawler::FindTarget()
 	m_TargetIndex = -1;
 	CCharacter *pClosestCharacter = NULL;
 	int ClosestDistance = 0;
-	vec2 TurretPos = m_Pos+vec2(0, -67);
 	
 	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -349,18 +518,17 @@ bool CCrawler::FindTarget()
 		if (GameServer()->m_pController->IsCoop() && pCharacter->m_IsBot)
 			continue;
 			
-		//if ((m_Dir < 0 && pCharacter->m_Pos.x > m_Pos.x) || 
-		//	(m_Dir > 0 && pCharacter->m_Pos.x < m_Pos.x))
-		//	continue;
-			
-		int Distance = distance(pCharacter->m_Pos, TurretPos);
-		if (Distance < 800 && !GameServer()->Collision()->FastIntersectLine(pCharacter->m_Pos+vec2(0, -24), TurretPos))
+		if (abs(m_Pos.x - pCharacter->m_Pos.x) < 500 && abs(m_Pos.y - pCharacter->m_Pos.y) < 120)
 		{
-			if (!pClosestCharacter || Distance < ClosestDistance)
+			if (!GameServer()->Collision()->FastIntersectLine(pCharacter->m_Pos+vec2(0, -24), m_Pos))
 			{
-				pClosestCharacter = pCharacter;
-				ClosestDistance = Distance;
-				m_TargetIndex = i;
+				int Distance = distance(pCharacter->m_Pos, m_Pos);
+				if (!pClosestCharacter || Distance < ClosestDistance)
+				{
+					pClosestCharacter = pCharacter;
+					ClosestDistance = Distance;
+					m_TargetIndex = i;
+				}
 			}
 		}
 	}

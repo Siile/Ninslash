@@ -15,7 +15,7 @@ public:
 	virtual void Tick();
 	virtual void TickPaused();
 
-	virtual void TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Type = DAMAGETYPE_NORMAL);
+	virtual void TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Weapon);
 
 private:
 	bool FindTarget();
@@ -29,6 +29,11 @@ private:
 	
 	vec2 m_MoveTarget;
 	float m_AngleTimer;
+	
+	int m_AttackCount;
+	
+	int m_JumpTick;
+	float m_JumpForce;
 };
 
 #endif

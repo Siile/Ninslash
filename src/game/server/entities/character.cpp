@@ -186,7 +186,8 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	}
 	else
 	{
-		//m_apWeapon[0] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(2, 1), 15));
+		//m_apWeapon[0] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 4), 10));
+		//m_apWeapon[1] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(4, 2), 10));
 		//m_apWeapon[1] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 3), 15));
 	}
 	

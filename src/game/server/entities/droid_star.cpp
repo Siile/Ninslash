@@ -85,6 +85,9 @@ void CStar::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Weapon)
 	
 	m_Vel += Force*0.75f;
 	
+	if (length(m_Vel) > 20.0f)
+		m_Vel = normalize(m_Vel)*20.0f;
+	
 	m_Health -= Dmg;
 	
 	

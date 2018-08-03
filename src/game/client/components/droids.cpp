@@ -188,15 +188,16 @@ void CDroids::RenderCrawler(const CNetObj_Droid *pPrev, const CNetObj_Droid *pCu
 	
 	pDroidAnim->m_Dir = pCurrent->m_Dir*-1;
 	pDroidAnim->m_Pos = Pos;
-	pDroidAnim->m_Vel = vec2(pPrev->m_X - pCurrent->m_X, 0.0f);
-	
+	pDroidAnim->m_Vel = vec2(pPrev->m_X - pCurrent->m_X, pPrev->m_Y - pCurrent->m_Y);
+	pDroidAnim->m_Status = pCurrent->m_Status;
+	pDroidAnim->m_Anim = pCurrent->m_Anim;
 	
 	// check bone & slot positions
-	RenderTools()->RenderCrawlerDroid(Pos, Anim, Time, pCurrent->m_Dir*-1, pCurrent->m_Angle, pCurrent->m_Status, pDroidAnim, false);
+	RenderTools()->RenderCrawlerDroid(Pos, Anim, Time, pCurrent->m_Dir*-1, pDroidAnim->m_DisplayAngle*pCurrent->m_Dir, pCurrent->m_Status, pDroidAnim, false);
 	
 	// render
 	RenderTools()->RenderCrawlerLegs(pDroidAnim);
-	RenderTools()->RenderCrawlerDroid(Pos, Anim, Time, pCurrent->m_Dir*-1, pCurrent->m_Angle, pCurrent->m_Status, pDroidAnim);
+	RenderTools()->RenderCrawlerDroid(Pos, Anim, Time, pCurrent->m_Dir*-1, pDroidAnim->m_DisplayAngle*pCurrent->m_Dir, pCurrent->m_Status, pDroidAnim);
 	RenderTools()->Graphics()->ShaderEnd();
 
 	
