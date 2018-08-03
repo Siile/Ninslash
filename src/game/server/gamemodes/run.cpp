@@ -53,7 +53,7 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	
 	int Level = g_Config.m_SvMapGenLevel;
 	
-	m_GroupsLeft = 2 + min(3, Level/4) + (Level%5)/3;
+	m_GroupsLeft = 2 + min(3, Level/4) + (Level%5)/4;
 	
 	m_TriggerLevel = 0;
 	m_Group = 0;

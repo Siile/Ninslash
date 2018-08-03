@@ -1097,8 +1097,8 @@ void CMapGen::GenerateLevel()
 	if (Level%10 == 0)
 		for (int i = 0; i < 9; i++)
 			GenerateCrawlerDroid(pTiles);
-	else if (Level > 10)
-		for (int i = 0; i < min(15, Level/4); i++)
+	else if (Level > 3)
+		for (int i = 0; i < min(15, 1+Level/4); i++)
 			GenerateCrawlerDroid(pTiles);
 	
 	
