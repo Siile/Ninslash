@@ -191,6 +191,7 @@ void CDroids::RenderCrawler(const CNetObj_Droid *pPrev, const CNetObj_Droid *pCu
 	pDroidAnim->m_Vel = vec2(pPrev->m_X - pCurrent->m_X, pPrev->m_Y - pCurrent->m_Y);
 	pDroidAnim->m_Status = pCurrent->m_Status;
 	pDroidAnim->m_Anim = pCurrent->m_Anim;
+	pDroidAnim->m_Type = pCurrent->m_Type;
 	
 	// check bone & slot positions
 	RenderTools()->RenderCrawlerDroid(Pos, Anim, Time, pCurrent->m_Dir*-1, pDroidAnim->m_DisplayAngle*pCurrent->m_Dir, pCurrent->m_Status, pDroidAnim, false);
@@ -201,8 +202,11 @@ void CDroids::RenderCrawler(const CNetObj_Droid *pPrev, const CNetObj_Droid *pCu
 	RenderTools()->Graphics()->ShaderEnd();
 
 	
-	if (pCurrent->m_Status == DROIDSTATUS_TERMINATED)
+	if (pCurrent->m_Type == DROIDTYPE_CRAWLER && pCurrent->m_Status == DROIDSTATUS_TERMINATED)
 		m_pClient->m_pEffects->Electrospark(Pos + vec2(frandom()-frandom(), frandom()-frandom())*frandom()*90, 32 + frandom()*32, vec2(frandom()-frandom(), frandom()-frandom()) * 10.0f);
+
+	if (pCurrent->m_Type == DROIDTYPE_BOSSCRAWLER && pCurrent->m_Status == DROIDSTATUS_TERMINATED)
+		m_pClient->m_pEffects->Electrospark(Pos + vec2(frandom()-frandom(), frandom()-frandom())*frandom()*140, 64 + frandom()*64, vec2(frandom()-frandom(), frandom()-frandom()) * 20.0f);
 }
 
 
@@ -234,6 +238,9 @@ void CDroids::OnRender()
 					RenderStar((const CNetObj_Droid *)pPrev, (const CNetObj_Droid *)pData, Item.m_ID);
 					break;
 				case DROIDTYPE_CRAWLER:
+					RenderCrawler((const CNetObj_Droid *)pPrev, (const CNetObj_Droid *)pData, Item.m_ID);
+					break;
+				case DROIDTYPE_BOSSCRAWLER:
 					RenderCrawler((const CNetObj_Droid *)pPrev, (const CNetObj_Droid *)pData, Item.m_ID);
 					break;
 				default:;

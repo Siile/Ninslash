@@ -15,6 +15,7 @@ CDroidAnim::~CDroidAnim()
 void CDroidAnim::Reset()
 {
 	m_Status = 0;
+	m_Type = 0;
 	
 	for (int i = 0; i < NUM_DROID_VALUE; i++)
 		m_aValue[i] = 0.0f;
@@ -48,7 +49,7 @@ void CDroidAnim::Reset()
 
 void CDroidAnim::Tick()
 {
-	if (!m_pClient)
+	if (!m_pClient || !m_Type)
 		return;
 	
 	/*
@@ -58,6 +59,7 @@ void CDroidAnim::Tick()
 	m_aLegTargetPos[3] = m_Pos + vec2(50, 120);
 	*/
 	
+	const float Scale = m_Type == DROIDTYPE_BOSSCRAWLER ? 2.0f : 1.0f;
 	
 	const float la = m_Angle*1.4f;
 	const float la2 = m_Angle*1.4f+pi;
@@ -72,10 +74,10 @@ void CDroidAnim::Tick()
 	if (m_Anim == DROIDANIM_IDLE)
 	{
 		
-		m_aLegTargetPos[0] = m_Pos + vec2(-50+OffX1, 64+OffY1);
-		m_aLegTargetPos[1] = m_Pos + vec2(-30+OffX2, 64+OffY2);
-		m_aLegTargetPos[2] = m_Pos + vec2(30+OffX2, 64+OffY2);
-		m_aLegTargetPos[3] = m_Pos + vec2(50+OffX1, 64+OffY1);
+		m_aLegTargetPos[0] = m_Pos + vec2(-50+OffX1, 64+OffY1)*Scale;
+		m_aLegTargetPos[1] = m_Pos + vec2(-30+OffX2, 64+OffY2)*Scale;
+		m_aLegTargetPos[2] = m_Pos + vec2(30+OffX2, 64+OffY2)*Scale;
+		m_aLegTargetPos[3] = m_Pos + vec2(50+OffX1, 64+OffY1)*Scale;
 	}
 	else if (m_Anim == DROIDANIM_ATTACK)
 	{
@@ -88,17 +90,17 @@ void CDroidAnim::Tick()
 				const float OffX4 = -cos(la4)*64;
 				const float OffY4 = sin(la4)*50;
 				
-				m_aLegTargetPos[0] = m_Pos + vec2(-50+OffX3, 64+OffY3);
-				m_aLegTargetPos[1] = m_Pos + vec2(-30+OffX4, 64+OffY4);
-				m_aLegTargetPos[2] = m_Pos + vec2(20+OffX2, 64+OffY2);
-				m_aLegTargetPos[3] = m_Pos + vec2(40+OffX1, 64+OffY1);
+				m_aLegTargetPos[0] = m_Pos + vec2(-50+OffX3, 64+OffY3)*Scale;
+				m_aLegTargetPos[1] = m_Pos + vec2(-30+OffX4, 64+OffY4)*Scale;
+				m_aLegTargetPos[2] = m_Pos + vec2(20+OffX2, 64+OffY2)*Scale;
+				m_aLegTargetPos[3] = m_Pos + vec2(40+OffX1, 64+OffY1)*Scale;
 			}
 			else
 			{
-				m_aLegTargetPos[0] = m_Pos + vec2(-40+OffX1, 64+OffY1);
-				m_aLegTargetPos[1] = m_Pos + vec2(-20+OffX2, 64+OffY2);
-				m_aLegTargetPos[2] = m_Pos + vec2(20+OffX2, 64+OffY2);
-				m_aLegTargetPos[3] = m_Pos + vec2(40+OffX1, 64+OffY1);
+				m_aLegTargetPos[0] = m_Pos + vec2(-40+OffX1, 64+OffY1)*Scale;
+				m_aLegTargetPos[1] = m_Pos + vec2(-20+OffX2, 64+OffY2)*Scale;
+				m_aLegTargetPos[2] = m_Pos + vec2(20+OffX2, 64+OffY2)*Scale;
+				m_aLegTargetPos[3] = m_Pos + vec2(40+OffX1, 64+OffY1)*Scale;
 			}
 		}
 		else
@@ -110,17 +112,17 @@ void CDroidAnim::Tick()
 				const float OffX4 = sin(la4)*64;
 				const float OffY4 = cos(la4)*50;
 				
-				m_aLegTargetPos[0] = m_Pos + vec2(-40+OffX1, 64+OffY1);
-				m_aLegTargetPos[1] = m_Pos + vec2(-20+OffX2, 64+OffY2);
-				m_aLegTargetPos[2] = m_Pos + vec2(30+OffX3, 64+OffY3);
-				m_aLegTargetPos[3] = m_Pos + vec2(50+OffX4, 64+OffY4);
+				m_aLegTargetPos[0] = m_Pos + vec2(-40+OffX1, 64+OffY1)*Scale;
+				m_aLegTargetPos[1] = m_Pos + vec2(-20+OffX2, 64+OffY2)*Scale;
+				m_aLegTargetPos[2] = m_Pos + vec2(30+OffX3, 64+OffY3)*Scale;
+				m_aLegTargetPos[3] = m_Pos + vec2(50+OffX4, 64+OffY4)*Scale;
 			}
 			else
 			{
-				m_aLegTargetPos[0] = m_Pos + vec2(-40+OffX1, 64+OffY1);
-				m_aLegTargetPos[1] = m_Pos + vec2(-20+OffX2, 64+OffY2);
-				m_aLegTargetPos[2] = m_Pos + vec2(20+OffX2, 64+OffY2);
-				m_aLegTargetPos[3] = m_Pos + vec2(40+OffX1, 64+OffY1);
+				m_aLegTargetPos[0] = m_Pos + vec2(-40+OffX1, 64+OffY1)*Scale;
+				m_aLegTargetPos[1] = m_Pos + vec2(-20+OffX2, 64+OffY2)*Scale;
+				m_aLegTargetPos[2] = m_Pos + vec2(20+OffX2, 64+OffY2)*Scale;
+				m_aLegTargetPos[3] = m_Pos + vec2(40+OffX1, 64+OffY1)*Scale;
 			}
 		}
 	}
@@ -135,17 +137,17 @@ void CDroidAnim::Tick()
 				const float OffX4 = -cos(la4)*60;
 				const float OffY4 = sin(la4)*40;
 				
-				m_aLegTargetPos[0] = m_Pos + vec2(-50+OffX3, 64+OffY3);
-				m_aLegTargetPos[1] = m_Pos + vec2(-30+OffX4, 64+OffY4);
-				m_aLegTargetPos[2] = m_Pos + vec2(20+OffX2, 64+OffY2);
-				m_aLegTargetPos[3] = m_Pos + vec2(40+OffX1, 64+OffY1);
+				m_aLegTargetPos[0] = m_Pos + vec2(-50+OffX3, 64+OffY3)*Scale;
+				m_aLegTargetPos[1] = m_Pos + vec2(-30+OffX4, 64+OffY4)*Scale;
+				m_aLegTargetPos[2] = m_Pos + vec2(20+OffX2, 64+OffY2)*Scale;
+				m_aLegTargetPos[3] = m_Pos + vec2(40+OffX1, 64+OffY1)*Scale;
 			}
 			else
 			{
-				m_aLegTargetPos[0] = m_Pos + vec2(-40+OffX1, 64+OffY1);
-				m_aLegTargetPos[1] = m_Pos + vec2(-20+OffX2, 64+OffY2);
-				m_aLegTargetPos[2] = m_Pos + vec2(20+OffX2, 64+OffY2);
-				m_aLegTargetPos[3] = m_Pos + vec2(40+OffX1, 64+OffY1);
+				m_aLegTargetPos[0] = m_Pos + vec2(-40+OffX1, 64+OffY1)*Scale;
+				m_aLegTargetPos[1] = m_Pos + vec2(-20+OffX2, 64+OffY2)*Scale;
+				m_aLegTargetPos[2] = m_Pos + vec2(20+OffX2, 64+OffY2)*Scale;
+				m_aLegTargetPos[3] = m_Pos + vec2(40+OffX1, 64+OffY1)*Scale;
 			}
 		}
 		else
@@ -157,24 +159,24 @@ void CDroidAnim::Tick()
 				const float OffX4 = sin(la4)*60;
 				const float OffY4 = cos(la4)*40;
 				
-				m_aLegTargetPos[0] = m_Pos + vec2(-40+OffX1, 64+OffY1);
-				m_aLegTargetPos[1] = m_Pos + vec2(-20+OffX2, 64+OffY2);
-				m_aLegTargetPos[2] = m_Pos + vec2(30+OffX3, 64+OffY3);
-				m_aLegTargetPos[3] = m_Pos + vec2(50+OffX4, 64+OffY4);
+				m_aLegTargetPos[0] = m_Pos + vec2(-40+OffX1, 64+OffY1)*Scale;
+				m_aLegTargetPos[1] = m_Pos + vec2(-20+OffX2, 64+OffY2)*Scale;
+				m_aLegTargetPos[2] = m_Pos + vec2(30+OffX3, 64+OffY3)*Scale;
+				m_aLegTargetPos[3] = m_Pos + vec2(50+OffX4, 64+OffY4)*Scale;
 			}
 			else
 			{
-				m_aLegTargetPos[0] = m_Pos + vec2(-40+OffX1, 64+OffY1);
-				m_aLegTargetPos[1] = m_Pos + vec2(-20+OffX2, 64+OffY2);
-				m_aLegTargetPos[2] = m_Pos + vec2(20+OffX2, 64+OffY2);
-				m_aLegTargetPos[3] = m_Pos + vec2(40+OffX1, 64+OffY1);
+				m_aLegTargetPos[0] = m_Pos + vec2(-40+OffX1, 64+OffY1)*Scale;
+				m_aLegTargetPos[1] = m_Pos + vec2(-20+OffX2, 64+OffY2)*Scale;
+				m_aLegTargetPos[2] = m_Pos + vec2(20+OffX2, 64+OffY2)*Scale;
+				m_aLegTargetPos[3] = m_Pos + vec2(40+OffX1, 64+OffY1)*Scale;
 			}
 		}
 	}
 	
-	m_Angle += 0.01f*clamp(m_Vel.x, -6.0f, 6.0f);
+	m_Angle += 0.01f*clamp(m_Vel.x/Scale, -6.0f, 6.0f);
 	
-	m_TargetDisplayAngle = ((m_aLegPos[2].y+m_aLegPos[3].y)-(m_aLegPos[0].y+m_aLegPos[1].y))*0.01f - m_Vel.x*0.02f;
+	m_TargetDisplayAngle = (((m_aLegPos[2].y+m_aLegPos[3].y)-(m_aLegPos[0].y+m_aLegPos[1].y))*0.01f - m_Vel.x*0.02f)/Scale;
 	m_DisplayAngle -= (m_DisplayAngle - m_TargetDisplayAngle) / 6.0f;
 	
 	
@@ -211,17 +213,17 @@ void CDroidAnim::Tick()
 		}
 		*/
 		
-		if (abs(m_aLegPos[i].x - m_aLegTargetPos[i].x) > 120 || abs(m_aLegPos[i].y - m_aLegTargetPos[i].y) > 120)
+		if (abs(m_aLegPos[i].x - m_aLegTargetPos[i].x) > 120*Scale || abs(m_aLegPos[i].y - m_aLegTargetPos[i].y) > 120*Scale)
 			m_aLegPos[i] = m_aLegTargetPos[i];
 		
-		if (m_aLegPos[i].x - m_aLegTargetPos[i].x < -70.0f)
-			m_aLegPos[i].x = m_aLegTargetPos[i].x - 70;
-		if (m_aLegPos[i].x - m_aLegTargetPos[i].x > 70.0f)
-			m_aLegPos[i].x = m_aLegTargetPos[i].x + 70;
-		if (m_aLegPos[i].y - m_aLegTargetPos[i].y < -70.0f)
-			m_aLegPos[i].y = m_aLegTargetPos[i].y - 70;
-		if (m_aLegPos[i].y - m_aLegTargetPos[i].y > 70.0f)
-			m_aLegPos[i].y = m_aLegTargetPos[i].y + 70;
+		if (m_aLegPos[i].x - m_aLegTargetPos[i].x < -70.0f*Scale)
+			m_aLegPos[i].x = m_aLegTargetPos[i].x - 70*Scale;
+		if (m_aLegPos[i].x - m_aLegTargetPos[i].x > 70.0f*Scale)
+			m_aLegPos[i].x = m_aLegTargetPos[i].x + 70*Scale;
+		if (m_aLegPos[i].y - m_aLegTargetPos[i].y < -70.0f*Scale)
+			m_aLegPos[i].y = m_aLegTargetPos[i].y - 70*Scale;
+		if (m_aLegPos[i].y - m_aLegTargetPos[i].y > 70.0f*Scale)
+			m_aLegPos[i].y = m_aLegTargetPos[i].y + 70*Scale;
 		
 		m_aLegVel[i] -= (m_aLegPos[i] - m_aLegTargetPos[i]) / 5.0f;
 		//m_aLegVel[i].y += 0.05f;
@@ -229,8 +231,8 @@ void CDroidAnim::Tick()
 		//m_aLegVel[i].y -= m_Vel.y*0.15f;
 		m_aLegVel[i] *= 0.9f;
 
-		if (length(m_aLegVel[i]) > 10.0f)
-			m_aLegVel[i] = normalize(m_aLegVel[i]) * 10.0f;
+		if (length(m_aLegVel[i]) > 10.0f*Scale)
+			m_aLegVel[i] = normalize(m_aLegVel[i]) * 10.0f*Scale;
 		
 		//m_aLegPos[i] += m_aLegVel[i];
 	
@@ -244,7 +246,7 @@ void CDroidAnim::Tick()
 		if (m_aLegVel[i].y < 0)
 		{
 			float VelY = m_aLegVel[i].y;
-			Collision()->MoveBox(&p, &m_aLegVel[i], vec2(10, 10), 0.0f, false);
+			Collision()->MoveBox(&p, &m_aLegVel[i], vec2(10, 10)*Scale, 0.0f, false);
 			
 			if (m_aLegVel[i].y != VelY)
 			{
@@ -253,7 +255,7 @@ void CDroidAnim::Tick()
 			}
 		}
 		else
-			Collision()->MoveBox(&p, &m_aLegVel[i], vec2(10, 10), 0.0f, false);
+			Collision()->MoveBox(&p, &m_aLegVel[i], vec2(10, 10)*Scale, 0.0f, false);
 		
 		//Collision()->IntersectLine(m_Pos, p, NULL, &p);
 		

@@ -500,6 +500,18 @@ void CMapGen::GenerateStarDroid(CGenLayer *pTiles)
 		return;
 	
 	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_DROID_STAR);
+	pTiles->Use(p.x, p.y);
+}
+
+void CMapGen::GenerateBossCrawlerDroid(CGenLayer *pTiles)
+{
+	ivec2 p = pTiles->GetOpenArea();
+	
+	if (p.x == 0)
+		return;
+	
+	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_DROID_BOSSCRAWLER);
+	pTiles->Use(p.x, p.y);
 }
 
 void CMapGen::GenerateCrawlerDroid(CGenLayer *pTiles)
@@ -1100,6 +1112,12 @@ void CMapGen::GenerateLevel()
 	else if (Level > 3)
 		for (int i = 0; i < min(15, 1+Level/4); i++)
 			GenerateCrawlerDroid(pTiles);
+	
+	if (Level%20 == 0)
+		GenerateBossCrawlerDroid(pTiles);
+	else if (Level > 20)
+		for (int i = 0; i < min(3, Level/5-3); i++)
+			GenerateBossCrawlerDroid(pTiles);
 	
 	
 	// lightning walls

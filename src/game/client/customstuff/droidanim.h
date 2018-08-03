@@ -54,6 +54,7 @@ public:
 	vec2 m_Pos;
 	vec2 m_Vel;
 	int m_Anim;
+	int m_Type;
 	
 	int m_Status;
 	

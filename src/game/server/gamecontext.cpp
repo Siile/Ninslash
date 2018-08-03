@@ -681,7 +681,7 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int Charge, vec
 		}
 	}
 	
-	if (IsDroid(Weapon) && GetDroidType(Weapon) == DROIDTYPE_CRAWLER)
+	if (IsDroid(Weapon) && (GetDroidType(Weapon) == DROIDTYPE_CRAWLER || GetDroidType(Weapon) == DROIDTYPE_BOSSCRAWLER))
 	{
 		CreateMeleeHit(DamageOwner, Weapon, Dmg, Pos, Direction, WeaponPos);
 	}

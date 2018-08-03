@@ -17,7 +17,7 @@ BallStatuses = ["STATIONARY", "SUPER"]
 Damagetypes = ["NORMAL", "FLAME", "ELECTRIC", "FLUID"]
 
 Droidstatus = ["IDLE", "HURT", "ELECTRIC", "TERMINATED"]
-Droidtype = ["WALKER", "STAR", "CRAWLER", "FLY"]
+Droidtype = ["WALKER", "STAR", "CRAWLER", "BOSSCRAWLER", "FLY"]
 Droidanim = ["IDLE", "MOVE", "ATTACK", "JUMPATTACK"]
 
 CoreAction = ["IDLE", "JUMP", "WALLJUMP", "ROLL", "SLIDE", "SLIDEKICK", "FALL", "JUMPPAD", "HANG"]
