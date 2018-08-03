@@ -1530,9 +1530,9 @@ const float GetProjectileKnockback(int Weapon)
 		if (Part1 == 1)
 		{
 			if (Part2 == 1) return 3.0f+Charge*4.0f;
-			if (Part2 == 2) return 2.0f;
+			if (Part2 == 2) return 2.0f+Charge*2.5f;
 			if (Part2 == 3) return 4.0f+Charge*4.0f;
-			if (Part2 == 4) return 2.0f;
+			if (Part2 == 4) return 2.0f+Charge*2.5f;
 		}
 		
 		if (Part1 == 2)
