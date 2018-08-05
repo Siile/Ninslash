@@ -852,8 +852,9 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon)
 		return;
 	
 	CCharacter *apEnts[MAX_CLIENTS];
-	float Radius = GetExplosionSize(Weapon)*0.7f;
-	float InnerRadius = Radius*0.5f;
+	const float Radius = GetExplosionSize(Weapon)*0.7f;
+	//const float InnerRadius = Radius < 200.0f ? Radius*(0.5f + (200.0f-Radius)/400.0f) : Radius*0.5f;
+	const float InnerRadius = Radius*0.5f;
 	
 	DamageBlocks(Pos, GetExplosionDamage(Weapon)*0.5f, Radius*0.8f);
 	

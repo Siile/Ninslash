@@ -2124,6 +2124,9 @@ void CRenderTools::SetShadersForWeapon(CPlayerInfo *pCustomPlayerInfo)
 
 void CRenderTools::SetShadersForWeapon(int Weapon, float Charge, float Visibility, float Electro, float Damage, float Deathray)
 {
+	if (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_CLUSTER && GetWeaponCharge(Weapon) == 15)
+		Weapon = GetStaticWeapon(SW_CLUSTER);
+	
 	vec2 ColorSwap = GetWeaponColorswap(Weapon);
 	
 	if (WeaponMaxLevel(Weapon) > 0)

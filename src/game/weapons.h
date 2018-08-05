@@ -54,7 +54,7 @@ enum WeaponBits
 	SW_MASK4,
 	SW_MASK5,
 	SW_INVIS,
-	SW_BUBBLER,
+	SW_CLUSTER,
 	SW_SHURIKEN,
 	SW_BOMB,
 	SW_BALL,
@@ -166,11 +166,12 @@ const int GetWeaponCost(int Weapon);
 const vec2 GetWeaponRenderOffset(int Weapon);
 const vec2 GetMuzzleRenderOffset(int Weapon);
 const vec2 GetProjectileOffset(int Weapon);
+const vec2 GetHandOffset(int Weapon);
 
 const float GetWeaponFireRate(int Weapon);
 const float GetWeaponKnockback(int Weapon);
 const bool GetWeaponFullAuto(int Weapon);
-const bool IsProjectileBouncy(int Weapon);
+const int IsProjectileBouncy(int Weapon);
 const bool IsExplosiveProjectile(int Weapon);
 const int GetWeaponMaxAmmo(int Weapon);
 const bool WeaponUseAmmo(int Weapon);

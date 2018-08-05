@@ -1306,7 +1306,8 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 				break;
 			}
 			
-			case SW_BUBBLER:
+			/*
+			case SW_CLUSTER:
 			{
 				// add smoke
 				for(int i = 0; i < 5; i++)
@@ -1331,7 +1332,9 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 				
 				break;
 			};
-
+			*/
+			
+			case SW_CLUSTER:
 			case SW_GRENADE1:
 			{
 				// add explosion

@@ -186,7 +186,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	}
 	else
 	{
-		//m_apWeapon[0] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 4), 10));
+		//m_apWeapon[0] = GameServer()->NewWeapon(GetStaticWeapon(SW_CLUSTER));
 		//m_apWeapon[1] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(4, 2), 10));
 		//m_apWeapon[1] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 3), 15));
 	}
@@ -2144,6 +2144,9 @@ bool CCharacter::TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos)
 {
 	// skip everything while spawning
 	if (m_aStatus[STATUS_SPAWNING] > 0.0f)
+		return false;
+	
+	if (!Dmg)
 		return false;
 
 	if (m_ShieldHealth <= 0)

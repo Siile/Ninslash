@@ -52,6 +52,9 @@ void CCrawler::Reset()
 
 void CCrawler::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Weapon)
 {
+	if (!Dmg)
+		return;
+	
 	if (g_Config.m_SvOneHitKill)
 		Dmg = 1000;
 

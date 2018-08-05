@@ -47,7 +47,7 @@ private:
 	float m_Force;
 	int m_StartTick;
 	int m_Explosive;
-	bool m_Bouncy;
+	int m_Bounces;
 	
 	//
 	int m_Part1;

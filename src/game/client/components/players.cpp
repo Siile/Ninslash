@@ -679,7 +679,8 @@ void CPlayers::RenderPlayer(
 				//RenderTools()->DrawSprite(p.x, p.y, g_pData->m_Weapons.m_aId[iw].m_VisualSize*WeaponScale);
 				
 				Graphics()->QuadsEnd();
-				RenderHand(&RenderInfo, p, Direction, -1.8f*pi/4, vec2(-26, 8));
+				
+				RenderHand(&RenderInfo, p, Direction, -1.8f*pi/4, GetHandOffset(Player.m_Weapon));
 				
 				// muzzle
 				

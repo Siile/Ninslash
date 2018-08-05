@@ -8,6 +8,7 @@
 #include "electro.h"
 #include "superexplosion.h"
 
+inline vec2 RandomDir() { return normalize(vec2(frandom()-0.5f, frandom()-0.5f)); }
 
 CProjectile::CProjectile(CGameWorld *pGameWorld, int Weapon, int Owner, vec2 Pos, vec2 Dir, vec2 Vel, int Span,
 		int Damage, int Explosive, float Force, int SoundImpact)
@@ -23,7 +24,7 @@ CProjectile::CProjectile(CGameWorld *pGameWorld, int Weapon, int Owner, vec2 Pos
 	m_SoundImpact = SoundImpact;
 	m_StartTick = Server()->Tick();
 	m_Explosive = Explosive;
-	m_Bouncy = false;
+	m_Bounces = 0;
 	m_Vel2 = Vel*30.0f;
 
 	m_ElectroTimer = 0;
@@ -48,7 +49,7 @@ void CProjectile::UpdateStats()
 	m_Part2 = GetPart(m_Weapon, 1);
 	m_Speed = GetProjectileSpeed(m_Weapon);
 	m_Curvature = GetProjectileCurvature(m_Weapon);
-	m_Bouncy = IsProjectileBouncy(m_Weapon);
+	m_Bounces = IsProjectileBouncy(m_Weapon);
 }
 
 
@@ -66,7 +67,7 @@ vec2 CProjectile::GetPos(float Time)
 // todo: fix broken bouncing
 bool CProjectile::Bounce(vec2 Pos)
 {
-	if (m_Bouncy)
+	if (m_Bounces-- > 0)
 	{
 		BounceTick = Server()->Tick();
 	
@@ -97,7 +98,10 @@ bool CProjectile::Bounce(vec2 Pos)
 				m_Direction.x *= -1;
 		}
 		
-		GameServer()->CreateSound(Pos, SOUND_BOUNCER_BOUNCE);
+		if (GetStaticType(m_Weapon) == SW_CLUSTER)
+			GameServer()->CreateSound(Pos, SOUND_SFX_BOUNCE1);
+		else
+			GameServer()->CreateSound(Pos, SOUND_BOUNCER_BOUNCE);
 		
 		return true;
 	}
@@ -232,6 +236,15 @@ void CProjectile::Tick()
 			vec2 Force = m_Direction * max(0.001f, m_Force);
 			Ball->AddForce(Force);
 			GameServer()->m_pController->m_LastBallToucher = m_Owner;
+		}
+		
+		// cluster grenades
+		if (IsStaticWeapon(m_Weapon) && GetStaticType(m_Weapon) == SW_CLUSTER && GetWeaponCharge(m_Weapon) < 15)
+		{
+			for (int i = 0; i < 1+GetWeaponLevelCharge(m_Weapon)*2.0f; i++)
+			{
+				GameServer()->CreateProjectile(m_Owner, GetChargedWeapon(GetStaticWeapon(SW_CLUSTER), 15), 0, PrevPos, normalize(RandomDir()), PrevPos);
+			}
 		}
 		
 		if (m_LifeSpan < 0)
