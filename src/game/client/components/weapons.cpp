@@ -65,6 +65,9 @@ void CWeapons::RenderWeapon(const CNetObj_Weapon *pPrev, const CNetObj_Weapon *p
 			ChargeLevel = 0.0f;
 	}
 	
+	if (GetStaticType(pCurrent->m_WeaponType) == SW_CLUSTER && GetWeaponCharge(pCurrent->m_WeaponType) == 15)
+		ChargeLevel = 0.0f;
+	
 	if (GetStaticType(pCurrent->m_WeaponType) == SW_BOMB)
 	{
 		ChargeLevel = min(Phase1Tick*0.0011f, 1.0f);

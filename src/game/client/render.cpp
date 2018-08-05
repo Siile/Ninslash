@@ -298,6 +298,9 @@ void CRenderTools::LoadSkeletonFromSpine(CAnimSkeletonInfo *pSkeleton,
 						else if (strcmp(pAnimAttachment->m_Name, "weapon_team") == 0)
 							pAnimAttachment->m_SpecialType = AST_WEAPON_TEAM;
 						
+						else if (strcmp(pAnimAttachment->m_Name, "eye") == 0)
+							pAnimAttachment->m_SpecialType = AST_EYE;
+						
 						else if (strcmp(pAnimAttachment->m_Name, "eyes") == 0)
 							pAnimAttachment->m_SpecialType = AST_EYES;
 						
@@ -1374,6 +1377,7 @@ void CRenderTools::RenderCrawlerDroid(vec2 Pos, int Anim, float Time, int Dir, f
 {
 	vec2 Position = Pos;
 	int Atlas = ATLAS_DROID_CRAWLER;
+	const int Type = pDroidAnim->m_Type;
 
 	CAnimSkeletonInfo *pSkeleton = Skelebank()->m_lSkeletons[Atlas];
 	CTextureAtlas *pAtlas = Skelebank()->m_lAtlases[Atlas];
@@ -1382,10 +1386,13 @@ void CRenderTools::RenderCrawlerDroid(vec2 Pos, int Anim, float Time, int Dir, f
 	
 	vec2 Scale = vec2(1.0f, 1.0f) * 0.4f;
 	
+	if (Type == DROIDTYPE_BOSSCRAWLER)
+		Scale *= 2.0f;
+	
 	if (Dir == 1)
 		Scale.x *= -1;
 	
-	mat33 TransformationWorld = CalcTransformationMatrix(Position, Scale, 0.0f);
+	mat33 TransformationWorld = CalcTransformationMatrix(Position, Scale, Angle);
 	
 	CSpineAnimation *pAnimation = 0x0;
 	
@@ -1475,6 +1482,14 @@ void CRenderTools::RenderCrawlerDroid(vec2 Pos, int Anim, float Time, int Dir, f
 						Graphics()->TextureSet(pPage->m_TexId);
 						Graphics()->QuadsBegin();
 						
+						if (Type == DROIDTYPE_BOSSCRAWLER)
+							Graphics()->SetColor(0.3f, 0.3f, 0.3f, 1);
+						else
+							Graphics()->SetColor(1, 1, 1, 1);
+						
+						if (pAttachment->m_SpecialType == AST_EYE)
+							Graphics()->SetColor(1, 1, 1, 1);
+						
 						if (SybsetType == 1)
 						{
 							Graphics()->QuadsSetSubsetFree(0, 0,1, 0, 0, 1, 1, 1);
@@ -1522,13 +1537,24 @@ void CRenderTools::RenderCrawlerLegs(CDroidAnim *pDroidAnim)
 	//vec2 Pos = pDroidAnim->m_Pos;
 	int Dir = pDroidAnim->m_Dir;
 	
+	const int Type = pDroidAnim->m_Type;
+	const float Scale = Type == DROIDTYPE_BOSSCRAWLER ? 2.0f : 1.0f;
+	const vec2 Offset = vec2(0, -32)*Scale*(0.8f+Scale*0.2f);
+	
+	if (abs(pDroidAnim->m_aVectorValue[CDroidAnim::ATTACH1_POS].x - pDroidAnim->m_aLegPos[0].x) > 300 || abs(pDroidAnim->m_aVectorValue[CDroidAnim::ATTACH1_POS].y - pDroidAnim->m_aLegPos[0].y) > 300)
+		return;	
+	
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_CRAWLER_LEG2].m_Id);
 	Graphics()->QuadsBegin();
-	Graphics()->SetColor(1, 1, 1, 1);
+	
+	if (Type == DROIDTYPE_BOSSCRAWLER)
+		Graphics()->SetColor(0.6f, 0.6f, 0.6f, 1);
+	else
+		Graphics()->SetColor(1, 1, 1, 1);
 	
 	for (int i = 0; i < 4; i++)
 	{
-		vec2 LegPos = pDroidAnim->m_aLegPos[i];
+		vec2 LegPos = pDroidAnim->m_aLegPos[i]+Offset;
 
 		vec2 p;
 
@@ -1544,7 +1570,7 @@ void CRenderTools::RenderCrawlerLegs(CDroidAnim *pDroidAnim)
 		float a3 = a+pi/2.0f;
 		float a4 = a+pi/2.0f;
 
-		float s1 = 4.0f;
+		float s1 = 4.0f * Scale;
 
 		vec2 p1 = LegPos+vec2(cos(a1), sin(a1))*s1;
 		vec2 p2 = p+vec2(cos(a2), sin(a2))*s1;
@@ -1569,14 +1595,37 @@ void CRenderTools::RenderCrawlerLegs(CDroidAnim *pDroidAnim)
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_CRAWLER_LEG1].m_Id);
 	Graphics()->QuadsBegin();
 		
-	vec2 Size = vec2(64, 256)*0.5f;
+	if (Type == DROIDTYPE_BOSSCRAWLER)
+		Graphics()->SetColor(0.6f, 0.6f, 0.6f, 1);
+	else
+		Graphics()->SetColor(1, 1, 1, 1);
+	
+	vec2 Size = vec2(64, 256)*0.5f * Scale;
 		
 	for (int i = 0; i < 4; i++)
 	{
+		/*
+		if (i == 0 || i == 1)
+		{
+			if (pDroidAnim->m_Dir == 1 && pDroidAnim->m_Anim == DROIDANIM_JUMPATTACK)
+				Graphics()->QuadsSetRotation(Angle+1.0f);
+			else
+				Graphics()->QuadsSetRotation(Angle-0.03f);
+		}
+		else
+		{
+			if (pDroidAnim->m_Dir == -1 && pDroidAnim->m_Anim == DROIDANIM_JUMPATTACK)
+				Graphics()->QuadsSetRotation(Angle-1.0f);
+			else
+				Graphics()->QuadsSetRotation(Angle+0.03f);
+		}
+		*/
+		
 		Graphics()->QuadsSetRotation(pDroidAnim->m_aLegAngle[i]);
+		
 		SelectSprite(SPRITE_CRAWLER_LEG, i < 2 ? SPRITE_FLAG_FLIP_X : 0);
 		
-		vec2 p = pDroidAnim->m_aLegPos[i];
+		vec2 p = pDroidAnim->m_aLegPos[i]+Offset;
 	
 		IGraphics::CQuadItem QuadItem(p.x, p.y, Size.x, Size.y);
 		Graphics()->QuadsDraw(&QuadItem, 1);
@@ -2075,6 +2124,9 @@ void CRenderTools::SetShadersForWeapon(CPlayerInfo *pCustomPlayerInfo)
 
 void CRenderTools::SetShadersForWeapon(int Weapon, float Charge, float Visibility, float Electro, float Damage, float Deathray)
 {
+	if (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_CLUSTER && GetWeaponCharge(Weapon) == 15)
+		Weapon = GetStaticWeapon(SW_CLUSTER);
+	
 	vec2 ColorSwap = GetWeaponColorswap(Weapon);
 	
 	if (WeaponMaxLevel(Weapon) > 0)

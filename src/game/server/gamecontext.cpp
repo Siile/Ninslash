@@ -519,7 +519,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 			if (GetStaticType(Weapon) == SW_FLAMER && Collision()->IntersectLine(Pos, pTarget->m_Pos, NULL, NULL))
 				continue;
 			
-			if (m_pController->IsCoop() && !pTarget->m_IsBot && !IsBot(DamageOwner))
+			if (m_pController->IsCoop() && !pTarget->m_IsBot && (DamageOwner >= 0 && !IsBot(DamageOwner)))
 				continue;
 			
 			
@@ -530,7 +530,7 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 				
 				m_aFlameHit[pTarget->GetPlayer()->GetCID()] = true;
 			}
-			else
+			else //if (!IsDroid(Weapon))
 			{
 				if (GetStaticType(Weapon) == SW_CHAINSAW || (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_TOOL))
 					CreateEffect(FX_BLOOD2, (Pos+pTarget->m_Pos)/2.0f + vec2(0, -4));
@@ -629,6 +629,9 @@ void CGameContext::CreateMeleeHit(int DamageOwner, int Weapon, float Dmg, vec2 P
 		}
 	}
 	
+	if (IsDroid(Weapon))
+		return;
+	
 	// droids & walkers
 	{
 		CDroid *apEnts[MAX_CLIENTS];
@@ -659,7 +662,7 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int Charge, vec
 {
 	// less damage for bots in co-op
 	float Dmg = 1.0f;
-	if (m_pController->IsCoop() && (DamageOwner < 0 || IsBot(DamageOwner)))
+	if (m_pController->IsCoop() && !IsDroid(Weapon) && (DamageOwner < 0 || IsBot(DamageOwner)))
 		Dmg = 0.5f;
 
 	vec2 Vel = vec2(0, 0);
@@ -676,6 +679,11 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int Charge, vec
 			//CreateMeleeHit(DamageOwner, Weapon, Dmg, Pos+GetProjectileOffset(Weapon)*Direction, Direction);
 			return;
 		}
+	}
+	
+	if (IsDroid(Weapon) && (GetDroidType(Weapon) == DROIDTYPE_CRAWLER || GetDroidType(Weapon) == DROIDTYPE_BOSSCRAWLER))
+	{
+		CreateMeleeHit(DamageOwner, Weapon, Dmg, Pos, Direction, WeaponPos);
 	}
 	
 	if (IsStaticWeapon(Weapon))
@@ -844,8 +852,9 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon)
 		return;
 	
 	CCharacter *apEnts[MAX_CLIENTS];
-	float Radius = GetExplosionSize(Weapon)*0.7f;
-	float InnerRadius = Radius*0.5f;
+	const float Radius = GetExplosionSize(Weapon)*0.7f;
+	//const float InnerRadius = Radius < 200.0f ? Radius*(0.5f + (200.0f-Radius)/400.0f) : Radius*0.5f;
+	const float InnerRadius = Radius*0.5f;
 	
 	DamageBlocks(Pos, GetExplosionDamage(Weapon)*0.5f, Radius*0.8f);
 	

@@ -140,8 +140,10 @@ void CBuildings::RenderShop(const CNetObj_Shop *pCurrent)
 }
 
 
-void CBuildings::RenderGenerator(const struct CNetObj_Building *pCurrent)
+void CBuildings::RenderGenerator(const struct CNetObj_Building *pCurrent, const CNetObj_Building *pPrev)
 {
+	vec2 Pos = mix(vec2(pPrev->m_X, pPrev->m_Y), vec2(pCurrent->m_X, pCurrent->m_Y), Client()->IntraGameTick());
+	
 	// render
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
 	Graphics()->QuadsBegin();
@@ -150,7 +152,7 @@ void CBuildings::RenderGenerator(const struct CNetObj_Building *pCurrent)
 	Graphics()->QuadsSetRotation(0);
 		
 	RenderTools()->SelectSprite(SPRITE_GENERATOR);
-	RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y, 192);
+	RenderTools()->DrawSprite(Pos.x, Pos.y, 192);
 	
 	float c = sin(CustomStuff()->m_SawbladeAngle*0.25f)*0.3f + 0.7f;
 	
@@ -172,24 +174,26 @@ void CBuildings::RenderGenerator(const struct CNetObj_Building *pCurrent)
 			vec4 pc = CustomStuff()->m_LocalColor;
 			Graphics()->SetColor(pc.r, pc.g, pc.b, 1);
 		}
+		else
+			Graphics()->SetColor(0.5f, c, 1, 1);
 	}
 	else
-		Graphics()->SetColor(0, c, 1, 1);
+		Graphics()->SetColor(0.5f, c, 1, 1);
 	
 	RenderTools()->SelectSprite(SPRITE_GENERATOR_COLOR);
-	RenderTools()->DrawSprite(pCurrent->m_X, pCurrent->m_Y, 192);
+	RenderTools()->DrawSprite(Pos.x, Pos.y, 192);
 	Graphics()->QuadsEnd();
 	
 	
 	bool Repair = pCurrent->m_Status & (1<<BSTATUS_REPAIR);
-	float Time = pCurrent->m_X * 0.432f + pCurrent->m_Y * 0.2354f + CustomStuff()->m_SawbladeAngle * 0.1f;
+	float Time = Pos.x * 0.432f + pCurrent->m_Y * 0.2354f + CustomStuff()->m_SawbladeAngle * 0.1f;
 	
 	if (Repair)
 	{
 		Time += CustomStuff()->m_SawbladeAngle * 0.15f;
 		
 		if (frandom() < 0.15f)
-			m_pClient->m_pEffects->Electrospark(vec2(pCurrent->m_X, pCurrent->m_Y)+vec2(frandom()-frandom(), frandom()-frandom()) * 50.0f, 40+frandom()*20, vec2(0, 0));
+			m_pClient->m_pEffects->Electrospark(vec2(Pos.x, Pos.y)+vec2(frandom()-frandom(), frandom()-frandom()) * 50.0f, 40+frandom()*20, vec2(0, 0));
 	}
 	
 	// repair sprite
@@ -201,7 +205,7 @@ void CBuildings::RenderGenerator(const struct CNetObj_Building *pCurrent)
 		
 		Graphics()->QuadsSetRotation(0);
 		
-		RenderTools()->DrawSprite(pCurrent->m_X-34, pCurrent->m_Y-52, 52);
+		RenderTools()->DrawSprite(Pos.x-34, Pos.y-52, 52);
 		Graphics()->QuadsEnd();
 	}
 }
@@ -794,7 +798,7 @@ void CBuildings::OnRender()
 				break;
 				
 			case BUILDING_GENERATOR:
-				RenderGenerator(pBuilding);
+				RenderGenerator(pBuilding, pPrev ? (const CNetObj_Building *)pPrev : pBuilding);
 				break;
 				
 			case BUILDING_SCREEN:

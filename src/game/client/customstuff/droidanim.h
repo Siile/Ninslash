@@ -53,14 +53,21 @@ public:
 	int m_Dir;
 	vec2 m_Pos;
 	vec2 m_Vel;
+	int m_Anim;
+	int m_Type;
+	
+	int m_Status;
 	
 	// crawlers
 	vec2 m_aLegTargetPos[4];
 	vec2 m_aLegPos[4];
 	float m_aLegAngle[4];
+	float m_aLegTargetAngle[4];
 	vec2 m_aLegVel[4];
 	
 	float m_Angle;
+	float m_DisplayAngle;
+	float m_TargetDisplayAngle;
 	
 	CDroidAnim(class CGameClient *pClient = NULL);
 	~CDroidAnim();

@@ -39,6 +39,7 @@ class CMapGen
 	void GenerateWalker(class CGenLayer *pTiles);
 	void GenerateStarDroid(class CGenLayer *pTiles);
 	void GenerateCrawlerDroid(class CGenLayer *pTiles);
+	void GenerateBossCrawlerDroid(class CGenLayer *pTiles);
 	void GenerateEnemySpawn(class CGenLayer *pTiles);
 	void GenerateHearts(class CGenLayer *pTiles);
 	void GenerateAmmo(class CGenLayer *pTiles);

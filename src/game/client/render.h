@@ -121,6 +121,7 @@ enum AttachmentSpecialTypes
 	AST_4_TEAM,
 	AST_WEAPON,
 	AST_WEAPON_TEAM,
+	AST_EYE,
 	AST_EYES,
 	AST_HAT,
 	AST_MASK,

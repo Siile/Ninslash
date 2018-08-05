@@ -122,7 +122,7 @@ inline vec2 CalcPos(vec2 Pos, vec2 Velocity, vec2 Velocity2, float Curvature, fl
 	//n.x += Velocity.x*Time + sin(Time*0.01f)*min(Time*0.02f, 12.0f)*Velocity.y;
 	//n.y += Velocity.y*Time + Curvature/10000*(Time*Time) + sin(Time*0.01f)*min(Time*0.02f, 12.0f)*Velocity.x;
 	n.x += Velocity.x*Time;
-	n.y += Velocity.y*Time + Curvature/10000*(Time*Time);
+	n.y += Velocity.y*Time + Curvature/10000*(Time*Time*(1.0f+Time*0.00025f));
 	return n;
 }
 

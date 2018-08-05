@@ -69,7 +69,7 @@ struct CTrace
 			m_Size1 = 6.0f * GetProjectileSize(Weapon);
 			m_Size2 = 0.0f; // * GetProjectileSize(Weapon);
 			m_LifeSpan = 0.4f;
-			m_Color = vec4(0.2f, 1.0f, 0.2f, 0.5f);
+			m_Color = vec4(0.1f, 0.5f, 0.1f, 0.5f);
 			return;
 		}
 		

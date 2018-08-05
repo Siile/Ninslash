@@ -500,14 +500,31 @@ void CMapGen::GenerateStarDroid(CGenLayer *pTiles)
 		return;
 	
 	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_DROID_STAR);
+	pTiles->Use(p.x, p.y);
 }
 
-void CMapGen::GenerateCrawlerDroid(CGenLayer *pTiles)
+void CMapGen::GenerateBossCrawlerDroid(CGenLayer *pTiles)
 {
 	ivec2 p = pTiles->GetOpenArea();
 	
 	if (p.x == 0)
 		return;
+	
+	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_DROID_BOSSCRAWLER);
+	pTiles->Use(p.x, p.y);
+}
+
+void CMapGen::GenerateCrawlerDroid(CGenLayer *pTiles)
+{
+	ivec2 p = pTiles->GetMedPlatform();
+	
+	if (p.x == 0)
+	{
+		p = pTiles->GetPlatform();
+		
+		if (p.x == 0)
+			return;
+	}
 	
 	ModifTile(p, m_pLayers->GetGameLayerIndex(), ENTITY_OFFSET+ENTITY_DROID_CRAWLER);
 	pTiles->Use(p.x, p.y);
@@ -1089,12 +1106,19 @@ void CMapGen::GenerateLevel()
 	for (int i = 0; i < 4; i++)
 		GenerateScreen(pTiles);
 	
+	if (Level%10 == 0)
+		for (int i = 0; i < min(20, Level/2); i++)
+			GenerateCrawlerDroid(pTiles);
+	else if (Level > 3)
+		for (int i = 0; i < min(15, 1+Level/4); i++)
+			GenerateCrawlerDroid(pTiles);
 	
-	// barrels
-	int b = max(4, 15 - Level/3)+rand()%3;
+	if (Level%20 == 0)
+		GenerateBossCrawlerDroid(pTiles);
+	else if (Level > 20)
+		for (int i = 0; i < min(3, Level/5-3); i++)
+			GenerateBossCrawlerDroid(pTiles);
 	
-	for (int i = 0; i < (pTiles->NumPlatforms() + pTiles->NumMedPlatforms()) / b; i++)
-		GenerateBarrel(pTiles);
 	
 	// lightning walls
 	if (Level > 1)
@@ -1198,6 +1222,12 @@ void CMapGen::GenerateLevel()
 	if (Level > 8)
 		GenerateStarDroid(pTiles);
 	
+	// barrels
+	int b = max(4, 15 - Level/3)+rand()%3;
+	
+	for (int i = 0; i < (pTiles->NumPlatforms() + pTiles->NumMedPlatforms()) / b; i++)
+		GenerateBarrel(pTiles);
+	
 	// star droids
 	/*
 	if (Level > 5)
@@ -1211,8 +1241,6 @@ void CMapGen::GenerateLevel()
 		*/
 		
 	/*
-	for (int i = 0; i < 2; i++)
-		GenerateCrawlerDroid(pTiles);
 	*/
 	
 	// obstacles
@@ -1473,9 +1501,6 @@ void CMapGen::GeneratePVPLevel()
 		
 	for (int i = 0; i < 4; i++)
 		GenerateScreen(pTiles);
-
-	//for (int i = 0; i < 2; i++)
-	//	GenerateCrawlerDroid(pTiles);
 	
 	int Obs = 3; //1 + pTiles->NumPlatforms() / 4.0f;
 	

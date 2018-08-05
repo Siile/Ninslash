@@ -156,6 +156,11 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		break;
 		
 	case BUILDING_GENERATOR:
+		m_AttachOnFall = true;
+		m_BoxSize = vec2(GeneratorPhysSize, 150);
+		m_Bounciness = 0.2f;
+		m_CanMove = true;
+		
 		m_Life = 200;
 		//m_Center = vec2(0, -40);
 		m_Collision = true;

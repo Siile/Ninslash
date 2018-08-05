@@ -10,7 +10,7 @@ const bool ValidForTurret(int Weapon)
 	if (IsModularWeapon(Weapon) && GetWeaponFiringType(Weapon) == WFT_PROJECTILE)
 		return true;
 	
-	if (IsStaticWeapon(Weapon) && (GetStaticType(Weapon) == SW_BAZOOKA || GetStaticType(Weapon) == SW_BOUNCER))
+	if (IsStaticWeapon(Weapon) && (GetStaticType(Weapon) == SW_BAZOOKA || GetStaticType(Weapon) == SW_CLUSTER || GetStaticType(Weapon) == SW_BOUNCER))
 		return true;
 		
 	return false;
@@ -28,7 +28,7 @@ const int GetWeaponCost(int Weapon)
 		switch (GetStaticType(Weapon))
 		{
 			case SW_TOOL: cost1 = 5; cost2 = 0; break;
-			case SW_BUBBLER: cost1 = 10; cost2 = 20; break;
+			case SW_CLUSTER: cost1 = 10; cost2 = 20; break;
 			case SW_BAZOOKA: cost1 = 20; cost2 = 20; break;
 			case SW_BOUNCER: cost1 = 10; cost2 = 20; break;
 			case SW_UPGRADE: cost1 = 10; cost2 = 0; break;
@@ -70,7 +70,7 @@ const float GetProjectileSprite(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
-			case SW_BUBBLER: return 1;
+			case SW_CLUSTER: return 14;
 			case SW_BAZOOKA: return 12;
 			case SW_BOUNCER: return 13;
 			default: return 0;
@@ -122,7 +122,7 @@ const int GetProjectileTraceType(int Weapon)
 		switch (GetStaticType(Weapon))
 		{
 			case SW_GUN1: return 4;
-			case SW_BUBBLER: return -1;
+			case SW_CLUSTER: return 0;
 			case SW_SHURIKEN: return -4;
 			case SW_BALL: return 8;
 			case SW_GRENADE3: return 7;
@@ -185,6 +185,7 @@ const vec2 GetWeaponColorswap(int Weapon)
 		{
 			case SW_BOUNCER: return vec2(0.0f+Charge*0.9f, 0.0f+Charge*0.4f);
 			case SW_BAZOOKA: return vec2(0.0f+Charge*1.0f, 0.0f+Charge*0.4f);
+			case SW_CLUSTER: return vec2(0.0f+Charge*0.7f, 0.0f+Charge*0.5f);
 			case SW_CHAINSAW: return vec2(0.0f+Charge*0.25f, 0.0f+Charge*0.9f);
 			case SW_FLAMER: return vec2(0.0f+Charge*0.6f, 0.0f+Charge*0.8f);
 			default: return vec2(0.0f, 0.0f);
@@ -224,7 +225,7 @@ const float GetProjectileSize(int Weapon)
 			case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: return 2.5f;
 			case SW_BALL: return 2.0f;
 			case SW_SHURIKEN: return 2.5f;
-			case SW_BUBBLER: return 0.9f;
+			case SW_CLUSTER: return GetWeaponCharge(Weapon) == 15 ? 1.5f : 1.0f;
 			case SW_BAZOOKA: return 1.3f;
 			case SW_BOUNCER: return 1.0f - (GetShotSpread(Weapon)-1)*0.15f;
 			case SW_GUN1: return 0.7f;
@@ -284,6 +285,7 @@ const int GetExplosionSprite(int Weapon)
 				case DROIDTYPE_WALKER: return SPRITE_EXPLOSION1_1;
 				case DROIDTYPE_STAR: return SPRITE_EXPLOSION1_1;
 				case DROIDTYPE_CRAWLER: return SPRITE_EXPLOSION1_1;
+				case DROIDTYPE_BOSSCRAWLER: return SPRITE_EXPLOSION1_1;
 				default: return 0;
 			};
 		}
@@ -298,6 +300,7 @@ const int GetExplosionSprite(int Weapon)
 			case SW_GRENADE1: return SPRITE_EXPLOSION1_1;
 			case SW_GRENADE2: return SPRITE_EXPLOSION1_1;
 			case SW_BAZOOKA: return SPRITE_EXPLOSION1_1;
+			case SW_CLUSTER: return SPRITE_EXPLOSION1_1;
 			case SW_BOMB: return SPRITE_EXPLOSION1_1;
 			default: return 0;
 		};
@@ -335,6 +338,7 @@ const int GetExplosionSound(int Weapon)
 				case DROIDTYPE_WALKER: return SOUND_GRENADE_EXPLODE;
 				case DROIDTYPE_STAR: return SOUND_GRENADE_EXPLODE;
 				case DROIDTYPE_CRAWLER: return SOUND_GRENADE_EXPLODE;
+				case DROIDTYPE_BOSSCRAWLER: return SOUND_GRENADE_EXPLODE;
 				default: return 0;
 			};
 		}
@@ -351,6 +355,7 @@ const int GetExplosionSound(int Weapon)
 			case SW_GRENADE2: return SOUND_GRENADE2_EXPLODE;
 			case SW_GRENADE3: return SOUND_BOUNCER_EXPLODE;
 			case SW_BAZOOKA: return SOUND_GRENADE_EXPLODE;
+			case SW_CLUSTER: return SOUND_GRENADE_EXPLODE;
 			case SW_BOUNCER: return SOUND_BOUNCER_EXPLODE;
 			default: return 0;
 		};
@@ -379,6 +384,7 @@ const int GetWeaponFireSound(int Weapon)
 			case SW_FLAMER: return SOUND_FLAMER1;
 			case SW_BAZOOKA: return SOUND_BAZOOKA_FIRE;
 			case SW_BOUNCER: return SOUND_BOUNCER_FIRE;
+			case SW_CLUSTER: return SOUND_GRENADE_FIRE;
 			case SW_GUN1: return SOUND_GUN_FIRE;
 			case SW_GUN2: return SOUND_LASER_FIRE;
 			case SW_BOMB: return -1;
@@ -442,7 +448,7 @@ const float GetExplosionSize(int Weapon)
 			case SW_GRENADE1: return 300.0f;
 			case SW_GRENADE2: return 320.0f;
 			case SW_GRENADE3: return 140.0f;
-			case SW_BUBBLER: return 80.0f;
+			case SW_CLUSTER: return 140.0f;
 			case SW_BAZOOKA: return 240.0f;
 			case SW_BOUNCER: return 140.0f - max(30.0f, (GetShotSpread(Weapon)-1)*15.0f);
 			default: return 0.0f;
@@ -457,6 +463,7 @@ const float GetExplosionSize(int Weapon)
 				case DROIDTYPE_WALKER: return 160.0f;
 				case DROIDTYPE_STAR: return 220.0f;
 				case DROIDTYPE_CRAWLER: return 160.0f;
+				case DROIDTYPE_BOSSCRAWLER: return 320.0f;
 				default: return 0.0f;
 			};
 		}
@@ -494,6 +501,7 @@ const float GetExplosionDamage(int Weapon)
 				case DROIDTYPE_WALKER: return 30.0f;
 				case DROIDTYPE_STAR: return 40.0f;
 				case DROIDTYPE_CRAWLER: return 30.0f;
+				case DROIDTYPE_BOSSCRAWLER: return 60.0f;
 				default: return 0.0f;
 			};
 		}
@@ -506,7 +514,7 @@ const float GetExplosionDamage(int Weapon)
 			case SW_BOMB: return 240; break;
 			case SW_GRENADE1: return 120; break;
 			case SW_GRENADE2: return 30; break;
-			case SW_BUBBLER: return 14; break;
+			case SW_CLUSTER: return 34; break;
 			case SW_BAZOOKA: return 80; break;
 			case SW_BOUNCER: return 24 - max(6.0f, (GetShotSpread(Weapon)-1)*4.0f); break;
 			default: return 0;
@@ -548,7 +556,7 @@ const int GetWeaponRenderType(int Weapon)
 	
 	switch (GetStaticType(Weapon))
 	{
-		case SW_CHAINSAW: case SW_FLAMER: case SW_BAZOOKA: case SW_BOUNCER: case SW_BUBBLER: return WRT_WEAPON1;
+		case SW_CHAINSAW: case SW_FLAMER: case SW_BAZOOKA: case SW_BOUNCER: case SW_CLUSTER: return WRT_WEAPON1;
 		case SW_GUN1: case SW_GUN2: return WRT_WEAPON2;
 		case SW_TOOL: return WRT_MELEESMALL;
 		default: return WRT_ITEM1;
@@ -571,7 +579,8 @@ const ivec2 GetWeaponVisualSize(int Weapon)
 	
 	switch (GetStaticType(Weapon))
 	{
-		case SW_CHAINSAW: case SW_BUBBLER: return ivec2(7, 3);
+		case SW_CHAINSAW: return ivec2(7, 3);
+		case SW_CLUSTER: return ivec2(6, 3);
 		case SW_FLAMER: case SW_BAZOOKA: case SW_BOUNCER: return ivec2(6, 3);
 		case SW_GUN1: case SW_GUN2: return ivec2(4, 2);
 		case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: return ivec2(2, 3);
@@ -633,7 +642,7 @@ const int GetWeaponFiringType(int Weapon)
 	{
 		case SW_SHIELD: case SW_INVIS: case SW_UPGRADE: case SW_RESPAWNER: return WFT_ACTIVATE;
 		case SW_CHAINSAW: case SW_FLAMER: return WFT_HOLD;
-		case SW_BUBBLER: return WFT_PROJECTILE;
+		case SW_CLUSTER: return WFT_PROJECTILE;
 		case SW_BAZOOKA: return WFT_PROJECTILE;
 		case SW_BOUNCER: return WFT_PROJECTILE;
 		case SW_TOOL: return WFT_MELEE;
@@ -669,7 +678,7 @@ const float GetWeaponRenderRecoil(int Weapon)
 	
 	switch (GetStaticType(Weapon))
 	{
-		case SW_BUBBLER: return 15.0f;
+		case SW_CLUSTER: return 15.0f;
 		case SW_BAZOOKA: return 18.0f;
 		case SW_BOUNCER: return 13.0f;
 		case SW_CHAINSAW: return 2.0f;
@@ -706,7 +715,7 @@ const vec2 GetWeaponRenderOffset(int Weapon)
 			case SW_MASK1: case SW_MASK2: case SW_MASK3: case SW_MASK4: case SW_MASK5: return vec2(16, 0);
 			case SW_BAZOOKA: return vec2(30, 0);
 			case SW_BOUNCER: return vec2(30, 0);
-			case SW_BUBBLER: return vec2(30, 0);
+			case SW_CLUSTER: return vec2(24, 0);
 			case SW_CHAINSAW: return vec2(30, 0);
 			case SW_FLAMER: return vec2(30, 0);
 			case SW_GUN1: case SW_GUN2: return vec2(16, -8);
@@ -725,7 +734,7 @@ const vec2 GetMuzzleRenderOffset(int Weapon)
 	if (GetStaticType(Weapon) == SW_GUN1)
 		return vec2(20, -5);
 	
-	if (GetStaticType(Weapon) == SW_BUBBLER)
+	if (GetStaticType(Weapon) == SW_CLUSTER)
 		return vec2(64, -4);
 	if (GetStaticType(Weapon) == SW_BAZOOKA)
 		return vec2(60, 0);
@@ -761,8 +770,8 @@ const int WeaponProjectilePosType(int Weapon)
 		};
 	}
 	
-	if (GetStaticType(Weapon) == SW_BUBBLER)
-		return 1;
+	//if (GetStaticType(Weapon) == SW_CLUSTER)
+	//	return 1;
 	
 	if (GetStaticType(Weapon) == SW_BAZOOKA)
 		return 2;
@@ -798,7 +807,7 @@ const vec2 GetProjectileOffset(int Weapon)
 			case SW_TOOL: return vec2(26, -4);
 			case SW_BAZOOKA: return vec2(65, -8);
 			case SW_BOUNCER: return vec2(65, -11);
-			case SW_BUBBLER: return vec2(66, -12);
+			case SW_CLUSTER: return vec2(66, -12);
 			case SW_CHAINSAW: return vec2(53, -11);
 			case SW_FLAMER: return vec2(86, -11);
 			case SW_GUN1: case SW_GUN2: return vec2(36, -16);
@@ -808,6 +817,19 @@ const vec2 GetProjectileOffset(int Weapon)
 	return vec2(0, 0);
 }
 
+const vec2 GetHandOffset(int Weapon)
+{
+	if (IsStaticWeapon(Weapon))
+	{
+		switch (GetStaticType(Weapon))
+		{
+			case SW_CLUSTER: return vec2(-16, 4);
+			default: return vec2(-26, 8);
+		};
+	}
+	
+	return vec2(-26, 8);
+}
 
 const float ScreenshakeAmount(int Weapon)
 {
@@ -832,6 +854,16 @@ const float GetMeleeHitRadius(int Weapon)
 			case SW_SHURIKEN: return 20.0f;
 			case SW_CHAINSAW: return 14.0f+Charge*5.0f;
 			case SW_FLAMER: return 24.0f;
+			default: return 0.0f;
+		};
+	}
+	
+	if (IsDroid(Weapon))
+	{
+		switch (GetDroidType(Weapon))
+		{
+			case DROIDTYPE_CRAWLER: return 40.0f;
+			case DROIDTYPE_BOSSCRAWLER: return 60.0f;
 			default: return 0.0f;
 		};
 	}
@@ -885,6 +917,7 @@ const int WeaponMaxLevel(int Weapon)
 			case SW_BAZOOKA: return 2;
 			case SW_FLAMER: return 2;
 			case SW_BOUNCER: return 2;
+			case SW_CLUSTER: return 2;
 			case SW_CHAINSAW: return 2;
 			default: return 0;
 		};
@@ -929,7 +962,7 @@ const int GetMuzzleType(int Weapon)
 	if (GetStaticType(Weapon) == SW_GUN2)
 		return 1;
 	
-	if (GetStaticType(Weapon) == SW_BUBBLER)
+	if (GetStaticType(Weapon) == SW_CLUSTER)
 		return 0;
 	if (GetStaticType(Weapon) == SW_BAZOOKA)
 		return 0;
@@ -974,15 +1007,21 @@ const float GetProjectileSpeed(int Weapon)
 		};
 	}
 	
-	if (GetStaticType(Weapon) == SW_GUN1)
-		return 1200.0f;
+	if (IsStaticWeapon(Weapon))
+	{
+		switch (GetStaticType(Weapon))
+		{
+			case SW_GUN1: return 1200.0f;
+			case SW_CLUSTER: return GetWeaponCharge(Weapon) == 15 ? 600.0f : 1000.0f;
+			case SW_BAZOOKA: return 400.0f;
+			case SW_BOUNCER: return 1500.0f;
+			
+			default: return 0.0f;
+		};
+	}
 	
-	if (GetStaticType(Weapon) == SW_BUBBLER)
-		return 25.0f;
-	if (GetStaticType(Weapon) == SW_BAZOOKA)
-		return 400.0f;
-	if (GetStaticType(Weapon) == SW_BOUNCER)
-		return 1500.0f;
+	if (!IsModularWeapon(Weapon))
+		return 0.0f;
 	
 	const float Charge = GetWeaponLevelCharge(Weapon);
 	
@@ -1025,16 +1064,34 @@ const float GetProjectileCurvature(int Weapon)
 		};
 	}
 	
+	if (IsStaticWeapon(Weapon))
+	{
+		switch (GetStaticType(Weapon))
+		{
+			case SW_GUN1: return 2.2f;
+			case SW_BAZOOKA: return 0.0f;
+			case SW_BOUNCER: return 0.5f;
+			case SW_CLUSTER: return GetWeaponCharge(Weapon) == 15 ? 16.0f : 7.0f;
+			
+			default: return 0.0f;
+		};
+	}
+	
+	/*
 	if (GetStaticType(Weapon) == SW_GUN1)
 		return 2.2f;
 	
-	if (GetStaticType(Weapon) == SW_BUBBLER)
-		return 2400.0f;
+	//if (GetStaticType(Weapon) == SW_CLUSTER)
+	//	return 2400.0f;
 	
 	if (GetStaticType(Weapon) == SW_BAZOOKA)
 		return 0.0f;
 	
 	if (GetStaticType(Weapon) == SW_BOUNCER)
+		return 0.0f;
+	*/
+	
+	if (!IsModularWeapon(Weapon))
 		return 0.0f;
 	
 	const int Part1 = GetPart(Weapon, 0);
@@ -1061,8 +1118,6 @@ const float GetProjectileCurvature(int Weapon)
 		default: break;
 	};
 	
-	
-	
 	return Curvature;
 }
 
@@ -1086,7 +1141,7 @@ const int GetShotSpread(int Weapon)
 	if (Part1 == 1 && Part2 == 2) Spread = 5+Charge*2.0f;
 	if (Part1 == 2 && Part2 == 2) Spread = 4+Charge*1.0f;
 	if (Part1 == 3 && Part2 == 2) Spread = 5+Charge*2.0f;
-	if (Part1 == 4 && Part2 == 2) Spread = 4+Charge*2.0f;
+	if (Part1 == 4 && Part2 == 2) Spread = 4+Charge*1.0f;
 	
 	return Spread;
 }
@@ -1096,7 +1151,7 @@ const float GetProjectileSpread(int Weapon)
 	if (GetStaticType(Weapon) == SW_GUN1)
 		return 0.06f;
 	
-	if (GetStaticType(Weapon) == SW_BUBBLER)
+	if (GetStaticType(Weapon) == SW_CLUSTER)
 		return 0.04f;
 	
 	const int Part2 = GetPart(Weapon, 1);
@@ -1118,7 +1173,7 @@ const bool IsFlammableProjectile(int Weapon)
 		switch (GetStaticType(Weapon))
 		{
 			case SW_FLAMER: return true;
-			case SW_BUBBLER: return true;
+			case SW_CLUSTER: return true;
 			default: return false;
 		};
 	}
@@ -1143,7 +1198,7 @@ const float WeaponFlameAmount(int Weapon)
 		switch (GetStaticType(Weapon))
 		{
 			case SW_FLAMER: return 1.0f;
-			case SW_BUBBLER: return 1.0f;
+			//case SW_CLUSTER: return 1.0f;
 			default: return 0.0f;
 		};
 	}
@@ -1230,7 +1285,7 @@ const int AIAttackRange(int Weapon)
 			case SW_TOOL: return 50;
 			case SW_BOMB: return 0;
 			case SW_SHURIKEN: return 700;
-			case SW_BUBBLER: return 700;
+			case SW_CLUSTER: return 700;
 			case SW_BAZOOKA: return 700;
 			case SW_BOUNCER: return 700;
 			case SW_FLAMER: return 600;
@@ -1313,7 +1368,7 @@ const int WeaponBurstCount(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
-			case SW_BUBBLER: return 5;
+			case SW_CLUSTER: return 1+Charge*3.0f;
 			case SW_BAZOOKA: return 1+Charge*2.0f;
 		};
 		
@@ -1344,8 +1399,8 @@ const float WeaponBurstReload(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
-			case SW_BUBBLER: return 0.2f;
-			case SW_BAZOOKA: return max(0.14f, 1.0f - Charge * 0.5f);
+			case SW_CLUSTER: return max(0.3f, 0.9f - Charge * 0.75f);
+			case SW_BAZOOKA: return max(0.2f, 0.95f - Charge * 0.75f);
 			default: return 0.0f;
 		};
 	}
@@ -1377,6 +1432,8 @@ const float GetProjectileDamage(int Weapon)
 		{
 			case DROIDTYPE_WALKER: return 6.0f;
 			case DROIDTYPE_STAR: return 14.0f;
+			case DROIDTYPE_CRAWLER: return 6.0f;
+			case DROIDTYPE_BOSSCRAWLER: return 14.0f;
 			default: return 0.0f;
 		};
 	}
@@ -1389,7 +1446,7 @@ const float GetProjectileDamage(int Weapon)
 			case SW_SHURIKEN: return 100.0f;
 			case SW_FLAMER: return 2.0f+Charge*3.0f;
 			case SW_CHAINSAW: return 6.0f+Charge*4.0f;
-			case SW_BUBBLER: return 6.0f;
+			case SW_CLUSTER: return 0.0f;
 			case SW_BAZOOKA: return 10.0f;
 			case SW_BOUNCER: return 0.0f+Charge*3.0f;
 			case SW_GUN1: return 15.0f;
@@ -1477,7 +1534,7 @@ const int GetRandomWeaponType(bool IsSurvival)
 	int w = 0;
 	
 	while (!w || (!IsSurvival && IsStaticWeapon(w) && GetStaticType(w) == SW_RESPAWNER))
-		w = GetStaticWeapon(rand()%(NUM_SW-4));
+		w = GetStaticWeapon(rand()%(NUM_SW-3));
 	
 	return w;
 }
@@ -1505,6 +1562,8 @@ const float GetProjectileKnockback(int Weapon)
 		{
 			case DROIDTYPE_WALKER: return 1.0f;
 			case DROIDTYPE_STAR: return 2.0f;
+			case DROIDTYPE_CRAWLER: return 24.0f;
+			case DROIDTYPE_BOSSCRAWLER: return 34.0f;
 			default: return 0.0f;
 		};
 	}
@@ -1519,9 +1578,9 @@ const float GetProjectileKnockback(int Weapon)
 		if (Part1 == 1)
 		{
 			if (Part2 == 1) return 3.0f+Charge*4.0f;
-			if (Part2 == 2) return 2.0f;
+			if (Part2 == 2) return 2.0f+Charge*2.5f;
 			if (Part2 == 3) return 4.0f+Charge*4.0f;
-			if (Part2 == 4) return 2.0f;
+			if (Part2 == 4) return 2.0f+Charge*2.5f;
 		}
 		
 		if (Part1 == 2)
@@ -1582,7 +1641,7 @@ const float GetProjectileLife(int Weapon)
 		switch (GetStaticType(Weapon))
 		{
 			case SW_GUN1: return 0.6f;
-			case SW_BUBBLER: return 0.8f;
+			case SW_CLUSTER: return GetWeaponCharge(Weapon) == 15 ? 0.3f+frandom()*0.7f : 2.0f;
 			case SW_BAZOOKA: return 0.8f;
 			case SW_BOUNCER: return 0.8f;
 			default: return 0.0f;
@@ -1634,7 +1693,7 @@ const float GetWeaponFireRate(int Weapon)
 			case SW_FLAMER: return 200;
 			case SW_BAZOOKA: return 640;
 			case SW_BOUNCER: return 240;
-			case SW_BUBBLER: return 600;
+			case SW_CLUSTER: return 600;
 			case SW_GUN1: return 240;
 			case SW_GUN2: return 200;
 			default: return 0;
@@ -1749,12 +1808,15 @@ const bool GetWeaponFullAuto(int Weapon)
 	return true;
 }
 
-const bool IsProjectileBouncy(int Weapon)
+const int IsProjectileBouncy(int Weapon)
 {
 	if (GetStaticType(Weapon) == SW_BOUNCER)
-		return true;
+		return 9;
 	
-	return false;
+	if (GetStaticType(Weapon) == SW_CLUSTER && GetWeaponCharge(Weapon) == 15)
+		return 2;
+	
+	return 0;
 }
 
 
@@ -1778,10 +1840,10 @@ const int GetWeaponMaxAmmo(int Weapon)
 		
 		if (Part1 == 1)
 		{
-			if (Part2 == 1) return 25 + Charge*10.0f;
-			if (Part2 == 2) return 20 + Charge*10.0f;
-			if (Part2 == 3) return 15 + Charge*10.0f;
-			if (Part2 == 4) return 35 + Charge*15.0f;
+			if (Part2 == 1) return 25 + Charge*15.0f;
+			if (Part2 == 2) return 20 + Charge*15.0f;
+			if (Part2 == 3) return 15 + Charge*15.0f;
+			if (Part2 == 4) return 35 + Charge*20.0f;
 		}
 		
 		if (Part1 == 2)
@@ -1816,7 +1878,7 @@ const int GetWeaponMaxAmmo(int Weapon)
 		switch (GetStaticType(Weapon))
 		{
 			case SW_GUN1: return 0;
-			case SW_BUBBLER: return 30;
+			case SW_CLUSTER: return 15+Charge*15.0f;
 			case SW_BAZOOKA: return 6+Charge*9.0f;
 			case SW_BOUNCER: return 20+Charge*20.0f;
 			case SW_CHAINSAW: return 15;
@@ -1841,7 +1903,7 @@ const bool WeaponUseAmmo(int Weapon)
 		{
 			case SW_BAZOOKA: return true;
 			case SW_BOUNCER: return true;
-			case SW_BUBBLER: return true;
+			case SW_CLUSTER: return true;
 			case SW_CHAINSAW: return Charge < 0.9f ? true : false;
 			case SW_FLAMER: return true;
 			default: return false;

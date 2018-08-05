@@ -1,15 +1,15 @@
-#ifndef GAME_SERVER_ENTITIES_DROID_CRAWLER_H
-#define GAME_SERVER_ENTITIES_DROID_CRAWLER_H
+#ifndef GAME_SERVER_ENTITIES_DROID_BOSSCRAWLER_H
+#define GAME_SERVER_ENTITIES_DROID_BOSSCRAWLER_H
 
 #include <game/server/entity.h>
 #include "droid.h"
 
-const int CrawlerPhysSize = 40;
+const int BossCrawlerPhysSize = 80;
 
-class CCrawler : public CDroid
+class CBossCrawler : public CDroid
 {
 public:
-	CCrawler(CGameWorld *pGameWorld, vec2 Pos);
+	CBossCrawler(CGameWorld *pGameWorld, vec2 Pos);
 
 	virtual void Reset();
 	virtual void Tick();

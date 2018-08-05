@@ -52,6 +52,9 @@ void CStar::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Weapon)
 	//if (m_aStatus[STATUS_SPAWNING] > 0.0f)
 	//	return false;
 	
+	if (!Dmg)
+		return;
+	
 	if (g_Config.m_SvOneHitKill)
 		Dmg = 1000;
 
@@ -84,6 +87,9 @@ void CStar::TakeDamage(vec2 Force, int Dmg, int From, vec2 Pos, int Weapon)
 	GameServer()->CreateDamageInd(DmgPos, GetAngle(-Force), -Dmg, -1);
 	
 	m_Vel += Force*0.75f;
+	
+	if (length(m_Vel) > 20.0f)
+		m_Vel = normalize(m_Vel)*20.0f;
 	
 	m_Health -= Dmg;
 	

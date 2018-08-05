@@ -46,6 +46,9 @@ void CItems::OnReset()
 
 void CItems::UpdateProjectileTrace(const CNetObj_Projectile *pCurrent, int ItemID)
 {
+	if (!GetProjectileTraceType(pCurrent->m_Type))
+		return;
+	
 	static float s_LastGameTickTime = Client()->GameTickTime();
 	if(m_pClient->m_Snap.m_pGameInfoObj && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
 		s_LastGameTickTime = Client()->GameTickTime();
@@ -151,11 +154,49 @@ void CItems::RenderProjectile(const CNetObj_Projectile *pCurrent, int ItemID)
 	if (GetProjectileSprite(pCurrent->m_Type) == 3 || GetProjectileSprite(pCurrent->m_Type) == 7)
 		Size *= 2.0f;
 	
-	if (GetStaticType(pCurrent->m_Type) == SW_BUBBLER)
+	
+	if (GetStaticType(pCurrent->m_Type) == SW_CLUSTER)
+	{
+		
+		Size = vec2(32, 32) * GetProjectileSize(pCurrent->m_Type);
+		
+		if (GetWeaponCharge(pCurrent->m_Type) == 15)
+		{
+			RenderTools()->SelectSprite(SPRITE_PROJECTILE_CLUSTER);
+		}
+		else
+		{
+			m_pClient->m_pEffects->SmokeTrail(Pos, Vel*-1);
+			Size = vec2(32, 32) * GetProjectileSize(pCurrent->m_Type) + vec2(8.0f, 8.0f) * GetWeaponLevelCharge(pCurrent->m_Type);
+		}
+		
+		
+		static float s_Time = 0.0f;
+		static float s_LastLocalTime = Client()->LocalTime();
+
+		if(Client()->State() == IClient::STATE_DEMOPLAYBACK)
+		{
+			const IDemoPlayer::CInfo *pInfo = DemoPlayer()->BaseInfo();
+			if(!pInfo->m_Paused)
+				s_Time += (Client()->LocalTime()-s_LastLocalTime)*pInfo->m_Speed;
+		}
+		else
+		{
+			if(m_pClient->m_Snap.m_pGameInfoObj && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
+				s_Time += Client()->LocalTime()-s_LastLocalTime;
+		}
+
+		Graphics()->QuadsSetRotation(s_Time*pi*2*2 + ItemID);
+		s_LastLocalTime = Client()->LocalTime();
+	}
+	
+	/*
+	if (GetStaticType(pCurrent->m_Type) == SW_CLUSTER)
 	{
 		m_pClient->m_pEffects->Flame(Pos, vec2(frandom()-frandom(), frandom()-frandom())*10.0f);
 		m_pClient->m_pEffects->Flame(Pos, vec2(frandom()-frandom(), frandom()-frandom())*10.0f);
 	}
+	*/
 	
 	if (GetStaticType(pCurrent->m_Type) == SW_BAZOOKA)
 	{

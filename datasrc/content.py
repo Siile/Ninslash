@@ -758,6 +758,8 @@ for x in range(0, 3):
 
 container.sprites.Add(Sprite("projectile_bazooka", set_projectiles, 9, 0, 2, 2))
 container.sprites.Add(Sprite("projectile_bouncer", set_projectiles, 9, 2, 2, 2))
+container.sprites.Add(Sprite("projectile_bubbler", set_projectiles, 9, 4, 2, 2))
+container.sprites.Add(Sprite("projectile_cluster", set_projectiles, 9, 6, 2, 2))
 
 # trails
 for y in range(0, 4):

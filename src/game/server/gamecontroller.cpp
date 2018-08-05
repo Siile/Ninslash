@@ -18,6 +18,7 @@
 #include "entities/droid_walker.h"
 #include "entities/droid_star.h"
 #include "entities/droid_crawler.h"
+#include "entities/droid_bosscrawler.h"
 #include "gamecontroller.h"
 #include "gamecontext.h"
 
@@ -855,6 +856,11 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 	else if (Index == ENTITY_DROID_CRAWLER)
 	{
 		new CCrawler(&GameServer()->m_World, Pos+vec2(0, -40));
+		return true;
+	}
+	else if (Index == ENTITY_DROID_BOSSCRAWLER)
+	{
+		new CBossCrawler(&GameServer()->m_World, Pos+vec2(0, -40));
 		return true;
 	}
 	
