@@ -52,6 +52,10 @@ private:
 		MAX_LIGHTSOURCES=1024*2,
 	};
 
+	void RenderLight(vec2 Pos, vec2 Size, vec4 Color);
+	void RenderLight(ivec2 Pos);
+	void RenderLight(vec2 Pos1, vec2 Pos2, vec2 Pos3, vec2 Pos4, vec4 Color);
+	
 	CLightsource m_aLightsource[MAX_LIGHTSOURCES];
 	int m_FirstFree;
 	int m_aFirstPart[NUM_GROUPS];
