@@ -588,7 +588,7 @@ const ivec2 GetWeaponVisualSize(int Weapon)
 		case SW_SHURIKEN: return ivec2(4, 4);
 		case SW_TOOL: return ivec2(4, 2);
 		
-		case SW_MASK1: case SW_MASK2: case SW_MASK3: case SW_MASK4: case SW_MASK5: return ivec2(4, 4);
+		case SW_MASK1: case SW_MASK2: case SW_MASK3: case SW_MASK4: case SW_MASK5: case SW_MASK6: return ivec2(4, 4);
 		case SW_UPGRADE: return ivec2(2, 2);
 		case SW_RESPAWNER: return ivec2(2, 4);
 		case SW_BOMB: return ivec2(3, 4);
@@ -712,7 +712,7 @@ const vec2 GetWeaponRenderOffset(int Weapon)
 			case SW_RESPAWNER: return vec2(2, -5);
 			case SW_SHIELD: case SW_INVIS: return vec2(4, -3);
 			case SW_BOMB: return vec2(8, 0);
-			case SW_MASK1: case SW_MASK2: case SW_MASK3: case SW_MASK4: case SW_MASK5: return vec2(16, 0);
+			case SW_MASK1: case SW_MASK2: case SW_MASK3: case SW_MASK4: case SW_MASK5: case SW_MASK6: return vec2(16, 0);
 			case SW_BAZOOKA: return vec2(30, 0);
 			case SW_BOUNCER: return vec2(30, 0);
 			case SW_CLUSTER: return vec2(24, 0);
@@ -1546,7 +1546,7 @@ const bool WeaponAutoPick(int Weapon)
 		switch (GetStaticType(Weapon))
 		{
 			case SW_GUN1: case SW_GUN2: case SW_TOOL: return false;
-			case SW_MASK1: case SW_MASK2: case SW_MASK3: case SW_MASK4: case SW_MASK5: return false;
+			case SW_MASK1: case SW_MASK2: case SW_MASK3: case SW_MASK4: case SW_MASK5: case SW_MASK6: return false;
 			default: return true;
 		};
 	}
