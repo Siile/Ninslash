@@ -214,6 +214,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	//m_apWeapon[0] = GameServer()->NewWeapon(GetModularWeapon(3, 1));
 	//m_apWeapon[1] = GameServer()->NewWeapon(GetStaticWeapon(SW_BALL));
 	//m_apWeapon[2] = GameServer()->NewWeapon(GetStaticWeapon(SW_MASK5));
+	m_apWeapon[2] = GameServer()->NewWeapon(GetStaticWeapon(SW_MASK6));
 	//m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 6));
 	
 	GiveStartWeapon();
@@ -265,11 +266,11 @@ void CCharacter::RandomizeInventory()
 
 		if ((i > 0 && i <= 3) || (j > 0 && j <= 3))
 		{
-			if ((wt1 >= SW_MASK1 && wt1 <= SW_MASK5) || (wt2 >= SW_MASK1 && wt2 <= SW_MASK5))
+			if ((wt1 >= SW_MASK1 && wt1 <= SW_MASK6) || (wt2 >= SW_MASK1 && wt2 <= SW_MASK6))
 				continue;
 		}
 		
-		if (i == 0 && (wt2 == SW_BOMB || (wt2 >= SW_MASK1 && wt2 <= SW_MASK5)))
+		if (i == 0 && (wt2 == SW_BOMB || (wt2 >= SW_MASK1 && wt2 <= SW_MASK6)))
 			continue;
 		
 		if ((m_apWeapon[i] && !m_apWeapon[i]->CanSwitch()) || (m_apWeapon[j] && !m_apWeapon[j]->CanSwitch()))
@@ -1479,7 +1480,7 @@ int CCharacter::GetMask()
 	for (int i = 0; i < 4; i++)
 	{
 		int w = GetStaticType(GetWeaponType(i));
-		if (w >= SW_MASK1 && w <= SW_MASK5 && GetWeaponSlot() != i)
+		if (w >= SW_MASK1 && w <= SW_MASK6 && GetWeaponSlot() != i)
 			return w-(SW_MASK1-1);
 	}
 	
@@ -1610,6 +1611,15 @@ void CCharacter::Tick()
 		if (!m_MaskEffectTick || m_MaskEffectTick < Server()->Tick())
 		{
 			IncreaseHealth(1);
+			m_MaskEffectTick = Server()->Tick()+Server()->TickSpeed()*0.5f;
+		}
+	}
+
+	else if (GetMask() == 6)
+	{
+		if (!m_MaskEffectTick || m_MaskEffectTick < Server()->Tick())
+		{
+			IncreaseArmor(1);
 			m_MaskEffectTick = Server()->Tick()+Server()->TickSpeed()*0.5f;
 		}
 	}
@@ -1963,7 +1973,7 @@ void CCharacter::ReleaseWeapons()
 		{
 			int w = GetStaticType(GetWeaponType(i));
 			
-			if (w >= SW_MASK1 && w <= SW_MASK5 && GetWeaponSlot() != i)
+			if (w >= SW_MASK1 && w <= SW_MASK6 && GetWeaponSlot() != i)
 			{
 				GameServer()->m_pController->DropWeapon(m_Pos+vec2(0, -16), (m_Core.m_Vel/1.7f + vec2(0, -3))*0.75f, m_apWeapon[i]);
 				m_apWeapon[i] = NULL;
