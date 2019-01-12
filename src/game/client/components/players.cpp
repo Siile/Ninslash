@@ -1304,7 +1304,7 @@ void CPlayers::RenderPlayer(
 	// get mask / gear
 	pCustomPlayerInfo->m_Mask = s>>STATUS_MASK1;
 	
-	if (pCustomPlayerInfo->m_Mask < 0 || pCustomPlayerInfo->m_Mask > 5)
+	if (pCustomPlayerInfo->m_Mask < 0 || pCustomPlayerInfo->m_Mask > 6)
 		pCustomPlayerInfo->m_Mask = 0;
 	
 	if (s & (1<<STATUS_SPAWNING))
