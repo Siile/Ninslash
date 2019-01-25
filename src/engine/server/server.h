@@ -86,6 +86,7 @@ public:
 
 	class CPlayerData *GetPlayerData(int ClientID, int ColorID);
 	int GetHighScore();
+	int GetPlayerCount();
 	
 	enum
 	{

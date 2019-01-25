@@ -43,24 +43,24 @@ void CAIalien1::OnCharacterSpawn(CCharacter *pChr)
 	if (m_Skin == SKIN_ALIEN3)
 	{
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(4, 4), 2)));
-		pChr->SetHealth(60+min((m_Level-1)*5, 300));
-		pChr->SetArmor(60+min((m_Level-1)*5, 300));
+		pChr->SetHealth(60+min((m_Level-1)*4, 300));
+		pChr->SetArmor(60+min((m_Level-1)*4, 300));
 		m_PowerLevel = 8;
 		m_TriggerLevel = 15 + rand()%5;
 	}
 	else if (m_Skin == SKIN_ALIEN4)
 	{
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 1), 4)));
-		pChr->SetHealth(60+min((m_Level-1)*5, 200));
-		pChr->SetArmor(60+min((m_Level-1)*5, 350));
+		pChr->SetHealth(60+min((m_Level-1)*4, 200));
+		pChr->SetArmor(60+min((m_Level-1)*4, 350));
 		m_PowerLevel = 12;
 		m_TriggerLevel = 15 + rand()%5;
 	}
 	else if (m_Skin == SKIN_ALIEN5)
 	{
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetStaticWeapon(SW_FLAMER), 1)));
-		pChr->SetHealth(50+min((m_Level-1)*5, 150));
-		pChr->SetArmor(60+min((m_Level-1)*5, 300));
+		pChr->SetHealth(50+min((m_Level-1)*4, 150));
+		pChr->SetArmor(60+min((m_Level-1)*4, 300));
 		m_PowerLevel = 10;
 		m_TriggerLevel = 15 + rand()%5;
 	}
