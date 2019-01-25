@@ -365,8 +365,8 @@ void CEffects::DamageIndicator(vec2 Pos, vec2 Dir)
 
 void CEffects::DamageInd(vec2 Pos, vec2 Dir, int Damage, vec4 Color)
 {
-	if(!m_Add50hz)
-		return;
+	//if(!m_Add50hz)
+	//	return;
 
 	CParticle p;
 	p.SetDefault();
@@ -388,8 +388,8 @@ void CEffects::DamageInd(vec2 Pos, vec2 Dir, int Damage, vec4 Color)
 
 void CEffects::PowerupShine(vec2 Pos, vec2 size)
 {
-	if(!m_Add50hz)
-		return;
+	//if(!m_Add50hz)
+	//	return;
 
 	CParticle p;
 	p.SetDefault();
@@ -409,8 +409,8 @@ void CEffects::PowerupShine(vec2 Pos, vec2 size)
 
 void CEffects::Repair(vec2 Pos)
 {
-	if(!m_Add50hz)
-		return;
+	//if(!m_Add50hz)
+	//	return;
 
 	CParticle p;
 	p.SetDefault();
@@ -429,8 +429,8 @@ void CEffects::Repair(vec2 Pos)
 
 void CEffects::AmmoFill(vec2 Pos, int Weapon)
 {
-	if(!m_Add50hz)
-		return;
+	//if(!m_Add50hz)
+	//	return;
 
 	CParticle p;
 	p.SetDefault();
@@ -449,8 +449,8 @@ void CEffects::AmmoFill(vec2 Pos, int Weapon)
 
 void CEffects::Light(vec2 Pos, float Size)
 {
-	if(!m_Add50hz)
-		return;
+	//if(!m_Add50hz)
+	//	return;
 
 	CLightsource l;
 	l.SetDefault();
@@ -545,8 +545,8 @@ void CEffects::Flame(vec2 Pos, vec2 Vel, float Alpha, bool IgnoreCollision)
 
 void CEffects::BulletTrail(vec2 Pos)
 {
-	if(!m_Add100hz)
-		return;
+	//if(!m_Add100hz)
+	//	return;
 
 	CParticle p;
 	p.SetDefault();
@@ -562,8 +562,8 @@ void CEffects::BulletTrail(vec2 Pos)
 
 void CEffects::BulletTrail(vec2 Start, vec2 End, vec4 Color, float Size)
 {
-	if(!m_Add100hz)
-		return;
+	//if(!m_Add100hz)
+	//	return;
 
 	CParticle p;
 	p.SetDefault();

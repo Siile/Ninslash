@@ -15,7 +15,6 @@ CLight::CLight()
 {
 	OnReset();
 	m_RenderLight.m_pParts = this;
-	m_Rendered = false;
 }
 
 
@@ -41,6 +40,8 @@ void CLight::OnReset()
 
 void CLight::Add(int Group, CLightsource *pPart)
 {
+	return;
+	
 	if(m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED)
 		return;
 
@@ -52,11 +53,7 @@ void CLight::Add(int Group, CLightsource *pPart)
 
 void CLight::Update(float TimePassed)
 {
-	if (m_Rendered)
-	{
-		m_Count = 0;
-		m_Rendered = false;
-	}
+	
 }
 
 void CLight::OnRender()
@@ -280,6 +277,5 @@ void CLight::RenderGroup(int Group)
 	Graphics()->QuadsEnd();
 	
 	Graphics()->BlendNormal();
-	
-	m_Rendered = true;
+	Graphics()->TextureSet(-1);
 }
