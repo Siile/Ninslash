@@ -16,13 +16,14 @@ CCamera::CCamera()
 {
 	m_CamType = CAMTYPE_UNDEFINED;
 	m_LastUpdate = 0;
+	m_Zoom = 1.0f;
+	m_TargetZoom = 1.0f;
 }
 
 
 void CCamera::OnRender()
 {
-	//vec2 center;
-	m_Zoom = 1.0f;
+	//m_pClient->m_pControls->m_CameraZoom = int(m_Zoom*10);
 	
 	// update camera center
 	if(m_pClient->m_Snap.m_SpecInfo.m_Active && !m_pClient->m_Snap.m_SpecInfo.m_UsePosition)
@@ -51,7 +52,8 @@ void CCamera::OnRender()
 		{
 			m_Center.x += (m_Center2.x-m_Center.x) / float(50);
 			m_Center.y += (m_Center2.y-m_Center.y) / float(50);
-					
+			m_Zoom += (m_TargetZoom-m_Zoom) / float(50);
+			
 			if (i++ > 20)
 				break;
 		}
@@ -103,6 +105,8 @@ void CCamera::OnRender()
 				{
 					m_Center.x += (m_Center2.x-m_Center.x) / float(g_Config.m_GoreCameraDelay*2);
 					m_Center.y += (m_Center2.y-m_Center.y) / float(g_Config.m_GoreCameraDelay*2);
+			
+					m_Zoom += (m_TargetZoom-m_Zoom) / float(50);
 					
 					if (i++ > 20)
 						break;

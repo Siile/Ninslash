@@ -244,6 +244,26 @@ void CParticles::OnRender()
 	LastTime = t;
 }
 
+
+void CParticles::RenderLights()
+{
+	{
+		int i = m_aFirstPart[GROUP_EXPLOSIONS];
+		while(i != -1)
+		{
+			float a = m_aParticles[i].m_Life / m_aParticles[i].m_LifeSpan;
+			vec2 p = m_aParticles[i].m_Pos;
+			float Size = mix(m_aParticles[i].m_StartSize, m_aParticles[i].m_EndSize*1.5f, a)*1.5f;
+			Graphics()->SetColor(m_aParticles[i].m_Color.r, m_aParticles[i].m_Color.g, m_aParticles[i].m_Color.b, 1-a);
+			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
+			Graphics()->QuadsDraw(&QuadItem, 1);
+
+			i = m_aParticles[i].m_NextPart;
+		}
+	}
+}
+
+
 void CParticles::RenderGroup(int Group)
 {
 	if (Group == GROUP_MINE1)

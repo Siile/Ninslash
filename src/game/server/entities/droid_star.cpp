@@ -20,7 +20,7 @@ CStar::CStar(CGameWorld *pGameWorld, vec2 Pos)
 void CStar::Reset()
 {
 	m_Center = vec2(0, 0);
-	m_Health = 140;
+	m_Health = 240;
 	m_Pos = m_StartPos;
 	m_Status = DROIDSTATUS_IDLE;
 	m_Dir = -1;

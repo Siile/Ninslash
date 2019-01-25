@@ -104,6 +104,10 @@ class CCommandProcessorFragment_OpenGL
 
 	bool m_MultiBuffering;
 	
+	float m_AmbientR;
+	float m_AmbientG;
+	float m_AmbientB;
+	
 	int m_ScreenWidth;
 	int m_ScreenHeight;
 	int m_CameraX;

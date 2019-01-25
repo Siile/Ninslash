@@ -112,6 +112,8 @@ public:
 
 	void Add(int Group, CParticle *pPart);
 
+	void RenderLights();
+	
 	virtual void OnReset();
 	virtual void OnRender();
 

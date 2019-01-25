@@ -72,6 +72,7 @@ public:
 
 	virtual class CPlayerData *GetPlayerData(int ClientID, int ColorID) = 0;
 	virtual int GetHighScore() = 0;
+	virtual int GetPlayerCount() = 0;
 	
 	virtual char *GetMapName() = 0;
 	bool m_MapGenerated; // MapGen

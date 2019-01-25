@@ -22,6 +22,7 @@ public:
 	vec2 m_Center;
 	vec2 m_Center2;
 	float m_Zoom;
+	float m_TargetZoom;
 
 	CCamera();
 	virtual void OnRender();

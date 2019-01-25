@@ -34,6 +34,7 @@ public:
 	CPlayerData *Get(const char *pName, int ColorID);
 	
 	int GetHighScore(int Score);
+	int GetPlayerCount(int Score);
 };
 
 #endif

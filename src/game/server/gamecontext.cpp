@@ -1790,6 +1790,13 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				SkipSending = true;
 			}
 			
+			if ( strcmp(pMsg->m_pMessage, "/playercount") == 0 )
+			{
+				char aBuf[128]; str_format(aBuf, sizeof(aBuf), "Number of player profiles in Invasion: %d", Server()->GetPlayerCount());
+				SendChatTarget(ClientID, aBuf);
+				SkipSending = true;
+			}
+			
 			if ( strcmp(pMsg->m_pMessage, "/jumphigh") == 0 )
 			{
 				CPlayerData *pData = Server()->GetPlayerData(pPlayer->GetCID(), pPlayer->GetColorID());

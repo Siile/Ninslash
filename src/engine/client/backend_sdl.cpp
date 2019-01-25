@@ -255,6 +255,9 @@ void CCommandProcessorFragment_OpenGL::Cmd_Init(const SCommand_Init *pCommand)
 	m_CameraX = 0;
 	m_CameraY = 0;
 	m_ShadersLoaded = false;
+	m_AmbientR = 0.1f;
+	m_AmbientG = 0.1f;
+	m_AmbientB = 0.1f;
 }
 
 void CCommandProcessorFragment_OpenGL::Cmd_Texture_Update(const CCommandBuffer::SCommand_Texture_Update *pCommand)
@@ -573,7 +576,7 @@ void CCommandProcessorFragment_OpenGL::Cmd_ClearBufferTexture(const CCommandBuff
 		if (i == RENDERBUFFER_LIGHT)
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, textureBuffer[i]);
-			glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+			glClearColor(m_AmbientR, m_AmbientG, m_AmbientB, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
 			continue;
 		}

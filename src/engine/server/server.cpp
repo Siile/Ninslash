@@ -301,6 +301,14 @@ int CServer::GetHighScore()
 	return 1;
 }
 
+int CServer::GetPlayerCount()
+{
+	if (m_pPlayerData)
+		return m_pPlayerData->GetPlayerCount(0);
+	
+	return 1;
+}
+
 CPlayerData *CServer::GetPlayerData(int ClientID, int ColorID)
 {
 	if (ClientID < 0 || ClientID >= MAX_CLIENTS)

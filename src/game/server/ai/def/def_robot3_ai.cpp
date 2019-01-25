@@ -32,7 +32,7 @@ void CAIdefrobot3::OnCharacterSpawn(CCharacter *pChr)
 	m_TargetPos = Player()->GetCharacter()->m_Pos;
 	m_Triggered = false;
 	
-	pChr->SetHealth(500);
+	pChr->SetHealth(300);
 	
 	m_ShockTimer = 10;
 }

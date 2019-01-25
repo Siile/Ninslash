@@ -78,6 +78,18 @@ int CPlayerData::GetHighScore(int Score)
 	return s;
 }
 
+int CPlayerData::GetPlayerCount(int Score)
+{
+
+	if (m_pChild1)
+		Score += m_pChild1->GetPlayerCount(0);
+
+	if (m_pChild2)
+		Score += m_pChild2->GetPlayerCount(0);
+
+	return Score+1;
+}
+
 
 void CPlayerData::Reset()
 {
