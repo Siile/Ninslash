@@ -1476,7 +1476,7 @@ void CCharacter::GiveRandomBuff()
 
 int CCharacter::GetMask()
 {
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 12; i++)
 	{
 		int w = GetStaticType(GetWeaponType(i));
 		if (w >= SW_MASK1 && w <= SW_MASK5 && GetWeaponSlot() != i)
