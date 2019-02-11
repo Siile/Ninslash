@@ -1419,8 +1419,8 @@ int IGameController::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *
 			}
 		}
 
-		// drop weapon
-		if (g_Config.m_SvWeaponDrops)
+		// drop weapon, except if human in coop
+		if (g_Config.m_SvWeaponDrops && !(IsCoop() && !pVictim->m_IsBot))
 			pVictim->DropWeapon();
 	}
 	
