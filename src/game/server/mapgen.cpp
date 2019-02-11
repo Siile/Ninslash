@@ -980,6 +980,7 @@ void CMapGen::GenerateLevel()
 	Proceed(pTiles, 0);
 	
 	pTiles->GenerateBoxes();
+	pTiles->GeneratePlatforms();
 	
 	pTiles->GenerateFences();
 	
@@ -1018,7 +1019,11 @@ void CMapGen::GenerateLevel()
 			{
 				int f = pTiles->GetFlags(x, y, CGenLayer::FGOBJECTS);
 				ModifTile(ivec2(x, y), m_pLayers->GetForegroundLayerIndex(), i, f);
-				ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), 1);
+				
+				if (i >= 14*16+1 && i <= 14*16+3)
+					ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), TILE_PLATFORM);
+				else
+					ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), 1);
 			}
 		}
 		
@@ -1368,6 +1373,7 @@ void CMapGen::GeneratePVPLevel()
 	Proceed(pTiles, 0);
 	
 	pTiles->GenerateBoxes();
+	pTiles->GeneratePlatforms();
 	
 	pTiles->GenerateFences();
 	
@@ -1647,7 +1653,11 @@ void CMapGen::WriteLayers(CGenLayer *pTiles)
 			{
 				int f = pTiles->GetFlags(x, y, CGenLayer::FGOBJECTS);
 				ModifTile(ivec2(x, y), m_pLayers->GetForegroundLayerIndex(), i, f);
-				ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), 1);
+				
+				if (i >= 14*16+1 && i <= 14*16+3)
+					ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), TILE_PLATFORM);
+				else
+					ModifTile(ivec2(x, y), m_pLayers->GetGameLayerIndex(), 1);
 			}
 		}
 		
