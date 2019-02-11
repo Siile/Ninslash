@@ -90,6 +90,7 @@ public:
 	void RemoveSingles();
 	void BaseCleanup();
 	void GenerateBoxes();
+	void GeneratePlatforms();
 	void GenerateBackground();
 	void GenerateMoreBackground();
 	void GenerateMoreForeground();
