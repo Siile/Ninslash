@@ -1957,6 +1957,7 @@ bool CCharacter::IncreaseArmor(int Amount)
 void CCharacter::ReleaseWeapons()
 {
 	// drop mask
+	/*
 	if (!m_IsBot || !GameServer()->m_pController->IsCoop())
 	{
 		for (int i = 0; i < 4; i++)
@@ -1971,6 +1972,7 @@ void CCharacter::ReleaseWeapons()
 			}
 		}
 	}
+	*/
 	
 	for (int i = 0; i < NUM_SLOTS; i++)
 		if (m_apWeapon[i])

@@ -110,6 +110,8 @@ void CBlocks::RenderBlocks()
 	int y1 = clamp(int(Center.y) - h, 1, m_Height-2);
 	int y2 = clamp(int(Center.y) + h, 1, m_Height-2);
 	
+	const float Size = 32.0f;
+	
 	for (int x = x1; x <= x2; x++)
 	{
 		for (int y = y1; y <= y2; y++)
@@ -177,9 +179,9 @@ void CBlocks::RenderBlocks()
 													
 					IGraphics::CFreeformItem FreeFormItem(
 						p.x, p.y,
-						p.x+32, p.y,
-						p.x, p.y+32,
-						p.x+32, p.y+32);
+						p.x+Size, p.y,
+						p.x, p.y+Size,
+						p.x+Size, p.y+Size);
 					
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 				}
@@ -212,35 +214,35 @@ void CBlocks::RenderBlocks()
 					p = vec2(x, y)*32;
 					
 					IGraphics::CFreeformItem FreeFormItem(
-						p.x+16, p.y,
+						p.x+Size/2, p.y,
 						p.x, p.y,
-						p.x+16, p.y+16,
-						p.x, p.y+16);
+						p.x+Size/2, p.y+Size/2,
+						p.x, p.y+Size/2);
 					
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 				}
 				
 				if (!Right && !Top)
 				{
-					p = vec2(x, y)*32+vec2(16, 0);
+					p = vec2(x, y)*32+vec2(Size/2, 0);
 					
 					IGraphics::CFreeformItem FreeFormItem(
 						p.x, p.y,
-						p.x+16, p.y,
-						p.x, p.y+16,
-						p.x+16, p.y+16);
+						p.x+Size/2, p.y,
+						p.x, p.y+Size/2,
+						p.x+Size/2, p.y+Size/2);
 					
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 				}
 				
 				if (!Left && !Bot)
 				{
-					p = vec2(x, y)*32+vec2(0, 16);
+					p = vec2(x, y)*32+vec2(0, Size/2);
 					
 					IGraphics::CFreeformItem FreeFormItem(
-						p.x+16, p.y+16,
-						p.x, p.y+16,
-						p.x+16, p.y,
+						p.x+Size/2, p.y+Size/2,
+						p.x, p.y+Size/2,
+						p.x+Size/2, p.y,
 						p.x, p.y);
 					
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
@@ -248,13 +250,13 @@ void CBlocks::RenderBlocks()
 				
 				if (!Right && !Bot)
 				{
-					p = vec2(x, y)*32+vec2(16, 16);
+					p = vec2(x, y)*32+vec2(Size/2, Size/2);
 					
 					IGraphics::CFreeformItem FreeFormItem(
-						p.x, p.y+16,
-						p.x+16, p.y+16,
+						p.x, p.y+Size/2,
+						p.x+Size/2, p.y+Size/2,
 						p.x, p.y,
-						p.x+16, p.y);
+						p.x+Size/2, p.y);
 					
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 				}
@@ -271,35 +273,35 @@ void CBlocks::RenderBlocks()
 					p = vec2(x, y)*32;
 					
 					IGraphics::CFreeformItem FreeFormItem(
-						p.x+16, p.y,
+						p.x+Size/2, p.y,
 						p.x, p.y,
-						p.x+16, p.y+16,
-						p.x, p.y+16);
+						p.x+Size/2, p.y+Size/2,
+						p.x, p.y+Size/2);
 					
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 				}
 				
 				if (Right && !Top)
 				{
-					p = vec2(x, y)*32+vec2(16, 0);
+					p = vec2(x, y)*32+vec2(Size/2, 0);
 					
 					IGraphics::CFreeformItem FreeFormItem(
 						p.x, p.y,
-						p.x+16, p.y,
-						p.x, p.y+16,
-						p.x+16, p.y+16);
+						p.x+Size/2, p.y,
+						p.x, p.y+Size/2,
+						p.x+Size/2, p.y+Size/2);
 					
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 				}
 				
 				if (Left && !Bot)
 				{
-					p = vec2(x, y)*32+vec2(0, 16);
+					p = vec2(x, y)*32+vec2(0, Size/2);
 					
 					IGraphics::CFreeformItem FreeFormItem(
-						p.x+16, p.y+16,
-						p.x, p.y+16,
-						p.x+16, p.y,
+						p.x+Size/2, p.y+Size/2,
+						p.x, p.y+Size/2,
+						p.x+Size/2, p.y,
 						p.x, p.y);
 					
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
@@ -307,13 +309,13 @@ void CBlocks::RenderBlocks()
 				
 				if (Right && !Bot)
 				{
-					p = vec2(x, y)*32+vec2(16, 16);
+					p = vec2(x, y)*32+vec2(Size/2, Size/2);
 					
 					IGraphics::CFreeformItem FreeFormItem(
-						p.x, p.y+16,
-						p.x+16, p.y+16,
+						p.x, p.y+Size/2,
+						p.x+Size/2, p.y+Size/2,
 						p.x, p.y,
-						p.x+16, p.y);
+						p.x+Size/2, p.y);
 					
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 				}
@@ -329,35 +331,35 @@ void CBlocks::RenderBlocks()
 					p = vec2(x, y)*32;
 					
 					IGraphics::CFreeformItem FreeFormItem(
-						p.x+16, p.y,
+						p.x+Size/2, p.y,
 						p.x, p.y,
-						p.x+16, p.y+16,
-						p.x, p.y+16);
+						p.x+Size/2, p.y+Size/2,
+						p.x, p.y+Size/2);
 					
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 				}
 				
 				if (!Right && Top)
 				{
-					p = vec2(x, y)*32+vec2(16, 0);
+					p = vec2(x, y)*32+vec2(Size/2, 0);
 					
 					IGraphics::CFreeformItem FreeFormItem(
 						p.x, p.y,
-						p.x+16, p.y,
-						p.x, p.y+16,
-						p.x+16, p.y+16);
+						p.x+Size/2, p.y,
+						p.x, p.y+Size/2,
+						p.x+Size/2, p.y+Size/2);
 					
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 				}
 				
 				if (!Left && Bot)
 				{
-					p = vec2(x, y)*32+vec2(0, 16);
+					p = vec2(x, y)*32+vec2(0, Size/2);
 					
 					IGraphics::CFreeformItem FreeFormItem(
-						p.x+16, p.y+16,
-						p.x, p.y+16,
-						p.x+16, p.y,
+						p.x+Size/2, p.y+Size/2,
+						p.x, p.y+Size/2,
+						p.x+Size/2, p.y,
 						p.x, p.y);
 					
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
@@ -365,13 +367,13 @@ void CBlocks::RenderBlocks()
 				
 				if (!Right && Bot)
 				{
-					p = vec2(x, y)*32+vec2(16, 16);
+					p = vec2(x, y)*32+vec2(Size/2, Size/2);
 					
 					IGraphics::CFreeformItem FreeFormItem(
-						p.x, p.y+16,
-						p.x+16, p.y+16,
+						p.x, p.y+Size/2,
+						p.x+Size/2, p.y+Size/2,
 						p.x, p.y,
-						p.x+16, p.y);
+						p.x+Size/2, p.y);
 					
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 				}
@@ -387,35 +389,35 @@ void CBlocks::RenderBlocks()
 					p = vec2(x, y)*32;
 					
 					IGraphics::CFreeformItem FreeFormItem(
-						p.x+16, p.y,
+						p.x+Size/2, p.y,
 						p.x, p.y,
-						p.x+16, p.y+16,
-						p.x, p.y+16);
+						p.x+Size/2, p.y+Size/2,
+						p.x, p.y+Size/2);
 					
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 				}
 				
 				if (Right && Top && (!m_pBlocks[(y-1)*m_Width+x+1] || m_pBlocks[(y-1)*m_Width+x+1] > 3))
 				{
-					p = vec2(x, y)*32+vec2(16, 0);
+					p = vec2(x, y)*32+vec2(Size/2, 0);
 					
 					IGraphics::CFreeformItem FreeFormItem(
 						p.x, p.y,
-						p.x+16, p.y,
-						p.x, p.y+16,
-						p.x+16, p.y+16);
+						p.x+Size/2, p.y,
+						p.x, p.y+Size/2,
+						p.x+Size/2, p.y+Size/2);
 					
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 				}
 				
 				if (Left && Bot && (!m_pBlocks[(y+1)*m_Width+x-1] || m_pBlocks[(y+1)*m_Width+x-1] > 3))
 				{
-					p = vec2(x, y)*32+vec2(0, 16);
+					p = vec2(x, y)*32+vec2(0, Size/2);
 					
 					IGraphics::CFreeformItem FreeFormItem(
-						p.x+16, p.y+16,
-						p.x, p.y+16,
-						p.x+16, p.y,
+						p.x+Size/2, p.y+Size/2,
+						p.x, p.y+Size/2,
+						p.x+Size/2, p.y,
 						p.x, p.y);
 					
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
@@ -423,13 +425,13 @@ void CBlocks::RenderBlocks()
 				
 				if (Right && Bot && (!m_pBlocks[(y+1)*m_Width+x+1] || m_pBlocks[(y+1)*m_Width+x+1] > 3))
 				{
-					p = vec2(x, y)*32+vec2(16, 16);
+					p = vec2(x, y)*32+vec2(Size/2, Size/2);
 					
 					IGraphics::CFreeformItem FreeFormItem(
-						p.x, p.y+16,
-						p.x+16, p.y+16,
+						p.x, p.y+Size/2,
+						p.x+Size/2, p.y+Size/2,
 						p.x, p.y,
-						p.x+16, p.y);
+						p.x+Size/2, p.y);
 					
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
 				}
