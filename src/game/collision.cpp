@@ -710,7 +710,7 @@ int CCollision::FastIntersectLine(vec2 Pos0, vec2 Pos1)
 
 
 // TODO: rewrite this smarter!
-int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, bool IncludeDeath)
+int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, bool IncludeDeath, bool IncludePlatforms)
 {
 	float Distance = distance(Pos0, Pos1);
 	int End(Distance+1);
@@ -720,13 +720,13 @@ int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *p
 	{
 		float a = i/Distance;
 		vec2 Pos = mix(Pos0, Pos1, a);
-		if(CheckPoint(Pos.x, Pos.y, IncludeDeath))
+		if(CheckPoint(Pos.x, Pos.y, IncludeDeath, !IncludePlatforms))
 		{
 			if(pOutCollision)
 				*pOutCollision = Pos;
 			if(pOutBeforeCollision)
 				*pOutBeforeCollision = Last;
-			return GetCollisionAt(Pos.x, Pos.y);
+			return GetCollisionAt(Pos.x, Pos.y, !IncludePlatforms);
 		}
 		Last = Pos;
 	}

@@ -165,7 +165,7 @@ void CBossCrawler::Tick()
 		return;
 	}
 	
-	if (GameServer()->Collision()->IntersectLine(m_Pos, To, 0x0, &To))
+	if (GameServer()->Collision()->IntersectLine(m_Pos, To, 0x0, &To, false, true))
 	{
 		if (abs(m_Vel.x) < 1.0f && frandom() < 0.05f)
 			m_Move = (frandom() < 0.5f) ? -1 : 1;

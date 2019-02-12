@@ -1,6 +1,3 @@
-
-
-
 #include <engine/shared/config.h>
 
 #include <game/mapitems.h>
@@ -188,7 +185,7 @@ bool CGameControllerCoop::CanSpawn(int Team, vec2 *pOutPos, bool IsBot)
 		vec2 Pos = GetBotSpawnPos();
 		*pOutPos = Pos;
 		
-		m_BotSpawnTick = Server()->Tick() + Server()->TickSpeed() * 0.25f;
+		m_BotSpawnTick = Server()->Tick() + Server()->TickSpeed() * 0.5f;
 		
 		return true;
 	}
@@ -221,6 +218,9 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			for (int i = 0; i < 9; i++)
 				if (m_EnemiesLeft < 1-i*3 + g_Config.m_SvMapGenLevel/2 - m_Group/3)
 					Level++;
+			
+			if (frandom() < 0.7f && Level > 2)
+				Level = rand()%(Level-1);
 			
 			switch (m_GroupType)
 			{
@@ -281,6 +281,7 @@ void CGameControllerCoop::SpawnNewGroup(bool AddBots)
 	m_EnemiesLeft = 20;
 	m_GroupSpawnTick = 0;
 	
+	GameServer()->SendBroadcast("Wave incoming!", -1);
 	
 	g_Config.m_SvInvBosses = 1;
 	
@@ -288,7 +289,7 @@ void CGameControllerCoop::SpawnNewGroup(bool AddBots)
 	
 	m_GroupType = GROUP_ALIENS+((Level/3)%3+m_Group/2)%4;
 	
-	m_EnemiesLeft = max(3, 3 + min(12, Level) + m_Group - m_GroupType*2);
+	m_EnemiesLeft = 2+m_Group + max(3, 3 + min(12, Level) + m_Group - m_GroupType*2);
 	
 	if (AddBots)
 	{
@@ -319,9 +320,16 @@ int CGameControllerCoop::OnCharacterDeath(class CCharacter *pVictim, class CPlay
 		if (--m_Deaths <= 0 && CountPlayersAlive(-1, true) > 0)
 		{
 			if (m_GroupsLeft <= 0)
+			{
 				TriggerEscape();
+				GameServer()->SendBroadcast("Level cleared!", -1);
+			}
 			else if (!m_GroupSpawnTick)
-				m_GroupSpawnTick = Server()->Tick() + Server()->TickSpeed()*5;
+			{
+				m_GroupSpawnTick = Server()->Tick() + Server()->TickSpeed()*7;
+				if (m_Group > 1)
+					GameServer()->SendBroadcast("Wave cleared!", -1);
+			}
 		}
 			
 		if (m_EnemiesLeft <= 0)
