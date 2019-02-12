@@ -50,7 +50,8 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	
 	int Level = g_Config.m_SvMapGenLevel;
 	
-	m_GroupsLeft = 2 + min(3, Level/4) + (Level%5)/4;
+	//m_GroupsLeft = 2 + min(3, Level/4) + (Level%5)/4;
+	m_GroupsLeft = 2 + min(1, Level/3);
 	
 	m_TriggerLevel = 0;
 	m_Group = 0;
@@ -289,7 +290,10 @@ void CGameControllerCoop::SpawnNewGroup(bool AddBots)
 	
 	m_GroupType = GROUP_ALIENS+((Level/3)%3+m_Group/2)%4;
 	
-	m_EnemiesLeft = 2+m_Group + max(3, 3 + min(12, Level) + m_Group - m_GroupType*2);
+	m_EnemiesLeft = 2+m_Group*2+Level/2 + max(3, 3 + min(12, Level) + m_Group - m_GroupType*2);
+	
+	if (m_Group == 0 && m_EnemiesLeft > 20)
+		m_EnemiesLeft = 20;
 	
 	if (AddBots)
 	{
