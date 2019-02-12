@@ -126,7 +126,7 @@ public:
 	bool CheckBlocks(float x, float y) { return GetBlock(round_to_int(x), round_to_int(y)); }
 	bool CheckBlocks(vec2 Pos) { return CheckBlocks(Pos.x, Pos.y); }
 	
-	int GetCollisionAt(float x, float y) { return GetTile(round_to_int(x), round_to_int(y)); }
+	int GetCollisionAt(float x, float y, bool Down = true) { return GetTile(round_to_int(x), round_to_int(y), Down); }
 	
 	int IsInFluid(float x, float y);
 	
@@ -136,7 +136,7 @@ public:
 	int GetWidth() { return m_Width; };
 	int GetHeight() { return m_Height; };
 	int FastIntersectLine(vec2 Pos0, vec2 Pos1);
-	int IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, bool IncludeDeath = false);
+	int IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, bool IncludeDeath = false, bool IncludePlatforms = false);
 	bool IntersectBlocks(vec2 Pos0, vec2 Pos1);
 	
 	// return bounced (true) or not (false)
