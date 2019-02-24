@@ -1,6 +1,7 @@
 #include <game/server/gamecontext.h>
 #include <game/weapons.h>
 #include "laser.h"
+#include "electrowall.h"
 #include "weapon.h"
 
 inline vec2 RandomDir() { return normalize(vec2(frandom()-0.5f, frandom()-0.5f)); }
@@ -375,6 +376,16 @@ bool CWeapon::Charge()
 				m_AttackTick = Server()->Tick();
 				m_TriggerTick = Server()->Tick() + 2.0f * Server()->TickSpeed();
 				m_DestructionTick = Server()->Tick() + 4.0f * Server()->TickSpeed();
+				break;
+			case SW_ELECTROWALL:
+				m_AttackTick = Server()->Tick();
+				m_TriggerTick = Server()->Tick() + 2.0f * Server()->TickSpeed();
+				m_DestructionTick = Server()->Tick() + 4.0f * Server()->TickSpeed();
+				break;
+			case SW_AREASHIELD:
+				m_AttackTick = Server()->Tick();
+				m_TriggerTick = Server()->Tick() + 2.0f * Server()->TickSpeed();
+				m_DestructionTick = Server()->Tick() + 10.0f * Server()->TickSpeed();
 				break;
 			default: break;
 		}
@@ -790,6 +801,16 @@ void CWeapon::Trigger()
 					GameServer()->m_pController->DropPickup(m_Pos+vec2(0, -6), POWERUP_KIT, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
 				break;
 				
+			case SW_ELECTROWALL:
+				m_TriggerTick = Server()->Tick() + 0.1f * Server()->TickSpeed();
+			
+				if (ElectroWallScan())
+				{
+					GameServer()->CreateEffect(FX_SMALLELECTRIC, m_Pos);
+					m_DestructionTick = Server()->Tick();
+				}
+				break;
+				
 			default: return;
 		}
 	}
@@ -812,6 +833,40 @@ void CWeapon::Trigger()
 	*/
 }
 
+
+bool CWeapon::ElectroWallScan()
+{
+	float Dist = 9000.0f;
+	vec2 p1, p2;
+	
+	bool Found = false;
+	
+	for (int i = 0; i < 10; i++)
+	{
+		float d = 10.0f/float(i) * pi + m_Angle;
+		
+		vec2 To1 = m_Pos + vec2(cos(d), sin(d))*900.0f;
+		vec2 To2 = m_Pos - vec2(cos(d), sin(d))*900.0f;
+		
+		if (GameServer()->Collision()->IntersectLine(m_Pos, To1, 0x0, &To1) && GameServer()->Collision()->IntersectLine(m_Pos, To2, 0x0, &To2))
+		{
+			if (distance(To1, To2) < Dist)
+			{
+				Dist = distance(To1, To2);
+				p1 = To1;
+				p2 = To2;
+				Found = true;
+			}
+		}
+	}
+	
+	if (Found)
+		new CElectroWall(GameWorld(), p1, p2);
+	
+	return Found;
+}
+
+
 void CWeapon::SelfDestruct()
 {
 	if (!m_Released)
@@ -822,6 +877,9 @@ void CWeapon::SelfDestruct()
 		switch (GetStaticType(m_WeaponType))
 		{
 		case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: case SW_BOMB: GameServer()->CreateExplosion(m_Pos, m_Owner, m_WeaponType); break;
+		case SW_ELECTROWALL:
+			GameServer()->CreateEffect(FX_SMALLELECTRIC, m_Pos);
+			break;
 		default: break;
 		}
 	}

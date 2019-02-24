@@ -733,10 +733,12 @@ container.sprites.Add(Sprite("weapon_static17", set_weapons, 14, 17, 4, 4)) # ma
 container.sprites.Add(Sprite("weapon_static18", set_weapons, 14, 21, 4, 4)) # mask5 / wooden
 
 container.sprites.Add(Sprite("weapon_static19", set_weapons, 2, 25, 2, 3)) # invis
-container.sprites.Add(Sprite("weapon_static20", set_weapons, 7, 6, 6, 3)) # flame rifle / bubbler
-container.sprites.Add(Sprite("weapon_static21", set_weapons, 2, 12, 4, 4)) # shuriken
-container.sprites.Add(Sprite("weapon_static22", set_weapons, 4, 16, 3, 4)) # cs bomb
-container.sprites.Add(Sprite("weapon_static23", set_weapons, 10, 28, 4, 4)) # ball
+container.sprites.Add(Sprite("weapon_static20", set_weapons, 4, 20, 2, 3)) # electrowall
+container.sprites.Add(Sprite("weapon_static21", set_weapons, 4, 23, 3, 2)) # areashield
+container.sprites.Add(Sprite("weapon_static22", set_weapons, 7, 6, 6, 3)) # flame rifle / bubbler
+container.sprites.Add(Sprite("weapon_static23", set_weapons, 2, 12, 4, 4)) # shuriken
+container.sprites.Add(Sprite("weapon_static24", set_weapons, 4, 16, 3, 4)) # cs bomb
+container.sprites.Add(Sprite("weapon_static25", set_weapons, 10, 28, 4, 4)) # ball
 
 # pickups
 container.sprites.Add(Sprite("pickup_kit", set_weapons, 10, 0, 2, 2))

@@ -65,6 +65,7 @@ CCharacter::CCharacter(CGameWorld *pWorld)
 	m_Armor = 0;
 	m_Kits = 0;
 	m_PainSoundTimer = 0;
+	m_ElectroWallCooldown = 0;
 	m_Silent = false;
 	m_IgnoreCollision = false;
 	m_SendInventoryTick = 0;
@@ -138,6 +139,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_EmoteStop = -1;
 	m_LastAction = -1;
 	m_LastNoAmmoSound = -1;
+	m_ElectroWallCooldown = 0;
 	m_PrevWeapon = WEAPON_HAMMER;
 	m_QueuedCustomWeapon = -1;
 
@@ -199,6 +201,8 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_apWeapon[0] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 2), 10));
 	*/
 	
+	m_apWeapon[2] = GameServer()->NewWeapon(GetStaticWeapon(SW_ELECTROWALL));
+	m_apWeapon[3] = GameServer()->NewWeapon(GetStaticWeapon(SW_AREASHIELD));
 	
 	/*
 	int n = 0;
@@ -977,18 +981,8 @@ bool CCharacter::IsGrounded()
 
 void CCharacter::DoWeaponSwitch()
 {
-	// auto free hands to weapon
-	/*
-	if (GetWeaponType() == WEAPON_NONE)
-	{
-		for (int i = 0; i < 3; i++)
-			if (GetWeaponType(i) >= 0)
-			{
-				m_WantedSlot = i;
-				break;
-			}
-	}
-	*/
+	if (m_aStatus[STATUS_DEATHRAY] > 0.0f)
+		return;
 	
 	if (m_WantedSlot != m_WeaponSlot)
 	{
@@ -1073,7 +1067,7 @@ int CCharacter::Reflect()
 
 void CCharacter::FireWeapon()
 {
-	if (m_aStatus[STATUS_SPAWNING] > 0.0f)
+	if (m_aStatus[STATUS_SPAWNING] > 0.0f || m_aStatus[STATUS_DEATHRAY] > 0.0f)
 		return;
 
 	if (GetWeaponType() == WEAPON_NONE)
@@ -1576,6 +1570,9 @@ void CCharacter::Tick()
 	
 	//GameServer()->m_pController->DropPickup(m_Pos, POWERUP_COIN, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
 	//GameServer()->m_pController->DropPickup(m_Pos, POWERUP_HEALTH, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
+	
+	if (m_ElectroWallCooldown > 0)
+		m_ElectroWallCooldown--;
 	
 	if (m_PainSoundTimer > 0)
 		m_PainSoundTimer--;
@@ -2148,6 +2145,15 @@ bool CCharacter::TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos)
 	if (m_aStatus[STATUS_SPAWNING] > 0.0f)
 		return false;
 	
+	if (GetStaticType(Weapon) == SW_ELECTROWALL && m_ElectroWallCooldown <= 0)
+	{
+		Force = RandomDir()*0.1f;
+		m_aStatus[STATUS_DEATHRAY] = 0.15f*Server()->TickSpeed();
+		m_ElectroWallCooldown = 0.17f*Server()->TickSpeed();
+		Dmg = 2;
+		Pos = m_Pos-vec2(0, frandom()*18.0f);
+	}
+	
 	if (!Dmg)
 		return false;
 
@@ -2165,6 +2171,7 @@ bool CCharacter::TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos)
 	
 	float Flame = WeaponFlameAmount(Weapon);
 	float Electro = WeaponElectroAmount(Weapon);
+
 	
 	if (From == m_pPlayer->GetCID())
 	{
@@ -2195,7 +2202,7 @@ bool CCharacter::TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos)
 	if (m_ShieldHealth <= 0)
 	{
 		//if (Type == DAMAGETYPE_NORMAL)
-		if (Flame == 0.0f && Electro == 0.0f && Weapon != WEAPON_ACID)
+		if (Flame == 0.0f && Electro == 0.0f && Weapon != WEAPON_ACID && GetStaticType(Weapon) != SW_ELECTROWALL)
 		{
 			if(Server()->Tick() < m_DamageTakenTick+25)
 				GameServer()->CreateDamageInd(DmgPos, GetAngle(-Force), Dmg * (m_Type == CCharacter::ROBOT ? -1 : 1), m_pPlayer->GetCID());

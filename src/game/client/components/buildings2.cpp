@@ -126,6 +126,82 @@ void CBuildings2::RenderLightningWallTop(const struct CNetObj_Building *pCurrent
 }
 
 
+
+void CBuildings2::RenderElectroWall(const CNetObj_LaserFail *pCurrent)
+{
+	if (pCurrent->m_PowerLevel != 100)
+		return;
+	
+	vec2 Pos = vec2(pCurrent->m_X, pCurrent->m_Y);
+	vec2 From = vec2(pCurrent->m_FromX, pCurrent->m_FromY);
+	vec2 Dir = normalize(Pos-From);
+
+	float Ticks = Client()->GameTick() + Client()->IntraGameTick() - pCurrent->m_StartTick;
+	float Ms = (Ticks/50.0f) * 1000.0f;
+	float a = Ms / m_pClient->m_Tuning.m_LaserBounceDelay;
+	a = clamp(a, 0.0f, 1.0f);
+	float Ia = 1-a;
+
+	//Graphics()->ShaderBegin(SHADER_ELECTRIC, 1.0f);
+	
+	vec2 Out;
+
+	Graphics()->BlendNormal();
+	Graphics()->TextureSet(-1);
+	Graphics()->QuadsBegin();
+
+	
+	int Steps = 2 + length(Pos - From) / 75;
+	vec2 Step = (Pos - From) / Steps;
+	Out = vec2(Dir.y, -Dir.x) * (5.0f*Ia);
+		
+	
+	for (int ew = 0; ew < 2; ew++)
+	{
+		vec2 p1 = From;
+		vec2 s1 = Out * 0.1f;
+		vec2 o1 = vec2(0, 0);
+		Graphics()->SetColor(1.0f-frandom()*0.25f, 1.0f-frandom()*0.25f, 1.0f-frandom()*0.5f, 0.5f+frandom()*0.5f);
+		
+		bool Trail = frandom() < 0.2f;
+		
+		for (int i = 0; i < Steps; i++)
+		{
+			vec2 p2 = p1 + Step;
+			vec2 o2 = vec2(0, 0);
+				
+			if (i < Steps-1)
+				o2 = vec2(frandom()-frandom(), frandom()-frandom()) * (40.0f + a*70.0f);
+				
+			vec2 s2 = Out * frandom()*3.0f;
+				
+			if (i == Steps -1)
+				s2 *= 0.1f;
+				
+			IGraphics::CFreeformItem FreeFormItem(
+				p1.x-s1.x+o1.x, p1.y-s1.y+o1.y,
+				p1.x+s1.x+o1.x, p1.y+s1.y+o1.y,
+				p2.x-s2.x+o2.x, p2.y-s2.y+o2.y,
+				p2.x+s2.x+o2.x, p2.y+s2.y+o2.y);
+									
+			Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+			
+			if (Trail)
+				m_pClient->m_pEffects->BulletTrail(p1+o1, p2+o2, vec4(1.0f, 1.0f, 0.8f, 0.2f));
+			
+			s1 = s2;
+			p1 = p2;
+			o1 = o2;
+		}
+	}
+	
+	Graphics()->QuadsEnd();
+	//Graphics()->ShaderEnd();
+	Graphics()->BlendNormal();
+}
+
+
+
 void CBuildings2::RenderSawblade(const struct CNetObj_Building *pCurrent)
 {
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
@@ -523,7 +599,11 @@ void CBuildings2::OnRender()
 		IClient::CSnapItem Item;
 		const void *pData = Client()->SnapGetItem(IClient::SNAP_CURRENT, i, &Item);
 
-		if (Item.m_Type == NETOBJTYPE_BUILDING)
+		if (Item.m_Type == NETOBJTYPE_LASERFAIL)
+		{
+			RenderElectroWall((const CNetObj_LaserFail *)pData);
+		}
+		else if (Item.m_Type == NETOBJTYPE_BUILDING)
 		{
 			const struct CNetObj_Building *pBuilding = (const CNetObj_Building *)pData;
 			const void *pPrev = Client()->SnapFindItem(IClient::SNAP_PREV, Item.m_Type, Item.m_ID);

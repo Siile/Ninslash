@@ -3,6 +3,8 @@ Index 34
 BaseTile
 
 
+
+
 #random stuff
 Index 51
 Pos 0 1 FULL
@@ -45,6 +47,7 @@ Pos 0 -1 FULL
 Pos 1 0 FULL
 Pos -1 0 FULL
 Random 500
+
 
 
 #top
@@ -419,6 +422,8 @@ Pos 0 -1 FULL
 
 
 
+
+
 #platform next to a wall
 
 #left
@@ -507,3 +512,31 @@ Pos 0 -1 FULL
 Pos 1 -1 FULL
 Pos -1 0 EMPTY
 Pos 1 0 EMPTY
+
+
+
+
+
+#asd
+Index 40 ROTATE
+Pos -1 0 FULL
+Pos 1 0 FULL
+Pos 0 -1 FULL
+Pos 0 1 FULL
+
+Pos -1 -1 EMPTY
+Pos 1 -1 FULL
+Pos -1 1 FULL
+Pos 1 1 EMPTY
+
+#asd
+Index 40
+Pos -1 0 FULL
+Pos 1 0 FULL
+Pos 0 -1 FULL
+Pos 0 1 FULL
+
+Pos -1 -1 FULL
+Pos 1 -1 EMPTY
+Pos -1 1 EMPTY
+Pos 1 1 FULL

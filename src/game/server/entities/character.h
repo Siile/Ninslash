@@ -259,6 +259,7 @@ private:
 	int m_LastStatusEffect;
 	
 	int m_PrevWeapon;
+	int m_ElectroWallCooldown;
 	
 	int m_MaskEffectTick;
 	

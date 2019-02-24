@@ -215,7 +215,7 @@ Objects = [
 		NetIntAny("m_Y"),
 		NetIntAny("m_FromX"),
 		NetIntAny("m_FromY"),
-		NetIntRange("m_PowerLevel", 0, 9),
+		NetIntRange("m_PowerLevel", 0, 100),
 
 		NetTick("m_StartTick"),
 	]),

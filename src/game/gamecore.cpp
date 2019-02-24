@@ -227,7 +227,10 @@ void CCharacterCore::Tick(bool UseInput)
 	
 	int s = m_Status;
 	if (s & (1<<STATUS_DEATHRAY))
+	{
+		m_Vel = vec2(0, 0);
 		return;
+	}
 	
 	if (Status(STATUS_SPAWNING))
 		return;

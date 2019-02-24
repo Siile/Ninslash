@@ -34,6 +34,8 @@ const int GetWeaponCost(int Weapon)
 			case SW_UPGRADE: cost1 = 10; cost2 = 0; break;
 			case SW_RESPAWNER: cost1 = 10; cost2 = 0; break;
 			case SW_INVIS: cost1 = 5; cost2 = 20; break;
+			case SW_ELECTROWALL: cost1 = 7; cost2 = 20; break;
+			case SW_AREASHIELD: cost1 = 7; cost2 = 20; break;
 			case SW_SHIELD: cost1 = 5; cost2 = 20; break;
 			case SW_CHAINSAW: cost1 = 10; cost2 = 20; break;
 			case SW_FLAMER: cost1 = 10; cost2 = 20; break;
@@ -126,6 +128,8 @@ const int GetProjectileTraceType(int Weapon)
 			case SW_SHURIKEN: return -4;
 			case SW_BALL: return 8;
 			case SW_GRENADE3: return 7;
+			case SW_ELECTROWALL: return 4;
+			case SW_AREASHIELD: return 5;
 			case SW_GRENADE2: return 5;
 			case SW_GRENADE1: return 4;
 			case SW_BAZOOKA: return -1;
@@ -153,6 +157,7 @@ const float GetWeaponTraceThreshold(int Weapon)
 		{
 			case SW_SHURIKEN: return 20.0f;
 			case SW_GRENADE3: case SW_GRENADE2: case SW_GRENADE1: return 0.0f;
+			case SW_ELECTROWALL: case SW_AREASHIELD: return 0.0f;
 			default: return 0.0f;
 		};
 	}
@@ -223,6 +228,7 @@ const float GetProjectileSize(int Weapon)
 		switch (GetStaticType(Weapon))
 		{
 			case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: return 2.5f;
+			case SW_ELECTROWALL: case SW_AREASHIELD: return 2.5f;
 			case SW_BALL: return 2.0f;
 			case SW_SHURIKEN: return 2.5f;
 			case SW_CLUSTER: return GetWeaponCharge(Weapon) == 15 ? 1.5f : 1.0f;
@@ -593,6 +599,8 @@ const ivec2 GetWeaponVisualSize(int Weapon)
 		case SW_RESPAWNER: return ivec2(2, 4);
 		case SW_BOMB: return ivec2(3, 4);
 		case SW_INVIS: return ivec2(2, 3);
+		case SW_ELECTROWALL: return ivec2(2, 3);
+		case SW_AREASHIELD: return ivec2(3, 2);
 		case SW_SHIELD: return ivec2(2, 3);
 	};
 	
@@ -648,7 +656,7 @@ const int GetWeaponFiringType(int Weapon)
 		case SW_TOOL: return WFT_MELEE;
 		case SW_GUN1: return WFT_PROJECTILE;
 		case SW_GUN2: return WFT_CHARGE;
-		case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: return WFT_THROW;
+		case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: case SW_ELECTROWALL: case SW_AREASHIELD: return WFT_THROW;
 		case SW_BOMB: return WFT_ACTIVATE;
 		case SW_SHURIKEN: return WFT_THROW;
 		case SW_BALL: return WFT_THROW;
@@ -710,7 +718,8 @@ const vec2 GetWeaponRenderOffset(int Weapon)
 			case SW_TOOL: return vec2(-20, -4);
 			case SW_UPGRADE: return vec2(9, 0);
 			case SW_RESPAWNER: return vec2(2, -5);
-			case SW_SHIELD: case SW_INVIS: return vec2(4, -3);
+			case SW_SHIELD: case SW_INVIS: case SW_ELECTROWALL: return vec2(4, -3);
+			case SW_AREASHIELD: return vec2(16, -3);
 			case SW_BOMB: return vec2(8, 0);
 			case SW_MASK1: case SW_MASK2: case SW_MASK3: case SW_MASK4: case SW_MASK5: return vec2(16, 0);
 			case SW_BAZOOKA: return vec2(30, 0);
@@ -1278,7 +1287,7 @@ const int AIAttackRange(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
-			case SW_RESPAWNER: case SW_SHIELD: case SW_INVIS: return 800;
+			case SW_RESPAWNER: case SW_SHIELD: case SW_INVIS: case SW_ELECTROWALL: case SW_AREASHIELD: return 800;
 			case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: return 700;
 			case SW_GUN1: return 700;
 			case SW_GUN2: return 500;
@@ -1352,8 +1361,10 @@ const float WeaponElectroAmount(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
+			case SW_ELECTROWALL: return 0.0f;
 			case SW_GRENADE2: return 0.5f;
 			case SW_GUN2: return 0.5f;
+			default: return 0.0f;
 		};
 	}
 	
@@ -1670,6 +1681,8 @@ const float WeaponThrowForce(int Weapon)
 			case SW_BALL: return 1.4f;
 			case SW_GRENADE1: case SW_GRENADE2: case SW_GRENADE3: return 1.0f;
 			case SW_SHURIKEN: return 1.4f;
+			case SW_ELECTROWALL: return 0.85f;
+			case SW_AREASHIELD: return 0.75f;
 			case SW_BOMB: return 0.4f;
 			default: return 0.0f;
 		};
