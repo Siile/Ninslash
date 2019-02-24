@@ -244,6 +244,7 @@ public:
 	bool TriggerWeapon(class CWeapon *pWeapon = NULL);
 	
 	bool UpgradeTurret(vec2 Pos, vec2 Dir, int Slot = -1);
+	bool Deathrayed() const { return m_ElectroWallCooldown > 0;}
 	
 private:
 	// player controlling this character

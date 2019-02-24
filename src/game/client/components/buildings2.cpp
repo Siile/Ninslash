@@ -161,7 +161,7 @@ void CBuildings2::RenderElectroWall(const CNetObj_LaserFail *pCurrent)
 		vec2 p1 = From;
 		vec2 s1 = Out * 0.1f;
 		vec2 o1 = vec2(0, 0);
-		Graphics()->SetColor(1.0f-frandom()*0.25f, 1.0f-frandom()*0.25f, 1.0f-frandom()*0.5f, 0.5f+frandom()*0.5f);
+		Graphics()->SetColor(1.0f-frandom()*0.15f, 1.0f-frandom()*0.25f, 0.9f-frandom()*0.3f, 0.5f+frandom()*0.5f);
 		
 		bool Trail = frandom() < 0.2f;
 		

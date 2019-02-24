@@ -10,7 +10,7 @@ CElectroWall::CElectroWall(CGameWorld *pGameWorld, vec2 Pos1, vec2 Pos2)
 	
 	GameWorld()->InsertEntity(this);
 	m_StartTick = Server()->Tick();
-	m_DestructionTick = Server()->Tick()+Server()->TickSpeed()*8.0f;
+	m_DestructionTick = Server()->Tick()+Server()->TickSpeed()*10.0f;
 }
 
 
@@ -38,7 +38,7 @@ bool CElectroWall::HitCharacter()
 {
 	vec2 From = m_Pos-normalize(m_Pos-m_Pos2)*12.0f;
 	vec2 To = m_Pos2+normalize(m_Pos-m_Pos2)*12.0f;
-	CCharacter *pHit = GameServer()->m_World.IntersectCharacter(From, To, 4.0f, To, NULL);
+	CCharacter *pHit = GameServer()->m_World.IntersectCharacter(From, To, 4.0f, To, NULL, true);
 	if(!pHit)
 		return false;
 	

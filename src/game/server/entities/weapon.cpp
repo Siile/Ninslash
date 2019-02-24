@@ -843,7 +843,7 @@ bool CWeapon::ElectroWallScan()
 	
 	for (int i = 0; i < 10; i++)
 	{
-		float d = 10.0f/float(i) * pi + m_Angle;
+		float d = float(i)/10.0f * pi + m_Angle;
 		
 		vec2 To1 = m_Pos + vec2(cos(d), sin(d))*900.0f;
 		vec2 To2 = m_Pos - vec2(cos(d), sin(d))*900.0f;
