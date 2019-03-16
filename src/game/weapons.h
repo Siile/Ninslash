@@ -103,6 +103,8 @@ static const char *s_TipText[NUM_SW] = {
 	"Mask of plenty",
 	"Mask of melee",
 	"Invisibility device",
+	"Electrowall",
+	"Area Shield",
 	"",
 	"",
 	"Bomb (for destroying reactors)",

@@ -586,6 +586,8 @@ void CPlayers::RenderPlayer(
 	
 	pCustomPlayerInfo->m_WeaponColorSwap = 0.0f;
 	
+	vec2 p = Position;
+	
 	// render weapon
 	if (GetWeaponRenderType(Player.m_Weapon) == WRT_WEAPON1)
 	{
@@ -601,7 +603,6 @@ void CPlayers::RenderPlayer(
 		//RenderTools()->SelectSprite(g_pData->m_Weapons.m_aId[iw].m_pSpriteBody, Direction.x < 0 ? SPRITE_FLAG_FLIP_Y : 0);
 
 		vec2 Dir = Direction;
-		vec2 p;
 
 		{
 			static float s_LastIntraTick = IntraTick;
@@ -1401,6 +1402,51 @@ void CPlayers::RenderPlayer(
 
 	Graphics()->ShaderEnd();
 	
+	
+	int Phase1Tick = (Client()->GameTick() - Player.m_AttackTick);
+	
+	if (Phase1Tick > 0 && pCustomPlayerInfo->GetWeaponCharge() > 0.0f && GetStaticType(Player.m_Weapon) == SW_AREASHIELD)
+	{
+		float c = cos(CustomStuff()->m_SawbladeAngle*0.25f)*0.3f + 0.7f;
+		
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GENERATOR_SHIELD].m_Id);
+		Graphics()->QuadsBegin();
+		Graphics()->QuadsSetRotation(Angle);
+		
+		/*
+		//team color
+		if (m_pClient->m_Snap.m_pGameInfoObj)
+		{
+			int Flags = m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags;
+			int Team = pCurrent->m_Team;
+		
+			if ((Flags & GAMEFLAG_TEAMS) && !(Flags & GAMEFLAG_INFECTION))
+			{
+				if (Team == TEAM_RED)
+					Graphics()->SetColor(1, 0.5f + c*0.5f, 0.5f, 0.5f);
+				else if (Team == TEAM_BLUE)
+					Graphics()->SetColor(0.5f, 0.5f + c*0.5f, 1, 0.5f);
+			}
+			else if (Team == TEAM_RED)
+			{
+				vec4 pc = CustomStuff()->m_LocalColor;
+				Graphics()->SetColor(0.5f+pc.r*0.5f, 0.5f+pc.g*0.5f, 0.5f+pc.b*0.5f, 0.5f);
+			}
+			else
+				Graphics()->SetColor(0.0f, 0.5f+c*0.5f, 1, 0.5f);
+		}
+		else
+			*/
+			
+		float a = clamp((Phase1Tick+IntraTick) * 0.02f, 0.0f, 1.0f);
+		Graphics()->SetColor(0.5f, 0.5f+c*0.5f, 1, 0.5f*a*a);
+		
+		
+		//Graphics()->SetColor(0, 0.5f+c*0.5f, 1, 0.5f);
+		RenderTools()->SelectSprite(SPRITE_GENERATOR_SHIELD);
+		RenderTools()->DrawSprite(Position.x, Position.y, (512+40.0f*c));
+		Graphics()->QuadsEnd();
+	}
 	
 	
 	

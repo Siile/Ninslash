@@ -5,10 +5,12 @@
 #include "entity.h"
 #include "gamecontext.h"
 #include "entities/turret.h"
+#include "entities/weapon.h"
 #include "entities/ball.h"
 #include "entities/building.h"
 #include "entities/droid.h"
 
+#include <game/weapons.h>
 #include <engine/shared/config.h>
 
 //////////////////////////////////////////////////
@@ -224,6 +226,30 @@ void CGameWorld::Tick()
 	RemoveEntities();
 }
 
+
+
+bool CGameWorld::IsShielded(vec2 Pos0, vec2 Pos1, float Radius, int Team)
+{
+	CWeapon *w = (CWeapon *)FindFirst(ENTTYPE_WEAPON);
+	for(; w; w = (CWeapon *)w->TypeNext())
+ 	{
+		if (GetStaticType(w->GetWeaponType()) == SW_AREASHIELD)
+		{
+			
+			vec2 IntersectPos = closest_point_on_line(Pos0, Pos1, w->m_Pos);
+			
+			float Len = distance(w->m_Pos + w->m_Center, IntersectPos);
+			if (Len < 180+Radius && distance(w->m_Pos + w->m_Center, Pos0) >= 180+Radius)
+			{
+				return true;
+			}	
+		}
+	}
+	
+	return false;
+}
+	
+	
 
 CBuilding *CGameWorld::IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, int Team, CEntity *pNotThis)
 {

@@ -142,6 +142,7 @@ void CProjectile::Tick()
 	CBall *Ball = NULL;
 	Ball = GameServer()->m_World.IntersectBall(PrevPos, CurPos, r, CurPos);
 	
+	bool Shielded = GameServer()->m_World.IsShielded(PrevPos, CurPos, r, Team);
 	
 	if (m_OwnerBuilding == TargetBuilding)
 		TargetBuilding = NULL;
@@ -190,7 +191,7 @@ void CProjectile::Tick()
 			GameServer()->DamageBlocks(CurPos+vec2(4, 4), m_Damage, 1);
 	}
 	
-	if(Ball || TargetMonster || TargetBuilding || TargetChr || Collide || m_LifeSpan < 0 || GameLayerClipped(CurPos))
+	if(Ball || TargetMonster || TargetBuilding || TargetChr || Collide || m_LifeSpan < 0 || Shielded || GameLayerClipped(CurPos))
 	{
 		if(TargetChr)
 		{
@@ -199,6 +200,9 @@ void CProjectile::Tick()
 			
 			GameServer()->CreateEffect(FX_BLOOD2, (CurPos+TargetChr->m_Pos)/2.0f + vec2(0, -4));
 		}
+		
+		if (Shielded)
+			GameServer()->CreateEffect(FX_SHIELDHIT, CurPos);
 
 		if(TargetBuilding)
 		{

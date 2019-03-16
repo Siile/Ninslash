@@ -110,11 +110,11 @@ void CWeapons::RenderWeapon(const CNetObj_Weapon *pPrev, const CNetObj_Weapon *p
 	
 	if (GetStaticType(pCurrent->m_WeaponType) == SW_AREASHIELD)
 	{
-		float c = cos(CustomStuff()->m_SawbladeAngle*0.25f+(pCurrent->m_X/17)%30*0.1f)*0.3f + 0.7f;
+		float c = cos(CustomStuff()->m_SawbladeAngle*0.25f)*0.3f + 0.7f;
 		
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GENERATOR_SHIELD].m_Id);
 		Graphics()->QuadsBegin();
-	Graphics()->QuadsSetRotation(Angle);
+		Graphics()->QuadsSetRotation(Angle);
 		
 		/*
 		//team color
@@ -140,12 +140,15 @@ void CWeapons::RenderWeapon(const CNetObj_Weapon *pPrev, const CNetObj_Weapon *p
 		}
 		else
 			*/
-			Graphics()->SetColor(0.5f, 0.5f+c*0.5f, 1, 0.5f);
+			
+		
+		float a = clamp(Phase1Tick * 0.02f, 0.0f, 1.0f);
+		Graphics()->SetColor(0.5f, 0.5f+c*0.5f, 1, 0.5f*a*a);
 		
 		
 		//Graphics()->SetColor(0, 0.5f+c*0.5f, 1, 0.5f);
 		RenderTools()->SelectSprite(SPRITE_GENERATOR_SHIELD);
-		RenderTools()->DrawSprite(Pos.x, Pos.y, 512+40.0f*c);
+		RenderTools()->DrawSprite(Pos.x, Pos.y, (512+40.0f*c));
 		Graphics()->QuadsEnd();
 	}
 }

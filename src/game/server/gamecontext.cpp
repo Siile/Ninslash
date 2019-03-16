@@ -1797,6 +1797,13 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				SkipSending = true;
 			}
 			
+			if ( strcmp(pMsg->m_pMessage, "/weaponcount") == 0 )
+			{
+				char aBuf[128]; str_format(aBuf, sizeof(aBuf), "Number of weapon objects: %d", m_World.FindEntities(vec2(0, 0), 0.0f, NULL, 99999, CGameWorld::ENTTYPE_WEAPON));
+				SendChatTarget(ClientID, aBuf);
+				SkipSending = true;
+			}
+			
 			if ( strcmp(pMsg->m_pMessage, "/jumphigh") == 0 )
 			{
 				CPlayerData *pData = Server()->GetPlayerData(pPlayer->GetCID(), pPlayer->GetColorID());
