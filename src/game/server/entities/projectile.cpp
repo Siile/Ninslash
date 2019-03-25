@@ -1,4 +1,5 @@
 #include <game/generated/protocol.h>
+#include <game/collision.h>
 #include <game/server/gamecontext.h>
 #include <game/weapons.h>
 #include "projectile.h"
@@ -64,45 +65,41 @@ vec2 CProjectile::GetPos(float Time)
 	return CalcPos(m_Pos, m_Direction, m_Vel2, m_Curvature, m_Speed, Time);
 }
 
+
+
+
 // todo: fix broken bouncing
-bool CProjectile::Bounce(vec2 Pos)
+bool CProjectile::Bounce(vec2 Pos, int Collision)
 {
 	if (m_Bounces-- > 0)
 	{
 		BounceTick = Server()->Tick();
 	
-		m_Vel2 = vec2(0, 0);
-		int top = GameServer()->Collision()->GetCollisionAt(Pos.x, Pos.y-16);
-		int bot = GameServer()->Collision()->GetCollisionAt(Pos.x, Pos.y+16);
-		int left = GameServer()->Collision()->GetCollisionAt(Pos.x-16, Pos.y);
-		int right = GameServer()->Collision()->GetCollisionAt(Pos.x+16, Pos.y);
-		
-		int c = (top > 0) + (bot > 0) + (left > 0) + (right > 0);
-		
-		if (c == 4)
-		{
-			//m_Direction.y *= -1;
-			//m_Direction.x *= -1;
-			
-			return false;
-		}
+	/*
+		if (Collision == CCollision::COLFLAG_RAMP_LEFT)
+			m_Direction = Reflect(m_Direction, normalize(vec2(1, -1)));
+		else if (Collision == CCollision::COLFLAG_RAMP_RIGHT)
+			m_Direction = Reflect(m_Direction, normalize(vec2(-1, -1)));
+		else if (Collision == CCollision::COLFLAG_ROOFSLOPE_LEFT)
+			m_Direction = Reflect(m_Direction, normalize(vec2(1, 1)));
+		else if (Collision == CCollision::COLFLAG_ROOFSLOPE_RIGHT)
+			m_Direction = Reflect(m_Direction, normalize(vec2(-1, 1)));
 		else
 		{
-			if(!top && bot)
-				m_Direction.y *= -1;
-			if(!bot && top)
-				m_Direction.y *= -1;
-			if(!left && right)
-				m_Direction.x *= -1;
-			if(!right && left)
-				m_Direction.x *= -1;
+			if (!GameServer()->Collision()->GetCollisionAt(Pos.x, Pos.y-8) || !GameServer()->Collision()->GetCollisionAt(Pos.x, Pos.y+8))
+				m_Direction = Reflect(m_Direction, normalize(vec2(0, -1)));
+			else
+				m_Direction = Reflect(m_Direction, normalize(vec2(-1, 0)));
 		}
+		*/
+		
+		m_Direction = GameServer()->Collision()->WallReflect(Pos, m_Direction, Collision);
 		
 		if (GetStaticType(m_Weapon) == SW_CLUSTER)
 			GameServer()->CreateSound(Pos, SOUND_SFX_BOUNCE1);
 		else
 			GameServer()->CreateSound(Pos, SOUND_BOUNCER_BOUNCE);
-		
+	
 		return true;
 	}
 	
@@ -156,7 +153,7 @@ void CProjectile::Tick()
 	
 	m_LifeSpan--;
 
-	if (Collide && Bounce(CurPos))
+	if (Collide && Bounce(CurPos, Collide))
 	{
 		m_StartTick = Server()->Tick()-1;
 		m_Pos = CurPos;
@@ -168,12 +165,15 @@ void CProjectile::Tick()
 		m_StartTick = Server()->Tick()-1;
 		m_Pos = CurPos;
 		
-		m_Direction.y *= -1;
-		m_Direction.x *= -1;
+		//m_Direction.y *= -1;
+		//m_Direction.x *= -1;
 		
-		vec2 d = (ReflectChr->m_Pos+vec2(0, -24))-PrevPos;
-		d += vec2(frandom()-frandom(), frandom()-frandom()) * length(d) * 0.4f;
-		m_Direction = -normalize(d);
+		//vec2 d = (ReflectChr->m_Pos+vec2(0, -24))-PrevPos;
+		//d += vec2(frandom()-frandom(), frandom()-frandom()) * length(d) * 0.4f;
+		//m_Direction = -normalize(d);
+		
+		vec2 d = (ReflectChr->m_Pos+vec2(0, -24)) - PrevPos;
+		m_Direction = GameServer()->Collision()->Reflect(m_Direction, normalize(d));
 		GameServer()->CreateBuildingHit(CurPos);
 	}
 	

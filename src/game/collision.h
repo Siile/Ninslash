@@ -139,6 +139,9 @@ public:
 	int IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, bool IncludeDeath = false, bool IncludePlatforms = false);
 	bool IntersectBlocks(vec2 Pos0, vec2 Pos1);
 	
+	vec2 Reflect(vec2 v, vec2 n);
+	vec2 WallReflect(vec2 Pos, vec2 Direction, int Collision);
+	
 	// return bounced (true) or not (false)
 	bool MovePoint(vec2 *pInoutPos, vec2 *pInoutVel, float Elasticity, int *pBounces, bool IgnoreCollision = false);
 	void MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, float Elasticity, bool check_speed = true, bool Down = false);

@@ -233,7 +233,7 @@ bool CGameWorld::IsShielded(vec2 Pos0, vec2 Pos1, float Radius, int Team)
 	CWeapon *w = (CWeapon *)FindFirst(ENTTYPE_WEAPON);
 	for(; w; w = (CWeapon *)w->TypeNext())
  	{
-		if (GetStaticType(w->GetWeaponType()) == SW_AREASHIELD)
+		if (!w->m_Disabled && GetStaticType(w->GetWeaponType()) == SW_AREASHIELD)
 		{
 			
 			vec2 IntersectPos = closest_point_on_line(Pos0, Pos1, w->m_Pos);

@@ -26,7 +26,7 @@ public:
 	vec2 GetPos(float Time);
 	void FillInfo(CNetObj_Projectile *pProj);
 	
-	bool Bounce(vec2 Pos);
+	bool Bounce(vec2 Pos, int Collision);
 	int BounceTick;
 	
 	virtual void Reset();

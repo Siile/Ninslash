@@ -78,16 +78,16 @@ void CCollision::Init(class CLayers *pLayers)
 			m_pTiles[i].m_Index = COLFLAG_INSTADEATH;
 			break;
 		case TILE_RAMP_LEFT:
-			m_pTiles[i].m_Index |= COLFLAG_RAMP_LEFT;
+			m_pTiles[i].m_Index = COLFLAG_RAMP_LEFT;
 			break;
 		case TILE_RAMP_RIGHT:
-			m_pTiles[i].m_Index |= COLFLAG_RAMP_RIGHT;
+			m_pTiles[i].m_Index = COLFLAG_RAMP_RIGHT;
 			break;
 		case TILE_ROOFSLOPE_LEFT:
-			m_pTiles[i].m_Index |= COLFLAG_ROOFSLOPE_LEFT;
+			m_pTiles[i].m_Index = COLFLAG_ROOFSLOPE_LEFT;
 			break;
 		case TILE_ROOFSLOPE_RIGHT:
-			m_pTiles[i].m_Index |= COLFLAG_ROOFSLOPE_RIGHT;
+			m_pTiles[i].m_Index = COLFLAG_ROOFSLOPE_RIGHT;
 			break;
 		case TILE_DAMAGEFLUID:
 			m_pTiles[i].m_Index = COLFLAG_DAMAGEFLUID;
@@ -841,6 +841,39 @@ int CCollision::TestBox(vec2 Pos, vec2 Size, bool Down)
 		return true;*/
 	return 0;
 }
+
+
+
+float VectorDotProduct(vec2 v1, vec2 v2)
+{
+	return v1.x * v2.x + v1.y * v2.y;
+}
+
+vec2 CCollision::Reflect(vec2 v, vec2 n)
+{
+    return v - n * 2.0f * VectorDotProduct(v, n);
+}
+
+
+vec2 CCollision::WallReflect(vec2 Pos, vec2 Direction, int Collision)
+{
+		if (Collision == COLFLAG_RAMP_LEFT)
+			return Reflect(Direction, normalize(vec2(1, -1)));
+		else if (Collision == COLFLAG_RAMP_RIGHT)
+			return Reflect(Direction, normalize(vec2(-1, -1)));
+		else if (Collision == COLFLAG_ROOFSLOPE_LEFT)
+			return Reflect(Direction, normalize(vec2(1, 1)));
+		else if (Collision == COLFLAG_ROOFSLOPE_RIGHT)
+			return Reflect(Direction, normalize(vec2(-1, 1)));
+		else
+		{
+			if (!GetCollisionAt(Pos.x, Pos.y-8) || !GetCollisionAt(Pos.x, Pos.y+8))
+				return Reflect(Direction, normalize(vec2(0, -1)));
+			else
+				return Reflect(Direction, normalize(vec2(-1, 0)));
+		}
+}
+
 
 void CCollision::MoveBox(vec2 *pInoutPos, vec2 *pInoutVel, vec2 Size, float Elasticity, bool check_speed, bool Down)
 {
