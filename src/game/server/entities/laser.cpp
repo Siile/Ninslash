@@ -79,7 +79,10 @@ bool CLaser::HitScythe(vec2 From, vec2 To)
 	//vec2 d = (pHit->m_Pos+vec2(0, -24))-From;
 	//d += vec2(frandom()-frandom(), frandom()-frandom()) * length(d) * 0.4f;
 	//m_Dir = -normalize(d);
-	m_Dir = normalize(vec2(frandom()-0.5f, frandom()-0.5f));
+	//m_Dir = normalize(vec2(frandom()-0.5f, frandom()-0.5f));
+	
+	vec2 d = (pHit->m_Pos+vec2(0, -24)) - From;
+	m_Dir = GameServer()->Collision()->Reflect(m_Dir, normalize(d));
 	
 	GameServer()->CreateBuildingHit(m_Pos);
 	m_IgnoreScythe = pHit->GetPlayer()->GetCID();

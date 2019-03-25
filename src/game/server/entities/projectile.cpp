@@ -74,26 +74,9 @@ bool CProjectile::Bounce(vec2 Pos, int Collision)
 	if (m_Bounces-- > 0)
 	{
 		BounceTick = Server()->Tick();
-	
-	/*
-		if (Collision == CCollision::COLFLAG_RAMP_LEFT)
-			m_Direction = Reflect(m_Direction, normalize(vec2(1, -1)));
-		else if (Collision == CCollision::COLFLAG_RAMP_RIGHT)
-			m_Direction = Reflect(m_Direction, normalize(vec2(-1, -1)));
-		else if (Collision == CCollision::COLFLAG_ROOFSLOPE_LEFT)
-			m_Direction = Reflect(m_Direction, normalize(vec2(1, 1)));
-		else if (Collision == CCollision::COLFLAG_ROOFSLOPE_RIGHT)
-			m_Direction = Reflect(m_Direction, normalize(vec2(-1, 1)));
-		else
-		{
-			if (!GameServer()->Collision()->GetCollisionAt(Pos.x, Pos.y-8) || !GameServer()->Collision()->GetCollisionAt(Pos.x, Pos.y+8))
-				m_Direction = Reflect(m_Direction, normalize(vec2(0, -1)));
-			else
-				m_Direction = Reflect(m_Direction, normalize(vec2(-1, 0)));
-		}
-		*/
-		
+
 		m_Direction = GameServer()->Collision()->WallReflect(Pos, m_Direction, Collision);
+		m_Vel2 = GameServer()->Collision()->WallReflect(Pos, m_Vel2, Collision);
 		
 		if (GetStaticType(m_Weapon) == SW_CLUSTER)
 			GameServer()->CreateSound(Pos, SOUND_SFX_BOUNCE1);
@@ -174,6 +157,7 @@ void CProjectile::Tick()
 		
 		vec2 d = (ReflectChr->m_Pos+vec2(0, -24)) - PrevPos;
 		m_Direction = GameServer()->Collision()->Reflect(m_Direction, normalize(d));
+		m_Vel2 = GameServer()->Collision()->Reflect(m_Vel2, normalize(d));
 		GameServer()->CreateBuildingHit(CurPos);
 	}
 	
