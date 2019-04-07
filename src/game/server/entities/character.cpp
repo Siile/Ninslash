@@ -201,8 +201,8 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_apWeapon[0] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 2), 10));
 	*/
 	
-	m_apWeapon[2] = GameServer()->NewWeapon(GetStaticWeapon(SW_ELECTROWALL));
-	m_apWeapon[3] = GameServer()->NewWeapon(GetStaticWeapon(SW_AREASHIELD));
+	//m_apWeapon[2] = GameServer()->NewWeapon(GetStaticWeapon(SW_ELECTROWALL));
+	//m_apWeapon[3] = GameServer()->NewWeapon(GetStaticWeapon(SW_AREASHIELD));
 	
 	/*
 	int n = 0;
@@ -215,7 +215,11 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_FLAMER));
 	*/
 	
-	//m_apWeapon[0] = GameServer()->NewWeapon(GetModularWeapon(3, 1));
+	/*
+	m_apWeapon[2] = GameServer()->NewWeapon(GetStaticWeapon(SW_BOUNCER));
+	m_apWeapon[3] = GameServer()->NewWeapon(GetModularWeapon(6, 6));
+	*/
+	
 	//m_apWeapon[1] = GameServer()->NewWeapon(GetStaticWeapon(SW_BALL));
 	//m_apWeapon[2] = GameServer()->NewWeapon(GetStaticWeapon(SW_MASK5));
 	//m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 6));
@@ -229,9 +233,10 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 bool CCharacter::GiveBomb()
 {
-	if (FreeSlot() >= 0 && GetPlayer()->GetTeam() == TEAM_RED)
+	int Slot = FreeSlot();
+	if (Slot >= 0 && GetPlayer()->GetTeam() == TEAM_RED)
 	{
-		m_apWeapon[FreeSlot()] = GameServer()->NewWeapon(GetStaticWeapon(SW_BOMB));
+		m_apWeapon[Slot] = GameServer()->NewWeapon(GetStaticWeapon(SW_BOMB));
 		SendInventory();
 		return true;
 	}
@@ -242,7 +247,7 @@ bool CCharacter::GiveBomb()
 
 int CCharacter::FreeSlot()
 {
-	for (int i = 0; i < NUM_SLOTS; i++)
+	for (int i = 0; i < 4; i++)
 		if (!m_apWeapon[i])
 			return i;
 	
@@ -273,7 +278,7 @@ void CCharacter::RandomizeInventory()
 				continue;
 		}
 		
-		if (i == 0 && (wt2 == SW_BOMB || (wt2 >= SW_MASK1 && wt2 <= SW_MASK5)))
+		if (i == 0 && ((wt2 >= SW_MASK1 && wt2 <= SW_MASK5)))
 			continue;
 		
 		if ((m_apWeapon[i] && !m_apWeapon[i]->CanSwitch()) || (m_apWeapon[j] && !m_apWeapon[j]->CanSwitch()))

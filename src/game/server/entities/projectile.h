@@ -55,6 +55,8 @@ private:
 	float m_Speed;
 	float m_Curvature;
 	
+	bool m_SkipCollision;
+	
 	void UpdateStats();
 	
 	int m_ElectroTimer;

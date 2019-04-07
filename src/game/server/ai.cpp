@@ -57,6 +57,13 @@ void CAI::Reset()
 	m_AttackOnDamage = false;
 	m_AttackOnDamageTick = 0;
 	
+	m_SendMove = 0;
+	m_SendJump = 0;
+	m_SendTurbo = 0;
+	m_SendAttack = 0;
+	m_SendDown = 0;
+	m_InputUpdateSkip = 0;
+	
 	m_Sleep = 0;
 	m_Stun = 0;
 	m_ReactionTime = 20;
@@ -266,14 +273,14 @@ void CAI::StandStill(int Time)
 void CAI::UpdateInput(int *Data)
 {
 	m_InputChanged = false;
-	Data[0] = m_Move;
+	Data[0] = m_SendMove;
 	Data[1] = m_DisplayDirection.x; Data[2] = m_DisplayDirection.y;
 	//Data[1] = m_Direction.x; Data[2] = m_Direction.y;
 	
-	Data[3] = m_Jump;
-	Data[4] = m_Attack;
-	Data[5] = m_Hook;
-	Data[7] = m_Down;
+	Data[3] = m_SendJump;
+	Data[4] = m_SendAttack;
+	Data[5] = m_SendTurbo;
+	Data[7] = m_SendDown;
 }
 
 
@@ -1963,6 +1970,7 @@ void CAI::Tick()
 		
 		m_Move = 0;
 		m_Jump = 0;
+		m_Down = 0;
 		m_Hook = 0;
 		m_Attack = 0;
 		m_InputChanged = true;
@@ -2043,6 +2051,23 @@ void CAI::Tick()
 		m_Attack = 0;
 		m_ChargeStartTick = 0;
 	}
+	
+	m_InputChanged = false;
+	if (m_InputUpdateSkip <= 0)
+	{
+		if (m_SendMove != m_Move || m_SendJump != m_Jump || m_SendTurbo != m_Hook || m_SendAttack != m_Attack || m_SendDown != m_Down)
+		{
+			m_SendMove = m_Move;
+			m_SendJump = m_Jump;
+			m_SendTurbo = m_Hook;
+			m_SendAttack = m_Attack;
+			m_SendDown = m_Down;
+			m_InputUpdateSkip = 6;
+			m_InputChanged = true;
+		}
+	}
+	else m_InputUpdateSkip--;
+			m_InputChanged = true;
 
 	m_DisplayDirection.x += (m_Direction.x - m_DisplayDirection.x) / max(1.0f, 14.0f - m_PowerLevel*0.75f);
 	m_DisplayDirection.y += (m_Direction.y - m_DisplayDirection.y) / max(1.0f, 14.0f - m_PowerLevel*0.75f);

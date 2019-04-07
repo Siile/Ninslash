@@ -139,9 +139,16 @@ protected:
 	int m_Hook;
 	int m_LastHook;
 	
-	
 	int m_NextReaction;
 	int m_ReactionTime;
+	
+	int m_SendMove;
+	int m_SendJump;
+	int m_SendTurbo;
+	int m_SendAttack;
+	int m_SendDown;
+	
+	int m_InputUpdateSkip;
 	
 	int m_Sleep;
 	int m_Stun;

@@ -32,6 +32,7 @@ CProjectile::CProjectile(CGameWorld *pGameWorld, int Weapon, int Owner, vec2 Pos
 	
 	m_OwnerBuilding = NULL;
 	BounceTick = 0;
+	m_SkipCollision = false;
 	
 	UpdateStats();
 	
@@ -101,7 +102,10 @@ void CProjectile::Tick()
 	CCharacter *TargetChr = NULL;
 	CCharacter *ReflectChr = NULL;
 	
-	Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &CurPos, 0);
+	if (m_SkipCollision)
+		m_SkipCollision = false;
+	else
+		Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &CurPos, 0);
 	
 	float r = 6.0f * GetProjectileSize(m_Weapon);
 	
@@ -138,7 +142,8 @@ void CProjectile::Tick()
 
 	if (Collide && Bounce(CurPos, Collide))
 	{
-		m_StartTick = Server()->Tick()-1;
+		m_StartTick = Server()->Tick();
+		m_SkipCollision = true;
 		m_Pos = CurPos;
 		Collide = false;
 	}

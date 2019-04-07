@@ -1367,7 +1367,11 @@ void CCharacterCore::Move()
 							pBallCore->m_Status |= 1 << BALLSTATUS_SUPER;
 					}
 					else
-						pBallCore->m_Vel = vec2(dx2F, dy2F)*0.9f;
+						//pBallCore->m_Vel = vec2(dx2F, dy2F)*0.8f + m_pCollision->Reflect(pBallCore->m_Vel, normalize(Pos - BPos))*0.25f + m_pCollision->Reflect(pBallCore->m_Vel, normalize(vec2(m_Input.m_TargetX, m_Input.m_TargetY)))*0.25f;
+						pBallCore->m_Vel = vec2(dx2F, dy2F)*0.8f + m_pCollision->Reflect(pBallCore->m_Vel, normalize(Pos - BPos))*0.25f;
+					
+					//pBallCore->m_Vel = ;
+					
 					//m_Vel -= vec2(dx1F, dy1F)*0.1f;
 					break;
 				}
