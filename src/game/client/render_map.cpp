@@ -79,8 +79,24 @@ static void Rotate(CPoint *pCenter, CPoint *pPoint, float Rotation)
 	pPoint->y = (int)(x * sinf(Rotation) + y * cosf(Rotation) + pCenter->y);
 }
 
-void CRenderTools::RenderQuads(CQuad *pQuads, int NumQuads, int RenderFlags, ENVELOPE_EVAL pfnEval, void *pUser)
+void CRenderTools::RenderQuads(CQuad *pQuads, int NumQuads, int RenderFlags, ENVELOPE_EVAL pfnEval, void *pUser, bool Loop)
 {
+
+	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
+	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
+	//Graphics()->MapScreen(screen_x0-50, screen_y0-50, screen_x1+50, screen_y1+50);
+
+	// calculate the final pixelsize for the tiles
+	float TilePixelSize = 1024/32.0f;
+	float FinalTileSize = 1.0f/(ScreenX1-ScreenX0) * Graphics()->ScreenWidth();
+	float FinalTilesetScale = FinalTileSize/TilePixelSize;
+	
+	
+
+	// for looping
+	float Points[4];
+	Graphics()->GetScreen(&Points[0], &Points[1], &Points[2], &Points[3]);
+	
 	Graphics()->QuadsBegin();
 	float Conv = 1/255.0f;
 	for(int i = 0; i < NumQuads; i++)
@@ -154,12 +170,33 @@ void CRenderTools::RenderQuads(CQuad *pQuads, int NumQuads, int RenderFlags, ENV
 			Rotate(&q->m_aPoints[4], &aRotated[3], Rot);
 		}
 
-		IGraphics::CFreeformItem Freeform(
-			fx2f(pPoints[0].x)+OffsetX, fx2f(pPoints[0].y)+OffsetY,
-			fx2f(pPoints[1].x)+OffsetX, fx2f(pPoints[1].y)+OffsetY,
-			fx2f(pPoints[2].x)+OffsetX, fx2f(pPoints[2].y)+OffsetY,
-			fx2f(pPoints[3].x)+OffsetX, fx2f(pPoints[3].y)+OffsetY);
-		Graphics()->QuadsDrawFreeform(&Freeform, 1);
+
+		if (Loop) // loop
+		{
+			float SizeX = abs(pPoints[0].x-pPoints[1].x);
+			
+			int t = Points[2]/fx2f(SizeX);
+			int a = abs(Points[0]-Points[2])/fx2f(SizeX)+1;
+			
+			for (int i = t-a; i <= t+a; i++)
+			{
+				IGraphics::CFreeformItem Freeform(
+					fx2f(pPoints[0].x+SizeX*i)+OffsetX, fx2f(pPoints[0].y)+OffsetY,
+					fx2f(pPoints[1].x+SizeX*i)+OffsetX, fx2f(pPoints[1].y)+OffsetY,
+					fx2f(pPoints[2].x+SizeX*i)+OffsetX, fx2f(pPoints[2].y)+OffsetY,
+					fx2f(pPoints[3].x+SizeX*i)+OffsetX, fx2f(pPoints[3].y)+OffsetY);
+				Graphics()->QuadsDrawFreeform(&Freeform, 1);
+			}
+		}
+		else
+		{
+			IGraphics::CFreeformItem Freeform(
+				fx2f(pPoints[0].x)+OffsetX, fx2f(pPoints[0].y)+OffsetY,
+				fx2f(pPoints[1].x)+OffsetX, fx2f(pPoints[1].y)+OffsetY,
+				fx2f(pPoints[2].x)+OffsetX, fx2f(pPoints[2].y)+OffsetY,
+				fx2f(pPoints[3].x)+OffsetX, fx2f(pPoints[3].y)+OffsetY);
+			Graphics()->QuadsDrawFreeform(&Freeform, 1);
+		}
 	}
 	Graphics()->QuadsEnd();
 }
