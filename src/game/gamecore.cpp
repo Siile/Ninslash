@@ -79,6 +79,12 @@ void CCharacterCore::Reset()
 	m_TriggeredEvents = 0;
 	m_Health = 100;
 	
+	m_HookPos = vec2(0,0);
+	m_HookDir = vec2(0,0);
+	m_HookTick = 0;
+	m_HookState = HOOK_IDLE;
+	m_HookedPlayer = -1;
+	
 	m_Action = 0;
 	m_ActionState = 0;
 	m_PlayerCollision = false;
@@ -274,8 +280,8 @@ void CCharacterCore::Tick(bool UseInput)
 	
 	float HandJetpackControlSpeed = 11.5f * ControlSpeed;
 	float HandJetpackImpulse = 1.10f;
-	float JetpackControlSpeed = 9.5f * ControlSpeed;
-	float JetpackControlAccel = 2.2f;
+	float JetpackControlSpeed = 11.5f * ControlSpeed;
+	float JetpackControlAccel = 1.8f;
 	
 	float DashPower = float(m_pWorld->m_Tuning.m_DashPower);
 	
@@ -610,14 +616,25 @@ void CCharacterCore::Tick(bool UseInput)
 				{
 					m_Wallrun = 0;
 					
-					if (m_Vel.y > -JetpackControlSpeed)
-						m_Vel.y -= m_pWorld->m_Tuning.m_Gravity*JetpackControlAccel;
 					
-					if (m_Direction == 1 && m_Vel.x < JetpackControlSpeed)
-						m_Vel.x += 0.5f;
-					
-					if (m_Direction == -1 && m_Vel.x > -JetpackControlSpeed)
-						m_Vel.x -= 0.5f;
+					if (m_Direction == 1)
+					{
+						if (m_Vel.x < JetpackControlSpeed)
+							m_Vel.x += 1.5f;
+						
+						if (m_Vel.y > -JetpackControlSpeed*0.80f)
+							m_Vel.y -= m_pWorld->m_Tuning.m_Gravity*JetpackControlAccel*(m_Vel.y > 0.0f?2.0f:0.75f);
+					}
+					else if (m_Direction == -1)
+					{
+						if (m_Vel.x > -JetpackControlSpeed)
+							m_Vel.x -= 1.5f;
+						
+						if (m_Vel.y > -JetpackControlSpeed*0.80f)
+							m_Vel.y -= m_pWorld->m_Tuning.m_Gravity*JetpackControlAccel*(m_Vel.y > 0.0f?2.0f:0.75f);
+					}
+					else if (m_Vel.y > -JetpackControlSpeed*0.85f)
+						m_Vel.y -= m_pWorld->m_Tuning.m_Gravity*JetpackControlAccel*1.9f;
 					
 					/*if (m_Vel.y < 0.0f)
 						m_JetpackPower -= 1;
@@ -628,7 +645,7 @@ void CCharacterCore::Tick(bool UseInput)
 			
 			bool Down = PlatformState();
 			
-			if (Grounded || (InFluid && m_Vel.y >= 0.0f))
+			if ((Grounded || InFluid) && m_Vel.y >= 0.0f)
 			{
 				if (!(m_Jumped&1) && !m_Roll)
 				{
@@ -703,6 +720,7 @@ void CCharacterCore::Tick(bool UseInput)
 		}
 		
 		// hand turbo boost
+		/*
 		if(m_Input.m_Hook && m_JetpackPower > 0 && !InFluid)
 		{
 			if ((TargetDirection.x > 0 && m_Vel.x < HandJetpackControlSpeed + ForceTileStatus) || (TargetDirection.x < 0 && m_Vel.x > -HandJetpackControlSpeed + ForceTileStatus))
@@ -719,6 +737,27 @@ void CCharacterCore::Tick(bool UseInput)
 				
 			m_JetpackPower -= 1;
 			m_HandJetpack = true;
+		}
+		*/
+		
+		// handle hook
+		if(m_Input.m_Hook)
+		{
+			if(m_HookState == HOOK_IDLE)
+			{
+				m_HookState = HOOK_FLYING;
+				m_HookPos = m_Pos+TargetDirection*PhysSize*1.5f;
+				m_HookDir = TargetDirection;
+				m_HookedPlayer = -1;
+				m_HookTick = 0;
+				m_TriggeredEvents |= COREEVENT_HOOK_LAUNCH;
+			}
+		}
+		else
+		{
+			m_HookedPlayer = -1;
+			m_HookState = HOOK_IDLE;
+			m_HookPos = m_Pos;
 		}
 	}
 	
@@ -875,6 +914,181 @@ void CCharacterCore::Tick(bool UseInput)
 	
 	m_BallHitVel = vec2(0, 0);
 
+
+
+
+	// do hook
+	if(m_HookState == HOOK_IDLE)
+	{
+		m_HookedPlayer = -1;
+		m_HookState = HOOK_IDLE;
+		m_HookPos = m_Pos;
+	}
+	else if(m_HookState >= HOOK_RETRACT_START && m_HookState < HOOK_RETRACT_END)
+	{
+		m_HookState++;
+	}
+	else if(m_HookState == HOOK_RETRACT_END)
+	{
+		m_HookState = HOOK_RETRACTED;
+		m_TriggeredEvents |= COREEVENT_HOOK_RETRACT;
+		m_HookState = HOOK_RETRACTED;
+	}
+	else if(m_HookState == HOOK_FLYING)
+	{
+		vec2 NewPos = m_HookPos+m_HookDir*m_pWorld->m_Tuning.m_HookFireSpeed;
+		if(distance(m_Pos, NewPos) > m_pWorld->m_Tuning.m_HookLength)
+		{
+			m_HookState = HOOK_RETRACT_START;
+			NewPos = m_Pos + normalize(NewPos-m_Pos) * m_pWorld->m_Tuning.m_HookLength;
+		}
+
+		// make sure that the hook doesn't go though the ground
+		bool GoingToHitGround = false;
+		bool GoingToRetract = false;
+		int Hit = m_pCollision->IntersectLine(m_HookPos, NewPos, &NewPos, 0);
+		if(Hit)
+		{
+			//if(Hit&CCollision::COLFLAG_NOHOOK)
+			//	GoingToRetract = true;
+			//else
+				GoingToHitGround = true;
+		}
+
+		// Check against other players first
+		if(m_pWorld)
+		{
+			if (m_pWorld->m_Tuning.m_PlayerHooking)
+			{
+				float Distance = 0.0f;
+				for(int i = 0; i < MAX_CLIENTS; i++)
+				{
+					CCharacterCore *pCharCore = m_pWorld->m_apCharacters[i];
+					if(!pCharCore || pCharCore == this)
+						continue;
+
+					vec2 ClosestPoint = closest_point_on_line(m_HookPos, NewPos, pCharCore->m_Pos);
+					if(distance(pCharCore->m_Pos, ClosestPoint) < PhysSize+2.0f)
+					{
+						if (m_HookedPlayer == -1 || distance(m_HookPos, pCharCore->m_Pos) < Distance)
+						{
+							m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
+							m_HookState = HOOK_GRABBED;
+							m_HookedPlayer = i;
+							Distance = distance(m_HookPos, pCharCore->m_Pos);
+						}
+					}
+				}
+			}
+			
+			// Check for ball
+			CBallCore *pBallCore = m_pWorld->m_pBall;
+			
+			if (pBallCore)
+			{
+				vec2 ClosestPoint = closest_point_on_line(m_HookPos, NewPos, pBallCore->m_Pos);
+				if(distance(pBallCore->m_Pos, ClosestPoint) < m_pWorld->m_Tuning.m_BallSize-20.0f)
+				{
+					m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
+					m_HookState = HOOK_GRABBEDBALL;
+					pBallCore->PlayerHit();
+				}
+			}
+		}
+
+		if(m_HookState == HOOK_FLYING)
+		{
+			// check against ground
+			if(GoingToHitGround)
+			{
+				m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_GROUND;
+				m_HookState = HOOK_GRABBED;
+			}
+			else if(GoingToRetract)
+			{
+				m_TriggeredEvents |= COREEVENT_HOOK_HIT_NOHOOK;
+				m_HookState = HOOK_RETRACT_START;
+			}
+
+			m_HookPos = NewPos;
+		}
+	}
+
+
+	if(m_HookState == HOOK_GRABBED || m_HookState == HOOK_GRABBEDBALL)
+	{
+		if(m_HookState == HOOK_GRABBEDBALL)
+		{
+			CBallCore *pBallCore = m_pWorld->m_pBall;
+			
+			if(pBallCore)
+				m_HookPos = pBallCore->m_Pos;
+			else
+			{
+				// release hook
+				m_HookState = HOOK_RETRACTED;
+				m_HookPos = m_Pos;
+			}
+		}
+		else
+		{
+			if(m_HookedPlayer != -1)
+			{
+				CCharacterCore *pCharCore = m_pWorld->m_apCharacters[m_HookedPlayer];
+				if(pCharCore)
+					m_HookPos = pCharCore->m_Pos;
+				else
+				{
+					// release hook
+					m_HookedPlayer = -1;
+					m_HookState = HOOK_RETRACTED;
+					m_HookPos = m_Pos;
+				}
+			}
+		}
+
+		// don't do this hook rutine when we are hook to a player or ball
+		if(m_HookState == HOOK_GRABBED && m_HookedPlayer == -1 && distance(m_HookPos, m_Pos) > 52.0f) // tw: 46
+		{
+			vec2 HookVel = normalize(m_HookPos-m_Pos)*m_pWorld->m_Tuning.m_HookDragAccel;
+			// the hook as more power to drag you up then down.
+			// this makes it easier to get on top of an platform
+			if(HookVel.y > 0)
+				HookVel.y *= 0.3f;
+
+			// the hook will boost it's power if the player wants to move
+			// in that direction. otherwise it will dampen everything abit
+			if((HookVel.x < 0 && m_Direction < 0) || (HookVel.x > 0 && m_Direction > 0))
+				HookVel.x *= 0.95f;
+			else
+				HookVel.x *= 0.75f;
+
+			vec2 NewVel = m_Vel+HookVel;
+
+			// check if we are under the legal limit for the hook
+			if(length(NewVel) < m_pWorld->m_Tuning.m_HookDragSpeed || length(NewVel) < length(m_Vel))
+				m_Vel = NewVel; // no problem. apply
+
+		}
+
+		// release hook (max hook time is 1.25
+		m_HookTick++;
+		if(m_HookedPlayer != -1 && (m_HookTick > SERVER_TICK_SPEED+SERVER_TICK_SPEED/5 || !m_pWorld->m_apCharacters[m_HookedPlayer]))
+		{
+			m_HookedPlayer = -1;
+			m_HookState = HOOK_RETRACTED;
+			m_HookPos = m_Pos;
+		}
+		if(m_HookState == HOOK_GRABBEDBALL && m_HookTick > SERVER_TICK_SPEED+SERVER_TICK_SPEED/5)
+		{
+			m_HookState = HOOK_RETRACTED;
+			m_HookPos = m_Pos;
+		}
+	}
+
+
+
+
 	if(m_pWorld)
 	{
 		// ball collision
@@ -914,6 +1128,24 @@ void CCharacterCore::Tick(bool UseInput)
 
 				m_Vel += Dir*a*(Velocity*0.75f);
 				m_Vel *= 0.85f;
+			}
+			
+			// handle hook ball influence
+			if(m_HookState == HOOK_GRABBEDBALL)
+			{
+				if(Distance > PhysSize*1.50f) // TODO: fix tweakable variable
+				{
+					float Accel = m_pWorld->m_Tuning.m_HookDragAccel * (Distance/m_pWorld->m_Tuning.m_HookLength);
+					float DragSpeed = m_pWorld->m_Tuning.m_HookDragSpeed*1.25f;
+
+					// add force to the hooked player
+					pBallCore->m_Vel.x = SaturatedAdd(-DragSpeed, DragSpeed, pBallCore->m_Vel.x, Accel*Dir.x*1.5f);
+					pBallCore->m_Vel.y = SaturatedAdd(-DragSpeed, DragSpeed, pBallCore->m_Vel.y, Accel*Dir.y*1.5f);
+
+					// add a little bit force to the guy who has the grip
+					m_Vel.x = SaturatedAdd(-DragSpeed, DragSpeed, m_Vel.x, -Accel*Dir.x*0.3f);
+					m_Vel.y = SaturatedAdd(-DragSpeed, DragSpeed, m_Vel.y, -Accel*Dir.y*0.3f);
+				}
 			}
 		}
 		
@@ -959,6 +1191,24 @@ void CCharacterCore::Tick(bool UseInput)
 						m_Vel.y -= 1.0f;
 						m_Pos.y -= 1.0f;
 					}
+				}
+			}
+			
+			// handle hook influence
+			if(m_HookedPlayer == i && m_pWorld->m_Tuning.m_PlayerHooking)
+			{
+				if(Distance > PhysSize*1.50f) // TODO: fix tweakable variable
+				{
+					float Accel = m_pWorld->m_Tuning.m_HookDragAccel * (Distance/m_pWorld->m_Tuning.m_HookLength);
+					float DragSpeed = m_pWorld->m_Tuning.m_HookDragSpeed;
+
+					// add force to the hooked player
+					pCharCore->m_Vel.x = SaturatedAdd(-DragSpeed, DragSpeed, pCharCore->m_Vel.x, Accel*Dir.x*1.5f);
+					pCharCore->m_Vel.y = SaturatedAdd(-DragSpeed, DragSpeed, pCharCore->m_Vel.y, Accel*Dir.y*1.5f);
+
+					// add a little bit force to the guy who has the grip
+					m_Vel.x = SaturatedAdd(-DragSpeed, DragSpeed, m_Vel.x, -Accel*Dir.x*0.25f);
+					m_Vel.y = SaturatedAdd(-DragSpeed, DragSpeed, m_Vel.y, -Accel*Dir.y*0.25f);
 				}
 			}
 		}
@@ -1023,7 +1273,7 @@ void CCharacterCore::Tick(bool UseInput)
 	
 	
 	// hang on to somethings
-	if (m_Down || m_HandJetpack || m_Jetpack)
+	if (m_Down || m_HandJetpack || m_Jetpack || m_HookState != HOOK_IDLE)
 	{
 		if (m_Action == COREACTION_HANG)
 			m_Action = COREACTION_IDLE;
@@ -1468,6 +1718,15 @@ void CCharacterCore::Write(CNetObj_CharacterCore *pObjCore)
 	pObjCore->m_X = round_to_int(m_Pos.x);
 	pObjCore->m_Y = round_to_int(m_Pos.y);
 
+	pObjCore->m_HookState = m_HookState;
+	pObjCore->m_HookTick = m_HookTick;
+	pObjCore->m_HookX = round_to_int(m_HookPos.x);
+	pObjCore->m_HookY = round_to_int(m_HookPos.y);
+	pObjCore->m_HookDx = round_to_int(m_HookDir.x*256.0f);
+	pObjCore->m_HookDy = round_to_int(m_HookDir.y*256.0f);
+	pObjCore->m_HookedPlayer = m_HookedPlayer;
+	
+	
 	pObjCore->m_Health = m_Health;
 	pObjCore->m_VelX = round_to_int(m_Vel.x*256.0f);
 	pObjCore->m_VelY = round_to_int(m_Vel.y*256.0f);
@@ -1502,6 +1761,14 @@ void CCharacterCore::Read(const CNetObj_CharacterCore *pObjCore)
 {
 	m_Pos.x = pObjCore->m_X;
 	m_Pos.y = pObjCore->m_Y;
+	
+	m_HookState = pObjCore->m_HookState;
+	m_HookTick = pObjCore->m_HookTick;
+	m_HookPos.x = pObjCore->m_HookX;
+	m_HookPos.y = pObjCore->m_HookY;
+	m_HookDir.x = pObjCore->m_HookDx/256.0f;
+	m_HookDir.y = pObjCore->m_HookDy/256.0f;
+	m_HookedPlayer = pObjCore->m_HookedPlayer;
 	
 	m_Health = pObjCore->m_Health;
 	m_Vel.x = pObjCore->m_VelX/256.0f;
@@ -1561,6 +1828,7 @@ void CBallCore::Reset()
 {
 	m_Pos = vec2(0,0);
 	m_Vel = vec2(0,0);
+	
 	m_Angle = 0.0f;
 	m_AngleForce = 0.0f;
 	m_Status = 0;
@@ -1689,7 +1957,6 @@ void CBallCore::Write(CNetObj_BallCore *pObjCore)
 	
 	pObjCore->m_VelX = round_to_int(m_Vel.x*256.0f);
 	pObjCore->m_VelY = round_to_int(m_Vel.y*256.0f);
-	
 	pObjCore->m_Angle = round_to_int(m_Angle*256.0f);
 	pObjCore->m_AngleForce = round_to_int(m_AngleForce*256.0f);
 	
@@ -1703,7 +1970,6 @@ void CBallCore::Read(const CNetObj_BallCore *pObjCore)
 	
 	m_Vel.x = pObjCore->m_VelX/256.0f;
 	m_Vel.y = pObjCore->m_VelY/256.0f;
-	
 	m_Angle = pObjCore->m_Angle/256.0f;
 	m_AngleForce = pObjCore->m_AngleForce/256.0f;
 	

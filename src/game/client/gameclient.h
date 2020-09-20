@@ -204,7 +204,6 @@ public:
 	// client data
 	struct CClientData
 	{
-		int m_Body;
 		int m_ColorBody;
 		int m_ColorFeet;
 		int m_ColorTopper;
@@ -218,8 +217,16 @@ public:
 		int m_Country;
 		char m_aTopperName[64];
 		char m_aEyeName[64];
+		char m_aHeadName[64];
+		char m_aBodyName[64];
+		char m_aFootName[64];
+		char m_aHandName[64];
 		int m_TopperID;
 		int m_EyeID;
+		int m_HeadID;
+		int m_BodyID;
+		int m_HandID;
+		int m_FootID;
 		int m_Team;
 		int m_Emoticon;
 		int m_EmoticonStart;
@@ -299,6 +306,7 @@ public:
 	class CEffects *m_pEffects;
 	class CSounds *m_pSounds;
 	class CMotd *m_pMotd;
+	class CGameVoteDisplay *m_pGameVoteDisplay;
 	class CMapImages *m_pMapimages;
 	class CVoting *m_pVoting;
 	class CScoreboard *m_pScoreboard;

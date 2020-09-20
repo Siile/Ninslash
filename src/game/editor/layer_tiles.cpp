@@ -27,6 +27,8 @@ CLayerTiles::CLayerTiles(int w, int h)
 	m_Color.a = 255;
 	m_ColorEnv = -1;
 	m_ColorEnvOffset = 0;
+	
+	m_pMapChunk = NULL;
 
 	m_pTiles = new CTile[m_Width*m_Height];
 	mem_zero(m_pTiles, m_Width*m_Height*sizeof(CTile));
@@ -35,7 +37,29 @@ CLayerTiles::CLayerTiles(int w, int h)
 CLayerTiles::~CLayerTiles()
 {
 	delete [] m_pTiles;
+	
+	if (m_pMapChunk)
+		delete m_pMapChunk;
 }
+
+
+void CLayerTiles::AddInfinity(int ChunkSize, int NumChunks, int *apGenerationRules)
+{
+	if (m_pMapChunk)
+		delete m_pMapChunk;
+	
+	m_pMapChunk = new CMapChunk(0, ChunkSize, NumChunks, apGenerationRules, NULL);
+}
+
+
+void CLayerTiles::RemoveInfinity()
+{
+	if (m_pMapChunk)
+		delete m_pMapChunk;
+	
+	m_pMapChunk = NULL;
+}
+
 
 void CLayerTiles::PrepareForSave()
 {
@@ -66,10 +90,10 @@ void CLayerTiles::Render()
 	vec4 Color = vec4(m_Color.r/255.0f, m_Color.g/255.0f, m_Color.b/255.0f, m_Color.a/255.0f);
 	Graphics()->BlendNone();
 	m_pEditor->RenderTools()->RenderTilemap(m_pTiles, m_Width, m_Height, 32.0f, Color, LAYERRENDERFLAG_OPAQUE,
-												m_pEditor->EnvelopeEval, m_pEditor, m_ColorEnv, m_ColorEnvOffset);
+												m_pEditor->EnvelopeEval, m_pEditor, m_ColorEnv, m_ColorEnvOffset, m_pMapChunk);
 	Graphics()->BlendNormal();
 	m_pEditor->RenderTools()->RenderTilemap(m_pTiles, m_Width, m_Height, 32.0f, Color, LAYERRENDERFLAG_TRANSPARENT,
-												m_pEditor->EnvelopeEval, m_pEditor, m_ColorEnv, m_ColorEnvOffset);
+												m_pEditor->EnvelopeEval, m_pEditor, m_ColorEnv, m_ColorEnvOffset, m_pMapChunk);
 }
 
 int CLayerTiles::ConvertX(float x) const { return (int)(x/32.0f); }

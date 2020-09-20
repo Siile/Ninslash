@@ -169,6 +169,7 @@ void CMapLayers::OnRender()
 		for(int l = 0; l < pGroup->m_NumLayers; l++)
 		{
 			CMapItemLayer *pLayer = m_pLayers->GetLayer(pGroup->m_StartLayer+l);
+			CMapChunk *pMapChunk = m_pLayers->GetMapChunk();
 			bool Render = false;
 			bool IsGameLayer = false;
 
@@ -244,11 +245,11 @@ void CMapLayers::OnRender()
 					Graphics()->BlendNone();
 					vec4 Color = vec4(pTMap->m_Color.r/255.0f, pTMap->m_Color.g/255.0f, pTMap->m_Color.b/255.0f, pTMap->m_Color.a/255.0f);
 					RenderTools()->RenderTilemap(pTiles, pTMap->m_Width, pTMap->m_Height, 32.0f, Color, TILERENDERFLAG_EXTEND|LAYERRENDERFLAG_OPAQUE,
-													EnvelopeEval, this, pTMap->m_ColorEnv, pTMap->m_ColorEnvOffset);
+													EnvelopeEval, this, pTMap->m_ColorEnv, pTMap->m_ColorEnvOffset, pMapChunk);
 														
 					Graphics()->BlendNormal();
 					RenderTools()->RenderTilemap(pTiles, pTMap->m_Width, pTMap->m_Height, 32.0f, Color, TILERENDERFLAG_EXTEND|LAYERRENDERFLAG_TRANSPARENT,
-													EnvelopeEval, this, pTMap->m_ColorEnv, pTMap->m_ColorEnvOffset);
+													EnvelopeEval, this, pTMap->m_ColorEnv, pTMap->m_ColorEnvOffset, pMapChunk);
 				}
 				else if(pLayer->m_Type == LAYERTYPE_QUADS)
 				{

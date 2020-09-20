@@ -7,7 +7,7 @@
 #include "powerupper.h"
 
 CPowerupper::CPowerupper(CGameWorld *pGameWorld, vec2 Pos)
-: CBuilding(pGameWorld, Pos, BUILDING_LAZER, TEAM_NEUTRAL)
+: CBuilding(pGameWorld, Pos, BUILDING_POWERUPPER, TEAM_NEUTRAL)
 {
 	m_ProximityRadius = PowerupperPhysSize;
 	m_Life = 100;
@@ -37,6 +37,15 @@ void CPowerupper::SurvivalReset()
 
 void CPowerupper::Tick()
 {
+	if (m_SnapTick && m_SnapTick < Server()->Tick()-Server()->TickSpeed()*5.0f)
+	{
+		if (GameServer()->StoreEntity(m_ObjType, m_Type, 0, m_Pos.x, m_Pos.y))
+		{
+			GameServer()->m_World.DestroyEntity(this);
+			return;
+		}
+	}
+	
 	//if (m_Item < 0 && (((!GameServer()->m_pController->IsCoop() || g_Config.m_SvMapGenLevel < 2) && m_ItemTakenTick + Server()->TickSpeed()*30.0f < GameServer()->Server()->Tick()) || m_ItemTakenTick == 0))
 	if (m_Item < 0 && (m_ItemTakenTick == 0 || (!g_Config.m_SvSurvivalMode && m_ItemTakenTick + Server()->TickSpeed()*30.0f < GameServer()->Server()->Tick())))
 	{
@@ -87,6 +96,8 @@ void CPowerupper::Snap(int SnappingClient)
 {
 	if(NetworkClipped(SnappingClient))
 		return;
+	
+	m_SnapTick = Server()->Tick();
 
 	CNetObj_Powerupper *pP = static_cast<CNetObj_Powerupper *>(Server()->SnapNewItem(NETOBJTYPE_POWERUPPER, m_ID, sizeof(CNetObj_Powerupper)));
 	if(!pP)

@@ -1,0 +1,14 @@
+level: 7
+blood-color: black
+
+head: bone
+body: skele
+hand: bone
+foot: bone
+topper: horn
+eye: robo4
+
+skin-color: 0
+topper-color: 0
+body-color: 0
+foot-color: 0

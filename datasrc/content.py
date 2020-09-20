@@ -204,6 +204,9 @@ container.sounds.Add(SoundSet("weapon_switch", FileList("audio/wp_switch-%02d.wv
 
 container.sounds.Add(SoundSet("walker_fire", FileList("audio/wp_walker-%02d.wv", 3)))
 
+container.sounds.Add(SoundSet("death", ["audio/death.wv"]))
+container.sounds.Add(SoundSet("kill", FileList("audio/kill-%02d.wv", 3)))
+
 container.sounds.Add(SoundSet("player_pain_short", FileList("audio/vo_teefault_pain_short-%02d.wv", 12)))
 container.sounds.Add(SoundSet("player_pain_long", FileList("audio/vo_teefault_pain_long-%02d.wv", 2)))
 
@@ -254,6 +257,8 @@ container.sounds.Add(SoundSet("ctf_grab_en", ["audio/sfx_ctf_grab_en.wv"]))
 container.sounds.Add(SoundSet("ctf_capture", ["audio/sfx_ctf_cap_pl.wv"]))
 
 container.sounds.Add(SoundSet("metal_hit", FileList("audio/metal_hit-%02d.wv", 3)))
+
+container.sounds.Add(SoundSet("ball_bounce", FileList("audio/ball_bounce-%02d.wv", 4)))
 
 container.sounds.Add(SoundSet("dash", FileList("audio/dash-%02d.wv", 3)))
 
@@ -364,6 +369,7 @@ image_particles = Image("particles", "particles.png")
 image_gore = Image("gore", "gore.png")
 image_meat = Image("meat", "meat.png")
 image_ball = Image("ball", "ball.png")
+image_hook = Image("hook", "hook.png")
 image_guts = Image("guts", "guts.png")
 image_backbomb = Image("backbomb", "backbomb.png")
 image_brain = Image("brain", "brain.png")
@@ -390,6 +396,8 @@ image_fileicons = Image("fileicons", "file_icons.png")
 image_guibuttons = Image("guibuttons", "gui_buttons.png")
 image_guinumbers = Image("guinumbers", "gui_numbers.png")
 image_guiicons = Image("guiicons", "gui_icons.png")
+image_smalllight = Image("smalllight", "smalllight.png")
+image_boxlight = Image("boxlight", "boxlight.png")
 image_lights = Image("lights", "light.png")
 image_shield = Image("shield", "shield.png")
 image_explosion = Image("explosion", "fx/explosion.png")
@@ -404,6 +412,7 @@ image_lazer = Image("lazer", "fx/lazer.png")
 image_lazerload = Image("lazerload", "fx/lazerload.png")
 image_sparks = Image("sparks", "fx/sparks.png")
 image_swordhit = Image("swordhit", "fx/swordhit.png")
+image_clawhit = Image("clawhit", "fx/clawhit.png")
 image_bloodfx = Image("bloodfx", "fx/bloodfx.png")
 image_fx_effect1 = Image("fx_effect1", "fx/effect1.png")
 image_fx_scythe = Image("fx_scythe", "fx/scythe.png")
@@ -430,11 +439,11 @@ image_fuel = Image("fuel", "gui/fuel.png")
 image_circular = Image("circular", "gui/circular.png")
 image_gui_window1 = Image("gui_window1", "gui/window1.png")
 
-image_mask1 = Image("mask1", "masks/mask1.png")
-image_mask2 = Image("mask2", "masks/mask2.png")
-image_mask3 = Image("mask3", "masks/mask3.png")
-image_mask4 = Image("mask4", "masks/mask4.png")
-image_mask5 = Image("mask5", "masks/mask5.png")
+image_mask1 = Image("mask1", "skins/masks/mask1.png")
+image_mask2 = Image("mask2", "skins/masks/mask2.png")
+image_mask3 = Image("mask3", "skins/masks/mask3.png")
+image_mask4 = Image("mask4", "skins/masks/mask4.png")
+image_mask5 = Image("mask5", "skins/masks/mask5.png")
 
 container.images.Add(image_null)
 container.images.Add(image_pixel)
@@ -445,6 +454,7 @@ container.images.Add(image_game)
 container.images.Add(image_backbomb)
 container.images.Add(image_flag)
 container.images.Add(image_ball)
+container.images.Add(image_hook)
 container.images.Add(image_weapons)
 container.images.Add(image_projectiles)
 container.images.Add(image_trails)
@@ -474,6 +484,8 @@ container.images.Add(image_fileicons)
 container.images.Add(image_guibuttons)
 container.images.Add(image_guinumbers)
 container.images.Add(image_guiicons)
+container.images.Add(image_smalllight)
+container.images.Add(image_boxlight)
 container.images.Add(image_lights)
 container.images.Add(image_shield)
 container.images.Add(image_explosion)
@@ -487,6 +499,7 @@ container.images.Add(image_death)
 container.images.Add(image_lazer)
 container.images.Add(image_lazerload)
 container.images.Add(image_sparks)
+container.images.Add(image_clawhit)
 container.images.Add(image_swordhit)
 container.images.Add(image_fx_effect1)
 container.images.Add(image_fx_scythe)
@@ -539,7 +552,7 @@ set_projectiles = SpriteSet("projectiles", image_projectiles, 16, 8)
 set_trails = SpriteSet("trails", image_trails, 1, 4)
 set_sword = SpriteSet("sword", image_sword, 4, 4)
 set_scythe = SpriteSet("scythe", image_scythe, 4, 1)
-set_hands = SpriteSet("hands", image_hands, 4, 8)
+set_hands = SpriteSet("hands", image_hands, 4, 1)
 set_bodies = SpriteSet("bodies", image_bodies, 8, 1)
 set_pickups = SpriteSet("pickups", image_pickups, 8, 2)
 set_deathtypes = SpriteSet("deathtypes", image_deathtypes, 8, 4)
@@ -566,6 +579,7 @@ set_death = SpriteSet("death", image_death, 8, 1)
 set_lazer = SpriteSet("lazer", image_lazer, 16, 1)
 set_lazerload = SpriteSet("lazerload", image_lazerload, 8, 1)
 set_sparks = SpriteSet("sparks", image_sparks, 4, 2)
+set_clawhit = SpriteSet("clawhit", image_clawhit, 3, 1)
 set_swordhit = SpriteSet("swordhit", image_swordhit, 3, 1)
 set_bloodfx = SpriteSet("bloodfx", image_bloodfx, 8, 1)
 set_fx_dash = SpriteSet("fx_dash", image_fx_effect1, 8, 1)
@@ -630,6 +644,7 @@ container.spritesets.Add(set_death)
 container.spritesets.Add(set_lazer)
 container.spritesets.Add(set_lazerload)
 container.spritesets.Add(set_sparks)
+container.spritesets.Add(set_clawhit)
 container.spritesets.Add(set_swordhit)
 container.spritesets.Add(set_bloodfx)
 container.spritesets.Add(set_fx_dash)
@@ -735,10 +750,12 @@ container.sprites.Add(Sprite("weapon_static18", set_weapons, 14, 21, 4, 4)) # ma
 container.sprites.Add(Sprite("weapon_static19", set_weapons, 2, 25, 2, 3)) # invis
 container.sprites.Add(Sprite("weapon_static20", set_weapons, 4, 20, 2, 3)) # electrowall
 container.sprites.Add(Sprite("weapon_static21", set_weapons, 4, 23, 3, 2)) # areashield
-container.sprites.Add(Sprite("weapon_static22", set_weapons, 7, 6, 6, 3)) # flame rifle / bubbler
-container.sprites.Add(Sprite("weapon_static23", set_weapons, 2, 12, 4, 4)) # shuriken
-container.sprites.Add(Sprite("weapon_static24", set_weapons, 4, 16, 3, 4)) # cs bomb
-container.sprites.Add(Sprite("weapon_static25", set_weapons, 10, 28, 4, 4)) # ball
+container.sprites.Add(Sprite("weapon_static22", set_weapons, 7, 16, 2, 4)) # syringe
+container.sprites.Add(Sprite("weapon_static23", set_weapons, 7, 6, 6, 3)) # cluster
+container.sprites.Add(Sprite("weapon_static24", set_weapons, 2, 12, 4, 4)) # shuriken
+container.sprites.Add(Sprite("weapon_static25", set_weapons, 4, 25, 3, 2)) # claw
+container.sprites.Add(Sprite("weapon_static26", set_weapons, 4, 16, 3, 4)) # cs bomb
+container.sprites.Add(Sprite("weapon_static27", set_weapons, 10, 28, 4, 4)) # ball
 
 # pickups
 container.sprites.Add(Sprite("pickup_kit", set_weapons, 10, 0, 2, 2))
@@ -778,6 +795,9 @@ for i in range(1, 4):
 	
 for i in range(1, 4):
 	container.sprites.Add(Sprite("swordhit"+str(i), set_swordhit, i-1, 1, 1, 1))
+	
+for i in range(1, 4):
+	container.sprites.Add(Sprite("clawhit"+str(i), set_clawhit, i-1, 1, 1, 1))
 	
 for i in range(1, 4):
 	container.sprites.Add(Sprite("jetpack"+str(i), set_jetpack, i-1, 1, 1, 1))
@@ -919,18 +939,6 @@ for y in range(1, 3):
 
 for i in range(1, 5):
 	container.sprites.Add(Sprite("hand1_"+str(i), set_hands, i-1, 0, 1, 1))
-for i in range(1, 5):
-	container.sprites.Add(Sprite("hand2_"+str(i), set_hands, i-1, 1, 1, 1))
-for i in range(1, 5):
-	container.sprites.Add(Sprite("hand3_"+str(i), set_hands, i-1, 2, 1, 1))
-for i in range(1, 5):
-	container.sprites.Add(Sprite("hand4_"+str(i), set_hands, i-1, 3, 1, 1))
-for i in range(1, 5):
-	container.sprites.Add(Sprite("hand5_"+str(i), set_hands, i-1, 4, 1, 1))
-for i in range(1, 5):
-	container.sprites.Add(Sprite("hand6_"+str(i), set_hands, i-1, 5, 1, 1))
-for i in range(1, 5):
-	container.sprites.Add(Sprite("hand7_"+str(i), set_hands, i-1, 6, 1, 1))
 
 		
 container.sprites.Add(Sprite("crawler_leg", set_crawler_leg, 0,0,1,1))

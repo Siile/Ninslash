@@ -1,0 +1,6 @@
+name: Team deathmatch
+description: generated match
+config: cfg/tdm_medium1
+image: tdm1
+min-players: 13
+max-players: 100

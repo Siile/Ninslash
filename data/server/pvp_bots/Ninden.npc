@@ -1,0 +1,14 @@
+name: Ninden
+blood-color: red
+
+head: default
+body: default
+hand: default
+foot: default
+topper: raiden
+eye: cyan
+
+skin-color: 83
+topper-color: 2621287
+body-color: 10092309
+foot-color: 255

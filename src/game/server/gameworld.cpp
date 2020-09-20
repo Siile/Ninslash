@@ -185,6 +185,22 @@ void CGameWorld::RemoveEntities()
 		}
 }
 
+
+int CGameWorld::CountEntities()
+{
+	int Entities = 0;
+	
+	for(int i = 0; i < NUM_ENTTYPES; i++)
+		for(CEntity *pEnt = m_apFirstEntityTypes[i]; pEnt; )
+		{
+			m_pNextTraverseEntity = pEnt->m_pNextTypeEntity;
+			Entities++;
+			pEnt = m_pNextTraverseEntity;
+		}
+		
+	return Entities;
+}
+
 void CGameWorld::Tick()
 {
 	if(m_ResetRequested)

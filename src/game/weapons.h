@@ -56,8 +56,10 @@ enum WeaponBits
 	SW_INVIS,
 	SW_ELECTROWALL,
 	SW_AREASHIELD,
+	SW_SYRINGE,
 	SW_CLUSTER,
 	SW_SHURIKEN,
+	SW_CLAW,
 	SW_BOMB,
 	SW_BALL,
 	NUM_SW,
@@ -105,8 +107,10 @@ static const char *s_TipText[NUM_SW] = {
 	"Invisibility device",
 	"Electrowall",
 	"Area Shield",
+	"The Cure",
 	"",
 	"",
+	"Zombie claw",
 	"Bomb (for destroying reactors)",
 	""
 };

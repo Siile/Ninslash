@@ -1,0 +1,6 @@
+name: Deathmatch
+description: generated map
+config: cfg/dm_small1
+image: dm1
+min-players: 0
+max-players: 10

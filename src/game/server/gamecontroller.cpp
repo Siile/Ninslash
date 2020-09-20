@@ -60,14 +60,6 @@ IGameController::IGameController(class CGameContext *pGameServer)
 	m_BombStatus = 0;
 	m_pBall = 0;
 	
-	// custom
-	for (int i = 0; i < MAX_PICKUPS; i++)
-		m_apPickup[i] = NULL;
-	
-	m_PickupCount = 0;
-	m_PickupDropCount = 0;
-	m_DroppablesCreated = false;
-	
 	GameServer()->Collision()->GenerateWaypoints();
 	
 	char aBuf[128]; str_format(aBuf, sizeof(aBuf), "%d waypoints generated, %d connections created", GameServer()->Collision()->WaypointCount(), GameServer()->Collision()->ConnectionCount());
@@ -84,23 +76,18 @@ void IGameController::DropPickup(vec2 Pos, int PickupType, vec2 Force, int Picku
 	if (!g_Config.m_SvEnableBuilding && PickupType == POWERUP_KIT)
 		PickupType = POWERUP_HEALTH;
 	
-	for (int i = 0; i < m_PickupCount; i++)
-	{
-		if (m_apPickup[i] && m_apPickup[i]->m_Dropable && m_apPickup[i]->m_Life <= 0 && m_apPickup[i]->GetType() == PickupType)
-		{
-			m_apPickup[i]->m_Pos = Pos;
-			m_apPickup[i]->RespawnDropable();
-			//if (m_apPickup[i]->GetType() == POWERUP_WEAPON)
-				m_apPickup[i]->SetSubtype(PickupSubtype);
-			
-			m_apPickup[i]->m_Vel = Force;
-			m_apPickup[i]->m_AngleForce = Force.x * (0.15f + frandom()*0.1f);
-			
-			if (Ammo >= 0.0f)
-				m_apPickup[i]->m_Ammo = Ammo;
-			return;
-		}
-	}
+	CPickup *pPickup = new CPickup(&GameServer()->m_World, PickupType, 0);
+	pPickup->m_Pos = Pos;
+	pPickup->RespawnDropable();
+	
+	if (PickupType == POWERUP_WEAPON)
+		pPickup->SetSubtype(PickupSubtype);
+	
+	pPickup->m_Vel = Force;
+	pPickup->m_AngleForce = Force.x * (0.15f + frandom()*0.1f);
+	
+	if (Ammo >= 0.0f)
+		pPickup->m_Ammo = Ammo;
 }
 
 void IGameController::DropWeapon(vec2 Pos, vec2 Force, CWeapon *pWeapon)
@@ -108,68 +95,19 @@ void IGameController::DropWeapon(vec2 Pos, vec2 Force, CWeapon *pWeapon)
 	if (!pWeapon)
 		return;
 	
-	for (int i = 0; i < m_PickupCount; i++)
-	{
-		if (m_apPickup[i] && m_apPickup[i]->m_Dropable && m_apPickup[i]->m_Life <= 0 && m_apPickup[i]->GetType() == POWERUP_WEAPON)
-		{
-			m_apPickup[i]->m_Pos = Pos;
-			m_apPickup[i]->RespawnDropable();
-			m_apPickup[i]->m_pWeapon = pWeapon;
-			m_apPickup[i]->SetSubtype(pWeapon->GetWeaponType());
-			pWeapon->m_Disabled = true;
-			
-			m_apPickup[i]->m_Vel = Force;
-			m_apPickup[i]->m_AngleForce = Force.x * (0.25f + frandom()*0.1f);
-			return;
-		}
-	}
+	CPickup *pPickup = new CPickup(&GameServer()->m_World, POWERUP_WEAPON, 0);
+	pPickup->m_Pos = Pos;
+	pPickup->RespawnDropable();
 	
-	pWeapon->Clear();
+	pPickup->m_pWeapon = pWeapon;
+	pPickup->SetSubtype(pWeapon->GetWeaponType());
+	pWeapon->m_Disabled = true;
+	
+	pPickup->m_Vel = Force;
+	pPickup->m_AngleForce = Force.x * (0.25f + frandom()*0.1f);
 }
 
 
-void IGameController::SetPickup(vec2 Pos, int PickupType, int PickupSubtype, int Amount)
-{
-	vec2 P = Pos;
-	int a = 1;
-	for (int i = 0; i < m_PickupCount; i++)
-	{
-		if (m_apPickup[i] && m_apPickup[i]->m_Dropable && m_apPickup[i]->m_Life <= 0 && m_apPickup[i]->GetType() == PickupType)
-		{
-			m_apPickup[i]->m_Pos = P;
-			m_apPickup[i]->RespawnTreasure();
-			m_apPickup[i]->SetSubtype(PickupSubtype);
-			if (a++ >= Amount)
-				return;
-			
-			int d = 32;
-			
-			if (a == 2)
-			{
-				if (!GameServer()->Collision()->IsTileSolid(Pos.x - d, Pos.y))
-					P = Pos + vec2(-d, 0);
-				else if (!GameServer()->Collision()->IsTileSolid(Pos.x + d, Pos.y))
-					P = Pos + vec2(+d, 0);
-				else if (!GameServer()->Collision()->IsTileSolid(Pos.x , Pos.y - d))
-					P = Pos + vec2(0, -d);
-				else if (!GameServer()->Collision()->IsTileSolid(Pos.x , Pos.y + d))
-					P = Pos + vec2(0, +d);
-			}
-			
-			if (a == 3)
-			{
-				if (!GameServer()->Collision()->IsTileSolid(Pos.x , Pos.y + d))
-					P = Pos + vec2(0, +d);
-				else if (!GameServer()->Collision()->IsTileSolid(Pos.x , Pos.y - d))
-					P = Pos + vec2(0, -d);
-				else if (!GameServer()->Collision()->IsTileSolid(Pos.x + d, Pos.y))
-					P = Pos + vec2(+d, 0);
-				else if (!GameServer()->Collision()->IsTileSolid(Pos.x - d, Pos.y))
-					P = Pos + vec2(-d, 0);
-			}
-		}
-	}
-}
 
 bool IGameController::InBombArea(vec2 Pos)
 {
@@ -221,29 +159,35 @@ void IGameController::ReleaseWeapon(class CWeapon *pWeapon)
 
 void IGameController::ClearPickups()
 {
+	/*
 	for (int i = 0; i < m_PickupCount; i++)
 	{
 		if (m_apPickup[i])
 			m_apPickup[i]->Hide();
 	}
+	*/
 }
 
 void IGameController::RespawnPickups()
 {
+	/*
 	for (int i = 0; i < m_PickupCount; i++)
 	{
 		if (m_apPickup[i])
 			m_apPickup[i]->Respawn();
 	}
+	*/
 }
 
 void IGameController::FlashPickups()
 {
+	/*
 	for (int i = 0; i < m_PickupCount; i++)
 	{
 		if (m_apPickup[i] && !m_apPickup[i]->m_Dropable && m_apPickup[i]->m_SpawnTick <= 0)
 			m_apPickup[i]->m_Flashing = true;
 	}
+	*/
 }
 
 
@@ -373,6 +317,10 @@ bool IGameController::CanSpawn(int Team, vec2 *pOutPos, bool IsBot)
 
 
 
+void IGameController::AddEnemy(vec2 Pos)
+{
+	
+}
 
 	
 void IGameController::AutoBalance()
@@ -564,70 +512,6 @@ bool IGameController::OnNonPickupEntity(int Index, vec2 Pos)
 }
 
 
-void IGameController::CreateDroppables()
-{
-	for (int i = 0; i < MAX_DROPPABLES; i++)
-	{
-		// hearts
-		if (m_PickupCount < MAX_PICKUPS)
-		{
-			m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_HEALTH, 0);
-			m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
-			m_apPickup[m_PickupCount]->m_Dropable = true;
-			m_PickupCount++;
-		}
-
-		// ammo
-		if (m_PickupCount < MAX_PICKUPS)
-		{
-			m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_AMMO, 0);
-			m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
-			m_apPickup[m_PickupCount]->m_Dropable = true;
-			m_PickupCount++;
-		}
-		
-		// armor
-		if (m_PickupCount < MAX_PICKUPS)
-		{
-			m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_ARMOR, 0);
-			m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
-			m_apPickup[m_PickupCount]->m_Dropable = true;
-			m_PickupCount++;
-		}
-		
-		// coins
-		if (m_PickupCount < MAX_PICKUPS)
-		{
-			m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_COIN, 0);
-			m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
-			m_apPickup[m_PickupCount]->m_Dropable = true;
-			m_PickupCount++;
-		}
-		
-		// kits
-		if (m_PickupCount < MAX_PICKUPS)
-		{
-			m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_KIT, 0);
-			m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
-			m_apPickup[m_PickupCount]->m_Dropable = true;
-			m_PickupCount++;
-		}
-		
-		// weapons
-		if (m_PickupCount < MAX_PICKUPS)
-		{
-			m_apPickup[m_PickupCount] = new CPickup(&GameServer()->m_World, POWERUP_WEAPON, 0);
-			m_apPickup[m_PickupCount]->m_Pos = vec2(0, 0);
-			m_apPickup[m_PickupCount]->m_Dropable = true;
-			m_PickupCount++;
-		}
-	}
-	
-	m_DroppablesCreated = true;
-}
-
-
-
 void IGameController::DeathMessage()
 {
 	GameServer()->CreateSoundGlobal(SOUND_GAMEOVER);
@@ -710,6 +594,70 @@ void IGameController::NextLevel(int CID)
 	//
 }
 
+	// i don't want to include gameworld.h
+	enum
+	{
+		ENTTYPE_PROJECTILE = 0,
+		ENTTYPE_LASER,
+		ENTTYPE_LASERFAIL,
+		ENTTYPE_PICKUP,
+		ENTTYPE_FLAG,
+		ENTTYPE_LOSEPOINT,
+		ENTTYPE_SUPEREXPLOSION,
+		ENTTYPE_TURRET,
+		ENTTYPE_BUILDING,
+		ENTTYPE_DROID,
+		ENTTYPE_CHARACTER,
+		ENTTYPE_WEAPON,
+		ENTTYPE_BLOCK,
+		ENTTYPE_RADAR,
+		ENTTYPE_BALL,
+		NUM_ENTTYPES
+	};
+
+void IGameController::RestoreEntity(int ObjType, int Type, int Subtype, int x, int y)
+{
+	if (ObjType == ENTTYPE_CHARACTER)
+	{
+		AddEnemy(vec2(x, y));
+	}
+	else if (ObjType == ENTTYPE_PICKUP)
+	{
+		CPickup *pPickup = new CPickup(&GameServer()->m_World, Type, Subtype);
+		pPickup->m_Pos = vec2(x, y);
+	}
+	else if (ObjType == ENTTYPE_BUILDING)
+	{
+		if (Type == BUILDING_LAZER)
+			new CDeathray(&GameServer()->m_World, vec2(x, y));
+		else if (Type == BUILDING_POWERUPPER)
+			new CPowerupper(&GameServer()->m_World, vec2(x, y));
+		else if (Type == BUILDING_POWERUPPER)
+			new CTeslacoil(&GameServer()->m_World, vec2(x, y), TEAM_NEUTRAL);
+		else if (Type == BUILDING_SHOP)
+			new CShop(&GameServer()->m_World, vec2(x, y));
+		else if (Type == BUILDING_REACTOR)
+			new CBuilding(&GameServer()->m_World, vec2(x, y+50), Type, TEAM_NEUTRAL);
+		else
+		{
+			CBuilding *pBuilding = new CBuilding(&GameServer()->m_World, vec2(x, y), Type, TEAM_NEUTRAL);
+			
+			if (Type == BUILDING_FLAMETRAP && Subtype == 1)
+				pBuilding->m_Mirror = true;
+		}
+	}
+	else if (ObjType == ENTTYPE_DROID)
+	{
+		if (Type == DROIDTYPE_WALKER)
+			new CWalker(&GameServer()->m_World, vec2(x, y));
+		else if (Type == DROIDTYPE_STAR)
+			new CStar(&GameServer()->m_World, vec2(x, y));
+		else if (Type == DROIDTYPE_CRAWLER)
+			new CCrawler(&GameServer()->m_World, vec2(x, y));
+		else if (Type == DROIDTYPE_BOSSCRAWLER)
+			new CBossCrawler(&GameServer()->m_World, vec2(x, y));
+	}
+}
 
 
 bool IGameController::OnEntity(int Index, vec2 Pos)
@@ -721,8 +669,6 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 	//if(IGameController::OnNonPickupEntity(Index, Pos))
 	//	return true;
 
-	if (!m_DroppablesCreated)
-		CreateDroppables();
 	
 	// buildings
 	if (Index == ENTITY_SAWBLADE)
@@ -870,60 +816,63 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 		m_aaSpawnPoints[1][m_aNumSpawnPoints[1]++] = Pos;
 	else if(Index == ENTITY_SPAWN_BLUE)
 		m_aaSpawnPoints[2][m_aNumSpawnPoints[2]++] = Pos;
-	else
-	if (g_Config.m_SvVanillaPickups)
-	{
-		if(Index == ENTITY_AMMO_1)
+	else if(Index == ENTITY_AMMO_1)
 			Type = POWERUP_AMMO;
-		else if(Index == ENTITY_HEALTH_1)
-			Type = POWERUP_HEALTH;
-		else if(Index == ENTITY_ARMOR_1)
-			Type = POWERUP_ARMOR;
-		else if(Index == ENTITY_KIT)
-		{
-			if (g_Config.m_SvEnableBuilding)
-				Type = POWERUP_KIT;
-			else
-				Type = POWERUP_AMMO;
-		}
-		else if(Index == ENTITY_RANDOM_WEAPON)
-		{
-			Type = POWERUP_WEAPON;
-			SubType = 0;
-		}
-		else if(Index == ENTITY_BALL)
-		{
-			//Type = POWERUP_WEAPON;
-			//SubType = GetStaticWeapon(SW_BALL);
+	else if(Index == ENTITY_HEALTH_1)
+	{
+		if (!g_Config.m_SvHealthPickups)
+			return true;
+		Type = POWERUP_HEALTH;
+	}
+	else if(Index == ENTITY_ARMOR_1)
+	{
+		if (!g_Config.m_SvHealthPickups)
+			return true;
+		Type = POWERUP_ARMOR;
+	}
+	else if(Index == ENTITY_KIT)
+	{
+		if (!g_Config.m_SvEnableBuilding)
+			return true;
+		
+		Type = POWERUP_KIT;
+	}
+	else if(Index == ENTITY_RANDOM_WEAPON)
+	{
+		Type = POWERUP_WEAPON;
+		SubType = 0;
+	}
+	else if(Index == ENTITY_BALL)
+	{
+		//Type = POWERUP_WEAPON;
+		//SubType = GetStaticWeapon(SW_BALL);
 			
-			if (!m_pBall)
-			{
-				m_pBall = new CBall(&GameServer()->m_World);
-				m_pBall->Spawn(Pos);
-			}
-			else return false;
-		}
-		else if(Index == ENTITY_RED_AREA)
+		if (!m_pBall)
 		{
-			AddMapArea(TEAM_RED, Pos);
-			return true;
+			m_pBall = new CBall(&GameServer()->m_World);
+			m_pBall->Spawn(Pos);
 		}
-		else if(Index == ENTITY_BLUE_AREA)
-		{
-			AddMapArea(TEAM_BLUE, Pos);
-			return true;
-		}
+		else return false;
+	}
+	else if(Index == ENTITY_RED_AREA)
+	{
+		AddMapArea(TEAM_RED, Pos);
+		return true;
+	}
+	else if(Index == ENTITY_BLUE_AREA)
+	{
+		AddMapArea(TEAM_BLUE, Pos);
+		return true;
 	}
 
 	if(Type != -1)
 	{
-		/*
-		if (g_Config.m_SvForceWeapon)
+		
+		if (!g_Config.m_SvWeaponSpawns)
 		{
 			if (Type == POWERUP_WEAPON || Type == POWERUP_AMMO)
 				return true;
 		}
-		*/
 		
 		if (Type == POWERUP_WEAPON && !SubType)
 			SubType = GetRandomWeapon();
@@ -1083,6 +1032,7 @@ void IGameController::EndRound()
 
 void IGameController::ResetGame()
 {
+	m_GameVote = 0;
 	GameServer()->m_World.m_ResetRequested = true;
 }
 
@@ -1316,7 +1266,7 @@ void IGameController::PostReset()
 			GameServer()->m_apPlayers[i]->Respawn();
 			GameServer()->m_apPlayers[i]->m_Score = 0;
 			GameServer()->m_apPlayers[i]->m_ScoreStartTick = Server()->Tick();
-			GameServer()->m_apPlayers[i]->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()/2;
+			GameServer()->m_apPlayers[i]->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()*g_Config.m_SvRespawnDelay;
 		}
 	}
 }
@@ -1731,6 +1681,34 @@ void IGameController::OnSurvivalTimeOut()
 }
 	
 
+void IGameController::SendGameVotes()
+{
+	GameServer()->ResetGameVotes();
+	GameServer()->SendGameVotes();
+}
+
+void IGameController::ResetGameVotes()
+{
+	GameServer()->ResetGameVotes();
+	m_GameVote = 0;
+}
+
+
+int IGameController::GetVoteTime()
+{
+	int t = (m_GameOverTick - Server()->Tick());
+	
+	//if (t < 0)
+	t = t/Server()->TickSpeed() + 13;
+	
+	if (t < 0)
+		t = 0;
+	
+	return t;
+	
+}
+
+	
 void IGameController::Tick()
 {
 	// do warmup
@@ -1745,8 +1723,27 @@ void IGameController::Tick()
 
 	if(m_GameOverTick != -1)
 	{
+		// game over.. wait for vote start
+		if(!m_GameVote && Server()->Tick() > m_GameOverTick+Server()->TickSpeed()*3)
+		{
+			m_GameVote = 1;
+			SendGameVotes();
+		}
+		
+		// check votes
+		if(m_GameVote && Server()->Tick() > m_GameOverTick+Server()->TickSpeed()*14)
+		{
+			// run config!
+			m_GameVote = 0;
+			//Console()->ExecuteFile("cfg/ball.cfg");
+			//GameServer()->Console()->ExecuteLine("exec cfg/ball.cfg");
+			GameServer()->Console()->ExecuteLine(GameServer()->GetVoteWinnerConfig());
+			ResetGameVotes();
+			StartRound();
+		}
+		
 		// game over.. wait for restart
-		if(Server()->Tick() > m_GameOverTick+Server()->TickSpeed()*(IsCoop() ? 1 : 5))
+		if(false && Server()->Tick() > m_GameOverTick+Server()->TickSpeed()*(IsCoop() ? 1 : 5))
 		{
 			GameServer()->KickBots();
 			CycleMap();
@@ -1755,6 +1752,8 @@ void IGameController::Tick()
 			m_RoundCount++;
 		}
 	}
+	else
+		m_GameVote = 0;
 	
 	// clear / interrupt broadcast
 	if (m_ClearBroadcastTick && m_ClearBroadcastTick < Server()->Tick())
@@ -1920,6 +1919,11 @@ void IGameController::Tick()
 bool IGameController::IsCoop() const
 {
 	return m_GameFlags&GAMEFLAG_COOP;
+}
+
+bool IGameController::IsSurvival() const
+{
+	return m_GameFlags&GAMEFLAG_SURVIVAL;
 }
 
 bool IGameController::IsTeamplay() const

@@ -5,6 +5,7 @@
 #include <math.h>
 #include <engine/map.h>
 #include <engine/kernel.h>
+#include <engine/shared/mapchunk.h>
 
 #include <game/mapitems.h>
 #include <game/layers.h>
@@ -22,6 +23,8 @@ CCollision::CCollision()
 	m_Height = 0;
 	m_pLayers = 0;
 	m_pBlocks = 0;
+	m_pLightRays = 0;
+	m_pMapChunk = NULL;
 
 	m_PathLen = 0;
 	m_pPath = 0;
@@ -38,9 +41,15 @@ CCollision::~CCollision()
 	if (m_pBlocks)
 		delete m_pBlocks;
 	
+	if (m_pLightRays)
+		delete m_pLightRays;
+	
 	for (int i = 0; i < MAX_WAYPOINTS; i++)
 		if (m_apWaypoint[i])
 			delete m_apWaypoint[i];
+		
+	if (m_pMapChunk)
+		delete m_pMapChunk;
 }
 
 void CCollision::Init(class CLayers *pLayers)
@@ -50,9 +59,15 @@ void CCollision::Init(class CLayers *pLayers)
 	m_Height = m_pLayers->GameLayer()->m_Height;
 	m_pTiles = static_cast<CTile *>(m_pLayers->Map()->GetData(m_pLayers->GameLayer()->m_Data));
 	
+	m_pMapChunk = m_pLayers->GetMapChunk();
+	
 	m_pBlocks = new bool[m_Width*m_Height];
 	for (int i = 0; i < m_Width*m_Height; i++)
 		m_pBlocks[i] = false;
+	
+	m_pLightRays = new int[m_Width*m_Height];
+	for (int i = 0; i < m_Width*m_Height; i++)
+		m_pLightRays[i] = 0;
 	
 	m_LowestPoint = 0;
 	m_Time = 0;
@@ -113,6 +128,8 @@ void CCollision::Init(class CLayers *pLayers)
 	
 	for (int i = 0; i < MAX_WAYPOINTS; i++)
 		m_apWaypoint[i] = 0;
+	
+	InitLightRays();
 }
 
 
@@ -203,10 +220,20 @@ void CCollision::AddWaypoint(vec2 Position, bool InnerCorner)
 void CCollision::GenerateWaypoints()
 {
 	ClearWaypoints();
+	
+	if (m_pMapChunk)
+		return;
+	
 	for(int x = 2; x < m_Width-2; x++)
 	{
 		for(int y = 2; y < m_Height-2; y++)
 		{
+			if (m_pTiles[y*m_Width+x].m_Index == 214)
+			{
+				AddWaypoint(vec2(x, y));
+				continue;
+			}
+				
 			if (m_pTiles[y*m_Width+x].m_Index && m_pTiles[y*m_Width+x].m_Index < 130)
 				continue;
 
@@ -514,6 +541,96 @@ void CCollision::AddWeight(vec2 Pos, int Weight)
 }
 
 
+
+void CCollision::InitLightRays()
+{
+	for (int y = m_Height-1; y > 0; y--)
+		for (int x = 0; x < m_Width; x++)
+		{
+			int t = GetTileRay(x*32, y*32, true);
+			
+			// outer corners
+			if (GetTileRay(x*32, y*32, true) == COLFLAG_SOLID && !GetTileRay((x-1)*32, y*32, true) && !GetTileRay(x*32, (y-1)*32, true))
+				m_pLightRays[y*m_Width+x] = 1;
+			
+			if (!GetTileRay(x*32, y*32, true) && GetTileRay((x-1)*32, y*32, true) == COLFLAG_SOLID && !GetTileRay(x*32, (y-1)*32, true) && !GetTileRay((x-1)*32, (y-1)*32, true))
+				m_pLightRays[y*m_Width+x] = 1;
+			
+			if (!GetTileRay(x*32, y*32, true) && GetTileRay(x*32, (y-1)*32, true) == COLFLAG_SOLID && !GetTileRay((x-1)*32, (y-1)*32, true))
+				m_pLightRays[y*m_Width+x] = 1;
+			
+			if (!GetTileRay(x*32, y*32, true) && GetTileRay((x-1)*32, (y-1)*32, true) == COLFLAG_SOLID && !GetTileRay(x*32, (y-1)*32, true) && !GetTileRay((x-1)*32, y*32, true))
+				m_pLightRays[y*m_Width+x] = 1;
+			
+
+			// inner corners
+			if (GetTileRay(x*32, y*32, true) == COLFLAG_SOLID && !GetTileRay(x*32, (y-1)*32, true) && GetTileRay((x-1)*32, (y-1)*32, true) == COLFLAG_SOLID)
+				m_pLightRays[y*m_Width+x] = 1;
+			
+			if (GetTileRay(x*32, y*32, true) == COLFLAG_SOLID && GetTileRay(x*32, (y-1)*32, true) == COLFLAG_SOLID && GetTileRay((x-1)*32, y*32, true) == COLFLAG_SOLID && !GetTileRay((x-1)*32, (y-1)*32, true))
+				m_pLightRays[y*m_Width+x] = 1;
+			
+			if (!GetTileRay(x*32, y*32, true) && GetTileRay(x*32, (y-1)*32, true) == COLFLAG_SOLID && GetTileRay((x-1)*32, y*32, true) == COLFLAG_SOLID)
+				m_pLightRays[y*m_Width+x] = 1;
+			
+			if (GetTileRay(x*32, y*32, true) == COLFLAG_SOLID && GetTileRay(x*32, (y-1)*32, true) == COLFLAG_SOLID && !GetTileRay((x-1)*32, y*32, true) && GetTileRay((x-1)*32, (y-1)*32, true) == COLFLAG_SOLID)
+				m_pLightRays[y*m_Width+x] = 1;
+			
+			
+			// slope & ramp corners
+			if (GetTileRay(x*32, y*32, true) == COLFLAG_ROOFSLOPE_RIGHT && (GetTileRay((x-1)*32, (y-1)*32, true) == COLFLAG_SOLID || !GetTileRay((x-1)*32, (y-1)*32, true)))
+				m_pLightRays[y*m_Width+x] = 1;
+			
+			if ((!GetTileRay(x*32, y*32, true) || GetTileRay(x*32, y*32, true) == COLFLAG_SOLID) && GetTileRay((x-1)*32, (y-1)*32, true) == COLFLAG_ROOFSLOPE_RIGHT)
+				m_pLightRays[y*m_Width+x] = 1;
+			
+			
+			if (!GetTileRay(x*32, y*32, true) && GetTileRay(x*32, (y-1)*32, true) == COLFLAG_ROOFSLOPE_LEFT && (GetTileRay((x-1)*32, y*32, true) == COLFLAG_SOLID || !GetTileRay((x-1)*32, y*32, true)))
+				m_pLightRays[y*m_Width+x] = 1;
+			
+			if (!GetTileRay(x*32, y*32, true) && (GetTileRay(x*32, (y-1)*32, true) == COLFLAG_SOLID || !GetTileRay(x*32, (y-1)*32, true)) && GetTileRay((x-1)*32, y*32, true) == COLFLAG_ROOFSLOPE_LEFT)
+				m_pLightRays[y*m_Width+x] = 1;
+			
+			
+			if ((GetTileRay(x*32, y*32, true) == COLFLAG_SOLID || !GetTileRay(x*32, y*32, true)) && GetTileRay((x-1)*32, (y-1)*32, true) == COLFLAG_RAMP_LEFT)
+				m_pLightRays[y*m_Width+x] = 1;
+			
+			if (GetTileRay(x*32, y*32, true) == COLFLAG_RAMP_LEFT && (!GetTileRay((x-1)*32, (y-1)*32, true) || GetTileRay((x-1)*32, (y-1)*32, true) == COLFLAG_SOLID))
+				m_pLightRays[y*m_Width+x] = 1;
+			
+		
+			if ((GetTileRay(x*32, y*32, true) == COLFLAG_SOLID || !GetTileRay(x*32, y*32, true)) && GetTileRay(x*32, (y-1)*32, true) == COLFLAG_RAMP_RIGHT && (!GetTileRay((x-1)*32, y*32, true) || GetTileRay((x-1)*32, y*32, true) == COLFLAG_SOLID))
+				m_pLightRays[y*m_Width+x] = 1;
+			
+			if ((GetTileRay(x*32, y*32, true) == COLFLAG_SOLID || !GetTileRay(x*32, y*32, true)) && GetTileRay((x-1)*32, y*32, true) == COLFLAG_RAMP_RIGHT && (!GetTileRay(x*32, (y-1)*32, true) || GetTileRay(x*32, (y-1)*32, true) == COLFLAG_SOLID))
+				m_pLightRays[y*m_Width+x] = 1;
+			
+			
+			// screen border helpers
+			if (!m_pLightRays[y*m_Width+x])
+			{
+				if ((!GetTileRay(x*32, y*32, true) && GetTileRay((x-1)*32, y*32, true)) || (GetTileRay(x*32, y*32, true) && !GetTileRay((x-1)*32, y*32, true)))
+					m_pLightRays[y*m_Width+x] = -1;
+				
+				if ((!GetTileRay(x*32, y*32, true) && GetTileRay(x*32, (y-1)*32, true)) || (GetTileRay(x*32, y*32, true) && !GetTileRay(x*32, (y-1)*32, true)))
+					m_pLightRays[y*m_Width+x] -= 2;
+			}
+		}
+}
+
+int CCollision::GetLightRay(ivec2 Pos)
+{
+	//int Nx = clamp(Pos.x/32, 0, m_Width-1);
+	//int Ny = clamp(Pos.y/32, 0, m_Height-1);
+	
+	int Nx = GetModularPos(Pos.x/32);
+	Nx = clamp(Nx, 0, m_Width-1);
+	int Ny = clamp(Pos.y/32, 0, m_Height-1);
+	
+	return m_pLightRays[Ny*m_Width+Nx];
+}
+
+
 void CCollision::SetBlock(ivec2 Pos, bool Block)
 {
 	int Nx = clamp(Pos.x/32, 0, m_Width-1);
@@ -545,8 +662,46 @@ bool CCollision::CanBuildBlock(int x, int y)
 	return false;
 }
 
-int CCollision::GetTile(int x, int y, bool Down)
+int CCollision::GetChunkSize() { return m_pMapChunk?m_pMapChunk->GetSize():0; }
+
+int CCollision::GetModularPos(int x)
 {
+	if (m_pMapChunk)
+	{
+		m_pMapChunk = m_pMapChunk->GetMapChunk(x);
+		int chunk = m_pMapChunk->GetIndex();
+		int chunksize = m_pMapChunk->GetSize();
+		return x%chunksize+chunk*chunksize;
+	}
+	
+	return x;
+}
+
+int CCollision::GetTile(int x, int y, bool Down, bool IncludeBlocks)
+{
+	int Nx = GetModularPos(x/32);
+	Nx = clamp(Nx, 0, m_Width-1);
+	int Ny = clamp(y/32, 0, m_Height-1);
+
+	if (m_pTiles[Ny*m_Width+Nx].m_Index == ENTITY_SAWBLADE + ENTITY_OFFSET)
+		return COLFLAG_SOLID;
+	
+	if (IncludeBlocks && m_pBlocks[Ny*m_Width+Nx] && Nx > 0 && Ny > 0 && Nx < m_Width-1 && Ny < m_Height-1)
+		return COLFLAG_SOLID;
+	
+	if (m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_MOVELEFT || m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_MOVERIGHT)
+		return COLFLAG_SOLID;
+	
+	if (!Down && m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_PLATFORM)
+		return COLFLAG_SOLID;
+	
+	return m_pTiles[Ny*m_Width+Nx].m_Index > 128 ? 0 : m_pTiles[Ny*m_Width+Nx].m_Index;
+}
+
+int CCollision::GetTileRay(int x, int y, bool Down)
+{
+	//int Nx = GetModularPos(x/32);
+	//Nx = clamp(Nx, 0, m_Width-1);
 	int Nx = clamp(x/32, 0, m_Width-1);
 	int Ny = clamp(y/32, 0, m_Height-1);
 
@@ -562,7 +717,12 @@ int CCollision::GetTile(int x, int y, bool Down)
 	if (!Down && m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_PLATFORM)
 		return COLFLAG_SOLID;
 	
-	return m_pTiles[Ny*m_Width+Nx].m_Index > 128 ? 0 : m_pTiles[Ny*m_Width+Nx].m_Index;
+	int i = m_pTiles[Ny*m_Width+Nx].m_Index > 128 ? 0 : m_pTiles[Ny*m_Width+Nx].m_Index;
+	
+	if (i == COLFLAG_SOLID || i == COLFLAG_RAMP_LEFT || i == COLFLAG_RAMP_RIGHT || i == COLFLAG_ROOFSLOPE_LEFT || i == COLFLAG_ROOFSLOPE_RIGHT)
+		return i;
+	
+	return 0;
 }
 
 
@@ -594,7 +754,8 @@ float CCollision::GetGlobalAcidLevel()
 
 int CCollision::ForceState(int x, int y)
 {
-	int Nx = clamp(x/32, 0, m_Width-1);
+	int Nx = GetModularPos(x/32);
+	Nx = clamp(Nx, 0, m_Width-1);
 	int Ny = clamp(y/32, 0, m_Height-1);
 
 	if (m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_MOVELEFT)
@@ -609,7 +770,8 @@ int CCollision::ForceState(int x, int y)
 
 bool CCollision::IsHangTile(float x, float y)
 {
-	int Nx = clamp(round_to_int(x)/32, 0, m_Width-1);
+	int Nx = GetModularPos(round_to_int(x)/32);
+	Nx = clamp(Nx, 0, m_Width-1);
 	int Ny = clamp(round_to_int(y)/32, 0, m_Height-1);
 	
 	if (m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_HANG)
@@ -621,7 +783,8 @@ bool CCollision::IsHangTile(float x, float y)
 
 bool CCollision::IsPlatform(float x, float y)
 {
-	int Nx = clamp(round_to_int(x)/32, 0, m_Width-1);
+	int Nx = GetModularPos(round_to_int(x)/32);
+	Nx = clamp(Nx, 0, m_Width-1);
 	int Ny = clamp(round_to_int(y)/32, 0, m_Height-1);
 	
 	if (m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_PLATFORM)
@@ -632,7 +795,8 @@ bool CCollision::IsPlatform(float x, float y)
 
 bool CCollision::IsSawblade(float x, float y)
 {
-	int Nx = clamp(round_to_int(x)/32, 0, m_Width-1);
+	int Nx = GetModularPos(round_to_int(x)/32);
+	Nx = clamp(Nx, 0, m_Width-1);
 	int Ny = clamp(round_to_int(y)/32, 0, m_Height-1);
 	
 	if (m_pTiles[Ny*m_Width+Nx].m_Index == ENTITY_SAWBLADE + ENTITY_OFFSET)
@@ -642,9 +806,9 @@ bool CCollision::IsSawblade(float x, float y)
 }
 
 
-int CCollision::SolidState(int x, int y, bool IncludeDeath, bool Down)
+int CCollision::SolidState(int x, int y, bool IncludeDeath, bool Down, bool IncludeBlocks)
 {
-	unsigned char sol = GetTile(x, y, Down);
+	unsigned char sol = GetTile(x, y, Down, IncludeBlocks);
 
 	if(sol& COLFLAG_SOLID || (IncludeDeath && (sol&COLFLAG_DEATH || sol&COLFLAG_INSTADEATH)))
 		return true;
@@ -684,6 +848,25 @@ bool CCollision::IsTileSolid(int x, int y, bool IncludeDeath)
 
 
 
+int CCollision::GetRayPoint(int x, int y)
+{
+	int Nx = GetModularPos(x);
+	Nx = clamp(Nx, 0, m_Width-1);
+	int Ny = clamp(y, 0, m_Height-1);
+
+	if (m_pTiles[Ny*m_Width+Nx].m_Index == ENTITY_SAWBLADE + ENTITY_OFFSET)
+		return COLFLAG_SOLID;
+	
+	if (m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_MOVELEFT || m_pTiles[Ny*m_Width+Nx].m_Index == COLFLAG_MOVERIGHT)
+		return COLFLAG_SOLID;
+	
+	return m_pTiles[Ny*m_Width+Nx].m_Index > 128 ? 0 : m_pTiles[Ny*m_Width+Nx].m_Index;
+	
+	return 0;
+}
+
+
+
 int CCollision::IsInFluid(float x, float y)
 {
 	if (m_GlobalAcid && y > GetGlobalAcidLevel())
@@ -710,7 +893,7 @@ int CCollision::FastIntersectLine(vec2 Pos0, vec2 Pos1)
 
 
 // TODO: rewrite this smarter!
-int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, bool IncludeDeath, bool IncludePlatforms)
+int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, bool IncludeDeath, bool IncludePlatforms, bool IncludeBlocks)
 {
 	float Distance = distance(Pos0, Pos1);
 	int End(Distance+1);
@@ -720,13 +903,13 @@ int CCollision::IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *p
 	{
 		float a = i/Distance;
 		vec2 Pos = mix(Pos0, Pos1, a);
-		if(CheckPoint(Pos.x, Pos.y, IncludeDeath, !IncludePlatforms))
+		if(CheckPoint(Pos.x, Pos.y, IncludeDeath, !IncludePlatforms, IncludeBlocks))
 		{
 			if(pOutCollision)
 				*pOutCollision = Pos;
 			if(pOutBeforeCollision)
 				*pOutBeforeCollision = Last;
-			return GetCollisionAt(Pos.x, Pos.y, !IncludePlatforms);
+			return GetCollisionAt(Pos.x, Pos.y, !IncludePlatforms, IncludeBlocks);
 		}
 		Last = Pos;
 	}

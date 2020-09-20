@@ -335,12 +335,76 @@ void CAI::DoJumping()
 
 bool CAI::UpdateWaypoint()
 {
-	if (m_WayPointUpdateTick + GameServer()->Server()->TickSpeed()*3 < GameServer()->Server()->Tick())
+	//new CStaticlaser(&GameServer()->m_World, m_Pos, m_WaypointPos, 10);
+	
+	if (m_WayPointUpdateTick + GameServer()->Server()->TickSpeed()*(4+frandom()*4) < GameServer()->Server()->Tick())
 		m_WaypointUpdateNeeded = true;
+		
+	if (distance(m_Pos, m_TargetPos) < 1200 && !GameServer()->Collision()->FastIntersectLine(m_Pos, m_TargetPos))
+	{
+		m_WaypointPos = m_TargetPos;
+		m_WaypointDir = m_WaypointPos - m_Pos;
+		return true;
+	}
+	
+	if (m_WaypointUpdateNeeded)
+	{
+		m_WaypointUpdateNeeded = false;
+		m_WayPointUpdateTick = GameServer()->Server()->Tick();
+
+		//if (GameServer()->Collision()->AStar(m_Pos + vec2(0, -16), m_TargetPos))
+		if (GameServer()->Collision()->AStar(m_TargetPos, m_Pos + vec2(0, -16)))
+		{	
+			if (m_pPath)
+				delete m_pPath;
+			
+			m_pPath = GameServer()->Collision()->GetPath();
+			GameServer()->Collision()->ForgetAboutThePath();
+			
+			if (!m_pPath)
+				return false;
+			
+			m_pVisible = m_pPath->GetVisible(GameServer(), m_Pos-vec2(0, 16));
+			
+			//for (int i = 0; i < 20; i++)
+			//	new CStaticlaser(&GameServer()->m_World, GameServer()->Collision()->m_aPath[i], GameServer()->Collision()->m_aPath[i+1], 5+i*2);
+			
+			if (m_pVisible)
+			{
+				//m_WaypointPos = m_pPath->m_Pos;
+				m_WaypointPos = m_pVisible->m_Pos;
+				m_WaypointDir = m_WaypointPos - m_Pos;
+				return true;
+			}
+			else
+				return false;
+			
+			//new CStaticlaser(&GameServer()->m_World, m_Pos, m_TargetPos, 20);
+			
+		}
+	}
+	
+	if (m_pVisible && abs(m_WaypointPos.x - m_pVisible->m_Pos.x) < 70 && abs(m_WaypointPos.y - m_pVisible->m_Pos.y) < 70) // m_TargetTimer++ > 10
+	{
+		m_TargetTimer = 0;
+		m_pVisible = m_pVisible->GetVisible(GameServer(), m_Pos-vec2(0, 16));
+		m_WaypointPos = m_pVisible->m_Pos;
+		m_WaypointDir = m_WaypointPos - m_Pos;
+		
+		return true;
+	}
+	
+	return false;
+	
+	
+	
+	
+	
+	
 	
 	
 	//if (distance(m_WaypointPos, m_LastPos) < 100) // || m_TargetTimer++ > 30)// && m_WayPointUpdateWait > 10)
-	if (m_TargetTimer++ > 40 && (!m_pVisible || m_WaypointUpdateNeeded))
+	if (m_TargetTimer++ > 80 && (!m_pVisible || m_WaypointUpdateNeeded))
 	{
 		m_TargetTimer = 0;
 		
@@ -550,8 +614,8 @@ bool CAI::SeekBombArea()
 
 bool CAI::MoveTowardsWaypoint(bool Freestyle)
 {
-	m_Jump = 0;
-	m_Hook = 0;
+	//m_Jump = 0;
+	//m_Hook = 0;
 
 	bool OnWall = Player()->GetCharacter()->GetCore().m_OnWall;
 	
@@ -589,11 +653,13 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 			case MOVE_IDLE:
 			{
 				m_Move = 0;
-					
+				
+				/*
 				if (rand()%29 == 2)
 					m_Move = -1;
 				else if (rand()%29 == 2)
 					m_Move = 1;
+				*/
 			}
 			break;
 				
@@ -602,8 +668,11 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				m_Move = -1;
 				m_Down = 0;
 				
+				if (frandom() < 0.05f)
+					m_Down = 1;
 				
 				// drop down from platforms
+				/*
 				if (m_WaypointPos.y > m_Pos.y && abs(Player()->GetCharacter()->GetCore().m_Vel.x) < 2.0f && GameServer()->Collision()->IsPlatform(m_Pos.x, m_Pos.y+48))
 				{
 					m_Down = 1;
@@ -613,7 +682,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				{
 					m_AirJump = 0;
 					
-					if (GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 24, m_Pos.y))
+					if (GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 24, m_Pos.y+30))
 						m_Jump = 1;
 					else if (GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y - 64))
 						m_Down = 1;
@@ -621,11 +690,14 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				
 				if (!OnWall)
 				{
+					/*
 					if (m_EnemiesInSight > 0 && Player()->GetCharacter()->GetCore().m_JetpackPower > 150 && abs(Player()->GetCharacter()->GetCore().m_Vel.x) < 12)
 					{
 						m_Hook = 1;
 						m_Direction = m_WaypointDir;
 					}
+					*/
+				/*
 				}
 				else
 				{
@@ -637,6 +709,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				
 				if (Player()->GetCharacter()->IsGrounded() && m_EnemyInLine && abs(Player()->GetCharacter()->GetCore().m_Vel.x) > 8)
 					m_Down = 1;
+				*/
 			}
 			break;
 				
@@ -645,6 +718,10 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				m_Move = 1;
 				m_Down = 0;
 				
+				if (frandom() < 0.05f)
+					m_Down = 1;
+				
+				/*
 				// drop down from platforms
 				if (m_WaypointPos.y > m_Pos.y && abs(Player()->GetCharacter()->GetCore().m_Vel.x) < 2.0f && GameServer()->Collision()->IsPlatform(m_Pos.x, m_Pos.y+48))
 				{
@@ -655,7 +732,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				{
 					m_AirJump = 0;
 					
-					if (GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 24, m_Pos.y))
+					if (GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 24, m_Pos.y+30))
 						m_Jump = 1;
 					else if (GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y - 64))
 						m_Down = 1;
@@ -663,11 +740,14 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				
 				if (!OnWall)
 				{
+					/*
 					if (m_EnemiesInSight > 0 && Player()->GetCharacter()->GetCore().m_JetpackPower > 150 && abs(Player()->GetCharacter()->GetCore().m_Vel.x) < 12)
 					{
 						m_Hook = 1;
 						m_Direction = m_WaypointDir;
 					}
+					*/
+				/*
 				}
 				else
 				{
@@ -679,12 +759,17 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				
 				if (Player()->GetCharacter()->IsGrounded() && m_EnemyInLine && abs(Player()->GetCharacter()->GetCore().m_Vel.x) > 8)
 					m_Down = 1;
+				*/
 			}
 			break;
 				
 			
 			case MOVE_UPLEFT:
 			{
+				m_Jump = 1;
+				m_Move = -1;
+				
+				/*
 				if (Player()->GetCharacter()->Wallrun())
 				{
 					m_Move = 0;
@@ -714,20 +799,29 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				}
 				else
 				{
-					if (!m_AirJump && m_PowerLevel >= 8 && Player()->GetCharacter()->GetCore().m_Vel.y > 0.0f && !GameServer()->Collision()->IsTileSolid(m_Pos.x-24, m_Pos.y-64))
-						m_AirJump++;
+					//if (!m_AirJump && m_PowerLevel >= 8 && Player()->GetCharacter()->GetCore().m_Vel.y > 0.0f && !GameServer()->Collision()->IsTileSolid(m_Pos.x-24, m_Pos.y-64))
+					//	m_AirJump++;
+					
+					if (Player()->GetCharacter()->GetCore().m_JetpackPower > 20)
+						m_Jump = 1;
 				}
 				
+				/*
 				if (Player()->GetCharacter()->GetCore().m_JetpackPower > Treshold)
 				{
 					m_Hook = 1;
 					m_Direction = vec2(-1, -0.75f);
 				}
+				*/
 			};
 			break;
 				
 			case MOVE_UPRIGHT:
 			{
+				m_Jump = 1;
+				m_Move = 1;
+				
+				/*
 				if (Player()->GetCharacter()->Wallrun())
 				{
 					m_Move = 0;
@@ -757,15 +851,20 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				}
 				else
 				{
-					if (!m_AirJump && m_PowerLevel >= 8 && Player()->GetCharacter()->GetCore().m_Vel.y > 0.0f && !GameServer()->Collision()->IsTileSolid(m_Pos.x+24, m_Pos.y-64))
-						m_AirJump++;
+					//if (!m_AirJump && m_PowerLevel >= 8 && Player()->GetCharacter()->GetCore().m_Vel.y > 0.0f && !GameServer()->Collision()->IsTileSolid(m_Pos.x+24, m_Pos.y-64))
+					//	m_AirJump++;
+					
+					if (Player()->GetCharacter()->GetCore().m_JetpackPower > 20)
+						m_Jump = 1;
 				}
 				
+				/*
 				if (Player()->GetCharacter()->GetCore().m_JetpackPower > Treshold)
 				{
 					m_Hook = 1;
 					m_Direction = vec2(1, -0.75f);
 				}
+				*/
 			};
 			break;
 			
@@ -777,8 +876,11 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				m_Hook = 0;
 				m_Move = 0;
 				
+				/*
 				if (GameServer()->Collision()->IsPlatform(m_Pos.x, m_Pos.y+48))
 				{
+					if (rand()%9 < 3)
+						m_Move = 0;
 				}
 				else
 				if (GameServer()->Collision()->IsTileSolid(m_Pos.x, m_Pos.y+48))
@@ -788,11 +890,21 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 					else if (rand()%9 < 4)
 						m_Move = 1;
 				}
+				*/
 			}
 			break;
 				
 			case MOVE_UP:
 			{
+				m_Jump = 1;
+				m_Move = 0;
+				
+				if (frandom() < 0.02f)
+					m_Move = 1;
+				if (frandom() < 0.02f)
+					m_Move = -1;
+				
+				/*
 				if (Player()->GetCharacter()->Wallrun())
 				{
 					m_Move = 0;
@@ -822,12 +934,14 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				}
 				else
 				{
+					/*
 					if (Player()->GetCharacter()->GetCore().m_JetpackPower > 50)
 					{
 						m_Hook = 1;
 						m_Direction = vec2(0, -1);
 					}
-					
+					*/
+					/*
 					if (Player()->GetCharacter()->GetCore().m_JetpackPower > 20)
 						m_Jump = 1;
 					
@@ -859,7 +973,9 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 					else if (GameServer()->Collision()->FastIntersectLine(m_Pos+vec2(+24, -32), m_Pos+vec2(+24, -48)))
 						m_MoveType = MOVE_UPLEFT;
 					*/
+					/*
 				}
+			*/
 			}
 			break;
 			
@@ -867,6 +983,18 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				;
 		};
 		
+		//if (length(normalize(m_DisplayDirection)-normalize(m_TargetPos)) < 0.3f && GameServer()->Collision()->IntersectLine(m_Pos, m_Pos+normalize(m_DisplayDirection)*400, 0x0, 0x0))
+		if (m_DisplayDirection.y < 0 && m_MoveType != MOVE_IDLE && m_MoveType != MOVE_DOWN && !GameServer()->Collision()->IntersectLine(m_Pos, m_Pos+normalize(m_DisplayDirection)*150, 0x0, 0x0) && GameServer()->Collision()->IntersectLine(m_Pos+normalize(m_DisplayDirection)*150, m_Pos+normalize(m_DisplayDirection)*350, 0x0, 0x0))
+		{
+			m_Hook = 1;
+			m_HookTimer = 10+rand()%20;
+		}
+		
+		if (frandom() < 0.02f)
+			m_Jump = 1;
+		
+		if ((m_HookTimer && --m_HookTimer == 0) || m_HookTimer <= 0)
+			m_Hook = 0;
 		
 		if (Freestyle)
 		{
@@ -896,6 +1024,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 	float Vel = Player()->GetCharacter()->GetCore().m_Vel.x;
 	
 	// abuse the bug / use the feature that lets the character keep sliding if coming from tunnel, don't fix it
+	/*
 	if (Player()->GetCharacter()->GetCore().m_Slide > 0)
 	{
 		if (!Player()->GetCharacter()->GetCore().IsGrounded())
@@ -923,6 +1052,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 			m_Move = Vel < 0.0f ? -1 : 1;
 		}
 	}
+	*/
 	
 	
 	// avoid acid pools
@@ -970,7 +1100,7 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 		}
 	}
 	
-	if (frandom() < 0.3f)
+	if (frandom() < 0.1f)
 		m_Jump = 0;
 	
 	if (Freestyle)
@@ -1360,9 +1490,10 @@ bool CAI::ShootAtClosestEnemy()
 							m_DontMoveTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed()*(1+frandom()-m_PowerLevel*0.1f);
 				}
 				
-				
+				/*
 				if (WeaponShootRange() < 300 && m_PowerLevel >= 10)
 					m_Hook = 1;
+				*/
 			}
 			
 			return true;
@@ -1625,6 +1756,7 @@ bool CAI::SeekRandomEnemy()
 bool CAI::SeekRandomWaypoint()
 {
 	m_TargetPos = GameServer()->Collision()->GetRandomWaypointPos();
+	//m_WaypointUpdateNeeded = true;
 	
 	return true;
 }
@@ -2051,6 +2183,9 @@ void CAI::Tick()
 		m_Attack = 0;
 		m_ChargeStartTick = 0;
 	}
+	
+	if (frandom()*100 < 0.1f)
+		m_Hook = 0;
 	
 	m_InputChanged = false;
 	if (m_InputUpdateSkip <= 0)

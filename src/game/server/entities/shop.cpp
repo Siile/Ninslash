@@ -13,7 +13,7 @@ CShop::CShop(CGameWorld *pGameWorld, vec2 Pos)
 	m_Life = 9000;
 
 	m_Collision = false;
-	m_Autofill = false;
+	m_Autofill = !GameServer()->m_pController->IsSurvival();
 	
 	for (int i = 0; i < 4; i++)
 		m_aItem[i] = 0;
@@ -34,10 +34,10 @@ void CShop::FillSlots()
 		if (m_aItem[i])
 			continue;
 		
-		int t = GetRandomWeaponType(true);
+		int t = GetRandomWeaponType(GameServer()->m_pController->IsSurvival());
 		
 		while (IsStaticWeapon(t) && (GetStaticType(t) == SW_GUN1 || GetStaticType(t) == SW_GUN2))
-			t = GetRandomWeaponType(true);
+			t = GetRandomWeaponType(GameServer()->m_pController->IsSurvival());
 		
 		if (frandom() < 0.1f)
 			t = GetStaticWeapon(SW_UPGRADE);
@@ -93,6 +93,15 @@ void CShop::SurvivalReset()
 
 void CShop::Tick()
 {
+	if (m_SnapTick && m_SnapTick < Server()->Tick()-Server()->TickSpeed()*5.0f)
+	{
+		if (GameServer()->StoreEntity(m_ObjType, m_Type, 0, m_Pos.x, m_Pos.y))
+		{
+			GameServer()->m_World.DestroyEntity(this);
+			return;
+		}
+	}
+	
 	/*
 	if (m_Item >= 0)
 	{
@@ -125,6 +134,8 @@ void CShop::Snap(int SnappingClient)
 {
 	if(NetworkClipped(SnappingClient))
 		return;
+
+	m_SnapTick = Server()->Tick();
 
 	CNetObj_Shop *pP = static_cast<CNetObj_Shop *>(Server()->SnapNewItem(NETOBJTYPE_SHOP, m_ID, sizeof(CNetObj_Shop)));
 	if(!pP)

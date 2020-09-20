@@ -16,11 +16,15 @@ class CCollision
 	int m_Height;
 	class CLayers *m_pLayers;
 	bool *m_pBlocks;
+	int *m_pLightRays;
 	
-	int SolidState(int x, int y, bool IncludeDeath = false, bool Down = false);
+	class CMapChunk *m_pMapChunk;
+	
+	int SolidState(int x, int y, bool IncludeDeath = false, bool Down = false, bool IncludeBlocks = true);
 	int ForceState(int x, int y);
 	
-	int GetTile(int x, int y, bool Down = true);
+	int GetTile(int x, int y, bool Down = true, bool IncludeBlocks = true);
+	int GetTileRay(int x, int y, bool Down = true);
 	bool GetBlock(int x, int y);
 	
 	int m_WaypointCount;
@@ -41,7 +45,12 @@ class CCollision
 	
 	int m_LowestPoint;
 	
+	
 public:
+	bool IsMapModular() { return m_pMapChunk?true:false; }
+	int GetModularPos(int x);
+	int GetChunkSize();
+
 	enum
 	{
 		COLFLAG_SOLID=1,
@@ -74,11 +83,15 @@ public:
 	vec2 GetClosestWaypointPos(vec2 Pos);
 	
 	bool IsTileSolid(int x, int y, bool IncludeDeath = false);
+	int GetRayPoint(int x, int y);
 	
 	void GenerateWaypoints();
 	bool GenerateSomeMoreWaypoints();
 	int WaypointCount() { return m_WaypointCount; }
 	int ConnectionCount() { return m_ConnectionCount; }
+	
+	void InitLightRays();
+	int GetLightRay(ivec2 Pos);
 	
 	void SetBlock(ivec2 Pos, bool Block);
 	
@@ -120,13 +133,13 @@ public:
 	
 	bool IsPlatform(float x, float y);
 	
-	int CheckPoint(float x, float y, bool IncludeDeath = false, bool Down = true) { return SolidState(round_to_int(x), round_to_int(y), IncludeDeath, Down); }
-	bool CheckPoint(vec2 Pos, bool Down = true) { return CheckPoint(Pos.x, Pos.y, false, Down); }
+	int CheckPoint(float x, float y, bool IncludeDeath = false, bool Down = true, bool IncludeBlocks = true) { return SolidState(round_to_int(x), round_to_int(y), IncludeDeath, Down, IncludeBlocks); }
+	bool CheckPoint(vec2 Pos, bool Down = true, bool IncludeBlocks = true) { return CheckPoint(Pos.x, Pos.y, false, Down, IncludeBlocks); }
 	
 	bool CheckBlocks(float x, float y) { return GetBlock(round_to_int(x), round_to_int(y)); }
 	bool CheckBlocks(vec2 Pos) { return CheckBlocks(Pos.x, Pos.y); }
 	
-	int GetCollisionAt(float x, float y, bool Down = true) { return GetTile(round_to_int(x), round_to_int(y), Down); }
+	int GetCollisionAt(float x, float y, bool Down = true, bool IncludeBlocks = true) { return GetTile(round_to_int(x), round_to_int(y), Down, IncludeBlocks); }
 	
 	int IsInFluid(float x, float y);
 	
@@ -136,7 +149,7 @@ public:
 	int GetWidth() { return m_Width; };
 	int GetHeight() { return m_Height; };
 	int FastIntersectLine(vec2 Pos0, vec2 Pos1);
-	int IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, bool IncludeDeath = false, bool IncludePlatforms = false);
+	int IntersectLine(vec2 Pos0, vec2 Pos1, vec2 *pOutCollision, vec2 *pOutBeforeCollision, bool IncludeDeath = false, bool IncludePlatforms = false, bool IncludeBlocks = true);
 	bool IntersectBlocks(vec2 Pos0, vec2 Pos1);
 	
 	vec2 Reflect(vec2 v, vec2 n);

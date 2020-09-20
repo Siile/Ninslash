@@ -90,7 +90,12 @@ void CGameControllerCTF::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 	
 	// init AI
 	if (RequestAI)
+	{
+		if (!pChr->GetPlayer()->m_AISkin.m_Valid)
+			GameServer()->GetAISkin(&pChr->GetPlayer()->m_AISkin, true);
+		pChr->GetPlayer()->SetAISkin();
 		pChr->GetPlayer()->m_pAI = new CAIctf(GameServer(), pChr->GetPlayer());
+	}
 }
 
 int CGameControllerCTF::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int WeaponID)

@@ -1,0 +1,6 @@
+name: Battle Royale
+description: generated map - last man standing
+config: cfg/br_large1
+image: br1
+min-players: 21
+max-players: 100

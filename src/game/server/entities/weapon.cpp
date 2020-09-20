@@ -187,7 +187,14 @@ bool CWeapon::Activate()
 					GameServer()->CreateSound(m_Pos, SOUND_BOMB_BEEP);
 					m_BombResetTick = Server()->Tick() + Server()->TickSpeed()*1.0f;
 					
-					if (m_BombCounter++ > 11 && GameServer()->m_pController->TriggerWeapon(this))
+					if (m_Owner >= 0 && (m_BombCounter == 0 || m_BombCounter%3 == 0))
+					{
+						char aBuf[256];
+						str_format(aBuf, sizeof(aBuf), "Arming bomb... %d", 4-m_BombCounter/3);
+						GameServer()->SendBroadcast(aBuf, m_Owner);
+					}
+					
+					if (m_BombCounter++ > 12 && GameServer()->m_pController->TriggerWeapon(this))
 					{
 						m_DestructionTick = Server()->Tick() + 20.0f * Server()->TickSpeed();
 						m_AttackTick = Server()->Tick();
@@ -721,6 +728,13 @@ void CWeapon::Tick()
 					
 					if (m_BombCounter-- < 0)
 					{
+						if (m_Owner >= 0 && (m_BombDisarmCounter == 0 || m_BombDisarmCounter%2 == 0))
+						{
+							char aBuf[256];
+							str_format(aBuf, sizeof(aBuf), "Disarming bomb... %d", 8-m_BombDisarmCounter/2);
+							GameServer()->SendBroadcast(aBuf, pChr->GetPlayer()->GetCID());
+						}
+						
 						m_BombCounter = 10+frandom()*10;
 						m_BombDisarmCounter++;
 						GameServer()->CreateSound(m_Pos, SOUND_BOMB_BEEP);

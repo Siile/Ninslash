@@ -92,7 +92,9 @@ void CCharacter::Reset()
 
 bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 {
+	m_GrenadeGiveCooldown = 0;
 	m_Spawned = true;
+	m_Zombie = false;
 	m_DamagedByPlayer = false;
 	m_PickedWeaponSlot = 0;
 	m_MaskEffectTick = 0;
@@ -138,6 +140,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	m_IsBot = false;
 	m_EmoteStop = -1;
 	m_LastAction = -1;
+	m_LastBlink = -1;
 	m_LastNoAmmoSound = -1;
 	m_ElectroWallCooldown = 0;
 	m_PrevWeapon = WEAPON_HAMMER;
@@ -223,6 +226,7 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	//m_apWeapon[1] = GameServer()->NewWeapon(GetStaticWeapon(SW_BALL));
 	//m_apWeapon[2] = GameServer()->NewWeapon(GetStaticWeapon(SW_MASK5));
 	//m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 6));
+	//m_apWeapon[3] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(6, 9), 4));
 	
 	GiveStartWeapon();
 	SendInventory();
@@ -256,6 +260,9 @@ int CCharacter::FreeSlot()
 
 void CCharacter::RandomizeInventory()
 {
+	if (IsZombie())
+		return;
+	
 	for (int x = 0; x < 16; x++)
 	{
 		int i = rand()%4;
@@ -488,6 +495,9 @@ void CCharacter::InventoryRoll()
 	if (m_WeaponSlot < 0 || m_WeaponSlot >= NUM_SLOTS)
 		return;
 	
+	if (IsZombie())
+		return;
+	
 	int w1 = m_WeaponSlot;
 	int w2 = (m_WeaponSlot+4)%NUM_SLOTS;
 	int w3 = (m_WeaponSlot+8)%NUM_SLOTS;
@@ -511,6 +521,9 @@ void CCharacter::InventoryRoll()
 	
 void CCharacter::DropItem(int Slot, vec2 Pos)
 {
+	if (IsZombie())
+		return;
+	
 	if (Slot < 0 || Slot >= 12)
 		return;
 
@@ -541,6 +554,9 @@ void CCharacter::DropItem(int Slot, vec2 Pos)
 
 void CCharacter::SwapItem(int Item1, int Item2)
 {
+	if (IsZombie())
+		return;
+	
 	if (Item1 < 0 || Item1 >= NUM_SLOTS || Item2 >= NUM_SLOTS)
 		return;
 	
@@ -791,6 +807,9 @@ bool CCharacter::PickWeapon(CWeapon *pWeapon)
 	if (GetStaticType(pWeapon->GetWeaponType()) == SW_BOMB && GetPlayer()->GetTeam() != TEAM_RED)
 		return false;
 	
+	if (IsZombie())
+		return false;
+	
 	if (!GetWeapon())
 	{
 		pWeapon->SetOwner(GetPlayer()->GetCID());
@@ -915,6 +934,9 @@ bool CCharacter::UpgradeTurret(vec2 Pos, vec2 Dir, int Slot)
 
 void CCharacter::DropWeapon()
 {
+	if (IsZombie())
+		return;
+	
 	int Weapon = GetWeaponType();
 	
 	if (Weapon == WEAPON_NONE)
@@ -986,7 +1008,7 @@ bool CCharacter::IsGrounded()
 
 void CCharacter::DoWeaponSwitch()
 {
-	if (m_aStatus[STATUS_DEATHRAY] > 0.0f)
+	if (m_aStatus[STATUS_DEATHRAY] > 0.0f || IsZombie())
 		return;
 	
 	if (m_WantedSlot != m_WeaponSlot)
@@ -1183,6 +1205,12 @@ bool CCharacter::HasAmmo()
 
 void CCharacter::GiveStartWeapon()
 {
+	if (IsZombie())
+	{
+		m_apWeapon[0] = GameServer()->NewWeapon(GetStaticWeapon(SW_CLAW));
+		return;
+	}
+	
 	//if (GameServer()->m_pController->IsCoop())
 	if (str_comp(g_Config.m_SvGametype, "coop") == 0)
 	{
@@ -1246,22 +1274,17 @@ void CCharacter::GiveStartWeapon()
 	
 	if (g_Config.m_SvRandomWeapons)
 	{
+		m_apWeapon[w++] = GameServer()->NewWeapon(GameServer()->m_pController->GetRandomModularWeapon());
+
+		// todo random item
 		if (frandom() < 0.5f)
-		{
-			m_apWeapon[w++] = GameServer()->NewWeapon(GameServer()->m_pController->GetRandomModularWeapon());
-		}
+			m_apWeapon[w++] = GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1));
 		else
-		{
-			if (frandom() < 0.5f)
-				m_apWeapon[w++] = GameServer()->NewWeapon(GetStaticWeapon(SW_GUN1));
-			else
-				m_apWeapon[w++] = GameServer()->NewWeapon(GetStaticWeapon(SW_GUN2));
-			
-			if (frandom() < 0.5f)
-				m_apWeapon[w++] = GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1));
-			else
-				m_apWeapon[w++] = GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE2));
-		}
+			m_apWeapon[w++] = GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE2));
+	}
+	if (g_Config.m_SvLaserWeapon)
+	{
+		m_apWeapon[w++] = GameServer()->NewWeapon(GetModularWeapon(3, 3));
 	}
 }
 
@@ -1576,6 +1599,12 @@ void CCharacter::Tick()
 	//GameServer()->m_pController->DropPickup(m_Pos, POWERUP_COIN, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
 	//GameServer()->m_pController->DropPickup(m_Pos, POWERUP_HEALTH, vec2(frandom()-frandom(), frandom()-frandom()*1.4f)*14.0f, 0);
 	
+	if (m_IsBot && m_SnapTick && m_SnapTick < Server()->Tick()-Server()->TickSpeed()*15.0f)
+	{
+		if (GameServer()->StoreEntity(m_ObjType, m_Type, 0, m_Pos.x, m_Pos.y))
+			GetPlayer()->m_ToBeKicked = true;
+	}
+	
 	if (m_ElectroWallCooldown > 0)
 		m_ElectroWallCooldown--;
 	
@@ -1619,25 +1648,38 @@ void CCharacter::Tick()
 		m_MaskEffectTick = 0;
 	
 	
-	if (g_Config.m_SvInfiniteGrenades)
+	if (g_Config.m_SvInfiniteGrenades && m_GrenadeGiveCooldown-- <= 0)
 	{
 		bool GotGrenade = false;
 		
-		for (int w = 0; w < 4; w++)
-		{
-			if (GetStaticType(GetWeaponType(w)) == SW_GRENADE1)
-				GotGrenade = true;
-		}
+		int Slot = GetWeaponSlot();
 		
-		if (!GotGrenade)
+		if (GetWeaponType(Slot) == 0)
 		{
-			int Slot = rand()%4;
-			if (GetWeaponType(Slot) == 0 && Slot != GetWeaponSlot())
+			m_apWeapon[Slot] = GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1));
+			SendInventory();
+			m_GrenadeGiveCooldown = 100;
+		}
+		else
+		{
+			for (int w = 0; w < 4; w++)
 			{
-				m_apWeapon[Slot] = GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1));
-				SendInventory();
+				if (GetStaticType(GetWeaponType(w)) == SW_GRENADE1)
+					GotGrenade = true;
+			}
+			
+			if (!GotGrenade)
+			{
+				int Slot = rand()%4;
+				if (GetWeaponType(Slot) == 0 && Slot != GetWeaponSlot())
+				{
+					m_apWeapon[Slot] = GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1));
+					SendInventory();
+					m_GrenadeGiveCooldown = 100;
+				}
 			}
 		}
+		
 	}
 	
 	/*
@@ -1723,15 +1765,18 @@ void CCharacter::Tick()
 		TakeDeathtileDamage();
 	}
 	
-	// handle insta death-tiles and leaving gamelayer
+	// handle insta death-tiles
 	if(GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y-m_ProximityRadius/3.f-24)&CCollision::COLFLAG_INSTADEATH ||
 		GameServer()->Collision()->GetCollisionAt(m_Pos.x+m_ProximityRadius/3.f, m_Pos.y+m_ProximityRadius/3.f)&CCollision::COLFLAG_INSTADEATH ||
 		GameServer()->Collision()->GetCollisionAt(m_Pos.x-m_ProximityRadius/3.f, m_Pos.y-m_ProximityRadius/3.f-24)&CCollision::COLFLAG_INSTADEATH ||
-		GameServer()->Collision()->GetCollisionAt(m_Pos.x-m_ProximityRadius/3.f, m_Pos.y+m_ProximityRadius/3.f)&CCollision::COLFLAG_INSTADEATH ||
-		GameLayerClipped(m_Pos))
+		GameServer()->Collision()->GetCollisionAt(m_Pos.x-m_ProximityRadius/3.f, m_Pos.y+m_ProximityRadius/3.f)&CCollision::COLFLAG_INSTADEATH)
 	{
 		Die(m_pPlayer->GetCID(), DEATHTYPE_SPIKE);
 	}
+	
+	// leaving gamelayer (ignore going right)
+	if (GameLayerClipped(vec2(min(0.0f, m_Pos.x), m_Pos.y)))
+		Die(m_pPlayer->GetCID(), DEATHTYPE_SPIKE);
 	
 	// delayed death ray
 	if (m_DeathrayTick > 0 && m_DeathrayTick <= Server()->Tick())
@@ -1756,6 +1801,9 @@ void CCharacter::Tick()
 	m_PrevInput = m_Input;
 	
 	//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "debug", "Tick end");
+	
+	if (!m_IsBot)
+		GameServer()->ActivateBlockEntities(m_Pos.x);
 	
 	return;
 }
@@ -1846,6 +1894,8 @@ void CCharacter::TickPaused()
 	++m_AttackTick;
 	++m_DamageTakenTick;
 	++m_ReckoningTick;
+	if(m_LastBlink != -1)
+		++m_LastBlink;
 	if(m_LastAction != -1)
 		++m_LastAction;
 	if(m_EmoteStop > -1)
@@ -1993,7 +2043,7 @@ void CCharacter::ReleaseWeapons()
 }
 
 
-void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage, bool IsTurret)
+void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage, bool IsTurret1)
 {
 	//if (Weapon < 0)
 	//	Weapon = 0;
@@ -2007,7 +2057,7 @@ void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage, bool IsTurret
 	if (g_Config.m_SvSurvivalMode)
 		m_pPlayer->m_RespawnTick = Server()->Tick();
 	else
-		m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()*1;
+		m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()*g_Config.m_SvRespawnDelay;
 	
 	//if (Killer == m_pPlayer->GetCID() && (Weapon == WEAPON_HAMMER || Weapon == WEAPON_GAME))
 	//	SkipKillMessage = true;
@@ -2062,6 +2112,10 @@ void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage, bool IsTurret
 	if ((Killer >= 0 && Weapon != WEAPON_GAME) || !m_IsBot)
 		GameServer()->CreateDeath(m_Pos, m_pPlayer->GetCID());
 	
+	if (Killer >= 0 && Weapon != WEAPON_GAME && !IsBuilding(Weapon) && !IsTurret(Weapon))
+		GameServer()->CreateSoundGlobal(SOUND_KILL, Killer);
+	
+	GameServer()->CreateSoundGlobal(SOUND_DEATH, GetPlayer()->GetCID());
 
 	//if (m_ExplodeOnDeath && Killer >= 0)
 	//	GameServer()->CreateExplosion(m_Pos, Killer, Weapon, 0, false, false);
@@ -2456,6 +2510,8 @@ void CCharacter::Snap(int SnappingClient)
 	CNetObj_Character *pCharacter = static_cast<CNetObj_Character *>(Server()->SnapNewItem(NETOBJTYPE_CHARACTER, m_pPlayer->GetCID(), sizeof(CNetObj_Character)));
 	if(!pCharacter)
 		return;
+	
+	m_SnapTick = Server()->Tick();
 
 	// write down the m_Core
 	if(!m_ReckoningTick || GameServer()->m_World.m_Paused)
@@ -2509,9 +2565,20 @@ void CCharacter::Snap(int SnappingClient)
 			pCharacter->m_AmmoCount = 0;
 	}
 
+/*
 	if(pCharacter->m_Emote == EMOTE_NORMAL)
 	{
 		if(250 - ((Server()->Tick() - m_LastAction)%(250)) < 5)
+			pCharacter->m_Emote = EMOTE_BLINK;
+	}
+	*/
+	
+	if (m_LastBlink < Server()->Tick())
+	{
+		if (m_LastBlink+5 < Server()->Tick())
+			m_LastBlink = Server()->Tick() + Server()->TickSpeed()*(frandom()*15.0f);
+		
+		if (pCharacter->m_Emote == EMOTE_NORMAL)
 			pCharacter->m_Emote = EMOTE_BLINK;
 	}
 

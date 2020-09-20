@@ -1,8 +1,7 @@
-
-
 #include <math.h>
 #include <base/math.h>
 #include <engine/graphics.h>
+#include <engine/shared/mapchunk.h>
 #include <engine/shared/config.h>
 
 #include "render.h"
@@ -202,7 +201,7 @@ void CRenderTools::RenderQuads(CQuad *pQuads, int NumQuads, int RenderFlags, ENV
 }
 
 void CRenderTools::RenderTilemap(CTile *pTiles, int w, int h, float Scale, vec4 Color, int RenderFlags,
-									ENVELOPE_EVAL pfnEval, void *pUser, int ColorEnv, int ColorEnvOffset)
+									ENVELOPE_EVAL pfnEval, void *pUser, int ColorEnv, int ColorEnvOffset, CMapChunk *pMapChunk)
 {
 	//Graphics()->TextureSet(img_get(tmap->image));
 	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
@@ -245,7 +244,21 @@ void CRenderTools::RenderTilemap(CTile *pTiles, int w, int h, float Scale, vec4 
 			int mx = x;
 			int my = y;
 
-			if(RenderFlags&TILERENDERFLAG_EXTEND)
+			if(pMapChunk) // chunk loop
+			{
+				pMapChunk = pMapChunk->GetMapChunk(mx);
+				mx = mx%pMapChunk->GetSize()+pMapChunk->GetIndex()*pMapChunk->GetSize();
+				
+				if(mx<0)
+					mx = 0;
+				if(mx>=w)
+					mx = w-1;
+				if(my<0)
+					my = 0;
+				if(my>=h)
+					my = h-1;
+			}
+			else if(RenderFlags&TILERENDERFLAG_EXTEND)
 			{
 				if(mx<0)
 					mx = 0;

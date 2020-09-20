@@ -1,5 +1,3 @@
-
-
 #ifndef GAME_SERVER_ENTITIES_CHARACTER_H
 #define GAME_SERVER_ENTITIES_CHARACTER_H
 
@@ -44,6 +42,9 @@ public:
 	virtual void Snap(int SnappingClient);
 
 	bool IsGrounded();
+	bool IsZombie(){ return m_Zombie; }
+	
+	int m_GrenadeGiveCooldown;
 	
 	bool PlayerCollision(){ return m_Core.m_PlayerCollision; }
 	
@@ -68,7 +69,7 @@ public:
 
 	void ReleaseWeapons();
 	
-	void Die(int Killer, int Weapon, bool SkipKillMessage = false, bool IsTurret = false);
+	void Die(int Killer, int Weapon, bool SkipKillMessage = false, bool IsTurret1 = false);
 	bool TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos);
 	void SetAflame(float Duration, int From, int Weapon);
 	void TakeDeathtileDamage();
@@ -269,6 +270,7 @@ private:
 	int m_aStatusWeapon[NUM_STATUSS];
 	void UpdateCoreStatus();
 	
+	bool m_Zombie;
 	bool m_Spawned;
 	bool m_Alive;
 	
@@ -298,6 +300,7 @@ private:
 
 	// last tick that the player took any action ie some input
 	int m_LastAction;
+	int m_LastBlink;
 	int m_LastNoAmmoSound;
 	
 	int m_LastReloadingSound;

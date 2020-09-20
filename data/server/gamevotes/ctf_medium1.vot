@@ -1,0 +1,6 @@
+name: Capture the flag
+description: generated map
+config: cfg/ctf_medium1
+image: ctf1
+min-players: 11
+max-players: 100

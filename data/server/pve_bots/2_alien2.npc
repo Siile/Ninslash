@@ -1,0 +1,14 @@
+level: 2
+blood-color: green
+
+head: alien
+body: simple
+hand: gray
+foot: default
+topper: none
+eye: alien
+
+skin-color: 5879081
+topper-color: 61440
+body-color: 9672704
+foot-color: 10393600

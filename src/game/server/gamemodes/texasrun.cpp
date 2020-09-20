@@ -56,7 +56,7 @@ int CGameControllerTexasRun::OnCharacterDeath(class CCharacter *pVictim, class C
 		*/
 	}
 
-	pVictim->GetPlayer()->m_RespawnTick = max(pVictim->GetPlayer()->m_RespawnTick, Server()->Tick()+Server()->TickSpeed()*g_Config.m_SvRespawnDelayTDM);
+	pVictim->GetPlayer()->m_RespawnTick = max(pVictim->GetPlayer()->m_RespawnTick, Server()->Tick()+Server()->TickSpeed()*g_Config.m_SvRespawnDelay);
 
 	return 0;
 }

@@ -147,7 +147,13 @@ bool CCollision::AStar(vec2 Start, vec2 End)
 			m_pPath->PushBack(new CWaypointPath(CurrentWP->m_Pos));
 		*/
 		
-		m_pPath = new CWaypointPath(CurrentWP->m_Pos, m_pPath);
+		//m_pPath = new CWaypointPath(CurrentWP->m_Pos, m_pPath);
+		
+		if (!m_pPath)
+			m_pPath = new CWaypointPath(CurrentWP->m_Pos);
+		else
+			m_pPath->Add(CurrentWP->m_Pos);
+		
         //path.push_back(CurrentWP->getPosition());
         CurrentWP = CurrentWP->m_pParent;
         n++;

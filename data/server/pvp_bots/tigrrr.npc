@@ -1,0 +1,17 @@
+# example npc profile
+name: Tigrrr
+head: default
+body: simple
+hand: default
+foot: default
+topper: tigger
+eye: sleepy
+
+# write /color in in-game chat to see your current colors
+skin-color: 2293760
+topper-color: 1835007
+body-color: 2345472
+foot-color: 13238016
+
+# red, black or green
+blood-color: red

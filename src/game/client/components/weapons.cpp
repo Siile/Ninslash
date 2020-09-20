@@ -141,15 +141,15 @@ void CWeapons::RenderWeapon(const CNetObj_Weapon *pPrev, const CNetObj_Weapon *p
 		else
 			*/
 			
-		
 		float a = clamp(Phase1Tick * 0.02f, 0.0f, 1.0f);
 		Graphics()->SetColor(0.5f, 0.5f+c*0.5f, 1, 0.5f*a*a);
-		
 		
 		//Graphics()->SetColor(0, 0.5f+c*0.5f, 1, 0.5f);
 		RenderTools()->SelectSprite(SPRITE_GENERATOR_SHIELD);
 		RenderTools()->DrawSprite(Pos.x, Pos.y, (512+40.0f*c));
 		Graphics()->QuadsEnd();
+		
+		m_pClient->m_pEffects->SimpleLight(Pos, vec4(0.5f, 0.5f+c*0.5f, 1, 0.5f), 512+40.0f*c);
 	}
 }
 

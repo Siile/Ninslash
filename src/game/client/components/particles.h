@@ -93,6 +93,7 @@ public:
 		GROUP_FLAMES,
 		GROUP_FLAME1,
 		GROUP_SWORDHITS,
+		GROUP_CLAWHITS,
 		GROUP_DEATH,
 		GROUP_LAZER,
 		GROUP_LAZERLOAD,
@@ -154,6 +155,7 @@ private:
 	CRenderGroup<GROUP_FLAMES> m_RenderFlames;
 	CRenderGroup<GROUP_FLAME1> m_RenderFlame1;
 	CRenderGroup<GROUP_SWORDHITS> m_RenderSwordHits;
+	CRenderGroup<GROUP_CLAWHITS> m_RenderClawHits;
 	CRenderGroup<GROUP_DEATH> m_RenderDeath;
 	CRenderGroup<GROUP_LAZER> m_RenderLazer;
 	CRenderGroup<GROUP_LAZERLOAD> m_RenderLazerload;

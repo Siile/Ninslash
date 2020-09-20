@@ -35,7 +35,12 @@ void CGameControllerTDM::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 	
 	// init AI
 	if (RequestAI)
+	{
+		if (!pChr->GetPlayer()->m_AISkin.m_Valid)
+			GameServer()->GetAISkin(&pChr->GetPlayer()->m_AISkin, true);
+		pChr->GetPlayer()->SetAISkin();
 		pChr->GetPlayer()->m_pAI = new CAItdm(GameServer(), pChr->GetPlayer());
+	}
 }
 
 int CGameControllerTDM::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)

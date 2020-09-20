@@ -1,0 +1,6 @@
+name: Grenade Deathmatch
+description: Extra explosive death match!
+config: cfg/grenade_dm1
+image: grenade1
+min-players: 0
+max-players: 12

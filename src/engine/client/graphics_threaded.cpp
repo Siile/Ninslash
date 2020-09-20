@@ -401,6 +401,15 @@ void CGraphics_Threaded::ShaderBegin(int Shader, float Intensity, float ColorSwa
 }
 
 
+void CGraphics_Threaded::BallShaderBegin(float Speed, float Speed2)
+{
+	CCommandBuffer::SCommand_ShaderBegin Cmd;
+	Cmd.m_Shader = SHADER_BALL;
+	Cmd.m_Intensity = Speed;
+	Cmd.m_WeaponCharge = Speed2;
+	m_pCommandBuffer->AddCommand(Cmd);
+}
+
 void CGraphics_Threaded::PlayerShaderBegin(float colorG, float colorB, float Charge, float Visibility, float Electro, float Damage, float Deathray)
 {
 	CCommandBuffer::SCommand_ShaderBegin Cmd;

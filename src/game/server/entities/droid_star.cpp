@@ -115,6 +115,15 @@ void CStar::Tick()
 {
 	vec2 To = m_Pos+vec2(frandom()-frandom(), frandom()-frandom())*500;
 		
+	if (m_SnapTick && m_SnapTick < Server()->Tick()-Server()->TickSpeed()*5.0f)
+	{
+		if (GameServer()->StoreEntity(m_ObjType, m_Type, 0, m_Pos.x, m_Pos.y))
+		{
+			GameServer()->m_World.DestroyEntity(this);
+			return;
+		}
+	}
+		
 	if (m_Health <= 0)
 	{
 		float OldVelY = m_Vel.y;
@@ -171,7 +180,7 @@ void CStar::Tick()
 		m_MoveTarget += (To-m_MoveTarget) / 20.0f;
 		
 		if (abs(length(m_MoveTarget - m_Pos)) > 8.0f)
-			m_Vel += normalize(m_MoveTarget - m_Pos) * 0.40f;
+			m_Vel += normalize(m_MoveTarget - m_Pos) * 0.40f * ((m_Status == DROIDSTATUS_ELECTRIC)?0.5f:1.0f);
 		
 		m_Vel *= 0.97f;
 		GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(96.0f, 128.0f), 0, false);

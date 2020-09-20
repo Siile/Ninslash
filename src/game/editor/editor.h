@@ -1,5 +1,3 @@
-
-
 #ifndef GAME_EDITOR_EDITOR_H
 #define GAME_EDITOR_EDITOR_H
 
@@ -21,6 +19,7 @@
 #include <engine/shared/datafile.h>
 #include <engine/editor.h>
 #include <engine/graphics.h>
+#include <engine/shared/mapchunk.h>
 
 #include "auto_map.h"
 
@@ -403,6 +402,9 @@ public:
 	void Resize(int NewW, int NewH);
 	void Shift(int Direction);
 
+	void AddInfinity(int ChunkSize, int NumChunks, int *apGenerationRules);
+	void RemoveInfinity();
+
 	void MakePalette();
 	virtual void Render();
 
@@ -429,6 +431,8 @@ public:
 	void PrepareForSave();
 
 	void GetSize(float *w, float *h) { *w = m_Width*32.0f; *h = m_Height*32.0f; }
+
+	CMapChunk *m_pMapChunk;
 
 	int m_TexID;
 	int m_Game;
@@ -509,6 +513,16 @@ public:
 		m_EditBoxActive = 0;
 		m_pTooltip = 0;
 
+		m_ChunkSize = 32;
+		m_DisplayInfinity = false;
+		m_IsInfinite = false;
+		m_MapChunks = 0;
+		m_SelectedChunk = 0;
+		m_apChunkRule = NULL;
+
+		m_HighlightedChunk = -1;
+		m_HighlightTimer = 0.0f;
+		
 		m_GridActive = false;
 		m_GridFactor = 1;
 
@@ -575,6 +589,8 @@ public:
 	virtual void Init();
 	virtual void UpdateAndRender();
 	virtual bool HasUnsavedData() { return m_Map.m_Modified; }
+	
+	void SwitchInfinity();
 
 	void FilelistPopulate(int StorageType);
 	void InvokeFileDialog(int StorageType, int FileType, const char *pTitle, const char *pButtonText,
@@ -593,6 +609,22 @@ public:
 	CLayerGroup *GetSelectedGroup();
 
 	int DoProperties(CUIRect *pToolbox, CProperty *pProps, int *pIDs, int *pNewVal);
+
+	// infinite maps
+	bool m_IsInfinite;
+	bool m_DisplayInfinity;
+
+	// modular generation rules
+	int m_MapChunks;
+	int m_ChunkSize;
+	int m_SelectedChunk;
+	
+	int m_HighlightedChunk;
+	float m_HighlightTimer;
+	
+	int *m_apChunkRule;
+
+	void UpdateModularRules();
 
 	int m_Mode;
 	int m_Dialog;

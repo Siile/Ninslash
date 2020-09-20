@@ -50,6 +50,11 @@ void CBroadcast::OnMessage(int MsgType, void *pRawMsg)
 		TextRender()->TextEx(&Cursor, m_aBroadcastText, -1);
 		m_BroadcastRenderOffset = 150*Graphics()->ScreenAspect()-Cursor.m_X/2;
 		m_BroadcastTime = time_get()+time_freq()*10;
+		
+		if (m_aBroadcastText[0] == 'D' && m_aBroadcastText[1] == 'i' && m_aBroadcastText[2] == 's' && m_aBroadcastText[3] == 'a')
+			m_BroadcastTime = time_get()+time_freq()*1.5f;
+		if (m_aBroadcastText[0] == 'A' && m_aBroadcastText[1] == 'r' && m_aBroadcastText[2] == 'm' && m_aBroadcastText[3] == 'i')
+			m_BroadcastTime = time_get()+time_freq()*1.5f;
 	}
 }
 

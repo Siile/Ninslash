@@ -110,6 +110,24 @@ bool CPickup::IsWeapon()
 
 void CPickup::Tick()
 {
+	// store
+	if (!m_Dropable && m_SnapTick && m_SnapTick < Server()->Tick()-Server()->TickSpeed()*5.0f)
+	{
+		if (GameServer()->StoreEntity(m_ObjType, m_Type, m_Subtype, m_Pos.x, m_Pos.y))
+		{
+			ClearWeapon();
+			GameServer()->m_World.DestroyEntity(this);
+			return;
+		}
+	}
+	
+	if (m_Dropable && !m_ResetableDropable && m_Life <= 0)
+	{
+		ClearWeapon();
+		GameServer()->m_World.DestroyEntity(this);
+		return;
+	}
+	
 	//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "debug", "pickup tick");
 	if (!m_Dropable && GameServer()->Collision()->IsForceTile(m_Pos.x, m_Pos.y+m_BoxSize) != 0)
 	{
@@ -183,7 +201,11 @@ void CPickup::Tick()
 				m_SpawnTick = Server()->Tick() + Server()->TickSpeed() * (4.0f+frandom()*6);
 			}
 			else
-				m_SpawnTick = 999;
+			{
+				ClearWeapon();
+				GameServer()->m_World.DestroyEntity(this);
+				return;
+			}
 			
 			ClearWeapon();
 			return;
@@ -396,8 +418,8 @@ void CPickup::SurvivalReset()
 
 	if (m_Dropable)
 	{
-		m_SpawnTick = 999;
-		m_Life = 0;
+		ClearWeapon();
+		GameServer()->m_World.DestroyEntity(this);
 	}
 }
 
@@ -410,11 +432,16 @@ void CPickup::TickPaused()
 
 void CPickup::Snap(int SnappingClient)
 {
-	if(m_SpawnTick != -1 || NetworkClipped(SnappingClient))
+	if (NetworkClipped(SnappingClient))
+		return;
+
+	m_SnapTick = Server()->Tick();
+	
+	if (m_SpawnTick != -1)
 		return;
 
 	CNetObj_Pickup *pP = static_cast<CNetObj_Pickup *>(Server()->SnapNewItem(NETOBJTYPE_PICKUP, m_ID, sizeof(CNetObj_Pickup)));
-	if(!pP)
+	if (!pP)
 		return;
 
 	pP->m_X = (int)m_Pos.x;

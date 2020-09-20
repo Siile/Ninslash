@@ -15,6 +15,9 @@
 #include <engine/shared/protocol.h>
 #include <engine/shared/snapshot.h>
 
+#include <game/server/aiskin.h>
+#include <game/server/gamevote.h>
+
 #include "register.h"
 
 
@@ -79,6 +82,22 @@ class CServer : public IServer
 
 	class CPlayerData *m_pPlayerData;
 	
+	CAISkin m_aAISkinPVP[99];
+	CAISkin m_aAISkinPVE[99];
+	int m_AISkinPVPCount;
+	int m_AISkinPVECount;
+	static int AISkinPVPScan(const char *pName, int IsDir, int DirType, void *pUser);
+	static int AISkinPVEScan(const char *pName, int IsDir, int DirType, void *pUser);
+	int LoadAISkin(const char *pFilename, const char *pFoldername, int StorageType, bool PVP);
+	
+	CGameVote m_aGameVote[99];
+	int m_GameVoteCount;
+	static int GameVoteScan(const char *pName, int IsDir, int DirType, void *pUser);
+	int LoadGameVote(const char *pFilename, const char *pFoldername, int StorageType);
+	
+	bool m_aGameVoteUsed[99];
+	int m_GameModesLeft;
+	
 public:
 	class IGameServer *GameServer() { return m_pGameServer; }
 	class IConsole *Console() { return m_pConsole; }
@@ -87,6 +106,8 @@ public:
 	class CPlayerData *GetPlayerData(int ClientID, int ColorID);
 	int GetHighScore();
 	int GetPlayerCount();
+	void LoadAISkins();
+	void LoadGameVotes();
 	
 	enum
 	{
@@ -263,6 +284,11 @@ public:
 	void SnapSetStaticsize(int ItemType, int Size);
 	
 	virtual void AddZombie();
+	virtual void GetAISkin(CAISkin *pAISkin, bool PVP, int Level);
+	
+	virtual void ResetGameVoting();
+	virtual bool GetGameVote(CGameVote *pGameVote, int Players);
+	
 	void KickBots();
 };
 

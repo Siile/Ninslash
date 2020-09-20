@@ -126,6 +126,18 @@ void CBuildings::RenderScreen(const struct CNetObj_Building *pCurrent)
 	int Anim = ANIM_IDLE1+(pCurrent->m_X/32)%3;
 	
 	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y+18), ATLAS_SCREEN, aAnimList[Anim], Time, vec2(1.0f, 1.0f)*0.7f, 0, 0);
+	
+
+	vec4 c;
+	switch (int(pCurrent->m_X/32)%4)
+	{
+		case 0: c = vec4(0.5f, 0.7f, 1.0f, 0.75f); break;
+		case 1: c = vec4(0.4f, 1.0f, 0.4f, 0.75f); break;
+		case 2: c = vec4(1.0f, 0.5f, 0.5f, 0.75f); break;
+		case 3: c = vec4(0.2f, 1.0f, 1.0f, 0.75f); break;
+		default: c = vec4(0.5f, 0.7f, 1.0f, 0.75f); break;
+	}
+	m_pClient->m_pEffects->SimpleLight(vec2(pCurrent->m_X, pCurrent->m_Y-96), c, vec2(500, 320));
 }
 
 void CBuildings::RenderShop(const CNetObj_Shop *pCurrent)
@@ -135,6 +147,8 @@ void CBuildings::RenderShop(const CNetObj_Shop *pCurrent)
 	int Anim = ANIM_IDLE;
 	
 	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y+18), ATLAS_SHOP, aAnimList[Anim], Time, vec2(1.0f, 1.0f)*0.7f, 0, 0);
+
+	m_pClient->m_pEffects->SimpleLight(vec2(pCurrent->m_X, pCurrent->m_Y-74), vec4(0.5f, 0.75f, 1.0f, 0.5f), vec2(240, 340));
 
 	// shop items rendered in inventory.cpp
 }
@@ -208,6 +222,8 @@ void CBuildings::RenderGenerator(const struct CNetObj_Building *pCurrent, const 
 		RenderTools()->DrawSprite(Pos.x-34, Pos.y-52, 52);
 		Graphics()->QuadsEnd();
 	}
+	
+	m_pClient->m_pEffects->SimpleLight(vec2(pCurrent->m_X, pCurrent->m_Y-96), vec4(0.2f, 1.0f, 1.0f, 0.75f), vec2(600, 600));
 }
 
 
@@ -363,8 +379,8 @@ void CBuildings::RenderReactor(const struct CNetObj_Building *pCurrent)
 	if (Repair)
 		Time += CustomStuff()->m_SawbladeAngle * 0.15f;
 	
-	m_pClient->m_pEffects->Light(vec2(pCurrent->m_X, pCurrent->m_Y-30), 320);
-	m_pClient->m_pEffects->Light(vec2(pCurrent->m_X, pCurrent->m_Y-0), 320);
+	m_pClient->m_pEffects->SimpleLight(vec2(pCurrent->m_X, pCurrent->m_Y-30), vec4(0.25f, 0.75f, 1.0f, 1.0f), 320);
+	//m_pClient->m_pEffects->SimpleLight(vec2(pCurrent->m_X, pCurrent->m_Y-0), 320);
 	
 	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y+16+50), ATLAS_REACTOR, aAnimList[Anim], Time, vec2(1.0f, 1.0f)*0.8f, 1, 0);
 	
@@ -453,6 +469,8 @@ void CBuildings::RenderTeslacoil(const CNetObj_Building *pCurrent, const CNetObj
 	
 	if (Repair && frandom() < 0.15f)
 		m_pClient->m_pEffects->Electrospark(vec2(Pos.x, Pos.y-(10+frandom()*30)*FlipY)+vec2(frandom()-frandom(), frandom()-frandom()) * 20.0f, 20+frandom()*20, vec2(0, 0));
+	
+	m_pClient->m_pEffects->SimpleLight(vec2(pCurrent->m_X, pCurrent->m_Y-80*FlipY), vec4(1.0f, 0.3f, 0.6f, 0.75f), vec2(300, 300));
 }
 
 

@@ -60,6 +60,6 @@ void main (void)
 	float a = min(1.0f, intensity*0.05f);
 	s *= a;
 	
-	gl_FragColor = vec4(0, s*(0.55f+cos(intensity*0.15f)*0.2f), s, 0.6f*a) * gl_Color;
+	gl_FragColor = vec4(0, s*(0.55f+cos(intensity*0.15f)*0.3f), s, 0.6f*a) * gl_Color;
 	//gl_FragColor = vec4(0, 0.4f-c.g*0.4f, 1.0f-c.b*1.0f, 0.6f) * gl_Color;
 }

@@ -1,0 +1,14 @@
+name: Emu
+blood-color: red
+
+head: default
+body: simple
+hand: default
+foot: default
+topper: emo
+eye: sleepy
+
+skin-color: 0
+topper-color: 8584960
+body-color: 65535
+foot-color: 8562176

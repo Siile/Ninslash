@@ -337,6 +337,14 @@ Objects = [
 		NetIntAny("m_Movement1"),
 		
 		NetIntRange("m_Health", 0, 100),
+		NetIntRange("m_HookedPlayer", 0, 'MAX_CLIENTS-1'),
+		NetIntRange("m_HookState", -1, 6),
+		NetTick("m_HookTick"),
+
+		NetIntAny("m_HookX"),
+		NetIntAny("m_HookY"),
+		NetIntAny("m_HookDx"),
+		NetIntAny("m_HookDy"),
 
 		NetIntAny("m_Angle"),
 		NetIntRange("m_Direction", -1, 1),
@@ -413,8 +421,23 @@ Objects = [
 		# 4*6 = 24 charachters
 		NetIntAny("m_Eye0"), NetIntAny("m_Eye1"), NetIntAny("m_Eye2"),
 		NetIntAny("m_Eye3"), NetIntAny("m_Eye4"), NetIntAny("m_Eye5"),
+		
+		# 4*6 = 24 charachters
+		NetIntAny("m_Head0"), NetIntAny("m_Head1"), NetIntAny("m_Head2"),
+		NetIntAny("m_Head3"), NetIntAny("m_Head4"), NetIntAny("m_Head5"),
+		
+		# 4*6 = 24 charachters
+		NetIntAny("m_Body0"), NetIntAny("m_Body1"), NetIntAny("m_Body2"),
+		NetIntAny("m_Body3"), NetIntAny("m_Body4"), NetIntAny("m_Body5"),
+		
+		# 4*6 = 24 charachters
+		NetIntAny("m_Hand0"), NetIntAny("m_Hand1"), NetIntAny("m_Hand2"),
+		NetIntAny("m_Hand3"), NetIntAny("m_Hand4"), NetIntAny("m_Hand5"),
+		
+		# 4*6 = 24 charachters
+		NetIntAny("m_Foot0"), NetIntAny("m_Foot1"), NetIntAny("m_Foot2"),
+		NetIntAny("m_Foot3"), NetIntAny("m_Foot4"), NetIntAny("m_Foot5"),
 
-		NetIntAny("m_Body"),
 		NetIntAny("m_ColorBody"),
 		NetIntAny("m_ColorFeet"),
 		NetIntAny("m_ColorTopper"),
@@ -498,12 +521,21 @@ Objects = [
 Messages = [
 
 	### Server messages
-	NetMessage("Sv_Motd", [
-		NetString("m_pMessage"),
-	]),
+	#NetMessage("Sv_Motd", [
+	#	NetString("m_pMessage"),
+	#]),
 
 	NetMessage("Sv_Broadcast", [
 		NetString("m_pMessage"),
+	]),
+	
+	NetMessage("Sv_GameVote", [
+		NetString("m_pName"),
+		NetString("m_pDescription"),
+		NetString("m_pImage"),
+		NetString("m_pPlayers"),
+		NetIntAny("m_Index"),
+		NetIntAny("m_TimeLeft"),
 	]),
 
 	NetMessage("Sv_Chat", [
@@ -563,10 +595,13 @@ Messages = [
 	]),
 
 	NetMessage("Sv_VoteStatus", [
+		NetIntRange("m_Type", 0, 1),
 		NetIntRange("m_Yes", 0, 'MAX_CLIENTS'),
 		NetIntRange("m_No", 0, 'MAX_CLIENTS'),
 		NetIntRange("m_Pass", 0, 'MAX_CLIENTS'),
 		NetIntRange("m_Total", 0, 'MAX_CLIENTS'),
+		NetIntRange("m_Option5", 0, 'MAX_CLIENTS'),
+		NetIntRange("m_Option6", 0, 'MAX_CLIENTS'),
 	]),
 	
 	NetMessage("Sv_Inventory", [
@@ -605,7 +640,10 @@ Messages = [
 		NetIntAny("m_Country"),
 		NetStringStrict("m_pTopper"),
 		NetStringStrict("m_pEye"),
-		NetIntAny("m_Body"), 
+		NetStringStrict("m_pHead"),
+		NetStringStrict("m_pBody"),
+		NetStringStrict("m_pHand"),
+		NetStringStrict("m_pFoot"),
 		NetIntAny("m_ColorBody"),
 		NetIntAny("m_ColorFeet"),
 		NetIntAny("m_ColorTopper"),
@@ -620,7 +658,10 @@ Messages = [
 		NetIntAny("m_Country"),
 		NetStringStrict("m_pTopper"),
 		NetStringStrict("m_pEye"),
-		NetIntAny("m_Body"),
+		NetStringStrict("m_pHead"),
+		NetStringStrict("m_pBody"),
+		NetStringStrict("m_pHand"),
+		NetStringStrict("m_pFoot"),
 		NetIntAny("m_ColorBody"),
 		NetIntAny("m_ColorFeet"),
 		NetIntAny("m_ColorTopper"),
@@ -652,6 +693,10 @@ Messages = [
 	
 	NetMessage("Cl_Vote", [
 		NetIntRange("m_Vote", -1, 1),
+	]),
+	
+	NetMessage("Cl_VoteGameMode", [
+		NetIntRange("m_Vote", 0, 6),
 	]),
 
 	NetMessage("Cl_CallVote", [

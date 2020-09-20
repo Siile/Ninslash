@@ -203,10 +203,13 @@ void CVoting::OnMessage(int MsgType, void *pRawMsg)
 	else if(MsgType == NETMSGTYPE_SV_VOTESTATUS)
 	{
 		CNetMsg_Sv_VoteStatus *pMsg = (CNetMsg_Sv_VoteStatus *)pRawMsg;
-		m_Yes = pMsg->m_Yes;
-		m_No = pMsg->m_No;
-		m_Pass = pMsg->m_Pass;
-		m_Total = pMsg->m_Total;
+		if (pMsg->m_Type == 0)
+		{
+			m_Yes = pMsg->m_Yes;
+			m_No = pMsg->m_No;
+			m_Pass = pMsg->m_Pass;
+			m_Total = pMsg->m_Total;
+		}
 	}
 	else if(MsgType == NETMSGTYPE_SV_VOTECLEAROPTIONS)
 	{

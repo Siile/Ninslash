@@ -207,6 +207,8 @@ void CSpark::RenderGroup(int Group)
 					p.x-Out.x, p.y-Out.y,
 					p.x+Out.x, p.y+Out.y);
 			Graphics()->QuadsDrawFreeform(&Freeform1, 1);
+			
+			m_pClient->m_pEffects->SimpleLight(p, vec4(m_aSpark[i].m_Color.r/2+0.5f, m_aSpark[i].m_Color.g/2+0.5f, m_aSpark[i].m_Color.b/2+0.5f, a), a*16);
 
 			i = m_aSpark[i].m_NextPart;
 		}

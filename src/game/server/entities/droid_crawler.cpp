@@ -20,7 +20,7 @@ CCrawler::CCrawler(CGameWorld *pGameWorld, vec2 Pos)
 void CCrawler::Reset()
 {
 	m_Center = vec2(0, 0);
-	m_Health = 500;
+	m_Health = 400;
 	m_Pos = m_StartPos;
 	m_Status = DROIDSTATUS_IDLE;
 	m_Dir = -1;
@@ -117,9 +117,14 @@ void CCrawler::Move()
 
 void CCrawler::Tick()
 {
-	//m_Target = (m_NewTarget+m_Target)/3;
-	
-	//Move();
+	if (m_SnapTick && m_SnapTick < Server()->Tick()-Server()->TickSpeed()*5.0f)
+	{
+		if (GameServer()->StoreEntity(m_ObjType, m_Type, 0, m_Pos.x, m_Pos.y))
+		{
+			GameServer()->m_World.DestroyEntity(this);
+			return;
+		}
+	}
 	
 	m_Vel.y += 0.8f;
 	m_Vel *= 0.99f;
@@ -170,6 +175,10 @@ void CCrawler::Tick()
 		if (abs(m_Vel.x) < 1.0f && frandom() < 0.05f)
 			m_Move = (frandom() < 0.5f) ? -1 : 1;
 	
+		float VelX = m_Move;
+		if (m_Status == DROIDSTATUS_ELECTRIC)
+			VelX *= 0.5f;
+	
 		float VelY = m_Pos.y-(To.y-OffY)*0.0002f;
 		
 		if (VelY > 0.0f && !m_JumpTick)
@@ -183,10 +192,10 @@ void CCrawler::Tick()
 		if (m_Anim == DROIDANIM_ATTACK)
 		{
 			if (abs(m_Vel.x) < 15.0f)
-				m_Vel.x += m_Move * 1.8f;
+				m_Vel.x += VelX * 1.8f;
 		}
 		else if (abs(m_Vel.x) < 8.0f)
-			m_Vel.x += m_Move * 0.9f;
+			m_Vel.x += VelX * 0.9f;
 		
 		if (!m_JumpTick && (frandom() < 0.01f || (abs(m_Vel.x) < 0.15f && frandom() < 0.4f) || (abs(m_Target.x) > 300 && frandom() < 0.05f)))
 		{
@@ -208,7 +217,7 @@ void CCrawler::Tick()
 		}
 		
 		m_Vel.y += m_JumpForce;
-		m_Vel.x -= m_JumpForce*m_Move*0.25f;
+		m_Vel.x -= m_JumpForce*VelX*0.25f;
 		
 		if (m_JumpForce < -0.1f)
 			m_Anim = DROIDANIM_JUMPATTACK;

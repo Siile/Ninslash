@@ -1,0 +1,6 @@
+name: Ball
+description: ball_small1.map - no bots
+config: cfg/ball_small1
+image: ball1
+min-players: 0
+max-players: 8

@@ -851,11 +851,14 @@ void CMenus::RenderFront(CUIRect MainView)
 	if(DoButton_Menu(&s_CustomizeButton, Localize("Customize"), 0, &Button))
 		g_Config.m_UiPage = PAGE_CUSTOMIZE;
 	
+	/*
 	TabBar.HSplitTop(10, &Button, &TabBar);
 	TabBar.HSplitTop(30, &Button, &TabBar);
+	
 	static int s_EditorButton=0;
 	if(DoButton_Menu(&s_EditorButton, Localize("Editor"), 0, &Button))
 		g_Config.m_ClEditor = g_Config.m_ClEditor^1;
+	*/
 	
 	TabBar.HSplitTop(10, &Button, &TabBar);
 	TabBar.HSplitTop(30, &Button, &TabBar);
@@ -1461,24 +1464,30 @@ void CMenus::SetClientRandomSkin()
 	g_Config.m_PlayerColorFeet = rand()%(0xFFFFFF/10)*1000;;
 	g_Config.m_PlayerColorTopper = rand()%(0xFFFFFF/10)*1000;
 	
+	str_copy(g_Config.m_PlayerBody, "default", 24);
+	str_copy(g_Config.m_PlayerHead, "default", 24);
+	str_copy(g_Config.m_PlayerHand, "default", 24);
+	str_copy(g_Config.m_PlayerFoot, "default", 24);
+	
+	
 	switch (rand()%7)
 	{
-		case 0: str_copy(g_Config.m_PlayerTopper, "basic", 64); break;	
-		case 1: str_copy(g_Config.m_PlayerTopper, "casual", 64); break;
-		case 2: str_copy(g_Config.m_PlayerTopper, "dr", 64); break;
-		case 3: str_copy(g_Config.m_PlayerTopper, "emo", 64); break;
-		case 4: str_copy(g_Config.m_PlayerTopper, "nitters", 64); break;
-		case 5: str_copy(g_Config.m_PlayerTopper, "raiden", 64); break;
-		default: str_copy(g_Config.m_PlayerTopper, "default", 64);
-	};	
+		case 0: str_copy(g_Config.m_PlayerTopper, "basic", 24); break;	
+		case 1: str_copy(g_Config.m_PlayerTopper, "casual", 24); break;
+		case 2: str_copy(g_Config.m_PlayerTopper, "dr", 24); break;
+		case 3: str_copy(g_Config.m_PlayerTopper, "emo", 24); break;
+		case 4: str_copy(g_Config.m_PlayerTopper, "nerd2", 24); break;
+		case 5: str_copy(g_Config.m_PlayerTopper, "nerd", 24); break;
+		default: str_copy(g_Config.m_PlayerTopper, "default", 24);
+	};
 		
 	switch (rand()%5)
 		{
-		case 0: str_copy(g_Config.m_PlayerEye, "cyan", 64); break;	
-		case 1: str_copy(g_Config.m_PlayerEye, "lsd", 64); break;
-		case 2: str_copy(g_Config.m_PlayerEye, "sleepy", 64); break;
-		case 3: str_copy(g_Config.m_PlayerEye, "diag", 64); break;
-		default: str_copy(g_Config.m_PlayerEye, "default", 64);
+		case 0: str_copy(g_Config.m_PlayerEye, "cyan", 24); break;	
+		case 1: str_copy(g_Config.m_PlayerEye, "lsd", 24); break;
+		case 2: str_copy(g_Config.m_PlayerEye, "sleepy", 24); break;
+		case 3: str_copy(g_Config.m_PlayerEye, "diag", 24); break;
+		default: str_copy(g_Config.m_PlayerEye, "default", 24);
 	};
 }
 

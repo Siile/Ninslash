@@ -106,6 +106,9 @@ void CBuildings2::RenderLightningWall(const struct CNetObj_Building *pCurrent)
 	}
 	
 	Graphics()->QuadsEnd();
+	
+	m_pClient->m_pEffects->BoxLight((Pos+From)/2, vec4(0.25f, 1.0f, 1.0f, 0.7f), vec2(40, abs(Pos.y - From.y)+60));
+	
 	//Graphics()->ShaderEnd();
 }
 
@@ -198,6 +201,8 @@ void CBuildings2::RenderElectroWall(const CNetObj_LaserFail *pCurrent)
 	Graphics()->QuadsEnd();
 	//Graphics()->ShaderEnd();
 	Graphics()->BlendNormal();
+	
+	m_pClient->m_pEffects->BoxLight((Pos+From)/2, vec4(1.0f, 0.8f, 0.6f, 0.7f), vec2(100, length(Pos - From)+80), atan2(Dir.y, Dir.x)+pi/2);
 }
 
 
@@ -301,6 +306,8 @@ void CBuildings2::RenderGenerator(const struct CNetObj_Building *pCurrent, const
 	RenderTools()->SelectSprite(SPRITE_GENERATOR_SHIELD);
 	RenderTools()->DrawSprite(Pos.x, Pos.y, 512+226+50.0f*c);
 	Graphics()->QuadsEnd();
+	
+	m_pClient->m_pEffects->SimpleLight(Pos, vec4(0.5f, 0.5f+c*0.5f, 1, 0.5f), 512+226+50.0f*c);
 }
 
 void CBuildings2::RenderFlametrap(const CNetObj_Building *pCurrent, const CNetObj_Building *pPrev)
@@ -359,6 +366,8 @@ void CBuildings2::RenderFlametrap(const CNetObj_Building *pCurrent, const CNetOb
 		Graphics()->QuadsDraw(&QuadItem2, 1);
 		
 		Graphics()->QuadsEnd();
+		
+		m_pClient->m_pEffects->SimpleLight(Pos+vec2((Flip ? -13-90 : 13+90), -14), vec4(1.0f, 0.7f, 0.4f, 0.5f), vec2(240, 100));
 	}
 	
 	

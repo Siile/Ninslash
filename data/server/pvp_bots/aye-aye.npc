@@ -1,0 +1,17 @@
+# example npc profile
+name: Aye-Aye
+head: bigears
+body: simple
+hand: gray
+foot: default
+topper: none
+eye: lsd
+
+# write /color in in-game chat to see your current colors
+skin-color: 2490112
+topper-color: 65535
+body-color: 10419995
+foot-color: 6396928
+
+# red, black or green
+blood-color: red

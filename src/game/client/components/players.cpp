@@ -51,7 +51,7 @@ void CPlayers::RenderHand(CTeeRenderInfo *pInfo, vec2 CenterPos, vec2 Dir, float
 	HandPos += DirY * PostRotOffset.y;
 
 	//Graphics()->TextureSet(data->m_aImages[IMAGE_CHAR_DEFAULT].id);
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HANDS].m_Id);
+	Graphics()->TextureSet(pInfo->m_HandTexture);
 	Graphics()->QuadsBegin();
 	Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, pInfo->m_ColorSkin.a);
 
@@ -61,7 +61,7 @@ void CPlayers::RenderHand(CTeeRenderInfo *pInfo, vec2 CenterPos, vec2 Dir, float
 		//bool OutLine = i == 0;
 
 		//RenderTools()->SelectSprite(OutLine?SPRITE_TEE_HAND_OUTLINE:SPRITE_TEE_HAND, 0, 0, 0);
-		RenderTools()->SelectSprite(SPRITE_HAND1_4+pInfo->m_Body*4);
+		RenderTools()->SelectSprite(SPRITE_HAND1_4);
 		Graphics()->QuadsSetRotation(Angle);
 		IGraphics::CQuadItem QuadItem(HandPos.x, HandPos.y, 2*BaseSize, 2*BaseSize);
 		Graphics()->QuadsDraw(&QuadItem, 1);
@@ -88,6 +88,125 @@ inline float AngularApproach(float Src, float Dst, float Amount)
 	return n;
 }
 
+
+void CPlayers::RenderHook(
+	const CNetObj_Character *pPrevChar,
+	const CNetObj_Character *pPlayerChar,
+	const CNetObj_PlayerInfo *pPrevInfo,
+	const CNetObj_PlayerInfo *pPlayerInfo
+	)
+{
+	CNetObj_Character Prev;
+	CNetObj_Character Player;
+	Prev = *pPrevChar;
+	Player = *pPlayerChar;
+
+	CNetObj_PlayerInfo pInfo = *pPlayerInfo;
+	CTeeRenderInfo RenderInfo = m_aRenderInfo[pInfo.m_ClientID];
+	CPlayerInfo *pCustomPlayerInfo = &CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID];
+
+	float IntraTick = Client()->IntraGameTick();
+
+	// set size
+	RenderInfo.m_Size = 64.0f;
+
+
+	// use preditect players if needed
+	if(pInfo.m_Local && g_Config.m_ClPredict && Client()->State() != IClient::STATE_DEMOPLAYBACK)
+	{
+		if(!m_pClient->m_Snap.m_pLocalCharacter || (m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_GAMEOVER))
+		{
+		}
+		else
+		{
+			// apply predicted results
+			m_pClient->m_PredictedChar.Write(&Player);
+			m_pClient->m_PredictedPrevChar.Write(&Prev);
+			IntraTick = Client()->PredIntraGameTick();
+		}
+	}
+
+	vec2 Position = mix(vec2(Prev.m_X, Prev.m_Y), vec2(Player.m_X, Player.m_Y), IntraTick);
+
+	// draw hook
+	if (Prev.m_HookState>0 && Player.m_HookState>0)
+	{
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HOOK].m_Id);
+		Graphics()->QuadsBegin();
+
+		vec2 Pos = Position + vec2(0, -4);
+		vec2 HookPos;
+
+		if(Player.m_HookState == HOOK_GRABBEDBALL)
+		{
+			HookPos = mix(vec2(m_pClient->m_PredictedPrevBall.m_Pos.x, m_pClient->m_PredictedPrevBall.m_Pos.y), vec2(m_pClient->m_PredictedBall.m_Pos.x, m_pClient->m_PredictedBall.m_Pos.y), Client()->IntraGameTick());
+		}
+		else if(pPlayerChar->m_HookedPlayer != -1)
+		{
+			if(m_pClient->m_Snap.m_pLocalInfo && pPlayerChar->m_HookedPlayer == m_pClient->m_Snap.m_pLocalInfo->m_ClientID)
+			{
+				if(Client()->State() == IClient::STATE_DEMOPLAYBACK) // only use prediction if needed
+					HookPos = vec2(m_pClient->m_LocalCharacterPos.x, m_pClient->m_LocalCharacterPos.y);
+				else
+					HookPos = mix(vec2(m_pClient->m_PredictedPrevChar.m_Pos.x, m_pClient->m_PredictedPrevChar.m_Pos.y),
+						vec2(m_pClient->m_PredictedChar.m_Pos.x, m_pClient->m_PredictedChar.m_Pos.y), Client()->PredIntraGameTick());
+			}
+			else if(pInfo.m_Local)
+			{
+				HookPos = mix(vec2(m_pClient->m_Snap.m_aCharacters[pPlayerChar->m_HookedPlayer].m_Prev.m_X,
+					m_pClient->m_Snap.m_aCharacters[pPlayerChar->m_HookedPlayer].m_Prev.m_Y),
+					vec2(m_pClient->m_Snap.m_aCharacters[pPlayerChar->m_HookedPlayer].m_Cur.m_X,
+					m_pClient->m_Snap.m_aCharacters[pPlayerChar->m_HookedPlayer].m_Cur.m_Y),
+					Client()->IntraGameTick());
+			}
+			else
+				HookPos = mix(vec2(pPrevChar->m_HookX, pPrevChar->m_HookY), vec2(pPlayerChar->m_HookX, pPlayerChar->m_HookY), Client()->IntraGameTick());
+		}
+		else
+			HookPos = mix(vec2(Prev.m_HookX, Prev.m_HookY), vec2(Player.m_HookX, Player.m_HookY), IntraTick);
+
+		Pos -= normalize(Pos-HookPos)*12;
+		float d = distance(Pos, HookPos);
+		vec2 Dir = normalize(Pos-HookPos);
+
+		Graphics()->QuadsSetRotation(GetAngle(Dir)+pi);
+
+		// render head
+		Graphics()->QuadsSetSubset(1.0f/4, 0, 1.0f/4+0.5f, 1);
+		IGraphics::CQuadItem QuadItem(HookPos.x, HookPos.y, 24,16);
+		Graphics()->QuadsDraw(&QuadItem, 1);
+
+		// render chain
+		Graphics()->QuadsSetSubset(0, 0, 1.0f/4, 1);
+		IGraphics::CQuadItem Array[1024];
+		int i = 0;
+		for(float f = 24; f < d && i < 1024; f += 24, i++)
+		{
+			float l = 24;
+			vec2 p = HookPos + Dir*f;
+			
+			if (length(Dir*f) > d-24)
+			{
+				l = 24 - (length(Dir*f) - (d-24));
+				p = HookPos + Dir*(f+(l-24)/2);
+			}
+			
+			
+			Array[i] = IGraphics::CQuadItem(p.x, p.y,l,16);
+		}
+
+		Graphics()->QuadsDraw(Array, i);
+		Graphics()->QuadsSetRotation(0);
+		Graphics()->QuadsEnd();
+
+		//RenderHand(&RenderInfo, Position, normalize(HookPos-Pos), -pi/2, vec2(20, 0));
+		
+		pCustomPlayerInfo->m_Hooking = true;
+		pCustomPlayerInfo->m_HookDir = normalize(HookPos-Pos);
+	}
+	else
+		pCustomPlayerInfo->m_Hooking = false;
+}
 
 
 void CPlayers::RenderPlayer(
@@ -211,9 +330,21 @@ void CPlayers::RenderPlayer(
 		}
 	}
 	
-	m_pClient->AddFluidForce(Position+vec2(0, -12), Vel*2);
+	bool Paused = true;
+		
+	//static float s_LastGameTickTime = Client()->GameTickTime();
+	if(m_pClient->m_Snap.m_pGameInfoObj && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
+	{
+		//s_LastGameTickTime = Client()->GameTickTime();
+		Paused = false;
+	}
+	
+	
+	if (!Paused)
+		m_pClient->AddFluidForce(Position+vec2(0, -12), Vel*2);
 
-	pCustomPlayerInfo->UpdatePhysics(vec2(Player.m_VelX, Player.m_VelY), vec2(Prev.m_VelX, Prev.m_VelY));
+	if (!Paused)
+		pCustomPlayerInfo->UpdatePhysics(vec2(Player.m_VelX, Player.m_VelY), vec2(Prev.m_VelX, Prev.m_VelY));
 	
 	float AnimSpeed = abs(Vel.x) / 300.0f;
 	
@@ -287,14 +418,6 @@ void CPlayers::RenderPlayer(
 		}
 	}
 		
-	bool Paused = true;
-		
-	//static float s_LastGameTickTime = Client()->GameTickTime();
-	if(m_pClient->m_Snap.m_pGameInfoObj && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
-	{
-		//s_LastGameTickTime = Client()->GameTickTime();
-		Paused = false;
-	}
 
 	pCustomPlayerInfo->m_WeaponCharge = 0;
 	
@@ -369,8 +492,11 @@ void CPlayers::RenderPlayer(
 				pCustomPlayerInfo->m_MeleeAnimState = 1.0f;
 				pCustomPlayerInfo->m_MeleeState = MELEE_DOWN;
 				
-				if (!IsStaticWeapon(Player.m_Weapon) || GetStaticType(Player.m_Weapon) != SW_TOOL)
+				if (!IsStaticWeapon(Player.m_Weapon) || (GetStaticType(Player.m_Weapon) != SW_TOOL && GetStaticType(Player.m_Weapon) != SW_CLAW))
 					m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), Flip, Charge);
+				
+				if (IsStaticWeapon(Player.m_Weapon) && GetStaticType(Player.m_Weapon) == SW_CLAW)
+					m_pClient->m_pEffects->ClawHit(Position+vec2(0, -24)+Direction*50, GetAngle(Direction), Flip, Charge);
 				
 				pCustomPlayerInfo->m_WeaponRecoil += Direction * 15;
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
@@ -384,8 +510,11 @@ void CPlayers::RenderPlayer(
 				pCustomPlayerInfo->m_MeleeAnimState = 1.0f;
 				pCustomPlayerInfo->m_MeleeState = MELEE_UP;
 				
-				if (!IsStaticWeapon(Player.m_Weapon) || GetStaticType(Player.m_Weapon) != SW_TOOL)
+				if (!IsStaticWeapon(Player.m_Weapon) || (GetStaticType(Player.m_Weapon) != SW_TOOL && GetStaticType(Player.m_Weapon) != SW_CLAW))
 					m_pClient->m_pEffects->SwordHit(Position+vec2(0, -24)+Direction*60, GetAngle(Direction), !Flip, Charge);
+				
+				if (IsStaticWeapon(Player.m_Weapon) && GetStaticType(Player.m_Weapon) == SW_CLAW)
+					m_pClient->m_pEffects->ClawHit(Position+vec2(0, -24)+Direction*50, GetAngle(Direction), !Flip, Charge);
 				
 				pCustomPlayerInfo->m_WeaponRecoil += Direction * 15;
 				m_pClient->AddFluidForce(Position+vec2(0, -24)+Direction*80, vec2(frandom()-frandom(), frandom()-frandom())*30);
@@ -723,6 +852,8 @@ void CPlayers::RenderPlayer(
 							RenderTools()->DrawSprite(MuzzlePos.x, MuzzlePos.y, 60);
 							
 							Graphics()->QuadsEnd();	
+							
+							m_pClient->m_pEffects->SimpleLight(MuzzlePos, vec4(1.0f, 1.0f, 1.0f, 0.5f), 50);
 						}
 					}
 				}
@@ -833,6 +964,9 @@ void CPlayers::RenderPlayer(
 				
 				vec2 StartPos = FPos;
 				
+				vec2 LightStartPos = FPos+vec2(cos(Angle), sin(Angle))*16.0f;
+				vec2 FinalPos = FPos;
+				
 				int Flames = 0;
 				
 				for (int i = 0; i <= Slices; i++)
@@ -871,11 +1005,16 @@ void CPlayers::RenderPlayer(
 						m_pClient->m_pEffects->Flame(PrevPos + vec2(frandom()-frandom(), frandom()-frandom()) * 12.0f, vec2(frandom()-frandom(), frandom()-frandom()) * 200.0f, 0.5f, true);
 					}
 					
-					// prev
-					Collision()->IntersectLine(StartPos, p1, 0x0, &p1);
-					Collision()->IntersectLine(StartPos, p3, 0x0, &p3);
-					Collision()->IntersectLine(StartPos, p2, 0x0, &p2);
-					Collision()->IntersectLine(StartPos, p4, 0x0, &p4);
+					bool NoCol = true;
+					if (Collision()->IntersectLine(StartPos, p1, 0x0, &p1)) NoCol = false;
+					if (Collision()->IntersectLine(StartPos, p3, 0x0, &p3)) NoCol = false;
+					if (Collision()->IntersectLine(StartPos, p2, 0x0, &p2)) NoCol = false;
+					if (Collision()->IntersectLine(StartPos, p4, 0x0, &p4)) NoCol = false;
+					
+					if (NoCol)
+						m_pClient->m_pEffects->SimpleLight((p1+p2+p3+p4)/4+vec2(0, 8), vec4(1.0f, 0.75f, 0.5f, 0.3f), 60+i*6);
+				
+					FinalPos = (p3+p4)/2;
 					
 					IGraphics::CFreeformItem FreeFormItem(
 						p1.x, p1.y,
@@ -889,8 +1028,9 @@ void CPlayers::RenderPlayer(
 					PrevA = fa;
 				}
 				
-				
 				Graphics()->QuadsEnd();
+				
+				//m_pClient->m_pEffects->BoxLight((LightStartPos+FinalPos)/2-DirY*OffsetY*(Flip?1:0), vec4(1.0f, 0.75f, 0.5f, 0.4f), vec2(80, length(LightStartPos-FinalPos)+20), atan2(Dir.y, Dir.x)+pi/2);
 				
 				OffsetY = -0 * (Dir.x < 0 ? -1 : 1);
 				//FPos = p + Dir * 52 + DirY * OffsetY;
@@ -1282,6 +1422,11 @@ void CPlayers::RenderPlayer(
 		pCustomPlayerInfo->Animation()->SetAnimation(WantedAnimation, AnimationSpeed);
 	
 	
+	if (WantedAnimation == PANIM_JUMP)
+		pCustomPlayerInfo->UnlockFeet(Vel);
+	else
+		pCustomPlayerInfo->m_AreFeetLocked = true;
+	
 	s = Player.m_Status;
 	if (s & (1<<STATUS_DEATHRAY))
 	{
@@ -1536,7 +1681,6 @@ void CPlayers::OnRender()
 	}
 
 	CustomStuff()->m_LocalAlive = false;
-
 		
 	// render other players in two passes, first pass we render the other, second pass we render our self
 	for(int p = 0; p < 4; p++)
@@ -1560,8 +1704,15 @@ void CPlayers::OnRender()
 				CNetObj_Character PrevChar = m_pClient->m_Snap.m_aCharacters[i].m_Prev;
 				CNetObj_Character CurChar = m_pClient->m_Snap.m_aCharacters[i].m_Cur;
 
-				if(p<2)
-					;
+				CPlayerInfo *pCustomPlayerInfo = &CustomStuff()->m_aPlayerInfo[i];
+	
+				if((p<2 && pCustomPlayerInfo->BackHook()) || (p>=2 && !pCustomPlayerInfo->BackHook()))
+					RenderHook(
+							&PrevChar,
+							&CurChar,
+							(const CNetObj_PlayerInfo *)pPrevInfo,
+							(const CNetObj_PlayerInfo *)pInfo
+						);
 				else
 					RenderPlayer(
 							&PrevChar,

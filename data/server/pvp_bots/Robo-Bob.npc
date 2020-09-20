@@ -1,0 +1,14 @@
+name: Robo-Bob
+blood-color: black
+
+head: robo
+body: robo
+hand: robo
+foot: robo
+topper: basic
+eye: robo1
+
+skin-color: 8716032
+topper-color: 4190208
+body-color: 8912640
+foot-color: 8781568

@@ -86,6 +86,25 @@ int CEditorMap::Save(class IStorage *pStorage, const char *pFileName)
 		df.AddItem(MAPITEMTYPE_IMAGE, i, sizeof(Item), &Item);
 	}
 
+	// save modular generation rules
+	{
+		CMapModularInfo Item;
+		Item.m_IsModular = m_pEditor->m_IsInfinite;
+		Item.m_ChunkSize = m_pEditor->m_ChunkSize;
+		Item.m_RuleCount = m_pEditor->m_MapChunks;
+		df.AddItem(MAPITEMTYPE_MODULARINFO, 0, sizeof(Item), &Item);
+		
+		for (int i = 0; i < m_pEditor->m_MapChunks; i++)
+		{
+			CMapRule Rule;
+			Rule.m_Rule1 = m_pEditor->m_apChunkRule[i*4+0];
+			Rule.m_Rule2 = m_pEditor->m_apChunkRule[i*4+1];
+			Rule.m_Rule3 = m_pEditor->m_apChunkRule[i*4+2];
+			Rule.m_Rule4 = m_pEditor->m_apChunkRule[i*4+3];
+			df.AddItem(MAPITEMTYPE_RULE, i, sizeof(Rule), &Rule);
+		}
+	}
+
 	// save layers
 	int LayerCount = 0, GroupCount = 0;
 	for(int g = 0; g < m_lGroups.size(); g++)
@@ -330,6 +349,36 @@ int CEditorMap::Load(class IStorage *pStorage, const char *pFileName, int Storag
 				DataFile.UnloadData(pItem->m_ImageName);
 			}
 		}
+
+	// load modular generation rules
+	{
+		CMapModularInfo *pItem = (CMapModularInfo *)DataFile.FindItem(MAPITEMTYPE_MODULARINFO, 0);
+		
+		if(pItem)
+		{
+			m_pEditor->m_IsInfinite = pItem->m_IsModular;
+			m_pEditor->m_ChunkSize = pItem->m_ChunkSize;
+			m_pEditor->m_MapChunks = pItem->m_RuleCount;
+			
+			if (m_pEditor->m_apChunkRule)
+				delete m_pEditor->m_apChunkRule;
+			
+			m_pEditor->m_apChunkRule = new int[(m_pEditor->m_MapChunks+1)*4];
+			
+			for (int i = 0; i < m_pEditor->m_MapChunks; i++)
+			{
+				CMapRule *pRule = (CMapRule *)DataFile.FindItem(MAPITEMTYPE_RULE, i);
+				
+				if (pRule)
+				{
+					m_pEditor->m_apChunkRule[i*4+0] = pRule->m_Rule1;
+					m_pEditor->m_apChunkRule[i*4+1] = pRule->m_Rule2;
+					m_pEditor->m_apChunkRule[i*4+2] = pRule->m_Rule3;
+					m_pEditor->m_apChunkRule[i*4+3] = pRule->m_Rule4;
+				}
+			}
+		}
+	}
 
 		// load groups
 		{

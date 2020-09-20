@@ -564,6 +564,9 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon, vec2 Force)
 
 void CBuilding::Destroy()
 {
+	if (m_Stored)
+		return;
+	
 	GameServer()->CreateExplosion(m_Pos, m_DamageOwner, GetBuildingWeapon(m_Type));
 	
 	if (m_Type == BUILDING_MINE1)
@@ -656,6 +659,16 @@ void CBuilding::Destroy()
 
 void CBuilding::Tick()
 {
+	if (m_SnapTick && m_SnapTick < Server()->Tick()-Server()->TickSpeed()*5.0f)
+	{
+		if (GameServer()->StoreEntity(m_ObjType, m_Type, m_Mirror?1:0, m_Pos.x, m_Pos.y))
+		{
+			m_Stored = true;
+			GameServer()->m_World.DestroyEntity(this);
+			return;
+		}
+	}
+	
 	Move();
 	
 	if (m_Type == BUILDING_DOOR1)
@@ -835,6 +848,8 @@ void CBuilding::Snap(int SnappingClient)
 {
 	if(NetworkClipped(SnappingClient))
 		return;
+
+	m_SnapTick = Server()->Tick();
 
 	CNetObj_Building *pP = static_cast<CNetObj_Building *>(Server()->SnapNewItem(NETOBJTYPE_BUILDING, m_ID, sizeof(CNetObj_Building)));
 	if(!pP)

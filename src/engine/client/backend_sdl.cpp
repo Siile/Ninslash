@@ -255,9 +255,9 @@ void CCommandProcessorFragment_OpenGL::Cmd_Init(const SCommand_Init *pCommand)
 	m_CameraX = 0;
 	m_CameraY = 0;
 	m_ShadersLoaded = false;
-	m_AmbientR = 0.1f;
-	m_AmbientG = 0.1f;
-	m_AmbientB = 0.1f;
+	m_AmbientR = 0.27f;
+	m_AmbientG = 0.27f;
+	m_AmbientB = 0.32f;
 }
 
 void CCommandProcessorFragment_OpenGL::Cmd_Texture_Update(const CCommandBuffer::SCommand_Texture_Update *pCommand)
@@ -447,6 +447,7 @@ void CCommandProcessorFragment_OpenGL::Cmd_LoadShaders(const CCommandBuffer::SCo
 	m_ShadersLoaded = false;
 	
 	m_aShader[SHADER_PLAYER] = LoadShader("data/shaders/basic.vert", "data/shaders/player.frag");
+	m_aShader[SHADER_BALL] = LoadShader("data/shaders/basic.vert", "data/shaders/ball.frag");
 	m_aShader[SHADER_ELECTRIC] = LoadShader("data/shaders/basic.vert", "data/shaders/electric.frag");
 	m_aShader[SHADER_DEATHRAY] = LoadShader("data/shaders/basic.vert", "data/shaders/deathray.frag");
 	m_aShader[SHADER_COLORSWAP] = LoadShader("data/shaders/basic.vert", "data/shaders/colorswap.frag");

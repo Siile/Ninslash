@@ -139,6 +139,8 @@ public:
 			entity - Entity to remove
 	*/
 	void RemoveEntity(CEntity *pEntity);
+	
+	int CountEntities();
 
 	/*
 		Function: destroy_entity

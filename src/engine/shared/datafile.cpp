@@ -811,7 +811,7 @@ bool CDataFileWriter::SaveMap(class IStorage *pStorage, CDataFileReader *pFileMa
 		
 		COLFLAG_DAMAGEFLUID=128,
 		
-		// 256 = out of range for unsigned char, ugly! it custom :D
+		// 256 = out of range for unsigned char, ugly!
 		COLFLAG_MOVELEFT=129,
 		COLFLAG_MOVERIGHT=130,
 		COLFLAG_HANG=131,

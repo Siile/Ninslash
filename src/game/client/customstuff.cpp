@@ -222,6 +222,9 @@ vec4 CCustomStuff::BloodColor(int ClientID)
 
 void CCustomStuff::Tick(bool Paused)
 {
+	if (Paused)
+		return;
+	
 	m_Tick++;
 
 	// Client side building animation
