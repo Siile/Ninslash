@@ -1737,6 +1737,9 @@ void IGameController::Tick()
 			m_GameVote = 0;
 			//Console()->ExecuteFile("cfg/ball.cfg");
 			//GameServer()->Console()->ExecuteLine("exec cfg/ball.cfg");
+			
+			GameServer()->SendBroadcast(GameServer()->GetVoteWinnerConfig(), -1);
+		
 			GameServer()->Console()->ExecuteLine(GameServer()->GetVoteWinnerConfig());
 			ResetGameVotes();
 			StartRound();
