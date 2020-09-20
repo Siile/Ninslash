@@ -48,4 +48,5 @@ void CStaticlaser::Snap(int SnappingClient)
 	pObj->m_FromX = (int)m_From.x;
 	pObj->m_FromY = (int)m_From.y;
 	pObj->m_StartTick = Server()->Tick();
+	pObj->m_Charge = m_Life;
 }

@@ -1,0 +1,14 @@
+level: 7
+blood-color: black
+
+head: bone
+body: skele
+hand: bone
+foot: bone
+topper: gentlenin
+eye: gas1
+
+skin-color: 122
+topper-color: 65535
+body-color: 128
+foot-color: 135

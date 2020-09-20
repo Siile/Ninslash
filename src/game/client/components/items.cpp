@@ -606,8 +606,11 @@ void CItems::RenderLaser(const struct CNetObj_Laser *pCurrent)
 
 
 
-void CItems::RenderLaserFail(const struct CNetObj_LaserFail *pCurrent)
+void CItems::RenderLaserFail(const CNetObj_LaserFail *pCurrent)
 {
+	if (pCurrent->m_PowerLevel == 100)
+		return;
+	
 	vec2 Pos = vec2(pCurrent->m_X, pCurrent->m_Y);
 	vec2 From = vec2(pCurrent->m_FromX, pCurrent->m_FromY);
 	vec2 Dir = normalize(Pos-From);

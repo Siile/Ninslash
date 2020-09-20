@@ -86,39 +86,10 @@ void CCamera::OnRender()
 			m_Center = m_pClient->m_Snap.m_SpecInfo.m_Position + CameraOffset;
 		else
 		{
-			m_Center2 = m_pClient->m_LocalCharacterPos + CameraOffset;
-			
-			int64 currentTime = time_get();
-			if ((currentTime-m_LastUpdate > time_freq()) || (m_LastUpdate == 0))
-				m_LastUpdate = currentTime;
-				
-			int step = time_freq()/1200;
-			
-			if (g_Config.m_GoreCameraDelay > 1)
-			{
-				if (step <= 0)
-					step = 1;
-				
-				int i = 0;
-				
-				for (;m_LastUpdate < currentTime; m_LastUpdate += step)
-				{
-					m_Center.x += (m_Center2.x-m_Center.x) / float(g_Config.m_GoreCameraDelay*2);
-					m_Center.y += (m_Center2.y-m_Center.y) / float(g_Config.m_GoreCameraDelay*2);
-			
-					m_Zoom += (m_TargetZoom-m_Zoom) / float(50);
-					
-					if (i++ > 20)
-						break;
-				}
-			}
-			else
-				m_Center = m_Center2;
+			m_Center = m_pClient->m_LocalCharacterPos + CameraOffset;
 			
 			if (CustomStuff()->m_CameraShake > 0.0f)
-			{
 				m_Center += vec2(frandom()-frandom(), frandom()-frandom())*CustomStuff()->m_CameraShake;
-			}
 		}
 	}
 

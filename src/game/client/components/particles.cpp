@@ -29,6 +29,7 @@ CParticles::CParticles()
 	m_RenderElectromine.m_pParts = this;
 	m_RenderElectric.m_pParts = this;
 	m_RenderSwordHits.m_pParts = this;
+	m_RenderClawHits.m_pParts = this;
 	m_RenderDeath.m_pParts = this;
 	m_RenderLazer.m_pParts = this;
 	m_RenderLazerload.m_pParts = this;
@@ -178,8 +179,6 @@ void CParticles::Update(float TimePassed)
 			
 			if (g == GROUP_EXPLOSIONS)
 			{
-				//m_pClient->m_pEffects->Light(m_aParticles[i].m_Pos, 384*(1.0f-m_aParticles[i].m_Life / m_aParticles[i].m_LifeSpan));
-
 				if (!m_aParticles[i].m_Special)
 				{
 					m_aParticles[i].m_Special++;
@@ -403,6 +402,8 @@ void CParticles::RenderGroup(int Group)
 			Graphics()->SetColor(m_aParticles[i].m_Color.r, m_aParticles[i].m_Color.g, m_aParticles[i].m_Color.b, 1);
 			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size/2);
 			Graphics()->QuadsDraw(&QuadItem, 1);
+			
+			//m_pClient->m_pEffects->BoxLight(p, vec4(1.0f, 0.8f, 0.6f, 0.5f-a/2.0f), vec2(256, 64));
 
 			i = m_aParticles[i].m_NextPart;
 		}
@@ -427,6 +428,8 @@ void CParticles::RenderGroup(int Group)
 			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
 			Graphics()->QuadsDraw(&QuadItem, 1);
 
+			m_pClient->m_pEffects->SimpleLight(p, vec4(1.0f, 0.8f, 0.6f, 0.5f-a/2.0f), Size);
+
 			i = m_aParticles[i].m_NextPart;
 		}
 		Graphics()->QuadsEnd();
@@ -449,7 +452,9 @@ void CParticles::RenderGroup(int Group)
 			Graphics()->SetColor(m_aParticles[i].m_Color.r, m_aParticles[i].m_Color.g, m_aParticles[i].m_Color.b, 1);
 			IGraphics::CQuadItem QuadItem(p.x, p.y+m_aParticles[i].m_Height/2, Size, m_aParticles[i].m_Height);
 			Graphics()->QuadsDraw(&QuadItem, 1);
-
+			
+			m_pClient->m_pEffects->BoxLight(vec2(p.x, p.y+m_aParticles[i].m_Height/2), vec4(1.0f, 0.75f, 0.5f, 1-a), vec2(70, m_aParticles[i].m_Height+70));
+			
 			i = m_aParticles[i].m_NextPart;
 		}
 		Graphics()->QuadsEnd();
@@ -513,6 +518,29 @@ void CParticles::RenderGroup(int Group)
 	{
 		Graphics()->BlendNormal();
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_SWORDHIT].m_Id);
+		Graphics()->QuadsBegin();
+		
+		int i = m_aFirstPart[Group];
+		while(i != -1)
+		{
+			float a = m_aParticles[i].m_Life / m_aParticles[i].m_LifeSpan;
+			vec2 p = m_aParticles[i].m_Pos;
+
+			float Size = mix(m_aParticles[i].m_StartSize, m_aParticles[i].m_EndSize*1.0f, a);
+			RenderTools()->SelectSprite(m_aParticles[i].m_Spr + a*m_aParticles[i].m_Frames, m_aParticles[i].m_Flip ? SPRITE_FLAG_FLIP_Y : 0);
+			Graphics()->QuadsSetRotation(m_aParticles[i].m_Rot);
+			Graphics()->SetColor(m_aParticles[i].m_Color.r, m_aParticles[i].m_Color.g, m_aParticles[i].m_Color.b, 1);
+			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
+			Graphics()->QuadsDraw(&QuadItem, 1);
+
+			i = m_aParticles[i].m_NextPart;
+		}
+		Graphics()->QuadsEnd();
+	}
+	else if (Group == GROUP_CLAWHITS)
+	{
+		Graphics()->BlendNormal();
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_CLAWHIT].m_Id);
 		Graphics()->QuadsBegin();
 		
 		int i = m_aFirstPart[Group];
@@ -643,6 +671,8 @@ void CParticles::RenderGroup(int Group)
 			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
 			Graphics()->QuadsDraw(&QuadItem, 1);
 
+			m_pClient->m_pEffects->SimpleLight(m_aParticles[i].m_Pos, vec4(0.6f, 0.8f, 1.0f, 0.5f-a/2.0f), Size);
+
 			i = m_aParticles[i].m_NextPart;
 		}
 		Graphics()->QuadsEnd();
@@ -666,6 +696,8 @@ void CParticles::RenderGroup(int Group)
 			Graphics()->SetColor(m_aParticles[i].m_Color.r, m_aParticles[i].m_Color.g, m_aParticles[i].m_Color.b, 1);
 			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
 			Graphics()->QuadsDraw(&QuadItem, 1);
+			
+			m_pClient->m_pEffects->SimpleLight(m_aParticles[i].m_Pos, vec4(0.6f, 1.0f, 0.8f, 0.5f-a/2.0f), Size);
 
 			i = m_aParticles[i].m_NextPart;
 		}
@@ -712,6 +744,8 @@ void CParticles::RenderGroup(int Group)
 			Graphics()->SetColor(m_aParticles[i].m_Color.r, m_aParticles[i].m_Color.g, m_aParticles[i].m_Color.b, 1);
 			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
 			Graphics()->QuadsDraw(&QuadItem, 1);
+			
+			m_pClient->m_pEffects->SimpleLight(m_aParticles[i].m_Pos, vec4(0.6f, 0.8f, 1.0f, 0.5f-a/2.0f), Size*1.5f);
 
 			i = m_aParticles[i].m_NextPart;
 		}
@@ -797,6 +831,8 @@ void CParticles::RenderGroup(int Group)
 			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
 			Graphics()->QuadsDraw(&QuadItem, 1);
 
+			m_pClient->m_pEffects->SimpleLight(m_aParticles[i].m_Pos, vec4(1.0f, 0.9f, 0.8f, 1-a*0.7f), Size*1.2f);
+			
 			i = m_aParticles[i].m_NextPart;
 		}
 		Graphics()->QuadsEnd();
@@ -824,11 +860,14 @@ void CParticles::RenderGroup(int Group)
 			if (Group == GROUP_TRIANGLES || Group == GROUP_FLAMES)
 			{
 				float l = 0.3f - a*1.0f;
-				Graphics()->SetColor(
-					m_aParticles[i].m_Color.r,
+				const vec4 c = vec4(m_aParticles[i].m_Color.r,
 					m_aParticles[i].m_Color.g+l,
 					m_aParticles[i].m_Color.b+l,
 					m_aParticles[i].m_Color.a * (1 - a));
+					
+				Graphics()->SetColor(c.r, c.g, c.b, c.a);
+					
+				m_pClient->m_pEffects->SimpleLight(p, c, Size*2);
 					
 				//if (Group == GROUP_FLAMES)
 				//	m_pClient->m_pEffects->Light(m_aParticles[i].m_Pos, 32*(1.0f-m_aParticles[i].m_Life / m_aParticles[i].m_LifeSpan));
@@ -842,6 +881,7 @@ void CParticles::RenderGroup(int Group)
 
 			IGraphics::CQuadItem QuadItem(p.x, p.y, Size, Size);
 			Graphics()->QuadsDraw(&QuadItem, 1);
+
 
 			i = m_aParticles[i].m_NextPart;
 		}

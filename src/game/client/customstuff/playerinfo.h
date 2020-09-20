@@ -92,6 +92,11 @@ public:
 	bool m_BombCarrier;
 	int m_Mask;
 	
+	bool m_Hooking;
+	vec2 m_HookDir;
+	
+	bool BackHook();
+	
 	float m_aMuzzleTime[4];
 	int m_aMuzzleWeapon[4];
 	int m_aMuzzleType[4];
@@ -110,6 +115,8 @@ public:
 	vec2 HandOffset(int Hand);
 	void SetHandTarget(int Hand, vec3 Pos);
 	int HandFrame(int Hand);
+	
+	vec2 GetHandPosition(int Hand);
 	
 	float ChargeIntensity(int Charge);
 	float ChargeIntensity();
@@ -202,6 +209,16 @@ public:
 	vec2 Pos(){ return m_Pos; }
 	
 	bool m_FlipFeet;
+	
+	// lock feet during animation, unlock when flying
+	bool m_AreFeetLocked;
+	vec2 m_aFootPos[2];
+	vec2 m_aFootDir[2];
+	vec2 m_aFootForce[2];
+	int m_aFootFlip[2];
+	float m_FootTimer;
+	
+	void UnlockFeet(vec2 Vel);
 	
 	vec2 m_FeetPos;
 	vec2 m_FeetRecoil, m_FeetRecoilVel;

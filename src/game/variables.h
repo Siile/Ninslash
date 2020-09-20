@@ -22,7 +22,7 @@ MACRO_CONFIG_INT(ClThreadsoundloading, cl_threadsoundloading, 0, 0, 1, CFGFLAG_C
 
 MACRO_CONFIG_INT(ClWarningTeambalance, cl_warning_teambalance, 1, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Warn about team balance")
 
-MACRO_CONFIG_INT(ClLighting, cl_lighting, 0, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Environmental lighting")
+MACRO_CONFIG_INT(ClLighting, cl_lighting, 1, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Environmental lighting")
 
 MACRO_CONFIG_INT(ClMouseDeadzone, cl_mouse_deadzone, 0, 0, 0, CFGFLAG_CLIENT|CFGFLAG_SAVE, "")
 MACRO_CONFIG_INT(ClMouseFollowfactor, cl_mouse_followfactor, 0, 0, 200, CFGFLAG_CLIENT|CFGFLAG_SAVE, "")
@@ -45,7 +45,10 @@ MACRO_CONFIG_INT(PlayerColorTopper, player_color_topper, 65535, 0, 0xFFFFFF, CFG
 MACRO_CONFIG_INT(PlayerColorSkin, player_color_skin, 65535, 0, 0xFFFFFF, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player skin color")
 MACRO_CONFIG_STR(PlayerTopper, player_topper, 24, "default", CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player hair or hat")
 MACRO_CONFIG_STR(PlayerEye, player_eye, 24, "default", CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player eyes")
-MACRO_CONFIG_INT(PlayerBody, player_body, 0, 0, 6, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player body")
+MACRO_CONFIG_STR(PlayerHead, player_head, 24, "default", CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player head")
+MACRO_CONFIG_STR(PlayerBody, player_body, 24, "default", CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player body")
+MACRO_CONFIG_STR(PlayerHand, player_hand, 24, "default", CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player hand")
+MACRO_CONFIG_STR(PlayerFoot, player_foot, 24, "default", CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player foot")
 MACRO_CONFIG_INT(PlayerBloodColor, blood_color, 0, 0, 3, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Blood color")
 
 //MACRO_CONFIG_INT(UiPage, ui_page, 6, 0, 10, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Interface page")
@@ -76,7 +79,7 @@ MACRO_CONFIG_STR(SvGametype, sv_gametype, 32, "dm", CFGFLAG_SERVER, "Game type (
 MACRO_CONFIG_INT(SvTournamentMode, sv_tournament_mode, 0, 0, 1, CFGFLAG_SERVER, "Tournament mode. When enabled, players joins the server as spectator")
 MACRO_CONFIG_INT(SvSpamprotection, sv_spamprotection, 1, 0, 1, CFGFLAG_SERVER, "Spam protection")
 
-MACRO_CONFIG_INT(SvRespawnDelayTDM, sv_respawn_delay_tdm, 3, 0, 10, CFGFLAG_SERVER, "Time needed to respawn after death in tdm gametype")
+MACRO_CONFIG_INT(SvRespawnDelay, sv_respawn_delay, 1, 0, 10, CFGFLAG_SERVER, "Time needed to respawn after death")
 
 MACRO_CONFIG_INT(SvSpectatorSlots, sv_spectator_slots, 0, 0, MAX_CLIENTS, CFGFLAG_SERVER, "Number of slots to reserve for spectators")
 MACRO_CONFIG_INT(SvTeambalanceTime, sv_teambalance_time, 1, 0, 1000, CFGFLAG_SERVER, "How many minutes to wait before autobalancing teams")
@@ -91,7 +94,6 @@ MACRO_CONFIG_INT(SvVoteKickMin, sv_vote_kick_min, 0, 0, MAX_CLIENTS, CFGFLAG_SER
 MACRO_CONFIG_INT(SvVoteKickBantime, sv_vote_kick_bantime, 5, 0, 1440, CFGFLAG_SERVER, "The time to ban a player if kicked by vote. 0 makes it just use kick")
 
 
-
 //
 
 MACRO_CONFIG_INT(SvNull, sv_null, 0, 0, 100, CFGFLAG_SERVER, "does nothing")
@@ -101,13 +103,15 @@ MACRO_CONFIG_INT(SvLastSeenMessages, sv_lastseenmessages, 1, 0, 1, CFGFLAG_SERVE
 
 MACRO_CONFIG_INT(SvEnableBuilding, sv_enablebuilding, 0, 0, 1, CFGFLAG_SERVER, "Enable building")
 MACRO_CONFIG_INT(SvRandomWeapons, sv_randomweapons, 0, 0, 1, CFGFLAG_SERVER, "Enable random weapons")
+MACRO_CONFIG_INT(SvWeaponSpawns, sv_weaponspawns, 1, 0, 1, CFGFLAG_SERVER, "Enable weapon spawning")
+MACRO_CONFIG_INT(SvLaserWeapon, sv_laserweapon, 0, 0, 1, CFGFLAG_SERVER, "Give laser weapon on spawn")
 MACRO_CONFIG_INT(SvSurvivalMode, sv_survivalmode, 0, 0, 1, CFGFLAG_SERVER, "Survival mode")
 MACRO_CONFIG_INT(SvSurvivalAcid, sv_survivalacid, 1, 0, 1, CFGFLAG_SERVER, "Survival ends with rising acid")
 MACRO_CONFIG_INT(SvSurvivalTime, sv_survivaltime, 0, 0, 600, CFGFLAG_SERVER, "Survival round time limit")
 MACRO_CONFIG_INT(SvSurvivalReward, sv_survivalreward, 5, 0, 1000, CFGFLAG_SERVER, "Survival round winner's reward points")
 MACRO_CONFIG_INT(SvAbilities, sv_abilities, 0, 0, 1, CFGFLAG_SERVER, "Enable classes & abilities")
 MACRO_CONFIG_INT(SvPickupDrops, sv_pickupdrops, 1, 0, 1, CFGFLAG_SERVER, "Pickup drops")
-MACRO_CONFIG_INT(SvVanillaPickups, sv_vanillapickups, 1, 0, 1, CFGFLAG_SERVER, "Enable vanilla's pickups")
+MACRO_CONFIG_INT(SvHealthPickups, sv_healthpickups, 1, 0, 1, CFGFLAG_SERVER, "Enable hp and armor pickups")
 MACRO_CONFIG_INT(SvWeaponDrops, sv_weapondrops, 1, 0, 1, CFGFLAG_SERVER, "Enable weapon drops")
 MACRO_CONFIG_INT(SvNumBots, sv_bots, 4, 0, 30, CFGFLAG_SERVER, "Max number of bots")
 MACRO_CONFIG_INT(SvNoBotTeam, sv_nobotteam, -1, -1, 9, CFGFLAG_SERVER, "")

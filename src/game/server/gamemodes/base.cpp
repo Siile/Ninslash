@@ -7,8 +7,12 @@
 
 #include "base.h"
 
+#include <game/server/entities/droid_crawler.h>
+#include <game/server/entities/droid_bosscrawler.h>
+
 #include <game/server/playerdata.h>
 #include <game/server/ai.h>
+#include <game/server/ai/base_ai.h>
 #include <game/server/ai/def/def_alien1_ai.h>
 #include <game/server/ai/def/def_alien2_ai.h>
 #include <game/server/ai/def/def_robot1_ai.h>
@@ -32,6 +36,7 @@ CGameControllerBase::CGameControllerBase(class CGameContext *pGameServer) : IGam
 	m_RoundOverTick = 0;
 	m_RoundWinTick = 0;
 	m_NoPlayersTick = 0;
+	m_Crawlers = 0;
 	
 	m_GameOverBroadcast = false;
 	m_RoundWin = false;
@@ -55,6 +60,7 @@ CGameControllerBase::CGameControllerBase(class CGameContext *pGameServer) : IGam
 	g_Config.m_SvDisablePVP = 1;
 	g_Config.m_SvMapGen = 0;
 	g_Config.m_SvMapGenLevel = 0;
+
 	
 	if (g_Config.m_SvEnableBuilding)
 		m_GameFlags |= GAMEFLAG_BUILD;
@@ -66,6 +72,12 @@ CGameControllerBase::CGameControllerBase(class CGameContext *pGameServer) : IGam
 
 bool CGameControllerBase::OnEntity(int Index, vec2 Pos)
 {
+	if (Index == ENTITY_REACTOR)
+	{
+		new CBuilding(&GameServer()->m_World, Pos, BUILDING_REACTOR, 0);
+		return true;
+	}
+	
 	if (IGameController::OnEntity(Index, Pos))
 		return true;
 
@@ -96,7 +108,7 @@ bool CGameControllerBase::GetSpawnPos(int Team, vec2 *pOutPos)
 void CGameControllerBase::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 {
 	IGameController::OnCharacterSpawn(pChr);
-	
+
 	// init AI
 	if (RequestAI)
 	{
@@ -107,80 +119,91 @@ void CGameControllerBase::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			m_EnemiesLeft--;
 			Found = true;
 			
-			int e = ENEMY_ALIEN1;
-			
-			if (frandom() < (m_Wave-1) * 0.2f)
-				e = ENEMY_ALIEN2;
-			
-			if (m_Wave > 5)
-				e = ENEMY_ROBOT1;
-				
-			if (frandom() < (m_Wave-5) * 0.2f)
-				e = ENEMY_ROBOT2;
-			
-			if (m_Wave > 10)
-				e = ENEMY_BUNNY1;
-				
-			if (m_Wave > 10 && frandom() < 0.5f)
-				e = ENEMY_BUNNY2;
-			
-			if (m_Wave > 15)
-				e = ENEMY_PYRO1;
-			
-			if (m_Wave > 15 && frandom() < 0.4f)
-				e = ENEMY_ROBOT2;
-			
-			if (m_Wave > 20 && frandom() < 0.06f)
-				e = ENEMY_ROBOT3;
-			
+			// not in use
 			if (m_Bosses > 0)
-			{
-				if (m_Wave > 15)
-					e = ENEMY_PYRO2;
-				else
-					e = ENEMY_ROBOT3;
 				m_Bosses--;
-			}
 			
-			switch (e)
+			GameServer()->GetAISkin(&pChr->GetPlayer()->m_AISkin, false, 1+(m_Wave-1)/1.5f);
+			//GameServer()->GetAISkin(&pChr->GetPlayer()->m_AISkin, false, 1+frandom()*7);
+			pChr->GetPlayer()->SetAISkin();
+			pChr->GetPlayer()->m_pAI = new CAIbase(GameServer(), pChr->GetPlayer());
+			pChr->m_IsBot = true;
+		
+			
+			int level = pChr->GetPlayer()->m_AISkin.m_Level;
+
+			pChr->SetHealth(50+min(level*10.0f, 200.0f));
+			pChr->SetArmor(10+min(level*10.0f, 300.0f));
+			switch (level)
 			{
-			case ENEMY_ALIEN1:
-				pChr->GetPlayer()->m_pAI = new CAIdefalien1(GameServer(), pChr->GetPlayer()); break;
-			case ENEMY_ALIEN2:
-				pChr->GetPlayer()->m_pAI = new CAIdefalien2(GameServer(), pChr->GetPlayer()); break;
-			case ENEMY_ROBOT1:
-				pChr->GetPlayer()->m_pAI = new CAIdefrobot1(GameServer(), pChr->GetPlayer()); break;
-			case ENEMY_ROBOT2:
-				pChr->GetPlayer()->m_pAI = new CAIdefrobot2(GameServer(), pChr->GetPlayer()); break;
-			case ENEMY_ROBOT3:
-				pChr->GetPlayer()->m_pAI = new CAIdefrobot3(GameServer(), pChr->GetPlayer()); break;
-			case ENEMY_BUNNY1:
-				pChr->GetPlayer()->m_pAI = new CAIdefbunny1(GameServer(), pChr->GetPlayer()); break;
-			case ENEMY_BUNNY2:
-				pChr->GetPlayer()->m_pAI = new CAIdefbunny2(GameServer(), pChr->GetPlayer()); break;
-			case ENEMY_PYRO1:
-				pChr->GetPlayer()->m_pAI = new CAIdefpyro1(GameServer(), pChr->GetPlayer()); break;
-			case ENEMY_PYRO2:
-				pChr->GetPlayer()->m_pAI = new CAIdefpyro2(GameServer(), pChr->GetPlayer()); break;
-			default:
-				pChr->GetPlayer()->m_pAI = new CAIdefalien1(GameServer(), pChr->GetPlayer()); break;
-			}
+				case 1:
+					if (frandom() < 0.7f) pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GUN1)));
+					else				  pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 1)));
+					break;
+				
+				case 2:
+					if (frandom() < 0.5f) pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(3, 1)));
+					else
+					{
+						pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GUN2)));
+						pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE2)));
+					}
+					break;
+				
+				case 3:
+					if (frandom() < 0.5f) pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(5, 6)));
+					else				  pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(5, 7)));
+					break;
+					
+				case 4:
+					if (frandom() < 0.5f) pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 1)));
+					else if (frandom() < 0.5f) pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(3, 4)));
+					else				  pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(3, 2)));
+					break;
+					
+				case 5:
+					if (frandom() < 0.5f) pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_CHAINSAW)));
+					else if (frandom() < 0.5f) pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 2)));
+					else				  pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 4)));
+					if (frandom() < 0.2f) pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE2)));
+					break;
+					
+				case 6:
+					if (frandom() < 0.5f) pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetStaticWeapon(SW_CLUSTER), 1)));
+					else if (frandom() < 0.5f) pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_BOUNCER)));
+					else				  pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 1), 2)));
+					if (frandom() < 0.3f) pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
+					if (frandom() < 0.3f) pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD)));
+					break;
+					
+				case 7:
+					if (frandom() < 0.3f) pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(4, 3), 3)));
+					if (frandom() < 0.3f) pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(6, 7)));
+					else if (frandom() < 0.3f) pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(4, 4), 3)));
+					else if (frandom() < 0.3f) pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_FLAMER)));
+					else				  pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_BAZOOKA)));
+					if (frandom() < 0.3f) pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
+					if (frandom() < 0.4f) pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD)));
+					break;
+					
+				default:
+					;
+			};
 			
-			if (m_Wave == 12 && m_EnemiesLeft > 20)
-				pChr->GiveBuff(PLAYERITEM_INVISIBILITY);
-			
-			if ((m_Wave == 8 || m_Wave > 14) && frandom() < 0.3f)
-				pChr->GiveBuff(PLAYERITEM_RAGE);
-	
-			if (m_Wave > 12 && frandom() < 0.3f)
-				pChr->GiveBuff(PLAYERITEM_SHIELD);
+			/*
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetModularWeapon(1, 1)));
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
+			pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_GRENADE1)));
+			*/
 			
 			m_EnemyCount++;
 		}
 		
 		if (!Found)
 		{
-			pChr->GetPlayer()->m_pAI = new CAIdefalien1(GameServer(), pChr->GetPlayer());
+			GameServer()->GetAISkin(&pChr->GetPlayer()->m_AISkin, false, 1+(m_Wave-1)/1.5f);
+			pChr->GetPlayer()->SetAISkin();
+			pChr->GetPlayer()->m_pAI = new CAIbase(GameServer(), pChr->GetPlayer());
 			pChr->GetPlayer()->m_ToBeKicked = true;
 		}
 	}
@@ -206,8 +229,17 @@ int CGameControllerBase::OnCharacterDeath(class CCharacter *pVictim, class CPlay
 		if (--m_Deaths <= 0 && CountPlayersAlive(-1, true) > 0 && !m_WaveStartTick && !m_RoundOverTick)
 		{
 			// next wave
-			m_WaveStartTick = Server()->Tick() + Server()->TickSpeed() * 15.0f;
-			GameServer()->SendBroadcast("Wave cleared", -1);
+			if (m_Wave >= 10)
+			{
+				GameServer()->SendBroadcast("Stage completed", -1);
+				m_RoundOverTick = Server()->Tick();
+				m_Wave++;
+			}
+			else
+			{
+				m_WaveStartTick = Server()->Tick() + Server()->TickSpeed() * 15.0f;
+				GameServer()->SendBroadcast("Wave cleared", -1);
+			}
 		}
 				
 		if (m_EnemiesLeft <= 0)
@@ -221,7 +253,7 @@ int CGameControllerBase::OnCharacterDeath(class CCharacter *pVictim, class CPlay
 	}
 	
 	if (!pVictim->m_IsBot)
-		pVictim->GetPlayer()->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()*2;
+		pVictim->GetPlayer()->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()*g_Config.m_SvRespawnDelay;
 
 	return 0;
 }
@@ -253,35 +285,27 @@ void CGameControllerBase::NextWave()
 	m_Bosses = 0;
 	m_Wave++;
 	
-	if (m_Wave >= 15)
-		m_Bosses++;
-	
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "Wave %d", m_Wave);
 	GameServer()->SendBroadcast(aBuf, -1);
 
-	m_EnemiesLeft = 5 + m_Wave * 5;
-	m_EnemiesLeft -= int(m_Wave/5) * 15;
-	
-	if (m_EnemiesLeft > 60)
-		m_EnemiesLeft = 60;
-	
-	if (m_Wave == 10)
-	{
-		m_EnemiesLeft = 5;
-		m_Bosses = 5;
-	}
-	
-	if (m_Wave == 20)
-	{
-		m_EnemiesLeft = 10;
-		m_Bosses = 10;
-	}
-	
-	if (m_Wave > 20)
-		m_Bosses = (m_Wave-20)*2;
-	
+	m_EnemiesLeft = 5 + m_Wave * 6;
 	m_Deaths = m_EnemiesLeft;
+	
+	if (m_Wave > 2)
+		for (int i = 0; i < min(int(1+m_Wave/3), 3); i++)
+		{
+			vec2 p;
+			GetSpawnPos(0, &p);
+			new CCrawler(&GameServer()->m_World, p+vec2(0, -100));
+		}
+		
+	if (m_Wave > 7)
+	{
+			vec2 p;
+			GetSpawnPos(0, &p);
+			new CBossCrawler(&GameServer()->m_World, p+vec2(0, -100));
+	}
 	
 	// add bots
 	for (int i = 0; i < m_EnemiesLeft && GameServer()->m_pController->CountBots() < 12; i++)
@@ -355,7 +379,7 @@ void CGameControllerBase::Tick()
 		}
 		
 		// lose => restart
-		if (m_RoundOverTick && !m_GameOverBroadcast && m_RoundOverTick < Server()->Tick() - Server()->TickSpeed()*3.0f)
+		if (m_RoundOverTick && !m_GameOverBroadcast && m_RoundOverTick < Server()->Tick() - Server()->TickSpeed()*3.0f && m_Wave <= 10)
 		{
 			m_GameOverBroadcast = true;
 			
@@ -366,8 +390,9 @@ void CGameControllerBase::Tick()
 		
 		if (m_RoundOverTick && m_RoundOverTick < Server()->Tick() - Server()->TickSpeed()*7.0f)
 		{
+			m_RoundOverTick = 0;
 			EndRound();
-			CycleMap();
+			//CycleMap();
 		}
 	}
 	

@@ -1,0 +1,14 @@
+level: 5
+blood-color: black
+
+head: robo
+body: robo
+hand: robo
+foot: robo
+topper: none
+eye: robo1
+
+skin-color: 255
+topper-color: 0
+body-color: 255
+foot-color: 255

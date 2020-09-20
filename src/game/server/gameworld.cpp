@@ -5,10 +5,12 @@
 #include "entity.h"
 #include "gamecontext.h"
 #include "entities/turret.h"
+#include "entities/weapon.h"
 #include "entities/ball.h"
 #include "entities/building.h"
 #include "entities/droid.h"
 
+#include <game/weapons.h>
 #include <engine/shared/config.h>
 
 //////////////////////////////////////////////////
@@ -183,6 +185,22 @@ void CGameWorld::RemoveEntities()
 		}
 }
 
+
+int CGameWorld::CountEntities()
+{
+	int Entities = 0;
+	
+	for(int i = 0; i < NUM_ENTTYPES; i++)
+		for(CEntity *pEnt = m_apFirstEntityTypes[i]; pEnt; )
+		{
+			m_pNextTraverseEntity = pEnt->m_pNextTypeEntity;
+			Entities++;
+			pEnt = m_pNextTraverseEntity;
+		}
+		
+	return Entities;
+}
+
 void CGameWorld::Tick()
 {
 	if(m_ResetRequested)
@@ -224,6 +242,30 @@ void CGameWorld::Tick()
 	RemoveEntities();
 }
 
+
+
+bool CGameWorld::IsShielded(vec2 Pos0, vec2 Pos1, float Radius, int Team)
+{
+	CWeapon *w = (CWeapon *)FindFirst(ENTTYPE_WEAPON);
+	for(; w; w = (CWeapon *)w->TypeNext())
+ 	{
+		if (!w->m_Disabled && GetStaticType(w->GetWeaponType()) == SW_AREASHIELD)
+		{
+			
+			vec2 IntersectPos = closest_point_on_line(Pos0, Pos1, w->m_Pos);
+			
+			float Len = distance(w->m_Pos + w->m_Center, IntersectPos);
+			if (Len < 180+Radius && distance(w->m_Pos + w->m_Center, Pos0) >= 180+Radius)
+			{
+				return true;
+			}	
+		}
+	}
+	
+	return false;
+}
+	
+	
 
 CBuilding *CGameWorld::IntersectBuilding(vec2 Pos0, vec2 Pos1, float Radius, vec2 &NewPos, int Team, CEntity *pNotThis)
 {
@@ -353,7 +395,7 @@ CDroid *CGameWorld::IntersectWalker(vec2 Pos0, vec2 Pos1, float Radius, vec2 &Ne
 
 
 // TODO: should be more general
-CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, vec2& NewPos, CEntity *pNotThis)
+CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, vec2& NewPos, CEntity *pNotThis, bool IgnoreDeathrayed)
 {
 	// Find other players
 	float ClosestLen = distance(Pos0, Pos1) * 100.0f;
@@ -366,6 +408,9 @@ CCharacter *CGameWorld::IntersectCharacter(vec2 Pos0, vec2 Pos1, float Radius, v
 			continue;
 		
 		if(p->IgnoreCollision())
+			continue;
+		
+		if (IgnoreDeathrayed && p->Deathrayed())
 			continue;
 		
 		// co-op player to player collisiong ignore

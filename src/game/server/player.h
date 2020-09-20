@@ -3,6 +3,7 @@
 
 #include "entities/character.h"
 #include "gamecontext.h"
+#include "aiskin.h"
 #include "ai.h"
 
 #include <game/weapons.h>
@@ -41,6 +42,9 @@ class CPlayer
 public:
 	CPlayer(CGameContext *pGameServer, int ClientID, int Team);
 	~CPlayer();
+	
+	CAISkin m_AISkin;
+	void SetAISkin();
 	
 	void Init(int CID);
 
@@ -127,7 +131,10 @@ public:
 	{
 		char m_TopperName[64];
 		char m_EyeName[64];
-		int m_Body;
+		char m_HeadName[64];
+		char m_BodyName[64];
+		char m_HandName[64];
+		char m_FootName[64];
 		int m_ColorBody;
 		int m_ColorFeet;
 		int m_ColorTopper;
@@ -220,6 +227,7 @@ private:
 	bool m_Spawning;
 	int m_ClientID;
 	int m_Team;
+	int m_LatestX;
 };
 
 #endif

@@ -20,6 +20,10 @@ public:
 		m_Texture = -1;
 		m_TopperTexture = -1;
 		m_EyeTexture = -1;
+		m_BodyTexture = -1;
+		m_HeadTexture = -1;
+		m_HandTexture = -1;
+		m_FootTexture = -1;
 		m_Body = 0;
 		m_ColorBody = vec4(1,1,1,1);
 		m_ColorFeet = vec4(1,1,1,1);
@@ -35,6 +39,10 @@ public:
 	int m_Texture;
 	int m_TopperTexture;
 	int m_EyeTexture;
+	int m_BodyTexture;
+	int m_HeadTexture;
+	int m_HandTexture;
+	int m_FootTexture;
 	int m_Body;
 	int m_Mask;
 	vec4 m_ColorBody;
@@ -263,13 +271,16 @@ public:
 	void RenderTilemapGenerateSkip(class CLayers *pLayers);
 
 	// object render methods (gc_render_obj.cpp)
-	//void RenderTee(class CAnimState *pAnim, CTeeRenderInfo *pInfo, int Emote, vec2 Dir, vec2 Pos);
 
 	void RenderForegroundHand(class CPlayerInfo *PlayerInfo);
 
 	// for selection menu
 	void RenderTopper(CTeeRenderInfo *pInfo, vec2 Pos);
 	void RenderEye(CTeeRenderInfo *pInfo, vec2 Pos);
+	void RenderBody(CTeeRenderInfo *pInfo, vec2 Pos);
+	void RenderHead(CTeeRenderInfo *pInfo, vec2 Pos);
+	void RenderHand(CTeeRenderInfo *pInfo, vec2 Pos);
+	void RenderFoot(CTeeRenderInfo *pInfo, vec2 Pos);
 
 	void RenderLine(vec2 p1, vec2 p2, float Size, vec4 Color);
 
@@ -312,8 +323,8 @@ public:
 
 	// map render methods (gc_render_map.cpp)
 	static void RenderEvalEnvelope(CEnvPoint *pPoints, int NumPoints, int Channels, float Time, float *pResult);
-	void RenderQuads(CQuad *pQuads, int NumQuads, int Flags, ENVELOPE_EVAL pfnEval, void *pUser);
-	void RenderTilemap(CTile *pTiles, int w, int h, float Scale, vec4 Color, int RenderFlags, ENVELOPE_EVAL pfnEval, void *pUser, int ColorEnv, int ColorEnvOffset);
+	void RenderQuads(CQuad *pQuads, int NumQuads, int Flags, ENVELOPE_EVAL pfnEval, void *pUser, bool Loop = false);
+	void RenderTilemap(CTile *pTiles, int w, int h, float Scale, vec4 Color, int RenderFlags, ENVELOPE_EVAL pfnEval, void *pUser, int ColorEnv, int ColorEnvOffset, class CMapChunk *pMapChunk = NULL);
 
 	// helpers
 	void MapscreenToWorld(float CenterX, float CenterY, float ParallaxX, float ParallaxY,

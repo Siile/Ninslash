@@ -746,7 +746,8 @@ void CRenderTools::RenderTopper(CTeeRenderInfo *pInfo, vec2 Pos)
 	Graphics()->SetColor(pInfo->m_ColorTopper.r, pInfo->m_ColorTopper.g, pInfo->m_ColorTopper.b, 1);
 
 	Graphics()->QuadsSetRotation(0);
-		
+	
+	Graphics()->QuadsSetSubset(0, 0, 1, 1);
 	IGraphics::CQuadItem QuadItem(Pos.x, Pos.y, pInfo->m_Size, pInfo->m_Size);
 	Graphics()->QuadsDraw(&QuadItem, 1);
 	Graphics()->QuadsEnd();
@@ -766,20 +767,78 @@ void CRenderTools::RenderEye(CTeeRenderInfo *pInfo, vec2 Pos)
 	Graphics()->QuadsEnd();
 }
 
+void CRenderTools::RenderHead(CTeeRenderInfo *pInfo, vec2 Pos)
+{
+	Graphics()->TextureSet(pInfo->m_HeadTexture);
+	Graphics()->QuadsBegin();
+	Graphics()->SetColor(1, 1, 1, 1);
+
+	Graphics()->QuadsSetRotation(0);
+	
+	Graphics()->QuadsSetSubset(0, 0, 0.5f, 1);
+	IGraphics::CQuadItem QuadItem(Pos.x, Pos.y, pInfo->m_Size/2, pInfo->m_Size/2);
+	Graphics()->QuadsDraw(&QuadItem, 1);
+	
+	Graphics()->SetColor(1, 1, 1, 1);
+	Graphics()->QuadsSetSubset(0.5f, 0, 1.0f, 1);
+	IGraphics::CQuadItem QuadItem2(Pos.x, Pos.y, pInfo->m_Size/2, pInfo->m_Size/2);
+	Graphics()->QuadsDraw(&QuadItem2, 1);
+	Graphics()->QuadsEnd();
+}
+
+void CRenderTools::RenderBody(CTeeRenderInfo *pInfo, vec2 Pos)
+{
+	Graphics()->TextureSet(pInfo->m_BodyTexture);
+	Graphics()->QuadsBegin();
+	Graphics()->SetColor(pInfo->m_ColorBody.r, pInfo->m_ColorBody.g, pInfo->m_ColorBody.b, 1);
+
+	Graphics()->QuadsSetRotation(0);
+	
+	Graphics()->QuadsSetSubset(0, 0, 0.5f, 1);
+	IGraphics::CQuadItem QuadItem(Pos.x, Pos.y, pInfo->m_Size/2, pInfo->m_Size/2);
+	Graphics()->QuadsDraw(&QuadItem, 1);
+	
+	Graphics()->SetColor(1, 1, 1, 1);
+	Graphics()->QuadsSetSubset(0.5f, 0, 1.0f, 1);
+	IGraphics::CQuadItem QuadItem2(Pos.x, Pos.y, pInfo->m_Size/2, pInfo->m_Size/2);
+	Graphics()->QuadsDraw(&QuadItem2, 1);
+	Graphics()->QuadsEnd();
+}
+
+void CRenderTools::RenderFoot(CTeeRenderInfo *pInfo, vec2 Pos)
+{
+	Graphics()->TextureSet(pInfo->m_FootTexture);
+	Graphics()->QuadsBegin();
+	Graphics()->SetColor(1, 1, 1, 1);
+
+	Graphics()->QuadsSetRotation(0);
+		
+	IGraphics::CQuadItem QuadItem(Pos.x, Pos.y, pInfo->m_Size/2, pInfo->m_Size/2);
+	Graphics()->QuadsDraw(&QuadItem, 1);
+	Graphics()->QuadsEnd();
+}
+
+void CRenderTools::RenderHand(CTeeRenderInfo *pInfo, vec2 Pos)
+{
+	Graphics()->TextureSet(pInfo->m_HandTexture);
+	Graphics()->QuadsBegin();
+	Graphics()->SetColor(1, 1, 1, 1);
+
+	Graphics()->QuadsSetRotation(0);
+	Graphics()->QuadsSetSubset(0, 0, 1.0f/4, 1);
+		
+	IGraphics::CQuadItem QuadItem(Pos.x, Pos.y, pInfo->m_Size/2, pInfo->m_Size/2);
+	Graphics()->QuadsDraw(&QuadItem, 1);
+	Graphics()->QuadsEnd();
+}
 
 
 void CRenderTools::RenderPortrait(CTeeRenderInfo *pInfo, vec2 Pos, int EyeType)
 {
 	vec2 Position = Pos;
 	
-	int Atlas = pInfo->m_Body;
-	if (Atlas < 0)
-		Atlas = 0;
-	
-	if (Atlas > NUM_BODIES-1)
-		Atlas = NUM_BODIES-1;
+	int Atlas = 0;
 
-	
 	CSkeletonAnimation *AnimData = CPlayerInfo::GetIdle()->Animation();
 	CAnimSkeletonInfo *pSkeleton = Skelebank()->m_lSkeletons[Atlas];
 	CTextureAtlas *pAtlas = Skelebank()->m_lAtlases[Atlas];
@@ -858,18 +917,23 @@ void CRenderTools::RenderPortrait(CTeeRenderInfo *pInfo, vec2 Pos, int EyeType)
 					p3 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(pAttachment->m_Width/2.0f, pAttachment->m_Height/2.0f, 1.0f);
 
 
-					int SybsetType = 0;
+					int SubsetType = 0;
 
 					// render some slots with user selected texture with 
 					if (pAttachment->m_SpecialType == AST_HAT)
 					{
 						Graphics()->TextureSet(pInfo->m_TopperTexture);
-						SybsetType = 1;
+						SubsetType = 1;
 					}
 					else if (pAttachment->m_SpecialType == AST_EYES)
 					{
 						Graphics()->TextureSet(pInfo->m_EyeTexture);
-						SybsetType = 2;
+						SubsetType = 2;
+					}
+					else if (pAttachment->m_SpecialType == AST_HEAD)
+					{
+						Graphics()->TextureSet(pInfo->m_HeadTexture);
+						SubsetType = 4;
 					}
 					else
 						Graphics()->TextureSet(pPage->m_TexId);
@@ -884,13 +948,17 @@ void CRenderTools::RenderPortrait(CTeeRenderInfo *pInfo, vec2 Pos, int EyeType)
 						Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, 1);
 					
 
-					if (SybsetType == 1)
+					if (SubsetType == 1)
 						Graphics()->QuadsSetSubsetFree(0, 0,1, 0, 0, 1, 1, 1);
-					else if (SybsetType == 2)
+					else if (SubsetType == 2)
 					{
 						float t0 = EyeType / 4.0f;
 						float t1 = (EyeType+1) / 4.0f;
 						Graphics()->QuadsSetSubsetFree(t0, 0, t1, 0, t0, 1, t1, 1);
+					}
+					else if (SubsetType == 4) // head
+					{
+						Graphics()->QuadsSetSubsetFree(0, 0, 0.5f, 0, 0, 1, 0.5f, 1);
 					}
 					else
 					{
@@ -914,17 +982,28 @@ void CRenderTools::RenderPortrait(CTeeRenderInfo *pInfo, vec2 Pos, int EyeType)
 						);
 
 					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+					
+					// double rendering for bodies
+					if (SubsetType == 3 || SubsetType == 4)
+					{
+						Graphics()->SetColor(1, 1, 1, 1);
+						Graphics()->QuadsSetSubsetFree(0.5f, 0, 1.0f, 0, 0.5f, 1, 1, 1);
+						
+						IGraphics::CFreeformItem FreeFormItem2(
+							p0.x, p0.y,
+							p1.x, p1.y,
+							p2.x, p2.y,
+							p3.x, p3.y
+						);
+
+						Graphics()->QuadsDrawFreeform(&FreeFormItem2, 1);
+					}
 					Graphics()->QuadsEnd();
 				} break;
 			}
 		}
 	}
 }
-
-
-
-
-
 
 
 
@@ -1301,14 +1380,14 @@ void CRenderTools::RenderStarDroid(vec2 Pos, int Anim, float Time, int Dir, floa
 					p3 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(pAttachment->m_Width/2.0f, pAttachment->m_Height/2.0f, 1.0f);
 
 
-					int SybsetType = 0;
+					int SubsetType = 0;
 					
 					if (pAttachment->m_SpecialType == AST_JET1 || pAttachment->m_SpecialType == AST_JET2 || pAttachment->m_SpecialType == AST_JET)
 					{
 						if (Status != DROIDSTATUS_TERMINATED)
 						{
 							Graphics()->TextureSet(g_pData->m_aImages[IMAGE_JET].m_Id);
-							SybsetType = 2;
+							SubsetType = 2;
 							
 							vec3 p = (p0+p1+p2+p3)/4.0f;
 							
@@ -1331,11 +1410,11 @@ void CRenderTools::RenderStarDroid(vec2 Pos, int Anim, float Time, int Dir, floa
 					Graphics()->QuadsBegin();
 					
 					
-					if (SybsetType == 1)
+					if (SubsetType == 1)
 					{
 						Graphics()->QuadsSetSubsetFree(0, 0,1, 0, 0, 1, 1, 1);
 					}
-					else if (SybsetType == 2)
+					else if (SubsetType == 2)
 					{
 						int i = rand()%3;
 						float t0 = i / 4.0f;
@@ -1466,7 +1545,7 @@ void CRenderTools::RenderCrawlerDroid(vec2 Pos, int Anim, float Time, int Dir, f
 					p3 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(pAttachment->m_Width/2.0f, pAttachment->m_Height/2.0f, 1.0f);
 
 
-					int SybsetType = 0;
+					int SubsetType = 0;
 					
 					vec3 p = (p0+p1+p2+p3)/4.0f;
 					
@@ -1490,11 +1569,11 @@ void CRenderTools::RenderCrawlerDroid(vec2 Pos, int Anim, float Time, int Dir, f
 						if (pAttachment->m_SpecialType == AST_EYE)
 							Graphics()->SetColor(1, 1, 1, 1);
 						
-						if (SybsetType == 1)
+						if (SubsetType == 1)
 						{
 							Graphics()->QuadsSetSubsetFree(0, 0,1, 0, 0, 1, 1, 1);
 						}
-						else if (SybsetType == 2)
+						else if (SubsetType == 2)
 						{
 							int i = rand()%3;
 							float t0 = i / 4.0f;
@@ -1640,14 +1719,7 @@ void CRenderTools::RenderStaticPlayer(CTeeRenderInfo *pInfo, vec2 Pos)
 {
 	vec2 Position = Pos;
 	
-	int Atlas = pInfo->m_Body;
-	if (Atlas < 0)
-		Atlas = 0;
-	
-	if (Atlas > NUM_BODIES-1)
-		Atlas = NUM_BODIES-1;
-
-
+	int Atlas = 0;
 	
 	RenderSkeleton(Position+vec2(0, 16), 
 		pInfo, 
@@ -1660,8 +1732,8 @@ void CRenderTools::RenderStaticPlayer(CTeeRenderInfo *pInfo, vec2 Pos)
 	
 	// render hand
 	float HandBaseSize = 15.0f;
-		
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HANDS].m_Id);
+	
+	Graphics()->TextureSet(pInfo->m_HandTexture);
 	Graphics()->QuadsBegin();
 	Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, 1);
 
@@ -1673,7 +1745,8 @@ void CRenderTools::RenderStaticPlayer(CTeeRenderInfo *pInfo, vec2 Pos)
 		//bool OutLine = i == 0;
 
 		//SelectSprite(OutLine?SPRITE_TEE_HAND_OUTLINE:SPRITE_TEE_HAND);
-		SelectSprite(SPRITE_HAND1_1+pInfo->m_Body*4);
+		SelectSprite(SPRITE_HAND1_1);
+		Graphics()->QuadsSetSubset(0, 0, 1.0f/4, 1);
 		IGraphics::CQuadItem QuadItem(Pos.x-10, Pos.y, HandBaseSize*2, HandBaseSize*2);
 		Graphics()->QuadsDraw(&QuadItem, 1);
 	}
@@ -1809,14 +1882,16 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 			
 		// render hand
 		float HandBaseSize = 16.0f;		
-			
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HANDS].m_Id);
+		
+		SetShadersForPlayer(PlayerInfo);
+		
+		Graphics()->TextureSet(pInfo->m_HandTexture);
 		Graphics()->QuadsBegin();
 		Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, pInfo->m_ColorSkin.a);
 
 		Graphics()->QuadsSetRotation(WeaponAngle-pi/2);
 		{
-			SelectSprite(SPRITE_HAND1_1+pInfo->m_Body*4);
+			SelectSprite(SPRITE_HAND1_1);
 			IGraphics::CQuadItem QuadItem(WeaponPos.x+ Offset.x, WeaponPos.y+ Offset.y, 2*HandBaseSize, 2*HandBaseSize);
 			Graphics()->QuadsDraw(&QuadItem, 1);
 		}
@@ -1926,7 +2001,8 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 		SetShadersForWeapon(PlayerInfo);
 		RenderWeapon(PlayerInfo->m_Weapon, p + HandPos, vec2(cos(WAngle), sin(WAngle))*WeaponDir, WEAPON_GAME_SIZE, true, Flags, Alpha2);	
 		
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HANDS].m_Id);
+		SetShadersForPlayer(PlayerInfo);
+		Graphics()->TextureSet(pInfo->m_HandTexture);
 		Graphics()->QuadsBegin();
 		Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, pInfo->m_ColorSkin.a);
 
@@ -1947,7 +2023,7 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 		}
 		
 		{
-			SelectSprite(SPRITE_HAND1_1+pInfo->m_Body*4+Frame, (WeaponDir < 0 && FlipY) ? SPRITE_FLAG_FLIP_X : 0);
+			SelectSprite(SPRITE_HAND1_1+Frame, (WeaponDir < 0 && FlipY) ? SPRITE_FLAG_FLIP_X : 0);
 			IGraphics::CQuadItem QuadItem(WeaponPos.x, WeaponPos.y, 2*HandBaseSize, 2*HandBaseSize);
 			Graphics()->QuadsDraw(&QuadItem, 1);
 		}
@@ -2057,7 +2133,8 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 		SetShadersForWeapon(PlayerInfo);
 		RenderWeapon(PlayerInfo->m_Weapon, p + HandPos, vec2(cos(WAngle), sin(WAngle))*WeaponDir, WEAPON_GAME_SIZE, true, Flags, Alpha2);	
 		
-		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HANDS].m_Id);
+		SetShadersForPlayer(PlayerInfo);
+		Graphics()->TextureSet(pInfo->m_HandTexture);
 		Graphics()->QuadsBegin();
 		Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, pInfo->m_ColorSkin.a);
 
@@ -2078,7 +2155,7 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 		}
 		
 		{
-			SelectSprite(SPRITE_HAND1_1+pInfo->m_Body*4+Frame, (WeaponDir < 0 && FlipY) ? SPRITE_FLAG_FLIP_X : 0);
+			SelectSprite(SPRITE_HAND1_1+Frame, (WeaponDir < 0 && FlipY) ? SPRITE_FLAG_FLIP_X : 0);
 			IGraphics::CQuadItem QuadItem(WeaponPos.x, WeaponPos.y, 2*HandBaseSize, 2*HandBaseSize);
 			Graphics()->QuadsDraw(&QuadItem, 1);
 		}
@@ -2158,14 +2235,14 @@ void CRenderTools::RenderForegroundHand(CPlayerInfo *PlayerInfo)
 	SetShadersForPlayer(PlayerInfo);
 	
 	// hand
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HANDS].m_Id);
+	Graphics()->TextureSet(PlayerInfo->m_RenderInfo.m_HandTexture);
 	Graphics()->QuadsBegin();
 	Graphics()->SetColor(PlayerInfo->m_RenderInfo.m_ColorSkin.r, PlayerInfo->m_RenderInfo.m_ColorSkin.g, PlayerInfo->m_RenderInfo.m_ColorSkin.b, PlayerInfo->m_RenderInfo.m_ColorSkin.a);
 
 		
 	Graphics()->QuadsSetRotation(GetAngle(d));
 	{
-		SelectSprite(SPRITE_HAND1_1+PlayerInfo->m_RenderInfo.m_Body*4, (FlipY ? SPRITE_FLAG_FLIP_Y : 0));
+		SelectSprite(SPRITE_HAND1_1, (FlipY ? SPRITE_FLAG_FLIP_Y : 0));
 		IGraphics::CQuadItem QuadItem(p.x, p.y, 2*HandBaseSize, 2*HandBaseSize);
 		Graphics()->QuadsDraw(&QuadItem, 1);
 	}
@@ -2304,7 +2381,7 @@ void CRenderTools::RenderFreeHand(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo
 	}
 	
 	// hand
-	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_HANDS].m_Id);
+	Graphics()->TextureSet(pInfo->m_HandTexture);
 	Graphics()->QuadsBegin();
 	Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, pInfo->m_ColorSkin.a);
 
@@ -2316,10 +2393,11 @@ void CRenderTools::RenderFreeHand(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo
 	
 	Graphics()->QuadsSetRotation(GetAngle(d));
 	{
-		SelectSprite(Frame+pInfo->m_Body*4, (FlipY ? SPRITE_FLAG_FLIP_Y : 0));
+		SelectSprite(Frame, (FlipY ? SPRITE_FLAG_FLIP_Y : 0));
 		IGraphics::CQuadItem QuadItem(p.x, p.y, 2*HandBaseSize, 2*HandBaseSize);
 		Graphics()->QuadsDraw(&QuadItem, 1);
 	}
+	
 		
 	Graphics()->QuadsEnd();
 }
@@ -2521,7 +2599,7 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 	
 	if (GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_SPIN)
 	{
-		if (PlayerInfo->m_Hang || !PlayerInfo->MeleeFront())
+		if (PlayerInfo->m_Hang || PlayerInfo->m_Hooking || !PlayerInfo->MeleeFront())
 			RenderMelee(PlayerInfo, pInfo, Dir, Position);
 		else
 			RenderFreeHand(PlayerInfo, pInfo, HAND_FREE, Dir, Position, true);
@@ -2556,10 +2634,10 @@ void CRenderTools::RenderPlayer(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, 
 
 	if (GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_SPIN)
 	{
-		if (!PlayerInfo->m_Hang && PlayerInfo->MeleeFront())
+		if (!PlayerInfo->m_Hang && !PlayerInfo->m_Hooking && PlayerInfo->MeleeFront())
 			RenderMelee(PlayerInfo, pInfo, Dir, Position);
 		else
-			RenderFreeHand(PlayerInfo, pInfo, HAND_FREE, Dir, Position, true);
+			RenderFreeHand(PlayerInfo, pInfo, HAND_FREE, Dir, Position, false);
 	}
 	else if (GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_MELEE || GetWeaponRenderType(PlayerInfo->m_Weapon) == WRT_MELEESMALL)
 	{
@@ -2593,6 +2671,8 @@ void CRenderTools::RenderSkeleton(vec2 Position, const CTeeRenderInfo *pInfo, CS
 	
 	if (AnimData->m_Flip)
 		Scale.x *= -1;
+	
+	int Foot = 0;
 	
 	mat33 TransformationWorld = CalcTransformationMatrix(Position, Scale, Rotation);
 
@@ -2674,26 +2754,93 @@ void CRenderTools::RenderSkeleton(vec2 Position, const CTeeRenderInfo *pInfo, CS
 					p2 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(-pAttachment->m_Width/2.0f, pAttachment->m_Height/2.0f*HeightScale, 1.0f);
 					p3 = TransformationWorld * pBone->m_Transform * AttachmentParent * vec3(pAttachment->m_Width/2.0f, pAttachment->m_Height/2.0f*HeightScale, 1.0f);
 
+					bool Render = true;
+
 					// TODO: slow! batch!
-					
-					int SybsetType = 0;
+					int SubsetType = 0;
 					
 					// render some slots with user selected texture 
 					if (pAttachment->m_SpecialType == AST_HAT)
 					{
 						Graphics()->TextureSet(pInfo->m_TopperTexture);
-						SybsetType = 1;
+						SubsetType = 1;
 					}
-					else if (pAttachment->m_SpecialType == AST_MASK && (PlayerInfo && PlayerInfo->m_Mask > 0))
+					else if (pAttachment->m_SpecialType == AST_MASK)
 					{
 						Graphics()->TextureSet(g_pData->m_aImages[IMAGE_MASK1+PlayerInfo->m_Mask-1].m_Id);
-						//Graphics()->TextureSet(g_pData->m_aImages[IMAGE_MASK1].m_Id);
-						SybsetType = 1;
+						SubsetType = 1;
+						
+						if (PlayerInfo && PlayerInfo->m_Mask > 0)
+							Render = true;
+						else
+							Render = false;
 					}
 					else if (pAttachment->m_SpecialType == AST_EYES)
 					{
 						Graphics()->TextureSet(pInfo->m_EyeTexture);
-						SybsetType = 2;
+						SubsetType = 2;
+					}
+					else if (pAttachment->m_SpecialType == AST_HEAD)
+					{
+						Graphics()->TextureSet(pInfo->m_HeadTexture);
+						SubsetType = 4;
+					}
+					else if (pAttachment->m_SpecialType == AST_BODY)
+					{
+						Graphics()->TextureSet(pInfo->m_BodyTexture);
+						SubsetType = 3;
+					}
+					else if (pAttachment->m_SpecialType == AST_FOOT)
+					{
+						Graphics()->TextureSet(pInfo->m_FootTexture);
+						SubsetType = 1;
+						
+						if (Foot < 2)
+						{	
+							if (PlayerInfo->m_AreFeetLocked)
+							{
+								vec3 p = (p0+p1+p2+p3) / 4.0f - vec3(Position.x, Position.y, 0);
+								if (PlayerInfo)
+								{
+									//PlayerInfo->m_aFootPos[Foot] = vec2(p0.x, p0.y)-Position;
+									PlayerInfo->m_aFootPos[Foot] = vec2(p.x, p.y);
+									PlayerInfo->m_aFootDir[Foot] = normalize(vec2(p0.x, p0.y)-vec2(p1.x, p1.y));
+									PlayerInfo->m_aFootDir[Foot].x *= AnimData->m_Flip?1:-1;
+									PlayerInfo->m_aFootDir[Foot].y *= AnimData->m_Flip?1:-1;
+									PlayerInfo->m_aFootFlip[Foot] = AnimData->m_Flip?-1:1;
+									//PlayerInfo->m_aFootDir[Foot].y *= AnimData->m_Flip?1:-1;
+								}
+							}
+							else
+							{
+								const vec2 d0 = PlayerInfo->m_aFootDir[Foot];
+								const vec2 d1 = vec2(-PlayerInfo->m_aFootDir[Foot].y, PlayerInfo->m_aFootDir[Foot].x);
+								
+								float l0 = distance(p0, p1)*PlayerInfo->m_aFootFlip[Foot];
+								float l1 = distance(p0, p2);
+								
+								const vec2 p = PlayerInfo->m_aFootPos[Foot] + Position;
+								/*const vec2 pp0 = PlayerInfo->m_aFootPos[Foot] + Position;
+								const vec2 pp1 = pp0 + d0*l0;
+								const vec2 pp2 = pp0 + d1*l1;
+								const vec2 pp3 = pp0 + d0*l0 + d1*l1;*/
+								
+								
+								const vec2 pp0 = p - d0*l0/2 - d1*l1/2;
+								const vec2 pp1 = p + d0*l0/2 - d1*l1/2;
+								const vec2 pp2 = p - d0*l0/2 + d1*l1/2;
+								const vec2 pp3 = p + d0*l0/2 + d1*l1/2;
+								
+								p0 = vec3(pp0.x, pp0.y, 1);
+								p1 = vec3(pp1.x, pp1.y, 1);
+								p2 = vec3(pp2.x, pp2.y, 1);
+								p3 = vec3(pp3.x, pp3.y, 1);
+								//p2 = pp0 + d1*l1;
+								//p3 = pp0 + d0*l0 + d1*l1;
+							}
+						}
+						
+						Foot++;
 					}
 					else
 						Graphics()->TextureSet(pPage->m_TexId);
@@ -2724,7 +2871,10 @@ void CRenderTools::RenderSkeleton(vec2 Position, const CTeeRenderInfo *pInfo, CS
 							
 						Graphics()->QuadsEnd();
 						
-						Graphics()->TextureSet(pPage->m_TexId);
+						//m_pClient->m_pEffects->SimpleLight(p, vec4(1.0f, 1.0f, 1.0f, 0.5f), 50);
+						
+						//Graphics()->TextureSet(pPage->m_TexId);
+						Graphics()->TextureSet(pInfo->m_FootTexture);
 					}
 					
 					
@@ -2736,6 +2886,7 @@ void CRenderTools::RenderSkeleton(vec2 Position, const CTeeRenderInfo *pInfo, CS
 							Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BACKBOMB].m_Id);
 							Graphics()->QuadsBegin();
 							Graphics()->SetColor(1, 1, 1, 1);
+							//SelectSprite(-1);
 							
 							vec2 di = normalize(vec2(p0.x, p0.y) - vec2(p2.x, p2.y));
 						
@@ -2752,7 +2903,7 @@ void CRenderTools::RenderSkeleton(vec2 Position, const CTeeRenderInfo *pInfo, CS
 								
 							Graphics()->QuadsEnd();
 							
-							Graphics()->TextureSet(pPage->m_TexId);
+							Graphics()->TextureSet(pInfo->m_BodyTexture);
 						}
 					}						
 
@@ -2783,19 +2934,22 @@ void CRenderTools::RenderSkeleton(vec2 Position, const CTeeRenderInfo *pInfo, CS
 					}
 					
 					else if (pAttachment->m_SpecialType == AST_FOOT)
+					{
 						Graphics()->SetColor(pInfo->m_ColorFeet.r, pInfo->m_ColorFeet.g, pInfo->m_ColorFeet.b, 1);
+					}
 					
 					else if (pAttachment->m_SpecialType == AST_HAND)
 					{
 						if (PlayerInfo)
 						{
-							PlayerInfo->SetHandTarget(HAND_FREE, (p0+p1+p2+p3) / 4.0f - vec3(Position.x, Position.y, 0));
-							PlayerInfo->SetHandTarget(HAND_WEAPON, vec3(0, -4, 0) + (p0+p1+p2+p3) / 4.0f - vec3(Position.x, Position.y, 0));
+							//PlayerInfo->SetHandTarget(HAND_FREE, (p0+p1+p2+p3) / 4.0f - vec3(Position.x, Position.y, 0));
+							//PlayerInfo->SetHandTarget(HAND_WEAPON, vec3(0, -4, 0) + (p0+p1+p2+p3) / 4.0f - vec3(Position.x, Position.y, 0));
 						}
 						
 						Graphics()->SetColor(pInfo->m_ColorSkin.r, pInfo->m_ColorSkin.g, pInfo->m_ColorSkin.b, 0);
 					}
 					
+					/*
 					if (PlayerInfo)
 					{
 						if (pAttachment->m_SpecialType == AST_SPLATTER1)
@@ -2815,16 +2969,25 @@ void CRenderTools::RenderSkeleton(vec2 Position, const CTeeRenderInfo *pInfo, CS
 						if (pAttachment->m_SpecialType == AST_SPLATTER8)
 							Graphics()->SetColor(PlayerInfo->m_aSplatterColor[7].r, PlayerInfo->m_aSplatterColor[7].g, PlayerInfo->m_aSplatterColor[7].b, PlayerInfo->m_aSplatter[7]);
 					}
+					*/
 
-					if (SybsetType == 1)
+					if (SubsetType == 1)
 					{
 						Graphics()->QuadsSetSubsetFree(0, 0,1, 0, 0, 1, 1, 1);
 					}
-					else if (SybsetType == 2)
+					else if (SubsetType == 2) // eyes
 					{
 						float t0 = AnimData->m_Eyes / 4.0f;
 						float t1 = (AnimData->m_Eyes+1) / 4.0f;
 						Graphics()->QuadsSetSubsetFree(t0, 0, t1, 0, t0, 1, t1, 1);
+					}
+					else if (SubsetType == 3) // body
+					{
+						Graphics()->QuadsSetSubsetFree(0, 0, 0.5f, 0, 0, 1, 0.5f, 1);
+					}
+					else if (SubsetType == 4) // head
+					{
+						Graphics()->QuadsSetSubsetFree(0, 0, 0.5f, 0, 0, 1, 0.5f, 1);
 					}
 					else
 					{
@@ -2847,7 +3010,25 @@ void CRenderTools::RenderSkeleton(vec2 Position, const CTeeRenderInfo *pInfo, CS
 							p3.x, p3.y
 						);
 
-					Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+					if (Render)
+						Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+					
+					// double rendering for bodies
+					if (SubsetType == 3 || SubsetType == 4)
+					{
+						Graphics()->SetColor(1, 1, 1, 1);
+						Graphics()->QuadsSetSubsetFree(0.5f, 0, 1.0f, 0, 0.5f, 1, 1, 1);
+						
+						IGraphics::CFreeformItem FreeFormItem2(
+							p0.x, p0.y,
+							p1.x, p1.y,
+							p2.x, p2.y,
+							p3.x, p3.y
+						);
+
+						Graphics()->QuadsDrawFreeform(&FreeFormItem2, 1);
+					}
+					
 					Graphics()->QuadsEnd();
 				} break;
 
@@ -3217,7 +3398,9 @@ void CRenderTools::MapscreenToWorld(float CenterX, float CenterY, float Parallax
 
 void CRenderTools::RenderTilemapGenerateSkip(class CLayers *pLayers)
 {
-
+	if (pLayers->GetMapChunk())
+		return;
+	
 	for(int g = 0; g < pLayers->NumGroups(); g++)
 	{
 		CMapItemGroup *pGroup = pLayers->GetGroup(g);

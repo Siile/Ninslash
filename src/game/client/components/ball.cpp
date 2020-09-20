@@ -70,12 +70,14 @@ void CBalls::RenderBall(const CNetObj_Ball *pPrevBall, const CNetObj_Ball *pBall
 
 	
 	vec2 Position = mix(vec2(Prev.m_X, Prev.m_Y), vec2(Ball.m_X, Ball.m_Y), IntraTick);
-
+	float Vel = length(vec2(Ball.m_VelX, Ball.m_VelY))*0.00025f;
 
 	float BallSize = m_pClient->m_Tuning.m_BallSize;
 	
 	if (Ball.m_Status & (1<<BALLSTATUS_SUPER))
-		Graphics()->PlayerShaderBegin(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f);
+		Vel *= 2.0f;
+	
+	Graphics()->BallShaderBegin(Vel, abs(Ball.m_AngleForce)*0.00045f);
 	
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BALL].m_Id);
 	Graphics()->QuadsBegin();
@@ -89,6 +91,10 @@ void CBalls::RenderBall(const CNetObj_Ball *pPrevBall, const CNetObj_Ball *pBall
 	Graphics()->ShaderEnd();
 	
 	m_pClient->m_pTracers->Add(8, -609, Position, Position, 0, 0);
+	
+	
+	m_pClient->m_pEffects->SimpleLight(Position, vec4(0.5f, 0.75f, 1.0f, 1.0f), vec2(240, 240));
+	m_pClient->m_pEffects->SimpleLight(Position, vec4(0.5f, 0.75f, 1.0f, 0.5f), vec2(140, 140));
 	
 	/*
 		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_EMOTICONS].m_Id);

@@ -9,8 +9,8 @@ CDeathray::CDeathray(CGameWorld *pGameWorld, vec2 Pos)
 {
 	m_ProximityRadius = TurretPhysSize;
 	m_Life = 100;
-	m_AttackTick = int(Server()->TickSpeed()*m_Pos.x/128)%int(Server()->TickSpeed()*3.4f*2);
-	m_Loading = false;
+	m_AttackTick = Server()->Tick() - Server()->TickSpeed()*3.4f + int(m_Pos.x/4)%int(Server()->TickSpeed()*3.4f);
+	m_Loading = true;
 	m_Height = 0;
 }
 
@@ -18,6 +18,15 @@ CDeathray::CDeathray(CGameWorld *pGameWorld, vec2 Pos)
 
 void CDeathray::Tick()
 {
+	if (m_SnapTick && m_SnapTick < Server()->Tick()-Server()->TickSpeed()*5.0f)
+	{
+		if (GameServer()->StoreEntity(m_ObjType, m_Type, 0, m_Pos.x, m_Pos.y))
+		{
+			GameServer()->m_World.DestroyEntity(this);
+			return;
+		}
+	}
+	
 	if (m_Loading)
 	{
 		if (m_AttackTick + Server()->TickSpeed()*3.4f < GameServer()->Server()->Tick())

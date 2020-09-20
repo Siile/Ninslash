@@ -56,7 +56,7 @@ void CMotd::OnMessage(int MsgType, void *pRawMsg)
 {
 	if(Client()->State() == IClient::STATE_DEMOPLAYBACK)
 		return;
-
+	/*
 	if(MsgType == NETMSGTYPE_SV_MOTD)
 	{
 		CNetMsg_Sv_Motd *pMsg = (CNetMsg_Sv_Motd *)pRawMsg;
@@ -81,6 +81,7 @@ void CMotd::OnMessage(int MsgType, void *pRawMsg)
 		else
 			m_ServerMotdTime = 0;
 	}
+	*/
 }
 
 bool CMotd::OnInput(IInput::CEvent Event)

@@ -474,6 +474,7 @@ public:
 	virtual void LoadShaders();
 	virtual void ShaderBegin(int Shader, float Intensity = 1.0f, float ColorSwap = 0.0f, float WeaponCharge = 0.0f);
 	virtual void PlayerShaderBegin(float colorG, float colorB, float Charge = 0.0f, float Visibility = 1.0f, float Electro = 0.0f, float Damage = 0.0f, float Deathray = 0.0f);
+	virtual void BallShaderBegin(float Speed, float Speed2);
 	virtual void ShaderEnd();
 	
 	virtual void CameraToShaders(int ScreenWidth, int ScreenHeight, int CameraX, int CameraY);

@@ -1,0 +1,14 @@
+name: Zombor
+blood-color: green
+
+head: default
+body: simple
+hand: default
+foot: default
+topper: basic
+eye: zombie
+
+skin-color: 5324049
+topper-color: 2031459
+body-color: 9797120
+foot-color: 30720

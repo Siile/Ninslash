@@ -53,6 +53,20 @@ void CPlayerInfo::Reset()
 	m_Hang = false;
 	m_SpinningAngle = 0.0f;
 	
+	m_Hooking = false;
+	m_HookDir = vec2(0, 0);
+	
+	m_FootTimer = 0.0f;
+	m_AreFeetLocked = true;
+	m_aFootPos[0] = vec2(0, 0);
+	m_aFootPos[1] = vec2(0, 0);
+	m_aFootDir[0] = vec2(1, 0);
+	m_aFootDir[1] = vec2(1, 0);
+	m_aFootForce[0] = vec2(0, 0);
+	m_aFootForce[1] = vec2(0, 0);
+	m_aFootFlip[0] = 1;
+	m_aFootFlip[1] = 1;
+	
 	m_RecoilTick = 0;
 	
 	m_WeaponColorSwap = 0.0f;
@@ -360,6 +374,11 @@ void CPlayerInfo::FireMelee()
 		m_Melee.m_EffectFrame = 1*3;
 }
 
+vec2 CPlayerInfo::GetHandPosition(int Hand)
+{
+	vec2 p = m_Hand[Hand].m_Pos;
+	return p;
+}
 
 vec2 CPlayerInfo::HandOffset(int Hand)
 {
@@ -386,10 +405,34 @@ void CPlayerInfo::SetHandTarget(int Hand, vec3 Pos)
 
 int CPlayerInfo::HandFrame(int Hand)
 {
-	if (m_Turbo && Hand == HAND_FREE)
+	if (m_Hooking && Hand == HAND_FREE)
 		return 2;
 	
 	return 0;
+}
+
+
+void CPlayerInfo::UnlockFeet(vec2 Vel)
+{
+	if (!m_AreFeetLocked)
+		return;
+	
+	m_AreFeetLocked = false;
+	m_aFootForce[0] = Vel;
+	m_aFootForce[1] = Vel;
+}
+
+
+bool CPlayerInfo::BackHook()
+{
+	
+	if (GetWeaponRenderType(m_Weapon) == WRT_WEAPON1 || m_Weapon == WEAPON_NONE)
+		return false;
+	
+	if (GetWeaponRenderType(m_Weapon) == WRT_SPIN)
+		return false;
+	
+	return true;
 }
 
 
@@ -405,10 +448,31 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 	{
 		m_Hand[i].m_Pos += (m_Hand[i].m_TargetPos - m_Hand[i].m_Pos) / 3.0f;
 		
-		if (m_Turbo && i == HAND_FREE)
+		if (i == HAND_FREE)
 		{
-			m_Hand[i].m_TargetPos = -vec2(cos(m_Angle), sin(m_Angle)) * 20.0f;
-			m_Hand[i].m_TargetPos += m_ArmPos + vec2(0, -16);
+			/*if (m_Turbo)
+			{
+				m_Hand[i].m_TargetPos = -vec2(cos(m_Angle), sin(m_Angle)) * 20.0f;
+				m_Hand[i].m_TargetPos += m_ArmPos + vec2(0, -16);
+			}*/
+			if (m_Hooking)
+			{
+				m_Hand[i].m_TargetPos = m_HookDir * 20.0f;
+				m_Hand[i].m_TargetPos += m_ArmPos + vec2(0, -16);
+				m_Hand[i].m_Pos = m_Hand[i].m_TargetPos;
+			}
+			else
+			{
+				m_Hand[i].m_TargetPos = -vec2(PlayerVel.x, PlayerVel.y-100.0f) * 0.1f;
+				
+				if (length(m_Hand[i].m_TargetPos) > 20.0f)
+					m_Hand[i].m_TargetPos = normalize(m_Hand[i].m_TargetPos)*20.0f;
+				
+				m_Hand[i].m_TargetPos += m_ArmPos + vec2(0, -16);
+				
+				if (m_Hang)
+					m_Hand[i].m_TargetPos = vec2(0, -46);
+			}
 		}
 		
 		// gun aim
@@ -449,6 +513,43 @@ void CPlayerInfo::PhysicsTick(vec2 PlayerVel, vec2 PrevVel)
 			m_Hand[i].m_Offset = normalize(m_Hand[i].m_Offset) * 20.0f;
 		
 
+	}
+	
+	if (!m_AreFeetLocked)
+	{
+		for (int i = 0; i < 2; i++)
+		{
+			vec2 FootTarget = -vec2(PlayerVel.x, PlayerVel.y-100.0f) * 0.1f;
+			if (length(FootTarget) > 20.0f)
+				FootTarget = normalize(FootTarget)*20.0f;
+			
+			FootTarget += vec2(cos(m_FootTimer+i*pi), sin(m_FootTimer+i*pi))*8.0f;
+			if (length(FootTarget) > 20.0f)
+				FootTarget = normalize(FootTarget)*20.0f;
+			
+			m_aFootForce[i] += (FootTarget-m_aFootPos[i])*0.2f;
+			
+			if (length(m_aFootForce[i]) >= 12.0f)
+				m_aFootForce[i] = normalize(m_aFootForce[i])*12.0f;
+			
+			m_aFootForce[i] *= 0.85f;
+			m_aFootPos[i] += m_aFootForce[i];
+			
+			if (length(m_aFootPos[i]) >= 14.0f)
+				m_aFootPos[i] = normalize(m_aFootPos[i])*14.0f;
+				
+				
+			m_aFootDir[i] = -normalize(vec2(-abs(FootTarget.y), FootTarget.x));
+			m_aFootFlip[i] = Animation()->m_Flip?-1:1;
+		}
+		
+		m_FootTimer += max(-0.2f, min(0.2f, PlayerVel.x*0.0002f));
+	}
+	else
+	{
+		m_FootTimer = 0;
+		m_aFootForce[0] = vec2(0, 0);
+		m_aFootForce[1] = vec2(0, 0);
 	}
 	
 	// spinning melee weapon
@@ -587,7 +688,7 @@ void CPlayerInfo::UpdatePhysics(vec2 PlayerVel, vec2 PrevVel)
 	{
 		PhysicsTick(PlayerVel, PrevVel);
 		
-		if (i++ > 1)
+		if (i++ > 2)
 		{
 			m_LastUpdate = currentTime;
 			break;

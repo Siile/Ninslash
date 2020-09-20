@@ -12,6 +12,12 @@ class CPlayers : public CComponent
 		const CNetObj_PlayerInfo *pPrevInfo,
 		const CNetObj_PlayerInfo *pPlayerInfo
 	);
+	void RenderHook(
+		const CNetObj_Character *pPrevChar,
+		const CNetObj_Character *pPlayerChar,
+		const CNetObj_PlayerInfo *pPrevInfo,
+		const CNetObj_PlayerInfo *pPlayerInfo
+	);
 	
 	vec3 GetColorV3(int v);
 	

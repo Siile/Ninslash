@@ -279,6 +279,7 @@ int CEditor::PopupLayer(CEditor *pEditor, CUIRect View)
 		PROP_GROUP=0,
 		PROP_ORDER,
 		PROP_HQ,
+		PROP_LOOP,
 		NUM_PROPS,
 	};
 
@@ -286,6 +287,7 @@ int CEditor::PopupLayer(CEditor *pEditor, CUIRect View)
 		{"Group", pEditor->m_SelectedGroup, PROPTYPE_INT_STEP, 0, pEditor->m_Map.m_lGroups.size()-1},
 		{"Order", pEditor->m_SelectedLayer, PROPTYPE_INT_STEP, 0, pCurrentGroup->m_lLayers.size()},
 		{"Detail", pCurrentLayer->m_Flags&LAYERFLAG_DETAIL, PROPTYPE_BOOL, 0, 1},
+		{"Loop", pCurrentLayer->m_Flags&LAYERFLAG_LOOP, PROPTYPE_BOOL, 0, 1},
 		{0},
 	};
 
@@ -293,6 +295,7 @@ int CEditor::PopupLayer(CEditor *pEditor, CUIRect View)
 	{
 		aProps[0].m_Type = PROPTYPE_NULL;
 		aProps[2].m_Type = PROPTYPE_NULL;
+		aProps[3].m_Type = PROPTYPE_NULL;
 	}
 
 	static int s_aIds[NUM_PROPS] = {0};
@@ -318,6 +321,12 @@ int CEditor::PopupLayer(CEditor *pEditor, CUIRect View)
 		pCurrentLayer->m_Flags &= ~LAYERFLAG_DETAIL;
 		if(NewVal)
 			pCurrentLayer->m_Flags |= LAYERFLAG_DETAIL;
+	}
+	else if(Prop == PROP_LOOP)
+	{
+		pCurrentLayer->m_Flags &= ~LAYERFLAG_LOOP;
+		if(NewVal)
+			pCurrentLayer->m_Flags |= LAYERFLAG_LOOP;
 	}
 
 	return pCurrentLayer->RenderProperties(&View);

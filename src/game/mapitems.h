@@ -21,6 +21,8 @@ enum
 	MAPITEMTYPE_ENVPOINTS,
 	MAPITEMTYPE_SKELETON,
 	MAPITEMTYPE_ATLAS,
+	MAPITEMTYPE_MODULARINFO,
+	MAPITEMTYPE_RULE,
 
 	CURVETYPE_STEP=0,
 	CURVETYPE_LINEAR,
@@ -98,6 +100,7 @@ enum
 	TILEFLAG_ROTATE=8,
 
 	LAYERFLAG_DETAIL=1,
+	LAYERFLAG_LOOP=2,
 	TILESLAYERFLAG_GAME=1,
 
 	ENTITY_OFFSET=255-16*4,
@@ -244,7 +247,22 @@ struct CMapItemLayerSkeleton
 struct CMapItemVersion
 {
 	int m_Version;
-} ;
+};
+
+struct CMapModularInfo
+{
+	int m_IsModular;
+	int m_ChunkSize;
+	int m_RuleCount;
+};
+
+struct CMapRule
+{
+	int m_Rule1;
+	int m_Rule2;
+	int m_Rule3;
+	int m_Rule4;
+};
 
 struct CEnvPoint
 {

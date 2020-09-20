@@ -299,7 +299,7 @@ void CGameControllerCoop::SpawnNewGroup(bool AddBots)
 	{
 		RandomGroupSpawnPos();
 		
-		for (int i = 0; i < m_EnemiesLeft && GameServer()->m_pController->CountBots() < 24; i++)
+		for (int i = 0; i < m_EnemiesLeft && GameServer()->m_pController->CountBots() < 32; i++)
 			GameServer()->AddBot();
 	}
 	

@@ -1,4 +1,5 @@
 #include <game/generated/protocol.h>
+#include <game/collision.h>
 #include <game/server/gamecontext.h>
 #include <game/weapons.h>
 #include "projectile.h"
@@ -31,6 +32,7 @@ CProjectile::CProjectile(CGameWorld *pGameWorld, int Weapon, int Owner, vec2 Pos
 	
 	m_OwnerBuilding = NULL;
 	BounceTick = 0;
+	m_SkipCollision = false;
 	
 	UpdateStats();
 	
@@ -64,45 +66,24 @@ vec2 CProjectile::GetPos(float Time)
 	return CalcPos(m_Pos, m_Direction, m_Vel2, m_Curvature, m_Speed, Time);
 }
 
+
+
+
 // todo: fix broken bouncing
-bool CProjectile::Bounce(vec2 Pos)
+bool CProjectile::Bounce(vec2 Pos, int Collision)
 {
 	if (m_Bounces-- > 0)
 	{
 		BounceTick = Server()->Tick();
-	
-		m_Vel2 = vec2(0, 0);
-		int top = GameServer()->Collision()->GetCollisionAt(Pos.x, Pos.y-16);
-		int bot = GameServer()->Collision()->GetCollisionAt(Pos.x, Pos.y+16);
-		int left = GameServer()->Collision()->GetCollisionAt(Pos.x-16, Pos.y);
-		int right = GameServer()->Collision()->GetCollisionAt(Pos.x+16, Pos.y);
-		
-		int c = (top > 0) + (bot > 0) + (left > 0) + (right > 0);
-		
-		if (c == 4)
-		{
-			//m_Direction.y *= -1;
-			//m_Direction.x *= -1;
-			
-			return false;
-		}
-		else
-		{
-			if(!top && bot)
-				m_Direction.y *= -1;
-			if(!bot && top)
-				m_Direction.y *= -1;
-			if(!left && right)
-				m_Direction.x *= -1;
-			if(!right && left)
-				m_Direction.x *= -1;
-		}
+
+		m_Direction = GameServer()->Collision()->WallReflect(Pos, m_Direction, Collision);
+		m_Vel2 = GameServer()->Collision()->WallReflect(Pos, m_Vel2, Collision);
 		
 		if (GetStaticType(m_Weapon) == SW_CLUSTER)
 			GameServer()->CreateSound(Pos, SOUND_SFX_BOUNCE1);
 		else
 			GameServer()->CreateSound(Pos, SOUND_BOUNCER_BOUNCE);
-		
+	
 		return true;
 	}
 	
@@ -121,7 +102,10 @@ void CProjectile::Tick()
 	CCharacter *TargetChr = NULL;
 	CCharacter *ReflectChr = NULL;
 	
-	Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &CurPos, 0);
+	if (m_SkipCollision)
+		m_SkipCollision = false;
+	else
+		Collide = GameServer()->Collision()->IntersectLine(PrevPos, CurPos, &CurPos, 0);
 	
 	float r = 6.0f * GetProjectileSize(m_Weapon);
 	
@@ -142,6 +126,7 @@ void CProjectile::Tick()
 	CBall *Ball = NULL;
 	Ball = GameServer()->m_World.IntersectBall(PrevPos, CurPos, r, CurPos);
 	
+	bool Shielded = GameServer()->m_World.IsShielded(PrevPos, CurPos, r, Team);
 	
 	if (m_OwnerBuilding == TargetBuilding)
 		TargetBuilding = NULL;
@@ -155,9 +140,10 @@ void CProjectile::Tick()
 	
 	m_LifeSpan--;
 
-	if (Collide && Bounce(CurPos))
+	if (Collide && Bounce(CurPos, Collide))
 	{
-		m_StartTick = Server()->Tick()-1;
+		m_StartTick = Server()->Tick();
+		m_SkipCollision = true;
 		m_Pos = CurPos;
 		Collide = false;
 	}
@@ -167,12 +153,16 @@ void CProjectile::Tick()
 		m_StartTick = Server()->Tick()-1;
 		m_Pos = CurPos;
 		
-		m_Direction.y *= -1;
-		m_Direction.x *= -1;
+		//m_Direction.y *= -1;
+		//m_Direction.x *= -1;
 		
-		vec2 d = (ReflectChr->m_Pos+vec2(0, -24))-PrevPos;
-		d += vec2(frandom()-frandom(), frandom()-frandom()) * length(d) * 0.4f;
-		m_Direction = -normalize(d);
+		//vec2 d = (ReflectChr->m_Pos+vec2(0, -24))-PrevPos;
+		//d += vec2(frandom()-frandom(), frandom()-frandom()) * length(d) * 0.4f;
+		//m_Direction = -normalize(d);
+		
+		vec2 d = (ReflectChr->m_Pos+vec2(0, -24)) - PrevPos;
+		m_Direction = GameServer()->Collision()->Reflect(m_Direction, normalize(d));
+		m_Vel2 = GameServer()->Collision()->Reflect(m_Vel2, normalize(d));
 		GameServer()->CreateBuildingHit(CurPos);
 	}
 	
@@ -190,7 +180,7 @@ void CProjectile::Tick()
 			GameServer()->DamageBlocks(CurPos+vec2(4, 4), m_Damage, 1);
 	}
 	
-	if(Ball || TargetMonster || TargetBuilding || TargetChr || Collide || m_LifeSpan < 0 || GameLayerClipped(CurPos))
+	if(Ball || TargetMonster || TargetBuilding || TargetChr || Collide || m_LifeSpan < 0 || Shielded || GameLayerClipped(CurPos))
 	{
 		if(TargetChr)
 		{
@@ -199,6 +189,9 @@ void CProjectile::Tick()
 			
 			GameServer()->CreateEffect(FX_BLOOD2, (CurPos+TargetChr->m_Pos)/2.0f + vec2(0, -4));
 		}
+		
+		if (Shielded)
+			GameServer()->CreateEffect(FX_SHIELDHIT, CurPos);
 
 		if(TargetBuilding)
 		{

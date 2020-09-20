@@ -2,6 +2,7 @@
 #define GAME_CLIENT_COMPONENTS_SPARK_H
 #include <base/vmath.h>
 #include <game/client/component.h>
+#include <game/client/components/effects.h>
 
 // particles
 struct CSinglespark

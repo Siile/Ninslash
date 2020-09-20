@@ -1,8 +1,7 @@
-
-
 #ifndef GAME_CLIENT_COMPONENTS_MAPLAYERS_H
 #define GAME_CLIENT_COMPONENTS_MAPLAYERS_H
 #include <game/client/component.h>
+#include <engine/shared/mapchunk.h>
 
 class CMapLayers : public CComponent
 {

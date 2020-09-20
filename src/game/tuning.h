@@ -15,6 +15,10 @@ MACRO_TUNING_PARAM(GroundControlSpeed, ground_control_speed, 450.0f / TicksPerSe
 MACRO_TUNING_PARAM(GroundControlAccel, ground_control_accel, 75.0f / TicksPerSecond)
 MACRO_TUNING_PARAM(GroundFriction, ground_friction, 0.5f)
 MACRO_TUNING_PARAM(GroundJumpImpulse, ground_jump_impulse, 11.2f)
+MACRO_TUNING_PARAM(HookLength, hook_length, 380.0f)
+MACRO_TUNING_PARAM(HookFireSpeed, hook_fire_speed, 80.0f)
+MACRO_TUNING_PARAM(HookDragAccel, hook_drag_accel, 3.0f)
+MACRO_TUNING_PARAM(HookDragSpeed, hook_drag_speed, 15.0f)
 MACRO_TUNING_PARAM(WallrunImpulse, wall_run_impulse, 9.0f)
 MACRO_TUNING_PARAM(AirControlSpeed, air_control_speed, 450.0f / TicksPerSecond) //  250.0f
 MACRO_TUNING_PARAM(AirControlAccel, air_control_accel, 50.0f / TicksPerSecond) // 1.5f
@@ -73,4 +77,5 @@ MACRO_TUNING_PARAM(LaserBounceCost, laser_bounce_cost, 0)
 MACRO_TUNING_PARAM(LaserDamage, laser_damage, 5)
 
 MACRO_TUNING_PARAM(PlayerCollision, player_collision, 1)
+MACRO_TUNING_PARAM(PlayerHooking, player_hooking, 1)
 #endif

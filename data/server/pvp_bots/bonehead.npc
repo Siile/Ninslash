@@ -1,0 +1,17 @@
+# example npc profile
+name: Bonehead
+head: bone
+body: simple
+hand: bone
+foot: bone
+topper: gentlenin
+eye: skeletor
+
+# write /color in in-game chat to see your current colors
+skin-color: 65535
+topper-color: 1923072
+body-color: 1468928
+foot-color: 65535
+
+# red, black or green
+blood-color: black

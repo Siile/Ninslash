@@ -25,7 +25,7 @@ other/icons/*.res
 /tileset_border*
 /versionsrv*
 Thumbs.db
-BuildTeeworlds.bat
+build.bat
 SDL2.dll
 glew32.dll
 notepad.workspace

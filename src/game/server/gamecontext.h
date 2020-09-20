@@ -14,8 +14,11 @@
 #include "eventhandler.h"
 #include "gamecontroller.h"
 #include "gameworld.h"
+#include "blockentities.h"
 #include "player.h"
 #include "mapgen.h"
+#include "aiskin.h"
+#include "gamevote.h"
 #include "lastseen.h"
 
 /*
@@ -85,6 +88,7 @@ class CGameContext : public IGameServer
 	static void ConRemoveVote(IConsole::IResult *pResult, void *pUserData);
 	static void ConForceVote(IConsole::IResult *pResult, void *pUserData);
 	static void ConClearVotes(IConsole::IResult *pResult, void *pUserData);
+	static void ConEndRound(IConsole::IResult *pResult, void *pUserData);
 	static void ConVote(IConsole::IResult *pResult, void *pUserData);
 	static void ConchainSpecialMotdupdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 
@@ -101,6 +105,15 @@ public:
 	CLayers *Layers() { return &m_Layers; }
 	IStorage *Storage() const { return m_pStorage; }
 	CMapGen *MapGen() { return &m_MapGen; }
+
+	bool GetRoamSpawnPos(vec2 *Pos);
+
+	CBlockEntities *m_pBlockEntities;
+	void CreateEntitiesForBlock(int block);
+	void ActivateBlockEntities(int x);
+	
+	bool StoreEntity(int ObjType,int Type, int Subtype, int x, int y);
+	void RestoreEntity(int ObjType, int Type, int Subtype, int x, int y);
 
 	CGameContext();
 	~CGameContext();
@@ -205,6 +218,16 @@ public:
 	void SendEmoticon(int ClientID, int Emoticon);
 	void SendWeaponPickup(int ClientID, int Weapon);
 	void SendBroadcast(const char *pText, int ClientID, bool Lock = false);
+	void SendGameVotes(int ClientID = -1);
+	
+	void ResetGameVotes();
+	
+	CGameVote m_aGameVote[6];
+	int m_aPlayerGameVote[MAX_CLIENTS];
+	
+	void RegisterGameVote(int ClientID, int Vote);
+	void SendGameVoteStats();
+	const char *GetVoteWinnerConfig();
 
 
 	//
@@ -229,10 +252,10 @@ public:
 
 	virtual void OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID);
 
+	virtual void GetAISkin(CAISkin *pAISkin, bool PVP, int Level = 1);
 	virtual void AddZombie();
 	virtual bool AIInputUpdateNeeded(int ClientID);
 	virtual void AIUpdateInput(int ClientID, int *Data);
-	
 
 	int CountBots(bool SkipSpecialTees = false);
 	int CountBotsAlive(bool SkipSpecialTees = false);

@@ -16,8 +16,6 @@
 #include <game/client/components/controls.h>
 #include <game/client/components/camera.h>
 #include <game/client/components/effects.h>
-
-#include <game/client/components/controls.h>
 #include <game/client/components/sounds.h>
 #include "inventory.h"
 
@@ -154,6 +152,8 @@ bool CInventory::OnMouseMove(float x, float y)
 	if(!m_Render)
 		return false;
 
+	Input()->SetMouseModes(IInput::MOUSE_MODE_WARP_CENTER);
+	
 	Input()->GetRelativePosition(&x, &y);
 	m_SelectorMouse += vec2(x,y);
 	

@@ -555,13 +555,17 @@ void CEditor::RenderGrid(CLayerGroup *pGroup)
 	if(!m_GridActive)
 		return;
 
+	if (m_IsInfinite)
+		m_GridFactor = m_ChunkSize;
+
 	float aGroupPoints[4];
 	pGroup->Mapping(aGroupPoints);
 
 	float w = UI()->Screen()->w;
 	float h = UI()->Screen()->h;
 
-	int LineDistance = GetLineDistance();
+	//int LineDistance = GetLineDistance();
+	int LineDistance = 32;
 
 	int XOffset = aGroupPoints[0]/LineDistance;
 	int YOffset = aGroupPoints[1]/LineDistance;
@@ -573,21 +577,37 @@ void CEditor::RenderGrid(CLayerGroup *pGroup)
 
 	for(int i = 0; i < (int)w; i++)
 	{
-		if((i+YGridOffset) % m_GridFactor == 0)
-			Graphics()->SetColor(1.0f, 0.3f, 0.3f, 0.3f);
+		if(!m_IsInfinite && (i+YGridOffset) % m_GridFactor == 0)
+			Graphics()->SetColor(0.0f, 1.0f, 1.0f, 0.75f);
 		else
-			Graphics()->SetColor(1.0f, 1.0f, 1.0f, 0.15f);
+			Graphics()->SetColor(0.0f, 0.0f, 0.0f, 0.1f);
 
 		IGraphics::CLineItem Line = IGraphics::CLineItem(LineDistance*XOffset, LineDistance*i+LineDistance*YOffset, w+aGroupPoints[2], LineDistance*i+LineDistance*YOffset);
 		Graphics()->LinesDraw(&Line, 1);
 
 		if((i+XGridOffset) % m_GridFactor == 0)
-			Graphics()->SetColor(1.0f, 0.3f, 0.3f, 0.3f);
+		{
+			// highlight selected
+			if (m_IsInfinite && m_HighlightedChunk >= 0 && (i+XOffset == m_HighlightedChunk*m_ChunkSize || i+XOffset == (m_HighlightedChunk+1)*m_ChunkSize))
+				Graphics()->SetColor(1.0f, 0.0f, 1.0f, m_HighlightTimer);
+			else if (m_IsInfinite && (i+XOffset == m_SelectedChunk*m_ChunkSize || i+XOffset == (m_SelectedChunk+1)*m_ChunkSize))
+				Graphics()->SetColor(1.0f, 1.0f, 0.0f, 0.75f);
+			else
+				Graphics()->SetColor(0.0f, 1.0f, 1.0f, 0.75f);
+		}
 		else
-			Graphics()->SetColor(1.0f, 1.0f, 1.0f, 0.15f);
+			Graphics()->SetColor(0.0f, 0.0f, 0.0f, 0.1f);
 
-		Line = IGraphics::CLineItem(LineDistance*i+LineDistance*XOffset, LineDistance*YOffset, LineDistance*i+LineDistance*XOffset, h+aGroupPoints[3]);
-		Graphics()->LinesDraw(&Line, 1);
+		{
+			Line = IGraphics::CLineItem(LineDistance*i+LineDistance*XOffset, LineDistance*YOffset, LineDistance*i+LineDistance*XOffset, h+aGroupPoints[3]);
+			Graphics()->LinesDraw(&Line, 1);
+		}
+		
+		if((i+XGridOffset) % m_GridFactor == 0)
+		{
+			Line = IGraphics::CLineItem(LineDistance*i+LineDistance*XOffset+1, LineDistance*YOffset, LineDistance*i+LineDistance*XOffset, h+aGroupPoints[3]);
+			Graphics()->LinesDraw(&Line, 1);
+		}
 	}
 	Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
 	Graphics()->LinesEnd();
@@ -2442,6 +2462,203 @@ void CEditor::RenderLayers(CUIRect ToolBox, CUIRect ToolBar, CUIRect View)
 			m_SelectedGroup = m_Map.m_lGroups.size()-1;
 		}
 	}
+	
+	// infinite modular maps
+	{
+		LayersBox.HSplitTop(12.0f, &Slot, &LayersBox);
+		LayersBox.HSplitTop(12.0f, &Slot, &LayersBox);
+		
+		// if map is infinite or not
+		static int s_aIds[1] = {0};
+		CProperty aProps[] = {
+			{"Modular", m_IsInfinite, PROPTYPE_BOOL, 0, 1},
+			{0}};
+		
+		int NewVal = 0;
+		int Prop = DoProperties(&Slot, aProps, s_aIds, &NewVal);
+		
+		if(Prop != -1)
+			m_Map.m_Modified = true;
+		
+		if (Prop == 0)
+			m_IsInfinite = NewVal;
+	}
+	
+	if (m_HighlightTimer > 0.0f)
+	{
+		m_HighlightTimer -= 0.0025f;
+		if (m_HighlightTimer <= 0.0f)
+		{
+			m_HighlightTimer = 0.0f;
+			m_HighlightedChunk = -1;
+		}
+	}
+	
+	
+	// settings for modular maps
+	if (m_IsInfinite)
+	{
+		{
+			LayersBox.HSplitTop(12.0f, &Slot, &LayersBox);
+			LayersBox.HSplitTop(12.0f, &Slot, &LayersBox);
+			
+			// if map is infinite or not
+			static int s_aIds[1] = {0};
+			CProperty aProps[] = {
+				{"Chunk Size", m_ChunkSize, PROPTYPE_INT_SCROLL, 8, 128},
+				{0}};
+			
+			int NewVal = 0;
+			int Prop = DoProperties(&Slot, aProps, s_aIds, &NewVal);
+			
+			if(Prop != -1)
+				m_Map.m_Modified = true;
+			
+			if (Prop == 0)
+				m_ChunkSize = NewVal;			
+		}
+		
+		{
+			LayersBox.HSplitTop(12.0f, &Slot, &LayersBox);
+			LayersBox.HSplitTop(12.0f, &Slot, &LayersBox);
+
+			static int s_DisplayInfiniteButton = 0;
+			if(DoButton_Editor(&s_DisplayInfiniteButton, "Display Infinity", 0, &Slot, 0, "Shows infinite modular version of the map"))
+			{
+				SwitchInfinity();
+			}
+		}
+		
+		UpdateModularRules();
+		
+		// modular generation rule changes
+		{
+			LayersBox.HSplitTop(12.0f, &Slot, &LayersBox);
+			LayersBox.HSplitTop(12.0f, &Slot, &LayersBox);
+			
+			// if map is infinite or not
+			static int s_aIds[1] = {0};
+			CProperty aProps[] = {
+				{"Chunk", m_SelectedChunk, PROPTYPE_INT_STEP, 0, m_MapChunks},
+				{0}};
+			
+			int NewVal = 0;
+			int Prop = DoProperties(&Slot, aProps, s_aIds, &NewVal);
+			
+			if(Prop != -1)
+			{
+				m_Map.m_Modified = true;
+				m_SelectedChunk = NewVal;
+			
+				if (m_SelectedChunk > m_MapChunks)
+					m_SelectedChunk = m_MapChunks;
+				
+				if (m_SelectedChunk < 0)
+					m_SelectedChunk = 0;
+			}
+		}
+		
+		// simple user defined modular generation ruleset
+		if (m_apChunkRule)
+		{
+			//for (int i = 0; i < 4; i++)
+			{
+				LayersBox.HSplitTop(12.0f, &Slot, &LayersBox);
+				LayersBox.HSplitTop(12.0f, &Slot, &LayersBox);
+				
+				// if map is infinite or not
+				static int s_aIds[4] = {0};
+				CProperty aProps[] = {
+					{"rule", m_apChunkRule[m_SelectedChunk*4+0], PROPTYPE_INT_STEP, 0, m_MapChunks},
+					{"rule", m_apChunkRule[m_SelectedChunk*4+1], PROPTYPE_INT_STEP, 0, m_MapChunks},
+					{"rule", m_apChunkRule[m_SelectedChunk*4+2], PROPTYPE_INT_STEP, 0, m_MapChunks},
+					{"rule", m_apChunkRule[m_SelectedChunk*4+3], PROPTYPE_INT_STEP, 0, m_MapChunks},
+					{0}};
+				
+				int NewVal = 0;
+				int Prop = DoProperties(&Slot, aProps, s_aIds, &NewVal);
+				
+				if(Prop != -1)
+				{
+					m_Map.m_Modified = true;
+					int i = Prop;
+					
+					m_apChunkRule[m_SelectedChunk*4+i] = NewVal;
+				
+					if (m_apChunkRule[m_SelectedChunk*4+i] > m_MapChunks)
+						m_apChunkRule[m_SelectedChunk*4+i] = m_MapChunks;
+					
+					if (m_apChunkRule[m_SelectedChunk*4+i] < 0)
+						m_apChunkRule[m_SelectedChunk*4+i] = 0;
+					
+					m_HighlightedChunk = m_apChunkRule[m_SelectedChunk*4+i];
+					m_HighlightTimer = 1.0f;
+				}
+			}
+		}
+	}
+}
+
+
+void CEditor::UpdateModularRules()
+{
+	if (m_ChunkSize <= 0)
+		return;
+	
+	int NewSize = m_Map.m_pGameLayer->m_Width / m_ChunkSize;
+
+	/*
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf),"chunks: %d", NewSize);
+	Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "editor", aBuf);
+	*/
+	
+	if (NewSize != m_MapChunks)
+	{
+		// copy or create rules
+		if (!m_apChunkRule)
+		{
+			m_apChunkRule = new int[(NewSize+1)*4];
+			
+			for (int i = 0; i < (NewSize+1)*4; i++)
+				m_apChunkRule[i] = 0;
+		}
+		else
+		{
+			int *apNewRule = new int[(NewSize+1)*4];
+			
+			for (int i = 0; i < (NewSize+1)*4; i++)
+				apNewRule[i] = 0;
+			
+			for (int i = 0; i < min(m_MapChunks, NewSize)*4; i++)
+				apNewRule[i] = m_apChunkRule[i];
+			
+			delete m_apChunkRule;
+			m_apChunkRule = apNewRule;
+		}
+		
+		m_MapChunks	= NewSize;
+	}
+	
+}
+
+
+void CEditor::SwitchInfinity()
+{
+	Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "editor", "Switch Infinity");
+	m_DisplayInfinity = !m_DisplayInfinity;
+	
+	for(int i = 0; i < m_Map.m_lGroups.size(); ++i)
+		for(int j = 0; j < m_Map.m_lGroups[i]->m_lLayers.size(); ++j)
+			if(m_Map.m_lGroups[i]->m_lLayers[j]->m_Type == LAYERTYPE_TILES)
+			{
+				CLayerTiles *pLayer = static_cast<CLayerTiles *>(m_Map.m_lGroups[i]->m_lLayers[j]);
+				
+				if (m_DisplayInfinity)
+					pLayer->AddInfinity(m_ChunkSize, m_MapChunks, m_apChunkRule);
+				else
+					pLayer->RemoveInfinity();
+			}
 }
 
 void CEditor::ReplaceImage(const char *pFileName, int StorageType, void *pUser)

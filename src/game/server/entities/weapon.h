@@ -122,6 +122,8 @@ protected:
 private:
 	int m_LastNoAmmoSound;
 	
+	bool ElectroWallScan();
+	
 	void SelfDestruct();
 	
 	int m_BombDisarmCounter;

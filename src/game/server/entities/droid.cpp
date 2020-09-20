@@ -227,6 +227,8 @@ void CDroid::Snap(int SnappingClient)
 	if(NetworkClipped(SnappingClient))
 		return;
 
+	m_SnapTick = Server()->Tick();
+
 	CNetObj_Droid *pP = static_cast<CNetObj_Droid *>(Server()->SnapNewItem(NETOBJTYPE_DROID, m_ID, sizeof(CNetObj_Droid)));
 	if(!pP)
 		return;

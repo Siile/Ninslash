@@ -270,7 +270,7 @@ class CMenus : public CComponent
 	void RenderLanguageSelection(CUIRect MainView);
 	void RenderSettingsGeneral(CUIRect MainView);
 	void RenderSettingsPlayer(CUIRect MainView);
-	void RenderSettingsTee(CUIRect MainView);
+	void RenderCustomization(CUIRect MainView);
 	void RenderSettingsControls(CUIRect MainView);
 	void RenderSettingsGraphics(CUIRect MainView);
 	void RenderSettingsSound(CUIRect MainView);
@@ -283,6 +283,8 @@ class CMenus : public CComponent
 	void SetActive(bool Active);
 	
 	void SetClientRandomSkin();
+	
+	void SaveSkin();
 	
 public:
 	void RenderBackground();

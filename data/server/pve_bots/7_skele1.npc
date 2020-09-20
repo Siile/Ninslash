@@ -1,0 +1,14 @@
+level: 7
+blood-color: black
+
+head: bone
+body: skele
+hand: bone
+foot: bone
+topper: none
+eye: skeletor
+
+skin-color: 255
+topper-color: 255
+body-color: 255
+foot-color: 255

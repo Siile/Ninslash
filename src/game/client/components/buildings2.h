@@ -13,6 +13,8 @@ class CBuildings2 : public CComponent
 	void RenderJumppad(const struct CNetObj_Building *pCurrent);
 	void RenderGenerator(const struct CNetObj_Building *pCurrent, const struct CNetObj_Building *pPrev);
 	
+	void RenderElectroWall(const struct CNetObj_LaserFail *pCurrent);
+	
 	void RenderBuildMode();
 
 public:

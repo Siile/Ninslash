@@ -69,11 +69,17 @@ protected:
 	int m_ObjType;
 	bool m_Damageable;
 	
+	// used for storing entities away in infinite maps
+	int m_SnapTick;
+	bool m_Stored;
+	
 public:
 	CEntity(CGameWorld *pGameWorld, int Objtype);
 	virtual ~CEntity();
 
 	int GetType() { return m_ObjType; }
+	
+	//bool Store();
 	
 	bool IsDamageable() { return m_Damageable; }
 	

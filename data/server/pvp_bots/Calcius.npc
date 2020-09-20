@@ -1,0 +1,15 @@
+name: Calcius
+
+head: bone
+body: skele
+hand: bone
+foot: bone
+topper: horn
+eye: skeletor
+
+skin-color: 7733503
+topper-color: 65535
+body-color: 7995647
+foot-color: 1310887
+
+blood-color: black

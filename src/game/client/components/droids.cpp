@@ -207,6 +207,8 @@ void CDroids::RenderCrawler(const CNetObj_Droid *pPrev, const CNetObj_Droid *pCu
 
 	if (pCurrent->m_Type == DROIDTYPE_BOSSCRAWLER && pCurrent->m_Status == DROIDSTATUS_TERMINATED)
 		m_pClient->m_pEffects->Electrospark(Pos + vec2(frandom()-frandom(), frandom()-frandom())*frandom()*140, 64 + frandom()*64, vec2(frandom()-frandom(), frandom()-frandom()) * 20.0f);
+	
+	m_pClient->m_pEffects->SimpleLight(Pos + vec2(0, -26), vec4(0.5f, 1.0f, 1.0f, 0.5f), 100);
 }
 
 

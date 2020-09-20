@@ -28,17 +28,7 @@ class IGameController
 
 	class CGameContext *m_pGameServer;
 	class IServer *m_pServer;
-	
-	// store pickup pointers
-	class CPickup *m_apPickup[MAX_PICKUPS];
-	int m_PickupCount;
-	bool m_DroppablesCreated;
-	
-	// for item drops
-	int m_PickupDropCount;
-	
-	void CreateDroppables();
-	
+
 protected:
 	int m_ClearBroadcastTick;
 
@@ -103,7 +93,11 @@ protected:
 	int m_aTeamscore[2];
 
 	int m_Warmup;
+	int m_GameVote;
 	int m_RoundCount;
+	
+	void SendGameVotes();
+	void ResetGameVotes();
 
 	int m_GameFlags;
 	int m_UnbalancedTick;
@@ -130,6 +124,12 @@ public:
 	
 	int m_LastBallToucher;
 	
+	void RestoreEntity(int ObjType, int Type, int Subtype, int x, int y);
+	
+	bool GameVoting() { return m_GameVote == 1; }
+	
+	int GetVoteTime();
+	
 	// CSTT & CSBB
 	int GetRoundState(){ return m_GameState; }
 	int GetRound(){ return m_Round; }
@@ -155,7 +155,6 @@ public:
 	int m_BombStatus;
 	vec2 m_BombPos;
 	
-	void SetPickup(vec2 Pos, int PickupType, int PickupSubtype, int Amount = 1);
 	void DropPickup(vec2 Pos, int PickupType, vec2 Force, int PickupSubtype, float Ammo = -1.0f, int PowerLevel = 0);
 	void DropWeapon(vec2 Pos, vec2 Force, class CWeapon *pWeapon);
 	
@@ -183,6 +182,7 @@ public:
 	virtual void NextLevel(int CID = -1);
 	
 	bool IsCoop() const;
+	bool IsSurvival() const;
 	bool IsTeamplay() const;
 	bool IsInfection() const;
 	bool IsGameOver() const { return m_GameOverTick != -1; }
@@ -277,6 +277,9 @@ public:
 	virtual int CountBases(int Team = -1);
 	
 	virtual void OnPlayerInfoChange(class CPlayer *pP);
+	
+	
+	virtual void AddEnemy(vec2 Pos);
 
 	//
 	virtual bool CanSpawn(int Team, vec2 *pPos, bool IsBot = false);

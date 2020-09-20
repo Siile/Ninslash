@@ -1,5 +1,3 @@
-
-
 #ifndef GAME_LAYERS_H
 #define GAME_LAYERS_H
 
@@ -12,9 +10,16 @@ class CLayers
 	int m_GroupsStart;
 	int m_LayersNum;
 	int m_LayersStart;
+	int m_ModularInfoNum;
+	int m_ModularInfoStart;
+	int m_RulesNum;
+	int m_RulesStart;
 	CMapItemGroup *m_pGameGroup;
 	CMapItemLayerTilemap *m_pGameLayer;
 	class IMap *m_pMap;
+	
+	int *m_apChunkRule;
+	class CMapChunk *m_pMapChunk;
 	
 	// MapGen: Direct layer access
 	int m_GameGroupIndex;
@@ -46,6 +51,10 @@ public:
 	CMapItemLayerTilemap *GameLayer() const { return m_pGameLayer; };
 	CMapItemGroup *GetGroup(int Index) const;
 	CMapItemLayer *GetLayer(int Index) const;
+	CMapModularInfo *GetModularInfo(int Index) const;
+	CMapRule *GetRule(int Index) const;
+
+	class CMapChunk *GetMapChunk() const { return m_pMapChunk; }
 
 	// MapGen: Direct layer access
 	int GetGameGroupIndex() const { return m_GameGroupIndex; }

@@ -106,6 +106,51 @@ void CWeapons::RenderWeapon(const CNetObj_Weapon *pPrev, const CNetObj_Weapon *p
 	
 	Graphics()->QuadsEnd();
 	Graphics()->ShaderEnd();
+	
+	
+	if (GetStaticType(pCurrent->m_WeaponType) == SW_AREASHIELD)
+	{
+		float c = cos(CustomStuff()->m_SawbladeAngle*0.25f)*0.3f + 0.7f;
+		
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_GENERATOR_SHIELD].m_Id);
+		Graphics()->QuadsBegin();
+		Graphics()->QuadsSetRotation(Angle);
+		
+		/*
+		//team color
+		if (m_pClient->m_Snap.m_pGameInfoObj)
+		{
+			int Flags = m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags;
+			int Team = pCurrent->m_Team;
+		
+			if ((Flags & GAMEFLAG_TEAMS) && !(Flags & GAMEFLAG_INFECTION))
+			{
+				if (Team == TEAM_RED)
+					Graphics()->SetColor(1, 0.5f + c*0.5f, 0.5f, 0.5f);
+				else if (Team == TEAM_BLUE)
+					Graphics()->SetColor(0.5f, 0.5f + c*0.5f, 1, 0.5f);
+			}
+			else if (Team == TEAM_RED)
+			{
+				vec4 pc = CustomStuff()->m_LocalColor;
+				Graphics()->SetColor(0.5f+pc.r*0.5f, 0.5f+pc.g*0.5f, 0.5f+pc.b*0.5f, 0.5f);
+			}
+			else
+				Graphics()->SetColor(0.0f, 0.5f+c*0.5f, 1, 0.5f);
+		}
+		else
+			*/
+			
+		float a = clamp(Phase1Tick * 0.02f, 0.0f, 1.0f);
+		Graphics()->SetColor(0.5f, 0.5f+c*0.5f, 1, 0.5f*a*a);
+		
+		//Graphics()->SetColor(0, 0.5f+c*0.5f, 1, 0.5f);
+		RenderTools()->SelectSprite(SPRITE_GENERATOR_SHIELD);
+		RenderTools()->DrawSprite(Pos.x, Pos.y, (512+40.0f*c));
+		Graphics()->QuadsEnd();
+		
+		m_pClient->m_pEffects->SimpleLight(Pos, vec4(0.5f, 0.5f+c*0.5f, 1, 0.5f), 512+40.0f*c);
+	}
 }
 
 

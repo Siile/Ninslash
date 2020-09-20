@@ -1,0 +1,14 @@
+level: 4
+blood-color: black
+
+head: default
+body: simple
+hand: gray
+foot: default
+topper: tigger
+eye: gas2
+
+skin-color: 10196224
+topper-color: 255
+body-color: 2621184
+foot-color: 65280

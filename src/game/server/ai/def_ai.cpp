@@ -13,7 +13,6 @@ CAIdef::CAIdef(CGameContext *pGameServer, CPlayer *pPlayer)
 : CAI(pGameServer, pPlayer)
 {
 	m_SkipMoveUpdate = 0;
-	pPlayer->SetRandomSkin();
 	m_State = AISTATE_IDLE;
 }
 
@@ -23,7 +22,6 @@ void CAIdef::OnCharacterSpawn(CCharacter *pChr)
 	CAI::OnCharacterSpawn(pChr);
 	m_PowerLevel = g_Config.m_SvBotLevel;
 	m_WaypointDir = vec2(0, 0);
-	Player()->SetRandomSkin();
 	m_State = AISTATE_FINDSHOP;
 	m_StateTimer = 0;
 	m_Shopped = false;

@@ -1,0 +1,15 @@
+name: Killbot
+
+head: robo
+body: robo
+hand: robo
+foot: robo
+topper: none
+eye: robo1
+
+skin-color: 137
+topper-color: 255
+body-color: 172
+foot-color: 162
+
+blood-color: black

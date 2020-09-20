@@ -79,7 +79,10 @@ bool CLaser::HitScythe(vec2 From, vec2 To)
 	//vec2 d = (pHit->m_Pos+vec2(0, -24))-From;
 	//d += vec2(frandom()-frandom(), frandom()-frandom()) * length(d) * 0.4f;
 	//m_Dir = -normalize(d);
-	m_Dir = normalize(vec2(frandom()-0.5f, frandom()-0.5f));
+	//m_Dir = normalize(vec2(frandom()-0.5f, frandom()-0.5f));
+	
+	vec2 d = (pHit->m_Pos+vec2(0, -24)) - From;
+	m_Dir = GameServer()->Collision()->Reflect(m_Dir, normalize(d));
 	
 	GameServer()->CreateBuildingHit(m_Pos);
 	m_IgnoreScythe = pHit->GetPlayer()->GetCID();
@@ -170,8 +173,11 @@ void CLaser::DoBounce()
 	}
 
 	vec2 To = m_Pos + m_Dir * m_Energy;
+	vec2 ColPos;
 
-	if(GameServer()->Collision()->IntersectLine(m_Pos, To, 0x0, &To))
+	int Collision = GameServer()->Collision()->IntersectLine(m_Pos, To, &ColPos, &To);
+	
+	if(Collision)
 	{
 		if(!HitScythe(m_Pos, To))
 		{
@@ -185,12 +191,16 @@ void CLaser::DoBounce()
 						m_From = m_Pos;
 						m_Pos = To;
 
+						/*
 						vec2 TempPos = m_Pos;
 						vec2 TempDir = m_Dir * 4.0f;
 
 						GameServer()->Collision()->MovePoint(&TempPos, &TempDir, 1.0f, 0);
 						m_Pos = TempPos;
 						m_Dir = normalize(TempDir);
+						*/
+						
+						m_Dir = GameServer()->Collision()->WallReflect(ColPos, m_Dir, Collision);
 
 						m_Energy -= distance(m_From, m_Pos) + GameServer()->Tuning()->m_LaserBounceCost;
 						m_Bounces++;

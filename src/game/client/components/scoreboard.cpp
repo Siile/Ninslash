@@ -19,6 +19,7 @@
 #include <game/client/customstuff.h>
 
 #include "scoreboard.h"
+#include "gamevote.h"
 
 
 CScoreboard::CScoreboard()
@@ -343,7 +344,10 @@ void CScoreboard::OnRender()
 {
 	if(!Active())
 		return;
-
+	
+	if (m_pClient->m_pGameVoteDisplay->IsActive())
+		return;
+	
 	// if the score board is active, then we should clear the motd message aswell
 	if(m_pClient->m_pMotd->IsActive())
 		m_pClient->m_pMotd->Clear();

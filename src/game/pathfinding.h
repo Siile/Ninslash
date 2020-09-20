@@ -28,7 +28,7 @@ public:
 		else
 			m_pNext = P;		
 	}
-	
+	/*
 	CWaypointPath(vec2 Pos, CWaypointPath *Next = 0)
 	{
 		m_Pos = Pos;
@@ -42,6 +42,27 @@ public:
 			m_DistanceToNext = distance(Pos, m_pNext->m_Pos);
 		else
 			m_DistanceToNext = 0;
+	}
+	*/
+	
+	CWaypointPath(vec2 Pos)
+	{
+		m_Pos = Pos;
+		m_pNext = 0;
+		m_pParent = 0;
+		m_DistanceToNext = 0;
+	}
+	
+	void Add(vec2 Pos)
+	{
+		if (m_pNext)
+			m_pNext->Add(Pos);
+		else
+		{
+			m_pNext = new CWaypointPath(Pos);
+			m_pNext->m_pParent = this;
+			m_DistanceToNext = distance(Pos, m_pNext->m_Pos);
+		}
 	}
 	
 	~CWaypointPath()

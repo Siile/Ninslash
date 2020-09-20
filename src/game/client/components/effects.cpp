@@ -278,7 +278,7 @@ void CEffects::Spark(vec2 Pos)
 	b.SetDefault();
 	b.m_Pos = Pos;
 	b.m_Size = 0.5f + frandom();
-	b.m_LifeSpan = 0.1f + frandom()*0.2f;
+	b.m_LifeSpan = 0.1f + frandom()*0.3f;
 	b.m_Rotspeed = frandom()*12.0f - frandom()*12.0f;
 	b.m_Vel = RandomDir() * ((frandom()+0.165f)*500.0f);
 	b.m_Rot = GetAngle(b.m_Vel);
@@ -447,22 +447,25 @@ void CEffects::AmmoFill(vec2 Pos, int Weapon)
 	m_pClient->m_pParticles->Add(CParticles::GROUP_CRAFTING, &p);
 }
 
-void CEffects::Light(vec2 Pos, float Size)
+void CEffects::SimpleLight(vec2 Pos, vec4 Color, float Size)
 {
-	//if(!m_Add50hz)
-	//	return;
+	m_pClient->m_pLight->AddSimpleLight(Pos, Color, vec2(Size, Size));
+}
 
-	CLightsource l;
-	l.SetDefault();
-	l.m_Pos = Pos;
-	l.m_Size = Size;
-	m_pClient->m_pLight->Add(CLight::GROUP_LIGHTSOURCE, &l);
+void CEffects::SimpleLight(vec2 Pos, vec4 Color, vec2 Size)
+{
+	m_pClient->m_pLight->AddSimpleLight(Pos, Color, Size);
+}
+
+void CEffects::BoxLight(vec2 Pos, vec4 Color, vec2 Size, float Rot)
+{
+	m_pClient->m_pLight->AddBoxLight(Pos, Color, Size, Rot);
 }
 
 void CEffects::SmokeTrail(vec2 Pos, vec2 Vel)
 {
-	if(!m_Add50hz)
-		return;
+	//if(!m_Add50hz)
+	//	return;
 
 	CParticle p;
 	p.SetDefault();
@@ -481,8 +484,8 @@ void CEffects::SmokeTrail(vec2 Pos, vec2 Vel)
 
 void CEffects::SkidTrail(vec2 Pos, vec2 Vel)
 {
-	if(!m_Add100hz)
-		return;
+	//if(!m_Add100hz)
+	//	return;
 
 	CParticle p;
 	p.SetDefault();
@@ -500,8 +503,8 @@ void CEffects::SkidTrail(vec2 Pos, vec2 Vel)
 
 void CEffects::Triangle(vec2 Pos, vec2 Vel)
 {
-	if(!m_Add100hz)
-		return;
+	//if(!m_Add100hz)
+	//	return;
 
 	CParticle p;
 	p.SetDefault();
@@ -522,8 +525,8 @@ void CEffects::Triangle(vec2 Pos, vec2 Vel)
 
 void CEffects::Flame(vec2 Pos, vec2 Vel, float Alpha, bool IgnoreCollision)
 {
-	if(!m_Add100hz)
-		return;
+	//if(!m_Add100hz)
+	//	return;
 
 	CParticle p;
 	p.SetDefault();
@@ -1135,7 +1138,7 @@ void CEffects::SpriteExplosion(vec2 Pos, float Size, int Sprite)
 		p.m_Spr = SPRITE_PART_SMOKE;
 		p.m_Pos = Pos;
 		p.m_Vel = RandomDir() * ((1.0f + frandom()*0.2f) * 1000.0f);
-		p.m_LifeSpan = 0.5f + frandom()*0.4f;
+		p.m_LifeSpan = 1.0f + frandom()*0.6f;
 		p.m_StartSize = (32.0f + frandom()*8);
 		p.m_EndSize = 0;
 		p.m_Gravity = frandom()*-800.0f;
@@ -1154,7 +1157,7 @@ void CEffects::SpriteSmoke(vec2 Pos, float Size, vec4 Color)
 	p.m_Spr = SPRITE_PART_SMOKE;
 	p.m_Pos = Pos;
 	p.m_Vel = RandomDir() * ((1.0f + frandom()*0.2f) * 20.0f * Size);
-	p.m_LifeSpan = 0.5f + frandom()*0.4f;
+	p.m_LifeSpan = 1.0f + frandom()*0.6f;
 	p.m_StartSize = (Size + frandom()*8);
 	p.m_EndSize = 0;
 	p.m_Gravity = frandom()*-20.0f * Size;
@@ -1361,7 +1364,7 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 					p.m_Spr = SPRITE_PART_SMOKE;
 					p.m_Pos = Pos;
 					p.m_Vel = RandomDir() * ((1.0f + frandom()*0.2f) * (1000.0f*GetProjectileSize(Weapon)));
-					p.m_LifeSpan = 0.5f + frandom()*0.4f;
+					p.m_LifeSpan = 1.0f + frandom()*0.6f;
 					p.m_StartSize = (32.0f + frandom()*8)*GetProjectileSize(Weapon);
 					p.m_EndSize = 0;
 					p.m_Gravity = frandom()*-800.0f;
@@ -1464,7 +1467,7 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 			p.m_Spr = SPRITE_PART_SMOKE;
 			p.m_Pos = Pos;
 			p.m_Vel = RandomDir() * ((1.0f + frandom()*0.2f) * (1000.0f*GetProjectileSize(Weapon)));
-			p.m_LifeSpan = 0.5f + frandom()*0.4f;
+			p.m_LifeSpan = 1.0f + frandom()*0.6f;
 			p.m_StartSize = (32.0f + frandom()*8)*GetProjectileSize(Weapon);
 			p.m_EndSize = 0;
 			p.m_Gravity = frandom()*-800.0f;
@@ -1584,10 +1587,10 @@ void CEffects::ChainsawSmoke(vec2 Pos)
 		p.m_Spr = SPRITE_PART_SMOKE;
 		p.m_Pos = Pos;
 		p.m_Vel = vec2((frandom()-frandom()) * 0.5f, -1.0f) * ((1.0f + frandom()*0.2f) * 350.0f);
-		p.m_LifeSpan = 0.2f + frandom()*0.2f;
+		p.m_LifeSpan = 0.4f + frandom()*0.2f;
 		p.m_StartSize = 14.0f + frandom()*4;
 		p.m_EndSize = 0;
-		p.m_Gravity = frandom()*-700.0f;
+		p.m_Gravity = frandom()*-600.0f;
 		p.m_Friction = 0.4f;
 		p.m_Color = mix(vec4(0.75f,0.75f,0.75f,0.3f), vec4(0.5f,0.5f,0.5f,0.3f), frandom());
 		m_pClient->m_pParticles->Add(CParticles::GROUP_GENERAL, &p);
@@ -1604,7 +1607,7 @@ void CEffects::FlameExplosion(vec2 Pos)
 		p.m_Spr = SPRITE_PART_SMOKE;
 		p.m_Pos = Pos;
 		p.m_Vel = RandomDir() * ((1.0f + frandom()*0.2f) * 300.0f);
-		p.m_LifeSpan = 0.5f + frandom()*0.4f;
+		p.m_LifeSpan = 1.0f + frandom()*0.6f;
 		p.m_StartSize = 32.0f + frandom()*8;
 		p.m_EndSize = 0;
 		p.m_Gravity = frandom()*-800.0f;
@@ -1647,6 +1650,22 @@ void CEffects::SwordHit(vec2 Pos, float Angle, bool Flip, float Charge)
 	p.m_Flip = Flip;
 	p.m_Color = vec4(0.5f+Charge*0.25f, 1.0f, 0.5f+Charge*0.5f, 1.0f);
 	m_pClient->m_pParticles->Add(CParticles::GROUP_SWORDHITS, &p);
+}
+
+void CEffects::ClawHit(vec2 Pos, float Angle, bool Flip, float Charge)
+{
+	CParticle p;
+	p.SetDefault();
+	p.m_Spr = SPRITE_CLAWHIT1;
+	p.m_Frames = 3;
+	p.m_Pos = Pos;
+	p.m_LifeSpan = 0.12f;
+	p.m_StartSize = 90+Charge*40.0f;
+	p.m_EndSize = 90+Charge*40.0f;
+	p.m_Rot = Angle;
+	p.m_Flip = Flip;
+	p.m_Color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	m_pClient->m_pParticles->Add(CParticles::GROUP_CLAWHITS, &p);
 }
 
 void CEffects::OnRender()

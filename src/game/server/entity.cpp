@@ -23,6 +23,8 @@ CEntity::CEntity(CGameWorld *pGameWorld, int ObjType)
 	
 	m_Center = vec2(0, 0);
 	m_Damageable = false;
+	m_SnapTick = 0;
+	m_Stored = false;
 }
 
 CEntity::~CEntity()
@@ -54,6 +56,8 @@ int CEntity::NetworkClipped(int SnappingClient, vec2 CheckPos)
 
 bool CEntity::GameLayerClipped(vec2 CheckPos)
 {
-	return round_to_int(CheckPos.x)/32 < -200 || round_to_int(CheckPos.x)/32 > GameServer()->Collision()->GetWidth()+200 ||
-			round_to_int(CheckPos.y)/32 < -200 || round_to_int(CheckPos.y)/32 > GameServer()->Collision()->GetHeight()+200 ? true : false;
+	return round_to_int(CheckPos.x)/32 < -200 || round_to_int(CheckPos.y)/32 < -200 || round_to_int(CheckPos.y)/32 > GameServer()->Collision()->GetHeight()+200 ? true : false;
+			
+	//return round_to_int(CheckPos.x)/32 < -200 || round_to_int(CheckPos.x)/32 > GameServer()->Collision()->GetWidth()+200 ||
+	//		round_to_int(CheckPos.y)/32 < -200 || round_to_int(CheckPos.y)/32 > GameServer()->Collision()->GetHeight()+200 ? true : false;
 }

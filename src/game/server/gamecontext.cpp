@@ -16,6 +16,7 @@
 #include "gamemodes/ctf.h"
 #include "gamemodes/run.h"
 #include "gamemodes/base.h"
+#include "gamemodes/roam.h"
 #include "gamemodes/texasrun.h"
 
 #include <game/server/entities/ball.h>
@@ -32,6 +33,7 @@
 #include <game/server/entities/weapon.h>
 
 #include <game/server/playerdata.h>
+#include <game/server/blockentities.h>
 
 #include <game/server/ai_protocol.h>
 #include <game/server/ai.h>
@@ -230,6 +232,17 @@ void CGameContext::CreateHammerHit(vec2 Pos)
 	}
 }
 
+
+bool CGameContext::GetRoamSpawnPos(vec2 *Pos)
+{
+	if (!m_pBlockEntities)
+		return false;
+	
+	m_pBlockEntities = m_pBlockEntities->GetBlockEntities(this, Pos->x, false);
+	
+	return m_pBlockEntities->GetSpawn(Pos);
+}
+	
 
 int CGameContext::CreateDeathray(vec2 Pos)
 {
@@ -688,7 +701,7 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int Charge, vec
 	
 	if (IsStaticWeapon(Weapon))
 	{
-		if (GetStaticType(Weapon) == SW_SHURIKEN || GetStaticType(Weapon) == SW_CHAINSAW || (IsStaticWeapon(Weapon) && GetStaticType(Weapon) == SW_TOOL))
+		if (GetStaticType(Weapon) == SW_SHURIKEN || GetStaticType(Weapon) == SW_CHAINSAW || (IsStaticWeapon(Weapon) && (GetStaticType(Weapon) == SW_TOOL || GetStaticType(Weapon) == SW_CLAW)))
 		{
 			CreateMeleeHit(DamageOwner, Weapon, Dmg, Pos, Direction, WeaponPos);
 			return;
@@ -1113,6 +1126,127 @@ void CGameContext::SendWeaponPickup(int ClientID, int Weapon)
 }
 
 
+void CGameContext::ResetGameVotes()
+{
+	Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "GameContext", "Resetting gamevotes");
+	Server()->ResetGameVoting();
+	
+	for (int i = 0; i < MAX_CLIENTS; i++)
+		m_aPlayerGameVote[i] = -1;
+	
+	for (int i = 0; i < 6; i++)
+	{
+		if (!Server()->GetGameVote(&m_aGameVote[i], m_pController->CountHumans()))
+			return;
+	}
+}
+
+
+void CGameContext::RegisterGameVote(int ClientID, int Vote)
+{
+	if (ClientID < 0 || ClientID >= MAX_CLIENTS || Vote < 0 || Vote >= 6)
+		return;
+	
+	m_aPlayerGameVote[ClientID] = Vote;
+	
+	SendGameVoteStats();
+}
+	
+void CGameContext::SendGameVoteStats()
+{
+	int aVotes[6] = {0, 0, 0, 0, 0, 0};
+
+	// count
+	for (int i = 0; i < MAX_CLIENTS; i++)
+		if (m_aPlayerGameVote[i] >= 0 && m_aPlayerGameVote[i] < 6)
+			aVotes[m_aPlayerGameVote[i]]++;
+	
+	// send
+	CNetMsg_Sv_VoteStatus Msg = {0};
+	Msg.m_Type = 1;
+	Msg.m_Yes = aVotes[0];
+	Msg.m_No = aVotes[1];
+	Msg.m_Pass = aVotes[2];
+	Msg.m_Total = aVotes[3];
+	Msg.m_Option5 = aVotes[4];
+	Msg.m_Option6 = aVotes[5];
+
+	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
+}
+
+
+const char *CGameContext::GetVoteWinnerConfig()
+{
+	int aVotes[6] = {0, 0, 0, 0, 0, 0};
+
+	// count
+	for (int i = 0; i < MAX_CLIENTS; i++)
+		if (m_aPlayerGameVote[i] >= 0 && m_aPlayerGameVote[i] < 6)
+			aVotes[m_aPlayerGameVote[i]]++;
+	
+	int Biggest = 0;
+	
+	for (int i = 0; i < 6; i++)
+		if (aVotes[i] > Biggest)
+			Biggest = aVotes[i];
+	
+	int j = 0;
+	int i = rand()%6;
+	
+	while (aVotes[i] < Biggest && j++ < 1000)
+	{
+		i = rand()%6;
+	}
+	
+	if (!m_aGameVote[i].m_Valid)
+		return "reload";
+	else
+	{
+		char aBuf[128];
+		str_format(aBuf, sizeof(aBuf), "exec %s.cfg", m_aGameVote[i].m_aConfig);
+		Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "GetVoteWinnerConfig", aBuf);
+		return static_cast < const char * > (aBuf);
+	}
+}
+
+	
+void CGameContext::SendGameVotes(int ClientID)
+{
+	Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "GameContext", "Sending gamevotes");
+	for (int i = 0; i < 6; i++)
+	{
+		if (m_aGameVote[i].m_Valid)
+		{
+			CNetMsg_Sv_GameVote Msg;
+			Msg.m_pName = m_aGameVote[i].m_aName;
+			Msg.m_pDescription = m_aGameVote[i].m_aDescription;
+			Msg.m_pImage = m_aGameVote[i].m_aImage;
+			Msg.m_pPlayers = "";
+			Msg.m_Index = i;
+			Msg.m_TimeLeft = m_pController->GetVoteTime();
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+			
+			Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "GameContext", "Sending gamevote");
+		}
+	}
+	
+	/*
+	CNetMsg_Sv_Broadcast Msg;
+	Msg.m_pMessage = pText;
+	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+	if(ClientID < 0)
+	{
+		if(Lock)
+			m_BroadcastLockTick = Server()->Tick() + g_Config.m_SvBroadcastLock * Server()->TickSpeed();
+	}
+	else
+	{
+		str_copy(m_apPlayers[ClientID]->m_aBroadcast, Lock ? pText : "", sizeof(m_apPlayers[ClientID]->m_aBroadcast));
+		m_apPlayers[ClientID]->m_BroadcastLockTick = Lock ? Server()->Tick() : 0;
+	}
+	*/
+}
+
 void CGameContext::SendBroadcast(const char *pText, int ClientID, bool Lock)
 {
 	CNetMsg_Sv_Broadcast Msg;
@@ -1189,6 +1323,7 @@ void CGameContext::SendVoteSet(int ClientID)
 void CGameContext::SendVoteStatus(int ClientID, int Total, int Yes, int No)
 {
 	CNetMsg_Sv_VoteStatus Msg = {0};
+	Msg.m_Type = 0;
 	Msg.m_Total = Total;
 	Msg.m_Yes = Yes;
 	Msg.m_No = No;
@@ -1531,6 +1666,11 @@ void CGameContext::AddZombie()
 	Server()->AddZombie();
 }
 
+void CGameContext::GetAISkin(CAISkin *pAISkin, bool PVP, int Level)
+{
+	Server()->GetAISkin(pAISkin, PVP, Level);
+}
+
 
 void CGameContext::OnClientDirectInput(int ClientID, void *pInput)
 {
@@ -1570,6 +1710,12 @@ void CGameContext::OnClientEnter(int ClientID)
 	}
 	
 	m_VoteUpdate = true;
+	
+	if (m_pController->GameVoting())
+	{
+		SendGameVotes(ClientID);
+		SendGameVoteStats();
+	}
 }
 
 void CGameContext::OnClientConnected(int ClientID, bool AI)
@@ -1596,7 +1742,9 @@ void CGameContext::OnClientConnected(int ClientID, bool AI)
 	}
 	
 	if (!AI)
+	{
 		m_pController->OnPlayerJoin();
+	}
 	
 	m_apPlayers[ClientID] = new(ClientID) CPlayer(this, ClientID, StartTeam);
 	//players[client_id].init(client_id);
@@ -1625,6 +1773,13 @@ void CGameContext::OnClientConnected(int ClientID, bool AI)
 	CNetMsg_Sv_Motd Msg;
 	Msg.m_pMessage = g_Config.m_SvMotd;
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+	*/
+	/*
+	if (!AI)
+	{
+		if (m_pController->GameVoting())
+			SendGameVotes(ClientID);
+	}
 	*/
 }
 
@@ -1793,6 +1948,27 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			if ( strcmp(pMsg->m_pMessage, "/playercount") == 0 )
 			{
 				char aBuf[128]; str_format(aBuf, sizeof(aBuf), "Number of player profiles in Invasion: %d", Server()->GetPlayerCount());
+				SendChatTarget(ClientID, aBuf);
+				SkipSending = true;
+			}
+			
+			if ( strcmp(pMsg->m_pMessage, "/weaponcount") == 0 )
+			{
+				char aBuf[128]; str_format(aBuf, sizeof(aBuf), "Number of weapon objects: %d", m_World.FindEntities(vec2(0, 0), 0.0f, NULL, 99999, CGameWorld::ENTTYPE_WEAPON));
+				SendChatTarget(ClientID, aBuf);
+				SkipSending = true;
+			}
+			
+			if ( strcmp(pMsg->m_pMessage, "/pickups") == 0 )
+			{
+				char aBuf[128]; str_format(aBuf, sizeof(aBuf), "Number of pickups: %d", m_World.FindEntities(vec2(0, 0), 0.0f, NULL, 99999, CGameWorld::ENTTYPE_PICKUP));
+				SendChatTarget(ClientID, aBuf);
+				SkipSending = true;
+			}
+			
+			if ( strcmp(pMsg->m_pMessage, "/entities") == 0 )
+			{
+				char aBuf[128]; str_format(aBuf, sizeof(aBuf), "Number of entities: %d", m_World.CountEntities());
 				SendChatTarget(ClientID, aBuf);
 				SkipSending = true;
 			}
@@ -2097,7 +2273,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			Server()->SetClientCountry(ClientID, pMsg->m_Country);
 			str_copy(pPlayer->m_TeeInfos.m_TopperName, pMsg->m_pTopper, sizeof(pPlayer->m_TeeInfos.m_TopperName));
 			str_copy(pPlayer->m_TeeInfos.m_EyeName, pMsg->m_pEye, sizeof(pPlayer->m_TeeInfos.m_EyeName));
-			pPlayer->m_TeeInfos.m_Body = pMsg->m_Body;
+			str_copy(pPlayer->m_TeeInfos.m_HeadName, pMsg->m_pHead, sizeof(pPlayer->m_TeeInfos.m_HeadName));
+			str_copy(pPlayer->m_TeeInfos.m_BodyName, pMsg->m_pBody, sizeof(pPlayer->m_TeeInfos.m_BodyName));
+			str_copy(pPlayer->m_TeeInfos.m_HandName, pMsg->m_pHand, sizeof(pPlayer->m_TeeInfos.m_HandName));
+			str_copy(pPlayer->m_TeeInfos.m_FootName, pMsg->m_pFoot, sizeof(pPlayer->m_TeeInfos.m_FootName));
 			pPlayer->m_TeeInfos.m_ColorBody = pMsg->m_ColorBody;
 			pPlayer->m_TeeInfos.m_ColorFeet = pMsg->m_ColorFeet;
 			pPlayer->m_TeeInfos.m_ColorTopper = pMsg->m_ColorTopper;
@@ -2150,6 +2329,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			CNetMsg_Cl_UseKit *pMsg = (CNetMsg_Cl_UseKit *)pRawMsg;
 			pPlayer->UseKit(pMsg->m_Kit, vec2(pMsg->m_X, pMsg->m_Y));
 		}
+		else if (MsgID == NETMSGTYPE_CL_VOTEGAMEMODE)
+		{
+			CNetMsg_Cl_VoteGameMode *pMsg = (CNetMsg_Cl_VoteGameMode *)pRawMsg;
+			RegisterGameVote(ClientID, pMsg->m_Vote);
+		}
 		else if (MsgID == NETMSGTYPE_CL_KILL && !m_World.m_Paused)
 		{
 			if(pPlayer->m_LastKill && pPlayer->m_LastKill+Server()->TickSpeed()*1 > Server()->Tick())
@@ -2180,7 +2364,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			Server()->SetClientCountry(ClientID, pMsg->m_Country);
 			str_copy(pPlayer->m_TeeInfos.m_TopperName, pMsg->m_pTopper, sizeof(pPlayer->m_TeeInfos.m_TopperName));
 			str_copy(pPlayer->m_TeeInfos.m_EyeName, pMsg->m_pEye, sizeof(pPlayer->m_TeeInfos.m_EyeName));
-			pPlayer->m_TeeInfos.m_Body = pMsg->m_Body;
+			str_copy(pPlayer->m_TeeInfos.m_HeadName, pMsg->m_pHead, sizeof(pPlayer->m_TeeInfos.m_HeadName));
+			str_copy(pPlayer->m_TeeInfos.m_BodyName, pMsg->m_pBody, sizeof(pPlayer->m_TeeInfos.m_BodyName));
+			str_copy(pPlayer->m_TeeInfos.m_HandName, pMsg->m_pHand, sizeof(pPlayer->m_TeeInfos.m_HandName));
+			str_copy(pPlayer->m_TeeInfos.m_FootName, pMsg->m_pFoot, sizeof(pPlayer->m_TeeInfos.m_FootName));
 			pPlayer->m_TeeInfos.m_ColorBody = pMsg->m_ColorBody;
 			pPlayer->m_TeeInfos.m_ColorFeet = pMsg->m_ColorFeet;
 			pPlayer->m_TeeInfos.m_ColorTopper = pMsg->m_ColorTopper;
@@ -2662,6 +2849,14 @@ void CGameContext::ConClearVotes(IConsole::IResult *pResult, void *pUserData)
 	pSelf->m_NumVoteOptions = 0;
 }
 
+void CGameContext::ConEndRound(IConsole::IResult *pResult, void *pUserData)
+{
+	CGameContext *pSelf = (CGameContext *)pUserData;
+
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "round ending");
+	pSelf->m_pController->EndRound();
+}
+
 void CGameContext::ConVote(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
@@ -2686,12 +2881,14 @@ void CGameContext::ConchainSpecialMotdupdate(IConsole::IResult *pResult, void *p
 	pfnCallback(pResult, pCallbackUserData);
 	if(pResult->NumArguments())
 	{
+		/*
 		CNetMsg_Sv_Motd Msg;
 		Msg.m_pMessage = g_Config.m_SvMotd;
 		CGameContext *pSelf = (CGameContext *)pUserData;
 		for(int i = 0; i < MAX_CLIENTS; ++i)
 			if(pSelf->m_apPlayers[i] && !pSelf->IsBot(i))
 				pSelf->Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, i);
+			*/
 	}
 }
 
@@ -2720,9 +2917,75 @@ void CGameContext::OnConsoleInit()
 	Console()->Register("force_vote", "ss?r", CFGFLAG_SERVER, ConForceVote, this, "Force a voting option");
 	Console()->Register("clear_votes", "", CFGFLAG_SERVER, ConClearVotes, this, "Clears the voting options");
 	Console()->Register("vote", "r", CFGFLAG_SERVER, ConVote, this, "Force a vote to yes/no");
+	
+	Console()->Register("end_round", "", CFGFLAG_SERVER, ConEndRound, this, "Ends the current round");
+	
 
-	Console()->Chain("sv_motd", ConchainSpecialMotdupdate, this);
+	//Console()->Chain("sv_motd", ConchainSpecialMotdupdate, this);
 }
+
+
+void CGameContext::ActivateBlockEntities(int x)
+{
+	if (!m_pBlockEntities)
+		return;
+	
+	m_pBlockEntities = m_pBlockEntities->GetBlockEntities(this, x/32, false);
+	m_pBlockEntities = m_pBlockEntities->GetBlockEntities(this, (x-1000)/32, true);
+	m_pBlockEntities = m_pBlockEntities->GetBlockEntities(this, (x+1000)/32, true);
+}
+
+
+void CGameContext::CreateEntitiesForBlock(int block)
+{
+	CMapItemLayerTilemap *pTileMap = m_Layers.GameLayer();
+	CTile *pTiles = (CTile *)Kernel()->RequestInterface<IMap>()->GetData(pTileMap->m_Data);
+	
+	int OffX = block*m_Collision.GetChunkSize();
+	
+	for(int y = 0; y < pTileMap->m_Height; y++)
+	{
+		for(int x = 0; x < m_Collision.GetChunkSize(); x++)
+		{
+			int xx = m_Collision.GetModularPos(x+OffX);
+			int Index = pTiles[y*pTileMap->m_Width+xx].m_Index;
+
+			if (Index-ENTITY_OFFSET == ENTITY_SPAWN && m_pBlockEntities)
+			{
+				if (m_pBlockEntities->AddSpawn(vec2((x+OffX), y)))
+					Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "game", "Spawn created");
+				else
+					Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "game", "Spawn creation failure");
+			}
+			else if (Index-ENTITY_OFFSET == ENTITY_ENEMYSPAWN)
+				m_pController->AddEnemy(vec2((x+OffX)*32.0f+16.0f, y*32.0f+16.0f));
+			else if(Index >= ENTITY_OFFSET)
+			{
+				vec2 Pos((x+OffX)*32.0f+16.0f, y*32.0f+16.0f);
+				m_pController->OnEntity(Index-ENTITY_OFFSET, Pos);
+			}
+		}
+	}
+}
+
+
+bool CGameContext::StoreEntity(int ObjType, int Type, int Subtype, int x, int y)
+{
+	if (!m_Collision.IsMapModular())
+		return false;
+	
+	m_pBlockEntities = m_pBlockEntities->GetBlockEntities(this, x/32, false);
+	m_pBlockEntities->StoreEntity(ObjType, Type, Subtype, x, y);
+	
+	return true;
+}
+
+
+void CGameContext::RestoreEntity(int ObjType, int Type, int Subtype, int x, int y)
+{
+	m_pController->RestoreEntity(ObjType, Type, Subtype, x, y);
+}
+
 
 void CGameContext::OnInit(/*class IKernel *pKernel*/)
 {
@@ -2731,6 +2994,8 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	m_pStorage = Kernel()->RequestInterface<IStorage>(); // MapGen
 	m_World.SetGameServer(this);
 	m_Events.SetGameServer(this);
+	
+	m_pBlockEntities = NULL;
 
 	//if(!data) // only load once
 		//data = load_data_from_memory(internal_data);
@@ -2761,6 +3026,8 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 		m_pController = new CGameControllerCoop(this);
 	else if(str_comp(g_Config.m_SvGametype, "ball") == 0)
 		m_pController = new CGameControllerBall(this);
+	else if(str_comp(g_Config.m_SvGametype, "roam") == 0)
+		m_pController = new CGameControllerRoam(this);
 	else
 		m_pController = new CGameControllerDM(this);
 	
@@ -2796,18 +3063,30 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	num_spawn_points[2] = 0;
 	*/
 
-	for(int y = 0; y < pTileMap->m_Height; y++)
+	// create entities for non-modular maps
+	if (!m_Collision.IsMapModular())
 	{
-		for(int x = 0; x < pTileMap->m_Width; x++)
+		for(int y = 0; y < pTileMap->m_Height; y++)
 		{
-			int Index = pTiles[y*pTileMap->m_Width+x].m_Index;
-
-			if(Index >= ENTITY_OFFSET)
+			for(int x = 0; x < pTileMap->m_Width; x++)
 			{
-				vec2 Pos(x*32.0f+16.0f, y*32.0f+16.0f);
-				m_pController->OnEntity(Index-ENTITY_OFFSET, Pos);
+				int Index = pTiles[y*pTileMap->m_Width+x].m_Index;
+
+				if(Index >= ENTITY_OFFSET)
+				{
+					vec2 Pos(x*32.0f+16.0f, y*32.0f+16.0f);
+					m_pController->OnEntity(Index-ENTITY_OFFSET, Pos);
+				}
 			}
 		}
+	}
+	// 
+	else
+	{
+		//for (int i = 0; i < 9; i++)
+		//	CreateEntitiesForBlock(i);
+		m_pBlockEntities = new CBlockEntities(this, 0, m_Collision.GetChunkSize(), NULL);
+		ActivateBlockEntities(0);
 	}
 	
 
@@ -2840,7 +3119,13 @@ void CGameContext::OnShutdown()
 			if (m_apPlayers[i])
 				m_apPlayers[i]->SaveData();
 	}
-		
+	
+	if (m_pBlockEntities)
+	{
+		delete m_pBlockEntities;
+		m_pBlockEntities = NULL;
+	}
+	
 	delete m_pController;
 	m_pController = 0;
 	Clear();
@@ -2848,6 +3133,9 @@ void CGameContext::OnShutdown()
 
 void CGameContext::OnSnap(int ClientID)
 {
+	if (m_apPlayers[ClientID] && m_apPlayers[ClientID]->m_IsBot)
+		return;
+	
 	// add tuning to demo
 	CTuningParams StandardTuning;
 	if(ClientID == -1 && Server()->DemoRecorder_IsRecording() && mem_comp(&StandardTuning, &m_Tuning, sizeof(CTuningParams)) != 0)

@@ -21,6 +21,7 @@
 #include <engine/shared/packer.h>
 #include <engine/shared/protocol.h>
 #include <engine/shared/snapshot.h>
+#include <engine/shared/linereader.h>
 
 #include <mastersrv/mastersrv.h>
 
@@ -512,6 +513,262 @@ int CServer::Init()
 
 	return 0;
 }
+
+
+void CServer::LoadGameVotes()
+{
+	m_GameVoteCount = 0;
+	
+	Storage()->ListDirectory(IStorage::TYPE_ALL, "server/gamevotes", GameVoteScan, this);
+}
+
+
+int CServer::GameVoteScan(const char *pName, int IsDir, int DirType, void *pUser)
+{
+	CServer *pSelf = (CServer *)pUser;
+	
+	int l = str_length(pName);
+	if(l < 4 || IsDir || str_comp(pName+l-4, ".vot") != 0)
+		return 0;
+
+	pSelf->LoadGameVote(pName, "server/gamevotes/", DirType);
+	return 0;
+}
+
+
+int CServer::LoadGameVote(const char *pFilename, const char *pFoldername, int StorageType)
+{
+	char aPath[512];
+	str_format(aPath, sizeof(aPath), "%s%s", pFoldername, pFilename);
+	
+	IOHANDLE VoteFile = Storage()->OpenFile(aPath, IOFLAG_READ, IStorage::TYPE_ALL);
+	if(!VoteFile)
+		return 0;
+
+	CGameVote GameVote;
+	GameVote.m_Valid = true;
+	//str_format(NPCProfile.m_aProfileName, sizeof(NPCProfile.m_aProfileName), "%s", pFilename);
+	
+	CLineReader LineReader;
+	LineReader.Init(VoteFile);
+
+	// read each line
+	while(char *pLine = LineReader.Get())
+	{
+		// skip blank/empty lines as well as comments
+		if(str_length(pLine) > 0 && pLine[0] != '#' && pLine[0] != '\n' && pLine[0] != '\r'
+			&& pLine[0] != '\t' && pLine[0] != '\v' && pLine[0] != ' ')
+		{
+			if(!str_comp_num(pLine, "name:", 5)) sscanf(pLine, "name: %[^\t\n]", &GameVote.m_aName);
+			if(!str_comp_num(pLine, "description:", 12)) sscanf(pLine, "description: %[^\t\n]", &GameVote.m_aDescription);
+			if(!str_comp_num(pLine, "config:", 7)) sscanf(pLine, "config: %31s", &GameVote.m_aConfig);
+			if(!str_comp_num(pLine, "image:", 6)) sscanf(pLine, "image: %31s", &GameVote.m_aImage);
+			
+			else if(!str_comp_num(pLine, "min-players:", 12)) sscanf(pLine, "min-players: %d", &GameVote.m_MinPlayers);
+			else if(!str_comp_num(pLine, "max-players:", 12)) sscanf(pLine, "max-players: %d", &GameVote.m_MaxPlayers);
+		}
+	}
+
+
+	io_close(VoteFile);
+
+	if (m_GameVoteCount < 99)
+	{
+		m_aGameVote[m_GameVoteCount] = GameVote;
+		m_GameVoteCount++;
+	}
+	
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf),"loaded %s", aPath);
+	Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "server", aBuf);
+	
+	return 0;
+}
+
+	
+
+void CServer::LoadAISkins()
+{
+	m_AISkinPVPCount = 0;
+	m_AISkinPVECount = 0;
+	Storage()->ListDirectory(IStorage::TYPE_ALL, "server/pvp_bots", AISkinPVPScan, this);
+	Storage()->ListDirectory(IStorage::TYPE_ALL, "server/pve_bots", AISkinPVEScan, this);
+}
+	
+
+int CServer::AISkinPVPScan(const char *pName, int IsDir, int DirType, void *pUser)
+{
+	CServer *pSelf = (CServer *)pUser;
+	
+	int l = str_length(pName);
+	if(l < 4 || IsDir || str_comp(pName+l-4, ".npc") != 0)
+		return 0;
+
+	pSelf->LoadAISkin(pName, "server/pvp_bots/", DirType, true);
+	return 0;
+}
+
+int CServer::AISkinPVEScan(const char *pName, int IsDir, int DirType, void *pUser)
+{
+	CServer *pSelf = (CServer *)pUser;
+	
+	int l = str_length(pName);
+	if(l < 4 || IsDir || str_comp(pName+l-4, ".npc") != 0)
+		return 0;
+
+	pSelf->LoadAISkin(pName, "server/pve_bots/", DirType, false);
+	return 0;
+}
+
+
+int CServer::LoadAISkin(const char *pFilename, const char *pFoldername, int StorageType, bool PVP)
+{
+	char aPath[512];
+	str_format(aPath, sizeof(aPath), "%s%s", pFoldername, pFilename);
+	
+	IOHANDLE NPCFile = Storage()->OpenFile(aPath, IOFLAG_READ, IStorage::TYPE_ALL);
+	if(!NPCFile)
+		return 0;
+
+	CAISkin AISkin;
+	AISkin.m_Valid = true;
+	//str_format(NPCProfile.m_aProfileName, sizeof(NPCProfile.m_aProfileName), "%s", pFilename);
+	
+	CLineReader LineReader;
+	LineReader.Init(NPCFile);
+
+	// read each line
+	while(char *pLine = LineReader.Get())
+	{
+		// skip blank/empty lines as well as comments
+		if(str_length(pLine) > 0 && pLine[0] != '#' && pLine[0] != '\n' && pLine[0] != '\r'
+			&& pLine[0] != '\t' && pLine[0] != '\v' && pLine[0] != ' ')
+		{
+			if(!str_comp_num(pLine, "name:", 5)) sscanf(pLine, "name: %23s", &AISkin.m_aName);
+			else if(!str_comp_num(pLine, "head:", 5)) sscanf(pLine, "head: %23s", &AISkin.m_aHead);
+			else if(!str_comp_num(pLine, "body:", 5)) sscanf(pLine, "body: %23s", &AISkin.m_aBody);
+			else if(!str_comp_num(pLine, "hand:", 5)) sscanf(pLine, "hand: %23s", &AISkin.m_aHand);
+			else if(!str_comp_num(pLine, "foot:", 5)) sscanf(pLine, "foot: %23s", &AISkin.m_aFoot);
+			else if(!str_comp_num(pLine, "topper:", 7)) sscanf(pLine, "topper: %23s", &AISkin.m_aTopper);
+			else if(!str_comp_num(pLine, "eye:", 4)) sscanf(pLine, "eye: %23s", &AISkin.m_aEye);
+			
+			else if(!str_comp_num(pLine, "level:", 6)) sscanf(pLine, "level: %d", &AISkin.m_Level);
+			
+			else if(!str_comp_num(pLine, "skin-color:", 11)) sscanf(pLine, "skin-color: %d", &AISkin.m_ColorSkin);
+			else if(!str_comp_num(pLine, "topper-color:", 13)) sscanf(pLine, "topper-color: %d", &AISkin.m_ColorTopper);
+			else if(!str_comp_num(pLine, "body-color:", 11)) sscanf(pLine, "body-color: %d", &AISkin.m_ColorBody);
+			else if(!str_comp_num(pLine, "foot-color:", 11)) sscanf(pLine, "foot-color: %d", &AISkin.m_ColorFoot);
+			
+			else if(!str_comp_num(pLine, "blood-color:", 12))
+			{
+				char aBlood[24] = "";
+				sscanf(pLine, "blood-color: %24s", aBlood);
+				
+				if(!str_comp(aBlood, "red")) AISkin.m_ColorBlood = 0;
+				else if(!str_comp(aBlood, "green")) AISkin.m_ColorBlood = 1;
+				else if(!str_comp(aBlood, "black")) AISkin.m_ColorBlood = 2;
+			}
+		}
+	}
+
+	io_close(NPCFile);
+
+	if (PVP)
+	{
+		if (m_AISkinPVPCount < 99)
+		{
+			m_aAISkinPVP[m_AISkinPVPCount] = AISkin;
+			m_AISkinPVPCount++;
+		}
+	}
+	else
+	{
+		if (m_AISkinPVECount < 99)
+		{
+			m_aAISkinPVE[m_AISkinPVECount] = AISkin;
+			m_AISkinPVECount++;
+		}
+	}
+	
+	char aBuf[256];
+	str_format(aBuf, sizeof(aBuf),"loaded %s", aPath);
+	Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "server", aBuf);
+	
+	return 0;
+}
+
+
+void CServer::GetAISkin(CAISkin *pAISkin, bool PVP, int Level)
+{
+	if (!PVP)
+	{
+		int i = rand()%(m_AISkinPVECount);
+		int r = i;
+		int j = 0;
+		int l = 0;
+		
+		while (m_aAISkinPVE[i].m_Level != Level && j++ < 10)
+		{
+			i = rand()%(m_AISkinPVECount);
+			
+			if (m_aAISkinPVE[i].m_Level == Level)
+			{
+				*pAISkin = m_aAISkinPVE[i];
+				return;
+			}
+			
+			if (m_aAISkinPVE[i].m_Level < Level && m_aAISkinPVE[i].m_Level > l)
+			{
+				r = i;
+				l = m_aAISkinPVE[i].m_Level;
+			}
+		}
+		
+		if (m_aAISkinPVE[r].m_Level > Level)
+			for (i = 0; i < m_AISkinPVECount; i++)
+				if (m_aAISkinPVE[i].m_Level <= Level)
+				{
+					*pAISkin = m_aAISkinPVE[i];
+					return;
+				}
+		
+		*pAISkin = m_aAISkinPVE[r];
+	}
+	else
+		*pAISkin = m_aAISkinPVP[rand()%(m_AISkinPVPCount)];
+}
+
+
+void CServer::ResetGameVoting()
+{
+	for (int i = 0; i < 99; i++)
+		m_aGameVoteUsed[i] = false;
+	
+	m_GameModesLeft = m_GameVoteCount;
+}
+
+bool CServer::GetGameVote(CGameVote *pGameVote, int Players)
+{
+	if (m_GameVoteCount < 1 || m_GameModesLeft < 1)
+		return false;
+	
+	int i = rand()%(m_GameVoteCount);
+	
+	int j = 0;
+	while (m_aGameVoteUsed[i] || m_aGameVote[i].m_MinPlayers > Players || m_aGameVote[i].m_MaxPlayers < Players)
+	{
+		i = rand()%(m_GameVoteCount);
+		
+		if (j++ > 999)
+			return false;
+	}
+	
+	m_aGameVoteUsed[i] = true;
+	m_GameModesLeft--;
+	*pGameVote = m_aGameVote[i];
+	return true;
+}
+
 
 void CServer::SetRconCID(int ClientID)
 {
@@ -1924,6 +2181,9 @@ int main(int argc, const char **argv) // ignore_convention
 
 	pEngine->InitLogfile();
 
+	pServer->LoadAISkins();
+	pServer->LoadGameVotes();
+	
 	// run the server
 	dbg_msg("server", "starting...");
 	pServer->Run();

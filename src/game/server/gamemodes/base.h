@@ -47,6 +47,7 @@ private:
 	int ReactorsLeft();
 	
 	int m_Bosses;
+	int m_Crawlers;
 	
 public:
 	CGameControllerBase(class CGameContext *pGameServer);

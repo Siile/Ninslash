@@ -1,0 +1,17 @@
+# example npc profile
+name: Qars
+head: alien
+body: simple
+hand: gray
+foot: default
+topper: none
+eye: alien
+
+# write /color in in-game chat to see your current colors
+skin-color: 9109248
+topper-color: 65535
+body-color: 7864064
+foot-color: 7864064
+
+# red, black or green
+blood-color: green

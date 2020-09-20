@@ -21,12 +21,9 @@ CGameControllerCS::CGameControllerCS(class CGameContext *pGameServer) : IGameCon
 	m_GameFlags |= GAMEFLAG_SURVIVAL;
 	m_GameFlags |= GAMEFLAG_BUILD;
 	
-	g_Config.m_SvRandomWeapons = 0;
-	g_Config.m_SvOneHitKill = 0;
 	g_Config.m_SvWarmup = 0;
 	g_Config.m_SvTimelimit = 0;
 	g_Config.m_SvSurvivalMode = 1;
-	g_Config.m_SvEnableBuilding = 1;
 	g_Config.m_SvDisablePVP = 0;
 	
 	m_pBombRadar = NULL;
@@ -57,10 +54,15 @@ CGameControllerCS::CGameControllerCS(class CGameContext *pGameServer) : IGameCon
 void CGameControllerCS::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 {
 	IGameController::OnCharacterSpawn(pChr);
-	
+
 	// init AI
 	if (RequestAI)
+	{
+		if (!pChr->GetPlayer()->m_AISkin.m_Valid)
+			GameServer()->GetAISkin(&pChr->GetPlayer()->m_AISkin, true);
+		pChr->GetPlayer()->SetAISkin();
 		pChr->GetPlayer()->m_pAI = new CAIdef(GameServer(), pChr->GetPlayer());
+	}
 	
 	int c = pChr->GetPlayer()->GetCID();
 	

@@ -1,0 +1,6 @@
+name: Reactor Bomber
+description: reactor1.map - survival mode PvP
+config: cfg/reactor1
+image: reactor1
+min-players: 0
+max-players: 100

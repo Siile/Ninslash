@@ -29,6 +29,7 @@
 #include "components/block.h"
 #include "components/binds.h"
 #include "components/broadcast.h"
+#include "components/gamevote.h"
 #include "components/camera.h"
 #include "components/chat.h"
 #include "components/console.h"
@@ -81,6 +82,7 @@ static CCamera gs_Camera;
 static CChat gs_Chat;
 static CMotd gs_Motd;
 static CBroadcast gs_Broadcast;
+static CGameVoteDisplay gs_GameVoteDisplay;
 static CGameConsole gs_GameConsole;
 static CBinds gs_Binds;
 static CBlocks gs_Blocks;
@@ -171,6 +173,7 @@ void CGameClient::OnConsoleInit()
 	m_pEffects = &::gs_Effects;
 	m_pSounds = &::gs_Sounds;
 	m_pMotd = &::gs_Motd;
+	m_pGameVoteDisplay = &::gs_GameVoteDisplay;
 	m_pDamageind = &::gsDamageInd;
 	m_pMapimages = &::gs_MapImages;
 	m_pVoting = &::gs_Voting;
@@ -247,6 +250,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&m_pParticles->m_RenderFlames);
 	m_All.Add(&m_pParticles->m_RenderFlame1);
 	m_All.Add(&m_pParticles->m_RenderSwordHits);
+	m_All.Add(&m_pParticles->m_RenderClawHits);
 	m_All.Add(&m_pParticles->m_RenderBloodFX);
 	m_All.Add(&m_pSpark->m_RenderSpark);
 	m_All.Add(&m_pSpark->m_RenderArea1);
@@ -268,6 +272,7 @@ void CGameClient::OnConsoleInit()
 	m_All.Add(&gs_DebugHud);
 	m_All.Add(&gs_Scoreboard);
 	m_All.Add(m_pMotd);
+	m_All.Add(&gs_GameVoteDisplay);
 	m_All.Add(m_pMenus);
 	m_All.Add(m_pGameConsole);
 
@@ -278,6 +283,7 @@ void CGameClient::OnConsoleInit()
 	m_Input.Add(m_pChat); // chat has higher prio due to tha you can quit it by pressing esc
 	m_Input.Add(m_pMotd); // for pressing esc to remove it
 	m_Input.Add(m_pMenus);
+	m_Input.Add(m_pGameVoteDisplay);
 	m_Input.Add(&gs_Spectator);
 	m_Input.Add(&gs_Picker);
 	m_Input.Add(&gs_Inventory);
@@ -651,8 +657,12 @@ void CGameClient::OnRender()
 			g_Config.m_PlayerCountry != m_aClients[m_Snap.m_LocalClientID].m_Country ||
 			str_comp(g_Config.m_PlayerTopper, m_aClients[m_Snap.m_LocalClientID].m_aTopperName) ||
 			str_comp(g_Config.m_PlayerEye, m_aClients[m_Snap.m_LocalClientID].m_aEyeName) ||
+			str_comp(g_Config.m_PlayerHead, m_aClients[m_Snap.m_LocalClientID].m_aHeadName) ||
+			str_comp(g_Config.m_PlayerBody, m_aClients[m_Snap.m_LocalClientID].m_aBodyName) ||
+			str_comp(g_Config.m_PlayerHand, m_aClients[m_Snap.m_LocalClientID].m_aHandName) ||
+			str_comp(g_Config.m_PlayerFoot, m_aClients[m_Snap.m_LocalClientID].m_aFootName) ||
 			(m_Snap.m_pGameInfoObj && !(m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_TEAMS) &&	// no teamgame?
-			(g_Config.m_PlayerBody != m_aClients[m_Snap.m_LocalClientID].m_Body ||
+			(//g_Config.m_PlayerBody != m_aClients[m_Snap.m_LocalClientID].m_Body ||
 			g_Config.m_PlayerBloodColor != m_aClients[m_Snap.m_LocalClientID].m_BloodColor ||
 			g_Config.m_PlayerColorBody != m_aClients[m_Snap.m_LocalClientID].m_ColorBody ||
 			g_Config.m_PlayerColorFeet != m_aClients[m_Snap.m_LocalClientID].m_ColorFeet ||
@@ -1019,8 +1029,11 @@ void CGameClient::OnNewSnapshot()
 				m_aClients[ClientID].m_Country = pInfo->m_Country;
 				IntsToStr(&pInfo->m_Topper0, 6, m_aClients[ClientID].m_aTopperName);
 				IntsToStr(&pInfo->m_Eye0, 6, m_aClients[ClientID].m_aEyeName);
+				IntsToStr(&pInfo->m_Head0, 6, m_aClients[ClientID].m_aHeadName);
+				IntsToStr(&pInfo->m_Body0, 6, m_aClients[ClientID].m_aBodyName);
+				IntsToStr(&pInfo->m_Hand0, 6, m_aClients[ClientID].m_aHandName);
+				IntsToStr(&pInfo->m_Foot0, 6, m_aClients[ClientID].m_aFootName);
 
-				m_aClients[ClientID].m_Body = pInfo->m_Body;
 				m_aClients[ClientID].m_ColorBody = pInfo->m_ColorBody;
 				m_aClients[ClientID].m_ColorFeet = pInfo->m_ColorFeet;
 				m_aClients[ClientID].m_ColorTopper = pInfo->m_ColorTopper;
@@ -1038,7 +1051,18 @@ void CGameClient::OnNewSnapshot()
 				if(m_aClients[ClientID].m_aEyeName[0] == 'x' || m_aClients[ClientID].m_aEyeName[1] == '_')
 					str_copy(m_aClients[ClientID].m_aEyeName, "default", 64);
 
-				m_aClients[ClientID].m_SkinInfo.m_Body = m_aClients[ClientID].m_Body;
+				if(m_aClients[ClientID].m_aHeadName[0] == 'x' || m_aClients[ClientID].m_aHeadName[1] == '_')
+					str_copy(m_aClients[ClientID].m_aHeadName, "default", 64);
+
+				if(m_aClients[ClientID].m_aBodyName[0] == 'x' || m_aClients[ClientID].m_aBodyName[1] == '_')
+					str_copy(m_aClients[ClientID].m_aBodyName, "default", 64);
+
+				if(m_aClients[ClientID].m_aFootName[0] == 'x' || m_aClients[ClientID].m_aFootName[1] == '_')
+					str_copy(m_aClients[ClientID].m_aFootName, "default", 64);
+
+				if(m_aClients[ClientID].m_aHandName[0] == 'x' || m_aClients[ClientID].m_aHandName[1] == '_')
+					str_copy(m_aClients[ClientID].m_aHandName, "default", 64);
+
 				m_aClients[ClientID].m_SkinInfo.m_ColorBody = m_pSkins->GetColorV4(m_aClients[ClientID].m_ColorBody);
 				m_aClients[ClientID].m_SkinInfo.m_ColorFeet = m_pSkins->GetColorV4(m_aClients[ClientID].m_ColorFeet);
 				m_aClients[ClientID].m_SkinInfo.m_ColorTopper = m_pSkins->GetColorV4(m_aClients[ClientID].m_ColorTopper);
@@ -1068,9 +1092,49 @@ void CGameClient::OnNewSnapshot()
 						m_aClients[ClientID].m_EyeID = 0;
 				}
 
+				m_aClients[ClientID].m_HeadID = g_GameClient.m_pSkins->FindHead(m_aClients[ClientID].m_aHeadName);
+				
+				if(m_aClients[ClientID].m_HeadID < 0)
+				{
+					m_aClients[ClientID].m_HeadID = g_GameClient.m_pSkins->FindHead("default");
+					if(m_aClients[ClientID].m_HeadID < 0)
+						m_aClients[ClientID].m_HeadID = 0;
+				}
+
+				m_aClients[ClientID].m_BodyID = g_GameClient.m_pSkins->FindBody(m_aClients[ClientID].m_aBodyName);
+				
+				if(m_aClients[ClientID].m_BodyID < 0)
+				{
+					m_aClients[ClientID].m_BodyID = g_GameClient.m_pSkins->FindBody("default");
+					if(m_aClients[ClientID].m_BodyID < 0)
+						m_aClients[ClientID].m_BodyID = 0;
+				}
+
+				m_aClients[ClientID].m_FootID = g_GameClient.m_pSkins->FindFoot(m_aClients[ClientID].m_aFootName);
+				
+				if(m_aClients[ClientID].m_FootID < 0)
+				{
+					m_aClients[ClientID].m_FootID = g_GameClient.m_pSkins->FindFoot("default");
+					if(m_aClients[ClientID].m_FootID < 0)
+						m_aClients[ClientID].m_FootID = 0;
+				}
+
+				m_aClients[ClientID].m_HandID = g_GameClient.m_pSkins->FindHand(m_aClients[ClientID].m_aHandName);
+				
+				if(m_aClients[ClientID].m_HandID < 0)
+				{
+					m_aClients[ClientID].m_HandID = g_GameClient.m_pSkins->FindHand("default");
+					if(m_aClients[ClientID].m_HandID < 0)
+						m_aClients[ClientID].m_HandID = 0;
+				}
+
 
 				m_aClients[ClientID].m_SkinInfo.m_TopperTexture = g_GameClient.m_pSkins->GetTopper(m_aClients[ClientID].m_TopperID)->m_Texture;
 				m_aClients[ClientID].m_SkinInfo.m_EyeTexture = g_GameClient.m_pSkins->GetEye(m_aClients[ClientID].m_EyeID)->m_Texture;
+				m_aClients[ClientID].m_SkinInfo.m_HeadTexture = g_GameClient.m_pSkins->GetHead(m_aClients[ClientID].m_HeadID)->m_Texture;
+				m_aClients[ClientID].m_SkinInfo.m_BodyTexture = g_GameClient.m_pSkins->GetBody(m_aClients[ClientID].m_BodyID)->m_Texture;
+				m_aClients[ClientID].m_SkinInfo.m_HandTexture = g_GameClient.m_pSkins->GetHand(m_aClients[ClientID].m_HandID)->m_Texture;
+				m_aClients[ClientID].m_SkinInfo.m_FootTexture = g_GameClient.m_pSkins->GetFoot(m_aClients[ClientID].m_FootID)->m_Texture;
 				
 				/*
 					m_aClients[ClientID].m_SkinInfo.m_ColorBody = vec4(1,1,1,1);
@@ -1465,7 +1529,7 @@ void CGameClient::OnPredict()
 				int Events = World.m_pBall->m_TriggeredEvents;
 				
 				if(Events&COREEVENT_BALL_BOUNCE)
-					g_GameClient.m_pSounds->PlayAndRecord(CSounds::CHN_WORLD, SOUND_PLAYER_JUMP, 1.0f, Pos);
+					g_GameClient.m_pSounds->PlayAndRecord(CSounds::CHN_WORLD, SOUND_BALL_BOUNCE, 1.0f, Pos);
 			}
 			
 			// player events
@@ -1554,9 +1618,12 @@ void CGameClient::CClientData::Reset()
 	m_aName[0] = 0;
 	m_aClan[0] = 0;
 	m_Country = -1;
-	m_Body = 0;
 	m_TopperID = 0;
 	m_EyeID = 0;
+	m_HeadID = 0;
+	m_BodyID = 0;
+	m_FootID = 0;
+	m_HandID = 0;
 	m_Team = 0;
 	m_Angle = 0;
 	m_Emoticon = 0;
@@ -1565,7 +1632,10 @@ void CGameClient::CClientData::Reset()
 	m_ChatIgnore = false;
 	m_SkinInfo.m_TopperTexture = g_GameClient.m_pSkins->GetTopper(0)->m_Texture;
 	m_SkinInfo.m_EyeTexture = g_GameClient.m_pSkins->GetEye(0)->m_Texture;
-	m_SkinInfo.m_Body = 0;
+	m_SkinInfo.m_HeadTexture = g_GameClient.m_pSkins->GetHead(0)->m_Texture;
+	m_SkinInfo.m_BodyTexture = g_GameClient.m_pSkins->GetBody(0)->m_Texture;
+	m_SkinInfo.m_HandTexture = g_GameClient.m_pSkins->GetHand(0)->m_Texture;
+	m_SkinInfo.m_FootTexture = g_GameClient.m_pSkins->GetFoot(0)->m_Texture;
 	m_SkinInfo.m_ColorBody = vec4(1,1,1,1);
 	m_SkinInfo.m_ColorFeet = vec4(1,1,1,1);
 	m_SkinInfo.m_ColorTopper = vec4(1,1,1,1);
@@ -1593,7 +1663,10 @@ void CGameClient::SendInfo(bool Start)
 		Msg.m_Country = g_Config.m_PlayerCountry;
 		Msg.m_pTopper = g_Config.m_PlayerTopper;
 		Msg.m_pEye = g_Config.m_PlayerEye;
-		Msg.m_Body = g_Config.m_PlayerBody;
+		Msg.m_pHead = g_Config.m_PlayerHead;
+		Msg.m_pBody = g_Config.m_PlayerBody;
+		Msg.m_pHand = g_Config.m_PlayerHand;
+		Msg.m_pFoot = g_Config.m_PlayerFoot;
 		Msg.m_ColorBody = g_Config.m_PlayerColorBody;
 		Msg.m_ColorFeet = g_Config.m_PlayerColorFeet;
 		Msg.m_ColorTopper = g_Config.m_PlayerColorTopper;
@@ -1609,7 +1682,10 @@ void CGameClient::SendInfo(bool Start)
 		Msg.m_Country = g_Config.m_PlayerCountry;
 		Msg.m_pTopper = g_Config.m_PlayerTopper;
 		Msg.m_pEye = g_Config.m_PlayerEye;
-		Msg.m_Body = g_Config.m_PlayerBody;
+		Msg.m_pHead = g_Config.m_PlayerHead;
+		Msg.m_pBody = g_Config.m_PlayerBody;
+		Msg.m_pHand = g_Config.m_PlayerHand;
+		Msg.m_pFoot = g_Config.m_PlayerFoot;
 		Msg.m_ColorBody = g_Config.m_PlayerColorBody;
 		Msg.m_ColorFeet = g_Config.m_PlayerColorFeet;
 		Msg.m_ColorTopper = g_Config.m_PlayerColorTopper;

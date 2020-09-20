@@ -42,6 +42,15 @@ CTeslacoil::CTeslacoil(CGameWorld *pGameWorld, vec2 Pos, int Team, int OwnerPlay
 
 void CTeslacoil::Tick()
 {
+	if (m_SnapTick && m_SnapTick < Server()->Tick()-Server()->TickSpeed()*5.0f)
+	{
+		if (GameServer()->StoreEntity(m_ObjType, m_Type, 0, m_Pos.x, m_Pos.y))
+		{
+			GameServer()->m_World.DestroyEntity(this);
+			return;
+		}
+	}
+	
 	if (m_Life < 40)
 		m_aStatus[BSTATUS_REPAIR] = 1;
 	else
@@ -124,6 +133,8 @@ void CTeslacoil::Snap(int SnappingClient)
 {
 	if(NetworkClipped(SnappingClient))
 		return;
+
+	m_SnapTick = Server()->Tick();
 
 	CNetObj_Building *pP = static_cast<CNetObj_Building *>(Server()->SnapNewItem(NETOBJTYPE_BUILDING, m_ID, sizeof(CNetObj_Building)));
 	if(!pP)

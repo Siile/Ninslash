@@ -36,19 +36,41 @@ void CLight::OnReset()
 	*/
 	
 	m_Count = 0;
+	m_SmallCount = 0;
+	m_BoxCount = 0;
 }
 
-void CLight::Add(int Group, CLightsource *pPart)
-{
-	return;
-	
-	if(m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED)
-		return;
 
-	if (m_Count >= MAX_LIGHTSOURCES)
+void CLight::AddSimpleLight(vec2 Pos, vec4 Color, vec2 Size)
+{
+	if (!g_Config.m_ClLighting)
 		return;
 	
-	m_aLightsource[m_Count++] = *pPart;
+	if (Size.x <= 32 && Size.y <= 32)
+	{
+		if (m_SmallCount >= MAX_LIGHTSOURCES)
+			return;
+		
+		m_aSmallSimpleLight[m_SmallCount++].Set(Pos, Color, Size);
+	}
+	else
+	{
+		if (m_Count >= MAX_LIGHTSOURCES)
+			return;
+		
+		m_aSimpleLight[m_Count++].Set(Pos, Color, Size);
+	}
+}
+
+void CLight::AddBoxLight(vec2 Pos, vec4 Color, vec2 Size, float Rot)
+{
+	if (!g_Config.m_ClLighting)
+		return;
+	
+	if (m_BoxCount >= MAX_LIGHTSOURCES)
+		return;
+		
+	m_aBoxLight[m_BoxCount++].Set(Pos, Color, Size, Rot);
 }
 
 void CLight::Update(float TimePassed)
@@ -58,25 +80,7 @@ void CLight::Update(float TimePassed)
 
 void CLight::OnRender()
 {
-	if(Client()->State() < IClient::STATE_ONLINE)
-		return;
-
-	static int64 LastTime = 0;
-	int64 t = time_get();
-
-	if(Client()->State() == IClient::STATE_DEMOPLAYBACK)
-	{
-		const IDemoPlayer::CInfo *pInfo = DemoPlayer()->BaseInfo();
-		if(!pInfo->m_Paused)
-			Update((float)((t-LastTime)/(double)time_freq())*pInfo->m_Speed);
-	}
-	else
-	{
-		if(m_pClient->m_Snap.m_pGameInfoObj && !(m_pClient->m_Snap.m_pGameInfoObj->m_GameStateFlags&GAMESTATEFLAG_PAUSED))
-			Update((float)((t-LastTime)/(double)time_freq()));
-	}
-
-	LastTime = t;
+	// no updates
 }
 
 
@@ -151,15 +155,18 @@ void CLight::RenderGroup(int Group)
 	if(Client()->State() < IClient::STATE_ONLINE)
 		return;
 	
+	CUIRect Screen;
+		Graphics()->GetScreen(&Screen.x, &Screen.y, &Screen.w, &Screen.h);
+	
 	Graphics()->RenderToTexture(RENDERBUFFER_LIGHT);
 	Graphics()->BlendAdditive();
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_LIGHTS].m_Id);
 	Graphics()->QuadsBegin();
 
-	m_pClient->m_pParticles->RenderLights();
+	//m_pClient->m_pParticles->RenderLights();
 	
-	// render light sources to texture buffer
 	/*
+	// render light sources to texture buffer
 	for (int i = 0; i < m_Count; i++)
 	{
 		vec2 p = m_aLightsource[i].m_Pos;
@@ -172,6 +179,57 @@ void CLight::RenderGroup(int Group)
 	}
 	*/
 	
+	// camera center light
+	RenderLight(m_pClient->m_pCamera->m_Center, vec2(900, 700), vec4(1, 1, 1, 0.4f));
+	
+	// render light sources to texture buffer
+	for (int i = 0; i < m_Count; i++)
+	{
+		const vec4 c = m_aSimpleLight[i].m_Color;
+		Graphics()->SetColor(c.r, c.g, c.b, c.a);
+			
+		IGraphics::CQuadItem QuadItem(m_aSimpleLight[i].m_Pos.x, m_aSimpleLight[i].m_Pos.y, m_aSimpleLight[i].m_Size.x, m_aSimpleLight[i].m_Size.y);
+		Graphics()->QuadsDraw(&QuadItem, 1);
+	}
+	
+	Graphics()->QuadsEnd();
+	
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_SMALLLIGHT].m_Id);
+	Graphics()->QuadsBegin();
+	
+	// render small light sources to texture buffer
+	for (int i = 0; i < m_SmallCount; i++)
+	{
+		const vec4 c = m_aSmallSimpleLight[i].m_Color;
+		Graphics()->SetColor(c.r, c.g, c.b, c.a);
+			
+		IGraphics::CQuadItem QuadItem(m_aSmallSimpleLight[i].m_Pos.x, m_aSmallSimpleLight[i].m_Pos.y, m_aSmallSimpleLight[i].m_Size.x, m_aSmallSimpleLight[i].m_Size.y);
+		Graphics()->QuadsDraw(&QuadItem, 1);
+	}
+	
+	Graphics()->QuadsEnd();
+	
+	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BOXLIGHT].m_Id);
+	Graphics()->QuadsBegin();
+	
+	// render box light sources to texture buffer
+	for (int i = 0; i < m_BoxCount; i++)
+	{
+		Graphics()->QuadsSetRotation(m_aBoxLight[i].m_Rot);
+		const vec4 c = m_aBoxLight[i].m_Color;
+		Graphics()->SetColor(c.r, c.g, c.b, c.a);
+			
+		IGraphics::CQuadItem QuadItem(m_aBoxLight[i].m_Pos.x, m_aBoxLight[i].m_Pos.y, m_aBoxLight[i].m_Size.x, m_aBoxLight[i].m_Size.y);
+		Graphics()->QuadsDraw(&QuadItem, 1);
+	}
+	
+	Graphics()->QuadsEnd();
+	
+	m_Count = 0;
+	m_SmallCount = 0;
+	m_BoxCount = 0;
+	
+	/*
 	int Num = Client()->SnapNumItems(IClient::SNAP_CURRENT);
 	for(int i = 0; i < Num; i++)
 	{
@@ -219,10 +277,120 @@ void CLight::RenderGroup(int Group)
 			}
 		}
 		*/
+	//}
+	
+	
+	
+	// raycasting
+	Graphics()->TextureSet(-1);
+	Graphics()->QuadsBegin();
+	Graphics()->SetColor(0.0f, 0.0f, 1.0f, 1.0f);
+	
+	vec2 Center = m_pClient->m_pCamera->m_Center / 32;
+	float ScreenX0, ScreenY0, ScreenX1, ScreenY1;
+	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
+	
+	int w = int(ScreenX1-ScreenX0)/64+2;
+	int h = int(ScreenY1-ScreenY0)/64+2;
+	
+	int x1 = int(Center.x) - w;
+	int x2 = int(Center.x) + w;
+	int y1 = int(Center.y) - h;
+	int y2 = int(Center.y) + h;
+	
+	const float Size = 32.0f;
+	
+	vec2 aLights[199];
+	int LightCount = 0;
+	
+	// get light endpoints
+	for (int x = x1; x <= x2; x++)
+	{
+		for (int y = y1; y <= y2; y++)
+		{
+			int t = Collision()->GetLightRay(ivec2(x*32, y*32));
+			if (t > 0 || ((t == -1 || t == -3) && (y == y1 || y == y2)) || ((t == -2 || t == -3) && (x == x1 || x == x2)) || ((x == x1 || x == x2) && (y == y1 || y == y2)))
+			{
+				vec2 p = vec2(x, y)*32;
+				
+				if (t > 0)
+				{
+					for (int i = 0; i < 3; i++)
+						if (LightCount < 199)
+							aLights[LightCount++] = vec2(atan2(m_pClient->m_pCamera->m_Center.x-p.x, m_pClient->m_pCamera->m_Center.y-p.y)-(i-1)*0.025f, 0);
+				}
+				else
+				{
+					if (LightCount < 199)
+						aLights[LightCount++] = vec2(atan2(m_pClient->m_pCamera->m_Center.x-p.x, m_pClient->m_pCamera->m_Center.y-p.y), 0);
+				}
+						
+
+				 // render light endpoints
+				 /*
+				IGraphics::CFreeformItem FreeFormItem(
+				m_pClient->m_pCamera->m_Center.x, m_pClient->m_pCamera->m_Center.y, m_pClient->m_pCamera->m_Center.x, m_pClient->m_pCamera->m_Center.y,
+				p.x+Offset.x-2, p.y+Offset.y-2, p.x+Offset.x+2, p.y+Offset.y+2);
+				Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+				*/
+				
+			}
+		}
 	}
 	
-	// camera
-	RenderLight(m_pClient->m_pCamera->m_Center, vec2(900, 700), vec4(1, 1, 1, 0.4f));
+	// sort light array
+	if (LightCount > 1)
+	{
+		int min;
+		vec2 temp;
+		
+		for (int i = 0; i < LightCount - 1; i++) {
+			min = i;
+			for (int j = i + 1; j < LightCount; j++)
+				if (aLights[j].x < aLights[min].x)
+					min = j;
+
+			temp = aLights[i];
+			aLights[i] = aLights[min];
+			aLights[min] = temp;
+		}
+	}
+	
+	
+	// render lights
+	Graphics()->SetColor(1.0f, 1.0f, 1.0f, 0.5f);
+	for (int i = 0; i < LightCount; i++)
+	{
+		vec2 p = m_pClient->m_pCamera->m_Center-vec2(sin(aLights[i].x), cos(aLights[i].x))*2000; // aLights[i].y
+		
+		int next = i+1;
+		if (next >= LightCount)
+			next = 0;
+		
+		vec2 p2 = m_pClient->m_pCamera->m_Center-vec2(sin(aLights[next].x), cos(aLights[next].x))*2000; // *aLights[next].y
+		
+		Collision()->IntersectLine(m_pClient->m_pCamera->m_Center, p, 0x0, &p, false, false, false);
+		Collision()->IntersectLine(m_pClient->m_pCamera->m_Center, p2, 0x0, &p2, false, false, false);
+		
+		p -= vec2(sin(aLights[i].x), cos(aLights[i].x))*32;
+		p2 -= vec2(sin(aLights[next].x), cos(aLights[next].x))*32;
+		
+		IGraphics::CColorVertex aColors[4] = {
+		IGraphics::CColorVertex(0, 1.0f, 1.0f, 1.0f, 0.5f),
+		IGraphics::CColorVertex(1, 1.0f, 1.0f, 1.0f, 0.5f),
+		IGraphics::CColorVertex(2, 0.7f, 0.7f, 0.7f, 0.5f),
+		IGraphics::CColorVertex(3, 0.7f, 0.7f, 0.7f, 0.5f)};
+	
+		Graphics()->SetColorVertex(aColors, 4);
+		
+		IGraphics::CFreeformItem FreeFormItem(
+			m_pClient->m_pCamera->m_Center.x, m_pClient->m_pCamera->m_Center.y,
+			m_pClient->m_pCamera->m_Center.x, m_pClient->m_pCamera->m_Center.y,
+			p2.x, p2.y,
+			p.x, p.y);
+		
+		Graphics()->QuadsDrawFreeform(&FreeFormItem, 1);
+	}
 	
 	Graphics()->QuadsEnd();
 	
@@ -230,12 +398,14 @@ void CLight::RenderGroup(int Group)
 	Graphics()->TextureSet(-1);
 	Graphics()->QuadsBegin();
 	
-	Num = Client()->SnapNumItems(IClient::SNAP_CURRENT);
+	
+	int Num = Client()->SnapNumItems(IClient::SNAP_CURRENT);
 	for(int i = 0; i < Num; i++)
 	{
 		IClient::CSnapItem Item;
 		const void *pData = Client()->SnapGetItem(IClient::SNAP_CURRENT, i, &Item);
 		
+		/*
 		if (Item.m_Type == NETOBJTYPE_BUILDING)
 		{
 			const struct CNetObj_Building *pBuilding = (const CNetObj_Building *)pData;
@@ -243,7 +413,9 @@ void CLight::RenderGroup(int Group)
 			if (pBuilding->m_Type == BUILDING_STAND)
 				RenderLight(ivec2(pBuilding->m_X, pBuilding->m_Y));
 		}
-		else if (Item.m_Type == NETOBJTYPE_POWERUPPER)
+		else
+		*/
+		if (Item.m_Type == NETOBJTYPE_POWERUPPER)
 		{
 			const struct CNetObj_Powerupper *pBuilding = (const CNetObj_Powerupper *)pData;
 			
@@ -253,6 +425,7 @@ void CLight::RenderGroup(int Group)
 				RenderLight(p+vec2(-10, 0), p+vec2(+10, 0), p+vec2(-40, -70), p+vec2(+40, -70), vec4(0.25f, 1.0f, 0.5f, 1));
 		}
 	}
+	
 	
 	
 	Graphics()->QuadsEnd();
@@ -278,4 +451,8 @@ void CLight::RenderGroup(int Group)
 	
 	Graphics()->BlendNormal();
 	Graphics()->TextureSet(-1);
+	
+	
+	// reset the screen like it was before
+	Graphics()->MapScreen(Screen.x, Screen.y, Screen.w, Screen.h);
 }
