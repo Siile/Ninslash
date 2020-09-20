@@ -68,7 +68,7 @@ public:
 	void FireWeapon();
 
 	void ReleaseWeapons();
-	
+	 
 	void Die(int Killer, int Weapon, bool SkipKillMessage = false, bool IsTurret1 = false);
 	bool TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos);
 	void SetAflame(float Duration, int From, int Weapon);
