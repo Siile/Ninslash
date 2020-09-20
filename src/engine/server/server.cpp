@@ -549,7 +549,7 @@ int CServer::LoadGameVote(const char *pFilename, const char *pFoldername, int St
 	CGameVote GameVote;
 	GameVote.m_Valid = true;
 	//str_format(NPCProfile.m_aProfileName, sizeof(NPCProfile.m_aProfileName), "%s", pFilename);
-	
+	 
 	CLineReader LineReader;
 	LineReader.Init(VoteFile);
  
