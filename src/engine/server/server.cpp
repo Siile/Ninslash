@@ -560,10 +560,10 @@ int CServer::LoadGameVote(const char *pFilename, const char *pFoldername, int St
 		if(str_length(pLine) > 0 && pLine[0] != '#' && pLine[0] != '\n' && pLine[0] != '\r'
 			&& pLine[0] != '\t' && pLine[0] != '\v' && pLine[0] != ' ')
 		{
-			if(!str_comp_num(pLine, "name:", 5)) sscanf(pLine, "name: %[^\t\n]", &GameVote.m_aName);
-			if(!str_comp_num(pLine, "description:", 12)) sscanf(pLine, "description: %[^\t\n]", &GameVote.m_aDescription);
-			if(!str_comp_num(pLine, "config:", 7)) sscanf(pLine, "config: %31s", &GameVote.m_aConfig);
-			if(!str_comp_num(pLine, "image:", 6)) sscanf(pLine, "image: %31s", &GameVote.m_aImage);
+			if(!str_comp_num(pLine, "name:", 5)) sscanf(pLine, "name: %[^\t\n]", GameVote.m_aName);
+			if(!str_comp_num(pLine, "description:", 12)) sscanf(pLine, "description: %[^\t\n]", GameVote.m_aDescription);
+			if(!str_comp_num(pLine, "config:", 7)) sscanf(pLine, "config: %31s", GameVote.m_aConfig);
+			if(!str_comp_num(pLine, "image:", 6)) sscanf(pLine, "image: %31s", GameVote.m_aImage);
 			
 			else if(!str_comp_num(pLine, "min-players:", 12)) sscanf(pLine, "min-players: %d", &GameVote.m_MinPlayers);
 			else if(!str_comp_num(pLine, "max-players:", 12)) sscanf(pLine, "max-players: %d", &GameVote.m_MaxPlayers);
@@ -645,15 +645,14 @@ int CServer::LoadAISkin(const char *pFilename, const char *pFoldername, int Stor
 		if(str_length(pLine) > 0 && pLine[0] != '#' && pLine[0] != '\n' && pLine[0] != '\r'
 			&& pLine[0] != '\t' && pLine[0] != '\v' && pLine[0] != ' ')
 		{
-			if(!str_comp_num(pLine, "name:", 5))
-				sscanf(pLine, "name: %23s", AISkin.m_aName);
+			if(!str_comp_num(pLine, "name:", 5)) sscanf(pLine, "name: %23s", AISkin.m_aName);
 			
-			else if(!str_comp_num(pLine, "head:", 5)) sscanf(pLine, "head: %23s", &AISkin.m_aHead);
-			else if(!str_comp_num(pLine, "body:", 5)) sscanf(pLine, "body: %23s", &AISkin.m_aBody);
-			else if(!str_comp_num(pLine, "hand:", 5)) sscanf(pLine, "hand: %23s", &AISkin.m_aHand);
-			else if(!str_comp_num(pLine, "foot:", 5)) sscanf(pLine, "foot: %23s", &AISkin.m_aFoot);
-			else if(!str_comp_num(pLine, "topper:", 7)) sscanf(pLine, "topper: %23s", &AISkin.m_aTopper);
-			else if(!str_comp_num(pLine, "eye:", 4)) sscanf(pLine, "eye: %23s", &AISkin.m_aEye);
+			else if(!str_comp_num(pLine, "head:", 5)) sscanf(pLine, "head: %23s", AISkin.m_aHead);
+			else if(!str_comp_num(pLine, "body:", 5)) sscanf(pLine, "body: %23s", AISkin.m_aBody);
+			else if(!str_comp_num(pLine, "hand:", 5)) sscanf(pLine, "hand: %23s", AISkin.m_aHand);
+			else if(!str_comp_num(pLine, "foot:", 5)) sscanf(pLine, "foot: %23s", AISkin.m_aFoot);
+			else if(!str_comp_num(pLine, "topper:", 7)) sscanf(pLine, "topper: %23s", AISkin.m_aTopper);
+			else if(!str_comp_num(pLine, "eye:", 4)) sscanf(pLine, "eye: %23s", AISkin.m_aEye);
 			
 			else if(!str_comp_num(pLine, "level:", 6)) sscanf(pLine, "level: %d", &AISkin.m_Level);
 			
