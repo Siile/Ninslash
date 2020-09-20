@@ -552,7 +552,7 @@ int CServer::LoadGameVote(const char *pFilename, const char *pFoldername, int St
 	
 	CLineReader LineReader;
 	LineReader.Init(VoteFile);
-
+ 
 	// read each line
 	while(char *pLine = LineReader.Get())
 	{
