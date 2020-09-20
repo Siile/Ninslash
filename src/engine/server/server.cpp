@@ -645,7 +645,9 @@ int CServer::LoadAISkin(const char *pFilename, const char *pFoldername, int Stor
 		if(str_length(pLine) > 0 && pLine[0] != '#' && pLine[0] != '\n' && pLine[0] != '\r'
 			&& pLine[0] != '\t' && pLine[0] != '\v' && pLine[0] != ' ')
 		{
-			if(!str_comp_num(pLine, "name:", 5)) sscanf(pLine, "name: %23s", &AISkin.m_aName);
+			if(!str_comp_num(pLine, "name:", 5))
+				sscanf(pLine, "name: %23s", AISkin.m_aName);
+			
 			else if(!str_comp_num(pLine, "head:", 5)) sscanf(pLine, "head: %23s", &AISkin.m_aHead);
 			else if(!str_comp_num(pLine, "body:", 5)) sscanf(pLine, "body: %23s", &AISkin.m_aBody);
 			else if(!str_comp_num(pLine, "hand:", 5)) sscanf(pLine, "hand: %23s", &AISkin.m_aHand);
