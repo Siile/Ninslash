@@ -1,5 +1,6 @@
 #include <base/math.h>
 #include <base/system.h>
+#include <stdio.h>	// sscanf
 
 #include <engine/config.h>
 #include <engine/console.h>
