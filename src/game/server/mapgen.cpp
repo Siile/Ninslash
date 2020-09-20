@@ -1,5 +1,6 @@
 #include <random>
 
+#include <stdio.h>	// sscanf
 #include <base/system.h>
 #include <base/math.h>
 #include <base/vmath.h>
