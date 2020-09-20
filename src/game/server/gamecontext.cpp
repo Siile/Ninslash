@@ -1205,7 +1205,10 @@ const char *CGameContext::GetVoteWinnerConfig()
 		char aBuf[128];
 		str_format(aBuf, sizeof(aBuf), "exec %s.cfg", m_aGameVote[i].m_aConfig);
 		Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "GetVoteWinnerConfig", aBuf);
-		return static_cast < const char * > (aBuf);
+		const char * a = aBuf;
+		return a;
+		
+		//return static_cast < const char * > (aBuf);
 	}
 }
 
