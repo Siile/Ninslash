@@ -2,6 +2,7 @@
 
 
 #include <base/math.h>
+#include <cstring>
 
 #include <engine/engine.h>
 #include <engine/graphics.h>

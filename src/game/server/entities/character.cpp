@@ -1211,7 +1211,11 @@ void CCharacter::GiveStartWeapon()
 		return;
 	}
 	
-	//if (GameServer()->m_pController->IsCoop())
+	if (!m_IsBot && str_comp(g_Config.m_SvGametype, "base") == 0)
+	{
+		m_apWeapon[0] = GameServer()->NewWeapon(GetStaticWeapon(SW_TOOL));
+	}
+	
 	if (str_comp(g_Config.m_SvGametype, "coop") == 0)
 	{
 		if (m_IsBot)
