@@ -326,8 +326,9 @@ void CGameControllerBase::Tick()
 	if (m_NoPlayersTick && m_NoPlayersTick < Server()->Tick())
 	{
 		m_NoPlayersTick = 0;
+		m_Wave = 0;
 		EndRound();
-		CycleMap();
+		//CycleMap();
 	}
 	
 	// 
