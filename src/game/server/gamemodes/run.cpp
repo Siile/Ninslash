@@ -433,7 +433,7 @@ void CGameControllerCoop::Tick()
 		// lose => restart
 		if (m_RoundOverTick && m_RoundOverTick < Server()->Tick() - Server()->TickSpeed()*2.0f)
 		{
-			if (++g_Config.m_SvInvFails >= -3)
+			if (++g_Config.m_SvInvFails >= 3)
 			{
 				/*
 				g_Config.m_SvInvFails = 0;
