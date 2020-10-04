@@ -567,6 +567,9 @@ int CServer::LoadGameVote(const char *pFilename, const char *pFoldername, int St
 			
 			else if(!str_comp_num(pLine, "min-players:", 12)) sscanf(pLine, "min-players: %d", &GameVote.m_MinPlayers);
 			else if(!str_comp_num(pLine, "max-players:", 12)) sscanf(pLine, "max-players: %d", &GameVote.m_MaxPlayers);
+			
+			else if(!str_comp_num(pLine, "always-on", 9)) GameVote.m_AlwaysOn = true;
+			else if(!str_comp_num(pLine, "display-level", 13)) GameVote.m_DisplayLevel = true;
 		}
 	}
 
@@ -754,6 +757,19 @@ bool CServer::GetGameVote(CGameVote *pGameVote, int Players)
 	if (m_GameVoteCount < 1 || m_GameModesLeft < 1)
 		return false;
 	
+	// get gamevotes that should be always displayed first
+	for (int l = 0; l < m_GameVoteCount; l++)
+	{
+		if (m_aGameVote[l].m_MinPlayers <= Players && m_aGameVote[l].m_MaxPlayers >= Players && m_aGameVote[l].m_AlwaysOn && !m_aGameVoteUsed[l])
+		{
+			m_aGameVoteUsed[l] = true;
+			m_GameModesLeft--;
+			*pGameVote = m_aGameVote[l];
+			return true;
+		}
+	}
+	
+	// get random gamevote
 	int i = rand()%(m_GameVoteCount);
 	
 	int j = 0;

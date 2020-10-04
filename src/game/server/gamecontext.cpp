@@ -1134,10 +1134,42 @@ void CGameContext::ResetGameVotes()
 	for (int i = 0; i < MAX_CLIENTS; i++)
 		m_aPlayerGameVote[i] = -1;
 	
+	// define the level for invasion
+	int PlayerCount = 0;
+	int TotalLevel = 0;
+	
+	for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		CPlayer *pPlayer = m_apPlayers[i];
+		if (pPlayer && !pPlayer->m_IsBot)
+		{
+			CPlayerData *pData = Server()->GetPlayerData(pPlayer->GetCID(), pPlayer->GetColorID());
+			
+			TotalLevel += max(1, pData->m_HighestLevel);
+			PlayerCount++;
+		}
+	}
+	
+	int InvLevel = 1;
+	
+	if (PlayerCount > 0)
+		InvLevel = TotalLevel / PlayerCount;
+
+	g_Config.m_SvMapGenLevel = InvLevel;
+	
 	for (int i = 0; i < 6; i++)
 	{
 		if (!Server()->GetGameVote(&m_aGameVote[i], m_pController->CountHumans()))
 			return;
+		else
+		{
+			if (m_aGameVote[i].m_DisplayLevel)
+			{
+				char aBuf[64];
+				str_format(aBuf, sizeof(aBuf), "%s - Level %d", m_aGameVote[i].m_aDescription, g_Config.m_SvMapGenLevel);
+				str_copy(m_aGameVote[i].m_aDescription, aBuf, sizeof(m_aGameVote[i].m_aDescription));
+			}
+		}
 	}
 }
 
@@ -1976,7 +2008,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				SkipSending = true;
 			}
 			
-			if ( strcmp(pMsg->m_pMessage, "/jumphigh") == 0 )
+			if ( false && strcmp(pMsg->m_pMessage, "/jumphigh") == 0 )
 			{
 				CPlayerData *pData = Server()->GetPlayerData(pPlayer->GetCID(), pPlayer->GetColorID());
 				

@@ -1,0 +1,8 @@
+name: Invasion
+description: PvE
+config: cfg/invasion
+image: reactor_def1
+min-players: 0
+max-players: 16
+always-on
+display-level

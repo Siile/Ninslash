@@ -86,6 +86,7 @@ public:
 	{
 		STATE_STARTING,
 		STATE_GAME,
+		STATE_FAIL,
 	};
 };
 #endif

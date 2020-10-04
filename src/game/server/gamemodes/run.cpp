@@ -223,6 +223,14 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			if (frandom() < 0.7f && Level > 2)
 				Level = rand()%(Level-1);
 			
+						
+			GameServer()->GetAISkin(&pChr->GetPlayer()->m_AISkin, false, 1+rand()%(1+g_Config.m_SvMapGenLevel/2));
+			pChr->GetPlayer()->SetAISkin();
+			//pChr->GetPlayer()->m_pAI = new CAIbase(GameServer(), pChr->GetPlayer());
+			pChr->m_IsBot = true;
+		
+			
+			// todo: rewrite
 			switch (m_GroupType)
 			{
 				case GROUP_ALIENS: 
@@ -387,6 +395,9 @@ void CGameControllerCoop::Tick()
 {
 	IGameController::Tick();
 	
+	if (m_GameState == STATE_FAIL)
+		return;
+	
 	// 
 	if (m_GameState == STATE_STARTING)
 	{
@@ -422,16 +433,21 @@ void CGameControllerCoop::Tick()
 		// lose => restart
 		if (m_RoundOverTick && m_RoundOverTick < Server()->Tick() - Server()->TickSpeed()*2.0f)
 		{
-			if (++g_Config.m_SvInvFails >= 3)
+			if (++g_Config.m_SvInvFails >= -3)
 			{
+				/*
 				g_Config.m_SvInvFails = 0;
 				
-				if (--g_Config.m_SvMapGenLevel < 1)
-					g_Config.m_SvMapGenLevel = 1;
+				//if (--g_Config.m_SvMapGenLevel < 1)
+				//	g_Config.m_SvMapGenLevel = 1;
 				
 				int l = g_Config.m_SvMapGenLevel;
 				FirstMap();
 				g_Config.m_SvMapGenLevel = l;
+				*/
+				g_Config.m_SvInvFails = 0;
+				m_GameState = STATE_FAIL;
+				EndRound();
 			}
 			else
 				GameServer()->ReloadMap();
@@ -469,6 +485,14 @@ void CGameControllerCoop::Tick()
 			m_RoundWinTick = 0;
 			g_Config.m_SvMapGenLevel++;
 			g_Config.m_SvInvFails = 0;
+			
+			for (int i = 0; i < MAX_CLIENTS; i++)
+			{
+				CPlayer *pPlayer = GameServer()->m_apPlayers[i];
+				if(pPlayer)
+					pPlayer->SaveData();
+			}
+			
 			EndRound();
 		}
 	}

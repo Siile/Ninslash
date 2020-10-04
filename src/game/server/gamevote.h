@@ -11,10 +11,14 @@ struct CGameVote
 	bool m_Valid;
 	int m_MinPlayers;
 	int m_MaxPlayers;
+	bool m_AlwaysOn;
+	bool m_DisplayLevel;
 	
 	CGameVote()
 	{
 		m_Valid = false;
+		m_AlwaysOn = false;
+		m_DisplayLevel = false;
 		m_MinPlayers = 0;
 		m_MaxPlayers = 0;
 	}
