@@ -15,7 +15,7 @@ public:
 	
 	bool TooSmall()
 	{
-		if (m_W < 5 || m_H < 5)
+		if (m_W < 8 || m_H < 8)
 			return true;
 		
 		return false;

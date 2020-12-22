@@ -5,8 +5,8 @@
 #undef GAME_TUNING_H // this file will be included several times
 
 // physics tuning
-MACRO_TUNING_PARAM(ControlSpeed, control_speed, 1.0f)
-MACRO_TUNING_PARAM(JumpPower, jump_power, 12.2f)
+MACRO_TUNING_PARAM(ControlSpeed, control_speed, 0.9f)
+MACRO_TUNING_PARAM(JumpPower, jump_power, 11.2f)
 
 
 MACRO_TUNING_PARAM(BallSize, ball_size, 64.0f)
@@ -15,15 +15,15 @@ MACRO_TUNING_PARAM(GroundControlSpeed, ground_control_speed, 450.0f / TicksPerSe
 MACRO_TUNING_PARAM(GroundControlAccel, ground_control_accel, 75.0f / TicksPerSecond)
 MACRO_TUNING_PARAM(GroundFriction, ground_friction, 0.5f)
 MACRO_TUNING_PARAM(GroundJumpImpulse, ground_jump_impulse, 11.2f)
-MACRO_TUNING_PARAM(HookLength, hook_length, 380.0f)
-MACRO_TUNING_PARAM(HookFireSpeed, hook_fire_speed, 80.0f)
-MACRO_TUNING_PARAM(HookDragAccel, hook_drag_accel, 3.0f)
-MACRO_TUNING_PARAM(HookDragSpeed, hook_drag_speed, 15.0f)
+MACRO_TUNING_PARAM(HookLength, hook_length, 480.0f)
+MACRO_TUNING_PARAM(HookFireSpeed, hook_fire_speed, 60.0f) //80.0f
+MACRO_TUNING_PARAM(HookDragAccel, hook_drag_accel, 2.0f) // 3.0f
+MACRO_TUNING_PARAM(HookDragSpeed, hook_drag_speed, 14.0f) // 15.0f
 MACRO_TUNING_PARAM(WallrunImpulse, wall_run_impulse, 9.0f)
 MACRO_TUNING_PARAM(AirControlSpeed, air_control_speed, 450.0f / TicksPerSecond) //  250.0f
 MACRO_TUNING_PARAM(AirControlAccel, air_control_accel, 50.0f / TicksPerSecond) // 1.5f
 MACRO_TUNING_PARAM(AirFriction, air_friction, 0.95f)
-MACRO_TUNING_PARAM(Gravity, gravity, 0.7f) // 0.5f
+MACRO_TUNING_PARAM(Gravity, gravity, 0.6f) // 0.5f
 
 MACRO_TUNING_PARAM(SlideFriction, slide_friction, 0.8f)
 MACRO_TUNING_PARAM(SlideSlopeAcceleration, slide_slope_acceleration, 0.3f)
