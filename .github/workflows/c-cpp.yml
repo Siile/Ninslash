@@ -25,7 +25,7 @@ jobs:
       if: contains(matrix.os, 'ubuntu')
       run: |
         sudo apt-get update -y
-        sudo apt-get install bam git libfreetype6-dev libsdl2-dev libpnglite-dev libwavpack-dev python3 -y
+        sudo apt-get install bam git libfreetype2.4.8-dev libsdl2-dev libpnglite-dev libwavpack-dev python3 -y
         cd bam
         ./make_unix.sh
     - name: Prepare MacOS
