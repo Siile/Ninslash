@@ -6,9 +6,9 @@ jobs:
   build-bam:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-      fail-fast: false
         include:
         - name: "Ubuntu-Latest x86_64"
           os: ubuntu-latest
