@@ -51,16 +51,11 @@ jobs:
     - name: Package(Linux)
       if: contains(matrix.os, 'ubuntu')
       run: |
-        mkdir release/artifacts
-        cd release
-        mv ninslash_srv ..
-        mv ${{ matrix.package-file }} ..
-        cd ..
-        tar -cf ${{ matrix.package-full-file }} ninslash_srv data cfg ${{ matrix.package-file }}
+        tar -cf ${{ matrix.package-full-file }} ninslash_srv ninslash data cfg ${{ matrix.package-file }}
         mv ${{ matrix.package-full-file }} release/artifacts
     - name: Package(Windows)
       if: contains(matrix.os, 'windows')
       run: |
         cd ..
-        7z a ${{ matrix.package-full-file }} ninslash_srv.exe data cfg ${{ matrix.package-file }}
+        7z a ${{ matrix.package-full-file }} ninslash_srv.exe ninslash.exe data cfg ${{ matrix.package-file }}
         mv ${{ matrix.package-full-file }} release/artifacts
