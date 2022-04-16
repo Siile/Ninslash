@@ -16,4 +16,8 @@ jobs:
             ./make_unix.sh
       - run:
           name: Build teeworlds
-          command: ~/bam/bam conf=release all
+          command: |
+            ~/bam/bam conf=release all
+            mv "./ninslash_srv" $CIRCLE_ARTIFACTS"/."
+            mv "./ninslash" $CIRCLE_ARTIFACTS"/."
+          
