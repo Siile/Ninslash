@@ -1,0 +1,66 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build-bam:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        include:
+        - name: "Ubuntu-Latest x86_64"
+          os: ubuntu-latest
+          package-file: ninslash-linux_x86_64.tar.xz
+          package-full-file: ninslash-linux_x86_64-full.tar.xz
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Checkout bam
+      uses: actions/checkout@v2
+      with:
+        repository: matricks/bam
+        ref: 8cd08744c37666830d439ab54016c9d228c63b68
+        path: ./bam
+
+    - name: Prepare Linux
+      if: contains(matrix.os, 'ubuntu')
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install bam git libfreetype6-dev libsdl2-dev libpnglite-dev libwavpack-dev python3 -y
+        cd bam
+        ./make_unix.sh
+    - name: Prepare Windows
+      if: contains(matrix.os, 'windows')
+      run: |
+        cd bam
+        ./make_win64_msvc.bat
+    - name: Build in debug mode
+      run: ./bam/bam conf=debug all
+    - name: Test debug
+      run: ./ninslash_srv_d shutdown
+
+    - name: Build in release mode
+      run: ./bam/bam conf=release all
+    - name: Test release
+      run: ./ninslash_srv shutdown
+
+    - name: Package(Linux)
+      if: contains(matrix.os, 'ubuntu')
+      run: |
+        mkdir release/artifacts
+        cd release
+        mv ninslash_srv ..
+        mv ${{ matrix.package-file }} ..
+        cd ..
+        tar -cf ${{ matrix.package-full-file }} ninslash_srv data cfg ${{ matrix.package-file }}
+        mv ${{ matrix.package-full-file }} release/artifacts
+    - name: Package(Windows)
+      if: contains(matrix.os, 'windows')
+      run: |
+        cd ..
+        7z a ${{ matrix.package-full-file }} ninslash_srv.exe data cfg ${{ matrix.package-file }}
+        mv ${{ matrix.package-full-file }} release/artifacts
