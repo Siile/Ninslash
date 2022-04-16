@@ -1,0 +1,151 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build-cmake:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest, ubuntu-18.04]
+        include:
+        - os: ubuntu-latest
+          cmake-args: -G "Unix Makefiles"
+          build-args: --parallel
+          package-file: teeworlds-*-linux_x86_64.tar.xz
+          env:
+            CFLAGS: -Wdeclaration-after-statement -Werror
+            CXXFLAGS: -Werror
+        - os: ubuntu-18.04
+          cmake-path: /usr/bin/
+          cmake-args: -G "Unix Makefiles"
+          package-file: teeworlds-*-linux_x86_64.tar.xz
+          env:
+            CFLAGS: -Wdeclaration-after-statement -Werror
+            CXXFLAGS: -Werror
+        - os: macOS-latest
+          cmake-args: -G "Unix Makefiles"
+          build-args: --parallel
+          package-file: teeworlds-*-osx.dmg
+          env:
+            CFLAGS: -Wdeclaration-after-statement -Werror
+            CXXFLAGS: -Werror
+        - os: windows-latest
+          cmake-args: -A x64
+          package-file: teeworlds-*-win64.zip
+          env:
+            CFLAGS: /WX
+            CXXFLAGS: /WX
+            LDFLAGS: /WX
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Prepare Linux
+      if: contains(matrix.os, 'ubuntu')
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install pkg-config cmake libfreetype6-dev libsdl2-dev -y
+    - name: Prepare MacOS
+      if: contains(matrix.os, 'macOS')
+      run: |
+        brew update
+        brew install pkg-config sdl2
+    - name: Build in debug mode
+      env: ${{ matrix.env }}
+      run: |
+        mkdir debug
+        cd debug
+        ${{ matrix.cmake-path }}cmake --version
+        ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=Debug -Werror=dev -DDOWNLOAD_GTEST=ON -DDEV=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG=. ..
+        ${{ matrix.cmake-path }}cmake --build . --config Debug ${{ matrix.build-args }} --target everything
+    - name: Test debug
+      run: |
+        cd debug
+        ${{ matrix.cmake-path }}cmake --build . --config Debug ${{ matrix.build-args }} --target run_tests
+    - name: Run debug server
+      env: ${{ matrix.env }}
+      run: |
+        cd debug
+        ./ninslash_srv shutdown
+    - name: Build in release mode
+      env: ${{ matrix.env }}
+      run: |
+        mkdir release
+        cd release
+        ${{ matrix.cmake-path }}cmake ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=Release -Werror=dev -DDOWNLOAD_GTEST=ON -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE=. ..
+        ${{ matrix.cmake-path }}cmake --build . --config Release ${{ matrix.build-args }} --target everything
+    - name: Test release
+      run: |
+        cd release
+        ${{ matrix.cmake-path }}cmake --build . --config Release ${{ matrix.build-args }} --target run_tests
+    - name: Run release server
+      env: ${{ matrix.env }}
+      run: |
+        cd release
+        ./ninslash_srv shutdown
+    - name: Package
+      run: |
+        cd release
+        ${{ matrix.cmake-path }}cmake --build . --config Release ${{ matrix.build-args }} --target package_default
+        mkdir artifacts
+        mv ${{ matrix.package-file }} artifacts
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: teeworlds-${{ matrix.os }}
+        path: release/artifacts
+
+  build-bam:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Checkout bam
+      uses: actions/checkout@v2
+      with:
+        repository: matricks/bam
+        ref: 8cd08744c37666830d439ab54016c9d228c63b68
+        path: ./bam
+
+    - name: Prepare Linux
+      if: contains(matrix.os, 'ubuntu')
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install libfreetype6-dev libsdl2-dev -y
+        cd bam
+        ./make_unix.sh
+    - name: Prepare MacOS
+      if: contains(matrix.os, 'macOS')
+      run: |
+        brew update
+        brew install sdl2
+        cd bam
+        ./make_unix.sh
+    - name: Prepare Windows
+      if: contains(matrix.os, 'windows')
+      run: |
+        cd bam
+        ./make_win64_msvc.bat
+    - name: Build in debug mode
+      run: ./bam/bam conf=debug all
+    - name: Test debug
+      run: ./build/x86_64/debug/ninslash_srv shutdown
+
+    - name: Build in release mode
+      run: ./bam/bam conf=release all
+    - name: Test release
+      run: ./build/x86_64/release/ninslash_srv shutdown
+
+    - name: Create MacOS app using make_release.py
+      if: contains(matrix.os, 'macOS')
+      run: |
+        sudo python3 scripts/make_release.py master osx
