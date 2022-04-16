@@ -35,8 +35,6 @@ jobs:
       run: |
         sudo apt-get update -y
         sudo apt-get install bam git libfreetype6-dev libsdl2-dev libpnglite-dev libwavpack-dev python3 -y
-        cd bam
-        ./make_unix.sh
     - name: Prepare Windows
       if: contains(matrix.os, 'windows')
       run: |
