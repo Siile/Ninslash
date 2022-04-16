@@ -1,7 +1,6 @@
 name: Build
 
 on: [push, pull_request]
-fail-fast: false
 
 jobs:
   build-bam:
@@ -9,6 +8,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
+      fail-fast: false
         include:
         - name: "Ubuntu-Latest x86_64"
           os: ubuntu-latest
