@@ -1,0 +1,13 @@
+sv_port 8303
+sv_rcon_password 123
+sv_name "Ninslash server"
+
+sv_inactivekick_time 0
+sv_mapgen 1
+sv_mapgen_seed 0
+sv_mapgen_random_seed 0
+sv_nobotteam -1
+
+sv_register 1;
+
+exec cfg/reactor_def1.cfg
