@@ -13,11 +13,6 @@ jobs:
         - name: "Ubuntu-Latest x86_64"
           os: ubuntu-latest
           package-full-file: ninslash-linux_x86_64-full.tar.xz
-          
-        - name: "Windows x64"
-          os: windows-latest
-          cmake-args: -G "Visual Studio 10 2010" -A x64
-          package-full-file: ninslash-win64-full.zip
 
     steps:
     - uses: actions/checkout@v2
@@ -36,12 +31,7 @@ jobs:
       run: |
         sudo apt-get update -y
         sudo apt-get install bam git libfreetype6-dev libsdl2-dev libpnglite-dev libwavpack-dev python3 -y
-    - name: Prepare Windows
-      if: contains(matrix.os, 'windows')
-      run: |
-        %comspec% /k ""C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"" x86
-        cd bam
-        ./make_win64_msvc.bat
+
     - name: Build in debug mode
       run: bam debug
     - name: Test debug
@@ -56,11 +46,6 @@ jobs:
       if: contains(matrix.os, 'ubuntu')
       run: |
         tar -cf ${{ matrix.package-full-file }} ninslash_srv ninslash data cfg
-    - name: Package(Windows)
-      if: contains(matrix.os, 'windows')
-      run: |
-        cd ..
-        7z a ${{ matrix.package-full-file }} ninslash_srv.exe ninslash.exe data cfg
         
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2-preview
