@@ -42,12 +42,12 @@ jobs:
         cd bam
         ./make_win64_msvc.bat
     - name: Build in debug mode
-      run: bam conf=debug all
+      run: bam debug
     - name: Test debug
       run: ./ninslash_srv_d shutdown
 
     - name: Build in release mode
-      run: bam conf=release all
+      run: bam release
     - name: Test release
       run: ./ninslash_srv shutdown
 
