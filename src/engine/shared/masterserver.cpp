@@ -77,7 +77,7 @@ public:
 				if(m_aMasterServers[i].m_Lookup.m_Job.Result() == 0)
 				{
 					m_aMasterServers[i].m_Addr = m_aMasterServers[i].m_Lookup.m_Addr;
-					m_aMasterServers[i].m_Addr.port = 8300;
+					m_aMasterServers[i].m_Addr.port = 11451;
 					m_aMasterServers[i].m_Valid = true;
 				}
 				else
@@ -124,7 +124,7 @@ public:
 		mem_zero(m_aMasterServers, sizeof(m_aMasterServers));
 				
 		for(int i = 0; i < MAX_MASTERSERVERS; i++)
-			str_format(m_aMasterServers[i].m_aHostname, sizeof(m_aMasterServers[i].m_aHostname), "vps301894.ovh.net");
+			str_format(m_aMasterServers[i].m_aHostname, sizeof(m_aMasterServers[i].m_aHostname), "master.ninslashfansmaster.top");
 			//str_format(m_aMasterServers[i].m_aHostname, sizeof(m_aMasterServers[i].m_aHostname), "164.132.46.180");
 	
 		//str_format(m_aMasterServers[0].m_aHostname, sizeof(m_aMasterServers[0].m_aHostname), "88.113.165.121");
@@ -153,7 +153,7 @@ public:
 			char aAddrStr[NETADDR_MAXSTRSIZE];
 			if(sscanf(pLine, "%127s %47s", Info.m_aHostname, aAddrStr) == 2 && net_addr_from_str(&Info.m_Addr, aAddrStr) == 0)
 			{
-				Info.m_Addr.port = 8300;
+				Info.m_Addr.port = 11451;
 				bool Added = false;
 				for(int i = 0; i < MAX_MASTERSERVERS; ++i)
 					if(str_comp(m_aMasterServers[i].m_aHostname, Info.m_aHostname) == 0)
