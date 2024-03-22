@@ -203,7 +203,7 @@ Folder
 == Папка
 
 Force vote
-== Форсировать
+== Ускорить
 
 Free-View
 == Свободный обзор
@@ -278,7 +278,7 @@ Jump
 == Прыжок
 
 Kick player
-== Забанить игрока
+== Кикнуть игрока
 
 LAN
 == LAN
@@ -380,7 +380,7 @@ Password
 == Пароль
 
 Password incorrect
-== Пароль
+== Неверный пароль
 
 Ping
 == Пинг
@@ -605,7 +605,7 @@ Time limit: %d min
 == Лимит времени: %d
 
 Try again
-== ОК
+== Попробуйте ещё раз
 
 Type
 == Тип
@@ -676,13 +676,90 @@ no limit
 ##### needs translation #####
 
 Game paused
-== 
+== Пауза
 
 Respawn
-== 
+== Переродиться
 
 Show only chat messages from friends
-== 
+== Показывать только сообщения друзей
 
 ##### old translations #####
 
+
++##### ninslash translations #####
+ +
+ +Movement & Weapons
+ +== Перемещение и Оружие
+ +
+ +Slide / down
+ +== Скольжение / вниз
+ +
+ +Turbo
+ +== Ускорение
+ +
+ +Build
+ +== Построить
+ +
+ +Sword
+ +== Меч
+ +
+ +Assault rifle
+ +== Штурм. винтовка
+ +
+ +Laser
+ +== Лазер
+ +
+ +Electro launcher
+ +== Електро гранатомёт
+ +
+ +Grenade launcher
+ +== Гранатомет
+ +
+ +Flame launcher
+ +== Огнемёт
+ +
+ +Chainsaw
+ +== Бензопила
+ +
+ +Weapon picker
+ +== Подбор оружия
+ +
+ +Drop weapon
+ +== Выкинуть оружие
+ +
+ +Chat & Misc.
+ +== Чат и другое
+ +
+ +Customize
+ +== Кастомизация
+ +
+ +Change color of
+ +== Изменить цвет
+ +
+ +Skin
+ +== Скин
+ +
+ +Hair / hat
+ +== Голова
+ +
+ +Change skin of
+ +== Изменить скин
+ +
+ +Eyes
+ +== Глаза
+ +
+ +Custom
+ +== Изменение
+ +
+ +Blood amount
+ +== Количество крови
+ +
+ +Enable ground blood (requires restart, might cause issues)
+ +== Кровь на земле (требуется перезагрузка)
+ +
+ +Enable aim line
+ +== Линия прицеливания
+  
+ +Camera drag
+ +== Тряска камеры
