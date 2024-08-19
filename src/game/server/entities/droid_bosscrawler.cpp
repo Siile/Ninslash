@@ -138,8 +138,6 @@ void CBossCrawler::Tick()
 	
 	if (m_Health <= 0)
 	{
-		float OldVelY = m_Vel.y;
-		
 		if (Server()->Tick() > m_DamageTakenTick+70)
 		{
 			if (Server()->Tick() > m_DamageTakenTick+140 || abs(m_Vel.y) < 0.2f)
@@ -376,8 +374,6 @@ void CBossCrawler::Fire()
 
 bool CBossCrawler::Target()
 {
-	vec2 TurretPos = m_Pos;
-	
 	if (m_TargetIndex >= 0 && m_TargetIndex < MAX_CLIENTS)
 	{
 		CCharacter *pCharacter = GameServer()->GetPlayerChar(m_TargetIndex);

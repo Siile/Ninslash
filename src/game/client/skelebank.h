@@ -71,7 +71,7 @@ enum AnimList
 };
 
 
-static const char *aAnimList[NUM_ANIMS] = 
+static const char *aAnimList[NUM_ANIMS]  __attribute__((unused)) = 
 {
 	"idle",
 	"idle1",

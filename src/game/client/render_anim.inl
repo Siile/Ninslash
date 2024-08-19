@@ -12,6 +12,7 @@ static double CubicRoot(double x)
 		return exp(log(x)/3.0);
 }
 
+static float SolveBezier(float x, float p0, float p1, float p2, float p3) __attribute__((unused));
 static float SolveBezier(float x, float p0, float p1, float p2, float p3)
 {
 	// check for valid f-curve

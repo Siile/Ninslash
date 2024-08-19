@@ -18,7 +18,7 @@ enum Buildables
 	NUM_BUILDABLES
 };
 
-static const char *s_BuildTipText[NUM_BUILDABLES] = {
+static const char *s_BuildTipText[NUM_BUILDABLES]  __attribute__((unused)) = {
 	"Block",
 	"Hard block",
 	"Barrel",

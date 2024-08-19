@@ -85,7 +85,7 @@ enum WeaponBits
 };
 
 
-static const char *s_TipText[NUM_SW] = {
+static const char *s_TipText[NUM_SW]  __attribute__((unused)) = {
 	"Repair tool",
 	"",
 	"",

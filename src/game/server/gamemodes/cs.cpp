@@ -245,8 +245,6 @@ void CGameControllerCS::FindReactors()
 	CBuilding *apEnts[9999];
 	int Num = GameServer()->m_World.FindEntities(vec2(0, 0), 0, (CEntity**)apEnts, 9999, CGameWorld::ENTTYPE_BUILDING);
 
-	int Reactors = 0;
-	
 	for (int i = 0; i < Num; ++i)
 	{
 		CBuilding *pBuilding = apEnts[i];

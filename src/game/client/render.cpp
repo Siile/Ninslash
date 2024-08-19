@@ -1825,7 +1825,6 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 		float WeaponAngle = PlayerInfo->MeleeAngle();
 		int WeaponDir = PlayerInfo->MeleeFlip() ? -1 : 1;
 		bool FlipY = false;
-		vec2 Size = vec2(256, 256)*0.4f;
 		
 		if (WeaponDir > 0)
 			FlipY = PlayerInfo->MeleeEffectFlip();

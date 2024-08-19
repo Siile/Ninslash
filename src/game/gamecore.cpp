@@ -643,8 +643,6 @@ void CCharacterCore::Tick(bool UseInput)
 				}
 			}
 			
-			bool Down = PlatformState();
-			
 			if ((Grounded || InFluid) && m_Vel.y >= 0.0f)
 			{
 				if (!(m_Jumped&1) && !m_Roll)
@@ -1549,13 +1547,9 @@ void CCharacterCore::Move()
 	
 			vec2 BPos = pBallCore->m_Pos;
 			float OffsetY = -26;
-			float Force = 1.0f;
-		
+
 			if (m_Action == COREACTION_SLIDEKICK && m_ActionState > 2 &&  m_ActionState < 10)
-			{
 				OffsetY = -14;
-				Force = 2.0f;
-			}
 			
 			if (m_Slide != 0 || m_Roll != 0)
 				OffsetY = -6;
@@ -1601,8 +1595,6 @@ void CCharacterCore::Move()
 					float v1 = length(m_BallHitVel);
 					float v2 = length(pBallCore->m_Vel);
 					
-					float dx1F = (v1 * cos(theta1 - phi) * (m1-m2) + 2*m2*v2*cos(theta2 - phi)) / (m1+m2) * cos(phi) + v1*sin(theta1-phi) * cos(phi+pi/2);
-					float dy1F = (v1 * cos(theta1 - phi) * (m1-m2) + 2*m2*v2*cos(theta2 - phi)) / (m1+m2) * sin(phi) + v1*sin(theta1-phi) * sin(phi+pi/2);
 					float dx2F = (v2 * cos(theta2 - phi) * (m2-m1) + 2*m1*v1*cos(theta1 - phi)) / (m1+m2) * cos(phi) + v2*sin(theta2-phi) * cos(phi+pi/2);
 					float dy2F = (v2 * cos(theta2 - phi) * (m2-m1) + 2*m1*v1*cos(theta1 - phi)) / (m1+m2) * sin(phi) + v2*sin(theta2-phi) * sin(phi+pi/2);
 

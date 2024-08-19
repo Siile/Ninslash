@@ -102,13 +102,9 @@ void CPlayers::RenderHook(
 	Player = *pPlayerChar;
 
 	CNetObj_PlayerInfo pInfo = *pPlayerInfo;
-	CTeeRenderInfo RenderInfo = m_aRenderInfo[pInfo.m_ClientID];
 	CPlayerInfo *pCustomPlayerInfo = &CustomStuff()->m_aPlayerInfo[pInfo.m_ClientID];
 
 	float IntraTick = Client()->IntraGameTick();
-
-	// set size
-	RenderInfo.m_Size = 64.0f;
 
 
 	// use preditect players if needed
@@ -963,8 +959,6 @@ void CPlayers::RenderPlayer(
 				FPos += vec2(cos(Angle), sin(Angle))*16.0f;
 				
 				vec2 StartPos = FPos;
-				
-				vec2 LightStartPos = FPos+vec2(cos(Angle), sin(Angle))*16.0f;
 				vec2 FinalPos = FPos;
 				
 				int Flames = 0;

@@ -18,8 +18,6 @@ CRoom::CRoom(int x, int y, int w, int h)
 	m_pChild1 = NULL;
 	m_pChild2 = NULL;
 	
-	int i = 0;
-	
 	//int RoomSize = 6+rand()%10;
 	int RoomSize = 6+rand()%6;
 	

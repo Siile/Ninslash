@@ -100,7 +100,7 @@ bool CSpineReader::Load(const char *pData,
 	const json_value& rBones = (*pJsonData)["bones"];
 	if(rBones.type == json_array && plBones)
 	{
-		for(int i = 0; i < rBones.u.array.length; i++)
+		for(unsigned int i = 0; i < rBones.u.array.length; i++)
 		{
 			const json_value& rBone = rBones[i];
 
@@ -122,7 +122,7 @@ bool CSpineReader::Load(const char *pData,
 	const json_value& rSlots = (*pJsonData)["slots"];
 	if(rBones.type == json_array && plSlots)
 	{
-		for(int i = 0; i < rSlots.u.array.length; i++)
+		for(unsigned int i = 0; i < rSlots.u.array.length; i++)
 		{
 			const json_value& rSlot = rSlots[i];
 
@@ -141,17 +141,17 @@ bool CSpineReader::Load(const char *pData,
 	{
 		// TODO:
 		const json_value& rSkins = (*pJsonData)["skins"];
-		for(int i = 0; i < rSkins.u.object.length; i++)
+		for(unsigned int i = 0; i < rSkins.u.object.length; i++)
 		{
 			const char *pSkinName = rSkins.u.object.values[i].name;
 			const json_value& rSkin = (*rSkins.u.object.values[i].value);
 
-			for(int j = 0; j < rSkin.u.object.length; j++)
+			for(unsigned int j = 0; j < rSkin.u.object.length; j++)
 			{
 				const char *pSlotName = rSkin.u.object.values[j].name;
 				const json_value& rAttachments = (*rSkin.u.object.values[j].value);
 
-				for(int k = 0; k < rAttachments.u.object.length; k++)
+				for(unsigned int k = 0; k < rAttachments.u.object.length; k++)
 				{
 					const char *pAttachmentName = rAttachments.u.object.values[k].name;
 					const json_value& rAttachment = (*rAttachments.u.object.values[k].value);
@@ -221,19 +221,19 @@ bool CSpineReader::Load(const char *pData,
 					{
 						if(rAttachment["uvs"].type != json_none)
 						{
-							for(int uv = 0; uv < rAttachment["uvs"].u.array.length; uv++)
+							for(unsigned int uv = 0; uv < rAttachment["uvs"].u.array.length; uv++)
 								Attachment.m_SkinnedMesh.m_aUV.add((double)rAttachment["uvs"][uv]);
 						}
 
 						if(rAttachment["triangles"].type != json_none)
 						{
-							for(int t = 0; t < rAttachment["triangles"].u.array.length; t++)
+							for(unsigned int t = 0; t < rAttachment["triangles"].u.array.length; t++)
 								Attachment.m_SkinnedMesh.m_aTriangles.add((double)rAttachment["triangles"][t]);
 						}
 
 						if(rAttachment["vertices"].type != json_none)
 						{
-							for(int v = 0; v < rAttachment["vertices"].u.array.length; v++)
+							for(unsigned int v = 0; v < rAttachment["vertices"].u.array.length; v++)
 								Attachment.m_SkinnedMesh.m_aVertices.add((double)rAttachment["vertices"][v]);
 						}
 						
@@ -241,7 +241,7 @@ bool CSpineReader::Load(const char *pData,
 						
 						if(rAttachment["edges"].type != json_none)
 						{
-							for(int v = 0; v < rAttachment["edges"].u.array.length; v++)
+							for(unsigned int v = 0; v < rAttachment["edges"].u.array.length; v++)
 								Attachment.m_SkinnedMesh.m_aEdges.add((double)rAttachment["edges"][v]);
 						}
 
@@ -273,7 +273,7 @@ bool CSpineReader::Load(const char *pData,
 	{
 		// TODO:
 		const json_value& rAnimations = (*pJsonData)["animations"];
-		for(int i = 0; i < rAnimations.u.object.length; i++)
+		for(unsigned int i = 0; i < rAnimations.u.object.length; i++)
 		{
 			const char *pAnimationName = rAnimations.u.object.values[i].name;
 			const json_value& rAnimation = (*rAnimations.u.object.values[i].value);
@@ -284,7 +284,7 @@ bool CSpineReader::Load(const char *pData,
 			{
 				const json_value& rSlots = rAnimation["slots"];
 
-				for(int j = 0; j < rSlots.u.object.length; j++)
+				for(unsigned int j = 0; j < rSlots.u.object.length; j++)
 				{
 					const char *pSlotName = rSlots.u.object.values[j].name;
 					const json_value& rSlot = (*rSlots.u.object.values[j].value);
@@ -295,7 +295,7 @@ bool CSpineReader::Load(const char *pData,
 					{
 						const json_value& rSlotAttachments = rSlot["attachment"];
 
-						for(int k = 0; k < rSlotAttachments.u.array.length; k++)
+						for(unsigned int k = 0; k < rSlotAttachments.u.array.length; k++)
 						{
 							const json_value& rAttachment = rSlotAttachments[k];
 
@@ -316,7 +316,7 @@ bool CSpineReader::Load(const char *pData,
 			{
 				const json_value& rBones = rAnimation["bones"];
 
-				for(int j = 0; j < rBones.u.object.length; j++)
+				for(unsigned int j = 0; j < rBones.u.object.length; j++)
 				{
 					const char *pBoneName = rBones.u.object.values[j].name;
 					const json_value& rBone = (*rBones.u.object.values[j].value);
@@ -327,7 +327,7 @@ bool CSpineReader::Load(const char *pData,
 					{
 						const json_value& rBoneTranslations = rBone["translate"];
 
-						for(int k = 0; k < rBoneTranslations.u.array.length; k++)
+						for(unsigned int k = 0; k < rBoneTranslations.u.array.length; k++)
 						{
 							const json_value& rTranslation = rBoneTranslations[k];
 
@@ -350,7 +350,7 @@ bool CSpineReader::Load(const char *pData,
 							{
 								TranslationKeyframe.m_Curve.m_Type = SPINE_CURVE_BEZIER;
 								const json_value& rCurve = rTranslation["curve"];
-								for(int l = 0; l < rCurve.u.array.length; l++)
+								for(unsigned int l = 0; l < rCurve.u.array.length; l++)
 									TranslationKeyframe.m_Curve.m_lPoints.add((double)rCurve[l]);
 							}
 
@@ -362,7 +362,7 @@ bool CSpineReader::Load(const char *pData,
 					{
 						const json_value& rBoneRotations = rBone["rotate"];
 
-						for(int k = 0; k < rBoneRotations.u.array.length; k++)
+						for(unsigned int k = 0; k < rBoneRotations.u.array.length; k++)
 						{
 							const json_value& rRotation = rBoneRotations[k];
 
@@ -385,7 +385,7 @@ bool CSpineReader::Load(const char *pData,
 							{
 								RotationKeyframe.m_Curve.m_Type = SPINE_CURVE_BEZIER;
 								const json_value& rCurve = rRotation["curve"];
-								for(int l = 0; l < rCurve.u.array.length; l++)
+								for(unsigned int l = 0; l < rCurve.u.array.length; l++)
 									RotationKeyframe.m_Curve.m_lPoints.add((double)rCurve[l]);
 							}
 
@@ -398,7 +398,7 @@ bool CSpineReader::Load(const char *pData,
 					{
 						const json_value& rBoneScales = rBone["scale"];
 
-						for(int k = 0; k < rBoneScales.u.array.length; k++)
+						for(unsigned int k = 0; k < rBoneScales.u.array.length; k++)
 						{
 							const json_value& rScale = rBoneScales[k];
 
@@ -422,7 +422,7 @@ bool CSpineReader::Load(const char *pData,
 							{
 								ScaleKeyframe.m_Curve.m_Type = SPINE_CURVE_BEZIER;
 								const json_value& rCurve = rScale["curve"];
-								for(int l = 0; l < rCurve.u.array.length; l++)
+								for(unsigned int l = 0; l < rCurve.u.array.length; l++)
 									ScaleKeyframe.m_Curve.m_lPoints.add((double)rCurve[l]);
 							}
 

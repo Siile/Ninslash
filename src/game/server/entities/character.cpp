@@ -1824,8 +1824,8 @@ void CCharacter::TickDefered()
 	}
 
 	//lastsentcore
-	vec2 StartPos = m_Core.m_Pos;
-	vec2 StartVel = m_Core.m_Vel;
+	// vec2 StartPos = m_Core.m_Pos;
+	// vec2 StartVel = m_Core.m_Vel;
 	//bool StuckBefore = GameServer()->Collision()->TestBox(m_Core.m_Pos, vec2(28.0f, 28.0f));
 
 	m_Core.Move();

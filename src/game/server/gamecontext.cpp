@@ -466,7 +466,7 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
 		if (!m_pController->IsTeamplay())
 			Team = m_apPlayers[Owner]->GetCID();
 		
-		CBuilding *Generator = new CBuilding(&m_World, Pos+vec2(0, -34), BUILDING_GENERATOR, Team);
+		new CBuilding(&m_World, Pos+vec2(0, -34), BUILDING_GENERATOR, Team);
 		return true;
 	}
 	

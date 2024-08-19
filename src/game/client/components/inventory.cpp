@@ -267,10 +267,8 @@ void CInventory::DrawLayer(vec2 Pos, vec2 Size)
 
 void CInventory::DrawCrafting(int Type, vec2 Pos, float Size)
 {
-	//
 	return;
-	//
-	
+	/*
 	if (!IsModularWeapon(Type))
 		return;	int Part1 = GetPart(Type, 0)-1;
 	
@@ -294,7 +292,7 @@ void CInventory::DrawCrafting(int Type, vec2 Pos, float Size)
 	{
 		RenderTools()->SelectSprite(SPRITE_WEAPON_PART1_0+Part1);
 		RenderTools()->DrawSprite(Pos.x, Pos.y, Size);
-	}
+	}*/
 }
 
 static float s_Fade = 0.0f;

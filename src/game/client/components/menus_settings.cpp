@@ -1204,14 +1204,7 @@ void CMenus::RenderCustomization(CUIRect MainView)
 			m_NeedSendinfo = true;
 		}
 	}
-	
-	
-	
-	
-	
-	
-	
-	/*
+
 	// body selector
 	if (s_SkinType == 0)
 	{

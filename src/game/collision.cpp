@@ -547,8 +547,6 @@ void CCollision::InitLightRays()
 	for (int y = m_Height-1; y > 0; y--)
 		for (int x = 0; x < m_Width; x++)
 		{
-			int t = GetTileRay(x*32, y*32, true);
-			
 			// outer corners
 			if (GetTileRay(x*32, y*32, true) == COLFLAG_SOLID && !GetTileRay((x-1)*32, y*32, true) && !GetTileRay(x*32, (y-1)*32, true))
 				m_pLightRays[y*m_Width+x] = 1;
