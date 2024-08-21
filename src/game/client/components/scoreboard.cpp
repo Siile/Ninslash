@@ -7,7 +7,7 @@
 
 #include <cstring>
 
-#include <game/generated/client_data.h>
+#include <game/generated/game_data.h>
 #include <game/generated/protocol.h>
 
 #include <game/localization.h>

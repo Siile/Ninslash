@@ -8,7 +8,7 @@
 #include <engine/shared/config.h>
 
 #include <game/generated/protocol.h>
-#include <game/generated/client_data.h>
+#include <game/generated/game_data.h>
 
 #include <game/client/gameclient.h>
 
@@ -19,7 +19,7 @@
 #include <game/client/customstuff.h>
 #include <game/client/customstuff/playerinfo.h>
 
-#include <game/generated/client_data.h>
+#include <game/generated/game_data.h>
 
 #include "chat.h"
 

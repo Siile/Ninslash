@@ -18,7 +18,7 @@
 #include <game/client/lineinput.h>
 #include <game/client/render.h>
 #include <game/client/ui.h>
-#include <game/generated/client_data.h>
+#include <game/generated/game_data.h>
 
 #include "auto_map.h"
 #include "editor.h"

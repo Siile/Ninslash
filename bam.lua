@@ -100,14 +100,11 @@ end
 -- Content Compile
 network_source = ContentCompile("network_source", "src/game/generated/protocol.cpp")
 network_header = ContentCompile("network_header", "src/game/generated/protocol.h")
-client_content_source = ContentCompile("client_content_source", "src/game/generated/client_data.cpp")
-client_content_header = ContentCompile("client_content_header", "src/game/generated/client_data.h")
-server_content_source = ContentCompile("server_content_source", "src/game/generated/server_data.cpp")
-server_content_header = ContentCompile("server_content_header", "src/game/generated/server_data.h")
+game_content_source = ContentCompile("game_content_source", "src/game/generated/game_data.cpp")
+game_content_header = ContentCompile("game_content_header", "src/game/generated/game_data.h")
 
 AddDependency(network_source, network_header)
-AddDependency(client_content_source, client_content_header)
-AddDependency(server_content_source, server_content_header)
+AddDependency(game_content_source, game_content_header)
 
 nethash = CHash("src/game/generated/nethash.cpp", "src/engine/shared/protocol.h", "src/game/generated/protocol.h", "src/game/tuning.h", "src/game/gamecore.cpp", network_header)
 
@@ -252,9 +249,9 @@ function build(settings)
 
 	versionserver = Compile(settings, Collect("src/versionsrv/*.cpp"))
 	masterserver = Compile(settings, Collect("src/mastersrv/*.cpp"))
-	game_shared = Compile(settings, Collect("src/game/*.cpp"), nethash, network_source)
-	game_client = Compile(settings, CollectRecursive("src/game/client/*.cpp"), client_content_source)
-	game_server = Compile(settings, CollectRecursive("src/game/server/*.cpp"), server_content_source)
+	game_shared = Compile(settings, Collect("src/game/*.cpp"), nethash, network_source, game_content_source)
+	game_client = Compile(settings, CollectRecursive("src/game/client/*.cpp"))
+	game_server = Compile(settings, CollectRecursive("src/game/server/*.cpp"))
 	game_editor = Compile(settings, Collect("src/game/editor/*.cpp"))
 
 	-- build tools (TODO: fix this so we don't get double _d_d stuff)

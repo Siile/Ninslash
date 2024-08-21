@@ -2,7 +2,7 @@
 #include <engine/shared/config.h>
 
 #include <game/weapons.h>
-#include <game/generated/client_data.h>
+#include <game/generated/game_data.h>
 #include <game/client/render.h>
 
 #include <game/client/components/camera.h>
