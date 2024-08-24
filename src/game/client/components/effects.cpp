@@ -477,7 +477,7 @@ void CEffects::SmokeTrail(vec2 Pos, vec2 Vel)
 	p.m_EndSize = 0;
 	p.m_Friction = 0.7f;
 	p.m_Gravity = frandom()*-300.0f;
-	p.m_Color = vec4(1,1,1, 0.75f);
+	p.m_Color = vec4(1,1,1, 0.5f);
 	m_pClient->m_pParticles->Add(CParticles::GROUP_PROJECTILE_TRAIL, &p);
 }
 
@@ -1143,7 +1143,7 @@ void CEffects::SpriteExplosion(vec2 Pos, float Size, int Sprite)
 		p.m_EndSize = 0;
 		p.m_Gravity = frandom()*-800.0f;
 		p.m_Friction = 0.4f;
-		p.m_Color = mix(vec4(0.75f,0.75f,0.75f,1.0f), vec4(0.5f,0.5f,0.5f,1.0f), frandom());
+		p.m_Color = mix(vec4(0.75f,0.75f,0.75f,0.5f), vec4(0.5f,0.5f,0.5f,0.5f), frandom());
 		m_pClient->m_pParticles->Add(CParticles::GROUP_GENERAL, &p);
 	}
 }
@@ -1309,34 +1309,6 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 				break;
 			}
 			
-			/*
-			case SW_CLUSTER:
-			{
-				// add smoke
-				for(int i = 0; i < 5; i++)
-				{
-					Spark(Pos);
-					Spark(Pos);
-					Spark(Pos);
-					
-					CParticle p;
-					p.SetDefault();
-					p.m_Spr = SPRITE_PART_SMOKE;
-					p.m_Pos = Pos;
-					p.m_Vel = RandomDir() * ((1.0f + frandom()*0.2f) * (1000.0f*GetProjectileSize(Weapon)));
-					p.m_LifeSpan = 0.5f + frandom()*0.4f;
-					p.m_StartSize = (32.0f + frandom()*8)*GetProjectileSize(Weapon);
-					p.m_EndSize = 0;
-					p.m_Gravity = frandom()*-800.0f;
-					p.m_Friction = 0.4f;
-					p.m_Color = mix(vec4(0.75f,0.75f,0.75f,1.0f), vec4(0.5f,0.5f,0.5f,1.0f), frandom());
-					m_pClient->m_pParticles->Add(CParticles::GROUP_GENERAL, &p);
-				}
-				
-				break;
-			};
-			*/
-			
 			case SW_CLUSTER:
 			case SW_GRENADE1:
 			{
@@ -1369,7 +1341,7 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 					p.m_EndSize = 0;
 					p.m_Gravity = frandom()*-800.0f;
 					p.m_Friction = 0.4f;
-					p.m_Color = mix(vec4(0.75f,0.75f,0.75f,1.0f), vec4(0.5f,0.5f,0.5f,1.0f), frandom());
+					p.m_Color = mix(vec4(0.75f,0.75f,0.75f,0.5f), vec4(0.5f,0.5f,0.5f,0.5f), frandom());
 					m_pClient->m_pParticles->Add(CParticles::GROUP_GENERAL, &p);
 				}
 			} break;
@@ -1472,7 +1444,7 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 			p.m_EndSize = 0;
 			p.m_Gravity = frandom()*-800.0f;
 			p.m_Friction = 0.4f;
-			p.m_Color = mix(vec4(0.75f,0.75f,0.75f,1.0f), vec4(0.5f,0.5f,0.5f,1.0f), frandom());
+			p.m_Color = mix(vec4(0.75f,0.75f,0.75f,0.5f), vec4(0.5f,0.5f,0.5f,0.5f), frandom());
 			m_pClient->m_pParticles->Add(CParticles::GROUP_GENERAL, &p);
 		}
 	}
@@ -1494,7 +1466,7 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 		p.m_EndSize = 0;
 		p.m_Gravity = frandom()*-800.0f;
 		p.m_Friction = 0.4f;
-		p.m_Color = mix(vec4(0.75f,0.75f,0.75f,1.0f), vec4(0.5f,0.5f,0.5f,1.0f), frandom());
+		p.m_Color = mix(vec4(0.75f,0.75f,0.75f,0.5f), vec4(0.5f,0.5f,0.5f,0.5f), frandom());
 		m_pClient->m_pParticles->Add(CParticles::GROUP_GENERAL, &p);
 	}
 	
@@ -1546,36 +1518,6 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 			b.m_Color = vec4(0.0f, 1.0f, 1.0f, 1.0f);
 			m_pClient->m_pSpark->Add(CSpark::GROUP_AREA1, &b);
 		}
-		/*
-		else
-		{
-			CParticle p;
-			p.SetDefault();
-			p.m_Spr = SPRITE_ELECTRIC1;
-			p.m_Frames = 8;
-			p.m_Pos = Pos;
-			p.m_LifeSpan = 0.20f;
-			p.m_StartSize = 70 * GetProjectileSize(Weapon);
-			p.m_EndSize = p.m_StartSize;
-			p.m_Rot = frandom()*pi*2;
-			m_pClient->m_pParticles->Add(CParticles::GROUP_ELECTRIC, &p);
-		}
-		*/
-		
-		/*
-		CParticle p;
-		p.SetDefault();
-		p.m_Spr = SPRITE_PART_SMOKE;
-		p.m_Pos = Pos;
-		p.m_Vel = RandomDir() * ((1.0f + frandom()*0.2f) * (400.0f*GetProjectileSize(Weapon)));
-		p.m_LifeSpan = 0.5f + frandom()*0.4f;
-		p.m_StartSize = (32.0f + frandom()*8)*GetProjectileSize(Weapon);
-		p.m_EndSize = 0;
-		p.m_Gravity = frandom()*-800.0f;
-		p.m_Friction = 0.4f;
-		p.m_Color = mix(vec4(0.75f,0.75f,0.75f,1.0f), vec4(0.5f,0.5f,0.5f,1.0f), frandom());
-		m_pClient->m_pParticles->Add(CParticles::GROUP_GENERAL, &p);
-		*/
 	}
 }
 
@@ -1612,7 +1554,7 @@ void CEffects::FlameExplosion(vec2 Pos)
 		p.m_EndSize = 0;
 		p.m_Gravity = frandom()*-800.0f;
 		p.m_Friction = 0.4f;
-		p.m_Color = mix(vec4(0.75f,0.75f,0.75f,1.0f), vec4(0.5f,0.5f,0.5f,1.0f), frandom());
+		p.m_Color = mix(vec4(0.75f,0.75f,0.75f,0.5f), vec4(0.5f,0.5f,0.5f,0.5f), frandom());
 		m_pClient->m_pParticles->Add(CParticles::GROUP_GENERAL, &p);
 		
 		for (int f = 0; f < 3; f++)

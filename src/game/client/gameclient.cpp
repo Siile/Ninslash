@@ -1539,6 +1539,9 @@ void CGameClient::OnPredict()
 				int Events = World.m_apCharacters[m_Snap.m_LocalClientID]->m_TriggeredEvents;
 				if(Events&COREEVENT_GROUND_JUMP) g_GameClient.m_pSounds->PlayAndRecord(CSounds::CHN_WORLD, SOUND_PLAYER_JUMP, 1.0f, Pos);
 
+				if(Events&COREEVENT_HOOK_ATTACH_GROUND) g_GameClient.m_pSounds->PlayAndRecord(CSounds::CHN_WORLD, SOUND_HOOK_ATTACH_GROUND, 1.0f, Pos);
+				if(Events&COREEVENT_HOOK_HIT_NOHOOK) g_GameClient.m_pSounds->PlayAndRecord(CSounds::CHN_WORLD, SOUND_HOOK_NOATTACH, 1.0f, Pos);
+
 				/*if(events&COREEVENT_AIR_JUMP)
 				{
 					GameClient.effects->air_jump(pos);
