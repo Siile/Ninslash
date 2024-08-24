@@ -353,7 +353,6 @@ void CLocalization::Format_L(dynamic_string& Buffer, const char* pLanguageCode, 
 	va_end(VarArgs);
 }
 
-// AFTER I DO THIS FUNCTION MYSELF 1 HOUR, I FIND ANOTHER FUNCTION.. WTF!!!! WHY IN OLD TEEUNIVERSE LOCALIZATION FILE WILL HAS THIS FUNCTION!!!! I DID THAT MUCH WORK BUT THERE IS ALREADY ANOTHER GOOD ONE, R U KIDDING ME?? F**K!!!
 const char *CLocalization::GetLanguageCode(int Country)
 {
 	// Constants from 'data/countryflags/index.txt'
