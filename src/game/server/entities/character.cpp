@@ -1867,6 +1867,10 @@ void CCharacter::TickDefered()
 	int Events = m_Core.m_TriggeredEvents;
 	int Mask = CmaskAllExceptOne(m_pPlayer->GetCID());
 
+	if(Events&COREEVENT_HOOK_ATTACH_PLAYER) GameServer()->CreateSound(m_Pos, SOUND_HOOK_ATTACH_PLAYER, CmaskAll());
+	if(Events&COREEVENT_HOOK_ATTACH_GROUND) GameServer()->CreateSound(m_Pos, SOUND_HOOK_ATTACH_GROUND, Mask);
+	if(Events&COREEVENT_HOOK_HIT_NOHOOK) GameServer()->CreateSound(m_Pos, SOUND_HOOK_NOATTACH, Mask);
+	
 	if(Events&COREEVENT_GROUND_JUMP) GameServer()->CreateSound(m_Pos, SOUND_PLAYER_JUMP, Mask);
 
 	if(m_pPlayer->GetTeam() == TEAM_SPECTATORS)
