@@ -262,9 +262,8 @@ void CBuildings2::RenderJumppad(const struct CNetObj_Building *pCurrent)
 		Time = CustomStuff()->m_aJumppad[i] * 0.11f;
 	else
 		CustomStuff()->m_aJumppad[i] = 0.0f;
-		
-	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y), ATLAS_JUMPPAD, aAnimList[ANIM_TRIGGER], Time, vec2(1.0f, 1.0f)*0.54f, 1, 0);
-
+	
+	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y), ATLAS_JUMPPAD, RenderTools()->Skelebank()->GetAnimList(ANIM_TRIGGER), Time, vec2(1.0f, 1.0f)*0.54f, 1, 0);
 }
 
 

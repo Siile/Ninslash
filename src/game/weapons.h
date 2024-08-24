@@ -84,38 +84,6 @@ enum WeaponBits
 	WFT_ACTIVATE // some items
 };
 
-
-static const char *s_TipText[NUM_SW]  __attribute__((unused)) = {
-	"Repair tool",
-	"",
-	"",
-	"Grenade",
-	"Electric grenade",
-	"Supply grenade",
-	"",
-	"",
-	"",
-	"",
-	"Weapon upgrade",
-	"Energy shield",
-	"Respawn device",
-	"Mask of regeneration",
-	"Mask of speed",
-	"Mask of protection",
-	"Mask of plenty",
-	"Mask of melee",
-	"Invisibility device",
-	"Electrowall",
-	"Area Shield",
-	"The Cure",
-	"",
-	"",
-	"Zombie claw",
-	"Bomb (for destroying reactors)",
-	""
-};
- 
-
 #define WEAPON_GAME_SIZE 15
 
 inline const bool IsWeapon(int Weapon) { return (Weapon & BIT_WEAPON) ? true : false; }

@@ -71,7 +71,7 @@ enum AnimList
 };
 
 
-static const char *aAnimList[NUM_ANIMS]  __attribute__((unused)) = 
+static const char *aAnimList[NUM_ANIMS] = 
 {
 	"idle",
 	"idle1",
@@ -176,6 +176,11 @@ public:
 
 		int Length = pEnd > pExtractedName ? min(BufferSize, (int)(pEnd-pExtractedName+1)) : BufferSize;
 		str_copy(pName, pExtractedName, Length);
+	}
+
+	const char *GetAnimList(int Anim)
+	{
+		return aAnimList[Anim];
 	}
 };
 

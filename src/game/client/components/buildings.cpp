@@ -114,8 +114,8 @@ void CBuildings::RenderDoor1(const struct CNetObj_Building *pCurrent)
 		
 		Time = CustomStuff()->m_DoorTimer * 0.5f;
 	}
-	
-	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y+16), ATLAS_DOOR1, aAnimList[Anim], Time, vec2(1.0f, 1.0f)*0.3f, 1, 0);
+	RenderTools()->Skelebank()->
+	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y+16), ATLAS_DOOR1, RenderTools()->Skelebank()->GetAnimList(Anim), Time, vec2(1.0f, 1.0f)*0.3f, 1, 0);
 }
 
 
@@ -125,7 +125,7 @@ void CBuildings::RenderScreen(const struct CNetObj_Building *pCurrent)
 	
 	int Anim = ANIM_IDLE1+(pCurrent->m_X/32)%3;
 	
-	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y+18), ATLAS_SCREEN, aAnimList[Anim], Time, vec2(1.0f, 1.0f)*0.7f, 0, 0);
+	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y+18), ATLAS_SCREEN, RenderTools()->Skelebank()->GetAnimList(Anim), Time, vec2(1.0f, 1.0f)*0.7f, 0, 0);
 	
 
 	vec4 c;
@@ -146,7 +146,7 @@ void CBuildings::RenderShop(const CNetObj_Shop *pCurrent)
 	
 	int Anim = ANIM_IDLE;
 	
-	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y+18), ATLAS_SHOP, aAnimList[Anim], Time, vec2(1.0f, 1.0f)*0.7f, 0, 0);
+	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y+18), ATLAS_SHOP, RenderTools()->Skelebank()->GetAnimList(Anim), Time, vec2(1.0f, 1.0f)*0.7f, 0, 0);
 
 	m_pClient->m_pEffects->SimpleLight(vec2(pCurrent->m_X, pCurrent->m_Y-74), vec4(0.5f, 0.75f, 1.0f, 0.5f), vec2(240, 340));
 
@@ -382,7 +382,7 @@ void CBuildings::RenderReactor(const struct CNetObj_Building *pCurrent)
 	m_pClient->m_pEffects->SimpleLight(vec2(pCurrent->m_X, pCurrent->m_Y-30), vec4(0.25f, 0.75f, 1.0f, 1.0f), 320);
 	//m_pClient->m_pEffects->SimpleLight(vec2(pCurrent->m_X, pCurrent->m_Y-0), 320);
 	
-	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y+16+50), ATLAS_REACTOR, aAnimList[Anim], Time, vec2(1.0f, 1.0f)*0.8f, 1, 0);
+	RenderTools()->RenderSkeleton(vec2(pCurrent->m_X, pCurrent->m_Y+16+50), ATLAS_REACTOR, RenderTools()->Skelebank()->GetAnimList(Anim), Time, vec2(1.0f, 1.0f)*0.8f, 1, 0);
 	
 	// damage mask
 	if (Repair)
@@ -447,7 +447,7 @@ void CBuildings::RenderTeslacoil(const CNetObj_Building *pCurrent, const CNetObj
 	//m_pClient->m_pEffects->Light(vec2(pCurrent->m_X, pCurrent->m_Y-30), 320);
 	//m_pClient->m_pEffects->Light(vec2(pCurrent->m_X, pCurrent->m_Y-0), 320);
 	
-	RenderTools()->RenderSkeleton(vec2(Pos.x, Pos.y+20*FlipY), ATLAS_TESLACOIL, aAnimList[Anim], Time, vec2(1.0f, 1.0f*FlipY)*0.55f, 1, 0, pCurrent->m_Team);
+	RenderTools()->RenderSkeleton(vec2(Pos.x, Pos.y+20*FlipY), ATLAS_TESLACOIL, RenderTools()->Skelebank()->GetAnimList(Anim), Time, vec2(1.0f, 1.0f*FlipY)*0.55f, 1, 0, pCurrent->m_Team);
 
 	
 	// repair sprite

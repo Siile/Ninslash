@@ -18,18 +18,6 @@ enum Buildables
 	NUM_BUILDABLES
 };
 
-static const char *s_BuildTipText[NUM_BUILDABLES]  __attribute__((unused)) = {
-	"Block",
-	"Hard block",
-	"Barrel",
-	"Power barrel",
-	"Turret stand",
-	"Flamer",
-	"Electric wall",
-	"Teslacoil",
-	"Shield generator"
-};
-
 const int BuildableCost[NUM_BUILDABLES] =
 {
 	1, // BUILDABLE_BLOCK1,
