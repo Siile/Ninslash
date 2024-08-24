@@ -297,6 +297,8 @@ public:
 	bool m_ShowAiState;
 
 	static CLastSeen m_LastSeen;
+
+	const char *Localize(int ClientID, const char *pText);
 };
 
 inline int CmaskAll() { return -1; }

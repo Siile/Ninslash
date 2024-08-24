@@ -888,5 +888,8 @@ xbox 360 controller support
 
 ##### needs translation #####
 
+Blood amount
+== 
+
 ##### old translations #####
 

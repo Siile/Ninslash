@@ -85,6 +85,9 @@ Black
 Block
 == 方块
 
+Blood amount
+== 游戏中血液数量
+
 Blood color
 == 血液颜色
 

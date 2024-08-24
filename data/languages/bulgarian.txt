@@ -675,6 +675,9 @@ Black
 Block
 == 
 
+Blood amount
+== 
+
 Blood color
 == 
 

@@ -1274,15 +1274,37 @@ void CGameContext::SendGameVotes(int ClientID)
 	{
 		if (m_aGameVote[i].m_Valid)
 		{
-			CNetMsg_Sv_GameVote Msg;
-			Msg.m_pName = m_aGameVote[i].m_aName;
-			Msg.m_pDescription = m_aGameVote[i].m_aDescription;
-			Msg.m_pImage = m_aGameVote[i].m_aImage;
-			Msg.m_pPlayers = "";
-			Msg.m_Index = i;
-			Msg.m_TimeLeft = m_pController->GetVoteTime();
-			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
-			
+			if(ClientID == -1)
+			{
+				for (int j = 0; j < MAX_CLIENTS; j++)
+				{
+					if(!m_apPlayers[j])
+						continue;
+
+					if(m_apPlayers[j]->m_IsBot)
+						continue;
+
+					CNetMsg_Sv_GameVote Msg;
+					Msg.m_pName = Localize(j, m_aGameVote[i].m_aName);
+					Msg.m_pDescription = Localize(j, m_aGameVote[i].m_aDescription);
+					Msg.m_pImage = m_aGameVote[i].m_aImage;
+					Msg.m_pPlayers = "";
+					Msg.m_Index = i;
+					Msg.m_TimeLeft = m_pController->GetVoteTime();
+					Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, j);
+				}
+			}
+			else
+			{
+				CNetMsg_Sv_GameVote Msg;
+				Msg.m_pName = Localize(ClientID, m_aGameVote[i].m_aName);
+				Msg.m_pDescription = Localize(ClientID, m_aGameVote[i].m_aDescription);
+				Msg.m_pImage = m_aGameVote[i].m_aImage;
+				Msg.m_pPlayers = "";
+				Msg.m_Index = i;
+				Msg.m_TimeLeft = m_pController->GetVoteTime();
+				Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, ClientID);
+			}
 			Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "GameContext", "Sending gamevote");
 		}
 	}
@@ -3472,3 +3494,12 @@ void CGameContext::SaveMap(const char *path)
     Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
 }
 
+const char *CGameContext::Localize(int ClientID, const char *pText)
+{
+	if(m_apPlayers[ClientID])
+	{
+		return Server()->Localization()->Localize(m_apPlayers[ClientID]->m_Language, pText);
+	}
+	else
+		return pText;
+}
