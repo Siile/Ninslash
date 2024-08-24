@@ -106,9 +106,6 @@ Connect
 Connecting to
 == A Conectar a
 
-Connection Problems...
-== Problemas na conecção!
-
 Console
 == Console
 
@@ -132,9 +129,6 @@ Current
 
 Current version: %s
 == Versão actual : %s
-
-Custom colors
-== Cores personalizadas
 
 Delete
 == Eliminar
@@ -354,6 +348,9 @@ Next weapon
 
 Nickname
 == Nick
+
+Ninslash %s is out! Download it at www.ninslash.com!
+== Ninslash %s já saiu! Download em www.ninslash.com!
 
 No
 == Não
@@ -583,9 +580,6 @@ Team
 Team chat
 == Chat de equipa
 
-Ninslash %s is out! Download it at www.ninslash.com!
-== Ninslash %s já saiu! Download em www.ninslash.com!
-
 Texture Compression
 == Compressão de Textura
 
@@ -655,9 +649,6 @@ Voting
 Warmup
 == Aquecimento
 
-Weapon
-== Arma
-
 Welcome to Ninslash
 == Bem-vindo ao Ninslash!
 
@@ -667,22 +658,247 @@ Yes
 You must restart the game for all settings to take effect.
 == Para que as configurações sejam efectuadas deves Reiniciar o jogo.
 
-Your skin
-== A tua skin
-
 no limit
 == sem limite
 
 ##### needs translation #####
 
+Area Shield
+== 
+
+Back to main menu
+== 
+
+Barrel
+== 
+
+Black
+== 
+
+Block
+== 
+
+Blood color
+== 
+
+Bodies
+== 
+
+Bomb (for destroying reactors)
+== 
+
+Borderless window
+== 
+
+Build menu
+== 
+
+Change color of
+== 
+
+Change skin of
+== 
+
+Chat & Misc.
+== 
+
+Customize
+== 
+
+Drop weapon
+== 
+
+Dynamic lighting
+== 
+
+Editor
+== 
+
+Electric grenade
+== 
+
+Electric wall
+== 
+
+Electrowall
+== 
+
+Energy shield
+== 
+
+Environmental sounds
+== 
+
+Eyes
+== 
+
+Flamer
+== 
+
+Flip attack & hook
+== 
+
+Flip move & aim axis
+== 
+
 Game paused
+== 
+
+Green
+== 
+
+Hair / hat
+== 
+
+Handle rendering async from updates
+== 
+
+Hands
+== 
+
+Hard block
+== 
+
+Head
+== 
+
+Heads
+== 
+
+Inventory
+== 
+
+Inventory roll
+== 
+
+Inventory roll(All)
+== 
+
+Invisibility device
+== 
+
+Item slot 1
+== 
+
+Item slot 2
+== 
+
+Item slot 3
+== 
+
+Item slot 4
+== 
+
+Main menu
+== 
+
+Mask of melee
+== 
+
+Mask of plenty
+== 
+
+Mask of protection
+== 
+
+Mask of regeneration
+== 
+
+Mask of speed
+== 
+
+Movement & Weapons
+== 
+
+Multi framebuffering (requires restart)
+== 
+
+Power barrel
+== 
+
+Red
+== 
+
+Repair tool
 == 
 
 Respawn
 == 
 
+Respawn device
+== 
+
+Server is changing map
+== 
+
+Shield generator
+== 
+
 Show only chat messages from friends
 == 
 
+Skin
+== 
+
+Slide / down
+== 
+
+Supply grenade
+== 
+
+Survival mode
+== 
+
+Teslacoil
+== 
+
+The Cure
+== 
+
+The Dead
+== 
+
+The Living
+== 
+
+Threaded rendering
+== 
+
+Threaded sound loading
+== 
+
+Turret stand
+== 
+
+Vote ends in %d...
+== 
+
+Waiting for server...
+== 
+
+Weapon upgrade
+== 
+
+Weapons & Items
+== 
+
+Zombie claw
+== 
+
+xbox 360 controller support
+== 
+
 ##### old translations #####
+
+Connection Problems...
+== Problemas na conecção!
+
+Custom colors
+== Cores personalizadas
+
+Weapon
+== Arma
+
+Your skin
+== A tua skin
 

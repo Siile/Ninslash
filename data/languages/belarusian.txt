@@ -106,9 +106,6 @@ Connect
 Connecting to
 == Падлучэнне да
 
-Connection Problems...
-== Праблемы з сувяззю...
-
 Console
 == Кансоль
 
@@ -132,9 +129,6 @@ Current
 
 Current version: %s
 == Бягучая версія: %s
-
-Custom colors
-== Свае колеры
 
 Delete
 == Выдаліць
@@ -354,6 +348,9 @@ Next weapon
 
 Nickname
 == Нік
+
+Ninslash %s is out! Download it at www.ninslash.com!
+== Выйшла Ninslash %s! Спампоўвайце на www.ninslash.com!
 
 No
 == Не
@@ -583,9 +580,6 @@ Team
 Team chat
 == Камандны чат
 
-Ninslash %s is out! Download it at www.ninslash.com!
-== Выйшла Ninslash %s! Спампоўвайце на www.ninslash.com!
-
 Texture Compression
 == Сціск тэкстур
 
@@ -655,9 +649,6 @@ Voting
 Warmup
 == Размінка
 
-Weapon
-== Зброя
-
 Welcome to Ninslash
 == Сардэчна запрашаем у Ninslash!
 
@@ -667,22 +658,247 @@ Yes
 You must restart the game for all settings to take effect.
 == Перазапусціце гульню для ўжывання змен.
 
-Your skin
-== Ваш скін
-
 no limit
 == Без ліміту
 
 ##### needs translation #####
 
+Area Shield
+== 
+
+Back to main menu
+== 
+
+Barrel
+== 
+
+Black
+== 
+
+Block
+== 
+
+Blood color
+== 
+
+Bodies
+== 
+
+Bomb (for destroying reactors)
+== 
+
+Borderless window
+== 
+
+Build menu
+== 
+
+Change color of
+== 
+
+Change skin of
+== 
+
+Chat & Misc.
+== 
+
+Customize
+== 
+
+Drop weapon
+== 
+
+Dynamic lighting
+== 
+
+Editor
+== 
+
+Electric grenade
+== 
+
+Electric wall
+== 
+
+Electrowall
+== 
+
+Energy shield
+== 
+
+Environmental sounds
+== 
+
+Eyes
+== 
+
+Flamer
+== 
+
+Flip attack & hook
+== 
+
+Flip move & aim axis
+== 
+
 Game paused
+== 
+
+Green
+== 
+
+Hair / hat
+== 
+
+Handle rendering async from updates
+== 
+
+Hands
+== 
+
+Hard block
+== 
+
+Head
+== 
+
+Heads
+== 
+
+Inventory
+== 
+
+Inventory roll
+== 
+
+Inventory roll(All)
+== 
+
+Invisibility device
+== 
+
+Item slot 1
+== 
+
+Item slot 2
+== 
+
+Item slot 3
+== 
+
+Item slot 4
+== 
+
+Main menu
+== 
+
+Mask of melee
+== 
+
+Mask of plenty
+== 
+
+Mask of protection
+== 
+
+Mask of regeneration
+== 
+
+Mask of speed
+== 
+
+Movement & Weapons
+== 
+
+Multi framebuffering (requires restart)
+== 
+
+Power barrel
+== 
+
+Red
+== 
+
+Repair tool
 == 
 
 Respawn
 == 
 
+Respawn device
+== 
+
+Server is changing map
+== 
+
+Shield generator
+== 
+
 Show only chat messages from friends
 == 
 
+Skin
+== 
+
+Slide / down
+== 
+
+Supply grenade
+== 
+
+Survival mode
+== 
+
+Teslacoil
+== 
+
+The Cure
+== 
+
+The Dead
+== 
+
+The Living
+== 
+
+Threaded rendering
+== 
+
+Threaded sound loading
+== 
+
+Turret stand
+== 
+
+Vote ends in %d...
+== 
+
+Waiting for server...
+== 
+
+Weapon upgrade
+== 
+
+Weapons & Items
+== 
+
+Zombie claw
+== 
+
+xbox 360 controller support
+== 
+
 ##### old translations #####
+
+Connection Problems...
+== Праблемы з сувяззю...
+
+Custom colors
+== Свае колеры
+
+Weapon
+== Зброя
+
+Your skin
+== Ваш скін
 

@@ -61,9 +61,6 @@ Connect
 Connecting to
 == Підключення до
 
-Connection Problems...
-== Проблеми зі з'єднанням...
-
 Console
 == Консоль
 
@@ -75,9 +72,6 @@ Current
 
 Current version: %s
 == Поточна версія: %s
-
-Custom colors
-== Особистий колір
 
 Delete
 == Видалити
@@ -256,6 +250,9 @@ Next weapon
 Nickname
 == Нік
 
+Ninslash %s is out! Download it at www.ninslash.com!
+== Вийшла Ninslash %s! Завантажуйте на www.ninslash.com!
+
 No
 == Ні
 
@@ -424,9 +421,6 @@ Team
 Team chat
 == Командний чат
 
-Ninslash %s is out! Download it at www.ninslash.com!
-== Вийшла Ninslash %s! Завантажуйте на www.ninslash.com!
-
 Texture Compression
 == Стиснення текстур
 
@@ -469,9 +463,6 @@ Voting
 Warmup
 == Розминка
 
-Weapon
-== зброя
-
 Welcome to Ninslash
 == Ласкаво просимо в Ninslash!
 
@@ -480,9 +471,6 @@ Yes
 
 You must restart the game for all settings to take effect.
 == Перезапустіть гру для застосування змін.
-
-Your skin
-== Ваш скін
 
 ##### needs translation #####
 
@@ -516,13 +504,52 @@ Add Friend
 Are you sure that you want to remove the player from your friends list?
 == 
 
+Area Shield
+== 
+
 Automatically record demos
 == 
 
 Automatically take game over screenshot
 == 
 
+Back to main menu
+== 
+
+Barrel
+== 
+
+Black
+== 
+
+Block
+== 
+
+Blood color
+== 
+
+Bodies
+== 
+
+Bomb (for destroying reactors)
+== 
+
+Borderless window
+== 
+
+Build menu
+== 
+
+Change color of
+== 
+
 Change settings
+== 
+
+Change skin of
+== 
+
+Chat & Misc.
 == 
 
 Clan
@@ -543,6 +570,9 @@ Crc:
 Created:
 == 
 
+Customize
+== 
+
 Delete demo
 == 
 
@@ -550,6 +580,42 @@ Demo details
 == 
 
 Demofile: %s
+== 
+
+Drop weapon
+== 
+
+Dynamic lighting
+== 
+
+Editor
+== 
+
+Electric grenade
+== 
+
+Electric wall
+== 
+
+Electrowall
+== 
+
+Energy shield
+== 
+
+Environmental sounds
+== 
+
+Eyes
+== 
+
+Flamer
+== 
+
+Flip attack & hook
+== 
+
+Flip move & aim axis
 == 
 
 Free-View
@@ -561,13 +627,76 @@ Friends
 Game paused
 == 
 
+Green
+== 
+
+Hair / hat
+== 
+
+Handle rendering async from updates
+== 
+
+Hands
+== 
+
+Hard block
+== 
+
+Head
+== 
+
+Heads
+== 
+
+Inventory
+== 
+
+Inventory roll
+== 
+
+Inventory roll(All)
+== 
+
+Invisibility device
+== 
+
+Item slot 1
+== 
+
+Item slot 2
+== 
+
+Item slot 3
+== 
+
+Item slot 4
+== 
+
 Kick player
 == 
 
 Length:
 == 
 
+Main menu
+== 
+
 Map:
+== 
+
+Mask of melee
+== 
+
+Mask of plenty
+== 
+
+Mask of protection
+== 
+
+Mask of regeneration
+== 
+
+Mask of speed
 == 
 
 Max Screenshots
@@ -577,6 +706,12 @@ Max demos
 == 
 
 Move player to spectators
+== 
+
+Movement & Weapons
+== 
+
+Multi framebuffering (requires restart)
 == 
 
 Name plates size
@@ -600,10 +735,16 @@ Player country:
 Player options
 == 
 
+Power barrel
+== 
+
 Quit anyway?
 == 
 
 REC %3d:%02d
+== 
+
+Red
 == 
 
 Remove
@@ -618,13 +759,25 @@ Rename
 Rename demo
 == 
 
+Repair tool
+== 
+
 Respawn
+== 
+
+Respawn device
 == 
 
 Server address:
 == 
 
 Server filter
+== 
+
+Server is changing map
+== 
+
+Shield generator
 == 
 
 Show friends only
@@ -637,6 +790,12 @@ Show only chat messages from friends
 == 
 
 Size:
+== 
+
+Skin
+== 
+
+Slide / down
 == 
 
 Sound error
@@ -654,10 +813,37 @@ Spectator mode
 Strict gametype filter
 == 
 
+Supply grenade
+== 
+
+Survival mode
+== 
+
+Teslacoil
+== 
+
+The Cure
+== 
+
+The Dead
+== 
+
+The Living
+== 
+
 The audio device couldn't be initialised.
 == 
 
 There's an unsaved map in the editor, you might want to save it before you quit the game.
+== 
+
+Threaded rendering
+== 
+
+Threaded sound loading
+== 
+
+Turret stand
 == 
 
 Type:
@@ -681,8 +867,38 @@ Vote command:
 Vote description:
 == 
 
+Vote ends in %d...
+== 
+
+Waiting for server...
+== 
+
+Weapon upgrade
+== 
+
+Weapons & Items
+== 
+
+Zombie claw
+== 
+
 no limit
 == 
 
+xbox 360 controller support
+== 
+
 ##### old translations #####
+
+Connection Problems...
+== Проблеми зі з'єднанням...
+
+Custom colors
+== Особистий колір
+
+Weapon
+== зброя
+
+Your skin
+== Ваш скін
 
