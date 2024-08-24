@@ -12,7 +12,7 @@
 #include <engine/shared/linereader.h>
 
 #include <game/generated/protocol.h>
-#include <game/generated/client_data.h>
+#include <game/generated/game_data.h>
 
 #include <game/client/components/sounds.h>
 #include <game/client/ui.h>
@@ -1204,14 +1204,7 @@ void CMenus::RenderCustomization(CUIRect MainView)
 			m_NeedSendinfo = true;
 		}
 	}
-	
-	
-	
-	
-	
-	
-	
-	/*
+
 	// body selector
 	if (s_SkinType == 0)
 	{

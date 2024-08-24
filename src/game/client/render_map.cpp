@@ -85,13 +85,6 @@ void CRenderTools::RenderQuads(CQuad *pQuads, int NumQuads, int RenderFlags, ENV
 	Graphics()->GetScreen(&ScreenX0, &ScreenY0, &ScreenX1, &ScreenY1);
 	//Graphics()->MapScreen(screen_x0-50, screen_y0-50, screen_x1+50, screen_y1+50);
 
-	// calculate the final pixelsize for the tiles
-	float TilePixelSize = 1024/32.0f;
-	float FinalTileSize = 1.0f/(ScreenX1-ScreenX0) * Graphics()->ScreenWidth();
-	float FinalTilesetScale = FinalTileSize/TilePixelSize;
-	
-	
-
 	// for looping
 	float Points[4];
 	Graphics()->GetScreen(&Points[0], &Points[1], &Points[2], &Points[3]);

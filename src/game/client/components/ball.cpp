@@ -3,7 +3,7 @@
 #include <engine/graphics.h>
 #include <engine/shared/config.h>
 #include <game/generated/protocol.h>
-#include <game/generated/client_data.h>
+#include <game/generated/game_data.h>
 
 #include <game/gamecore.h> // get_angle
 #include <game/client/gameclient.h>
@@ -43,8 +43,7 @@ void CBalls::RenderBall(const CNetObj_Ball *pPrevBall, const CNetObj_Ball *pBall
 	CNetObj_Ball Ball;
 	Prev = *pPrevBall;
 	Ball = *pBall;
-	
-	bool NewTick = m_pClient->m_NewTick;
+
 	float IntraTick = Client()->IntraGameTick();
 	
 	if(g_Config.m_ClPredict && Client()->State() != IClient::STATE_DEMOPLAYBACK)
@@ -52,7 +51,6 @@ void CBalls::RenderBall(const CNetObj_Ball *pPrevBall, const CNetObj_Ball *pBall
 		m_pClient->m_PredictedBall.Write(&Ball);
 		m_pClient->m_PredictedPrevBall.Write(&Prev);
 		IntraTick = Client()->PredIntraGameTick();
-		NewTick = m_pClient->m_NewPredictedTick;
 	}
 	
 	float Angle = mix(Prev.m_Angle, Ball.m_Angle, IntraTick) / 256.0f;

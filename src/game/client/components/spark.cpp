@@ -3,7 +3,7 @@
 #include <engine/graphics.h>
 #include <engine/demo.h>
 
-#include <game/generated/client_data.h>
+#include <game/generated/game_data.h>
 #include <game/client/render.h>
 #include <game/gamecore.h>
 #include "spark.h"

@@ -3,7 +3,7 @@
 #include <engine/shared/config.h>
 
 #include <game/generated/protocol.h>
-#include <game/generated/client_data.h>
+#include <game/generated/game_data.h>
 #include <game/layers.h>
 #include <game/client/gameclient.h>
 #include <game/client/render.h>

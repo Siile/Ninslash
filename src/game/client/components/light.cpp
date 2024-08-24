@@ -6,7 +6,7 @@
 #include <game/client/customstuff.h>
 #include <game/client/components/camera.h>
 #include <game/client/components/particles.h>
-#include <game/generated/client_data.h>
+#include <game/generated/game_data.h>
 #include <game/client/render.h>
 #include <game/gamecore.h>
 #include "light.h"
@@ -261,7 +261,6 @@ void CLight::RenderGroup(int Group)
 			}
 		}
 		
-		/*
 		if(Item.m_Type == NETOBJTYPE_PICKUP)
 		{
 			const void *pPrev = Client()->SnapFindItem(IClient::SNAP_PREV, Item.m_Type, Item.m_ID);
@@ -297,9 +296,7 @@ void CLight::RenderGroup(int Group)
 	int x2 = int(Center.x) + w;
 	int y1 = int(Center.y) - h;
 	int y2 = int(Center.y) + h;
-	
-	const float Size = 32.0f;
-	
+
 	vec2 aLights[199];
 	int LightCount = 0;
 	

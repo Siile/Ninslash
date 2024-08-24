@@ -6,7 +6,7 @@
 #include <engine/keys.h>
 
 #include <game/generated/protocol.h>
-#include <game/generated/client_data.h>
+#include <game/generated/game_data.h>
 #include <game/client/gameclient.h>
 
 #include "motd.h"

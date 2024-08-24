@@ -29,3 +29,6 @@ build.bat
 SDL2.dll
 glew32.dll
 notepad.workspace
+
+/.vscode
+/build

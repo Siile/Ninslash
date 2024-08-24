@@ -1216,10 +1216,10 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 			int Last = 0;
 
 			// drop faulty map data requests
-			if(Chunk < 0 || Offset > m_CurrentMapSize)
+			if(Chunk < 0 || Offset > (unsigned int)m_CurrentMapSize)
 				return;
 
-			if(Offset+ChunkSize >= m_CurrentMapSize)
+			if(Offset+ChunkSize >= (unsigned int)m_CurrentMapSize)
 			{
 				ChunkSize = m_CurrentMapSize-Offset;
 				if(ChunkSize < 0)
@@ -1728,60 +1728,6 @@ int CServer::Run()
 		{
 			int64 t = time_get();
 			int NewTicks = 0;
-
-			bool MapLoaded = false;
-			
-			// load new map TODO: don't poll this
-			// map change can be ran multiple times (template + generated map)
-			/*
-			while (str_comp(g_Config.m_SvMap, m_aCurrentMap) != 0 || m_MapReload)
-			{
-				m_MapReload = 0;
-				MapLoaded = true;
-
-				// load map
-				if(LoadMap(g_Config.m_SvMap))
-				{
-					
-				}
-				else
-				{
-					str_format(aBuf, sizeof(aBuf), "failed to load map. mapname='%s'", g_Config.m_SvMap);
-					Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", aBuf);
-					str_copy(g_Config.m_SvMap, m_aCurrentMap, sizeof(g_Config.m_SvMap));
-				}
-			}
-			
-			if (MapLoaded)
-			{
-				// new map loaded
-				GameServer()->OnShutdown();
-					
-				for(int c = 0; c < MAX_CLIENTS; c++)
-				{
-					m_NetServer.m_SlotTakenByBot[c] = false;
-						
-					if(m_aClients[c].m_State <= CClient::STATE_AUTH)
-						continue;
-
-					// don't send map generation template files
-					//if (!g_Config.m_SvMapGen || str_comp(g_Config.m_SvGametype, "coop") != 0 || str_comp(g_Config.m_SvMap, "generated") == 0)
-					if (!g_Config.m_SvMapGen ||  str_comp(g_Config.m_SvMap, "generated") == 0)
-						SendMap(c);
-						
-					m_aClients[c].Reset();
-					m_aClients[c].m_State = CClient::STATE_CONNECTING;
-				}
-
-				m_GameStartTime = time_get();
-				m_CurrentGameTick = 0;
-				Kernel()->ReregisterInterface(GameServer());
-				GameServer()->OnInit();
-					
-				UpdateServerInfo();
-			}
-			*/
-			
 			
 			if(str_comp(g_Config.m_SvMap, m_aCurrentMap) != 0 || m_MapReload)
 			{

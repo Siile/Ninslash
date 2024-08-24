@@ -211,8 +211,6 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 		{
 			m_EnemiesLeft--;
 			Found = true;
-		
-			int i = ENEMY_ALIEN1;
 			
 			int Level = 0;
 			

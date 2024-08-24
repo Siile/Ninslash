@@ -321,7 +321,7 @@ void CAI::DoJumping()
 	if (Player()->GetCharacter()->IsGrounded() &&
 		(GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 32, m_Pos.y) || GameServer()->Collision()->IsTileSolid(m_Pos.x + m_Move * 96, m_Pos.y)))
 		m_Jump = 1;
-		*/
+	*/
 		
 	if (GameServer()->Collision()->IsTileSolid(m_Pos.x, m_Pos.y - 64) && Player()->GetCharacter()->GetCore().m_Jetpack == 1)
 		m_Jump = 0;
@@ -690,14 +690,11 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				
 				if (!OnWall)
 				{
-					/*
 					if (m_EnemiesInSight > 0 && Player()->GetCharacter()->GetCore().m_JetpackPower > 150 && abs(Player()->GetCharacter()->GetCore().m_Vel.x) < 12)
 					{
 						m_Hook = 1;
 						m_Direction = m_WaypointDir;
 					}
-					*/
-				/*
 				}
 				else
 				{
@@ -740,14 +737,11 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				
 				if (!OnWall)
 				{
-					/*
 					if (m_EnemiesInSight > 0 && Player()->GetCharacter()->GetCore().m_JetpackPower > 150 && abs(Player()->GetCharacter()->GetCore().m_Vel.x) < 12)
 					{
 						m_Hook = 1;
 						m_Direction = m_WaypointDir;
 					}
-					*/
-				/*
 				}
 				else
 				{
@@ -806,7 +800,6 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 						m_Jump = 1;
 				}
 				
-				/*
 				if (Player()->GetCharacter()->GetCore().m_JetpackPower > Treshold)
 				{
 					m_Hook = 1;
@@ -858,7 +851,6 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 						m_Jump = 1;
 				}
 				
-				/*
 				if (Player()->GetCharacter()->GetCore().m_JetpackPower > Treshold)
 				{
 					m_Hook = 1;
@@ -934,14 +926,12 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 				}
 				else
 				{
-					/*
 					if (Player()->GetCharacter()->GetCore().m_JetpackPower > 50)
 					{
 						m_Hook = 1;
 						m_Direction = vec2(0, -1);
 					}
-					*/
-					/*
+
 					if (Player()->GetCharacter()->GetCore().m_JetpackPower > 20)
 						m_Jump = 1;
 					
@@ -967,20 +957,17 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 					//if (GameServer()->Collision()->FastIntersectLine(m_Pos+vec2(0, -32), m_Pos+vec2(0, -64)))
 					//	Freestyle = true;
 					
-					/*
 					if (GameServer()->Collision()->FastIntersectLine(m_Pos+vec2(-24, -32), m_Pos+vec2(-24, -48)))
 						m_MoveType = MOVE_UPRIGHT;
 					else if (GameServer()->Collision()->FastIntersectLine(m_Pos+vec2(+24, -32), m_Pos+vec2(+24, -48)))
 						m_MoveType = MOVE_UPLEFT;
-					*/
-					/*
 				}
 			*/
 			}
 			break;
 			
 			default:
-				;
+				break;
 		};
 		
 		//if (length(normalize(m_DisplayDirection)-normalize(m_TargetPos)) < 0.3f && GameServer()->Collision()->IntersectLine(m_Pos, m_Pos+normalize(m_DisplayDirection)*400, 0x0, 0x0))

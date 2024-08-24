@@ -4,7 +4,7 @@
 #include <engine/shared/config.h>
 #include <engine/keys.h>
 #include <game/generated/protocol.h>
-#include <game/generated/client_data.h>
+#include <game/generated/game_data.h>
 
 #include <game/client/gameclient.h>
 #include <game/gamecore.h> // get_angle
@@ -18,6 +18,48 @@
 #include <game/client/components/effects.h>
 #include <game/client/components/sounds.h>
 #include "inventory.h"
+
+static const char *s_WeaponTipText[NUM_SW] = {
+	"Repair tool",
+	"",
+	"",
+	"Grenade",
+	"Electric grenade",
+	"Supply grenade",
+	"",
+	"",
+	"",
+	"",
+	"Weapon upgrade",
+	"Energy shield",
+	"Respawn device",
+	"Mask of regeneration",
+	"Mask of speed",
+	"Mask of protection",
+	"Mask of plenty",
+	"Mask of melee",
+	"Invisibility device",
+	"Electrowall",
+	"Area Shield",
+	"The Cure",
+	"",
+	"",
+	"Zombie claw",
+	"Bomb (for destroying reactors)",
+	""
+};
+
+static const char *s_BuildTipText[NUM_BUILDABLES] = {
+	"Block",
+	"Hard block",
+	"Barrel",
+	"Power barrel",
+	"Turret stand",
+	"Flamer",
+	"Electric wall",
+	"Teslacoil",
+	"Shield generator"
+};
 
 
 CInventory::CInventory()
@@ -267,10 +309,8 @@ void CInventory::DrawLayer(vec2 Pos, vec2 Size)
 
 void CInventory::DrawCrafting(int Type, vec2 Pos, float Size)
 {
-	//
 	return;
-	//
-	
+	/*
 	if (!IsModularWeapon(Type))
 		return;	int Part1 = GetPart(Type, 0)-1;
 	
@@ -294,7 +334,7 @@ void CInventory::DrawCrafting(int Type, vec2 Pos, float Size)
 	{
 		RenderTools()->SelectSprite(SPRITE_WEAPON_PART1_0+Part1);
 		RenderTools()->DrawSprite(Pos.x, Pos.y, Size);
-	}
+	}*/
 }
 
 static float s_Fade = 0.0f;
@@ -722,7 +762,7 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 				if (x+y*4 == Selected && CustomStuff()->m_aItem[Selected] > 0 && abs(m_SelectorMouse.x - p.x) < s2 && abs(m_SelectorMouse.y - p.y) < s2)
 				{
 					if (IsStaticWeapon(CustomStuff()->m_aItem[Selected]))
-						TextRender()->Text(0, p.x-s2*0.8f, p.y-s2, s2*0.25f, s_TipText[GetStaticType(CustomStuff()->m_aItem[Selected])], -1);
+						TextRender()->Text(0, p.x-s2*0.8f, p.y-s2, s2*0.25f, s_WeaponTipText[GetStaticType(CustomStuff()->m_aItem[Selected])], -1);
 				}
 			}
 		}

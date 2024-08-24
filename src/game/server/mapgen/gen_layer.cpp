@@ -224,9 +224,7 @@ void CGenLayer::GenerateBoxes()
 
 
 void CGenLayer::GeneratePlatforms()
-{
-	int n = 3 + rand()%12;
-		
+{		
 	for (int k = 0; k < Size()/16; k++)
 	{
 		int x = 10 + rand()%(m_Width - 20);
@@ -239,67 +237,63 @@ void CGenLayer::GeneratePlatforms()
 		if (frandom() < 0.5f)
 			Dir = -1;
 			
-			while (!Get(x-Dir, y))
-				x -= Dir;
-			
-			if (Get(x, y))
-				continue;
-			
-			if (!Get(x-Dir, y-1) || !Get(x-Dir, y) || !Get(x-Dir, y+1))
-				continue;
-			
-			bool Valid = true;
+		while (!Get(x-Dir, y))
+			x -= Dir;
 		
-			int xx = x;
-	
-			int l = 1;
-			bool Create = false;
-			while (l > 0)
-			{
-				for (int yy = -4; yy <= 4; yy++)
-					if (Used(x+l*Dir, y+yy))
-						l = -1;
+		if (Get(x, y))
+			continue;
+		
+		if (!Get(x-Dir, y-1) || !Get(x-Dir, y) || !Get(x-Dir, y+1))
+			continue;
+
+		int l = 1;
+		bool Create = false;
+		while (l > 0)
+		{
+			for (int yy = -4; yy <= 4; yy++)
+				if (Used(x+l*Dir, y+yy))
+					l = -1;
+			
+			l += 1;
 				
-				l += 1;
-					
-				if (Used(x+l*Dir, y))
+			if (Used(x+l*Dir, y))
+			{
+				if (!Used(x+l*Dir, y-1) || !Used(x+l*Dir, y+1))
 				{
-					if (!Used(x+l*Dir, y-1) || !Used(x+l*Dir, y+1))
+					if (l > 10)
 					{
-						if (l > 10)
-						{
-							l -= 10;
-							Create = true;
-						}
-						else
-							l = -1;
+						l -= 10;
+						Create = true;
 					}
 					else
-						Create = true;
+						l = -1;
 				}
-				
-				/*
-				Set(14*16+2, x, y, 1, FGOBJECTS); // TILEFLAG_VFLIP
-				Set(14*16+2, x+l*Dir, y, 1, FGOBJECTS); // TILEFLAG_VFLIP
-				break;
-				*/
-				
-				if ((Create && l > 1) || l > 3+rand()%25)
-				{
-					Set(14*16+1, x, y, Dir == 1 ? 0 : 1, FGOBJECTS); // TILEFLAG_VFLIP
-						
-					for (int xx = 1; xx < l-1; xx++)
-						Set(14*16+2, x+xx*Dir, y, 1, FGOBJECTS); // TILEFLAG_VFLIP
-					
-					if (Get(x+(l)*Dir, y))
-						Set(14*16+1, x+(l-1)*Dir, y, Dir == -1 ? 0 : 1, FGOBJECTS); // TILEFLAG_VFLIP
-					else
-						Set(14*16+3, x+(l-1)*Dir, y, Dir == 1 ? 0 : 1, FGOBJECTS); // TILEFLAG_VFLIP
-					
-					l = -1;
-					break;
-				}
+				else
+					Create = true;
 			}
+			
+			/*
+			Set(14*16+2, x, y, 1, FGOBJECTS); // TILEFLAG_VFLIP
+			Set(14*16+2, x+l*Dir, y, 1, FGOBJECTS); // TILEFLAG_VFLIP
+			break;
+			*/
+			
+			if ((Create && l > 1) || l > 3+rand()%25)
+			{
+				Set(14*16+1, x, y, Dir == 1 ? 0 : 1, FGOBJECTS); // TILEFLAG_VFLIP
+					
+				for (int xx = 1; xx < l-1; xx++)
+					Set(14*16+2, x+xx*Dir, y, 1, FGOBJECTS); // TILEFLAG_VFLIP
+				
+				if (Get(x+(l)*Dir, y))
+					Set(14*16+1, x+(l-1)*Dir, y, Dir == -1 ? 0 : 1, FGOBJECTS); // TILEFLAG_VFLIP
+				else
+					Set(14*16+3, x+(l-1)*Dir, y, Dir == 1 ? 0 : 1, FGOBJECTS); // TILEFLAG_VFLIP
+				
+				l = -1;
+				break;
+			}
+		}
 	}
 }
 

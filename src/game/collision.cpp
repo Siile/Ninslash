@@ -547,8 +547,6 @@ void CCollision::InitLightRays()
 	for (int y = m_Height-1; y > 0; y--)
 		for (int x = 0; x < m_Width; x++)
 		{
-			int t = GetTileRay(x*32, y*32, true);
-			
 			// outer corners
 			if (GetTileRay(x*32, y*32, true) == COLFLAG_SOLID && !GetTileRay((x-1)*32, y*32, true) && !GetTileRay(x*32, (y-1)*32, true))
 				m_pLightRays[y*m_Width+x] = 1;
@@ -1289,4 +1287,35 @@ bool CCollision::ModifTile(ivec2 pos, int group, int layer, int tile, int flags,
     }
 
     return true;
+}
+
+// Set here for CMake building
+void CWaypoint::SetCenter(int Distance)
+{
+	// set self's distance
+	m_PathDistance = Distance;
+	
+	// set connections' distance
+	for (int i = 0; i < m_ConnectionCount; i++)
+	{
+		if (m_apConnection[i])
+		{
+			if (m_apConnection[i]->m_PathDistance == 0)
+			{
+				m_apConnection[i]->m_PathDistance = Distance + m_aDistance[i];
+			}
+		}
+	}
+	
+	// visit connections
+  	for (int i = 0; i < m_ConnectionCount; i++)
+	{
+		if (m_apConnection[i])
+		{
+			if (m_apConnection[i]->m_PathDistance >= Distance + m_aDistance[i])
+			{
+				m_apConnection[i]->SetCenter(Distance + m_aDistance[i]);
+			}
+		}
+   }
 }

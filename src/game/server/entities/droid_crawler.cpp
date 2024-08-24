@@ -137,9 +137,7 @@ void CCrawler::Tick()
 	
 	if (m_Health <= 0)
 	{
-		float OldVelY = m_Vel.y;
-		
-		if (Server()->Tick() > m_DamageTakenTick+30 || OldVelY > 12.0f)
+		if (Server()->Tick() > m_DamageTakenTick+30 || m_Vel.y > 12.0f)
 		{
 			if (Server()->Tick() > m_DamageTakenTick+90 || abs(m_Vel.y) < 0.2f)
 			{
@@ -394,9 +392,7 @@ void CCrawler::Fire()
 
 
 bool CCrawler::Target()
-{
-	vec2 TurretPos = m_Pos;
-	
+{	
 	if (m_TargetIndex >= 0 && m_TargetIndex < MAX_CLIENTS)
 	{
 		CCharacter *pCharacter = GameServer()->GetPlayerChar(m_TargetIndex);

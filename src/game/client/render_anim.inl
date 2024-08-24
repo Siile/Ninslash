@@ -12,6 +12,9 @@ static double CubicRoot(double x)
 		return exp(log(x)/3.0);
 }
 
+#if defined(__GNUC__) || defined(__clang__)
+static float SolveBezier(float x, float p0, float p1, float p2, float p3) __attribute__((unused));
+#endif
 static float SolveBezier(float x, float p0, float p1, float p2, float p3)
 {
 	// check for valid f-curve

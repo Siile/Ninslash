@@ -7,7 +7,7 @@
 #include <engine/graphics.h>
 #include <engine/storage.h>
 #include <engine/map.h>
-#include <game/generated/client_data.h>
+#include <game/generated/game_data.h>
 #include <game/generated/protocol.h>
 #include <game/layers.h>
 #include "render.h"
@@ -1825,7 +1825,6 @@ void CRenderTools::RenderMelee(CPlayerInfo *PlayerInfo, CTeeRenderInfo *pInfo, v
 		float WeaponAngle = PlayerInfo->MeleeAngle();
 		int WeaponDir = PlayerInfo->MeleeFlip() ? -1 : 1;
 		bool FlipY = false;
-		vec2 Size = vec2(256, 256)*0.4f;
 		
 		if (WeaponDir > 0)
 			FlipY = PlayerInfo->MeleeEffectFlip();
