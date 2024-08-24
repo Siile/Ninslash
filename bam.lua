@@ -108,16 +108,35 @@ AddDependency(game_content_source, game_content_header)
 
 nethash = CHash("src/game/generated/nethash.cpp", "src/engine/shared/protocol.h", "src/game/generated/protocol.h", "src/game/tuning.h", "src/game/gamecore.cpp", network_header)
 
+icu_depends = {}
 client_link_other = {}
 client_depends = {}
 server_link_other = {}
 
 if family == "windows" then
 	if platform == "win32" then
+		if config.compiler.driver == "cl" then
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/vc/lib32/icudt53.dll"))
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/vc/lib32/icuin53.dll"))
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/vc/lib32/icuuc53.dll"))
+		elseif config.compiler.driver == "gcc" then
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/gcc/lib32/icudt53.dll"))
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/gcc/lib32/icuin53.dll"))
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/gcc/lib32/icuuc53.dll"))
+		end
 		table.insert(client_depends, CopyToDirectory(".", "other\\freetype\\windows\\lib32\\freetype.dll"))
 		table.insert(client_depends, CopyToDirectory(".", "other\\sdl2\\lib32\\SDL2.dll"))
 		table.insert(client_depends, CopyToDirectory(".", "other\\glew\\windows\\lib32\\glew32.dll"))
 	else
+		if config.compiler.driver == "cl" then
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/vc/lib64/icudt53.dll"))
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/vc/lib64/icuin53.dll"))
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/vc/lib64/icuuc53.dll"))
+		elseif config.compiler.driver == "gcc" then
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/gcc/lib64/icudt53.dll"))
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/gcc/lib64/icuin53.dll"))
+			table.insert(icu_depends, CopyToDirectory(".", "other/icu/gcc/lib64/icuuc53.dll"))
+		end
 		table.insert(client_depends, CopyToDirectory(".", "other\\freetype\\windows\\lib64\\freetype.dll"))
 		table.insert(client_depends, CopyToDirectory(".", "other\\sdl2\\lib64\\SDL2.dll"))
 		table.insert(client_depends, CopyToDirectory(".", "other\\glew\\windows\\lib64\\glew32.dll"))
@@ -172,8 +191,14 @@ function build(settings)
 		if platform == "macosx" then
 			settings.link.frameworks:Add("Carbon")
 			settings.link.frameworks:Add("AppKit")
+			settings.link.libs:Add("icui18n")
+			settings.link.libs:Add("icuuc")
+			settings.link.libpath:Add("/usr/local/opt/icu4c/lib")
 		else
 			settings.link.libs:Add("pthread")
+			ExecuteSilent("pkg-config icu-uc icu-i18n")
+			settings.cc.flags:Add("`pkg-config --cflags icu-uc icu-i18n`")
+			settings.link.flags:Add("`pkg-config --libs icu-uc icu-i18n`")
 		end
 		
 		if platform == "solaris" then
@@ -186,6 +211,9 @@ function build(settings)
 		settings.link.libs:Add("ws2_32")
 		settings.link.libs:Add("ole32")
 		settings.link.libs:Add("shell32")
+
+		-- add ICU also here
+		settings.cc.includes:Add("other\\icu\\include")
 	end
 
 	-- compile zlib if needed
@@ -205,7 +233,6 @@ function build(settings)
 	pnglite = Compile(settings, Collect("src/engine/external/pnglite/*.c"))
 	json_parser = Compile(settings, Collect("src/engine/external/json-parser/*.c"))
 	
-	-- add the c++11 flag after compiling the c libraries
 	-- TODO: this is just a workaround, better avoid the auto keyword instead :/
 	if config.compiler.driver == "gcc" or config.compiler.driver == "clang" then
 		settings.cc.flags_cxx:Add("--std=c++11")
@@ -246,6 +273,7 @@ function build(settings)
 	engine = Compile(engine_settings, Collect("src/engine/shared/*.cpp", "src/base/*.c"))
 	client = Compile(client_settings, Collect("src/engine/client/*.cpp"))
 	server = Compile(server_settings, Collect("src/engine/server/*.cpp"))
+	localization = Compile(server_settings, Collect("src/localization/*.cpp", "src/localization/components/*.cpp", "src/localization/system/*.cpp"))
 
 	versionserver = Compile(settings, Collect("src/versionsrv/*.cpp"))
 	masterserver = Compile(settings, Collect("src/mastersrv/*.cpp"))
@@ -276,7 +304,8 @@ function build(settings)
 		client_link_other, client_osxlaunch)
 
 	server_exe = Link(server_settings, "ninslash_srv", engine, server,
-		game_shared, game_server, zlib, server_link_other)
+		game_shared, game_server, zlib, server_link_other, localization, 
+		json_parser, icu_depends)
 
 	serverlaunch = {}
 	if platform == "macosx" then

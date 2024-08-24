@@ -19,7 +19,19 @@
 #include <game/client/components/sounds.h>
 #include "inventory.h"
 
-static const char *s_WeaponTipText[NUM_SW] = {
+static const char *s_BuildTipText[NUM_BUILDABLES] = {
+	"Block",
+	"Hard block",
+	"Barrel",
+	"Power barrel",
+	"Turret stand",
+	"Flamer",
+	"Electric wall",
+	"Teslacoil",
+	"Shield generator"
+};
+
+static const char *s_TipText[NUM_SW] = {
 	"Repair tool",
 	"",
 	"",
@@ -48,19 +60,6 @@ static const char *s_WeaponTipText[NUM_SW] = {
 	"Bomb (for destroying reactors)",
 	""
 };
-
-static const char *s_BuildTipText[NUM_BUILDABLES] = {
-	"Block",
-	"Hard block",
-	"Barrel",
-	"Power barrel",
-	"Turret stand",
-	"Flamer",
-	"Electric wall",
-	"Teslacoil",
-	"Shield generator"
-};
-
 
 CInventory::CInventory()
 {
@@ -116,10 +115,10 @@ void CInventory::ConKeyBuildmenu(IConsole::IResult *pResult, void *pUserData)
 
 void CInventory::ConInventoryRoll(IConsole::IResult *pResult, void *pUserData)
 {
-	((CInventory *)pUserData)->InventoryRoll();
+	((CInventory *)pUserData)->InventoryRoll(false);
 }
 
-void CInventory::InventoryRoll()
+void CInventory::InventoryRoll(bool All)
 {
 	if (m_StupidLock)
 	{
@@ -129,12 +128,33 @@ void CInventory::InventoryRoll()
 	else
 		m_StupidLock = true;
 	
-	CNetMsg_Cl_InventoryAction Msg;
-	Msg.m_Type = INVENTORYACTION_ROLL;
-	Msg.m_Slot = 0;
-	Msg.m_Item1 = 0;
-	Msg.m_Item2 = 0;
-	Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+	// Not using -1 for "all" because of if future need do something here
+	if(All)
+	{
+		for (int i = 0; i < 4; i++) // Num inventory slot in a row.
+		{
+			CNetMsg_Cl_InventoryAction Msg;
+			Msg.m_Type = INVENTORYACTION_ROLL;
+			Msg.m_Slot = i;
+			Msg.m_Item1 = 0;
+			Msg.m_Item2 = 0;
+			Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+		}
+	}
+	else
+	{
+		CNetMsg_Cl_InventoryAction Msg;
+		Msg.m_Type = INVENTORYACTION_ROLL;
+		Msg.m_Slot = -1; // -1 means cureent Weapon Slot
+		Msg.m_Item1 = 0;
+		Msg.m_Item2 = 0;
+		Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
+	}
+}
+
+void CInventory::ConInventoryRoll_All(IConsole::IResult *pResult, void *pUserData)
+{
+	((CInventory *)pUserData)->InventoryRoll(true);
 }
 
 void CInventory::OnConsoleInit()
@@ -143,6 +163,7 @@ void CInventory::OnConsoleInit()
 	Console()->Register("+inventory", "", CFGFLAG_CLIENT, ConKeyInventory, this, "Open inventory");
 	Console()->Register("+buildmenu", "", CFGFLAG_CLIENT, ConKeyBuildmenu, this, "Open build menu");
 	Console()->Register("+inventoryroll", "", CFGFLAG_CLIENT, ConInventoryRoll, this, "Roll inventory");
+	Console()->Register("+inventoryroll_all", "", CFGFLAG_CLIENT, ConInventoryRoll_All, this, "Roll inventory(All)");
 }
 
 void CInventory::OnReset()
@@ -231,6 +252,20 @@ bool CInventory::OnInput(IInput::CEvent Event)
 		if (M != m_Mouse1)
 			m_MouseTrigger = true;
 		return true;
+	}
+	else if(Event.m_Key == KEY_ESCAPE)
+	{
+		if(!m_pClient->m_Snap.m_SpecInfo.m_Active && Client()->State() != IClient::STATE_DEMOPLAYBACK)
+		{
+			if (m_Render)
+			{
+				CustomStuff()->m_Inventory = false;
+				m_Active = false;
+				m_WasActive = false;
+				m_Render = false;
+				return true;
+			}
+		}
 	}
 
 	return false;
@@ -762,7 +797,7 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 				if (x+y*4 == Selected && CustomStuff()->m_aItem[Selected] > 0 && abs(m_SelectorMouse.x - p.x) < s2 && abs(m_SelectorMouse.y - p.y) < s2)
 				{
 					if (IsStaticWeapon(CustomStuff()->m_aItem[Selected]))
-						TextRender()->Text(0, p.x-s2*0.8f, p.y-s2, s2*0.25f, s_WeaponTipText[GetStaticType(CustomStuff()->m_aItem[Selected])], -1);
+						TextRender()->Text(0, p.x-s2*0.8f, p.y-s2, s2*0.25f, Localize(s_TipText[GetStaticType(CustomStuff()->m_aItem[Selected])]), -1);
 				}
 			}
 		}
@@ -783,7 +818,7 @@ void CInventory::DrawInventory(vec2 Pos, vec2 Size)
 				vec2 p = Pos-GSize + vec2(x+0.5f, y+0.5f)*GSize/vec2(4, 3)*2;
 				
 				if (x+y*4 < NUM_BUILDABLES && abs(m_SelectorMouse.x - p.x) < s2 && abs(m_SelectorMouse.y - p.y) < s2)
-					TextRender()->Text(0, p.x-s2*0.8f, p.y-s2, s2*0.25f, s_BuildTipText[x+y*4], -1);
+					TextRender()->Text(0, p.x-s2*0.8f, p.y-s2, s2*0.25f, Localize(s_BuildTipText[x+y*4]), -1);
 			}
 		}
 		

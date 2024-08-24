@@ -519,15 +519,15 @@ void IGameController::DeathMessage()
 	switch (rand()%5)
 	{
 		case 0:
-			GameServer()->SendBroadcast("All hope is lost", -1); break;
+			GameServer()->SendBroadcast(-1, false, _("All hope is lost")); break;
 		case 1:
-			GameServer()->SendBroadcast("Slaughter", -1); break;
+			GameServer()->SendBroadcast(-1, false, _("Slaughter")); break;
 		case 2:
-			GameServer()->SendBroadcast("Ocean of blood", -1); break;
+			GameServer()->SendBroadcast(-1, false, _("Ocean of blood")); break;
 		case 3:
-			GameServer()->SendBroadcast("Death takes all", -1); break;
+			GameServer()->SendBroadcast(-1, false, _("Death takes all")); break;
 		default:
-			GameServer()->SendBroadcast("Everybody dies", -1); break;
+			GameServer()->SendBroadcast(-1, false, _("Everybody dies")); break;
 	};
 }
 
@@ -1676,7 +1676,7 @@ void IGameController::ReactorDestroyed()
 
 void IGameController::OnSurvivalTimeOut()
 {
-	GameServer()->SendBroadcast("Draw", -1);
+	GameServer()->SendBroadcast(-1, false, _("Draw"));
 	m_SurvivalResetTick = Server()->Tick() + Server()->TickSpeed() * 3.0f;
 }
 	
@@ -1760,7 +1760,7 @@ void IGameController::Tick()
 	if (m_ClearBroadcastTick && m_ClearBroadcastTick < Server()->Tick())
 	{
 		m_ClearBroadcastTick = 0;
-		GameServer()->SendBroadcast("", -1);
+		GameServer()->SendBroadcast(-1, false, "");
 	}
 
 	
@@ -1805,14 +1805,14 @@ void IGameController::Tick()
 				// draw
 				if (!CountPlayersAlive(TEAM_BLUE) && !CountPlayersAlive(TEAM_RED))
 				{
-					GameServer()->SendBroadcast("Draw", -1);
+					GameServer()->SendBroadcast(-1, false, _("Draw"));
 					m_SurvivalResetTick = Server()->Tick() + Server()->TickSpeed() * 3.0f;
 					//ResetSurvivalRound();
 				}
 				// red team wins
 				else if (!CountPlayersAlive(TEAM_BLUE) && CountPlayersAlive(TEAM_RED))
 				{
-					GameServer()->SendBroadcast("Red team wins", -1);
+					GameServer()->SendBroadcast(-1, false, _("Red team wins"));
 					m_aTeamscore[TEAM_RED] += g_Config.m_SvSurvivalReward;
 					m_SurvivalResetTick = Server()->Tick() + Server()->TickSpeed() * 3.0f;
 					//ResetSurvivalRound();
@@ -1820,7 +1820,7 @@ void IGameController::Tick()
 				// blue team wins
 				else if (CountPlayersAlive(TEAM_BLUE) && !CountPlayersAlive(TEAM_RED))
 				{
-					GameServer()->SendBroadcast("Blue team wins", -1);
+					GameServer()->SendBroadcast(-1, false, _("Blue team wins"));
 					m_aTeamscore[TEAM_BLUE] += g_Config.m_SvSurvivalReward;
 					m_SurvivalResetTick = Server()->Tick() + Server()->TickSpeed() * 3.0f;
 					//ResetSurvivalRound();
@@ -1832,7 +1832,7 @@ void IGameController::Tick()
 				// no one wins
 				if (!CountPlayersAlive())
 				{
-					GameServer()->SendBroadcast("Draw", -1);
+					GameServer()->SendBroadcast(-1, false, _("Draw"));
 					m_SurvivalResetTick = Server()->Tick() + Server()->TickSpeed() * 3.0f;
 					//ResetSurvivalRound();
 				}
@@ -1844,9 +1844,7 @@ void IGameController::Tick()
 					
 					if (Winner >= 0)
 					{
-						char aBuf[64];
-						str_format(aBuf, sizeof(aBuf), "%s survives", Server()->ClientName(Winner));
-						GameServer()->SendBroadcast(aBuf, -1);
+						GameServer()->SendBroadcast(-1, false, _("{%s} survives"), Server()->ClientName(Winner));
 						
 						GameServer()->m_apPlayers[Winner]->m_Score += g_Config.m_SvSurvivalReward;
 					}

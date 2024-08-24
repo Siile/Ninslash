@@ -736,6 +736,8 @@ int net_tcp_close(NETSOCKET sock);
 */
 void str_append(char *dst, const char *src, int dst_size);
 
+void str_append_num(char *dst, const char *src, int dst_size, int num);
+
 /*
 	Function: str_copy
 		Copies a string to another.

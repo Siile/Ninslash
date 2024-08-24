@@ -212,7 +212,7 @@ void CGameControllerBase::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 		if (!pChr->GetPlayer()->m_Welcomed)
 		{
 			pChr->GetPlayer()->m_Welcomed = true;
-			GameServer()->SendBroadcast("Reactor defense", pChr->GetPlayer()->GetCID());
+			GameServer()->SendBroadcast(pChr->GetPlayer()->GetCID(), false, _("Reactor defense"));
 		}
 	}
 }
@@ -231,14 +231,14 @@ int CGameControllerBase::OnCharacterDeath(class CCharacter *pVictim, class CPlay
 			// next wave
 			if (m_Wave >= 10)
 			{
-				GameServer()->SendBroadcast("Stage completed", -1);
+				GameServer()->SendBroadcast(-1, false, _("Stage completed"));
 				m_RoundOverTick = Server()->Tick();
 				m_Wave++;
 			}
 			else
 			{
 				m_WaveStartTick = Server()->Tick() + Server()->TickSpeed() * 15.0f;
-				GameServer()->SendBroadcast("Wave cleared", -1);
+				GameServer()->SendBroadcast(-1, false, _("Wave cleared"));
 			}
 		}
 				
@@ -286,8 +286,8 @@ void CGameControllerBase::NextWave()
 	m_Wave++;
 	
 	char aBuf[256];
-	str_format(aBuf, sizeof(aBuf), "Wave %d", m_Wave);
-	GameServer()->SendBroadcast(aBuf, -1);
+	str_format(aBuf, sizeof(aBuf), "Wave {%d}", m_Wave);
+	GameServer()->SendBroadcast(-1, false, _("Wave {%d}"), m_Wave);
 
 	m_EnemiesLeft = 5 + m_Wave * 6;
 	m_Deaths = m_EnemiesLeft;
@@ -368,14 +368,14 @@ void CGameControllerBase::Tick()
 		{
 			// next wave
 			m_WaveStartTick = Server()->Tick() + Server()->TickSpeed() * 15.0f;
-			GameServer()->SendBroadcast("Wave cleared", -1);
+			GameServer()->SendBroadcast(-1, false, _("Wave cleared"));
 		}
 		
 		// lose condition
 		if (!m_RoundOverTick && Server()->Tick()%20 == 1 && !ReactorsLeft())
 		{
 			m_RoundOverTick = Server()->Tick();
-			GameServer()->SendBroadcast("All reactors lost", -1);
+			GameServer()->SendBroadcast(-1, false, _("All reactors lost"));
 			m_GameOverBroadcast = 0;
 		}
 		
@@ -384,9 +384,7 @@ void CGameControllerBase::Tick()
 		{
 			m_GameOverBroadcast = true;
 			
-			char aBuf[256];
-			str_format(aBuf, sizeof(aBuf), "Game over on wave %d", m_Wave);
-			GameServer()->SendBroadcast(aBuf, -1);
+			GameServer()->SendBroadcast(-1, false, _("Game over on wave {%d}"), m_Wave);
 		}
 		
 		if (m_RoundOverTick && m_RoundOverTick < Server()->Tick() - Server()->TickSpeed()*7.0f)

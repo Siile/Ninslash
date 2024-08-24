@@ -117,10 +117,10 @@ void CPlayer::DropItem(int Slot, vec2 Pos)
 		GetCharacter()->DropItem(Slot, Pos);
 }
 
-void CPlayer::InventoryRoll()
+void CPlayer::InventoryRoll(int Slot)
 {
 	if (GetCharacter())
-		GetCharacter()->InventoryRoll();
+		GetCharacter()->InventoryRoll(Slot);
 }
 
 void CPlayer::CombineItem(int Item1, int Item2)
@@ -269,7 +269,7 @@ void CPlayer::Tick()
 		if(g_Config.m_SvBroadcastLock && m_BroadcastLockTick && m_aBroadcast[0] != '\0')
 		{
 			if(Server()->Tick() > m_BroadcastLockTick + Server()->TickSpeed() * g_Config.m_SvBroadcastLock)
-				GameServer()->SendBroadcast(m_aBroadcast, GetCID(), true);
+				GameServer()->SendBroadcast(GetCID(), true, m_aBroadcast);
 		}
 	}
 	else
@@ -409,10 +409,9 @@ void CPlayer::OnDisconnect(const char *pReason)
 		if (!m_IsBot)
 		{
 			if(pReason && *pReason)
-				str_format(aBuf, sizeof(aBuf), "'%s' has left the game (%s)", Server()->ClientName(m_ClientID), pReason);
+				GameServer()->SendChatTarget(-1, _("'{%s}' has left the game ({%s})"), Server()->ClientName(m_ClientID), pReason);
 			else
-				str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(m_ClientID));
-			GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
+				GameServer()->SendChatTarget(-1, _("'{%s}' has left the game"), Server()->ClientName(m_ClientID));
 		}
 
 		str_format(aBuf, sizeof(aBuf), "leave player='%d:%s'", m_ClientID, Server()->ClientName(m_ClientID));
@@ -531,14 +530,6 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 		return;
 
 	char aBuf[512];
-	
-	/* skip this
-	if(DoChatMsg)
-	{
-		str_format(aBuf, sizeof(aBuf), "'%s' joined the %s", Server()->ClientName(m_ClientID), GameServer()->m_pController->GetTeamName(Team));
-		GameServer()->SendChat(-1, CGameContext::CHAT_ALL, aBuf);
-	}
-	*/
 
 	KillCharacter();
 
