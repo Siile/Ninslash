@@ -35,6 +35,16 @@ void CKillMessages::OnMessage(int MsgType, void *pRawMsg)
 		Kill.m_ModeSpecial = pMsg->m_ModeSpecial;
 		Kill.m_Tick = Client()->GameTick();
 		
+		// hide bot names in invasion
+		if(m_pClient->m_Snap.m_pGameInfoObj && m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_COOP)
+		{
+			if (m_pClient->m_aClients[Kill.m_KillerID].m_IsBot)
+				str_copy(Kill.m_aKillerName, "", sizeof(""));
+			
+			if (m_pClient->m_aClients[Kill.m_VictimID].m_IsBot)
+				str_copy(Kill.m_aVictimName, "", sizeof(""));
+		}
+		
 		// add the message
 		m_KillmsgCurrent = (m_KillmsgCurrent+1)%MAX_KILLMSGS;
 		m_aKillmsgs[m_KillmsgCurrent] = Kill;
