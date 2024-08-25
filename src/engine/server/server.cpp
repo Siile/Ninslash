@@ -781,7 +781,7 @@ bool CServer::GetGameVote(CGameVote *pGameVote, int Players)
 	int i = rand()%(m_GameVoteCount);
 	
 	int j = 0;
-	while (m_aGameVoteUsed[i] || m_aGameVote[i].m_MinPlayers > Players || m_aGameVote[i].m_MaxPlayers < Players)
+	while (m_aGameVoteUsed[i] || m_aGameVote[i].m_MinPlayers > Players || m_aGameVote[i].m_MaxPlayers < Players || m_aGameVote[i].m_AlwaysOn)
 	{
 		i = rand()%(m_GameVoteCount);
 		
