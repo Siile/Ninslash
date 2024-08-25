@@ -12,6 +12,7 @@
 // ft2 texture
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include FT_STROKER_H
 
 // TODO: Refactor: clean this up
 enum
@@ -100,6 +101,9 @@ class CTextRender : public IEngineTextRender
 	//int m_FontTextureFormat;
 
 	CFont *m_pDefaultFont;
+	CFont *m_pCallbackFonts[32];
+	char m_aCallbackFont[512];
+	int m_CallbackFontNum;
 
 	FT_Library m_FTLibrary;
 
@@ -389,6 +393,25 @@ class CTextRender : public IEngineTextRender
 
 	CFontChar *GetChar(CFont *pFont, CFontSizeData *pSizeData, int Chr)
 	{
+		if(!FT_Get_Char_Index(pFont->m_FtFace, (FT_ULong) Chr))
+		{
+			// find callback font
+			CFont *pCallbackFont = nullptr;
+			if(m_aCallbackFont[0])
+			{
+				for(int i = 0; i < m_CallbackFontNum; i ++)
+				{
+					if(str_comp(m_aCallbackFont, m_pCallbackFonts[i]->m_FtFace->family_name) == 0)
+						pCallbackFont = m_pCallbackFonts[i];
+				}
+			}
+
+			if(!pCallbackFont)
+				return nullptr;
+
+			pFont = pCallbackFont;
+		}
+
 		CFontChar *pFontchr = NULL;
 
 		// search for the character
@@ -448,6 +471,10 @@ public:
 		m_TextOutlineA = 0.3f;
 
 		m_pDefaultFont = 0;
+		m_aCallbackFont[0] = 0;
+		m_CallbackFontNum = 0;
+
+		mem_zero(m_pCallbackFonts, sizeof(m_pCallbackFonts));
 
 		// GL_LUMINANCE can be good for debugging
 		//m_FontTextureFormat = GL_ALPHA;
@@ -480,6 +507,46 @@ public:
 		return pFont;
 	};
 
+	virtual bool LoadCallbackFont(const char *pFilename)
+	{
+		CFont *pFont = (CFont *)mem_alloc(sizeof(CFont), 1);
+
+		mem_zero(pFont, sizeof(*pFont));
+		str_copy(pFont->m_aFilename, pFilename, sizeof(pFont->m_aFilename));
+
+		if(FT_New_Face(m_FTLibrary, pFont->m_aFilename, 0, &pFont->m_FtFace))
+		{
+			mem_free(pFont);
+			return false;
+		}
+		
+		int FaceNum = pFont->m_FtFace->num_faces;
+		mem_free(pFont);
+		int Index = 0;
+		for(int i = 0; i < FaceNum && Index < 32; i ++)
+		{
+			pFont = (CFont *)mem_alloc(sizeof(CFont), 1);
+			str_copy(pFont->m_aFilename, pFilename, sizeof(pFont->m_aFilename));
+			if(FT_New_Face(m_FTLibrary, pFont->m_aFilename, i, &pFont->m_FtFace))
+			{
+				mem_free(pFont);
+				continue;
+			}
+
+			for(unsigned j = 0; j < NUM_FONT_SIZES; j ++)
+				pFont->m_aSizes[j].m_FontSize = -1;
+
+			m_pCallbackFonts[Index] = pFont;
+			Index ++;
+
+			dbg_msg("textrender", "loaded callback font '%s' from '%s'", pFont->m_FtFace->family_name, pFilename);
+		}
+
+		m_CallbackFontNum = Index;
+
+		return true;
+	};
+
 	virtual void DestroyFont(CFont *pFont)
 	{
 		mem_free(pFont);
@@ -491,6 +558,11 @@ public:
 		m_pDefaultFont = pFont;
 	}
 
+	virtual void SetCallbackFont(const char *pFontname)
+	{
+		dbg_msg("textrender", "callback pFont set '%s'", pFontname);
+		str_copy(m_aCallbackFont, pFontname, sizeof(m_aCallbackFont));
+	}
 
 	virtual void SetCursor(CTextCursor *pCursor, float x, float y, float FontSize, int Flags)
 	{
