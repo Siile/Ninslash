@@ -27,9 +27,9 @@ public:
     virtual const char *Localize(const char *pLanguage, const char *pText);
     
     bool LoadIndexFile();
-    bool LoadLanguage(char aFile[64]);
+    bool LoadLanguage(const char *aFile);
 
-    void AddNewLocalize(char aLang[64], const char *pKey, const char *pValue);
+    void AddNewLocalize(const char *pName, const char *pKey, const char *pValue);
 };
 
 #endif

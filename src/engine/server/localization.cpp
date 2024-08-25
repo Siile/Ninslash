@@ -47,9 +47,7 @@ bool CLocalization::LoadIndexFile()
 		// Set i = 1, Skip English
         for (unsigned i = 1; i < rStart.u.array.length; ++i)
         {
-			char aFile[64];
-			str_copy(aFile, rStart[i]["file"], sizeof(aFile));
-			if(!LoadLanguage(aFile))
+			if(!LoadLanguage(rStart[i]["file"]))
 				return false;
         }
     }
@@ -60,10 +58,10 @@ bool CLocalization::LoadIndexFile()
     return true;
 }
 
-bool CLocalization::LoadLanguage(char aFile[64])
+bool CLocalization::LoadLanguage(const char *pFile)
 {
     char aFilePath[64];
-    str_format(aFilePath, sizeof(aFilePath), "./data/server/languages/%s.json", aFile);
+    str_format(aFilePath, sizeof(aFilePath), "./data/server/languages/%s.json", pFile);
     IOHANDLE File = m_pStorage->OpenFile(aFilePath, IOFLAG_READ, IStorage::TYPE_ALL);
     int FileSize = (int)io_length(File);
     char *pFileData = new char[FileSize + 1];
@@ -87,10 +85,10 @@ bool CLocalization::LoadLanguage(char aFile[64])
 
     if (rStart.type == json_array)
     {
-		m_aLocalize[aFile].m_HasLocalized = true;
-		str_copy(m_aLocalize[aFile].m_aLanguageName, aFile, sizeof(m_aLocalize[aFile].m_aLanguageName));
+		m_aLocalize[pFile].m_HasLocalized = true;
+		str_copy(m_aLocalize[pFile].m_aLanguageName, pFile, sizeof(m_aLocalize[pFile].m_aLanguageName));
         for (unsigned i = 0; i < rStart.u.array.length; ++i)
-			AddNewLocalize(aFile, rStart[i]["key"], rStart[i]["value"]);
+			AddNewLocalize(pFile, rStart[i]["key"], rStart[i]["value"]);
 	}
 
     // clean up
@@ -100,15 +98,9 @@ bool CLocalization::LoadLanguage(char aFile[64])
     return true;
 }
 
-void CLocalization::AddNewLocalize(char pName[64], const char *pKey, const char *pValue)
+void CLocalization::AddNewLocalize(const char *pName, const char *pKey, const char *pValue)
 {
-	char aName[64];
-	char aKey[256];
-	char aValue[256];
-	str_copy(aName, pName, sizeof(aName));
-	str_copy(aKey, pKey, sizeof(aKey));
-	str_copy(aValue, pValue, sizeof(aValue));
-	m_aLocalize[aName].m_aLocalizedTexts[aKey] = aValue;
+	m_aLocalize[pName].m_aLocalizedTexts[pKey] = pValue;
 }
 
 const char *CLocalization::GetLanguageCode(int Country)
