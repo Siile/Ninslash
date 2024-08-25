@@ -409,7 +409,7 @@ set(LIBS
 
 # Targets
 add_library(engine-shared EXCLUDE_FROM_ALL OBJECT ${ENGINE_INTERFACE} ${ENGINE_SHARED} ${ENGINE_GENERATED_SHARED} ${BASE})
-add_library(game-shared EXCLUDE_FROM_ALL OBJECT ${GAME_SHARED} ${GAME_GENERATED_SHARED} ${LOCALIZATION})
+add_library(game-shared EXCLUDE_FROM_ALL OBJECT ${GAME_SHARED} ${GAME_GENERATED_SHARED})
 list(APPEND TARGETS_OWN engine-shared game-shared)
 
 ########################################################################
@@ -490,7 +490,6 @@ endif()
 # Sources
 file(GLOB_RECURSE ENGINE_SERVER "src/engine/server/*.cpp" "src/engine/server/*.h")
 file(GLOB_RECURSE GAME_SERVER "src/game/server/*.cpp" "src/game/server/*.h" "../pathfinding.cpp" "../pathfinding.h")
-file(GLOB LOCALIZED_SERVER "src/localization/components/*.cpp" "src/localization/components/*.h")
 
 set(SERVER_SRC ${ENGINE_SERVER} ${GAME_SERVER} ${LOCALIZED_SERVER})
 if(TARGET_OS STREQUAL "windows")

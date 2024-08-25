@@ -133,10 +133,11 @@ void CGameControllerBall::Tick()
 	{
 		if (InMapArea(TEAM_RED, m_pBall->GetPosition()))
 		{
+			char aBuf[256];
 			if (m_LastBallToucher >= 0)
-				GameServer()->SendBroadcast(-1, false, _("{%s} scores for blue team!"), Server()->ClientName(m_LastBallToucher));
+				str_format(aBuf, sizeof(aBuf), "%s scores for blue team!", Server()->ClientName(m_LastBallToucher));
 			else
-				GameServer()->SendBroadcast(-1, false, _("Blue team scores!"));
+				str_format(aBuf, sizeof(aBuf), "Blue team scores!");
 			
 			// score
 			CCharacter *pChar = GameServer()->GetPlayerChar(m_LastBallToucher);
@@ -149,16 +150,18 @@ void CGameControllerBall::Tick()
 			}
 			
 			GameServer()->CreateSoundGlobal(SOUND_CTF_CAPTURE);
+			GameServer()->SendBroadcast(aBuf, -1);
 			m_aTeamscore[TEAM_BLUE]++;
 			m_RoundEndTick = Server()->Tick() + Server()->TickSpeed()*1;
 		}
 			
 		if (InMapArea(TEAM_BLUE, m_pBall->GetPosition()))
 		{
+			char aBuf[256];
 			if (m_LastBallToucher >= 0)
-				GameServer()->SendBroadcast(-1, false, _("{%s} scores for red team!"), Server()->ClientName(m_LastBallToucher));
+				str_format(aBuf, sizeof(aBuf), "%s scores for red team!", Server()->ClientName(m_LastBallToucher));
 			else
-				GameServer()->SendBroadcast(-1, false, _("Red team scores!"));
+				str_format(aBuf, sizeof(aBuf), "Red team scores!");
 			
 			
 			// score
@@ -172,12 +175,14 @@ void CGameControllerBall::Tick()
 			}
 			
 			GameServer()->CreateSoundGlobal(SOUND_CTF_CAPTURE);
+			GameServer()->SendBroadcast(aBuf, -1);
 			m_aTeamscore[TEAM_RED]++;
 			m_RoundEndTick = Server()->Tick() + Server()->TickSpeed()*1;
 		}
 	}
 	else if (m_RoundEndTick <= Server()->Tick())
 	{
+		//GameServer()->SendBroadcast("", -1);
 		ResetBallRound();
 		m_RoundEndTick = 0;
 		m_GoTick = Server()->Tick() + Server()->TickSpeed()*1;
@@ -186,7 +191,7 @@ void CGameControllerBall::Tick()
 	if (m_GoTick && m_GoTick <= Server()->Tick())
 	{
 		m_GoTick = 0;
-		GameServer()->SendBroadcast(-1, false, _("Go!"));
+		GameServer()->SendBroadcast("Go!", -1);
 		GameServer()->CreateSoundGlobal(SOUND_CTF_RETURN);
 	}
 }

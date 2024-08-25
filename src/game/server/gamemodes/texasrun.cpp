@@ -98,7 +98,7 @@ void CGameControllerTexasRun::SelectStartingDead()
 		return;
 
 	//char aBuf[256];
-	//str_format(aBuf, sizeof(aBuf), "Blue team size: '{%d}'", CountPlayers(TEAM_BLUE));
+	//str_format(aBuf, sizeof(aBuf), "Blue team size: '%d'", CountPlayers(TEAM_BLUE));
 	//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 	
 	int i = rand()%MAX_CLIENTS;
@@ -111,7 +111,7 @@ void CGameControllerTexasRun::SelectStartingDead()
 	{
 		pPlayer->SetTeam(TEAM_BLUE, false);
 		
-		GameServer()->SendBroadcast(pPlayer->GetCID(), false, _("KILL!"));
+		GameServer()->SendBroadcast("KILL!", pPlayer->GetCID());
 	}
 }
 
@@ -129,7 +129,7 @@ void CGameControllerTexasRun::Tick()
 		if (m_GameState == TEXAS_STARTING && CountPlayers() > 1)
 		{
 			m_GameState = TEXAS_STARTED;
-			GameServer()->SendBroadcast(-1, false, "");
+			GameServer()->SendBroadcast("", -1);
 		}
 	}
 	
@@ -141,13 +141,13 @@ void CGameControllerTexasRun::Tick()
 			switch (rand()%3)
 			{
 				case 0:
-					GameServer()->SendBroadcast(-1, false, _("Run")); break;
+					GameServer()->SendBroadcast("Run", -1); break;
 				case 1:
-					GameServer()->SendBroadcast(-1, false, _("Hide")); break;
+					GameServer()->SendBroadcast("Hide", -1); break;
 				case 2:
-					GameServer()->SendBroadcast(-1, false, _("Escape")); break;
+					GameServer()->SendBroadcast("Escape", -1); break;
 				default:
-					GameServer()->SendBroadcast(-1, false, _("Run")); break;
+					GameServer()->SendBroadcast("Run", -1); break;
 			};
 			
 			SelectStartingDead();
@@ -162,15 +162,15 @@ void CGameControllerTexasRun::Tick()
 			switch (rand()%5)
 			{
 				case 0:
-					GameServer()->SendBroadcast(-1, false, _("All hope is lost")); break;
+					GameServer()->SendBroadcast("All hope is lost", -1); break;
 				case 1:
-					GameServer()->SendBroadcast(-1, false, _("Slaughter")); break;
+					GameServer()->SendBroadcast("Slaughter", -1); break;
 				case 2:
-					GameServer()->SendBroadcast(-1, false, _("Ocean of blood")); break;
+					GameServer()->SendBroadcast("Ocean of blood", -1); break;
 				case 3:
-					GameServer()->SendBroadcast(-1, false, _("Death takes all")); break;
+					GameServer()->SendBroadcast("Death takes all", -1); break;
 				default:
-					GameServer()->SendBroadcast(-1, false, _("Everybody dies")); break;
+					GameServer()->SendBroadcast("Everybody dies", -1); break;
 			};
 			m_GameState = TEXAS_ENDING;
 			m_GameStateLockTick = GameServer()->Server()->Tick() + GameServer()->Server()->TickSpeed() * 5;

@@ -18,12 +18,33 @@ for root, dirs, files in os.walk(directory):
         with open(os.path.join(root, filename), "r") as file:
             lines = file.readlines()
             for line in lines:
-                f = line.find(r'_("')
+                f = line.find(r'Localize("')
                 if f != -1:
-                    end_quote = line.find(r'")', f)
+                    end_quote = line.find(r'",', f)
                     if end_quote != -1:
-                        label = line[f + 3 : end_quote]
+                        label = line[f + 10 : end_quote]
                         unique_labels.append(label + "\n")
+
+for root, dirs, files in os.walk(directory):
+    for filename in fnmatch.filter(files, "*.cpp"):
+        with open(os.path.join(root, filename), "r") as file:
+            lines = file.readlines()
+            for line in lines:
+                f = line.find(r'SendBroadcast("')
+                if f != -1:
+                    end_quote = line.find(r'",', f)
+                    if end_quote != -1:
+                        label = line[f + 15 : end_quote]
+                        unique_labels.append(label + "\n")
+
+for root, dirs, files in os.walk(directory):
+    for filename in fnmatch.filter(files, "*.cpp"):
+        with open(os.path.join(root, filename), "r") as file:
+            content = file.read()
+            # 使用正则表达式匹配 Localize(.*, ".*")
+            matches = re.findall(r'SendChatTarget\([^,]*, "(.*?)"\)', content)
+            for match in matches:
+                unique_labels.append(match + "\n")
 
 # Load gamevotes
 for file_name in os.listdir("data/server/gamevotes/"):

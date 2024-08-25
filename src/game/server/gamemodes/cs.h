@@ -17,7 +17,7 @@ private:
 	
 	void AddToArea(vec2 Pos);
 	
-	int m_aPlayerWeapon[(int)MAX_CLIENTS*(int)NUM_SLOTS];
+	int m_aPlayerWeapon[MAX_CLIENTS*NUM_SLOTS];
 	int m_aPlayerArmor[MAX_CLIENTS];
 	int m_aPlayerKits[MAX_CLIENTS];
 	

@@ -39,7 +39,7 @@
 	#include <windows.h>
 #endif
 
-#include <localization/components/localization.h>
+#include <engine/localization.h>
 
 static const char *StrLtrim(const char *pStr)
 {
@@ -2108,14 +2108,9 @@ int main(int argc, const char **argv) // ignore_convention
 	IEngineMasterServer *pEngineMasterServer = CreateEngineMasterServer();
 	IStorage *pStorage = CreateStorage("Ninslash", IStorage::STORAGETYPE_SERVER, argc, argv); // ignore_convention
 	IConfig *pConfig = CreateConfig();
-
-	pServer->m_pLocalization = new CLocalization(pStorage);
-	pServer->m_pLocalization->InitConfig(0, NULL);
-	if(!pServer->m_pLocalization->Init())
-	{
-		dbg_msg("Localization", "Could not initialize localization.");
-		return -1;
-	}
+	ILocalization *pLocalization = CreateLocalization(pStorage);
+	if(!pLocalization->Init())
+		dbg_msg("Localization", "Failed to Init localization.");
 
 	pServer->InitRegister(&pServer->m_NetServer, pEngineMasterServer, pConsole);
 
@@ -2130,6 +2125,7 @@ int main(int argc, const char **argv) // ignore_convention
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pConsole);
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pStorage);
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pConfig);
+		RegisterFail = RegisterFail || !pKernel->RegisterInterface(pLocalization);
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IEngineMasterServer*>(pEngineMasterServer)); // register as both
 		RegisterFail = RegisterFail || !pKernel->RegisterInterface(static_cast<IMasterServer*>(pEngineMasterServer));
 

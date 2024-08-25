@@ -1,296 +1,344 @@
 {
     "translation": [
         {
-            "key": "Number of player profiles in Invasion: {%d}",
-            "value": "Number of player profiles in Invasion: {%d}"
-        },
-        {
-            "key": "Level {%d} - Second try",
-            "value": "Level {%d} - Second try"
-        },
-        {
-            "key": "Death takes all",
-            "value": "Death takes all"
-        },
-        {
-            "key": "Red team scores!",
-            "value": "Red team scores!"
-        },
-        {
-            "key": "You can't kick admins",
-            "value": "You can't kick admins"
-        },
-        {
-            "key": "Number of pickups: {%d}",
-            "value": "Number of pickups: {%d}"
-        },
-        {
-            "key": "Level {%d} - Last chance",
-            "value": "Level {%d} - Last chance"
-        },
-        {
-            "key": "Hide",
-            "value": "Hide"
-        },
-        {
-            "key": "'{%s}' called for vote to kick you",
-            "value": "'{%s}' called for vote to kick you"
-        },
-        {
-            "key": "Red team wins",
-            "value": "Red team wins"
-        },
-        {
-            "key": "'{%s}' joined the fun",
-            "value": "'{%s}' joined the fun"
-        },
-        {
-            "key": "Body: {%d}, feet: {%d}, skin: {%d}, topper: {%d}",
-            "value": "Body: {%d}, feet: {%d}, skin: {%d}, topper: {%d}"
-        },
-        {
-            "key": "Number of entities: {%d}",
-            "value": "Number of entities: {%d}"
-        },
-        {
-            "key": "Invalid client id to move",
-            "value": "Invalid client id to move"
-        },
-        {
-            "key": "Ocean of blood",
-            "value": "Ocean of blood"
-        },
-        {
-            "key": "Invalid client id to kick",
-            "value": "Invalid client id to kick"
-        },
-        {
-            "key": "Slaughter",
-            "value": "Slaughter"
-        },
-        {
-            "key": "Draw",
-            "value": "Draw"
-        },
-        {
-            "key": "Wait for current vote to end before calling a new one.",
-            "value": "Wait for current vote to end before calling a new one."
-        },
-        {
-            "key": "Spectators aren't allowed to start a vote.",
-            "value": "Spectators aren't allowed to start a vote."
-        },
-        {
-            "key": "Bomb armed",
-            "value": "Bomb armed"
-        },
-        {
-            "key": "Time out - Blue team wins",
-            "value": "Time out - Blue team wins"
-        },
-        {
-            "key": "Wave cleared!",
-            "value": "Wave cleared!"
-        },
-        {
-            "key": "Game over on wave {%d}",
-            "value": "Game over on wave {%d}"
-        },
-        {
-            "key": "All reactors lost",
-            "value": "All reactors lost"
-        },
-        {
-            "key": "Go!",
-            "value": "Go!"
-        },
-        {
-            "key": "Teams were locked",
-            "value": "Teams were locked"
-        },
-        {
-            "key": "{%s} reached the door",
-            "value": "{%s} reached the door"
-        },
-        {
-            "key": "Arming bomb... {%d}",
-            "value": "Arming bomb... {%d}"
-        },
-        {
-            "key": "Blue team wins",
-            "value": "Blue team wins"
-        },
-        {
-            "key": "Vote failed",
-            "value": "Vote failed"
-        },
-        {
-            "key": "This is the highest level you have been to.",
-            "value": "This is the highest level you have been to."
-        },
-        {
-            "key": "{%s} was here {%d} min ago",
-            "value": "{%s} was here {%d} min ago"
-        },
-        {
-            "key": "Server does not allow voting to kick players",
-            "value": "Server does not allow voting to kick players"
-        },
-        {
             "key": "Level cleared!",
             "value": "Level cleared!"
         },
         {
-            "key": "You must wait {%d} seconds before making another vote",
-            "value": "You must wait {%d} seconds before making another vote"
-        },
-        {
-            "key": "{%s} scores for red team!",
-            "value": "{%s} scores for red team!"
-        },
-        {
-            "key": "Teams were unlocked",
-            "value": "Teams were unlocked"
-        },
-        {
-            "key": "Everybody dies",
-            "value": "Everybody dies"
-        },
-        {
-            "key": "'{%s}' has left the game ({%s})",
-            "value": "'{%s}' has left the game ({%s})"
-        },
-        {
-            "key": "You can't kick yourself",
-            "value": "You can't kick yourself"
-        },
-        {
-            "key": "Wave incoming!",
-            "value": "Wave incoming!"
+            "key": "Instakill CTF",
+            "value": "Instakill CTF"
         },
         {
             "key": "Server does not allow voting to move players to spectators",
             "value": "Server does not allow voting to move players to spectators"
         },
         {
-            "key": "KILL!",
-            "value": "KILL!"
+            "key": "Run",
+            "value": "Run"
         },
         {
-            "key": "{%s} survives",
-            "value": "{%s} survives"
+            "key": "Teams must be balanced, please join other team",
+            "value": "Teams must be balanced, please join other team"
+        },
+        {
+            "key": "Grenade Deathmatch",
+            "value": "Grenade Deathmatch"
         },
         {
             "key": "Wave cleared",
             "value": "Wave cleared"
         },
         {
-            "key": "Wave {%d}",
-            "value": "Wave {%d}"
+            "key": "Teams were locked",
+            "value": "Teams were locked"
         },
         {
-            "key": "All hope is lost",
-            "value": "All hope is lost"
+            "key": "You can't kick admins",
+            "value": "You can't kick admins"
         },
         {
-            "key": "You can't move yourself",
-            "value": "You can't move yourself"
+            "key": "Reactor Bomber",
+            "value": "Reactor Bomber"
         },
         {
-            "key": "Highest level reached on server: {%d}",
-            "value": "Highest level reached on server: {%d}"
+            "key": "Wave cleared!",
+            "value": "Wave cleared!"
         },
         {
-            "key": "'{%s}' has left the game",
-            "value": "'{%s}' has left the game"
+            "key": "PvE",
+            "value": "PvE"
         },
         {
-            "key": "Reactor destroyed - Red team wins",
-            "value": "Reactor destroyed - Red team wins"
+            "key": "Jump to level %d",
+            "value": "Jump to level %d"
         },
         {
-            "key": "Disarming bomb... {%d}",
-            "value": "Disarming bomb... {%d}"
+            "key": "Battle Royale",
+            "value": "Battle Royale"
+        },
+        {
+            "key": "Body: %d, feet: %d, skin: %d, topper: %d",
+            "value": "Body: %d, feet: %d, skin: %d, topper: %d"
+        },
+        {
+            "key": "",
+            "value": ""
+        },
+        {
+            "key": "Wave incoming!",
+            "value": "Wave incoming!"
+        },
+        {
+            "key": "Vote failed",
+            "value": "Vote failed"
+        },
+        {
+            "key": "'%s' isn't an option on this server",
+            "value": "'%s' isn't an option on this server"
+        },
+        {
+            "key": "Disarming bomb... %d",
+            "value": "Disarming bomb... %d"
         },
         {
             "key": "Escape",
             "value": "Escape"
         },
         {
-            "key": "'{%s}' isn't an option on this server",
-            "value": "'{%s}' isn't an option on this server"
+            "key": "Time out - Blue team wins",
+            "value": "Time out - Blue team wins"
         },
         {
-            "key": "Vote aborted",
-            "value": "Vote aborted"
+            "key": "reactor_def1.map - PvE",
+            "value": "reactor_def1.map - PvE"
         },
         {
-            "key": "{%s} scores for blue team!",
-            "value": "{%s} scores for blue team!"
+            "key": "Blue team wins",
+            "value": "Blue team wins"
         },
         {
-            "key": "Reactor defense",
-            "value": "Reactor defense"
+            "key": "Slaughter",
+            "value": "Slaughter"
         },
         {
-            "key": "Number of weapon objects: {%d}",
-            "value": "Number of weapon objects: {%d}"
+            "key": "Teams are locked",
+            "value": "Teams are locked"
         },
         {
-            "key": "Jump to level {%d}",
-            "value": "Jump to level {%d}"
+            "key": "Number of pickups: %d",
+            "value": "Number of pickups: %d"
         },
         {
-            "key": "Stage completed",
-            "value": "Stage completed"
+            "key": "Level %d - Last chance",
+            "value": "Level %d - Last chance"
         },
         {
-            "key": "Teams have been balanced",
-            "value": "Teams have been balanced"
+            "key": "Kick voting requires %d players on the server",
+            "value": "Kick voting requires %d players on the server"
         },
         {
-            "key": "Level {%d}",
-            "value": "Level {%d}"
+            "key": "Ball",
+            "value": "Ball"
         },
         {
-            "key": "Run",
-            "value": "Run"
+            "key": "Number of entities: %d",
+            "value": "Number of entities: %d"
         },
         {
-            "key": "Kick voting requires {%d} players on the server",
-            "value": "Kick voting requires {%d} players on the server"
+            "key": "Death takes all",
+            "value": "Death takes all"
         },
         {
-            "key": "Teams were shuffled",
-            "value": "Teams were shuffled"
+            "key": "Wait for current vote to end before calling a new one.",
+            "value": "Wait for current vote to end before calling a new one."
         },
         {
-            "key": "Vote passed",
-            "value": "Vote passed"
+            "key": "Server does not allow voting to kick players",
+            "value": "Server does not allow voting to kick players"
         },
         {
-            "key": "Invalid spectator id used",
-            "value": "Invalid spectator id used"
+            "key": "Draw",
+            "value": "Draw"
+        },
+        {
+            "key": "Bomb armed",
+            "value": "Bomb armed"
         },
         {
             "key": "Bomb disarmed - Blue team wins",
             "value": "Bomb disarmed - Blue team wins"
         },
         {
-            "key": "'{%s}' changed name to '{%s}'",
-            "value": "'{%s}' changed name to '{%s}'"
+            "key": "Spectators aren't allowed to start a vote.",
+            "value": "Spectators aren't allowed to start a vote."
         },
         {
-            "key": "Mapgen seed: {%d}",
-            "value": "Mapgen seed: {%d}"
+            "key": "Stage completed",
+            "value": "Stage completed"
+        },
+        {
+            "key": "Extra explosive death match!",
+            "value": "Extra explosive death match!"
+        },
+        {
+            "key": "Reactor defense",
+            "value": "Reactor defense"
+        },
+        {
+            "key": "Mapgen seed: %d",
+            "value": "Mapgen seed: %d"
+        },
+        {
+            "key": "Invalid client id to kick",
+            "value": "Invalid client id to kick"
         },
         {
             "key": "Teams were swapped",
             "value": "Teams were swapped"
         },
         {
-            "key": "Blue team scores!",
-            "value": "Blue team scores!"
+            "key": "You must wait %d seconds before making another vote",
+            "value": "You must wait %d seconds before making another vote"
+        },
+        {
+            "key": "Reactor lost",
+            "value": "Reactor lost"
+        },
+        {
+            "key": "Vote passed",
+            "value": "Vote passed"
+        },
+        {
+            "key": "Invasion",
+            "value": "Invasion"
+        },
+        {
+            "key": "Spectator mode disabled",
+            "value": "Spectator mode disabled"
+        },
+        {
+            "key": "Level %d",
+            "value": "Level %d"
+        },
+        {
+            "key": "Go!",
+            "value": "Go!"
+        },
+        {
+            "key": "reactor1.map - survival mode PvP",
+            "value": "reactor1.map - survival mode PvP"
+        },
+        {
+            "key": "You can't kick yourself",
+            "value": "You can't kick yourself"
+        },
+        {
+            "key": "Reactor Defence",
+            "value": "Reactor Defence"
+        },
+        {
+            "key": "Reactor destroyed - Red team wins",
+            "value": "Reactor destroyed - Red team wins"
+        },
+        {
+            "key": "Invalid client id to move",
+            "value": "Invalid client id to move"
+        },
+        {
+            "key": "All reactors lost",
+            "value": "All reactors lost"
+        },
+        {
+            "key": "ball_small2.map - no bots",
+            "value": "ball_small2.map - no bots"
+        },
+        {
+            "key": "generated match",
+            "value": "generated match"
+        },
+        {
+            "key": "Number of weapon objects: %d",
+            "value": "Number of weapon objects: %d"
+        },
+        {
+            "key": "Hide",
+            "value": "Hide"
+        },
+        {
+            "key": "You can't move yourself",
+            "value": "You can't move yourself"
+        },
+        {
+            "key": "Vote aborted",
+            "value": "Vote aborted"
+        },
+        {
+            "key": "ball_small1.map - no bots",
+            "value": "ball_small1.map - no bots"
+        },
+        {
+            "key": "All hope is lost",
+            "value": "All hope is lost"
+        },
+        {
+            "key": "Teams were shuffled",
+            "value": "Teams were shuffled"
+        },
+        {
+            "key": "generated map - last man standing",
+            "value": "generated map - last man standing"
+        },
+        {
+            "key": "Highest level reached on server: %d",
+            "value": "Highest level reached on server: %d"
+        },
+        {
+            "key": "Invalid spectator id used",
+            "value": "Invalid spectator id used"
+        },
+        {
+            "key": "Team deathmatch",
+            "value": "Team deathmatch"
+        },
+        {
+            "key": "'%s' called for vote to kick you",
+            "value": "'%s' called for vote to kick you"
+        },
+        {
+            "key": "Arming bomb... %d",
+            "value": "Arming bomb... %d"
+        },
+        {
+            "key": "Ocean of blood",
+            "value": "Ocean of blood"
+        },
+        {
+            "key": "Everybody dies",
+            "value": "Everybody dies"
+        },
+        {
+            "key": "Deathmatch",
+            "value": "Deathmatch"
+        },
+        {
+            "key": "generated map",
+            "value": "generated map"
+        },
+        {
+            "key": "Capture the flag",
+            "value": "Capture the flag"
+        },
+        {
+            "key": "Red team wins",
+            "value": "Red team wins"
+        },
+        {
+            "key": "Teams were unlocked",
+            "value": "Teams were unlocked"
+        },
+        {
+            "key": "'%s' joined the fun",
+            "value": "'%s' joined the fun"
+        },
+        {
+            "key": "Teams have been balanced",
+            "value": "Teams have been balanced"
+        },
+        {
+            "key": "Level %d - Second try",
+            "value": "Level %d - Second try"
+        },
+        {
+            "key": "This is the highest level you have been to.",
+            "value": "This is the highest level you have been to."
+        },
+        {
+            "key": "KILL!",
+            "value": "KILL!"
+        },
+        {
+            "key": "Number of player profiles in Invasion: %d",
+            "value": "Number of player profiles in Invasion: %d"
         }
     ]
 }
