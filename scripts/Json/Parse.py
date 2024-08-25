@@ -37,14 +37,21 @@ for root, dirs, files in os.walk(directory):
                         label = line[f + 15 : end_quote]
                         unique_labels.append(label + "\n")
 
+pattern = re.compile(r'SendChatTarget\([^,]*, "(.+?)"', re.IGNORECASE)
+
 for root, dirs, files in os.walk(directory):
-    for filename in fnmatch.filter(files, "*.cpp"):
-        with open(os.path.join(root, filename), "r") as file:
-            content = file.read()
-            # 使用正则表达式匹配 Localize(.*, ".*")
-            matches = re.findall(r'SendChatTarget\([^,]*, "(.*?)"\)', content)
-            for match in matches:
-                unique_labels.append(match + "\n")
+    for filename in files:
+        if filename.endswith('.cpp'):
+            # 获取完整文件路径
+            file_path = os.path.join(root, filename)
+            # 打开并读取文件内容
+            with open(file_path, 'r', encoding='utf-8') as file:
+                content = file.read()
+                # 查找所有匹配项
+                matches = pattern.findall(content)
+                # 将所有匹配的字符串添加到列表中
+                for found in matches:
+                    unique_labels.append(found + "\n")
 
 # Load gamevotes
 for file_name in os.listdir("data/server/gamevotes/"):

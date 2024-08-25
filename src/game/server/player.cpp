@@ -409,10 +409,9 @@ void CPlayer::OnDisconnect(const char *pReason)
 		if (!m_IsBot)
 		{
 			if(pReason && *pReason)
-				str_format(aBuf, sizeof(aBuf), "'%s' has left the game (%s)", Server()->ClientName(m_ClientID), pReason);
+				GameServer()->SendChatTarget(-1, "'%s' has left the game (%s)", Server()->ClientName(m_ClientID), pReason);
 			else
-				str_format(aBuf, sizeof(aBuf), "'%s' has left the game", Server()->ClientName(m_ClientID));
-			GameServer()->SendChatTarget(-1, aBuf);
+				GameServer()->SendChatTarget(-1, "'%s' has left the game", Server()->ClientName(m_ClientID));
 		}
 
 		str_format(aBuf, sizeof(aBuf), "leave player='%d:%s'", m_ClientID, Server()->ClientName(m_ClientID));

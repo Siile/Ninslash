@@ -90,10 +90,7 @@ bool CLocalization::LoadLanguage(char aFile[64])
 		m_aLocalize[aFile].m_HasLocalized = true;
 		str_copy(m_aLocalize[aFile].m_aLanguageName, aFile, sizeof(m_aLocalize[aFile].m_aLanguageName));
         for (unsigned i = 0; i < rStart.u.array.length; ++i)
-		{
-			dbg_msg("dada", "%s %s", (const char *)rStart[i]["key"], (const char *)rStart[i]["value"]);
 			AddNewLocalize(aFile, rStart[i]["key"], rStart[i]["value"]);
-		}
 	}
 
     // clean up
