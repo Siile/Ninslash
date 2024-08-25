@@ -1,8 +1,10 @@
 name: Invasion
 description: PvE
-config: cfg/invasion
-image: reactor_def1
+config: cfg/invasion1
+image: invasion1
 min-players: 0
 max-players: 16
+min-level: 0
+max-level: 5
 always-on
 display-level

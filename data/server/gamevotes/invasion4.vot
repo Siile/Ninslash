@@ -1,0 +1,10 @@
+name: Invasion
+description: PvE
+config: cfg/invasion4
+image: invasion4
+min-players: 0
+max-players: 16
+min-level: 16
+max-level: 20
+always-on
+display-level
