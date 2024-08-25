@@ -395,6 +395,10 @@
         {
             "key": "'%s' has left the game",
             "value": "'%s' 退出了游戏"
+        },
+        {
+            "key": "%s survives",
+            "value": "%s 活到了最后"
         }
     ]
 }
