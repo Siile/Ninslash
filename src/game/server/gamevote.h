@@ -14,6 +14,10 @@ struct CGameVote
 	bool m_AlwaysOn;
 	bool m_DisplayLevel;
 	
+	// invasion
+	int m_MinLevel;
+	int m_MaxLevel;
+	
 	CGameVote()
 	{
 		m_Valid = false;
@@ -21,6 +25,8 @@ struct CGameVote
 		m_DisplayLevel = false;
 		m_MinPlayers = 0;
 		m_MaxPlayers = 0;
+		m_MinLevel = 0;
+		m_MaxLevel = 0;
 	}
 };
 

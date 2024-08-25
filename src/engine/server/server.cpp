@@ -568,6 +568,9 @@ int CServer::LoadGameVote(const char *pFilename, const char *pFoldername, int St
 			else if(!str_comp_num(pLine, "min-players:", 12)) sscanf(pLine, "min-players: %d", &GameVote.m_MinPlayers);
 			else if(!str_comp_num(pLine, "max-players:", 12)) sscanf(pLine, "max-players: %d", &GameVote.m_MaxPlayers);
 			
+			else if(!str_comp_num(pLine, "min-level:", 10)) sscanf(pLine, "min-level: %d", &GameVote.m_MinLevel);
+			else if(!str_comp_num(pLine, "max-level:", 10)) sscanf(pLine, "max-level: %d", &GameVote.m_MaxLevel);
+			
 			else if(!str_comp_num(pLine, "always-on", 9)) GameVote.m_AlwaysOn = true;
 			else if(!str_comp_num(pLine, "display-level", 13)) GameVote.m_DisplayLevel = true;
 		}
@@ -760,7 +763,8 @@ bool CServer::GetGameVote(CGameVote *pGameVote, int Players)
 	// get gamevotes that should be always displayed first
 	for (int l = 0; l < m_GameVoteCount; l++)
 	{
-		if (m_aGameVote[l].m_MinPlayers <= Players && m_aGameVote[l].m_MaxPlayers >= Players && m_aGameVote[l].m_AlwaysOn && !m_aGameVoteUsed[l])
+		if (m_aGameVote[l].m_MinPlayers <= Players && m_aGameVote[l].m_MaxPlayers >= Players && m_aGameVote[l].m_AlwaysOn && !m_aGameVoteUsed[l] &&
+			m_aGameVote[l].m_MinLevel <= g_Config.m_SvMapGenLevel && m_aGameVote[l].m_MaxLevel >= g_Config.m_SvMapGenLevel)
 		{
 			m_aGameVoteUsed[l] = true;
 			m_GameModesLeft--;
