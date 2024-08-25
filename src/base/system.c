@@ -1608,7 +1608,7 @@ void str_format_args(char *buffer, int buffer_size, const char *format, va_list 
 {
 #if defined(CONF_FAMILY_WINDOWS)
 	va_list ap;
-	va_copy(ap, args);
+	ap = args;
 	_vsnprintf(buffer, buffer_size, format, ap);
 	va_end(ap);
 #else

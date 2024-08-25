@@ -9,7 +9,6 @@
 
 struct SLanguageFile
 {
-    bool m_HasLocalized = false;
     char m_aLanguageName[64];
     std::map<std::string, std::string> m_aLocalizedTexts;
 };

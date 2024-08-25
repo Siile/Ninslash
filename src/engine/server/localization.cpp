@@ -85,7 +85,6 @@ bool CLocalization::LoadLanguage(const char *pFile)
 
     if (rStart.type == json_array)
     {
-		m_aLocalize[pFile].m_HasLocalized = true;
 		str_copy(m_aLocalize[pFile].m_aLanguageName, pFile, sizeof(m_aLocalize[pFile].m_aLanguageName));
         for (unsigned i = 0; i < rStart.u.array.length; ++i)
 			AddNewLocalize(pFile, rStart[i]["key"], rStart[i]["value"]);
