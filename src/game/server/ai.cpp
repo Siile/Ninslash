@@ -452,14 +452,6 @@ bool CAI::UpdateWaypoint()
 				m_WayFound = false;
 				m_WaypointPos = m_TargetPos;
 			}
-			
-			if (GameServer()->m_ShowWaypoints)
-			{
-				for (int i = 0; i < 10; i++)
-					new CStaticlaser(&GameServer()->m_World, GameServer()->Collision()->m_aPath[i], GameServer()->Collision()->m_aPath[i+1], 10);
-				
-				new CStaticlaser(&GameServer()->m_World, m_Pos, m_WaypointPos, 20);
-			}
 		}
 	}
 	
@@ -475,9 +467,6 @@ bool CAI::UpdateWaypoint()
 		m_pVisible = m_pVisible->GetVisible(GameServer(), m_Pos-vec2(0, 16));
 		
 		m_WayVisibleUpdateTick = GameServer()->Server()->Tick();
-
-		if (GameServer()->m_ShowWaypoints)
-			new CStaticlaser(&GameServer()->m_World, m_Pos, m_WaypointPos, 10);
 	}
 
 	
@@ -618,26 +607,6 @@ bool CAI::MoveTowardsWaypoint(bool Freestyle)
 	//m_Hook = 0;
 
 	bool OnWall = Player()->GetCharacter()->GetCore().m_OnWall;
-	
-	if (GameServer()->m_ShowAiState)
-	{
-		vec2 wpPos = vec2(0, 0);
-		
-		switch (m_MoveType)
-		{
-			case MOVE_LEFT: wpPos = vec2(-1, 0); break;
-			case MOVE_RIGHT: wpPos = vec2(1, 0); break;
-			case MOVE_UP: wpPos = vec2(0, -1); break;
-			case MOVE_UPLEFT: wpPos = vec2(-1, -1); break;
-			case MOVE_UPRIGHT: wpPos = vec2(1, -1); break;
-			case MOVE_DOWN: wpPos = vec2(0, 1); break;
-			
-			default: wpPos = vec2(0, 0); break;
-			
-		};
-		
-		new CStaticlaser(&GameServer()->m_World, m_Pos, m_Pos+wpPos*Player()->GetCharacter()->GetCore().m_JetpackPower/2, 5);
-	}
 	
 	// handle basic movements
 	int LastMoveType = -1;
