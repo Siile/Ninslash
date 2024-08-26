@@ -1623,13 +1623,6 @@ void CCharacter::Tick()
 	if (m_DamageSoundTimer > 0)
 		m_DamageSoundTimer--;
 	
-	// ugly way to test / visualize waypoints
-	if (!m_IsBot && GameServer()->m_ShowWaypoints)
-	{
-		vec2 WpPos = GameServer()->Collision()->GetClosestWaypointPos(m_Pos);
-		new CStaticlaser(&GameServer()->m_World, m_Pos, WpPos, 2);
-	}
-	
 	if (m_SendInventoryTick && m_SendInventoryTick < Server()->Tick())
 	{
 		SendInventory();

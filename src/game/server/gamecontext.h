@@ -294,9 +294,6 @@ public:
 	bool IsHuman(int ClientID);
 	
 	int m_BroadcastLockTick;
-	
-	bool m_ShowWaypoints;
-	bool m_ShowAiState;
 
 	static CLastSeen m_LastSeen;
 
