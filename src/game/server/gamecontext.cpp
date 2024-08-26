@@ -74,9 +74,6 @@ void CGameContext::Construct(int Resetting)
 	
 	m_aMostInterestingPlayer[0] = -1;
 	m_aMostInterestingPlayer[1] = -1;
-	
-	m_ShowWaypoints = false;
-	m_ShowAiState = false;
 
 	if(Resetting==NO_RESET)
 		m_pVoteOptionHeap = new CHeap();
@@ -2013,19 +2010,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			}
 			
 			
-			if ( strcmp(pMsg->m_pMessage, "/showwaypoints") == 0 )
-			{
-				m_ShowWaypoints = !m_ShowWaypoints;
-				SkipSending = true;
-			}
-			
-			if ( strcmp(pMsg->m_pMessage, "/showaistate") == 0 )
-			{
-				m_ShowAiState = !m_ShowAiState;
-				SkipSending = true;
-			}
-			
-			
 			if ( strcmp(pMsg->m_pMessage, "/seed") == 0 )
 			{
 				SendChatTarget(ClientID, "Mapgen seed: %d", g_Config.m_SvMapGenSeed);
@@ -2043,44 +2027,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				SendChatTarget(ClientID, "Number of player profiles in Invasion: %d", Server()->GetPlayerCount());
 				SkipSending = true;
 			}
-			
-			if ( strcmp(pMsg->m_pMessage, "/weaponcount") == 0 )
-			{
-				SendChatTarget(ClientID, "Number of weapon objects: %d", m_World.FindEntities(vec2(0, 0), 0.0f, NULL, 99999, CGameWorld::ENTTYPE_WEAPON));
-				SkipSending = true;
-			}
-			
-			if ( strcmp(pMsg->m_pMessage, "/pickups") == 0 )
-			{
-				SendChatTarget(ClientID, "Number of pickups: %d", m_World.FindEntities(vec2(0, 0), 0.0f, NULL, 99999, CGameWorld::ENTTYPE_PICKUP));
-				SkipSending = true;
-			}
-			
-			if ( strcmp(pMsg->m_pMessage, "/entities") == 0 )
-			{
-				SendChatTarget(ClientID, "Number of entities: %d", m_World.CountEntities());
-				SkipSending = true;
-			}
-			
-			if ( false && strcmp(pMsg->m_pMessage, "/jumphigh") == 0 )
-			{
-				CPlayerData *pData = Server()->GetPlayerData(pPlayer->GetCID(), pPlayer->GetColorID());
-				
-				if (pData->m_HighestLevel > g_Config.m_SvMapGenLevel)
-				{
-					char aBufVote[128]; str_format(aBufVote, sizeof(aBufVote), Localize("Jump to level %d", ClientID), pData->m_HighestLevel);
-					//char aBufReason[128]; str_format(aBufReason, sizeof(aBufReason), "Server highest: %d", pData->GetHighScore(1));
-					char aBufCmd[128]; str_format(aBufCmd, sizeof(aBufCmd), "sv_inv_fails 0; sv_mapgen_level %d; sv_mapgen_seed %d; sv_map generate_inv2;", pData->m_HighestLevel, pData->m_HighestLevelSeed);
-					
-					StartVote(aBufVote, aBufCmd, "");
-				}
-				else
-				{
-					SendChatTarget(ClientID, "This is the highest level you have been to.");
-					SkipSending = true;
-				}
-			}
-			
 		
 			if (!SkipSending)
 			{
