@@ -67,6 +67,8 @@ CInput::CInput()
 	m_GamepadOldAimY = 0;
 	
 	m_NumEvents = 0;
+
+	m_pClipboardText = 0;
 }
 
 void CInput::Init()
@@ -209,13 +211,13 @@ int CInput::MouseDoubleClick()
 	return 0;
 }
 
-const char* CInput::GetClipboardText()
+const char *CInput::GetClipboardText()
 {
 	if(m_pClipboardText)
-	{
-		free(m_pClipboardText);
-	}
+		SDL_free(m_pClipboardText);
 	m_pClipboardText = SDL_GetClipboardText();
+	if(m_pClipboardText)
+		str_sanitize_cc(m_pClipboardText);
 	return m_pClipboardText;
 }
 
