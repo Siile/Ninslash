@@ -363,9 +363,13 @@ int CServer::TrySetClientName(int ClientID, const char *pName)
 	if(m_aClients[ClientID].m_aName[0] && str_comp(m_aClients[ClientID].m_aName, aTrimmedName) == 0)
 		return 0;
 
-	char aBuf[256];
-	str_format(aBuf, sizeof(aBuf), "'%s' -> '%s'", pName, aTrimmedName);
-	Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "server", aBuf);
+	if(!m_aClients[ClientID].m_Bot)
+	{
+		char aBuf[256];
+		str_format(aBuf, sizeof(aBuf), "'%s' -> '%s'", pName, aTrimmedName);
+		Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "server", aBuf);
+	}
+
 	pName = aTrimmedName;
 
 	// make sure that two clients doesn't have the same name
@@ -413,7 +417,7 @@ void CServer::SetClientName(int ClientID, const char *pName)
 	}
 	*/
 
-	if(TrySetClientName(ClientID, aCleanName))
+	if(TrySetClientName(ClientID, aCleanName) && !m_aClients[ClientID].m_Bot)
 	{
 		// auto rename
 		for(int i = 1;; i++)
@@ -2180,7 +2184,7 @@ int main(int argc, const char **argv) // ignore_convention
 void CServer::AddZombie()
 {
 	int ClientID = -1;
-	for (int i = 0; i < MAX_CLIENTS; i++)
+	for (int i = MAX_CLIENTS; i > 0; i--)
 	{
 		if (m_aClients[i].m_State == CClient::STATE_EMPTY)
 		{
@@ -2192,10 +2196,6 @@ void CServer::AddZombie()
 	if (ClientID == -1)
 		return;
 	
-	//char aBuf[256];
-	//str_format(aBuf, sizeof(aBuf), "zombie client id: %d", ClientID);
-	//Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "server", aBuf);
-	
 	// fake reserve a slot
 	m_NetServer.m_SlotTakenByBot[ClientID] = true;
 	
@@ -2203,7 +2203,6 @@ void CServer::AddZombie()
 	
 	m_aClients[ClientID].m_State = CClient::STATE_CONNECTING;
 	GameServer()->OnClientConnected(ClientID, true);
-	//GameServer()->OnClientEnter(i);
 	m_aClients[ClientID].m_State = CClient::STATE_INGAME;
 	m_aClients[ClientID].m_Bot = true;
 

@@ -3235,7 +3235,7 @@ void CGameContext::KickBot(int ClientID)
 
 void CGameContext::AddBot()
 {
-	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "engine", "Adding a bot...");
+	// Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "engine", "Adding a bot...");
 
 	/*
 	// find first free slot
