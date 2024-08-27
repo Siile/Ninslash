@@ -252,15 +252,14 @@ void CGameControllerCTF::Tick()
 					GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
 
 					float CaptureTime = (Server()->Tick() - F->m_GrabTick)/(float)Server()->TickSpeed();
-					if(CaptureTime <= 60)
+					for (int i = 0; i < MAX_CLIENTS; i++)
 					{
-						str_format(aBuf, sizeof(aBuf), "The %s flag was captured by '%s' (%d.%s%d seconds)", fi ? "blue" : "red", Server()->ClientName(F->m_pCarryingCharacter->GetPlayer()->GetCID()), (int)CaptureTime%60, ((int)(CaptureTime*100)%100)<10?"0":"", (int)(CaptureTime*100)%100);
+						if(CaptureTime <= 60)
+							GameServer()->SendChatTarget(i, "The %s flag was captured by '%s' (%d.%s%d seconds)", fi ? GameServer()->Localize("blue", i) : GameServer()->Localize("red", i), Server()->ClientName(F->m_pCarryingCharacter->GetPlayer()->GetCID()), (int)CaptureTime%60, ((int)(CaptureTime*100)%100)<10?"0":"", (int)(CaptureTime*100)%100);
+						else
+							GameServer()->SendChatTarget(i, "The %s flag was captured by '%s'", fi ? GameServer()->Localize("blue", i) : GameServer()->Localize("red", i), Server()->ClientName(F->m_pCarryingCharacter->GetPlayer()->GetCID()));
 					}
-					else
-					{
-						str_format(aBuf, sizeof(aBuf), "The %s flag was captured by '%s'", fi ? "blue" : "red", Server()->ClientName(F->m_pCarryingCharacter->GetPlayer()->GetCID()));
-					}
-					GameServer()->SendChat(-1, -2, aBuf);
+
 					for(int i = 0; i < 2; i++)
 						m_apFlags[i]->Reset();
 

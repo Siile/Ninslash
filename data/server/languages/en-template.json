@@ -403,6 +403,22 @@
         {
             "key": "%s survives",
             "value": "%s survives"
+        },
+        {
+            "key": "The %s flag was captured by '%s' (%d.%s%d seconds)",
+            "value": "The %s flag was captured by '%s' (%d.%s%d seconds)"
+        },
+        {
+            "key": "The %s flag was captured by '%s'",
+            "value": "The %s flag was captured by '%s'"
+        },
+        {
+            "key": "red",
+            "value": "red"
+        },
+        {
+            "key": "blue",
+            "value": "blue"
         }
     ]
 }

@@ -399,6 +399,22 @@
         {
             "key": "%s survives",
             "value": "%s 活到了最后"
+        },
+        {
+            "key": "The %s flag was captured by '%s' (%d.%s%d seconds)",
+            "value": "%s队的旗帜被 '%s' 夺走！ (%d.%s%d 秒)"
+        },
+        {
+            "key": "The %s flag was captured by '%s'",
+            "value": "%s队的旗帜被 '%s' 夺走！"
+        },
+        {
+            "key": "red",
+            "value": "红"
+        },
+        {
+            "key": "blue",
+            "value": "蓝"
         }
     ]
 }
