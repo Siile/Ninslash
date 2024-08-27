@@ -212,7 +212,7 @@ Dynamic Camera
 == 动态镜头
 
 Dynamic lighting
-== 动态光源
+== 环境光源
 
 Editor
 == 地图编辑器
@@ -221,7 +221,7 @@ Electric grenade
 == 电极榴弹炮
 
 Electric wall
-== 宏电子墙
+== 电子墙
 
 Electrowall
 == 离子墙
@@ -548,7 +548,7 @@ Player
 == 玩家
 
 Player country:
-== 玩家的国家/地区/服务器语言:
+== 包含此国旗的玩家:
 
 Player options
 == 玩家选项
@@ -752,7 +752,7 @@ Strict gametype filter
 == 严格过滤游戏类型
 
 Sudden Death
-== 出乎意料的死亡
+== 加时赛
 
 Supply grenade
 == 手榴弹
@@ -770,7 +770,7 @@ Team chat
 == 团队聊天
 
 Teslacoil
-== 特斯拉宏电子发射器
+== 特斯拉线圈
 
 Texture Compression
 == 纹理压缩
@@ -830,7 +830,7 @@ Use sounds
 == 开启声音
 
 Use team colors for name plates
-== 为名字板使用团队颜色
+== 为玩家名使用团队颜色
 
 V-Sync
 == 垂直同步
