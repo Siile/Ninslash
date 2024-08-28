@@ -1245,38 +1245,9 @@ void CMapGen::GenerateLevel()
 				GenerateStarDroid(pTiles);
 		}
 		*/
-		
-	/*
-	*/
-	
-	// obstacles
-	/*
-	int Obs = Level/3 - 4;
-	
-	if (Level > 10 && frandom() < 0.3f)
-		Obs += Level/2;
-	
-	if (Defend)
-		Obs /= 5;
-	
-	if (Obs > 1)
-		Obs = Obs/3 + (rand()%Obs)/2;
-	*/
-	/*
-	while (Obs-- > 0)
-	{
-		switch (1+rand()%5)
-		{
-		case 0:
-		case 1:
-		case 2: GenerateSawblade(pTiles); break;
-		case 3: 
-		case 4: GenerateFiretrap(pTiles); break;
-		case 5: GenerateDeathray(pTiles); break;
-		}
-	}
-	*/
 
+
+	// obstacles
 	if (Level%20 == 0)
 		for (int i = 0; i < Level/20; i++)
 			GenerateDeathray(pTiles);
@@ -1286,6 +1257,7 @@ void CMapGen::GenerateLevel()
 	
 	for (int i = 0; i < Level/6; i++)
 		GenerateSawblade(pTiles);
+
 
 	// more enemy spawn positions
 	for (int i = 0; i < min(Level, 10); i++)
