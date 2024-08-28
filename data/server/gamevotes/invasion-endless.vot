@@ -1,7 +1,7 @@
 name: Invasion
 description: PvE
 config: cfg/invasion-endless
-image: dm1
+image: invasion-endless
 min-players: 0
 max-players: 16
 min-level: 31
