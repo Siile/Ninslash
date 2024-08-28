@@ -339,7 +339,7 @@ void CCharacter::SaveData()
 }
 
 	
-bool CCharacter::GiveWeapon(class CWeapon *pWeapon)
+bool CCharacter::GiveWeapon(CWeapon *pWeapon)
 {
 	if (!pWeapon)
 		return false;

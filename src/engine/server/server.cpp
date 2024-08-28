@@ -41,6 +41,9 @@
 
 #include <engine/localization.h>
 
+#include <sstream>
+#include <string>
+
 static const char *StrLtrim(const char *pStr)
 {
 	while(*pStr && *pStr >= 0 && *pStr <= 32)
@@ -2036,6 +2039,21 @@ void CServer::ConchainConsoleOutputLevelUpdate(IConsole::IResult *pResult, void 
 	}
 }
 
+void CServer::ConMapsList(IConsole::IResult *pResult, void *pUserData)
+{
+	CServer *pSelf = static_cast<CServer *>(pUserData);
+
+	if(pResult->NumArguments())
+	{
+		pSelf->m_aMapLists.clear();
+		std::istringstream iss(pResult->GetString(0));
+	    std::string MapName;
+
+	    while (iss >> MapName)
+		pSelf->m_aMapLists.add(MapName);
+	}
+}
+
 void CServer::RegisterCommands()
 {
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
@@ -2053,6 +2071,8 @@ void CServer::RegisterCommands()
 	Console()->Register("stoprecord", "", CFGFLAG_SERVER, ConStopRecord, this, "Stop recording");
 
 	Console()->Register("reload", "", CFGFLAG_SERVER, ConMapReload, this, "Reload the map");
+
+	Console()->Register("sv_maps_list", "?r", CFGFLAG_SERVER, ConMapsList, this, "Maps to rotate between");
 
 	Console()->Chain("sv_name", ConchainSpecialInfoupdate, this);
 	Console()->Chain("password", ConchainSpecialInfoupdate, this);

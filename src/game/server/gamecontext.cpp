@@ -2944,7 +2944,7 @@ void CGameContext::OnConsoleInit()
 	Console()->Register("vote", "r", CFGFLAG_SERVER, ConVote, this, "Force a vote to yes/no");
 	
 	Console()->Register("end_round", "", CFGFLAG_SERVER, ConEndRound, this, "Ends the current round");
-	
+
 
 	//Console()->Chain("sv_motd", ConchainSpecialMotdupdate, this);
 }

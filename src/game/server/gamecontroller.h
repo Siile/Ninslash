@@ -2,6 +2,7 @@
 #define GAME_SERVER_GAMECONTROLLER_H
 
 #include <base/vmath.h>
+#include <string>
 
 #define MAX_PICKUPS 1024
 #define MAX_DROPPABLES 60

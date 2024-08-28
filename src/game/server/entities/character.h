@@ -146,7 +146,7 @@ public:
 	// for pickup drops, easy access
 	bool HasAmmo();
 	
-	bool GiveWeapon(class CWeapon *pWeapon);
+	bool GiveWeapon(CWeapon *pWeapon);
 	int GetWeaponType(int Slot = -1);
 	int GetWeaponSlot(){ return clamp(m_WeaponSlot, 0, 3);}
 	int GetWeaponPowerLevel(int WeaponSlot = -1);
