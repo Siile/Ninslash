@@ -222,7 +222,8 @@ public:
 	void SendChat(int ClientID, int Team, const char *pText);
 	void SendEmoticon(int ClientID, int Emoticon);
 	void SendWeaponPickup(int ClientID, int Weapon);
-	void SendBroadcast(const char *pText, int ClientID, bool Lock = false, ...);
+	void SendBroadcast(const char *pText, int ClientID, bool Lock = false);
+	void SendBroadcastFormat(int ClientID, bool Lock, const char *pText, ...);
 	void SendGameVotes(int ClientID = -1);
 	
 	void ResetGameVotes();

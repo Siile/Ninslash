@@ -380,7 +380,7 @@ void CGameControllerCoop::NextLevel(int CID)
 		m_RoundWinTick = Server()->Tick() + Server()->TickSpeed()*CountHumans()*1;
 		
 		if (CountHumans() > 1)
-			GameServer()->SendBroadcast("%s reached the door", -1, false, Server()->ClientName(CID));
+			GameServer()->SendBroadcastFormat(-1, false, "%s reached the door", Server()->ClientName(CID));
 	}
 	
 	

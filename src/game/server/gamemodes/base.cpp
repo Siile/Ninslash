@@ -285,7 +285,7 @@ void CGameControllerBase::NextWave()
 	m_Bosses = 0;
 	m_Wave++;
 	
-	GameServer()->SendBroadcast("Wave %d", -1, false, m_Wave);
+	GameServer()->SendBroadcastFormat(-1, false, "Wave %d", m_Wave);
 
 	m_EnemiesLeft = 5 + m_Wave * 6;
 	m_Deaths = m_EnemiesLeft;
@@ -381,7 +381,7 @@ void CGameControllerBase::Tick()
 		if (m_RoundOverTick && !m_GameOverBroadcast && m_RoundOverTick < Server()->Tick() - Server()->TickSpeed()*3.0f && m_Wave <= 10)
 		{
 			m_GameOverBroadcast = true;
-			GameServer()->SendBroadcast("Game over on wave %d", -1, false, m_Wave);
+			GameServer()->SendBroadcastFormat(-1, false, "Game over on wave %d", m_Wave);
 		}
 		
 		if (m_RoundOverTick && m_RoundOverTick < Server()->Tick() - Server()->TickSpeed()*7.0f)
