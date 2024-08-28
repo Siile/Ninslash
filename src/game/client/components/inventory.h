@@ -24,6 +24,7 @@ class CInventory : public CComponent
 	static void ConKeyInventory(IConsole::IResult *pResult, void *pUserData);
 	static void ConKeyBuildmenu(IConsole::IResult *pResult, void *pUserData);
 	static void ConInventoryRoll(IConsole::IResult *pResult, void *pUserData);
+	static void ConInventoryRoll_All(IConsole::IResult *pResult, void *pUserData);
 	
 	bool m_ResetMouse;
 	bool m_Mouse1;
@@ -47,7 +48,7 @@ class CInventory : public CComponent
 
 	void DrawCrafting(int Type, vec2 Pos, float Size);
 	void DrawBuildMode();
-	void InventoryRoll();
+	void InventoryRoll(bool All);
 	
 	bool m_StupidLock;
 	

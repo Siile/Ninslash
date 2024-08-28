@@ -190,7 +190,7 @@ bool CWeapon::Activate()
 					if (m_Owner >= 0 && (m_BombCounter == 0 || m_BombCounter%3 == 0))
 					{
 						char aBuf[256];
-						str_format(aBuf, sizeof(aBuf), "Arming bomb... %d", 4-m_BombCounter/3);
+						str_format(aBuf, sizeof(aBuf), GameServer()->Localize("Arming bomb... %d", m_Owner), 4-m_BombCounter/3);
 						GameServer()->SendBroadcast(aBuf, m_Owner);
 					}
 					
@@ -731,7 +731,7 @@ void CWeapon::Tick()
 						if (m_Owner >= 0 && (m_BombDisarmCounter == 0 || m_BombDisarmCounter%2 == 0))
 						{
 							char aBuf[256];
-							str_format(aBuf, sizeof(aBuf), "Disarming bomb... %d", 8-m_BombDisarmCounter/2);
+							str_format(aBuf, sizeof(aBuf), GameServer()->Localize("Disarming bomb... %d", pChr->GetPlayer()->GetCID()), 8-m_BombDisarmCounter/2);
 							GameServer()->SendBroadcast(aBuf, pChr->GetPlayer()->GetCID());
 						}
 						

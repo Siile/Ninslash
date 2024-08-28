@@ -106,9 +106,6 @@ Connect
 Connecting to
 == Bağlanılıyor
 
-Connection Problems...
-== Bağlantı Hataları...
-
 Console
 == Konsol
 
@@ -132,9 +129,6 @@ Current
 
 Current version: %s
 == Mevcut versiyon: %s
-
-Custom colors
-== Özel renkler
 
 Delete
 == Sil
@@ -354,6 +348,9 @@ Next weapon
 
 Nickname
 == Takma ad
+
+Ninslash %s is out! Download it at www.ninslash.com!
+== Ninslash %s çıktı! www.ninslash.com dan indirin!
 
 No
 == Hayır
@@ -580,9 +577,6 @@ Team
 Team chat
 == Takım sohbeti
 
-Ninslash %s is out! Download it at www.ninslash.com!
-== Ninslash %s çıktı! www.ninslash.com dan indirin!
-
 Texture Compression
 == Dolgu sıkıştırması
 
@@ -652,9 +646,6 @@ Voting
 Warmup
 == Isınma
 
-Weapon
-== Silah
-
 Welcome to Ninslash
 == Ninslash'e hoşgeldiniz
 
@@ -664,27 +655,255 @@ Yes
 You must restart the game for all settings to take effect.
 == Bütün ayarların aktif olması için oyunu yeniden başlatmalısınız.
 
-Your skin
-== Sizin görünüşünüz
-
 no limit
 == limit yok
 
 ##### needs translation #####
 
+Area Shield
+== 
+
+Back to main menu
+== 
+
+Barrel
+== 
+
+Black
+== 
+
+Block
+== 
+
+Blood amount
+== 
+
+Blood color
+== 
+
+Bodies
+== 
+
+Bomb (for destroying reactors)
+== 
+
+Borderless window
+== 
+
+Build menu
+== 
+
+Change color of
+== 
+
+Change skin of
+== 
+
+Chat & Misc.
+== 
+
+Customize
+== 
+
+Drop weapon
+== 
+
+Dynamic lighting
+== 
+
+Editor
+== 
+
+Electric grenade
+== 
+
+Electric wall
+== 
+
+Electrowall
+== 
+
+Energy shield
+== 
+
+Environmental sounds
+== 
+
+Eyes
+== 
+
+Flamer
+== 
+
+Flip attack & hook
+== 
+
+Flip move & aim axis
+== 
+
 Game paused
+== 
+
+Green
+== 
+
+Hair / hat
+== 
+
+Handle rendering async from updates
+== 
+
+Hands
+== 
+
+Hard block
+== 
+
+Head
+== 
+
+Heads
+== 
+
+Inventory
+== 
+
+Inventory roll
+== 
+
+Inventory roll(All)
+== 
+
+Invisibility device
+== 
+
+Item slot 1
+== 
+
+Item slot 2
+== 
+
+Item slot 3
+== 
+
+Item slot 4
+== 
+
+Main menu
+== 
+
+Mask of melee
+== 
+
+Mask of plenty
+== 
+
+Mask of protection
+== 
+
+Mask of regeneration
+== 
+
+Mask of speed
+== 
+
+Movement & Weapons
+== 
+
+Multi framebuffering (requires restart)
 == 
 
 Player country:
 == 
 
+Power barrel
+== 
+
+Red
+== 
+
+Repair tool
+== 
+
 Respawn
+== 
+
+Respawn device
+== 
+
+Server is changing map
+== 
+
+Shield generator
 == 
 
 Show only chat messages from friends
 == 
 
+Skin
+== 
+
+Slide / down
+== 
+
+Supply grenade
+== 
+
+Survival mode
+== 
+
+Teslacoil
+== 
+
+The Cure
+== 
+
+The Dead
+== 
+
+The Living
+== 
+
+Threaded rendering
+== 
+
+Threaded sound loading
+== 
+
+Turret stand
+== 
+
+Vote ends in %d...
+== 
+
+Waiting for server...
+== 
+
+Weapon upgrade
+== 
+
+Weapons & Items
+== 
+
+Zombie claw
+== 
+
+xbox 360 controller support
+== 
+
 ##### old translations #####
+
+Connection Problems...
+== Bağlantı Hataları...
+
+Custom colors
+== Özel renkler
+
+Weapon
+== Silah
+
+Your skin
+== Sizin görünüşünüz
 
 ﻿
 == ## translated strings #####

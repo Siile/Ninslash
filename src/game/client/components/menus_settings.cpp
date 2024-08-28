@@ -1415,6 +1415,16 @@ typedef struct
 	int m_KeyId;
 } CKeyInfo;
 
+enum ControlSettings
+{
+	START_MOVEMENT = 0,
+	START_WEAPONS = 6,
+	START_VOTING = 17,
+	START_CHAT = 19,
+	START_MISC = 22,
+	END_CONTROL = 30,
+};
+
 static CKeyInfo gs_aKeys[] =
 {
 	// movement
@@ -1443,6 +1453,7 @@ static CKeyInfo gs_aKeys[] =
 	{ "Prev. weapon", "+prevweapon", 0 },
 	{ "Drop weapon", "+dropweapon", 0 },
 	{ "Inventory roll", "+inventoryroll", 0 },
+	{ "Inventory roll(All)", "+inventoryroll_all", 0 },
 	
 	// voting
 	{ "Vote yes", "vote yes", 0 },
@@ -1469,7 +1480,10 @@ static CKeyInfo gs_aKeys[] =
 	Localize("Move left");Localize("Move right");Localize("Jump");Localize("Fire");Localize("Hook");Localize("Hammer");
 	Localize("Pistol");Localize("Shotgun");Localize("Grenade");Localize("Rifle");Localize("Next weapon");Localize("Prev. weapon");
 	Localize("Vote yes");Localize("Vote no");Localize("Chat");Localize("Team chat");Localize("Show chat");Localize("Emoticon");
-	Localize("Spectator mode");Localize("Spectate next");Localize("Spectate previous");Localize("Console");Localize("Remote console");Localize("Screenshot");Localize("Scoreboard");Localize("Respawn");
+	Localize("Spectator mode");Localize("Spectate next");Localize("Spectate previous");Localize("Console");Localize("Remote console");
+	Localize("Screenshot");Localize("Scoreboard");Localize("Respawn");Localize("Slide / down");Localize("Drop weapon");
+	Localize("Item slot 1");Localize("Item slot 2");Localize("Item slot 3");Localize("Item slot 4");Localize("Inventory");Localize("Inventory roll");
+	Localize("Build menu");Localize("Inventory roll(All)");
 */
 
 const int g_KeyCount = sizeof(gs_aKeys) / sizeof(CKeyInfo);
@@ -1595,7 +1609,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 				MovementSettings.HSplitTop(20.0f, 0, &MovementSettings);
 			}
 
-			UiDoGetButtons(0, 6, MovementSettings);
+			UiDoGetButtons(START_MOVEMENT, START_WEAPONS, MovementSettings);
 
 		}
 
@@ -1609,7 +1623,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, WeaponSettings.x, WeaponSettings.y, 14.0f*UI()->Scale(), Localize("Weapons & Items"), -1);
 
 			WeaponSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &WeaponSettings);
-			UiDoGetButtons(6, 16, WeaponSettings);
+			UiDoGetButtons(START_WEAPONS, START_VOTING, WeaponSettings);
 		}
 	}
 	else
@@ -1633,7 +1647,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, VotingSettings.x, VotingSettings.y, 14.0f*UI()->Scale(), Localize("Voting"), -1);
 
 			VotingSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &VotingSettings);
-			UiDoGetButtons(16, 18, VotingSettings);
+			UiDoGetButtons(START_VOTING, START_CHAT, VotingSettings);
 		}
 
 		// chat settings
@@ -1646,7 +1660,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, ChatSettings.x, ChatSettings.y, 14.0f*UI()->Scale(), Localize("Chat"), -1);
 
 			ChatSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &ChatSettings);
-			UiDoGetButtons(18, 22, ChatSettings);
+			UiDoGetButtons(START_CHAT, START_MISC, ChatSettings);
 		}
 
 		// misc settings
@@ -1659,7 +1673,7 @@ void CMenus::RenderSettingsControls(CUIRect MainView)
 			TextRender()->Text(0, MiscSettings.x, MiscSettings.y, 14.0f*UI()->Scale(), Localize("Miscellaneous"), -1);
 
 			MiscSettings.HSplitTop(14.0f+5.0f+10.0f, 0, &MiscSettings);
-			UiDoGetButtons(21, 29, MiscSettings);
+			UiDoGetButtons(START_MISC, END_CONTROL, MiscSettings);
 		}
 	}
 	
@@ -1861,7 +1875,7 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 		MainView.HSplitTop(20.0f, &Button, &MainView);
 		Button.VSplitLeft(190.0f, &Label, &Button);
 		Button.HMargin(2.0f, &Button);
-		UI()->DoLabelScaled(&Label, "Blood amount", 14.0f, -1);
+		UI()->DoLabelScaled(&Label, Localize("Blood amount"), 14.0f, -1);
 		MainView.HSplitTop(20.0f, &Button, &MainView);
 		g_Config.m_GoreBlood = (int)(DoScrollbarH(&g_Config.m_GoreBlood, &Button, g_Config.m_GoreBlood/100.0f)*100.0f);
 		MainView.HSplitTop(20.0f, 0, &MainView);

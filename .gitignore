@@ -31,3 +31,5 @@ notepad.workspace
 
 /.vscode
 /build
+./temp
+bam.exe

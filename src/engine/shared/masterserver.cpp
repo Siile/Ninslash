@@ -122,8 +122,9 @@ public:
 	virtual void SetDefault()
 	{
 		mem_zero(m_aMasterServers, sizeof(m_aMasterServers));
-				
-		for(int i = 0; i < MAX_MASTERSERVERS; i++)
+
+		str_copy(m_aMasterServers[0].m_aHostname, "master.ninslash.fun", sizeof(m_aMasterServers[0].m_aHostname));	
+		for(int i = 1; i < MAX_MASTERSERVERS; i++)
 			str_format(m_aMasterServers[i].m_aHostname, sizeof(m_aMasterServers[i].m_aHostname), "154.49.136.95");
 	}
 

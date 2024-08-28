@@ -376,6 +376,19 @@ void CGameClient::OnInit()
 	if(!pDefaultFont)
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "failed to load font. filename='fonts/DejaVuSans.ttf'");
 
+	const char* pLanguageFont = "Source Han Sans";
+	if(str_find(g_Config.m_ClLanguagefile, "chinese"))
+		pLanguageFont = "Source Han Sans SC";
+
+	File = Storage()->OpenFile("fonts/SourceHanSans.ttc", IOFLAG_READ, IStorage::TYPE_ALL, aFilename, sizeof(aFilename));
+	if(File)
+	{
+		io_close(File);
+		if(!TextRender()->LoadCallbackFont(aFilename))
+			Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "failed to load callback font. filename='fonts/SourceHanSans.ttc'");
+		TextRender()->SetCallbackFont(pLanguageFont);
+	}
+
 	// init all components
 	Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "gameclient", "init all components");	
 	for(int i = m_All.m_Num-1; i >= 0; --i)

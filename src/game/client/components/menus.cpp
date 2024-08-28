@@ -27,6 +27,7 @@
 #include <game/client/skelebank.h>
 #include <game/localization.h>
 #include <mastersrv/mastersrv.h>
+#include <game/client/customstuff.h>
 
 #include "countryflags.h"
 #include "menus.h"
@@ -249,7 +250,7 @@ int CMenus::DoEditBox(void *pID, const CUIRect *pRect, char *pStr, unsigned StrS
 		{
 			Len = str_length(pStr);
 			int NumChars = Len;
-			ReturnValue |= CLineInput::Manipulate(m_aInputEvents[i], pStr, StrSize, StrSize, &Len, &s_AtIndex, &NumChars);
+			ReturnValue |= CLineInput::Manipulate(m_aInputEvents[i], pStr, StrSize, StrSize, &Len, &s_AtIndex, &NumChars, Input());
 		}
 	}
 
@@ -1544,7 +1545,7 @@ bool CMenus::OnInput(IInput::CEvent e)
 	// special handle esc and enter for popup purposes
 	if(e.m_Flags&IInput::FLAG_PRESS)
 	{
-		if(e.m_Key == KEY_ESCAPE)
+		if(e.m_Key == KEY_ESCAPE && !CustomStuff()->m_Inventory)
 		{
 			m_EscapePressed = true;
 			SetActive(!IsActive());

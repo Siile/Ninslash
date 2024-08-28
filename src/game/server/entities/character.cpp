@@ -490,17 +490,19 @@ void CCharacter::SendInventory()
 }
 
 
-void CCharacter::InventoryRoll()
+void CCharacter::InventoryRoll(int Slot)
 {
-	if (m_WeaponSlot < 0 || m_WeaponSlot >= NUM_SLOTS)
+	if(Slot == -1)
+		Slot = m_WeaponSlot;
+	if (Slot < 0 || Slot >= NUM_SLOTS)
 		return;
 	
 	if (IsZombie())
 		return;
 	
-	int w1 = m_WeaponSlot;
-	int w2 = (m_WeaponSlot+4)%NUM_SLOTS;
-	int w3 = (m_WeaponSlot+8)%NUM_SLOTS;
+	int w1 = Slot;
+	int w2 = (Slot+4)%NUM_SLOTS;
+	int w3 = (Slot+8)%NUM_SLOTS;
 	
 	if (!m_apWeapon[w1] && !m_apWeapon[w2] && !m_apWeapon[w3])
 		return;
@@ -2078,11 +2080,14 @@ void CCharacter::Die(int Killer, int Weapon, bool SkipKillMessage, bool IsTurret
 	{
 		int ModeSpecial = GameServer()->m_pController->OnCharacterDeath(this, GameServer()->m_apPlayers[Killer], Weapon);
 		
-		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "kill killer='%d:%s' victim='%d:%s' weapon=%d special=%d",
-			Killer, Server()->ClientName(Killer),
-			m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()), Weapon, ModeSpecial);
-		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+		if(!m_IsBot)
+		{
+			char aBuf[256];
+			str_format(aBuf, sizeof(aBuf), "kill killer='%d:%s' victim='%d:%s' weapon=%d special=%d",
+				Killer, Server()->ClientName(Killer),
+				m_pPlayer->GetCID(), Server()->ClientName(m_pPlayer->GetCID()), Weapon, ModeSpecial);
+			GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
+		}
 
 		// send the kill message
 		if (Weapon != WEAPON_GAME)

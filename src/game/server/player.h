@@ -187,7 +187,7 @@ public:
 	void DropWeapon();
 	
 	// inventory
-	void InventoryRoll();
+	void InventoryRoll(int Slot);
 	void DropItem(int Slot, vec2 Pos);
 	void SwapItem(int Item1, int Item2);
 	void CombineItem(int Item1, int Item2);
@@ -209,7 +209,8 @@ public:
 	void SetRandomSkin();
 	void SetCustomSkin(int Type);
 
-	
+	char m_aLanguage[64];
+
 private:
 	bool m_Spectate;
 	bool m_GotSkin;

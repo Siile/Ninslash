@@ -1554,6 +1554,28 @@ void str_append(char *dst, const char *src, int dst_size)
 	dst[dst_size-1] = 0; /* assure null termination */
 }
 
+void str_append_num(char *dst, const char *src, int dst_size, int num)
+{
+	int s = strlen(dst);
+	int i = 0;
+	while(s < dst_size)
+	{
+		if(i>=num)
+		{
+			dst[s] = 0;
+			return;
+		}
+		
+		dst[s] = src[i];
+		if(!src[i]) /* check for null termination */
+			return;
+		s++;
+		i++;
+	}
+
+	dst[dst_size-1] = 0; /* assure null termination */
+}
+
 void str_copy(char *dst, const char *src, int dst_size)
 {
 	strncpy(dst, src, dst_size);
@@ -1582,7 +1604,22 @@ void str_format(char *buffer, int buffer_size, const char *format, ...)
 	buffer[buffer_size-1] = 0; /* assure null termination */
 }
 
+void str_format_args(char *buffer, int buffer_size, const char *format, va_list args)
+{
+#if defined(CONF_FAMILY_WINDOWS)
+	va_list ap;
+	ap = args;
+	_vsnprintf(buffer, buffer_size, format, ap);
+	va_end(ap);
+#else
+	va_list ap;
+	va_copy(ap, args);
+	vsnprintf(buffer, buffer_size, format, ap);
+	va_end(ap);
+#endif
 
+	buffer[buffer_size-1] = 0; /* assure null termination */
+}
 
 /* makes sure that the string only contains the characters between 32 and 127 */
 void str_sanitize_strong(char *str_in)

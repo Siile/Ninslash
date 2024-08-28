@@ -33,6 +33,11 @@ CChat::CChat()
 	OnReset();
 }
 
+void CChat::OnInit()
+{
+	m_Input.Init(Input());
+}
+
 void CChat::OnReset()
 {
 	for(int i = 0; i < MAX_LINES; i++)

@@ -9,6 +9,7 @@
 #define BASE_SYSTEM_H
 
 #include "detect.h"
+#include <stdarg.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -736,6 +737,8 @@ int net_tcp_close(NETSOCKET sock);
 */
 void str_append(char *dst, const char *src, int dst_size);
 
+void str_append_num(char *dst, const char *src, int dst_size, int num);
+
 /*
 	Function: str_copy
 		Copies a string to another.
@@ -783,6 +786,8 @@ void str_format(char *buffer, int buffer_size, const char *format, ...)
 __attribute__ ((format (printf, 3, 4))) /* Warn if you specify wrong arguments in printf format string */
 #endif
 ;
+
+void str_format_args(char *buffer, int buffer_size, const char *format, va_list args);
 
 /*
 	Function: str_sanitize_strong

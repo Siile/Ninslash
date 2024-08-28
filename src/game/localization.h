@@ -5,6 +5,18 @@
 #include <base/tl/string.h>
 #include <base/tl/sorted_array.h>
 
+// Don't edit it if you don't know what this do.
+/*
+Localize("Block"),Localize("Hard block"),Localize("Barrel"),Localize("Power barrel")
+Localize("Turret stand"),Localize("Flamer"),Localize("Electric wall"),Localize("Teslacoil")
+Localize("Shield generator"),Localize("Repair tool"),Localize("Grenade"),Localize("Electric grenade")
+Localize("Supply grenade"),Localize("Weapon upgrade"),Localize("Energy shield"),Localize("Respawn device")
+Localize("Mask of regeneration"),Localize("Mask of speed"),Localize("Mask of protection"),Localize("Mask of plenty")
+Localize("Mask of melee"),Localize("Invisibility device"),Localize("Electrowall")
+Localize("Area Shield"),Localize("The Cure"),Localize("Zombie claw")
+Localize("Bomb (for destroying reactors)")
+*/
+
 class CLocalizationDatabase
 {
 	class CString

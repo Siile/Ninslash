@@ -1,0 +1,420 @@
+{
+    "translation": [
+        {
+            "key": "Teams must be balanced, please join other team",
+            "value": "队伍人数必须平衡，请加入其他队伍"
+        },
+        {
+            "key": "You can't kick admins",
+            "value": "你不能踢出管理员"
+        },
+        {
+            "key": "Number of entities: %d",
+            "value": "实体数量: %d"
+        },
+        {
+            "key": "generated map - last man standing",
+            "value": "自动生成地图 - 活到最后"
+        },
+        {
+            "key": "Blue team wins",
+            "value": "蓝队赢了"
+        },
+        {
+            "key": "Mapgen seed: %d",
+            "value": "地图种子: %d"
+        },
+        {
+            "key": "Level %d - Last chance",
+            "value": "楼层 %d - 孤注一掷"
+        },
+        {
+            "key": "Disarming bomb... %d",
+            "value": "C4拆除中... %d"
+        },
+        {
+            "key": "Spectators aren't allowed to start a vote.",
+            "value": "旁观者不能发起投票。"
+        },
+        {
+            "key": "'%s' called for vote to kick you",
+            "value": "'%s' 发起投票要把你踢出服务器"
+        },
+        {
+            "key": "Run",
+            "value": "跑"
+        },
+        {
+            "key": "Team deathmatch",
+            "value": "团队死斗"
+        },
+        {
+            "key": "Battle Royale",
+            "value": "大逃杀"
+        },
+        {
+            "key": "Deathmatch",
+            "value": "死亡竞技"
+        },
+        {
+            "key": "Bomb armed",
+            "value": "C4已安装"
+        },
+        {
+            "key": "generated map",
+            "value": "自动生成地图"
+        },
+        {
+            "key": "Vote passed",
+            "value": "投票通过"
+        },
+        {
+            "key": "All hope is lost",
+            "value": "这是人类的落日"
+        },
+        {
+            "key": "Arming bomb... %d",
+            "value": "C4安装中... %d"
+        },
+        {
+            "key": "Reactor Defence",
+            "value": "保护反应堆"
+        },
+        {
+            "key": "Bomb disarmed - Blue team wins",
+            "value": "炸弹被解除 - 蓝队胜利"
+        },
+        {
+            "key": "reactor1.map - survival mode PvP",
+            "value": "地图:reactor1.map - CS模式"
+        },
+        {
+            "key": "Kick voting requires %d players on the server",
+            "value": "至少需要%d名玩家才能在服务器中发起投票"
+        },
+        {
+            "key": "Ball",
+            "value": "球类模式"
+        },
+        {
+            "key": "Slaughter",
+            "value": "种族灭绝..."
+        },
+        {
+            "key": "Number of pickups: %d",
+            "value": "掉落物数量: %d"
+        },
+        {
+            "key": "PvE",
+            "value": "肉鸽闯关"
+        },
+        {
+            "key": "Time out - Blue team wins",
+            "value": "时间到 - 蓝队胜利"
+        },
+        {
+            "key": "Number of weapon objects: %d",
+            "value": "地图中剩余的武器数量: %d"
+        },
+        {
+            "key": "Wave cleared!",
+            "value": "回合清空!"
+        },
+        {
+            "key": "Teams were shuffled",
+            "value": "队伍被打乱了"
+        },
+        {
+            "key": "Invasion",
+            "value": "入侵"
+        },
+        {
+            "key": "Highest level reached on server: %d",
+            "value": "该服务器闯到的最高关卡: %d"
+        },
+        {
+            "key": "Number of player profiles in Invasion: %d",
+            "value": "这一轮的Inv模式中保存数据的数量: %d"
+        },
+        {
+            "key": "generated match",
+            "value": "自动生成地图"
+        },
+        {
+            "key": "Grenade Deathmatch",
+            "value": "手榴弹竞赛"
+        },
+        {
+            "key": "Wave incoming!",
+            "value": "继续进行清除工作!"
+        },
+        {
+            "key": "Reactor lost",
+            "value": "反应堆被摧毁"
+        },
+        {
+            "key": "Red team wins",
+            "value": "红队赢了"
+        },
+        {
+            "key": "This is the highest level you have been to.",
+            "value": "这是你至今闯到的最高楼层"
+        },
+        {
+            "key": "Capture the flag",
+            "value": "夺旗模式"
+        },
+        {
+            "key": "Go!",
+            "value": "走你!"
+        },
+        {
+            "key": "Draw",
+            "value": "平局"
+        },
+        {
+            "key": "Reactor Bomber",
+            "value": "炸毁反应堆"
+        },
+        {
+            "key": "Teams have been balanced",
+            "value": "队伍人数已平衡"
+        },
+        {
+            "key": "Vote failed",
+            "value": "投票失败"
+        },
+        {
+            "key": "Level %d - Second try",
+            "value": "楼层 %d - 梅开二度"
+        },
+        {
+            "key": "Server does not allow voting to kick players",
+            "value": "服务器禁止投票踢出玩家"
+        },
+        {
+            "key": "Teams were swapped",
+            "value": "队伍交换"
+        },
+        {
+            "key": "Wave cleared",
+            "value": "区域清空"
+        },
+        {
+            "key": "Invalid client id to move",
+            "value": "无效的客户端ID"
+        },
+        {
+            "key": "Stage completed",
+            "value": "阶段性胜利"
+        },
+        {
+            "key": "Teams are locked",
+            "value": "队伍被锁定了"
+        },
+        {
+            "key": "Escape",
+            "value": "逃出去"
+        },
+        {
+            "key": "All reactors lost",
+            "value": "所有反应堆都炸了！"
+        },
+        {
+            "key": "ball_small1.map - no bots",
+            "value": "地图:ball_small1.map - 无AI"
+        },
+        {
+            "key": "You can't move yourself",
+            "value": "你不能移动你自己"
+        },
+        {
+            "key": "reactor_def1.map - PvE",
+            "value": "地图:reactor_def1.map - PvE"
+        },
+        {
+            "key": "Invalid spectator id used",
+            "value": "无效的旁观者ID"
+        },
+        {
+            "key": "Level cleared!",
+            "value": "楼层已清空!"
+        },
+        {
+            "key": "Server does not allow voting to move players to spectators",
+            "value": "服务器不允许投票将玩家移动至旁观者"
+        },
+        {
+            "key": "'%s' isn't an option on this server",
+            "value": "'%s' 不是这个服务器的一个设置"
+        },
+        {
+            "key": "Extra explosive death match!",
+            "value": "炸裂!(字面意思)"
+        },
+        {
+            "key": "Level %d",
+            "value": "楼层 %d"
+        },
+        {
+            "key": "Reactor defense",
+            "value": "保护反应堆"
+        },
+        {
+            "key": "KILL!",
+            "value": "杀!!"
+        },
+        {
+            "key": "Teams were locked",
+            "value": "队伍锁定了"
+        },
+        {
+            "key": "Invalid client id to kick",
+            "value": "无效的客户端ID"
+        },
+        {
+            "key": "Ocean of blood",
+            "value": "血流成河"
+        },
+        {
+            "key": "You can't kick yourself",
+            "value": "你不能踢自己"
+        },
+        {
+            "key": "You must wait %d seconds before making another vote",
+            "value": "你必须等待%d秒后才能发起另一投票"
+        },
+        {
+            "key": "Reactor destroyed - Red team wins",
+            "value": "反应堆被摧毁 - 红队胜利"
+        },
+        {
+            "key": "Death takes all",
+            "value": "死神永生"
+        },
+        {
+            "key": "Hide",
+            "value": "嘘————"
+        },
+        {
+            "key": "Spectator mode disabled",
+            "value": "已禁止旁观者模式"
+        },
+        {
+            "key": "Everybody dies",
+            "value": "无人生还"
+        },
+        {
+            "key": "Jump to level %d",
+            "value": "跳到楼层: %d"
+        },
+        {
+            "key": "Instakill CTF",
+            "value": "瞬杀夺旗"
+        },
+        {
+            "key": "Vote aborted",
+            "value": "投票平了"
+        },
+        {
+            "key": "ball_small2.map - no bots",
+            "value": "地图:ball_small2.map - 无AI"
+        },
+        {
+            "key": "Teams were unlocked",
+            "value": "队伍解锁了"
+        },
+        {
+            "key": "Wait for current vote to end before calling a new one.",
+            "value": "等待当前投票结束发起另一个投票"
+        },
+        {
+            "key": "'%s' joined the fun",
+            "value": "'%s' 加入了游戏"
+        },
+        {
+            "key": "Body: %d, feet: %d, skin: %d, topper: %d",
+            "value": "身体: %d, 腿: %d, 皮肤: %d, 帽子: %d"
+        },
+        {
+            "key": "'%s' changed name to '%s'",
+            "value": "'%s' 将名字改为 '%s'"
+        },
+        {
+            "key": "Game over on wave %d",
+            "value": "游戏在第 %d 波结束"
+        },
+        {
+            "key": "%s scores for red team!",
+            "value": "%s 为红队得分!"
+        },
+        {
+            "key": "%s was here %d min ago",
+            "value": "%s 已经离开了 %d 分钟"
+        },
+        {
+            "key": "%s scores for blue team!",
+            "value": "%s 为蓝队得分!"
+        },
+        {
+            "key": "Wave %d",
+            "value": "第 %d 波"
+        },
+        {
+            "key": "%s reached the door",
+            "value": "%s 进入了下一层"
+        },
+        {
+            "key": "'%s' has left the game (%s)",
+            "value": "'%s' 离开了游戏 (%s)"
+        },
+        {
+            "key": "All players were moved to the %s",
+            "value": "所有玩家都加入了 %s"
+        },
+        {
+            "key": "Blue team scores!",
+            "value": "蓝队得分!"
+        },
+        {
+            "key": "admin forced vote %s",
+            "value": "管理员强制投票 %s"
+        },
+        {
+            "key": "Red team scores!",
+            "value": "红队得分!"
+        },
+        {
+            "key": "admin moved '%s' to spectator (%s)",
+            "value": "管理员把 '%s' 移到了旁观者 (%s)"
+        },
+        {
+            "key": "admin forced server option '%s' (%s)",
+            "value": "管理员强制投票 '%s' (%s)"
+        },
+        {
+            "key": "'%s' has left the game",
+            "value": "'%s' 退出了游戏"
+        },
+        {
+            "key": "%s survives",
+            "value": "%s 活到了最后"
+        },
+        {
+            "key": "The %s flag was captured by '%s' (%d.%s%d seconds)",
+            "value": "%s队的旗帜被 '%s' 夺走！ (%d.%s%d 秒)"
+        },
+        {
+            "key": "The %s flag was captured by '%s'",
+            "value": "%s队的旗帜被 '%s' 夺走！"
+        },
+        {
+            "key": "red",
+            "value": "红"
+        },
+        {
+            "key": "blue",
+            "value": "蓝"
+        }
+    ]
+}

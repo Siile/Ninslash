@@ -1,3 +1,4 @@
+
 ##### translated strings #####
 
 %d Bytes
@@ -105,9 +106,6 @@ Connect
 Connecting to
 == Туташтырылууда
 
-Connection Problems...
-== Байланыш көйгөйлөрү...
-
 Console
 == Консоль
 
@@ -131,9 +129,6 @@ Current
 
 Current version: %s
 == Кезектеги версиясы: %s
-
-Custom colors
-== Өз түстөрүңүз
 
 Delete
 == Өчүрүү
@@ -221,6 +216,9 @@ Game info
 
 Game over
 == Оюн бүттү
+
+Game paused
+== Оюн бир азга токтотулду
 
 Game type
 == Оюн түрү
@@ -354,6 +352,9 @@ Next weapon
 Nickname
 == Такма атыңыз
 
+Ninslash %s is out! Download it at www.ninslash.com!
+== Ninslash %s чыкты! www.ninslash.com сайтынан жүктөп алыңыз!
+
 No
 == Жок
 
@@ -465,6 +466,9 @@ Reset filter
 Reset to defaults
 == Жарыяланбаска түшүрүү
 
+Respawn
+== Кайра жаралуу
+
 Rifle
 == Бластер
 
@@ -525,6 +529,9 @@ Show ingame HUD
 Show name plates
 == Оюнчулардын аттарын көрсөтүү
 
+Show only chat messages from friends
+== Достордун гана маек билдирүүлөрүн көрсөтүү
+
 Show only supported
 == Колдолгонду гана көрсөтүү
 
@@ -581,9 +588,6 @@ Team
 
 Team chat
 == Команда маеги
-
-Ninslash %s is out! Download it at www.ninslash.com!
-== Ninslash %s чыкты! www.ninslash.com сайтынан жүктөп алыңыз!
 
 Texture Compression
 == Текстура кысылышы
@@ -654,9 +658,6 @@ Voting
 Warmup
 == Даярдануу
 
-Weapon
-== Курал
-
 Welcome to Ninslash
 == Ninslash'ко кош келиңиз!
 
@@ -666,21 +667,241 @@ Yes
 You must restart the game for all settings to take effect.
 == Өзгөртүүлөрдү колдонуу үчүн оюнду кайта жүргүзүңүз.
 
-Your skin
-== Териңиз
-
 no limit
 == чексиз
 
-Game paused
-== Оюн бир азга токтотулду
-
-Respawn
-== Кайра жаралуу
-
-Show only chat messages from friends
-== Достордун гана маек билдирүүлөрүн көрсөтүү
-
 ##### needs translation #####
 
+Area Shield
+== 
+
+Back to main menu
+== 
+
+Barrel
+== 
+
+Black
+== 
+
+Block
+== 
+
+Blood amount
+== 
+
+Blood color
+== 
+
+Bodies
+== 
+
+Bomb (for destroying reactors)
+== 
+
+Borderless window
+== 
+
+Build menu
+== 
+
+Change color of
+== 
+
+Change skin of
+== 
+
+Chat & Misc.
+== 
+
+Customize
+== 
+
+Drop weapon
+== 
+
+Dynamic lighting
+== 
+
+Editor
+== 
+
+Electric grenade
+== 
+
+Electric wall
+== 
+
+Electrowall
+== 
+
+Energy shield
+== 
+
+Environmental sounds
+== 
+
+Eyes
+== 
+
+Flamer
+== 
+
+Flip attack & hook
+== 
+
+Flip move & aim axis
+== 
+
+Green
+== 
+
+Hair / hat
+== 
+
+Handle rendering async from updates
+== 
+
+Hands
+== 
+
+Hard block
+== 
+
+Head
+== 
+
+Heads
+== 
+
+Inventory
+== 
+
+Inventory roll
+== 
+
+Inventory roll(All)
+== 
+
+Invisibility device
+== 
+
+Item slot 1
+== 
+
+Item slot 2
+== 
+
+Item slot 3
+== 
+
+Item slot 4
+== 
+
+Main menu
+== 
+
+Mask of melee
+== 
+
+Mask of plenty
+== 
+
+Mask of protection
+== 
+
+Mask of regeneration
+== 
+
+Mask of speed
+== 
+
+Movement & Weapons
+== 
+
+Multi framebuffering (requires restart)
+== 
+
+Power barrel
+== 
+
+Red
+== 
+
+Repair tool
+== 
+
+Respawn device
+== 
+
+Server is changing map
+== 
+
+Shield generator
+== 
+
+Skin
+== 
+
+Slide / down
+== 
+
+Supply grenade
+== 
+
+Survival mode
+== 
+
+Teslacoil
+== 
+
+The Cure
+== 
+
+The Dead
+== 
+
+The Living
+== 
+
+Threaded rendering
+== 
+
+Threaded sound loading
+== 
+
+Turret stand
+== 
+
+Vote ends in %d...
+== 
+
+Waiting for server...
+== 
+
+Weapon upgrade
+== 
+
+Weapons & Items
+== 
+
+Zombie claw
+== 
+
+xbox 360 controller support
+== 
+
 ##### old translations #####
+
+Connection Problems...
+== Байланыш көйгөйлөрү...
+
+Custom colors
+== Өз түстөрүңүз
+
+Weapon
+== Курал
+
+Your skin
+== Териңиз
+

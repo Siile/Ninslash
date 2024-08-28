@@ -165,6 +165,10 @@ void CMenus::RenderPlayers(CUIRect MainView)
 		if(!m_pClient->m_Snap.m_paInfoByTeam[i])
 			continue;
 
+		// hide bots
+		if(m_pClient->m_aClients[i].m_IsBot)
+			continue;
+
 		int Index = m_pClient->m_Snap.m_paInfoByTeam[i]->m_ClientID;
 		if(Index == m_pClient->m_Snap.m_LocalClientID)
 			continue;

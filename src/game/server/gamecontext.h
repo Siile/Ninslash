@@ -21,6 +21,8 @@
 #include "gamevote.h"
 #include "lastseen.h"
 
+#include <engine/localization.h>
+
 /*
 	Tick
 		Game Context (CGameContext::tick)
@@ -70,6 +72,7 @@ class CGameContext : public IGameServer
 	// MapGen
 	CMapGen m_MapGen;
 	IStorage *m_pStorage;
+	ILocalization *m_pLocalization;
 
 	static void ConTuneParam(IConsole::IResult *pResult, void *pUserData);
 	static void ConTuneReset(IConsole::IResult *pResult, void *pUserData);
@@ -105,6 +108,7 @@ public:
 	CLayers *Layers() { return &m_Layers; }
 	IStorage *Storage() const { return m_pStorage; }
 	CMapGen *MapGen() { return &m_MapGen; }
+	ILocalization *Localization() { return m_pLocalization; }
 
 	bool GetRoamSpawnPos(vec2 *Pos);
 
@@ -213,11 +217,11 @@ public:
 	};
 
 	// network
-	void SendChatTarget(int To, const char *pText);
+	void SendChatTarget(int To, const char *pText, ...);
 	void SendChat(int ClientID, int Team, const char *pText);
 	void SendEmoticon(int ClientID, int Emoticon);
 	void SendWeaponPickup(int ClientID, int Weapon);
-	void SendBroadcast(const char *pText, int ClientID, bool Lock = false);
+	void SendBroadcast(const char *pText, int ClientID, bool Lock = false, ...);
 	void SendGameVotes(int ClientID = -1);
 	
 	void ResetGameVotes();
@@ -292,6 +296,8 @@ public:
 	int m_BroadcastLockTick;
 
 	static CLastSeen m_LastSeen;
+
+	const char *Localize(const char *pText, int ClientID);
 };
 
 inline int CmaskAll() { return -1; }

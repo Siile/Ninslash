@@ -132,13 +132,7 @@ void CGameControllerBall::Tick()
 	if (!m_RoundEndTick)
 	{
 		if (InMapArea(TEAM_RED, m_pBall->GetPosition()))
-		{
-			char aBuf[256];
-			if (m_LastBallToucher >= 0)
-				str_format(aBuf, sizeof(aBuf), "%s scores for blue team!", Server()->ClientName(m_LastBallToucher));
-			else
-				str_format(aBuf, sizeof(aBuf), "Blue team scores!");
-			
+		{	
 			// score
 			CCharacter *pChar = GameServer()->GetPlayerChar(m_LastBallToucher);
 			if (pChar)
@@ -150,20 +144,16 @@ void CGameControllerBall::Tick()
 			}
 			
 			GameServer()->CreateSoundGlobal(SOUND_CTF_CAPTURE);
-			GameServer()->SendBroadcast(aBuf, -1);
+			if (m_LastBallToucher >= 0)
+				GameServer()->SendBroadcast("%s scores for blue team!", -1, false, Server()->ClientName(m_LastBallToucher));
+			else
+				GameServer()->SendBroadcast("Blue team scores!", -1);
 			m_aTeamscore[TEAM_BLUE]++;
 			m_RoundEndTick = Server()->Tick() + Server()->TickSpeed()*1;
 		}
 			
 		if (InMapArea(TEAM_BLUE, m_pBall->GetPosition()))
-		{
-			char aBuf[256];
-			if (m_LastBallToucher >= 0)
-				str_format(aBuf, sizeof(aBuf), "%s scores for red team!", Server()->ClientName(m_LastBallToucher));
-			else
-				str_format(aBuf, sizeof(aBuf), "Red team scores!");
-			
-			
+		{				
 			// score
 			CCharacter *pChar = GameServer()->GetPlayerChar(m_LastBallToucher);
 			if (pChar)
@@ -175,7 +165,10 @@ void CGameControllerBall::Tick()
 			}
 			
 			GameServer()->CreateSoundGlobal(SOUND_CTF_CAPTURE);
-			GameServer()->SendBroadcast(aBuf, -1);
+			if (m_LastBallToucher >= 0)
+				GameServer()->SendBroadcast("%s scores for red team!", -1, false, Server()->ClientName(m_LastBallToucher));
+			else
+				GameServer()->SendBroadcast("Red team scores!", -1);
 			m_aTeamscore[TEAM_RED]++;
 			m_RoundEndTick = Server()->Tick() + Server()->TickSpeed()*1;
 		}

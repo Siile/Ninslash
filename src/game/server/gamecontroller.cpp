@@ -1844,10 +1844,7 @@ void IGameController::Tick()
 					
 					if (Winner >= 0)
 					{
-						char aBuf[64];
-						str_format(aBuf, sizeof(aBuf), "%s survives", Server()->ClientName(Winner));
-						GameServer()->SendBroadcast(aBuf, -1);
-						
+						GameServer()->SendBroadcast("%s survives", -1, false, Server()->ClientName(Winner));	
 						GameServer()->m_apPlayers[Winner]->m_Score += g_Config.m_SvSurvivalReward;
 					}
 					
