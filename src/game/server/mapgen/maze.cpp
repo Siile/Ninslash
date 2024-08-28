@@ -44,14 +44,12 @@ void CMaze::Generate()
 	{
 		int Level = g_Config.m_SvMapGenLevel;
 		
-		int r = min(10+Level/2, 120);
-
 		m_aRoom[m_Rooms++] = vec2(m_W*0.4f, m_H*(0.05f+frandom()*0.8f));
 		m_aRoom[m_Rooms++] = vec2(m_W*0.6f, m_aRoom[0].y);
 		
 		Connect(m_aRoom[0], m_aRoom[1]);
 		
-		r = min(Level + 4, 30+rand()%9);
+		int r = min(Level + 4, m_W*m_H / 600);
 			
 		for (int i = 0; i < r; i++)
 			GenerateRoom(true);
