@@ -2050,7 +2050,7 @@ void CServer::ConMapsList(IConsole::IResult *pResult, void *pUserData)
 	    std::string MapName;
 
 	    while (iss >> MapName)
-			pSelf->m_aMapLists.add(MapName); // 处理找到的单词
+		pSelf->m_aMapLists.add(MapName);
 	}
 }
 
