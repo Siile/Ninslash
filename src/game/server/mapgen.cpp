@@ -1277,6 +1277,16 @@ void CMapGen::GenerateLevel()
 	}
 	*/
 
+	if (Level%20 == 0)
+		for (int i = 0; i < Level/20; i++)
+			GenerateDeathray(pTiles);
+	
+	for (int i = 0; i < Level/4; i++)
+		GenerateFiretrap(pTiles);
+	
+	for (int i = 0; i < Level/6; i++)
+		GenerateSawblade(pTiles);
+
 	// more enemy spawn positions
 	for (int i = 0; i < min(Level, 10); i++)
 		GenerateEnemySpawn(pTiles);

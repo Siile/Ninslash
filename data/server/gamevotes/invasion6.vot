@@ -5,6 +5,6 @@ image: invasion6
 min-players: 0
 max-players: 16
 min-level: 26
-max-level: 999
+max-level: 9999
 always-on
 display-level
