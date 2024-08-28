@@ -1099,17 +1099,7 @@ void IGameController::ChangeMap(const char *pToMap)
 
 void IGameController::CycleMap()
 {
-	if(m_aMapWish[0] != 0)
-	{
-		char aBuf[256];
-		str_format(aBuf, sizeof(aBuf), "rotating map to %s", m_aMapWish);
-		GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
-		str_copy(g_Config.m_SvMap, m_aMapWish, sizeof(g_Config.m_SvMap));
-		m_aMapWish[0] = 0;
-		m_RoundCount = 0;
-		return;
-	}
-	if(!str_length(g_Config.m_SvMaprotation))
+	if(!Server()->m_aMapLists.size())
 		return;
 
 	if(m_RoundCount < g_Config.m_SvRoundsPerMap-1)
@@ -1119,61 +1109,36 @@ void IGameController::CycleMap()
 		return;
 	}
 
-	// handle maprotation
-	const char *pMapRotation = g_Config.m_SvMaprotation;
-	const char *pCurrentMap = g_Config.m_SvMap;
-	
-	if (strcmp(g_Config.m_SvMap, "generated") == 0)
-		pCurrentMap = g_Config.m_SvInvMap;
-	
-	int CurrentMapLen = str_length(pCurrentMap);
-	const char *pNextMap = pMapRotation;
-	while(*pNextMap)
+	char aNextMap[64];
+
+	if(g_Config.m_SvRandomMaps == 1)
+		str_copy(aNextMap, Server()->m_aMapLists[rand()%Server()->m_aMapLists.size()].c_str(), sizeof(aNextMap));
+	else
 	{
-		int WordLen = 0;
-		while(pNextMap[WordLen] && !IsSeparator(pNextMap[WordLen]))
-			WordLen++;
-
-		if(WordLen == CurrentMapLen && str_comp_num(pNextMap, pCurrentMap, CurrentMapLen) == 0)
+		for (int i = 0; i < Server()->m_aMapLists.size(); i++)
 		{
-			// map found
-			pNextMap += CurrentMapLen;
-			while(*pNextMap && IsSeparator(*pNextMap))
-				pNextMap++;
-
-			break;
-		}
-
-		pNextMap++;
-	}
-
-	// restart rotation
-	if(pNextMap[0] == 0)
-		pNextMap = pMapRotation;
-
-	// cut out the next map
-	char aBuf[512] = {0};
-	for(int i = 0; i < 511; i++)
-	{
-		aBuf[i] = pNextMap[i];
-		if(IsSeparator(pNextMap[i]) || pNextMap[i] == 0)
-		{
-			aBuf[i] = 0;
-			break;
+			if(str_comp(Server()->m_aMapInUse, Server()->m_aMapLists[i].c_str()) == 0)
+			{
+				if((i + 1) == Server()->m_aMapLists.size())
+					str_copy(aNextMap, Server()->m_aMapLists[0].c_str(), sizeof(aNextMap));
+				else
+					str_copy(aNextMap, Server()->m_aMapLists[i+1].c_str(), sizeof(aNextMap));
+				break;
+			}
 		}
 	}
 
-	// skip spaces
-	int i = 0;
-	while(IsSeparator(aBuf[i]))
-		i++;
+	if (aNextMap[0] == 0)
+		str_copy(aNextMap, Server()->m_aMapLists[0].c_str(), sizeof(aNextMap));
+
 
 	m_RoundCount = 0;
 
 	char aBufMsg[256];
-	str_format(aBufMsg, sizeof(aBufMsg), "rotating map to %s", &aBuf[i]);
-	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
-	str_copy(g_Config.m_SvMap, &aBuf[i], sizeof(g_Config.m_SvMap));
+	str_format(aBufMsg, sizeof(aBufMsg), "rotating map to %s", aNextMap);
+	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBufMsg);
+	str_copy(g_Config.m_SvMap, aNextMap, sizeof(g_Config.m_SvMap));
+	str_copy(m_pServer->m_aMapInUse, aNextMap, sizeof(m_pServer->m_aMapInUse));
 }
 
 
@@ -1192,7 +1157,7 @@ void IGameController::FirstMap()
 		m_RoundCount = 0;
 		return;
 	}
-	if(!str_length(g_Config.m_SvMaprotation))
+	if(!Server()->m_aMapLists.size())
 		return;
 
 	if(m_RoundCount < g_Config.m_SvRoundsPerMap-1)
@@ -1202,58 +1167,32 @@ void IGameController::FirstMap()
 		return;
 	}
 
-	// handle maprotation
-	const char *pMapRotation = g_Config.m_SvMaprotation;
-	const char *pCurrentMap = g_Config.m_SvMap;
+	char aNextMap[64];
 
-	int CurrentMapLen = str_length(pCurrentMap);
-	const char *pNextMap = pMapRotation;
-	while(*pNextMap)
+	if(g_Config.m_SvRandomMaps == 1)
+		str_copy(aNextMap, Server()->m_aMapLists[rand()%Server()->m_aMapLists.size()].c_str(), sizeof(aNextMap));
+	else
 	{
-		int WordLen = 0;
-		while(pNextMap[WordLen] && !IsSeparator(pNextMap[WordLen]))
-			WordLen++;
-
-		if(WordLen == CurrentMapLen && str_comp_num(pNextMap, pCurrentMap, CurrentMapLen) == 0)
+		for (int i = 0; i < Server()->m_aMapLists.size(); i++)
 		{
-			// map found
-			pNextMap += CurrentMapLen;
-			while(*pNextMap && IsSeparator(*pNextMap))
-				pNextMap++;
-
-			break;
-		}
-
-		pNextMap++;
-	}
-
-	// restart rotation
-	//if(pNextMap[0] == 0)
-		pNextMap = pMapRotation;
-
-	// cut out the next map
-	char aBuf[512] = {0};
-	for(int i = 0; i < 511; i++)
-	{
-		aBuf[i] = pNextMap[i];
-		if(IsSeparator(pNextMap[i]) || pNextMap[i] == 0)
-		{
-			aBuf[i] = 0;
-			break;
+			if(str_comp(Server()->m_aMapInUse, Server()->m_aMapLists[i].c_str()) == 0)
+			{
+				if((i + 1) == Server()->m_aMapLists.size())
+					str_copy(aNextMap, Server()->m_aMapLists[0].c_str(), sizeof(aNextMap));
+				else
+					str_copy(aNextMap, Server()->m_aMapLists[i+1].c_str(), sizeof(aNextMap));
+				break;
+			}
 		}
 	}
 
-	// skip spaces
-	int i = 0;
-	while(IsSeparator(aBuf[i]))
-		i++;
-
-	m_RoundCount = 0;
+	if (aNextMap[0] == 0)
+		str_copy(aNextMap, Server()->m_aMapLists[0].c_str(), sizeof(aNextMap));
 
 	char aBufMsg[256];
-	str_format(aBufMsg, sizeof(aBufMsg), "restarting map rotating to %s", &aBuf[i]);
-	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBuf);
-	str_copy(g_Config.m_SvMap, &aBuf[i], sizeof(g_Config.m_SvMap));
+	str_format(aBufMsg, sizeof(aBufMsg), "restarting map rotating to %s", aNextMap);
+	GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_DEBUG, "game", aBufMsg);
+	str_copy(g_Config.m_SvMap, aNextMap, sizeof(g_Config.m_SvMap));
 }
 
 
@@ -1739,6 +1678,7 @@ void IGameController::Tick()
 			//GameServer()->Console()->ExecuteLine("exec cfg/ball.cfg");
 
 			GameServer()->Console()->ExecuteLine(GameServer()->GetVoteWinnerConfig());
+			CycleMap();
 			ResetGameVotes();
 			StartRound();
 		}
@@ -1990,7 +1930,7 @@ void IGameController::Snap(int SnappingClient)
 	
 	m_TimeLimit = pGameInfoObj->m_TimeLimit;
 			
-	pGameInfoObj->m_RoundNum = (str_length(g_Config.m_SvMaprotation) && g_Config.m_SvRoundsPerMap) ? g_Config.m_SvRoundsPerMap : 0;
+	pGameInfoObj->m_RoundNum = g_Config.m_SvRoundsPerMap;
 	pGameInfoObj->m_RoundCurrent = m_RoundCount+1;
 }
 

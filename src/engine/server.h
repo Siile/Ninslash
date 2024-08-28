@@ -5,6 +5,9 @@
 #include "kernel.h"
 #include "message.h"
 
+#include <base/tl/array.h>
+#include <string>
+
 class IServer : public IInterface
 {
 	MACRO_INTERFACE("server", 0)
@@ -80,6 +83,9 @@ public:
 	
 	virtual char *GetMapName() = 0;
 	bool m_MapGenerated; // MapGen
+	char m_aMapInUse[64];
+
+	array<std::string> m_aMapLists;
 };
 
 class IGameServer : public IInterface
