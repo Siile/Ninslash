@@ -4,7 +4,7 @@ config: cfg/invasion-endless
 image: invasion-endless
 min-players: 0
 max-players: 16
-min-level: 31
+min-level: 36
 max-level: 9999
 always-on
 display-level
