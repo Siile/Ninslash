@@ -1079,7 +1079,8 @@ void CClient::ProcessServerPacket(CNetChunk *pPacket)
 					// don't flood downloadedmaps folder with generated maps
 					if (str_comp(pMap, "generated") == 0)
 					{
-						m_pStorage->RemoveFile("downloadedmaps/generated.map", IStorage::TYPE_SAVE);
+						if(!m_DemoRecorder.IsRecording())
+							m_pStorage->RemoveFile("downloadedmaps/generated.map", IStorage::TYPE_SAVE);
 						str_format(m_aMapdownloadFilename, sizeof(m_aMapdownloadFilename), "downloadedmaps/%s.map", pMap);
 					}
 					else

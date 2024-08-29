@@ -1105,14 +1105,7 @@ int CServer::DelClientCallback(int ClientID, const char *pReason, void *pUser)
 void CServer::SendMap(int ClientID)
 {
 	CMsgPacker Msg(NETMSG_MAP_CHANGE);
-	if(str_comp(g_Config.m_SvMap, "generated") == 0)
-	{
-		char aBuf[64];
-		str_format(aBuf, sizeof(aBuf), "generated_%d", g_Config.m_SvMapGenSeed);
-		Msg.AddString(aBuf, 0);
-	}
-	else
-		Msg.AddString(GetMapName(), 0);
+	Msg.AddString(GetMapName(), 0);
 	Msg.AddInt(m_CurrentMapCrc);
 	Msg.AddInt(m_CurrentMapSize);
 	SendMsgEx(&Msg, MSGFLAG_VITAL|MSGFLAG_FLUSH, ClientID, true);

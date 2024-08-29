@@ -580,7 +580,6 @@ int CMenus::RenderMenubar(CUIRect r)
 			}
 		}
 
-		/*
 		Box.VSplitLeft(4.0f*5, 0, &Box);
 		Box.VSplitLeft(100.0f, &Button, &Box);
 		static int s_DemosButton=0;
@@ -589,7 +588,6 @@ int CMenus::RenderMenubar(CUIRect r)
 			DemolistPopulate();
 			NewPage = PAGE_DEMOS;
 		}
-		*/
 		
 		Box.VSplitRight(180.0f, &Box, &Button);
 		static int s_MenuButton=0;
