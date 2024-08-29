@@ -1677,6 +1677,7 @@ void IGameController::Tick()
 			//Console()->ExecuteFile("cfg/ball.cfg");
 			//GameServer()->Console()->ExecuteLine("exec cfg/ball.cfg");
 
+			Server()->m_aMapLists.clear();
 			GameServer()->Console()->ExecuteLine(GameServer()->GetVoteWinnerConfig());
 			CycleMap();
 			ResetGameVotes();
@@ -1784,7 +1785,7 @@ void IGameController::Tick()
 					
 					if (Winner >= 0)
 					{
-						GameServer()->SendBroadcast("%s survives", -1, false, Server()->ClientName(Winner));	
+						GameServer()->SendBroadcastFormat(-1, false, "%s survives", Server()->ClientName(Winner));	
 						GameServer()->m_apPlayers[Winner]->m_Score += g_Config.m_SvSurvivalReward;
 					}
 					

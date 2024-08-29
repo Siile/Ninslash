@@ -145,7 +145,7 @@ void CGameControllerBall::Tick()
 			
 			GameServer()->CreateSoundGlobal(SOUND_CTF_CAPTURE);
 			if (m_LastBallToucher >= 0)
-				GameServer()->SendBroadcast("%s scores for blue team!", -1, false, Server()->ClientName(m_LastBallToucher));
+				GameServer()->SendBroadcastFormat(-1, false, "%s scores for blue team!", Server()->ClientName(m_LastBallToucher));
 			else
 				GameServer()->SendBroadcast("Blue team scores!", -1);
 			m_aTeamscore[TEAM_BLUE]++;
@@ -166,7 +166,7 @@ void CGameControllerBall::Tick()
 			
 			GameServer()->CreateSoundGlobal(SOUND_CTF_CAPTURE);
 			if (m_LastBallToucher >= 0)
-				GameServer()->SendBroadcast("%s scores for red team!", -1, false, Server()->ClientName(m_LastBallToucher));
+				GameServer()->SendBroadcastFormat(-1, false, "%s scores for red team!", Server()->ClientName(m_LastBallToucher));
 			else
 				GameServer()->SendBroadcast("Red team scores!", -1);
 			m_aTeamscore[TEAM_RED]++;

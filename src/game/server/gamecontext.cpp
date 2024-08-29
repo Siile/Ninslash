@@ -1319,7 +1319,41 @@ void CGameContext::SendGameVotes(int ClientID)
 	*/
 }
 
-void CGameContext::SendBroadcast(const char *pText, int ClientID, bool Lock, ...)
+void CGameContext::SendBroadcast(const char *pText, int ClientID, bool Lock)
+{
+	CNetMsg_Sv_Broadcast Msg;
+	int Start = (ClientID < 0 ? 0 : ClientID);
+	int End = (ClientID < 0 ? MAX_CLIENTS : ClientID+1);
+	
+	// only for server demo record
+	if(ClientID < 0)
+	{
+		Msg.m_pMessage = pText;
+		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL|MSGFLAG_NOSEND, -1);
+	}
+
+	for(int i = Start; i < End; i++)
+	{
+		if(m_apPlayers[i])
+		{
+			Msg.m_pMessage = Localize(pText, i);
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, i);
+		}
+	}
+
+	if (ClientID < 0)
+	{
+		if (Lock)
+			m_BroadcastLockTick = Server()->Tick() + g_Config.m_SvBroadcastLock * Server()->TickSpeed();
+	}
+	else
+	{
+		str_copy(m_apPlayers[ClientID]->m_aBroadcast, Lock ? Localize(pText, ClientID) : "", sizeof(m_apPlayers[ClientID]->m_aBroadcast));
+		m_apPlayers[ClientID]->m_BroadcastLockTick = Lock ? Server()->Tick() : 0;
+	}
+}
+
+void CGameContext::SendBroadcastFormat(int ClientID, bool Lock, const char *pText, ...)
 {
 	CNetMsg_Sv_Broadcast Msg;
 	int Start = (ClientID < 0 ? 0 : ClientID);
@@ -1792,14 +1826,12 @@ void CGameContext::OnClientEnter(int ClientID)
 
 	if (m_pController->IsCoop() && g_Config.m_SvMapGen)
 	{
-		char aBuf[256];
 		if (!g_Config.m_SvInvFails)
-			str_format(aBuf, sizeof(aBuf), Localize("Level %d", ClientID), g_Config.m_SvMapGenLevel);
+			SendBroadcastFormat(ClientID, false, "Level %d", g_Config.m_SvMapGenLevel);
 		else if (g_Config.m_SvInvFails == 1)
-			str_format(aBuf, sizeof(aBuf), Localize("Level %d - Second try", ClientID), g_Config.m_SvMapGenLevel);
+			SendBroadcastFormat(ClientID, false, "Level %d - Second try", g_Config.m_SvMapGenLevel);
 		else
-			str_format(aBuf, sizeof(aBuf), Localize("Level %d - Last chance", ClientID), g_Config.m_SvMapGenLevel);
-		SendBroadcast(aBuf, ClientID);
+			SendBroadcastFormat(ClientID, false, "Level %d - Last chance", g_Config.m_SvMapGenLevel);
 	}
 	
 	m_VoteUpdate = true;
@@ -3159,9 +3191,9 @@ void CGameContext::OnShutdown()
 
 void CGameContext::OnSnap(int ClientID)
 {
-	if (m_apPlayers[ClientID] && m_apPlayers[ClientID]->m_IsBot)
+	if (ClientID != -1 && m_apPlayers[ClientID] && m_apPlayers[ClientID]->m_IsBot)
 		return;
-	
+
 	// add tuning to demo
 	CTuningParams StandardTuning;
 	if(ClientID == -1 && Server()->DemoRecorder_IsRecording() && mem_comp(&StandardTuning, &m_Tuning, sizeof(CTuningParams)) != 0)
