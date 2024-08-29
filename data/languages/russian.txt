@@ -708,6 +708,9 @@ Chat & Misc.
 Customize
 == 
 
+Default Zoom
+== 
+
 Drop weapon
 == 
 
@@ -888,10 +891,28 @@ Weapons & Items
 Zombie claw
 == 
 
+Zoom In
+== 
+
+Zoom Out
+== 
+
 xbox 360 controller support
 == 
 
 ##### old translations #####
+
+'%s' called for vote to kick you
+== 
+
+You must wait %d seconds before making another vote
+== 
+
+blue
+== 
+
+red
+== 
 
 Connection Problems...
 == Проблемы со связью...
