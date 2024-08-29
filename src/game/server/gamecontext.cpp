@@ -1332,12 +1332,11 @@ void CGameContext::SendBroadcast(const char *pText, int ClientID, bool Lock)
 		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL|MSGFLAG_NOSEND, -1);
 	}
 
-	char aText[256];
 	for(int i = Start; i < End; i++)
 	{
 		if(m_apPlayers[i])
-		{	
-			Msg.m_pMessage = Localize(aText, i);
+		{
+			Msg.m_pMessage = Localize(pText, i);
 			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, i);
 		}
 	}
@@ -1827,7 +1826,6 @@ void CGameContext::OnClientEnter(int ClientID)
 
 	if (m_pController->IsCoop() && g_Config.m_SvMapGen)
 	{
-		char aBuf[256];
 		if (!g_Config.m_SvInvFails)
 			SendBroadcastFormat(ClientID, false, "Level %d", g_Config.m_SvMapGenLevel);
 		else if (g_Config.m_SvInvFails == 1)
