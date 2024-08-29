@@ -3191,9 +3191,9 @@ void CGameContext::OnShutdown()
 
 void CGameContext::OnSnap(int ClientID)
 {
-	if (m_apPlayers[ClientID] && m_apPlayers[ClientID]->m_IsBot)
+	if (ClientID != -1 && m_apPlayers[ClientID] && m_apPlayers[ClientID]->m_IsBot)
 		return;
-	
+
 	// add tuning to demo
 	CTuningParams StandardTuning;
 	if(ClientID == -1 && Server()->DemoRecorder_IsRecording() && mem_comp(&StandardTuning, &m_Tuning, sizeof(CTuningParams)) != 0)
