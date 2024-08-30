@@ -213,6 +213,7 @@ enum
 	HOOK_FLYING,
 	HOOK_GRABBED,
 	HOOK_GRABBEDBALL,
+	HOOK_GRABBEDDROID,
 	
 	COREEVENT_GROUND_JUMP=0x01,
 	COREEVENT_AIR_JUMP=0x02,
@@ -236,6 +237,8 @@ public:
 		m_pBall = 0;
 		
 		ClearImpacts();
+		ClearDroids();
+		ClearDroidHookImpacts();
 	}
 
 	void ClearImpacts()
@@ -254,6 +257,97 @@ public:
 		m_Impact++;
 	}
 	
+	
+	void ClearDroids()
+	{
+		m_DroidCounter = 0;
+		
+		for (int i = 0; i < MAX_DROIDS; i++)
+		{
+			m_aDroidPos[i] = vec2(0, 0);
+			m_aDroidVel[i] = vec2(0.0f, 0.0f);
+			m_aDroidRadius[i] = 0;
+			m_aDroidID[i] = 0;
+		}
+	}
+	
+	void ClearDroidHookImpacts()
+	{
+		m_DroidHookImpactCounter = 0;
+		
+		for (int i = 0; i < MAX_DROIDS; i++)
+		{
+			m_aDroidHookImpactID[i] = 0;
+			m_aDroidHookImpactVel[i] = vec2(0, 0);
+		}
+	}
+	
+	bool CanFindDroid(int ID)
+	{
+		for (int i = 0; i < m_DroidCounter; i++)
+			if (m_aDroidID[i] == ID)
+				return true;
+			
+		return false;
+	}
+	
+	vec2 FindDroidVel(int ID)
+	{
+		for (int i = 0; i < m_DroidCounter; i++)
+			if (m_aDroidID[i] == ID)
+				return m_aDroidVel[i];
+
+		return vec2(0, 0);
+	}
+	
+	vec2 FindDroidHookImpactVel(int ID)
+	{
+		for (int i = 0; i < m_DroidHookImpactCounter; i++)
+			if (m_aDroidHookImpactID[i] == ID)
+			{
+				vec2 rv = m_aDroidHookImpactVel[i];
+				m_aDroidHookImpactID[i] = 0;
+				m_aDroidHookImpactVel[i] = vec2(0, 0);
+				
+				return rv;
+			}
+
+		return vec2(0, 0);
+	}
+	
+	void AddDroid(int ID, vec2 Pos, vec2 Vel, int Radius)
+	{
+		if (m_DroidCounter < MAX_DROIDS)
+		{
+			m_aDroidPos[m_DroidCounter] = Pos;
+			m_aDroidVel[m_DroidCounter] = Vel;
+			m_aDroidRadius[m_DroidCounter] = Radius;
+			m_aDroidID[m_DroidCounter] = ID;
+		}
+	
+		m_DroidCounter++;
+	}
+	
+	void AddDroidHookImpact(int ID, vec2 Vel)
+	{
+		// check for existing impacts in case multiple players are hooking to single droid
+		for (int i = 0; i < m_DroidHookImpactCounter; i++)
+			if (m_aDroidHookImpactID[i] == ID)
+			{
+				m_aDroidHookImpactVel[i] += Vel;
+				return;
+			}
+		
+		if (m_DroidHookImpactCounter < MAX_DROIDS)
+		{
+			m_aDroidHookImpactID[m_DroidHookImpactCounter] = ID;
+			m_aDroidHookImpactVel[m_DroidHookImpactCounter] = Vel;
+		}
+	
+		m_DroidHookImpactCounter++;
+	}
+	
+	
 	CTuningParams m_Tuning;
 	class CCharacterCore *m_apCharacters[MAX_CLIENTS];
 	class CBallCore *m_pBall;
@@ -261,6 +355,18 @@ public:
 	// jumppad impact to gore
 	int m_Impact;
 	vec4 m_aImpactPos[MAX_IMPACTS];
+	
+	// droid hooking
+	int m_DroidCounter;
+	vec2 m_aDroidPos[MAX_DROIDS];
+	vec2 m_aDroidVel[MAX_DROIDS];
+	int m_aDroidRadius[MAX_DROIDS];
+	int m_aDroidID[MAX_DROIDS];
+	
+	// hackish way to return hook impact to server
+	int m_DroidHookImpactCounter;
+	int m_aDroidHookImpactID[MAX_DROIDS];
+	vec2 m_aDroidHookImpactVel[MAX_DROIDS];
 };
 
 

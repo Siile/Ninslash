@@ -212,12 +212,17 @@ void CGameWorld::Tick()
 			GameServer()->SendChatTarget(-1, "Teams have been balanced");
 		// update all objects
 		for(int i = 0; i < NUM_ENTTYPES; i++)
+		{
+			if (i == ENTTYPE_CHARACTER)
+				m_Core.ClearDroidHookImpacts();
+
 			for(CEntity *pEnt = m_apFirstEntityTypes[i]; pEnt; )
 			{
 				m_pNextTraverseEntity = pEnt->m_pNextTypeEntity;
 				pEnt->Tick();
 				pEnt = m_pNextTraverseEntity;
 			}
+		}
 
 		for(int i = 0; i < NUM_ENTTYPES; i++)
 			for(CEntity *pEnt = m_apFirstEntityTypes[i]; pEnt; )
@@ -387,6 +392,21 @@ CDroid *CGameWorld::IntersectWalker(vec2 Pos0, vec2 Pos1, float Radius, vec2 &Ne
 	}
 
 	return pClosest;
+}
+
+
+bool CGameWorld::GetDroidPosChange(int ID)
+{
+	CDroid *p = (CDroid *)FindFirst(ENTTYPE_DROID);
+	for(; p; p = (CDroid *)p->TypeNext())
+ 	{
+		if (p->m_ID == ID)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 

@@ -127,10 +127,12 @@ void CBossCrawler::Tick()
 		}
 	}
 	
+	m_Vel += GameServer()->m_World.m_Core.FindDroidHookImpactVel(m_ID)*0.1f;
 	m_Vel.y += 0.8f;
 	m_Vel *= 0.99f;
 	
 	GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(90.0f, 100.0f), 0, false);
+	GameServer()->m_World.m_Core.AddDroid(m_ID, m_Pos, m_Vel, 60);
 	
 	const int OffY = m_JumpTick ? 90 : 160;
 	
@@ -362,6 +364,7 @@ void CBossCrawler::Tick()
 			m_Status = DROIDSTATUS_IDLE;
 	}
 	*/
+	
 }
 
 

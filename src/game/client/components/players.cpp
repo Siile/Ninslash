@@ -137,7 +137,7 @@ void CPlayers::RenderHook(
 		{
 			HookPos = mix(vec2(m_pClient->m_PredictedPrevBall.m_Pos.x, m_pClient->m_PredictedPrevBall.m_Pos.y), vec2(m_pClient->m_PredictedBall.m_Pos.x, m_pClient->m_PredictedBall.m_Pos.y), Client()->IntraGameTick());
 		}
-		else if(pPlayerChar->m_HookedPlayer != -1)
+		else if(pPlayerChar->m_HookedPlayer != -1 && Player.m_HookState != HOOK_GRABBEDDROID)
 		{
 			if(m_pClient->m_Snap.m_pLocalInfo && pPlayerChar->m_HookedPlayer == m_pClient->m_Snap.m_pLocalInfo->m_ClientID)
 			{

@@ -127,9 +127,13 @@ void CStar::Tick()
 	if (m_Health <= 0)
 	{
 		float OldVelY = m_Vel.y;
+		
+		m_Vel += GameServer()->m_World.m_Core.FindDroidHookImpactVel(m_ID);
+		
 		m_Vel.y += 0.8f;
 		//m_Vel *= 0.97f;
-		GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(80.0f, 100.0f), 0, false);
+		GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(80.0f, 100.0f), 0, false, true);
+		GameServer()->m_World.m_Core.AddDroid(m_ID, m_Pos, m_Vel, 40);
 		//return;
 		
 		if (Server()->Tick() > m_DamageTakenTick+30 || OldVelY > 12.0f)
@@ -182,8 +186,10 @@ void CStar::Tick()
 		if (abs(length(m_MoveTarget - m_Pos)) > 8.0f)
 			m_Vel += normalize(m_MoveTarget - m_Pos) * 0.40f * ((m_Status == DROIDSTATUS_ELECTRIC)?0.5f:1.0f);
 		
+		m_Vel += GameServer()->m_World.m_Core.FindDroidHookImpactVel(m_ID)*0.25f;
 		m_Vel *= 0.97f;
-		GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(96.0f, 128.0f), 0, false);
+		GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(96.0f, 128.0f), 0, false, true);
+		GameServer()->m_World.m_Core.AddDroid(m_ID, m_Pos, m_Vel, 40);
 	
 		bool WillFire = false;
 		

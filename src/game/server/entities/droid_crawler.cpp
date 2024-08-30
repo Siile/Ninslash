@@ -126,10 +126,12 @@ void CCrawler::Tick()
 		}
 	}
 	
+	m_Vel += GameServer()->m_World.m_Core.FindDroidHookImpactVel(m_ID)*0.5f;
 	m_Vel.y += 0.8f;
 	m_Vel *= 0.99f;
 	
 	GameServer()->Collision()->MoveBox(&m_Pos, &m_Vel, vec2(60.0f, 60.0f), 0, false);
+	GameServer()->m_World.m_Core.AddDroid(m_ID, m_Pos, m_Vel, 30);
 	
 	const int OffY = m_JumpTick ? 50 : 80;
 	
