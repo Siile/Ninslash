@@ -37,8 +37,7 @@ void CCamera::ConZoomOut(IConsole::IResult *pResult, void *pUserData)
 void CCamera::ConZoomDefault(IConsole::IResult *pResult, void *pUserData)
 {
 	CCamera *pSelf = (CCamera *)pUserData;
-	if(pSelf->m_pClient && pSelf->m_pClient->m_Snap.m_pLocalInfo && pSelf->m_pClient->m_Snap.m_pLocalInfo->m_Team == TEAM_SPECTATORS)
-		pSelf->m_TargetZoom = 1.f;
+	pSelf->m_TargetZoom = 1.f;
 }
 
 void CCamera::OnInit()
@@ -54,6 +53,11 @@ void CCamera::OnInit()
 
 void CCamera::OnRender()
 {
+	if(m_pClient && m_pClient->m_Snap.m_pLocalInfo && m_pClient->m_Snap.m_pLocalInfo->m_Team != TEAM_SPECTATORS)
+	{
+		m_TargetZoom = 1.f;
+		m_Zoom = 1.f;
+	}
 	//m_pClient->m_pControls->m_CameraZoom = int(m_Zoom*10);
 	
 	// update camera center
