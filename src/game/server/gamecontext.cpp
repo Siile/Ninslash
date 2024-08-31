@@ -1165,12 +1165,14 @@ void CGameContext::ResetGameVotes()
 		}
 	}
 	
+	/*
 	int InvLevel = 1;
 	
 	if (PlayerCount > 0)
 		InvLevel = TotalLevel / PlayerCount;
 
 	g_Config.m_SvMapGenLevel = InvLevel;
+	*/
 	
 	for (int i = 0; i < 6; i++)
 	{
@@ -1638,11 +1640,12 @@ void CGameContext::OnTick()
 	// copy tuning
 	m_World.m_Core.m_Tuning = m_Tuning;
 	m_World.m_Core.ClearImpacts();
+	m_World.m_Core.ClearDroids();
 	m_World.Tick();
 
 	//if(world.paused) // make sure that the game object always updates
 	m_pController->Tick();
-
+	
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
 		if(m_apPlayers[i])

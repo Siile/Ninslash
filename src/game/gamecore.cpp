@@ -946,12 +946,7 @@ void CCharacterCore::Tick(bool UseInput)
 		bool GoingToRetract = false;
 		int Hit = m_pCollision->IntersectLine(m_HookPos, NewPos, &NewPos, 0);
 		if(Hit)
-		{
-			//if(Hit&CCollision::COLFLAG_NOHOOK)
-			//	GoingToRetract = true;
-			//else
-				GoingToHitGround = true;
-		}
+			GoingToHitGround = true;
 
 		// Check against other players first
 		if(m_pWorld)
@@ -992,6 +987,30 @@ void CCharacterCore::Tick(bool UseInput)
 					pBallCore->PlayerHit();
 				}
 			}
+			
+			// check for droids
+			if (m_pWorld->m_DroidCounter)
+			{
+				for(int i = 0; i < m_pWorld->m_DroidCounter; i++)
+				{
+					if (m_pWorld->m_aDroidRadius[i] <= 0)
+						continue;
+					
+					vec2 DroidPos = m_pWorld->m_aDroidPos[i];
+					int DroidRadius = m_pWorld->m_aDroidRadius[i];
+
+					vec2 ClosestPoint = closest_point_on_line(m_HookPos, NewPos, DroidPos);
+					if(distance(DroidPos, ClosestPoint) < DroidRadius)
+					{
+						m_TriggeredEvents |= COREEVENT_HOOK_ATTACH_PLAYER;
+						m_HookState = HOOK_GRABBEDDROID;
+						m_HookedPlayer = m_pWorld->m_aDroidID[i];
+						m_HookPos = ClosestPoint;
+						break;
+					}
+				}
+			}
+			
 		}
 
 		if(m_HookState == HOOK_FLYING)
@@ -1013,6 +1032,51 @@ void CCharacterCore::Tick(bool UseInput)
 	}
 
 
+	if(m_HookState == HOOK_GRABBEDDROID)
+	{
+		if(distance(m_HookPos, m_Pos) > 52.0f)
+		{
+			vec2 HookVel = normalize(m_HookPos-m_Pos)*m_pWorld->m_Tuning.m_HookDragAccel;
+			vec2 HookImpactVel = normalize(m_Pos-m_HookPos)*m_pWorld->m_Tuning.m_HookDragAccel;
+			// the hook as more power to drag you up then down.
+			// this makes it easier to get on top of an platform
+			if(HookVel.y > 0)
+				HookVel.y *= 0.3f;
+			
+			if(HookImpactVel.y > 0)
+				HookImpactVel.y *= 0.5f;
+			
+			HookImpactVel.x *= 0.8f;
+
+			// the hook will boost it's power if the player wants to move
+			// in that direction. otherwise it will dampen everything abit
+			if((HookVel.x < 0 && m_Direction < 0) || (HookVel.x > 0 && m_Direction > 0))
+				HookVel.x *= 0.95f;
+			else
+				HookVel.x *= 0.75f;
+			
+
+			vec2 NewVel = m_Vel+HookVel;
+			m_pWorld->AddDroidHookImpact(m_HookedPlayer, HookImpactVel);
+
+			// check if we are under the legal limit for the hook
+			if(length(NewVel) < m_pWorld->m_Tuning.m_HookDragSpeed || length(NewVel) < length(m_Vel))
+				m_Vel = NewVel; // no problem. apply
+
+		}
+		
+		m_HookPos += m_pWorld->FindDroidVel(m_HookedPlayer);
+		
+		// release hook
+		m_HookTick++;
+		if(m_HookTick > SERVER_TICK_SPEED+SERVER_TICK_SPEED/5)
+		{
+			m_HookState = HOOK_RETRACTED;
+			m_HookPos = m_Pos;
+		}
+	}
+	
+	
 	if(m_HookState == HOOK_GRABBED || m_HookState == HOOK_GRABBEDBALL)
 	{
 		if(m_HookState == HOOK_GRABBEDBALL)

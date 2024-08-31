@@ -78,6 +78,9 @@ public:
 	*/
 	int FindEntities(vec2 Pos, float Radius, CEntity **ppEnts, int Max, int Type);
 	
+	
+	bool GetDroidPosChange(int ID);
+	
 	int FindBlocks(vec2 Pos, ivec2 Radius, CEntity **ppEnts, int Max);
 
 	/*
