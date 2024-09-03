@@ -1036,8 +1036,9 @@ void CCharacterCore::Tick(bool UseInput)
 	{
 		if(distance(m_HookPos, m_Pos) > 52.0f)
 		{
-			vec2 HookVel = normalize(m_HookPos-m_Pos)*m_pWorld->m_Tuning.m_HookDragAccel;
-			vec2 HookImpactVel = normalize(m_Pos-m_HookPos)*m_pWorld->m_Tuning.m_HookDragAccel;
+			float HookForce = (distance(m_HookPos, m_Pos)-64.0f)*0.001f;
+			vec2 HookVel = normalize(m_HookPos-m_Pos)*m_pWorld->m_Tuning.m_HookDragAccel*(1.0f+HookForce);
+			vec2 HookImpactVel = normalize(m_Pos-m_HookPos)*m_pWorld->m_Tuning.m_HookDragAccel*(1.0f+HookForce);
 			// the hook as more power to drag you up then down.
 			// this makes it easier to get on top of an platform
 			if(HookVel.y > 0)
@@ -1112,7 +1113,9 @@ void CCharacterCore::Tick(bool UseInput)
 		// don't do this hook rutine when we are hook to a player or ball
 		if(m_HookState == HOOK_GRABBED && m_HookedPlayer == -1 && distance(m_HookPos, m_Pos) > 52.0f) // tw: 46
 		{
-			vec2 HookVel = normalize(m_HookPos-m_Pos)*m_pWorld->m_Tuning.m_HookDragAccel;
+			float HookForce = (distance(m_HookPos, m_Pos)-64.0f)*0.001f;
+			vec2 HookVel = normalize(m_HookPos-m_Pos)*m_pWorld->m_Tuning.m_HookDragAccel*(1.0f+HookForce);
+			
 			// the hook as more power to drag you up then down.
 			// this makes it easier to get on top of an platform
 			if(HookVel.y > 0)

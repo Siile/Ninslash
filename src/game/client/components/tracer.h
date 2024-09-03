@@ -170,6 +170,19 @@ struct CTrace
 			return;
 		}
 		
+		if (Type == -5)
+		{
+			m_RotSpeed = 2.5f;
+			m_Scale = 2.0f;
+			m_Sprite = 3;
+			m_Color = vec4(1, 1, 1, 1.0f);
+			m_Parts = 30;
+			m_Speed = 3.0f;
+			m_Size1 = 20.0f * GetProjectileSize(Weapon);
+			m_Size2 = 10.0f * GetProjectileSize(Weapon);
+			return;
+		}
+		
 		if (Type == -2)
 		{
 			m_RotSpeed = 0.2f;

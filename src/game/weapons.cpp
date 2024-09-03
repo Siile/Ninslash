@@ -145,7 +145,7 @@ const int GetProjectileTraceType(int Weapon)
 	if (Part1 == 3) return -3;
 	if (Part1 == 2) return -1;
 	if (Part1 == 1) return 1;
-	if (Part1 == 4) return 2;
+	if (Part1 == 4) return -5;
 	
 	return 1;
 }
