@@ -44,14 +44,16 @@ void CRadar::RenderRadar(const CNetObj_Radar *pCurrent, const CNetObj_Radar *pPr
 		if (pCurrent->m_Type == RADAR_REACTOR)
 			ca *= 0.5f;
 		
-		Graphics()->SetColor(1, 1, 1, ca);
 		if (pCurrent->m_Type == RADAR_CHARACTER || pCurrent->m_Type == RADAR_HUMAN)
 			Graphics()->QuadsSetRotation(a);
 		else
 			Graphics()->QuadsSetRotation(0);
 		
+		Graphics()->SetColor(0, 0, 0, ca);
 		RenderTools()->SelectSprite(SPRITE_RADAR1+pCurrent->m_Type);
-		RenderTools()->DrawSprite(RPos.x, RPos.y, 80);
+		RenderTools()->DrawSprite(RPos.x, RPos.y, 82);
+		Graphics()->SetColor(1, 1, 1, ca);
+		RenderTools()->DrawSprite(RPos.x, RPos.y, 70);
 		
 		Graphics()->QuadsEnd();
 	}

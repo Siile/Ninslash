@@ -1,5 +1,6 @@
-level: 2
+level: 1
 blood-color: green
+wave-group: alien
 
 head: alien
 body: simple

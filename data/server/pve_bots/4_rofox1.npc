@@ -1,5 +1,6 @@
-level: 4
+level: 1
 blood-color: black
+wave-group: cyborg
 
 head: plated
 body: plated

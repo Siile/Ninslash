@@ -690,12 +690,12 @@ bool IGameController::OnEntity(int Index, vec2 Pos)
 	*/
 	else if (Index == ENTITY_BARREL)
 	{
-		new CBuilding(&GameServer()->m_World, Pos+vec2(0,-12), BUILDING_BARREL, TEAM_NEUTRAL);
+		new CBuilding(&GameServer()->m_World, Pos+vec2(0,-12), BUILDING_BARREL+rand()%3, TEAM_NEUTRAL);
 		return true;
 	}
 	else if (Index == ENTITY_POWERBARREL)
 	{
-		new CBuilding(&GameServer()->m_World, Pos+vec2(0,-12), BUILDING_POWERBARREL, TEAM_NEUTRAL);
+		new CBuilding(&GameServer()->m_World, Pos+vec2(0,-12), BUILDING_POWERBARREL+rand()%2, TEAM_NEUTRAL);
 		return true;
 	}
 	else if (Index == ENTITY_LIGHTNINGWALL)

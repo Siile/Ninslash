@@ -167,6 +167,8 @@ private:
 	void Cmd_Render(const CCommandBuffer::SCommand_Render *pCommand);
 	void Cmd_Screenshot(const CCommandBuffer::SCommand_Screenshot *pCommand);
 
+	float GetTime();
+	
 public:
 	CCommandProcessorFragment_OpenGL();
 

@@ -700,7 +700,7 @@ void CPlayers::RenderPlayer(
 		Graphics()->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
 		
 		float Charge = GetWeaponCharge(Player.m_Weapon) / float(max(1, WeaponMaxLevel(Player.m_Weapon)));
-		float Size = 132 + Charge*40.0f;
+		float Size = 132 + Charge*60.0f;
 
 		RenderTools()->DrawSprite(p.x, p.y, Size);
 		

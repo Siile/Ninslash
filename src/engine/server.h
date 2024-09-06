@@ -72,7 +72,7 @@ public:
 	virtual bool DemoRecorder_IsRecording() = 0;
 	
 	virtual void AddZombie() = 0;
-	virtual void GetAISkin(class CAISkin *pAISkin, bool PVP, int Level) = 0;
+	virtual void GetAISkin(class CAISkin *pAISkin, bool PVP, int Level, int WaveGroup) = 0;
 
 	virtual void ResetGameVoting() = 0;
 	virtual bool GetGameVote(class CGameVote *pGameVote, int Players) = 0;
@@ -106,7 +106,7 @@ public:
 
 
 	virtual void AddZombie() = 0;
-	virtual void GetAISkin(class CAISkin *pAISkin, bool PVP, int Level) = 0;
+	virtual void GetAISkin(class CAISkin *pAISkin, bool PVP, int Level, int WaveGroup) = 0;
 	virtual bool AIInputUpdateNeeded(int ClientID) = 0;
 	virtual void AIUpdateInput(int ClientID, int *Data) = 0; // MAX_INPUT_SIZE
 	

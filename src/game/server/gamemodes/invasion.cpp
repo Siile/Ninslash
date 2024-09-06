@@ -1,13 +1,14 @@
 #include <engine/shared/config.h>
 
 #include <game/mapitems.h>
+#include <game/questinfo.h>
 
 #include <game/server/entities/character.h>
 #include <game/server/entities/radar.h>
 #include <game/server/player.h>
 #include <game/server/gamecontext.h>
 
-#include "run.h"
+#include "invasion.h"
 
 #include <game/server/playerdata.h>
 #include <game/server/ai.h>
@@ -22,7 +23,7 @@
 
 
 
-CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
+CGameControllerInvasion::CGameControllerInvasion(class CGameContext *pGameServer)
 : IGameController(pGameServer)
 {
 	m_pGameType = "INV";
@@ -46,21 +47,25 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 	m_RoundWinTick = 0;
 	
 	m_RoundWin = false;
+	m_QuestsCompleted = 0;
 	
+	m_QuestWaveSize = 0;
+	m_QuestWaveEndTick = 0;
+	m_QuestWaveEnemiesLeft = 0;
+	m_Quest = QUEST_NONE;
+	m_NextQuest = QUEST_NONE;
+	m_QuestChangeTick = 0;
+	m_QuestProgressCounter = 0;
 	
 	int Level = g_Config.m_SvMapGenLevel;
+	m_LevelQuestsLeft = min(int(Level*0.6f+1), 4);
 	
-	//m_GroupsLeft = 2 + min(3, Level/4) + (Level%5)/4;
 	
-	if (Level <= 1)
-		m_GroupsLeft = 0;
-	else
-		m_GroupsLeft = 2 + min(1, Level/3);
+	m_QuestWaveType = WAVE_NONE;
 	
 	m_TriggerLevel = 0;
-	m_Group = 0;
 	m_GroupSpawnPos = vec2(0, 0);
-	SpawnNewGroup(false);
+	SpawnNewWave(false);
 		
 	m_AutoRestart = false;
 	
@@ -94,7 +99,7 @@ CGameControllerCoop::CGameControllerCoop(class CGameContext *pGameServer)
 }
 
 
-bool CGameControllerCoop::OnEntity(int Index, vec2 Pos)
+bool CGameControllerInvasion::OnEntity(int Index, vec2 Pos)
 {
 	if (IGameController::OnEntity(Index, Pos))
 		return true;
@@ -109,7 +114,7 @@ bool CGameControllerCoop::OnEntity(int Index, vec2 Pos)
 }
 
 
-bool CGameControllerCoop::GetSpawnPos(int Team, vec2 *pOutPos)
+bool CGameControllerInvasion::GetSpawnPos(int Team, vec2 *pOutPos)
 {
 	if (!pOutPos || !m_NumEnemySpawnPos)
 		return false;
@@ -121,7 +126,7 @@ bool CGameControllerCoop::GetSpawnPos(int Team, vec2 *pOutPos)
 	return true;
 }
 
-vec2 CGameControllerCoop::GetBotSpawnPos()
+vec2 CGameControllerInvasion::GetBotSpawnPos()
 {
 	if (m_GroupSpawnPos.x < 1.0f)
 	{
@@ -163,7 +168,7 @@ vec2 CGameControllerCoop::GetBotSpawnPos()
 	return m_GroupSpawnPos;
 }
 
-void CGameControllerCoop::RandomGroupSpawnPos()
+void CGameControllerInvasion::RandomGroupSpawnPos()
 {
 	m_GroupSpawnPos =  m_aEnemySpawnPos[rand()%m_NumEnemySpawnPos];
 	m_pEnemySpawn->Activate(m_GroupSpawnPos, Server()->Tick() + Server()->TickSpeed()*5);
@@ -171,7 +176,7 @@ void CGameControllerCoop::RandomGroupSpawnPos()
 
 
 
-bool CGameControllerCoop::CanSpawn(int Team, vec2 *pOutPos, bool IsBot)
+bool CGameControllerInvasion::CanSpawn(int Team, vec2 *pOutPos, bool IsBot)
 {
 	CSpawnEval Eval;
 
@@ -181,6 +186,11 @@ bool CGameControllerCoop::CanSpawn(int Team, vec2 *pOutPos, bool IsBot)
 
 	if (IsBot)
 	{
+		if (m_EnemiesLeft <= 0)
+		{
+			return false;
+		}
+		
 		if (m_BotSpawnTick > Server()->Tick())
 			return false;
 		
@@ -190,7 +200,7 @@ bool CGameControllerCoop::CanSpawn(int Team, vec2 *pOutPos, bool IsBot)
 		vec2 Pos = GetBotSpawnPos();
 		*pOutPos = Pos;
 		
-		m_BotSpawnTick = Server()->Tick() + Server()->TickSpeed() * 0.5f;
+		m_BotSpawnTick = Server()->Tick() + Server()->TickSpeed() * max(0.1f, 0.5f-g_Config.m_SvMapGenLevel*0.01f);
 		
 		return true;
 	}
@@ -202,7 +212,7 @@ bool CGameControllerCoop::CanSpawn(int Team, vec2 *pOutPos, bool IsBot)
 }
 
 
-void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
+void CGameControllerInvasion::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 {
 	IGameController::OnCharacterSpawn(pChr);
 	
@@ -219,14 +229,14 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			int Level = 0;
 			
 			for (int i = 0; i < 9; i++)
-				if (m_EnemiesLeft < 1-i*3 + g_Config.m_SvMapGenLevel/2 - m_Group/3)
+				if (m_EnemiesLeft < 1-i*3 + g_Config.m_SvMapGenLevel/2)
 					Level++;
 			
 			if (frandom() < 0.7f && Level > 2)
 				Level = rand()%(Level-1);
 			
 						
-			GameServer()->GetAISkin(&pChr->GetPlayer()->m_AISkin, false, 1+rand()%(1+g_Config.m_SvMapGenLevel/2));
+			GameServer()->GetAISkin(&pChr->GetPlayer()->m_AISkin, false, 1+rand()%(max(1, 1+g_Config.m_SvMapGenLevel/4-m_QuestWaveType*3)), m_QuestWaveType);
 			pChr->GetPlayer()->SetAISkin();
 			//pChr->GetPlayer()->m_pAI = new CAIbase(GameServer(), pChr->GetPlayer());
 			pChr->m_IsBot = true;
@@ -270,7 +280,7 @@ void CGameControllerCoop::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 	}
 }
 
-void CGameControllerCoop::Trigger(bool IncreaseLevel)
+void CGameControllerInvasion::Trigger(bool IncreaseLevel)
 {
 	if (IncreaseLevel)
 		m_TriggerLevel++;
@@ -286,66 +296,64 @@ void CGameControllerCoop::Trigger(bool IncreaseLevel)
 	}
 }
 
-void CGameControllerCoop::SpawnNewGroup(bool AddBots)
+void CGameControllerInvasion::SpawnNewWave(bool AddBots)
 {
-	m_EnemyCount = 0;
-	m_EnemiesLeft = 20;
-	m_GroupSpawnTick = 0;
-	
-	GameServer()->SendBroadcast("Wave incoming!", -1);
-	
-	g_Config.m_SvInvBosses = 1;
-	
 	int Level = g_Config.m_SvMapGenLevel;
 	
-	m_GroupType = GROUP_ALIENS+((Level/3)%3+m_Group/2)%4;
+	//m_QuestWaveType = WAVE_ALIENS;
+	m_QuestWaveType = rand()%(min(NUM_WAVES-1, Level/5+1))+1;
 	
-	m_EnemiesLeft = 2+m_Group*2+Level/2 + max(3, 3 + min(12, Level) + m_Group - m_GroupType*2);
+	if (m_Quest == QUEST_SURVIVEWAVETIME)
+	{
+		m_QuestWaveEndTick = Server()->Tick() + Server()->TickSpeed() * 45;
+		m_QuestWaveEnemiesLeft = 9999;
+		m_QuestWaveSize = min(6 + Level + GameServer()->m_pController->CountPlayers(0), 32);
+		m_EnemiesLeft = m_QuestWaveEnemiesLeft;
+	}
+	else if (m_Quest == QUEST_SURVIVEWAVE)
+	{
+		m_QuestWaveEndTick = 0;
+		m_QuestWaveEnemiesLeft = min(int(8+Level*2), 60)*(1.0f + (GameServer()->m_pController->CountPlayers(0)-1)*0.2f);
+		m_QuestWaveSize = min(6 + Level + GameServer()->m_pController->CountPlayers(0), 32);
+		m_EnemiesLeft = m_QuestWaveEnemiesLeft;
+	}
+	// initial enemies on map load
+	else
+	{
+		m_QuestWaveEndTick = 0;
+		m_QuestWaveEnemiesLeft = 0;
+		m_QuestWaveSize = 32;
+		m_EnemiesLeft = min(20, 7 + Level);
+	}
 	
-	if (m_Group == 0 && m_EnemiesLeft > 20)
-		m_EnemiesLeft = 20;
+	m_EnemyCount = 0;
+	
+	m_GroupType = GROUP_ALIENS;
 	
 	if (AddBots)
 	{
 		RandomGroupSpawnPos();
 		
-		for (int i = 0; i < m_EnemiesLeft && GameServer()->m_pController->CountBots() < 32; i++)
+		for (int i = 0; i < m_EnemiesLeft && GameServer()->m_pController->CountBots() < m_QuestWaveSize; i++)
 			GameServer()->AddBot();
 	}
 	
-	m_Deaths = m_EnemiesLeft;
-	m_Group++;
-	m_GroupsLeft--;
+	m_Deaths = m_QuestWaveSize;
 }
 
 
-void CGameControllerCoop::DisplayExit(vec2 Pos)
+void CGameControllerInvasion::DisplayExit(vec2 Pos)
 {
 	m_pDoor->Activate(Pos);	
 }
 
 
-int CGameControllerCoop::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
+int CGameControllerInvasion::OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon)
 {
 	IGameController::OnCharacterDeath(pVictim, pKiller, Weapon);
 
 	if (pVictim->m_IsBot && !pVictim->GetPlayer()->m_ToBeKicked)
 	{
-		if (--m_Deaths <= 0 && CountPlayersAlive(-1, true) > 0)
-		{
-			if (m_GroupsLeft <= 0)
-			{
-				TriggerEscape();
-				GameServer()->SendBroadcast("Level cleared!", -1);
-			}
-			else if (!m_GroupSpawnTick)
-			{
-				m_GroupSpawnTick = Server()->Tick() + Server()->TickSpeed()*7;
-				if (m_Group > 1)
-					GameServer()->SendBroadcast("Wave cleared!", -1);
-			}
-		}
-			
 		if (m_EnemiesLeft <= 0)
 			pVictim->GetPlayer()->m_ToBeKicked = true;
 		
@@ -371,7 +379,7 @@ int CGameControllerCoop::OnCharacterDeath(class CCharacter *pVictim, class CPlay
 
 
 
-void CGameControllerCoop::NextLevel(int CID)
+void CGameControllerInvasion::NextLevel(int CID)
 {
 	//
 	if (!m_RoundWin)
@@ -389,13 +397,112 @@ void CGameControllerCoop::NextLevel(int CID)
 		pPlayer->GetCharacter()->Warp();
 }
 
-void CGameControllerCoop::Tick()
+
+	
+void CGameControllerInvasion::ChangeQuest(int NextQuest, float QueueTimeInSeconds)
+{
+	if (m_NextQuest == NextQuest)
+		return;
+	
+	m_NextQuest = NextQuest;
+	m_QuestChangeTick = Server()->Tick() + Server()->TickSpeed() * QueueTimeInSeconds;
+}
+
+
+void CGameControllerInvasion::SendQuestStartMessage(int Quest)
+{
+	
+	GameServer()->SendBroadcast(GetQuestStartMessage(Quest, m_QuestWaveType), -1);
+	
+}
+
+
+void CGameControllerInvasion::SendQuestCompletedMessage(int Quest)
+{
+	GameServer()->SendBroadcast(GetQuestCompletedMessage(Quest, m_QuestWaveType), -1);
+}
+
+
+void CGameControllerInvasion::CompleteCurrentQuest()
+{
+	SendQuestCompletedMessage(m_Quest);
+	m_Quest = QUEST_NONE;
+	m_NextQuest = QUEST_NONE;
+	m_QuestsCompleted++;
+}
+
+
+void CGameControllerInvasion::Tick()
 {
 	IGameController::Tick();
 	
 	if (m_GameState == STATE_FAIL)
 		return;
 	
+	if (m_GameState == STATE_GAME)
+	{
+		// change quest on time
+		if (m_QuestChangeTick && m_QuestChangeTick <= Server()->Tick())
+		{
+			m_Quest = m_NextQuest;
+			m_NextQuest = QUEST_NONE;
+			m_QuestChangeTick = 0;
+			m_QuestProgressCounter = 0;
+			
+			if (m_Quest == QUEST_REACHDOOR)
+				TriggerEscape();
+			
+			if (m_Quest == QUEST_SURVIVEWAVE || m_Quest == QUEST_SURVIVEWAVETIME)
+				SpawnNewWave();
+			
+			SendQuestStartMessage(m_Quest);
+		}
+		
+		
+		if (m_Quest == QUEST_NONE && m_NextQuest == QUEST_NONE)
+		{
+			if (m_LevelQuestsLeft <= 0)
+				ChangeQuest(QUEST_REACHDOOR, 6.0f);
+			else if (m_QuestsCompleted == 0)
+				ChangeQuest(QUEST_KILLREMAININGENEMIES, 6.0f);
+			else if (g_Config.m_SvMapGenLevel > 5 && frandom() < 0.2f)
+				ChangeQuest(QUEST_SURVIVEWAVETIME, 6.0f);
+			else
+				ChangeQuest(QUEST_SURVIVEWAVE, 6.0f);
+			
+			m_LevelQuestsLeft--;
+		}
+		
+		if (m_Quest == QUEST_SURVIVEWAVE || m_Quest == QUEST_SURVIVEWAVETIME)
+		{
+			if (m_Quest == QUEST_SURVIVEWAVETIME)
+				m_QuestProgressCounter = int((m_QuestWaveEndTick - Server()->Tick()) / Server()->TickSpeed());
+			else
+				m_QuestProgressCounter = m_EnemiesLeft + GameServer()->m_pController->CountBotsAlive();
+			
+			// wave quest completed
+			if ((m_QuestWaveEndTick && m_QuestWaveEndTick <= Server()->Tick()) || (m_EnemiesLeft <= 0 && GameServer()->m_pController->CountBotsAlive() <= 0))
+			{
+				m_EnemiesLeft = 0;
+				m_QuestWaveEndTick = 0;
+				int CompletedQuest = m_Quest;
+				CompleteCurrentQuest();
+				
+				if (CompletedQuest == QUEST_SURVIVEWAVETIME && GameServer()->m_pController->CountBotsAlive() > 8)
+					ChangeQuest(QUEST_KILLREMAININGENEMIES, 5.0f);
+			}
+		}
+		
+		if (m_Quest == QUEST_KILLREMAININGENEMIES)
+		{
+			m_QuestProgressCounter = GameServer()->m_pController->CountBotsAlive();
+			
+			// quest completed
+			if (m_QuestProgressCounter <= 0)
+				CompleteCurrentQuest();
+		}
+	}
+			
 	// 
 	if (m_GameState == STATE_STARTING)
 	{
@@ -450,10 +557,6 @@ void CGameControllerCoop::Tick()
 			else
 				GameServer()->ReloadMap();
 		}
-		
-		
-		if (m_GroupSpawnTick && m_GroupSpawnTick <= Server()->Tick())
-			SpawnNewGroup();
 	}
 	
 	GameServer()->UpdateAI();
@@ -494,4 +597,18 @@ void CGameControllerCoop::Tick()
 			EndRound();
 		}
 	}
+}
+
+
+void CGameControllerInvasion::Snap(int SnappingClient)
+{
+	IGameController::Snap(SnappingClient);
+
+	CNetObj_GameData *pGameDataObj = (CNetObj_GameData *)Server()->SnapNewItem(NETOBJTYPE_GAMEDATA, 0, sizeof(CNetObj_GameData));
+	if(!pGameDataObj)
+		return;
+
+	// send quest data as team score
+	pGameDataObj->m_TeamscoreRed = m_Quest;
+	pGameDataObj->m_TeamscoreBlue = m_QuestProgressCounter;
 }

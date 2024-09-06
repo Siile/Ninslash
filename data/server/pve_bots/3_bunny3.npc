@@ -1,5 +1,6 @@
 level: 3
 blood-color: red
+wave-group: furry
 
 head: bigears
 body: simple

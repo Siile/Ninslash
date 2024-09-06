@@ -191,42 +191,14 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	}
 	else
 	{
-		//m_apWeapon[0] = GameServer()->NewWeapon(GetStaticWeapon(SW_CLUSTER));
-		//m_apWeapon[1] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(4, 2), 10));
-		//m_apWeapon[1] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 3), 15));
+		//m_apWeapon[0] = GameServer()->NewWeapon(GetChargedWeapon(GetStaticWeapon(SW_CHAINSAW), 5));
 	}
-	
-	//m_apWeapon[0] = GameServer()->NewWeapon(GetModularWeapon(5, 9));
-	//m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 9));
-	//m_apWeapon[2] = GameServer()->NewWeapon(GetModularWeapon(6, 9));
-
-	/*
-	m_apWeapon[0] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(1, 2), 10));
-	*/
-	
-	//m_apWeapon[2] = GameServer()->NewWeapon(GetStaticWeapon(SW_ELECTROWALL));
-	//m_apWeapon[3] = GameServer()->NewWeapon(GetStaticWeapon(SW_AREASHIELD));
-	
-	/*
-	int n = 0;
-	//m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD));
-	//m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_INVIS));
-	//m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_UPGRADE));
-	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_BAZOOKA));
-	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_CHAINSAW));
-	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_BOUNCER));
-	m_apWeapon[n++] = GameServer()->NewWeapon(GetStaticWeapon(SW_FLAMER));
-	*/
 	
 	/*
 	m_apWeapon[2] = GameServer()->NewWeapon(GetStaticWeapon(SW_BOUNCER));
-	m_apWeapon[3] = GameServer()->NewWeapon(GetModularWeapon(6, 6));
+	m_apWeapon[3] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(6, 9), 4));
 	*/
 	
-	//m_apWeapon[1] = GameServer()->NewWeapon(GetStaticWeapon(SW_BALL));
-	//m_apWeapon[2] = GameServer()->NewWeapon(GetStaticWeapon(SW_MASK5));
-	//m_apWeapon[1] = GameServer()->NewWeapon(GetModularWeapon(5, 6));
-	//m_apWeapon[3] = GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(6, 9), 4));
 	
 	GiveStartWeapon();
 	SendInventory();
@@ -844,7 +816,7 @@ bool CCharacter::PickWeapon(CWeapon *pWeapon)
 				if (Weapons > 1.0f)
 					WeaponLevel /= Weapons;
 				
-				if (GetWeaponCharge(w) < WeaponLevel && Weapons > 0.0f && GetWeaponCharge(w) < WeaponMaxLevel(w))
+				if (GetWeaponCharge(w) < WeaponLevel && Weapons > 0.0f && GetWeaponCharge(w) <= WeaponMaxLevel(w))
 					Valid = false;
 			}
 		}
@@ -853,7 +825,7 @@ bool CCharacter::PickWeapon(CWeapon *pWeapon)
 		{
 			if (GetChargedWeapon(GetWeaponType(i), 0) == GetChargedWeapon(pWeapon->GetWeaponType(), 0) && 
 				GetWeaponCharge(GetWeaponType(i)) >= GetWeaponCharge(pWeapon->GetWeaponType()) && 
-				GetStaticType(GetWeaponType(i)) != SW_UPGRADE && GetStaticType(GetWeaponType(i)) != SW_RESPAWNER)
+				GetStaticType(GetWeaponType(i)) != SW_UPGRADE && (GetStaticType(GetWeaponType(i)) != SW_RESPAWNER))
 				Valid = false;
 		}
 	}
@@ -862,6 +834,9 @@ bool CCharacter::PickWeapon(CWeapon *pWeapon)
 	
 	if (GetStaticType(w) == SW_UPGRADE)
 		Valid = true;
+	
+	if (GetStaticType(w) == SW_RESPAWNER && GameServer()->m_pController->CountPlayers(0) < 2)
+		Valid = false;
 	
 	if (Valid)
 	{

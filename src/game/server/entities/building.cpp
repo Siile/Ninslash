@@ -51,6 +51,8 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		break;
 		
 	case BUILDING_BARREL:
+	case BUILDING_BARREL2:
+	case BUILDING_BARREL3:
 		m_Bounciness = 0.3f;
 		Pos.y -= 6;
 		m_BoxSize = vec2(24.0f, 60.0f);
@@ -61,6 +63,7 @@ CBuilding::CBuilding(CGameWorld *pGameWorld, vec2 Pos, int Type, int Team)
 		break;
 		
 	case BUILDING_POWERBARREL:
+	case BUILDING_POWERBARREL2:
 		m_Bounciness = 0.33f;
 		Pos.y -= 6;
 		m_BoxSize = vec2(24.0f, 60.0f);
@@ -556,7 +559,11 @@ void CBuilding::TakeDamage(int Damage, int Owner, int Weapon, vec2 Force)
 	{
 		m_DeathTimer = 5;
 		
-		if (m_Type == BUILDING_BARREL || m_Type == BUILDING_POWERBARREL)
+		if (m_Type == BUILDING_BARREL || 
+			m_Type == BUILDING_BARREL2 || 
+			m_Type == BUILDING_BARREL3 || 
+			m_Type == BUILDING_POWERBARREL || 
+			m_Type == BUILDING_POWERBARREL2)
 			m_DamageOwner = Owner;
 	}
 }
@@ -580,16 +587,12 @@ void CBuilding::Destroy()
 		m_Life = 9000;
 		GameServer()->m_World.DestroyEntity(this);
 	}
-	else if (m_Type == BUILDING_BARREL)
+	else if (m_Type == BUILDING_BARREL || 
+			 m_Type == BUILDING_BARREL2 || 
+			 m_Type == BUILDING_BARREL3 || 
+			 m_Type == BUILDING_POWERBARREL || 
+			 m_Type == BUILDING_POWERBARREL2)
 	{
-		//GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
-		//GameServer()->CreateExplosion(m_Pos, m_DamageOwner, GetBuildingWeapon(m_Type));
-		GameServer()->m_World.DestroyEntity(this);
-	}
-	else if (m_Type == BUILDING_POWERBARREL)
-	{
-		//GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
-		//GameServer()->CreateExplosion(m_Pos, m_DamageOwner, GetBuildingWeapon(m_Type));
 		GameServer()->m_World.DestroyEntity(this);
 	}
 	else if (m_Type == BUILDING_REACTOR)

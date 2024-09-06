@@ -234,7 +234,7 @@ const float GetProjectileSize(int Weapon)
 			case SW_SHURIKEN: return 2.5f;
 			case SW_CLUSTER: return GetWeaponCharge(Weapon) == 15 ? 1.5f : 1.0f;
 			case SW_BAZOOKA: return 1.3f;
-			case SW_BOUNCER: return 1.0f - (GetShotSpread(Weapon)-1)*0.15f;
+			case SW_BOUNCER: return 1.0f + Charge*0.1f;
 			case SW_GUN1: return 0.7f;
 			default: return 1.0f;
 		};
@@ -276,8 +276,11 @@ const int GetExplosionSprite(int Weapon)
 			case BUILDING_TURRET: return SPRITE_EXPLOSION1_1;
 			case BUILDING_TESLACOIL: return SPRITE_EXPLOSION1_1;
 			case BUILDING_FLAMETRAP: return SPRITE_EXPLOSION1_1;
-			case BUILDING_BARREL: return SPRITE_EXPLOSION1_1;
-			case BUILDING_POWERBARREL: return SPRITE_EXPLOSION1_1;
+			case BUILDING_BARREL: 
+			case BUILDING_BARREL2:
+			case BUILDING_BARREL3: return SPRITE_EXPLOSION1_1;
+			case BUILDING_POWERBARREL:
+			case BUILDING_POWERBARREL2: return SPRITE_EXPLOSION1_1;
 			case BUILDING_REACTOR: return SPRITE_EXPLOSION1_1;
 			case BUILDING_GENERATOR: return SPRITE_EXPLOSION1_1;
 			default: return SPRITE_EXPLOSION1_1;
@@ -329,8 +332,11 @@ const int GetExplosionSound(int Weapon)
 			case BUILDING_TURRET: return SOUND_GRENADE_EXPLODE;
 			case BUILDING_TESLACOIL: return SOUND_GRENADE_EXPLODE;
 			case BUILDING_FLAMETRAP: return SOUND_GRENADE_EXPLODE;
-			case BUILDING_BARREL: return SOUND_GRENADE_EXPLODE;
-			case BUILDING_POWERBARREL: return SOUND_GRENADE_EXPLODE;
+			case BUILDING_BARREL:
+			case BUILDING_BARREL2:
+			case BUILDING_BARREL3: return SOUND_GRENADE_EXPLODE;
+			case BUILDING_POWERBARREL:
+			case BUILDING_POWERBARREL2: return SOUND_GRENADE_EXPLODE;
 			case BUILDING_REACTOR: return SOUND_GRENADE_EXPLODE;
 			case BUILDING_GENERATOR: return SOUND_GRENADE_EXPLODE;
 			default: return 0;
@@ -439,8 +445,11 @@ const float GetExplosionSize(int Weapon)
 			case BUILDING_TURRET: return 80.0f;
 			case BUILDING_TESLACOIL: return 240.0f;
 			case BUILDING_FLAMETRAP: return 150.0f;
-			case BUILDING_BARREL: return 200.0f;
-			case BUILDING_POWERBARREL: return 300.0f;
+			case BUILDING_BARREL:
+			case BUILDING_BARREL2:
+			case BUILDING_BARREL3: return 200.0f;
+			case BUILDING_POWERBARREL:
+			case BUILDING_POWERBARREL2: return 300.0f;
 			case BUILDING_REACTOR: return 240.0f;
 			case BUILDING_GENERATOR: return 150.0f;
 			default: return 120.0f;
@@ -457,7 +466,7 @@ const float GetExplosionSize(int Weapon)
 			case SW_GRENADE3: return 140.0f;
 			case SW_CLUSTER: return 140.0f;
 			case SW_BAZOOKA: return 240.0f;
-			case SW_BOUNCER: return 140.0f - max(30.0f, (GetShotSpread(Weapon)-1)*15.0f);
+			case SW_BOUNCER: return 140.0f + GetWeaponLevelCharge(Weapon)*15.0f;
 			default: return 0.0f;
 		};
 	}
@@ -492,11 +501,14 @@ const float GetExplosionDamage(int Weapon)
 			case BUILDING_TURRET: return 20.0f;
 			case BUILDING_TESLACOIL: return 60.0f;
 			case BUILDING_FLAMETRAP: return 40.0f;
-			case BUILDING_BARREL: return 30.0f; break;
-			case BUILDING_POWERBARREL: return 60.0f; break;
-			case BUILDING_REACTOR: return 120.0f; break;
-			case BUILDING_GENERATOR: return 40.0f; break;
-			default: return 0; break;
+			case BUILDING_BARREL:
+			case BUILDING_BARREL2:
+			case BUILDING_BARREL3: return 30.0f;
+			case BUILDING_POWERBARREL:
+			case BUILDING_POWERBARREL2: return 60.0f;
+			case BUILDING_REACTOR: return 120.0f;
+			case BUILDING_GENERATOR: return 40.0f;
+			default: return 0;
 		};
 	}
 	else if (IsDroid(Weapon))
@@ -518,12 +530,12 @@ const float GetExplosionDamage(int Weapon)
 	{
 		switch (GetStaticType(Weapon))
 		{
-			case SW_BOMB: return 240; break;
-			case SW_GRENADE1: return 120; break;
-			case SW_GRENADE2: return 30; break;
-			case SW_CLUSTER: return 34; break;
-			case SW_BAZOOKA: return 80; break;
-			case SW_BOUNCER: return 24 - max(6.0f, (GetShotSpread(Weapon)-1)*4.0f); break;
+			case SW_BOMB: return 240;
+			case SW_GRENADE1: return 120;
+			case SW_GRENADE2: return 30;
+			case SW_CLUSTER: return 34;
+			case SW_BAZOOKA: return 80;
+			case SW_BOUNCER: return 24 + GetWeaponLevelCharge(Weapon)*4.0f;
 			default: return 0;
 		};
 	}
@@ -869,7 +881,7 @@ const float GetMeleeHitRadius(int Weapon)
 			case SW_CLAW: return 40.0f;
 			case SW_TOOL: return 30.0f;
 			case SW_SHURIKEN: return 20.0f;
-			case SW_CHAINSAW: return 14.0f+Charge*5.0f;
+			case SW_CHAINSAW: return 14.0f+Charge*10.0f;
 			case SW_FLAMER: return 24.0f;
 			default: return 0.0f;
 		};
@@ -1145,7 +1157,7 @@ const int GetShotSpread(int Weapon)
 	if (IsStaticWeapon(Weapon))
 	{
 		if (GetStaticType(Weapon) == SW_BOUNCER)
-			return 1 + Charge*2.0f;
+			return 1 + Charge*1.0f;
 		
 		return 1;
 	}
@@ -1772,18 +1784,18 @@ const float GetWeaponKnockback(int Weapon)
 		
 		if (Part1 == 1)
 		{
-			if (Part2 == 1) return 1.5f+Charge*1.2f;
-			if (Part2 == 2) return 2.0f+Charge*1.25f;
-			if (Part2 == 3) return 2.0f+Charge*1.2f;
-			if (Part2 == 4) return 1.0f+Charge*1.0f;
+			if (Part2 == 1) return 1.5f+Charge*0.9f;
+			if (Part2 == 2) return 2.0f+Charge*0.95f;
+			if (Part2 == 3) return 2.0f+Charge*0.9f;
+			if (Part2 == 4) return 1.0f+Charge*0.7f;
 		}
 		
 		if (Part1 == 2)
 		{
-			if (Part2 == 1) return 2.0f+Charge*1.25f;
-			if (Part2 == 2) return 3.0f+Charge*1.25f;
-			if (Part2 == 3) return 2.0f+Charge*1.25f;
-			if (Part2 == 4) return 1.5f+Charge*1.2f;
+			if (Part2 == 1) return 2.0f+Charge*1.0f;
+			if (Part2 == 2) return 3.0f+Charge*1.0f;
+			if (Part2 == 3) return 2.0f+Charge*1.0f;
+			if (Part2 == 4) return 1.5f+Charge*0.9f;
 		}
 		
 		if (Part1 == 3)
@@ -1793,10 +1805,10 @@ const float GetWeaponKnockback(int Weapon)
 		
 		if (Part1 == 4)
 		{
-			if (Part2 == 1) return 1.5f+Charge*1.2f;
-			if (Part2 == 2) return 2.0f+Charge*1.25f;
-			if (Part2 == 3) return 2.0f+Charge*1.2f;
-			if (Part2 == 4) return 1.0f+Charge*1.0f;
+			if (Part2 == 1) return 1.5f+Charge*0.9f;
+			if (Part2 == 2) return 2.0f+Charge*0.95f;
+			if (Part2 == 3) return 2.0f+Charge*0.9f;
+			if (Part2 == 4) return 1.0f+Charge*0.7f;
 		}
 	}
 	

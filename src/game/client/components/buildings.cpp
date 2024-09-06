@@ -284,7 +284,7 @@ void CBuildings::RenderElectromine(const struct CNetObj_Building *pCurrent)
 	Graphics()->QuadsEnd();
 }
 
-void CBuildings::RenderBarrel(const CNetObj_Building *pCurrent, const CNetObj_Building *pPrev)
+void CBuildings::RenderBarrel(const CNetObj_Building *pCurrent, const CNetObj_Building *pPrev, int SpriteVariation)
 {
 	vec2 Pos = mix(vec2(pPrev->m_X, pPrev->m_Y), vec2(pCurrent->m_X, pCurrent->m_Y), Client()->IntraGameTick());
 	
@@ -292,7 +292,7 @@ void CBuildings::RenderBarrel(const CNetObj_Building *pCurrent, const CNetObj_Bu
 	Graphics()->QuadsBegin();
 	
 	//RenderTools()->SelectSprite(SPRITE_BARREL1+(pCurrent->m_X/32+pCurrent->m_Y)%8);
-	RenderTools()->SelectSprite(SPRITE_BARREL1);
+	RenderTools()->SelectSprite(SPRITE_BARREL1+SpriteVariation);
 	
 	Graphics()->SetColor(1, 1, 1, 1);
 	Graphics()->QuadsSetRotation(0);
@@ -302,14 +302,14 @@ void CBuildings::RenderBarrel(const CNetObj_Building *pCurrent, const CNetObj_Bu
 	Graphics()->QuadsEnd();
 }
 
-void CBuildings::RenderPowerBarrel(const CNetObj_Building *pCurrent, const CNetObj_Building *pPrev)
+void CBuildings::RenderPowerBarrel(const CNetObj_Building *pCurrent, const CNetObj_Building *pPrev, int SpriteVariation)
 {
 	vec2 Pos = mix(vec2(pPrev->m_X, pPrev->m_Y), vec2(pCurrent->m_X, pCurrent->m_Y), Client()->IntraGameTick());
 	
 	Graphics()->TextureSet(g_pData->m_aImages[IMAGE_BUILDINGS].m_Id);
 	Graphics()->QuadsBegin();
 	
-	RenderTools()->SelectSprite(SPRITE_POWERBARREL);
+	RenderTools()->SelectSprite(SPRITE_POWERBARREL+SpriteVariation);
 	
 	Graphics()->SetColor(1, 1, 1, 1);
 	Graphics()->QuadsSetRotation(0);
@@ -772,11 +772,23 @@ void CBuildings::OnRender()
 				break;
 				
 			case BUILDING_BARREL:
-				RenderBarrel(pBuilding, pPrev ? (const CNetObj_Building *)pPrev : pBuilding);
+				RenderBarrel(pBuilding, pPrev ? (const CNetObj_Building *)pPrev : pBuilding, 0);
+				break;
+				
+			case BUILDING_BARREL2:
+				RenderBarrel(pBuilding, pPrev ? (const CNetObj_Building *)pPrev : pBuilding, 1);
+				break;
+				
+			case BUILDING_BARREL3:
+				RenderBarrel(pBuilding, pPrev ? (const CNetObj_Building *)pPrev : pBuilding, 2);
 				break;
 				
 			case BUILDING_POWERBARREL:
-				RenderPowerBarrel(pBuilding, pPrev ? (const CNetObj_Building *)pPrev : pBuilding);
+				RenderPowerBarrel(pBuilding, pPrev ? (const CNetObj_Building *)pPrev : pBuilding, 0);
+				break;
+				
+			case BUILDING_POWERBARREL2:
+				RenderPowerBarrel(pBuilding, pPrev ? (const CNetObj_Building *)pPrev : pBuilding, 1);
 				break;
 				
 			case BUILDING_LAZER:

@@ -18,6 +18,7 @@ struct CAISkin
 	int m_ColorBody;
 	int m_ColorFoot;
 	int m_ColorBlood;
+	int m_WaveGroup;
 	int m_Level;
 	
 	CAISkin()
@@ -28,6 +29,7 @@ struct CAISkin
 		m_ColorBody = 65535;
 		m_ColorFoot = 255;
 		m_ColorBlood = 0;
+		m_WaveGroup = 0;
 		m_Level = 0;
 	}
 };

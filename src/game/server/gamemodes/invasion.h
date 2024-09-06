@@ -1,5 +1,5 @@
-#ifndef GAME_SERVER_GAMEMODES_RUN_H
-#define GAME_SERVER_GAMEMODES_RUN_H
+#ifndef GAME_SERVER_GAMEMODES_INVASION_H
+#define GAME_SERVER_GAMEMODES_INVASION_H
 #include <game/server/gamecontroller.h>
 
 #define MAX_ENEMIES 512
@@ -13,9 +13,27 @@ enum GroupTypes
 	GROUP_SKELETONS,
 };
 
-class CGameControllerCoop : public IGameController
+
+class CGameControllerInvasion : public IGameController
 {
 private:
+	int m_LevelQuestsLeft;
+	int m_QuestsCompleted;
+
+	int m_Quest;
+	int m_NextQuest;
+	int m_QuestChangeTick;
+	int m_QuestProgressCounter;
+	
+	int m_QuestWaveType;
+	int m_QuestWaveEndTick;
+	int m_QuestWaveEnemiesLeft;
+	int m_QuestWaveSize;
+	
+	void ChangeQuest(int NextQuest, float QueueTimeInSeconds);
+	void SendQuestStartMessage(int Quest);
+	void SendQuestCompletedMessage(int Quest);
+	void CompleteCurrentQuest();
 	
 	enum Enemies
 	{
@@ -38,13 +56,10 @@ private:
 	int m_RoundOverTick;
 	
 	// enemy grouping
-	int m_GroupsLeft;
-	int m_GroupSpawnTick;
 	vec2 m_GroupSpawnPos;
 	int m_GroupType;
-	int m_Group;
 	
-	void SpawnNewGroup(bool AddBots = true);
+	void SpawnNewWave(bool AddBots = true);
 	
 	vec2 GetBotSpawnPos();
 	void RandomGroupSpawnPos();
@@ -70,7 +85,7 @@ private:
 	class CRadar *m_pEnemySpawn;
 	
 public:
-	CGameControllerCoop(class CGameContext *pGameServer);
+	CGameControllerInvasion(class CGameContext *pGameServer);
 	
 	virtual bool OnEntity(int Index, vec2 Pos);
 	void OnCharacterSpawn(class CCharacter *pChr, bool RequestAI = false);
@@ -79,6 +94,7 @@ public:
 	void NextLevel(int CID = -1);
 	bool GetSpawnPos(int Team, vec2 *pOutPos);
 	virtual void Tick();
+	virtual void Snap(int SnappingClient);
 	
 	void DisplayExit(vec2 Pos);
 	

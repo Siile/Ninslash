@@ -1282,7 +1282,11 @@ void CEffects::Explosion(vec2 Pos, int Weapon)
 		}
 		
 		
-		if (GetBuildingType(Weapon) == BUILDING_BARREL || GetBuildingType(Weapon) == BUILDING_POWERBARREL)
+		if (GetBuildingType(Weapon) == BUILDING_BARREL || 
+			GetBuildingType(Weapon) == BUILDING_BARREL2 || 
+			GetBuildingType(Weapon) == BUILDING_BARREL3 || 
+			GetBuildingType(Weapon) == BUILDING_POWERBARREL || 
+			GetBuildingType(Weapon) == BUILDING_POWERBARREL2)
 			SpriteExplosion(Pos, GetExplosionSize(Weapon), GetExplosionSprite(Weapon));
 		
 		return;

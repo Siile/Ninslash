@@ -766,7 +766,7 @@ container.sprites.Add(Sprite("pickup_health", set_weapons, 12,0,2,2))
 container.sprites.Add(Sprite("pickup_ammo", set_weapons, 8,0,2,2))
 
 # for displaying weapon ranks / levels in inventory
-for y in range(0, 6):
+for y in range(0, 7):
 	container.sprites.Add(Sprite("weaponrank"+str(y+1), set_weapons, 18, 0+y*2, 2, 2))
 
 
@@ -1097,15 +1097,16 @@ container.sprites.Add(Sprite("hook_head", set_game, 3,0,2,1))
 container.sprites.Add(Sprite("pickup_weapon", set_game, 3,0,6,2))
 
 # buildings.png
-for i in range(1, 9):
-	container.sprites.Add(Sprite("barrel"+str(i), set_buildings, i-1,2,1,2))
+for i in range(1, 4):
+	container.sprites.Add(Sprite("barrel"+str(i), set_buildings, i+1,2,1,2))
 
-container.sprites.Add(Sprite("powerbarrel", set_buildings, 8,2,1,2))
+container.sprites.Add(Sprite("powerbarrel", set_buildings, 5,2,1,2))
+container.sprites.Add(Sprite("powerbarrel2", set_buildings, 6,2,1,2))
 
 container.sprites.Add(Sprite("lightningwall", set_buildings, 6,1,1,1))
 
 container.sprites.Add(Sprite("mine1", set_buildings, 0,0,2,1))
-container.sprites.Add(Sprite("mine2", set_buildings, 0,1,2,1))
+container.sprites.Add(Sprite("mine2", set_buildings, 7,4,2,1))
 container.sprites.Add(Sprite("sawblade", set_buildings, 4,0,2,2))
 container.sprites.Add(Sprite("lazer", set_buildings, 2,0,2,1))
 container.sprites.Add(Sprite("powerupper", set_buildings, 2,1,2,1))
@@ -1120,7 +1121,7 @@ container.sprites.Add(Sprite("turret_fastener", set_buildings, 4, 6, 2, 2))
 container.sprites.Add(Sprite("kit_block1", set_buildings, 6, 7, 1, 1))
 container.sprites.Add(Sprite("kit_block2", set_buildings, 7, 7, 1, 1))
 container.sprites.Add(Sprite("kit_barrel", set_buildings, 3, 2, 1, 2))
-container.sprites.Add(Sprite("kit_powerbarrel", set_buildings, 8, 2, 1, 2))
+container.sprites.Add(Sprite("kit_powerbarrel", set_buildings, 5, 2, 1, 2))
 container.sprites.Add(Sprite("kit_turret", set_buildings, 1, 4, 3, 4))
 container.sprites.Add(Sprite("kit_flametrap", set_buildings, 8, 0,2, 2))
 container.sprites.Add(Sprite("kit_lightninwall", set_buildings, 6, 1, 1, 1))

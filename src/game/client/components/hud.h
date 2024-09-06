@@ -13,6 +13,7 @@ class CHud : public CComponent
 
 	void DrawCircular(float x, float y, float r, int Segments, int FillAmount, int Max, bool Flip = false);
 	
+	void RenderObjective();
 	void RenderFps();
 	void RenderConnectionWarning();
 	void RenderTeambalanceWarning();

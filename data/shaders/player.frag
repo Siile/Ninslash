@@ -15,8 +15,8 @@ uniform float electro;
 uniform float damage;
 uniform float deathray;
 
-float rand(vec2 co){
-    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+float rand(vec2 n) { 
+	return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
 }
 
 vec2 ColorSwap(vec2 xy, float m)
@@ -71,6 +71,7 @@ vec4 Deathray(vec4 c)
 	return mix(c, vec4(1.0f, 1.0f-f*0.5f, 1.0f-f, c.a), deathray);
 }
 
+// weapon level up effect
 vec4 Glow(vec4 c)
 {
 	float a = (gl_TexCoord[0].x*250.0f-time)*(0.1f-weaponcharge*0.01f);
@@ -78,6 +79,17 @@ vec4 Glow(vec4 c)
 	
 	c.g += v * 0.25f*(-weaponcharge);
 	c.b += v * 0.25f*(-weaponcharge);
+	
+	if (weaponcharge < -1.0f)
+	{
+		float a2 = (gl_TexCoord[0].x*100.0f+time*0.2f)*(0.1f-weaponcharge*0.01f);
+		float v2 = max(0.0f, sin(a2)*sin(a2)*1.5f-0.5f);
+		v2 *= v2;
+		c.r += v2 * 0.2f*weaponcharge;
+		c.g += v2 * 0.2f*weaponcharge;
+		c.b += v2 * 0.2f*weaponcharge;
+	}
+	
 	return mix(c, vec4(0.0f, 1.0f, 1.0f, c.a), (1 - abs(1 - c.a*2))*v*gl_Color.a*(-weaponcharge));
 }
 

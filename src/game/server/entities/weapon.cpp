@@ -570,7 +570,7 @@ bool CWeapon::Supercharge()
 	{
 		if (m_MaxLevel > 3)
 		{
-			if (m_PowerLevel <= m_MaxLevel+2)
+			if (m_PowerLevel <= m_MaxLevel+4)
 			{
 				m_PowerLevel += 2;
 				UpdateStats();
@@ -579,7 +579,7 @@ bool CWeapon::Supercharge()
 		}
 		else
 		{
-			if (m_PowerLevel <= m_MaxLevel+1)
+			if (m_PowerLevel <= m_MaxLevel+2)
 			{
 				m_PowerLevel += 1;
 				UpdateStats();

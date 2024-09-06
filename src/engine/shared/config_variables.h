@@ -132,5 +132,4 @@ MACRO_CONFIG_INT(SvMapGenRandSeed, sv_mapgen_random_seed, 1, 0, 1, CFGFLAG_SERVE
 
 // Invasion
 MACRO_CONFIG_INT(SvInvFails, sv_inv_fails,  0, 0, 9, CFGFLAG_SERVER, "Invasion level fails")
-MACRO_CONFIG_INT(SvInvBosses, sv_inv_bosses,  0, 0, 99, CFGFLAG_SERVER, "Invasion level bosses")
 #endif

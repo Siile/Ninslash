@@ -285,7 +285,7 @@ public:
 	void SnapSetStaticsize(int ItemType, int Size);
 	
 	virtual void AddZombie();
-	virtual void GetAISkin(CAISkin *pAISkin, bool PVP, int Level);
+	virtual void GetAISkin(CAISkin *pAISkin, bool PVP, int Level, int WaveGroup);
 	
 	virtual void ResetGameVoting();
 	virtual bool GetGameVote(CGameVote *pGameVote, int Players);

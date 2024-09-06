@@ -9,6 +9,7 @@
 #include <game/client/render.h>
 #include <game/client/customstuff.h>
 
+#include <game/questinfo.h>
 #include <game/weapons.h>
 #include <game/buildables.h>
 
@@ -99,6 +100,67 @@ void CHud::RenderSuddenDeath()
 		TextRender()->Text(0, Half-w/2, 2, FontSize, pText, -1);
 	}
 }
+
+void CHud::RenderObjective()
+{
+	if(m_pClient->m_Snap.m_pGameInfoObj->m_GameFlags&GAMEFLAG_COOP)
+	{
+		int Quest = m_pClient->m_Snap.m_pGameDataObj->m_TeamscoreRed;
+		int QuestProgressCounter = m_pClient->m_Snap.m_pGameDataObj->m_TeamscoreBlue;
+		
+		if (Quest)
+		{
+			float xPos = 296.0f*Graphics()->ScreenAspect();
+			
+			// quest title
+			{
+				TextRender()->TextColor(0.8f, 0.8f, 0.8f, 1.0f);
+				const char *pTitle = Localize(GetQuestDisplayName(Quest));
+				float FontSize = 6.0f;
+				float w = TextRender()->TextWidth(0, FontSize, pTitle, -1);
+				
+				xPos -= w/2.0f;
+				TextRender()->Text(0, xPos-w/2.0f, 112.0f, FontSize, pTitle, -1);
+			}
+			
+			// title
+			{
+				TextRender()->TextColor(0.8f, 0.8f, 0.8f, 1.0f);
+				const char *pTitle = Localize("Objective");
+				float FontSize = 8.0f;
+				float w = TextRender()->TextWidth(0, FontSize, pTitle, -1);
+				TextRender()->Text(0, xPos-w/2.0f, 100.0f, FontSize, pTitle, -1);
+			}
+			
+			// quest progress
+			if (Quest == QUEST_KILLREMAININGENEMIES || Quest == QUEST_SURVIVEWAVE)
+			{
+				TextRender()->TextColor(0.8f, 0.8f, 0.8f, 1.0f);
+				const char *pText = Localize("enemies remaining");
+				char aBuf[32];
+				str_format(aBuf, sizeof(aBuf), "%u %s", QuestProgressCounter, pText);
+				float FontSize = 6.0f;
+				float w = TextRender()->TextWidth(0, FontSize, aBuf, -1);
+				TextRender()->Text(0, xPos-w/2.0f, 120.0f, FontSize, aBuf, -1);
+			}
+			else if (Quest == QUEST_SURVIVEWAVETIME)
+			{
+				TextRender()->TextColor(0.8f, 0.8f, 0.8f, 1.0f);
+				const char *pText = Localize("seconds remaining");
+				char aBuf[32];
+				str_format(aBuf, sizeof(aBuf), "%u %s", QuestProgressCounter, pText);
+				float FontSize = 6.0f;
+				float w = TextRender()->TextWidth(0, FontSize, aBuf, -1);
+				TextRender()->Text(0, xPos-w/2.0f, 120.0f, FontSize, aBuf, -1);
+			}
+			
+			
+			TextRender()->TextColor(1.0f, 1.0f, 1.0f, 1.0f);
+		}
+	}
+}
+
+
 
 void CHud::RenderScoreHud()
 {
@@ -967,6 +1029,7 @@ void CHud::OnRender()
 		RenderPauseNotification();
 		RenderSuddenDeath();
 		RenderScoreHud();
+		RenderObjective();
 		RenderWarmupTimer();
 		RenderFps();
 		if(Client()->State() != IClient::STATE_DEMOPLAYBACK)

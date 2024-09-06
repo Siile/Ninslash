@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 #include <base/detect.h>
 #include <base/math.h>
+#include <ctime>
 
 #if defined(CONF_PLATFORM_MACOSX)
 #include <OpenGL/glu.h>
@@ -477,7 +478,10 @@ void CCommandProcessorFragment_OpenGL::Cmd_CameraToShaders(const CCommandBuffer:
 	m_CameraY = pCommand->m_CameraY;
 }
 	
-	
+float CCommandProcessorFragment_OpenGL::GetTime() {
+    return static_cast<float>(clock()) / CLOCKS_PER_SEC;
+}
+
 void CCommandProcessorFragment_OpenGL::Cmd_ShaderBegin(const CCommandBuffer::SCommand_ShaderBegin *pCommand)
 {
 	if (!m_ShadersLoaded)
@@ -490,7 +494,8 @@ void CCommandProcessorFragment_OpenGL::Cmd_ShaderBegin(const CCommandBuffer::SCo
 	if (location >= 0)
 		glUniform1fARB(location, GLfloat(frandom()));
 	
-	float Time = time_get() / 100000.0f;
+	//float Time = time_get() / 200000.0f;
+	float Time = GetTime()*100.0f;
 	
 	location = pShader->getUniformLocation("time");
 	if (location >= 0)

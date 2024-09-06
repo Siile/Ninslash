@@ -15,7 +15,7 @@
 #include "gamemodes/ball.h"
 #include "gamemodes/tdm.h"
 #include "gamemodes/ctf.h"
-#include "gamemodes/run.h"
+#include "gamemodes/invasion.h"
 #include "gamemodes/base.h"
 #include "gamemodes/roam.h"
 #include "gamemodes/texasrun.h"
@@ -423,13 +423,13 @@ bool CGameContext::AddBuilding(int Kit, vec2 Pos, int Owner)
 	
 	if (Kit == BUILDABLE_BARREL)
 	{
-		new CBuilding(&m_World, Pos, BUILDING_BARREL, TEAM_NEUTRAL);
+		new CBuilding(&m_World, Pos, BUILDING_BARREL+rand()%3, TEAM_NEUTRAL);
 		return true;
 	}
 
 	if (Kit == BUILDABLE_POWERBARREL)
 	{
-		new CBuilding(&m_World, Pos, BUILDING_POWERBARREL, TEAM_NEUTRAL);
+		new CBuilding(&m_World, Pos, BUILDING_POWERBARREL+rand()%2, TEAM_NEUTRAL);
 		return true;
 	}
 
@@ -703,6 +703,9 @@ void CGameContext::CreateProjectile(int DamageOwner, int Weapon, int Charge, vec
 	{
 		if (GetStaticType(Weapon) == SW_SHURIKEN || GetStaticType(Weapon) == SW_CHAINSAW || (IsStaticWeapon(Weapon) && (GetStaticType(Weapon) == SW_TOOL || GetStaticType(Weapon) == SW_CLAW)))
 		{
+			if (GetStaticType(Weapon) == SW_CHAINSAW)
+				Pos += normalize(Direction) * Charge*5.0f;
+				
 			CreateMeleeHit(DamageOwner, Weapon, Dmg, Pos, Direction, WeaponPos);
 			return;
 		}
@@ -1797,9 +1800,9 @@ void CGameContext::AddZombie()
 	Server()->AddZombie();
 }
 
-void CGameContext::GetAISkin(CAISkin *pAISkin, bool PVP, int Level)
+void CGameContext::GetAISkin(CAISkin *pAISkin, bool PVP, int Level, int WaveGroup)
 {
-	Server()->GetAISkin(pAISkin, PVP, Level);
+	Server()->GetAISkin(pAISkin, PVP, Level, WaveGroup);
 }
 
 
@@ -3084,7 +3087,7 @@ void CGameContext::OnInit(/*class IKernel *pKernel*/)
 	else if(str_comp(g_Config.m_SvGametype, "base") == 0)
 		m_pController = new CGameControllerBase(this);
 	else if(str_comp(g_Config.m_SvGametype, "coop") == 0)
-		m_pController = new CGameControllerCoop(this);
+		m_pController = new CGameControllerInvasion(this);
 	else if(str_comp(g_Config.m_SvGametype, "ball") == 0)
 		m_pController = new CGameControllerBall(this);
 	else if(str_comp(g_Config.m_SvGametype, "roam") == 0)

@@ -26,6 +26,7 @@
 
 #include <mastersrv/mastersrv.h>
 
+#include <game/questinfo.h>
 #include <game/server/ai.h>
 #include <game/server/playerdata.h>
 
@@ -687,6 +688,18 @@ int CServer::LoadAISkin(const char *pFilename, const char *pFoldername, int Stor
 				else if(!str_comp(aBlood, "green")) AISkin.m_ColorBlood = 1;
 				else if(!str_comp(aBlood, "black")) AISkin.m_ColorBlood = 2;
 			}
+			
+			else if(!str_comp_num(pLine, "wave-group:", 11))
+			{
+				char aGroup[24] = "";
+				sscanf(pLine, "wave-group: %24s", aGroup);
+				
+				if(!str_comp(aGroup, "alien")) AISkin.m_WaveGroup = WAVE_ALIENS;
+				else if(!str_comp(aGroup, "robot")) AISkin.m_WaveGroup = WAVE_ROBOTS;
+				else if(!str_comp(aGroup, "skeleton")) AISkin.m_WaveGroup = WAVE_SKELETONS;
+				else if(!str_comp(aGroup, "cyborg")) AISkin.m_WaveGroup = WAVE_CYBORGS;
+				else if(!str_comp(aGroup, "furry")) AISkin.m_WaveGroup = WAVE_FURRIES;
+			}
 		}
 	}
 
@@ -717,7 +730,7 @@ int CServer::LoadAISkin(const char *pFilename, const char *pFoldername, int Stor
 }
 
 
-void CServer::GetAISkin(CAISkin *pAISkin, bool PVP, int Level)
+void CServer::GetAISkin(CAISkin *pAISkin, bool PVP, int Level, int WaveGroup)
 {
 	if (!PVP)
 	{
@@ -726,6 +739,18 @@ void CServer::GetAISkin(CAISkin *pAISkin, bool PVP, int Level)
 		int j = 0;
 		int l = 0;
 		
+		while (j++ < 20)
+		{
+			i = rand()%(m_AISkinPVECount);
+			
+			if (m_aAISkinPVE[i].m_Level <= Level && (m_aAISkinPVE[i].m_WaveGroup == WaveGroup || !WaveGroup))
+			{
+				*pAISkin = m_aAISkinPVE[i];
+				return;
+			}
+		}
+		
+		/*
 		while (m_aAISkinPVE[i].m_Level != Level && j++ < 10)
 		{
 			i = rand()%(m_AISkinPVECount);
@@ -742,10 +767,11 @@ void CServer::GetAISkin(CAISkin *pAISkin, bool PVP, int Level)
 				l = m_aAISkinPVE[i].m_Level;
 			}
 		}
+		*/
 		
-		if (m_aAISkinPVE[r].m_Level > Level)
+		//if (m_aAISkinPVE[r].m_Level > Level)
 			for (i = 0; i < m_AISkinPVECount; i++)
-				if (m_aAISkinPVE[i].m_Level <= Level)
+				if (m_aAISkinPVE[i].m_Level <= Level && (m_aAISkinPVE[i].m_WaveGroup == WaveGroup || !WaveGroup))
 				{
 					*pAISkin = m_aAISkinPVE[i];
 					return;

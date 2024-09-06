@@ -1,5 +1,6 @@
-level: 6
+level: 3
 blood-color: black
+wave-group: robot
 
 head: robo
 body: robo

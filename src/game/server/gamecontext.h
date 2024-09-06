@@ -258,7 +258,7 @@ public:
 
 	virtual void OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID);
 
-	virtual void GetAISkin(CAISkin *pAISkin, bool PVP, int Level = 1);
+	virtual void GetAISkin(CAISkin *pAISkin, bool PVP, int Level = 1, int WaveGroup = 0);
 	virtual void AddZombie();
 	virtual bool AIInputUpdateNeeded(int ClientID);
 	virtual void AIUpdateInput(int ClientID, int *Data);
