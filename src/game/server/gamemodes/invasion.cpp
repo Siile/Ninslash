@@ -243,26 +243,27 @@ void CGameControllerInvasion::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 		
 			
 			// todo: rewrite
-			switch (m_GroupType)
+			switch (m_QuestWaveType)
 			{
-				case GROUP_ALIENS: 
+				case WAVE_ALIENS: 
 					pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer(), Level);
 					break;
 					
-				case GROUP_BUNNIES: 
+				case WAVE_FURRIES: 
 					pChr->GetPlayer()->m_pAI = new CAIbunny1(GameServer(), pChr->GetPlayer(), Level);
 					break;
 					
-				case GROUP_ROBOTS: 
+				case WAVE_CYBORGS: 
+				case WAVE_ROBOTS: 
 					pChr->GetPlayer()->m_pAI = new CAIrobot1(GameServer(), pChr->GetPlayer(), Level);
 					break;
 					
-				case GROUP_PYROS: 
+				case WAVE_SKELETONS: 
 					pChr->GetPlayer()->m_pAI = new CAIpyro1(GameServer(), pChr->GetPlayer(), Level);
 					break;
 					
-				case GROUP_SKELETONS: 
-					pChr->GetPlayer()->m_pAI = new CAIpyro1(GameServer(), pChr->GetPlayer(), Level);
+				default: 
+					pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer(), Level);
 					break;
 			};
 			
