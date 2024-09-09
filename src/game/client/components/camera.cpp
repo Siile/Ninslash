@@ -24,14 +24,15 @@ void CCamera::ConZoomIn(IConsole::IResult *pResult, void *pUserData)
 {
 	CCamera *pSelf = (CCamera *)pUserData;
 	if(pSelf->m_pClient && pSelf->m_pClient->m_Snap.m_pLocalInfo && pSelf->m_pClient->m_Snap.m_pLocalInfo->m_Team == TEAM_SPECTATORS)
-		pSelf->m_TargetZoom -= 0.05;
+		pSelf->m_TargetZoom = max(pSelf->m_TargetZoom-0.05f, 0.5f);
 }
 
 void CCamera::ConZoomOut(IConsole::IResult *pResult, void *pUserData)
 {
 	CCamera *pSelf = (CCamera *)pUserData;
+	// removing zooming out due to visual issues with snapping & background layers
 	if(pSelf->m_pClient && pSelf->m_pClient->m_Snap.m_pLocalInfo && pSelf->m_pClient->m_Snap.m_pLocalInfo->m_Team == TEAM_SPECTATORS)
-		pSelf->m_TargetZoom += 0.05;
+		pSelf->m_TargetZoom = min(pSelf->m_TargetZoom+0.05f, 1.0f);
 }
 
 void CCamera::ConZoomDefault(IConsole::IResult *pResult, void *pUserData)
@@ -53,13 +54,6 @@ void CCamera::OnInit()
 
 void CCamera::OnRender()
 {
-	if(m_pClient && m_pClient->m_Snap.m_pLocalInfo && m_pClient->m_Snap.m_pLocalInfo->m_Team != TEAM_SPECTATORS)
-	{
-		m_TargetZoom = 1.f;
-		m_Zoom = 1.f;
-	}
-	//m_pClient->m_pControls->m_CameraZoom = int(m_Zoom*10);
-	
 	// update camera center
 	if(m_pClient->m_Snap.m_SpecInfo.m_Active && !m_pClient->m_Snap.m_SpecInfo.m_UsePosition)
 	{
@@ -99,6 +93,9 @@ void CCamera::OnRender()
 	}
 	else
 	{
+		m_TargetZoom = 1.f;
+		m_Zoom = 1.f;
+		
 		if(m_CamType != CAMTYPE_PLAYER)
 		{
 			m_pClient->m_pControls->ClampMousePos();
