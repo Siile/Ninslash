@@ -1422,7 +1422,7 @@ enum ControlSettings
 	START_VOTING = 17,
 	START_CHAT = 19,
 	START_MISC = 22,
-	END_CONTROL = 30,
+	END_CONTROL = 33,
 };
 
 static CKeyInfo gs_aKeys[] =
@@ -1474,6 +1474,9 @@ static CKeyInfo gs_aKeys[] =
 	{ "Remote console", "toggle_remote_console", 0 },
 	{ "Screenshot", "screenshot", 0 },
 	{ "Scoreboard", "+scoreboard", 0 },
+	{ "Zoom In", "+zoom_in", 0 },
+	{ "Zoom Out", "+zoom_out", 0 },
+	{ "Default Zoom", "+zoom_default", 0 },
 };
 
 /*	This is for scripts/update_localization.py to work, don't remove!
@@ -1483,7 +1486,7 @@ static CKeyInfo gs_aKeys[] =
 	Localize("Spectator mode");Localize("Spectate next");Localize("Spectate previous");Localize("Console");Localize("Remote console");
 	Localize("Screenshot");Localize("Scoreboard");Localize("Respawn");Localize("Slide / down");Localize("Drop weapon");
 	Localize("Item slot 1");Localize("Item slot 2");Localize("Item slot 3");Localize("Item slot 4");Localize("Inventory");Localize("Inventory roll");
-	Localize("Build menu");Localize("Inventory roll(All)");
+	Localize("Build menu");Localize("Inventory roll(All)");Localize("Zoom In");Localize("Zoom Out");Localize("Default Zoom");
 */
 
 const int g_KeyCount = sizeof(gs_aKeys) / sizeof(CKeyInfo);

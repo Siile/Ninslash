@@ -891,5 +891,26 @@ xbox 360 controller support
 Blood amount
 == 
 
+Default Zoom
+== 
+
+Zoom In
+== 
+
+Zoom Out
+== 
+
 ##### old translations #####
+
+'%s' called for vote to kick you
+== 
+
+You must wait %d seconds before making another vote
+== 
+
+blue
+== 
+
+red
+== 
 

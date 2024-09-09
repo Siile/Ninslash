@@ -175,6 +175,9 @@ Current version: %s
 Customize
 == 自定义皮肤
 
+Default Zoom
+== 默认缩放
+
 Delete
 == 删除
 
@@ -882,6 +885,12 @@ You must restart the game for all settings to take effect.
 
 Zombie claw
 == 僵尸爪
+
+Zoom In
+== 视角放大
+
+Zoom Out
+== 视角缩小
 
 no limit
 == 无限制

@@ -578,15 +578,15 @@ int CMenus::RenderMenubar(CUIRect r)
 				ServerBrowser()->Refresh(IServerBrowser::TYPE_FAVORITES);
 				NewPage = PAGE_FAVORITES;
 			}
-		}
 
-		Box.VSplitLeft(4.0f*5, 0, &Box);
-		Box.VSplitLeft(100.0f, &Button, &Box);
-		static int s_DemosButton=0;
-		if(DoButton_MenuTab(&s_DemosButton, Localize("Demos"), m_ActivePage==PAGE_DEMOS, &Button, CUI::CORNER_T))
-		{
-			DemolistPopulate();
-			NewPage = PAGE_DEMOS;
+			Box.VSplitLeft(4.0f*5, 0, &Box);
+			Box.VSplitLeft(100.0f, &Button, &Box);
+			static int s_DemosButton=0;
+			if(DoButton_MenuTab(&s_DemosButton, Localize("Demos"), m_ActivePage==PAGE_DEMOS, &Button, CUI::CORNER_T))
+			{
+				DemolistPopulate();
+				NewPage = PAGE_DEMOS;
+			}
 		}
 		
 		Box.VSplitRight(180.0f, &Box, &Button);
