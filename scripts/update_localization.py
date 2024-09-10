@@ -20,9 +20,6 @@ def parse_source():
 			
 			if os.sep + "external" + os.sep in filename:
 				continue
-
-			if os.sep + "server" + os.sep in filename:
-				continue
 			
 			if filename[-2:] in source_exts or filename[-4:] in source_exts:
 				for line in open(filename, "rb"):

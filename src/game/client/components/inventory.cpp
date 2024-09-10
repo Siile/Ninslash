@@ -152,10 +152,6 @@ void CInventory::InventoryRoll(bool All)
 	}
 }
 
-void CInventory::ConInventoryRoll_All(IConsole::IResult *pResult, void *pUserData)
-{
-	((CInventory *)pUserData)->InventoryRoll(true);
-}
 
 void CInventory::OnConsoleInit()
 {
@@ -163,7 +159,6 @@ void CInventory::OnConsoleInit()
 	Console()->Register("+inventory", "", CFGFLAG_CLIENT, ConKeyInventory, this, "Open inventory");
 	Console()->Register("+buildmenu", "", CFGFLAG_CLIENT, ConKeyBuildmenu, this, "Open build menu");
 	Console()->Register("+inventoryroll", "", CFGFLAG_CLIENT, ConInventoryRoll, this, "Roll inventory");
-	Console()->Register("+inventoryroll_all", "", CFGFLAG_CLIENT, ConInventoryRoll_All, this, "Roll inventory(All)");
 }
 
 void CInventory::OnReset()

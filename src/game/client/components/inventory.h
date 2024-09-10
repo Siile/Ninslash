@@ -24,7 +24,6 @@ class CInventory : public CComponent
 	static void ConKeyInventory(IConsole::IResult *pResult, void *pUserData);
 	static void ConKeyBuildmenu(IConsole::IResult *pResult, void *pUserData);
 	static void ConInventoryRoll(IConsole::IResult *pResult, void *pUserData);
-	static void ConInventoryRoll_All(IConsole::IResult *pResult, void *pUserData);
 	
 	bool m_ResetMouse;
 	bool m_Mouse1;

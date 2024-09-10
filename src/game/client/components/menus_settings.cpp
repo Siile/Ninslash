@@ -130,6 +130,7 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 	}
 
 	// client
+	/*
 	{
 		// headline
 		Client.HSplitTop(30.0f, &Label, &Client);
@@ -177,6 +178,7 @@ void CMenus::RenderSettingsGeneral(CUIRect MainView)
 			g_Config.m_ClAutoScreenshotMax = static_cast<int>(DoScrollbarH(&g_Config.m_ClAutoScreenshotMax, &Button, g_Config.m_ClAutoScreenshotMax/1000.0f)*1000.0f+0.1f);
 		}
 	}
+	*/
 }
 
 void CMenus::RenderSettingsPlayer(CUIRect MainView)
@@ -1419,10 +1421,10 @@ enum ControlSettings
 {
 	START_MOVEMENT = 0,
 	START_WEAPONS = 6,
-	START_VOTING = 17,
-	START_CHAT = 19,
-	START_MISC = 22,
-	END_CONTROL = 33,
+	START_VOTING = 16,
+	START_CHAT = 18,
+	START_MISC = 21,
+	END_CONTROL = 29,
 };
 
 static CKeyInfo gs_aKeys[] =
@@ -1453,7 +1455,6 @@ static CKeyInfo gs_aKeys[] =
 	{ "Prev. weapon", "+prevweapon", 0 },
 	{ "Drop weapon", "+dropweapon", 0 },
 	{ "Inventory roll", "+inventoryroll", 0 },
-	{ "Inventory roll(All)", "+inventoryroll_all", 0 },
 	
 	// voting
 	{ "Vote yes", "vote yes", 0 },
@@ -1474,9 +1475,6 @@ static CKeyInfo gs_aKeys[] =
 	{ "Remote console", "toggle_remote_console", 0 },
 	{ "Screenshot", "screenshot", 0 },
 	{ "Scoreboard", "+scoreboard", 0 },
-	{ "Zoom In", "+zoom_in", 0 },
-	{ "Zoom Out", "+zoom_out", 0 },
-	{ "Default Zoom", "+zoom_default", 0 },
 };
 
 /*	This is for scripts/update_localization.py to work, don't remove!
@@ -1486,7 +1484,7 @@ static CKeyInfo gs_aKeys[] =
 	Localize("Spectator mode");Localize("Spectate next");Localize("Spectate previous");Localize("Console");Localize("Remote console");
 	Localize("Screenshot");Localize("Scoreboard");Localize("Respawn");Localize("Slide / down");Localize("Drop weapon");
 	Localize("Item slot 1");Localize("Item slot 2");Localize("Item slot 3");Localize("Item slot 4");Localize("Inventory");Localize("Inventory roll");
-	Localize("Build menu");Localize("Inventory roll(All)");Localize("Zoom In");Localize("Zoom Out");Localize("Default Zoom");
+	Localize("Build menu");
 */
 
 const int g_KeyCount = sizeof(gs_aKeys) / sizeof(CKeyInfo);

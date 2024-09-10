@@ -25,12 +25,7 @@ public:
 	float m_TargetZoom;
 
 	CCamera();
-	virtual void OnInit();
 	virtual void OnRender();
-
-	static void ConZoomIn(IConsole::IResult *pResult, void *pUserData);
-	static void ConZoomOut(IConsole::IResult *pResult, void *pUserData);
-	static void ConZoomDefault(IConsole::IResult *pResult, void *pUserData);
 };
 
 #endif
