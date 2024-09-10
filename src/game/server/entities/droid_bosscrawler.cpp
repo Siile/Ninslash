@@ -177,7 +177,10 @@ void CBossCrawler::Tick()
 	
 		float VelX = m_Move;
 		if (m_Status == DROIDSTATUS_ELECTRIC)
+		{
 			VelX *= 0.5f;
+			m_Vel.x *= 0.85f;
+		}
 		
 		float VelY = m_Pos.y-(To.y-OffY)*0.0002f;
 		
@@ -197,7 +200,7 @@ void CBossCrawler::Tick()
 		else if (abs(m_Vel.x) < 16.0f)
 			m_Vel.x += VelX * 1.2f;
 		
-		if (!m_JumpTick && (frandom() < 0.01f || (abs(m_Vel.x) < 0.15f && frandom() < 0.4f) || (abs(m_Target.x) > 400 && frandom() < 0.05f)))
+		if (m_Status != DROIDSTATUS_ELECTRIC && !m_JumpTick && (frandom() < 0.01f || (abs(m_Vel.x) < 0.15f && frandom() < 0.4f) || (abs(m_Target.x) > 400 && frandom() < 0.05f)))
 		{
 			m_JumpTick = Server()->Tick() + Server()->TickSpeed()*0.35f;
 		}

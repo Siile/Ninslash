@@ -1674,11 +1674,16 @@ void IGameController::Tick()
 		{
 			// run config!
 			m_GameVote = 0;
-			//Console()->ExecuteFile("cfg/ball.cfg");
-			//GameServer()->Console()->ExecuteLine("exec cfg/ball.cfg");
-
 			Server()->m_aMapLists.clear();
-			GameServer()->Console()->ExecuteLine(GameServer()->GetVoteWinnerConfig());
+			
+			GameServer()->CalculateVoteWinnerConfig();
+			char aBuf[128];
+			str_format(aBuf, sizeof(aBuf), "exec %s.cfg", GameServer()->m_aGameVote[GameServer()->m_WinnerVote].m_aConfig);
+			//GameServer()->Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "GetVoteWinnerConfig", aBuf);
+		
+			GameServer()->Console()->ExecuteLine(aBuf);
+			//GameServer()->Console()->ExecuteLine(GameServer()->GetVoteWinnerConfig());
+			
 			CycleMap();
 			ResetGameVotes();
 			StartRound();

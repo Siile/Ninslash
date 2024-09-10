@@ -541,6 +541,14 @@ void CGameControllerInvasion::Tick()
 		{
 			if (++g_Config.m_SvInvFails >= 3)
 			{
+				g_Config.m_SvInvFails = 0;
+				
+				if (--g_Config.m_SvMapGenLevel < 1)
+					g_Config.m_SvMapGenLevel = 1;
+				
+				g_Config.m_SvMapGenSeed = rand()%32767;
+			
+			
 				/*
 				g_Config.m_SvInvFails = 0;
 				

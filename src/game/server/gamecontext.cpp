@@ -1226,6 +1226,33 @@ void CGameContext::SendGameVoteStats()
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
 }
 
+void CGameContext::CalculateVoteWinnerConfig()
+{
+	int aVotes[6] = {0, 0, 0, 0, 0, 0};
+
+	// count
+	for (int i = 0; i < MAX_CLIENTS; i++)
+		if (m_aPlayerGameVote[i] >= 0 && m_aPlayerGameVote[i] < 6)
+			aVotes[m_aPlayerGameVote[i]]++;
+	
+	int Biggest = 0;
+	
+	for (int i = 0; i < 6; i++)
+		if (aVotes[i] > Biggest)
+			Biggest = aVotes[i];
+	
+	int j = 0;
+	int i = rand()%6;
+	
+	while (aVotes[i] < Biggest && j++ < 1000)
+	{
+		i = rand()%6;
+	}
+	
+	m_WinnerVote = i;
+}
+
+
 
 const char *CGameContext::GetVoteWinnerConfig()
 {
@@ -1257,8 +1284,11 @@ const char *CGameContext::GetVoteWinnerConfig()
 		char aBuf[128];
 		str_format(aBuf, sizeof(aBuf), "exec %s.cfg", m_aGameVote[i].m_aConfig);
 		Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "GetVoteWinnerConfig", aBuf);
-		const char * a = aBuf;
+		
+		return static_cast < const char * > (aBuf);
+		/*const char * a = aBuf;
 		return a;
+		*/
 		
 		//return static_cast < const char * > (aBuf);
 	}

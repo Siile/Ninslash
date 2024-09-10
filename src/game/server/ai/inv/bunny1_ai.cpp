@@ -42,7 +42,7 @@ void CAIbunny1::OnCharacterSpawn(CCharacter *pChr)
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetChargedWeapon(GetModularWeapon(4, 1), 2)));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD)));
 		
-		pChr->SetHealth(80+min(Level*5.0f, 320.0f));
+		pChr->SetHealth(80+min(Level*3.0f, 320.0f));
 		m_PowerLevel = 12;
 		m_TriggerLevel = 15 + rand()%5;
 	}
@@ -55,7 +55,7 @@ void CAIbunny1::OnCharacterSpawn(CCharacter *pChr)
 		
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD)));
 		
-		pChr->SetHealth(80+min(Level*5.0f, 320.0f));
+		pChr->SetHealth(80+min(Level*3.0f, 320.0f));
 		m_PowerLevel = 12;
 		m_TriggerLevel = 15 + rand()%5;
 	}
@@ -72,7 +72,7 @@ void CAIbunny1::OnCharacterSpawn(CCharacter *pChr)
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_SHIELD)));
 		pChr->GiveWeapon(GameServer()->NewWeapon(GetStaticWeapon(SW_MASK2)));
 		
-		pChr->SetHealth(80+min(Level*5.0f, 320.0f));
+		pChr->SetHealth(80+min(Level*3.0f, 320.0f));
 		m_PowerLevel = 14;
 		m_TriggerLevel = 15 + rand()%5;
 	}
