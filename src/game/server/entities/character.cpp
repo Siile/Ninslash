@@ -2222,7 +2222,7 @@ bool CCharacter::TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos)
 	float Electro = WeaponElectroAmount(Weapon);
 
 	// damage reduction for invasion
-	if (Dmg > 0 && GameServer()->m_pController->IsCoop() && !GetPlayer()->m_pAI)
+	if (Dmg > 0 && GameServer()->m_pController->IsCoop() && !m_IsBot)
 		Dmg = max(1, Dmg/2);
 	
 	if (From == m_pPlayer->GetCID())
