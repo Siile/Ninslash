@@ -19,7 +19,6 @@
 #include "mapgen.h"
 #include "aiskin.h"
 #include "gamevote.h"
-#include "lastseen.h"
 
 #include <engine/localization.h>
 
@@ -298,8 +297,6 @@ public:
 	bool IsHuman(int ClientID);
 	
 	int m_BroadcastLockTick;
-
-	static CLastSeen m_LastSeen;
 
 	const char *Localize(const char *pText, int ClientID);
 };

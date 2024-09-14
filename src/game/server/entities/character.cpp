@@ -504,8 +504,8 @@ void CCharacter::DropItem(int Slot, vec2 Pos)
 	
 	if (UpgradeTurret(Pos, vec2(Pos.x > m_Pos.x ? -1 : 1, 0), Slot))
 	{
-		m_apWeapon[Slot] = 0;
-		SendInventory();
+		//m_apWeapon[Slot] = 0;
+		//SendInventory();
 		return;
 	}
 	
@@ -873,7 +873,7 @@ bool CCharacter::UpgradeTurret(vec2 Pos, vec2 Dir, int Slot)
 	float CheckRange = 48.0f;
 	CBuilding *pNear = NULL;
 	CBuilding *apEnts[16];
-	int Num = GameServer()->m_World.FindEntities(Pos+vec2(0, -20), 40, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
+	int Num = GameServer()->m_World.FindEntities(Pos+vec2(0, -20), 60, (CEntity**)apEnts, 16, CGameWorld::ENTTYPE_BUILDING);
 
 	// check for turret stands
 	for (int i = 0; i < Num; ++i)
@@ -890,6 +890,12 @@ bool CCharacter::UpgradeTurret(vec2 Pos, vec2 Dir, int Slot)
 	// transform stand to turret
 	if (pNear)
 	{
+		int Cost = GetWeapon(Slot)->GetPowerLevel()+1;
+		if (m_Kits < Cost)
+			return false;
+		
+		m_Kits -= Cost;
+		
 		vec2 p = pNear->m_Pos;
 		GameServer()->m_World.DestroyEntity(pNear);
 		
@@ -897,8 +903,11 @@ bool CCharacter::UpgradeTurret(vec2 Pos, vec2 Dir, int Slot)
 		if (!GameServer()->m_pController->IsTeamplay())
 			Team = GetPlayer()->GetCID();
 		
-		GetWeapon(Slot)->SetOwner(GetPlayer()->GetCID());
-		CTurret *pTurret = new CTurret(&GameServer()->m_World, p, Team, GetWeapon(Slot));
+		// clone the weapon in use and link it to turret
+		CWeapon *pWeapon = GameServer()->NewWeapon(GetWeapon(Slot)->GetWeaponType());
+		
+		pWeapon->SetOwner(GetPlayer()->GetCID());
+		CTurret *pTurret = new CTurret(&GameServer()->m_World, p, Team, pWeapon);
 		pTurret->SetAngle(Dir);
 				
 		// sound
@@ -928,8 +937,8 @@ void CCharacter::DropWeapon()
 	{
 		if (UpgradeTurret(m_Pos, -Direction))
 		{
-			m_apWeapon[m_WeaponSlot] = 0;
-			SendInventory();
+			//m_apWeapon[m_WeaponSlot] = 0;
+			//SendInventory();
 			return;
 		}
 	}
@@ -2212,13 +2221,16 @@ bool CCharacter::TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos)
 	float Flame = WeaponFlameAmount(Weapon);
 	float Electro = WeaponElectroAmount(Weapon);
 
+	// damage reduction for invasion
+	if (Dmg > 0 && GameServer()->m_pController->IsCoop() && !GetPlayer()->m_pAI)
+		Dmg = max(1, Dmg/2);
 	
 	if (From == m_pPlayer->GetCID())
 	{
 		if (GameServer()->m_pController->IsCoop())
-			Dmg = max(1, Dmg/5);
+			Dmg = max(1, Dmg/4);
 		else
-			Dmg = max(1, Dmg/2);
+			Dmg = max(1, Dmg/4);
 	}
 	
 	if (From >= 0)

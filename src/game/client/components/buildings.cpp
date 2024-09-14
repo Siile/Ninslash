@@ -523,11 +523,34 @@ void CBuildings::RenderStand(const CNetObj_Building *pCurrent, const CNetObj_Bui
 	}
 	
 	// render drop weapon tip for local player
-	if (distance(CustomStuff()->m_LocalPos, vec2(Pos.x, Pos.y+15)) < 45 && ValidForTurret(CustomStuff()->m_LocalWeapon))
+	if (distance(CustomStuff()->m_LocalPos, vec2(Pos.x, Pos.y+15)) < 60 && ValidForTurret(CustomStuff()->m_LocalWeapon))
 	{
-		TextRender()->TextColor(0.2f, 0.7f, 0.2f, 1);
+		TextRender()->TextColor(0.2f, 0.8f, 0.2f, 1);
 		TextRender()->Text(0, Pos.x + 22, Pos.y - 30 - 60*FlipY, 32, m_pClient->m_pBinds->GetKey("+dropweapon"), -1);
 		TextRender()->TextColor(1, 1, 1, 1);
+		
+		// render weapon cloning cost
+		int Cost = GetWeaponCharge(CustomStuff()->m_LocalWeapon)+1;
+	
+		char aBuf[8];
+		str_format(aBuf, sizeof(aBuf), "%u", Cost);
+			
+		if (CustomStuff()->m_LocalKits >= Cost)
+			TextRender()->TextColor(0.0f, 0.9f, 0.0f, 1);
+		else
+			TextRender()->TextColor(0.9f, 0.0f, 0.0f, 1);
+			
+		TextRender()->Text(0, Pos.x + 22 + 30, Pos.y - 21 - 60*FlipY, 22, aBuf, -1);
+		float tw = TextRender()->TextWidth(0, 22, aBuf, -1);
+		TextRender()->TextColor(1, 1, 1, 1);
+			
+		Graphics()->TextureSet(g_pData->m_aImages[IMAGE_WEAPONS].m_Id);
+		Graphics()->QuadsBegin();
+		Graphics()->QuadsSetRotation(0);
+		RenderTools()->SelectSprite(SPRITE_PICKUP_KIT);
+		RenderTools()->DrawSprite(Pos.x + 22 + 30 + 20 + tw, Pos.y - 5 - 60*FlipY, 32);
+		Graphics()->QuadsEnd();
+		Graphics()->TextureSet(-1);
 	}
 }
 	
