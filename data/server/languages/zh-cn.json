@@ -65,6 +65,14 @@
             "value": "C4安装中... %d"
         },
         {
+            "key": "Ball",
+            "value": "球类模式"
+        },
+        {
+            "key": "Battle Royale",
+            "value": "大逃杀"
+        },
+        {
             "key": "Blue team scores!",
             "value": "蓝队得分!"
         },
@@ -85,6 +93,10 @@
             "value": "炸弹被解除 - 蓝队胜利"
         },
         {
+            "key": "Capture the flag",
+            "value": "夺旗模式"
+        },
+        {
             "key": "Cyborg wave cleared",
             "value": "赛博格被全部击退"
         },
@@ -95,6 +107,10 @@
         {
             "key": "Death takes all",
             "value": "死神永生"
+        },
+        {
+            "key": "Deathmatch",
+            "value": "死亡竞赛"
         },
         {
             "key": "Disarming bomb... %d",
@@ -117,6 +133,10 @@
             "value": "无人生还"
         },
         {
+            "key": "Extra explosive death match!",
+            "value": "爆炸就是艺术!"
+        },
+        {
             "key": "Furries terminated",
             "value": "兽人被全歼"
         },
@@ -133,12 +153,20 @@
             "value": "走你!"
         },
         {
+            "key": "Grenade Deathmatch",
+            "value": "榴弹死亡竞技"
+        },
+        {
             "key": "Hide",
             "value": "嘘————"
         },
         {
             "key": "Highest level reached on server: %d",
             "value": "该服务器闯到的最高关卡: %d"
+        },
+        {
+            "key": "Instakill CTF",
+            "value": "瞬杀夺旗"
         },
         {
             "key": "Invalid client id to kick",
@@ -151,6 +179,10 @@
         {
             "key": "Invalid spectator id used",
             "value": "无效的旁观者ID"
+        },
+        {
+            "key": "Invasion",
+            "value": "入侵"
         },
         {
             "key": "KILL!",
@@ -183,6 +215,14 @@
         {
             "key": "Ocean of blood",
             "value": "血流成河"
+        },
+        {
+            "key": "PvE",
+            "value": "合作"
+        },
+        {
+            "key": "Reactor Bomber",
+            "value": "爆破反应堆"
         },
         {
             "key": "Reactor defense",
@@ -251,6 +291,10 @@
         {
             "key": "Stage completed",
             "value": "阶段性胜利"
+        },
+        {
+            "key": "Team deathmatch",
+            "value": "团队死斗"
         },
         {
             "key": "Teams are locked",
@@ -393,8 +437,32 @@
             "value": "管理员把 '%s' 移到了旁观者 (%s)"
         },
         {
+            "key": "ball_small1.map - no bots",
+            "value": "ball_small1.map - 无AI"
+        },
+        {
+            "key": "ball_small2.map - no bots",
+            "value": "ball_small2.map - 无AI"
+        },
+        {
             "key": "blue",
             "value": "蓝"
+        },
+        {
+            "key": "generated map",
+            "value": "自动生成地图"
+        },
+        {
+            "key": "generated map - last man standing",
+            "value": "自动生成地图 - 活到最后"
+        },
+        {
+            "key": "generated match",
+            "value": "自动生成地图"
+        },
+        {
+            "key": "reactor1.map - survival mode PvP",
+            "value": "reactor1.map - 生存模式PvP"
         },
         {
             "key": "red",

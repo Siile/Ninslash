@@ -11,11 +11,11 @@ output_file_name = sys.argv[2]
 
 unique_labels = set()  # 使用集合来避免重复
 
-def help_localize(directory, tpattern):
+def help_localize(directory, suffix, tpattern):
     pattern = re.compile(tpattern, re.IGNORECASE)
     for root, dirs, files in os.walk(directory):
         for filename in files:
-            if filename.endswith('.cpp'):
+            if filename.endswith(suffix):
                 # 获取完整文件路径
                 file_path = os.path.join(root, filename)
                 # 打开并读取文件内容
@@ -31,10 +31,12 @@ def help_localize(directory, tpattern):
     with open(labelfile, "w") as fw:  # 使用 "w" 而不是 "a" 来覆盖旧文件
         fw.writelines(sorted(unique_labels))  # 对标签进行排序并写入文件
 
-help_localize("src/game/server/", 'Localize\\("(.+?)"')
-help_localize("src/game/server/", 'SendChatTarget\\([^,]*, "(.+?)"')
-help_localize("src/game/server/", 'SendBroadcast\\("(.+?)"')
-help_localize("src/game/server/", 'SendBroadcastFormat\\([^,]*, [^,]*, "(.+?)"')
+help_localize("src/game/server/", '.cpp', 'Localize\\("(.+?)"')
+help_localize("src/game/server/", '.cpp', 'SendChatTarget\\([^,]*, "(.+?)"')
+help_localize("src/game/server/", '.cpp', 'SendBroadcast\\("(.+?)"')
+help_localize("src/game/server/", '.cpp', 'SendBroadcastFormat\\([^,]*, [^,]*, "(.+?)"')
+help_localize("data/server/gamevotes", '.vot', 'name: (.*)')
+help_localize("data/server/gamevotes", '.vot', 'description: (.*)')
 
 
 
