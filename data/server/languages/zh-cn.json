@@ -118,11 +118,11 @@
         },
         {
             "key": "Furries terminated",
-            "value": "动物人被全歼"
+            "value": "兽人被全歼"
         },
         {
             "key": "Furry wave cleared",
-            "value": "动物人被全部击退"
+            "value": "兽人被全部击退"
         },
         {
             "key": "Game over on wave %d",
@@ -294,7 +294,7 @@
         },
         {
             "key": "Terminate the furries",
-            "value": "歼灭所有动物人"
+            "value": "歼灭所有兽人"
         },
         {
             "key": "Terminate the robots",
@@ -354,7 +354,7 @@
         },
         {
             "key": "Wave of furries incoming",
-            "value": "动物人来袭！"
+            "value": "兽人来袭！"
         },
         {
             "key": "Wave of robots incoming",
