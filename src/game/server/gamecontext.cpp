@@ -3550,7 +3550,7 @@ Localize("Wave incoming"),Localize("Terminate the aliens"),Localize("Terminate t
 Localize("Terminate the skeletons"),Localize("Terminate the furries"),Localize("Terminate the cyborgs")
 Localize("Seek the door"),Localize("Alien wave cleared"),
 Localize("Robot wave cleared"),Localize("Furry wave cleared"),Localize("Skeleton wave cleared")
-Localize("Cyborgs wave cleared"),Localize("Aliens terminated"),Localize("Robots terminated")
+Localize("Cyborg wave cleared"),Localize("Aliens terminated"),Localize("Robots terminated")
 Localize("Skeletons terminated"),Localize("Furries terminated"),Localize("Cyborgs terminated")
 Localize("Enemies terminated")
 */

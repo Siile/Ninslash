@@ -6,87 +6,40 @@ import re
 
 labelfile = "temp.txt"
 
-directory = "src/game/server/"
-
 old_file = sys.argv[1]
 output_file_name = sys.argv[2]
 
-unique_labels = []
+unique_labels = set()  # 使用集合来避免重复
 
-for root, dirs, files in os.walk(directory):
-    for filename in fnmatch.filter(files, "*.cpp"):
-        with open(os.path.join(root, filename), "r") as file:
-            lines = file.readlines()
-            for line in lines:
-                f = line.find(r'Localize("')
-                if f != -1:
-                    end_quote = line.find(r'",', f)
-                    if end_quote != -1:
-                        label = line[f + 10 : end_quote]
-                        unique_labels.append(label + "\n")
+def help_localize(directory, tpattern):
+    pattern = re.compile(tpattern, re.IGNORECASE)
+    for root, dirs, files in os.walk(directory):
+        for filename in files:
+            if filename.endswith('.cpp'):
+                # 获取完整文件路径
+                file_path = os.path.join(root, filename)
+                # 打开并读取文件内容
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    content = file.read()
+                    # 查找所有匹配项
+                    matches = pattern.findall(content)
+                    # 将所有匹配的字符串添加到列表中
+                    for found in matches:
+                        if found not in unique_labels:  # 检查是否重复
+                            unique_labels.add(found + "\n")  # 添加到集合中
 
-for root, dirs, files in os.walk(directory):
-    for filename in fnmatch.filter(files, "*.cpp"):
-        with open(os.path.join(root, filename), "r") as file:
-            lines = file.readlines()
-            for line in lines:
-                f = line.find(r'SendBroadcast("')
-                if f != -1:
-                    end_quote = line.find(r'",', f)
-                    if end_quote != -1:
-                        label = line[f + 15 : end_quote]
-                        unique_labels.append(label + "\n")
+    with open(labelfile, "w") as fw:  # 使用 "w" 而不是 "a" 来覆盖旧文件
+        fw.writelines(sorted(unique_labels))  # 对标签进行排序并写入文件
 
-pattern = re.compile(r'SendChatTarget\([^,]*, "(.+?)"', re.IGNORECASE)
+help_localize("src/game/server/", 'Localize\\("(.+?)"')
+help_localize("src/game/server/", 'SendChatTarget\\([^,]*, "(.+?)"')
+help_localize("src/game/server/", 'SendBroadcast\\("(.+?)"')
+help_localize("src/game/server/", 'SendBroadcastFormat\\([^,]*, [^,]*, "(.+?)"')
 
-for root, dirs, files in os.walk(directory):
-    for filename in files:
-        if filename.endswith('.cpp'):
-            # 获取完整文件路径
-            file_path = os.path.join(root, filename)
-            # 打开并读取文件内容
-            with open(file_path, 'r', encoding='utf-8') as file:
-                content = file.read()
-                # 查找所有匹配项
-                matches = pattern.findall(content)
-                # 将所有匹配的字符串添加到列表中
-                for found in matches:
-                    unique_labels.append(found + "\n")
 
-# Load gamevotes
-for file_name in os.listdir("data/server/gamevotes/"):
-    file_path = os.path.join("data/server/gamevotes/", file_name)
-
-    # 确保是文件而不是文件夹
-    if os.path.isfile(file_path):
-        with open(file_path, "r") as file:
-            text = file.read()
-
-        # 使用正则表达式匹配name和description字段
-        pattern = re.compile(r"^(name:|description:)\s+(.*)", re.MULTILINE)
-
-        # 找到所有匹配项
-        matches = pattern.findall(text)
-
-        # 提取name和description的值
-        name = matches[0][1] if matches and matches[0][0] == "name:" else None
-        description = (
-            matches[1][1]
-            if matches and len(matches) > 1 and matches[1][0] == "description:"
-            else None
-        )
-
-        if name != None:
-            unique_labels.append(name + "\n")
-
-        if description != None:
-            unique_labels.append(description + "\n")
-
-with open(labelfile, "w") as fw:
-    fw.writelines(set(unique_labels))
 
 with open(labelfile, "r") as file:
-    lines = file.readlines()
+        lines = file.readlines()
 
 # 创建一个列表，用于存储每一行的键值对
 translation_list = [{"key": line.strip(), "value": line.strip()} for line in lines]
@@ -97,7 +50,6 @@ translation_dict = {"translation": translation_list}
 # 将字典写入到输出文件中，格式化为JSON
 with open(output_file_name, "w") as output_file:
     json.dump(translation_dict, output_file, indent=4)
-
 
 # 将Unicode编码的文本转换成汉字
 def unicode_to_chinese(text):
@@ -164,12 +116,15 @@ unicode_to_chinese(output_file_name)
 with open(output_file_name, "r", encoding="utf-8") as input_file:
     data = json.load(input_file)
 
-# 将翻译项分成两组：一组是key和value不一致的，另一组是key和value一致的
-different_items = [item for item in data["translation"] if item["key"] != item["value"]]
-same_items = [item for item in data["translation"] if item["key"] == item["value"]]
+# 将所有翻译项按key进行排序
+sorted_items = sorted(data["translation"], key=lambda x: x['key'])
 
-# 将两组项合并，把key和value一致的项放到末尾
-sorted_translation = different_items + same_items
+# 找出所有key和value不一致的项，并将它们移到列表的末尾
+different_items = [item for item in sorted_items if item["key"] != item["value"]]
+same_items = [item for item in sorted_items if item["key"] == item["value"]]
+
+# 将排序后的项合并，确保不一致的项在末尾
+sorted_translation = same_items + different_items
 
 # 更新数据
 data["translation"] = sorted_translation

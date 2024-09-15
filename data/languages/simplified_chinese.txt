@@ -28,9 +28,6 @@
 %s wins!
 == %s 胜利!
 
-'%s' called for vote to kick you
-== 发起投票要踢出你
-
 -Page %d-
 == -第 %d 页-
 
@@ -45,12 +42,6 @@ Add Friend
 
 Address
 == 地址
-
-Alien wave cleared
-== 外星人被全部击退
-
-Aliens terminated
-== 全歼外星人
 
 All
 == 全部
@@ -184,12 +175,6 @@ Current version: %s
 Customize
 == 自定义皮肤
 
-Cyborgs terminated
-== 全歼赛博格
-
-Cyborgs wave cleared
-== 赛博格被全部击退
-
 Delete
 == 删除
 
@@ -243,9 +228,6 @@ Electrowall
 
 Emoticon
 == 表情
-
-Enemies terminated
-== 全歼所有敌人
 
 Energy shield
 == 能量护盾
@@ -306,12 +288,6 @@ Friends
 
 Fullscreen
 == 全屏幕
-
-Furries terminated
-== 全歼动物人
-
-Furry wave cleared
-== 动物人被全部击退
 
 Game
 == 游戏
@@ -661,12 +637,6 @@ Respawn device
 Rifle
 == 激光枪
 
-Robot wave cleared
-== 机器人被全部击退
-
-Robots terminated
-== 全歼机器人
-
 Round
 == 回合
 
@@ -690,9 +660,6 @@ Scoreboard
 
 Screenshot
 == 截图
-
-Seek the door
-== 找到, 通往下一层的门
 
 Server address:
 == 服务器地址:
@@ -741,12 +708,6 @@ Show only supported
 
 Size:
 == 尺寸:
-
-Skeleton wave cleared
-== 骷髅被全部击退
-
-Skeletons terminated
-== 全歼骷髅
 
 Skin
 == 皮肤
@@ -814,23 +775,8 @@ Team
 Team chat
 == 团队聊天
 
-Terminate the aliens
-== 歼灭所有外星人
-
-Terminate the cyborgs
-== 歼灭所有赛博格
-
 Terminate the enemies
 == 歼灭所有敌人
-
-Terminate the furries
-== 歼灭所有动物人
-
-Terminate the robots
-== 歼灭所有机器人
-
-Terminate the skeletons
-== 歼灭所有骷髅
 
 Teslacoil
 == 特斯拉线圈
@@ -928,24 +874,6 @@ Waiting for server...
 Warmup
 == 热身
 
-Wave incoming
-== 攻势即将来临
-
-Wave of aliens incoming
-== 外星人入侵！
-
-Wave of cyborgs incoming
-== 赛博格入侵！
-
-Wave of furries incoming
-== 动物人入侵！
-
-Wave of robots incoming
-== 机器人入侵！
-
-Wave of skeletons incoming
-== 骷髅入侵！
-
 Weapon upgrade
 == 武器升级
 
@@ -961,23 +889,14 @@ Yes
 You must restart the game for all settings to take effect.
 == 你必须重启游戏才能让所有设置起效.
 
-You must wait %d seconds before making another vote
-== 你必须等待 %d 秒后才能发起另一条投票
-
 Zombie claw
 == 僵尸爪
-
-blue
-== 蓝色
 
 enemies remaining
 == 剩余敌人
 
 no limit
 == 无限制
-
-red
-== 红色
 
 seconds remaining
 == 剩余时间

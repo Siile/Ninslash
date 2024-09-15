@@ -247,11 +247,11 @@ const char *CLocalization::GetLanguageCode(int Country)
 		/* uk - Ukrainian **********************************/
 		case 804: //Ukraine
 			return "uk";
-		/* zh-Hans - Chinese (Simplified) **********************************/
+		/* zh-cn - Chinese (Simplified) **********************************/
 		case 156: //People’s Republic of China
 		case 344: //Hong Kong
 		case 446: //Macau
-			return "cn";
+			return "zh-cn";
 		case 826: // United Kingdom of Great Britain and Northern Ireland
 		case 840: // United States of America
 			return "en";
