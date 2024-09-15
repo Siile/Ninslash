@@ -25,7 +25,7 @@ public:
     virtual bool Init();
     virtual const char *Localize(const char *pLanguage, const char *pText);
     
-    bool LoadIndexFile();
+    bool LoadLocalizations();
     bool LoadLanguage(const char *aFile);
 
     void AddNewLocalize(const char *pName, const char *pKey, const char *pValue);

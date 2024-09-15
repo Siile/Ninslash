@@ -8,12 +8,12 @@ CLocalization::CLocalization(IStorage *pStorage)
 
 bool CLocalization::Init()
 {
-    if(LoadIndexFile())
+    if(LoadLocalizations())
         return true;
     return false;
 }
 
-bool CLocalization::LoadIndexFile()
+bool CLocalization::LoadLocalizations()
 {
     const char *pIndex = "./data/server/languages/index.json";
     IOHANDLE File = m_pStorage->OpenFile(pIndex, IOFLAG_READ, IStorage::TYPE_ALL);

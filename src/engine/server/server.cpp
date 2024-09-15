@@ -2080,6 +2080,15 @@ void CServer::ConMapsList(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CServer::ConReloadLocalizations(IConsole::IResult *pResult, void *pUserData)
+{
+	CServer *pSelf = static_cast<CServer *>(pUserData);
+
+	ILocalization *pLocalization = pSelf->Kernel()->RequestInterface<ILocalization>();
+	if(!pLocalization->Init())
+		pServer->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "Localization reload failed.");
+}
+
 void CServer::RegisterCommands()
 {
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
@@ -2099,6 +2108,7 @@ void CServer::RegisterCommands()
 	Console()->Register("reload", "", CFGFLAG_SERVER, ConMapReload, this, "Reload the map");
 
 	Console()->Register("sv_maps_list", "?r", CFGFLAG_SERVER, ConMapsList, this, "Maps to rotate between");
+	Console()->Register("reload_localizations", "", CFGFLAG_SERVER, ConReloadLocalizations, this, "Hot reload server localization texts");
 
 	Console()->Chain("sv_name", ConchainSpecialInfoupdate, this);
 	Console()->Chain("password", ConchainSpecialInfoupdate, this);
@@ -2255,11 +2265,3 @@ void CServer::AddZombie()
 	SetBotDefault(ClientID);
 	SetClientClan(ClientID, "ai");
 }
-
-
-
-
-
-
-
-
