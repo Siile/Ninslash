@@ -46,7 +46,7 @@
         },
         {
             "key": "Aliens terminated",
-            "value": "外星人被全歼"
+            "value": "外星人被全部歼灭！"
         },
         {
             "key": "All hope is lost",
@@ -102,7 +102,7 @@
         },
         {
             "key": "Cyborgs terminated",
-            "value": "赛博格被全歼"
+            "value": "赛博格被全部歼灭！"
         },
         {
             "key": "Death takes all",
@@ -122,7 +122,7 @@
         },
         {
             "key": "Enemies terminated",
-            "value": "敌人被全歼"
+            "value": "敌人被全部歼灭！"
         },
         {
             "key": "Escape",
@@ -138,7 +138,7 @@
         },
         {
             "key": "Furries terminated",
-            "value": "兽人被全歼"
+            "value": "兽人被全部歼灭！"
         },
         {
             "key": "Furry wave cleared",
@@ -250,7 +250,7 @@
         },
         {
             "key": "Robots terminated",
-            "value": "机器人被全歼"
+            "value": "机器人被全部歼灭！"
         },
         {
             "key": "Run",
@@ -274,7 +274,7 @@
         },
         {
             "key": "Skeletons terminated",
-            "value": "骷髅被全歼"
+            "value": "骷髅被全部歼灭！"
         },
         {
             "key": "Slaughter",
@@ -326,27 +326,27 @@
         },
         {
             "key": "Terminate the aliens",
-            "value": "歼灭所有外星人"
+            "value": "击杀所有外星人"
         },
         {
             "key": "Terminate the cyborgs",
-            "value": "歼灭所有赛博格"
+            "value": "击杀所有赛博格"
         },
         {
             "key": "Terminate the enemies",
-            "value": "歼灭所有敌人"
+            "value": "击杀所有敌人"
         },
         {
             "key": "Terminate the furries",
-            "value": "歼灭所有兽人"
+            "value": "击杀所有兽人"
         },
         {
             "key": "Terminate the robots",
-            "value": "歼灭所有机器人"
+            "value": "击杀所有机器人"
         },
         {
             "key": "Terminate the skeletons",
-            "value": "歼灭所有骷髅"
+            "value": "击杀所有骷髅"
         },
         {
             "key": "The %s flag was captured by '%s'",
@@ -362,7 +362,7 @@
         },
         {
             "key": "Vote aborted",
-            "value": "投票平了"
+            "value": "投票中止"
         },
         {
             "key": "Vote failed",
@@ -378,15 +378,15 @@
         },
         {
             "key": "Wave %d",
-            "value": "第 %d 波"
+            "value": "第 %d 波攻势"
         },
         {
             "key": "Wave cleared",
-            "value": "区域清空"
+            "value": "攻势清空"
         },
         {
             "key": "Wave incoming",
-            "value": "敌人正在接近"
+            "value": "敌人正在逼近！"
         },
         {
             "key": "Wave of aliens incoming",
@@ -414,7 +414,7 @@
         },
         {
             "key": "You can't kick yourself",
-            "value": "你不能踢自己"
+            "value": "你不能踢出自己"
         },
         {
             "key": "You can't move yourself",
@@ -422,7 +422,7 @@
         },
         {
             "key": "You must wait %d seconds before making another vote",
-            "value": "你必须等待%d秒后才能发起另一投票"
+            "value": "你必须等待 %d 秒后才能发起另一投票"
         },
         {
             "key": "admin forced server option '%s' (%s)",
@@ -438,11 +438,11 @@
         },
         {
             "key": "ball_small1.map - no bots",
-            "value": "ball_small1.map - 无AI"
+            "value": "地图：ball_small1 - 无AI"
         },
         {
             "key": "ball_small2.map - no bots",
-            "value": "ball_small2.map - 无AI"
+            "value": "地图：ball_small2 - 无AI"
         },
         {
             "key": "blue",
@@ -462,7 +462,7 @@
         },
         {
             "key": "reactor1.map - survival mode PvP",
-            "value": "reactor1.map - 生存模式PvP"
+            "value": "地图：reactor1 - 生存模式PvP"
         },
         {
             "key": "red",

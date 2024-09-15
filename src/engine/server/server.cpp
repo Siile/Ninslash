@@ -2085,8 +2085,12 @@ void CServer::ConReloadLocalizations(IConsole::IResult *pResult, void *pUserData
 	CServer *pSelf = static_cast<CServer *>(pUserData);
 
 	ILocalization *pLocalization = pSelf->Kernel()->RequestInterface<ILocalization>();
-	if(!pLocalization->Init())
-		pServer->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "Localization reload failed.");
+	if(pLocalization && !pLocalization->Init())
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "Localization reload failed.");
+		return;
+	}
+	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "Localization texts reloaded.");
 }
 
 void CServer::RegisterCommands()
@@ -2106,9 +2110,9 @@ void CServer::RegisterCommands()
 	Console()->Register("stoprecord", "", CFGFLAG_SERVER, ConStopRecord, this, "Stop recording");
 
 	Console()->Register("reload", "", CFGFLAG_SERVER, ConMapReload, this, "Reload the map");
-
-	Console()->Register("sv_maps_list", "?r", CFGFLAG_SERVER, ConMapsList, this, "Maps to rotate between");
 	Console()->Register("reload_localizations", "", CFGFLAG_SERVER, ConReloadLocalizations, this, "Hot reload server localization texts");
+	
+	Console()->Register("sv_maps_list", "?r", CFGFLAG_SERVER, ConMapsList, this, "Maps to rotate between");
 
 	Console()->Chain("sv_name", ConchainSpecialInfoupdate, this);
 	Console()->Chain("password", ConchainSpecialInfoupdate, this);

@@ -6,6 +6,7 @@ CLocalization::CLocalization(IStorage *pStorage)
     m_pStorage = pStorage;
 }
 
+// TODO: Using thread to improve loading speed
 bool CLocalization::Init()
 {
     if(LoadLocalizations())
