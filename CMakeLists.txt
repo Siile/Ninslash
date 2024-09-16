@@ -282,11 +282,23 @@ if(TARGET_OS AND TARGET_OS STREQUAL "mac")
   show_dependency_status("Hdiutil" HDIUTIL)
 endif()
 
+show_dependency_status("Freetype" FREETYPE)
+show_dependency_status("Pnglite" PNGLITE)
 show_dependency_status("Python3" PYTHON3)
+show_dependency_status("SDL2" SDL2)
+show_dependency_status("Wavpack" WAVPACK)
 show_dependency_status("Zlib" ZLIB)
 
 if(NOT(PYTHON3_FOUND))
-  message(SEND_ERROR "You must install Python3 to compile ${PROJECT_NAME}")
+  message(SEND_ERROR "You must install Python3 to compile Ninslash")
+endif()
+
+if(CLIENT AND NOT(FREETYPE_FOUND))
+  message(SEND_ERROR "You must install Freetype to compile the Ninslash client")
+endif()
+
+if(CLIENT AND NOT(SDL2_FOUND))
+  message(SEND_ERROR "You must install SDL2 to compile the Ninslash client")
 endif()
 
 if(TARGET_OS STREQUAL "windows")
