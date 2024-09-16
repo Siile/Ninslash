@@ -42,11 +42,11 @@
         },
         {
             "key": "Alien wave cleared",
-            "value": "外星人被全部击退"
+            "value": "外星人被歼灭了！"
         },
         {
             "key": "Aliens terminated",
-            "value": "外星人被全部歼灭！"
+            "value": "外星人被全部击退！"
         },
         {
             "key": "All hope is lost",
@@ -98,11 +98,11 @@
         },
         {
             "key": "Cyborg wave cleared",
-            "value": "赛博格被全部击退"
+            "value": "赛博格被歼灭了！"
         },
         {
             "key": "Cyborgs terminated",
-            "value": "赛博格被全部歼灭！"
+            "value": "赛博格被全部击退！"
         },
         {
             "key": "Death takes all",
@@ -122,7 +122,7 @@
         },
         {
             "key": "Enemies terminated",
-            "value": "敌人被全部歼灭！"
+            "value": "敌人被全部击退！"
         },
         {
             "key": "Escape",
@@ -138,11 +138,11 @@
         },
         {
             "key": "Furries terminated",
-            "value": "兽人被全部歼灭！"
+            "value": "兽人被全部击退！"
         },
         {
             "key": "Furry wave cleared",
-            "value": "兽人被全部击退"
+            "value": "兽人被歼灭了！"
         },
         {
             "key": "Game over on wave %d",
@@ -154,7 +154,7 @@
         },
         {
             "key": "Grenade Deathmatch",
-            "value": "榴弹死亡竞技"
+            "value": "手雷死斗"
         },
         {
             "key": "Hide",
@@ -246,11 +246,11 @@
         },
         {
             "key": "Robot wave cleared",
-            "value": "机器人被全部击退"
+            "value": "机器人被歼灭了！"
         },
         {
             "key": "Robots terminated",
-            "value": "机器人被全部歼灭！"
+            "value": "机器人被全部击退！"
         },
         {
             "key": "Run",
@@ -270,11 +270,11 @@
         },
         {
             "key": "Skeleton wave cleared",
-            "value": "骷髅被全部击退"
+            "value": "骷髅被歼灭了！"
         },
         {
             "key": "Skeletons terminated",
-            "value": "骷髅被全部歼灭！"
+            "value": "骷髅被全部击退！"
         },
         {
             "key": "Slaughter",

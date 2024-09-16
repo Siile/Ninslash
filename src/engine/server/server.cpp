@@ -737,7 +737,7 @@ void CServer::GetAISkin(CAISkin *pAISkin, bool PVP, int Level, int WaveGroup)
 		int i = rand()%(m_AISkinPVECount);
 		int r = i;
 		int j = 0;
-		int l = 0;
+		//int l = 0;
 		
 		while (j++ < 20)
 		{
@@ -1263,8 +1263,6 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 			if(Offset+ChunkSize >= (unsigned int)m_CurrentMapSize)
 			{
 				ChunkSize = m_CurrentMapSize-Offset;
-				if(ChunkSize < 0)
-					ChunkSize = 0;
 				Last = 1;
 			}
 

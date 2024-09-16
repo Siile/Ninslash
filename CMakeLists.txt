@@ -1,5 +1,41 @@
 cmake_minimum_required(VERSION 3.7)
 
+file(STRINGS src/game/version.h VERSION_LINE
+  LIMIT_COUNT 1
+  REGEX GAME_RELEASE_VERSION
+)
+
+if(VERSION_LINE MATCHES "\"([0-9]+)\\.([0-9]+)\\.([0-9]+)\"")
+  set(VERSION_MAJOR ${CMAKE_MATCH_1})
+  set(VERSION_MINOR ${CMAKE_MATCH_2})
+  set(VERSION_PATCH ${CMAKE_MATCH_3})
+elseif(VERSION_LINE MATCHES "\"([0-9]+)\\.([0-9]+)\"")
+  set(VERSION_MAJOR ${CMAKE_MATCH_1})
+  set(VERSION_MINOR ${CMAKE_MATCH_2})
+  set(VERSION_PATCH "0")
+else()
+  message(FATAL_ERROR "Couldn't parse version from src/game/version.h")
+endif()
+
+if(POLICY CMP0048)
+  cmake_policy(SET CMP0048 NEW)
+  if(VERSION_PATCH STREQUAL "0")
+    project(Ninslash VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
+  else()
+    project(Ninslash VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+  endif()
+else()
+  project(Ninslash)
+  set(PROJECT_VERSION_MAJOR ${VERSION_MAJOR})
+  set(PROJECT_VERSION_MINOR ${VERSION_MINOR})
+  set(PROJECT_VERSION_PATCH ${VERSION_PATCH})
+  if(VERSION_PATCH STREQUAL "0")
+    set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
+  else()
+    set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+  endif()
+endif()
+
 set(ORIGINAL_CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH})
 set(ORIGINAL_CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES})
 set(ORIGINAL_CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
@@ -111,6 +147,11 @@ if(NOT MSVC)
   add_c_compiler_flag_if_supported(OUR_FLAGS_DEP -Wno-implicit-function-declaration)
   add_c_compiler_flag_if_supported(OUR_FLAGS_OWN -Wno-deprecated-copy)
   add_c_compiler_flag_if_supported(OUR_FLAGS_OWN -Wno-ignored-qualifiers)
+  add_c_compiler_flag_if_supported(OUR_FLAGS_OWN -Wno-format-nonliteral)
+  add_c_compiler_flag_if_supported(OUR_FLAGS_OWN -Wno-return-local-addr)
+  add_c_compiler_flag_if_supported(OUR_FLAGS_OWN -Wno-implicit-fallthrough)
+  add_c_compiler_flag_if_supported(OUR_FLAGS_OWN -Wno-cast-function-type)
+  # TODO: Remove this....
 endif()
 
 if(NOT MSVC)
@@ -196,7 +237,7 @@ find_package(ZLIB)
 find_package(Freetype)
 find_package(Git)
 find_package(Pnglite)
-find_package(PythonInterp)
+find_package(Python3)
 find_package(SDL2)
 find_package(Threads)
 find_package(Wavpack)
@@ -236,26 +277,16 @@ endfunction()
 if(TARGET_OS AND TARGET_OS STREQUAL "mac")
   show_dependency_status("Dmg tools" DMGTOOLS)
 endif()
-show_dependency_status("Freetype" FREETYPE)
+
 if(TARGET_OS AND TARGET_OS STREQUAL "mac")
   show_dependency_status("Hdiutil" HDIUTIL)
 endif()
-show_dependency_status("Pnglite" PNGLITE)
-show_dependency_status("PythonInterp" PYTHONINTERP)
-show_dependency_status("SDL2" SDL2)
-show_dependency_status("Wavpack" WAVPACK)
+
+show_dependency_status("Python3" PYTHON3)
 show_dependency_status("Zlib" ZLIB)
 
-if(NOT(PYTHONINTERP_FOUND))
-  message(SEND_ERROR "You must install Python to compile Ninslash")
-endif()
-
-if(CLIENT AND NOT(FREETYPE_FOUND))
-  message(SEND_ERROR "You must install Freetype to compile the Ninslash client")
-endif()
-
-if(CLIENT AND NOT(SDL2_FOUND))
-  message(SEND_ERROR "You must install SDL2 to compile the Ninslash client")
+if(NOT(PYTHON3_FOUND))
+  message(SEND_ERROR "You must install Python3 to compile ${PROJECT_NAME}")
 endif()
 
 if(TARGET_OS STREQUAL "windows")
@@ -300,6 +331,8 @@ file(COPY data DESTINATION .)
 set(COPY_FILES
   ${FREETYPE_COPY_FILES}
   ${SDL2_COPY_FILES}
+  autoexec.cfg
+  storage.cfg
 )
 file(COPY ${COPY_FILES} DESTINATION .)
 
@@ -309,7 +342,7 @@ file(COPY ${COPY_FILES} DESTINATION .)
 
 function(chash output_file)
   add_custom_command(OUTPUT ${output_file}
-    COMMAND ${PYTHON_EXECUTABLE} scripts/cmd5.py ${ARGN}
+    COMMAND ${Python3_EXECUTABLE} scripts/cmd5.py ${ARGN}
       > "${PROJECT_BINARY_DIR}/${output_file}"
     DEPENDS scripts/cmd5.py ${ARGN}
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
@@ -318,7 +351,7 @@ endfunction()
 
 function(generate_source output_file script_parameter)
   add_custom_command(OUTPUT ${output_file}
-    COMMAND ${PYTHON_EXECUTABLE} datasrc/compile.py ${script_parameter}
+    COMMAND ${Python3_EXECUTABLE} datasrc/compile.py ${script_parameter}
       > "${PROJECT_BINARY_DIR}/${output_file}"
     DEPENDS
       datasrc/compile.py
@@ -348,10 +381,6 @@ generate_source("src/game/generated/protocol.h" "network_header")
 
 # Sources
 set_glob(BASE GLOB_RECURSE src/base
-  detect.h
-  math.h
-  system.c
-  system.h
   tl/algorithm.h
   tl/allocator.h
   tl/array.h
@@ -359,32 +388,115 @@ set_glob(BASE GLOB_RECURSE src/base
   tl/range.h
   tl/sorted_array.h
   tl/string.h
-  tl/threading.h
+  tl/threading.h 
+  detect.h
+  math.h
+  system.c
+  system.h
   vmath.h
 )
 
-file(GLOB ENGINE_INTERFACE "src/engine/*.cpp" "src/engine/*.h")
-file(GLOB ENGINE_SHARED "src/engine/shared/*.cpp" "src/engine/shared/*.h")
+set_glob(ENGINE_INTERFACE GLOB src/engine
+  client.h
+  config.h
+  console.h
+  demo.h
+  editor.h
+  engine.h
+  friends.h
+  gamepad.h
+  graphics.h
+  input.h
+  kernel.h
+  keys.h
+  localization.h
+  map.h
+  masterserver.h
+  message.h
+  server.h
+  serverbrowser.h
+  sound.h
+  storage.h
+  textrender.h
+)
+
+set_glob(ENGINE_SHARED GLOB src/engine/shared
+  compression.cpp
+  compression.h
+  config_variables.h
+  config.cpp
+  config.h
+  console.cpp
+  console.h
+  datafile.cpp
+  datafile.h
+  demo.cpp
+  demo.h
+  econ.cpp
+  econ.h
+  engine.cpp
+  filecollection.cpp
+  filecollection.h
+  huffman.cpp
+  huffman.h
+  jobs.cpp
+  jobs.h
+  kernel.cpp
+  linereader.cpp
+  linereader.h
+  map.cpp
+  mapchecker.cpp
+  mapchecker.h
+  mapchunk.cpp
+  mapchunk.h
+  masterserver.cpp
+  memheap.cpp
+  memheap.h
+  message.h
+  netban.cpp
+  netban.h
+  network_client.cpp
+  network_conn.cpp
+  network_console_conn.cpp
+  network_console.cpp
+  network_server.cpp
+  network.cpp
+  network.h
+  packer.cpp
+  packer.h
+  ringbuffer.cpp
+  ringbuffer.h
+  snapshot.cpp
+  snapshot.h
+  storage.cpp
+  stream.cpp
+  stream.h
+)
 
 set(ENGINE_GENERATED_SHARED src/game/generated/protocol.cpp src/game/generated/protocol.h)
-set_glob(GAME_SHARED GLOB src/game/
-  astar.cpp 
-  buildables.h 
-  collision.cpp 
-  collision.h 
-  gamecore.cpp 
-  gamecore.h 
-  layers.cpp 
-  layers.h 
-  localization.cpp 
-  localization.h 
-  mapitems.h 
-  tuning.h 
-  variables.h 
-  version.h 
-  voting.h 
-  weapons.cpp 
-  weapons.h 
+
+set_glob(GAME_SHARED GLOB src/game
+  astar.cpp
+  buildables.h
+  collision.cpp
+  collision.h
+  gamecore.cpp
+  gamecore.h
+  layers.cpp
+  layers.h
+  localization.cpp
+  localization.h
+  mapitems.h
+  pathfinding.cpp
+  pathfinding.h
+  questinfo.cpp
+  questinfo.h
+  tuning.h
+  variables.h
+  version.h
+  voting.h
+  weapons.cpp
+  weapons.h
 )
 
 set(GAME_GENERATED_SHARED
@@ -396,15 +508,11 @@ set(GAME_GENERATED_SHARED
 
 set(DEPS ${DEP_JSON} ${ZLIB_DEP})
 
-find_package(ICU REQUIRED COMPONENTS uc i18n)
-
 # Libraries
 set(LIBS
   ${CMAKE_THREAD_LIBS_INIT}
   ${ZLIB_LIBRARIES}
   ${PLATFORM_LIBS}
-  ICU::i18n
-  ICU::uc
 )
 
 # Targets
@@ -418,6 +526,7 @@ list(APPEND TARGETS_OWN engine-shared game-shared)
 
 if(CLIENT)
   # Sources
+  # TODO: Rewrite this.
   file(GLOB ENGINE_CLIENT "src/engine/client/*.cpp" "src/engine/client/*.h")
   file(GLOB_RECURSE GAME_CLIENT "src/game/client/*.cpp" "src/game/client/*.h" "src/game/client/components/*.cpp" "src/game/client/components/*.h" "src/game/client/customstuff/*.cpp" "src/game/client/customstuff/*.h")
   file(GLOB GAME_EDITOR "src/game/editor/*.cpp" "src/game/editor/*.h")
@@ -482,16 +591,179 @@ if(CLIENT)
   list(APPEND TARGETS_LINK ${TARGET_CLIENT})
 endif()
 
-
 ########################################################################
 # SERVER
 ########################################################################
 
 # Sources
-file(GLOB_RECURSE ENGINE_SERVER "src/engine/server/*.cpp" "src/engine/server/*.h")
-file(GLOB_RECURSE GAME_SERVER "src/game/server/*.cpp" "src/game/server/*.h" "../pathfinding.cpp" "../pathfinding.h")
+set_glob(ENGINE_SERVER GLOB src/engine/server
+  localization.cpp
+  localization.h
+  register.cpp
+  register.h
+  server.cpp
+  server.h
+)
 
-set(SERVER_SRC ${ENGINE_SERVER} ${GAME_SERVER} ${LOCALIZED_SERVER})
+set(SERVER_INCLUDES_DIRS
+  ${MYSQL_INCLUDE_DIRS}
+)
+
+set_glob(GAME_SERVER GLOB_RECURSE src/game/server
+  ai/def/def_alien1_ai.cpp
+  ai/def/def_alien1_ai.h
+  ai/def/def_alien2_ai.cpp
+  ai/def/def_alien2_ai.h
+  ai/def/def_bunny1_ai.cpp
+  ai/def/def_bunny1_ai.h
+  ai/def/def_bunny2_ai.cpp
+  ai/def/def_bunny2_ai.h
+  ai/def/def_pyro1_ai.cpp
+  ai/def/def_pyro1_ai.h
+  ai/def/def_pyro2_ai.cpp
+  ai/def/def_pyro2_ai.h
+  ai/def/def_robot1_ai.cpp
+  ai/def/def_robot1_ai.h
+  ai/def/def_robot2_ai.cpp
+  ai/def/def_robot2_ai.h
+  ai/def/def_robot3_ai.cpp
+  ai/def/def_robot3_ai.h
+  ai/inv/alien1_ai.cpp
+  ai/inv/alien1_ai.h
+  ai/inv/alien2_ai.cpp
+  ai/inv/alien2_ai.h
+  ai/inv/bunny1_ai.cpp
+  ai/inv/bunny1_ai.h
+  ai/inv/bunny2_ai.cpp
+  ai/inv/bunny2_ai.h
+  ai/inv/pyro1_ai.cpp
+  ai/inv/pyro1_ai.h
+  ai/inv/pyro2_ai.cpp
+  ai/inv/pyro2_ai.h
+  ai/inv/robot1_ai.cpp
+  ai/inv/robot1_ai.h
+  ai/inv/robot2_ai.cpp
+  ai/inv/robot2_ai.h
+  ai/ball_ai.cpp
+  ai/ball_ai.h
+  ai/base_ai.cpp
+  ai/base_ai.h
+  ai/ctf_ai.cpp
+  ai/ctf_ai.h
+  ai/def_ai.cpp
+  ai/def_ai.h
+  ai/dm_ai.cpp
+  ai/dm_ai.h
+  ai/inv_ai.cpp
+  ai/inv_ai.h
+  ai/roam_ai.cpp
+  ai/roam_ai.h
+  ai/tdm_ai.cpp
+  ai/tdm_ai.h
+  ai/texas_ai.cpp
+  ai/texas_ai.h
+  entities/ball.cpp
+  entities/ball.h
+  entities/block.cpp
+  entities/block.h
+  entities/building.cpp
+  entities/building.h
+  entities/character.cpp
+  entities/character.h
+  entities/deathray.cpp
+  entities/deathray.h
+  entities/droid_bosscrawler.cpp
+  entities/droid_bosscrawler.h
+  entities/droid_crawler.cpp
+  entities/droid_crawler.h
+  entities/droid_star.cpp
+  entities/droid_star.h
+  entities/droid_walker.cpp
+  entities/droid_walker.h
+  entities/droid.cpp
+  entities/droid.h
+  entities/electro.cpp
+  entities/electro.h
+  entities/electrowall.cpp
+  entities/electrowall.h
+  entities/flag.cpp
+  entities/flag.h
+  entities/laser.cpp
+  entities/laser.h
+  entities/laserfail.cpp
+  entities/laserfail.h
+  entities/lightning.cpp
+  entities/lightning.h
+  entities/pickup.cpp
+  entities/pickup.h
+  entities/powerupper.cpp
+  entities/powerupper.h
+  entities/projectile.cpp
+  entities/projectile.h
+  entities/radar.cpp
+  entities/radar.h
+  entities/shop.cpp
+  entities/shop.h
+  entities/staticlaser.cpp
+  entities/staticlaser.h
+  entities/superexplosion.cpp
+  entities/superexplosion.h
+  entities/teslacoil.cpp
+  entities/teslacoil.h
+  entities/turret.cpp
+  entities/turret.h
+  entities/weapon.cpp
+  entities/weapon.h
+  gamemodes/ball.cpp
+  gamemodes/ball.h
+  gamemodes/base.cpp
+  gamemodes/base.h
+  gamemodes/cs.cpp
+  gamemodes/cs.h
+  gamemodes/ctf.cpp
+  gamemodes/ctf.h
+  gamemodes/dm.cpp
+  gamemodes/dm.h
+  gamemodes/invasion.cpp
+  gamemodes/invasion.h
+  gamemodes/roam.cpp
+  gamemodes/roam.h
+  gamemodes/tdm.cpp
+  gamemodes/tdm.h
+  gamemodes/texasrun.cpp
+  gamemodes/texasrun.h
+  mapgen/gen_layer.cpp
+  mapgen/gen_layer.h
+  mapgen/maze.cpp
+  mapgen/maze.h
+  mapgen/room.cpp
+  mapgen/room.h
+  ai_protocol.h
+  ai.cpp
+  ai.h
+  aiskin.h
+  blockentities.cpp
+  blockentities.h  
+  entity.cpp
+  entity.h
+  eventhandler.cpp
+  eventhandler.h
+  gamecontext.cpp
+  gamecontext.h
+  gamecontroller.cpp
+  gamecontroller.h
+  gamevote.h
+  gameworld.cpp
+  gameworld.h
+  mapgen.cpp
+  mapgen.h
+  player.cpp
+  player.h
+  playerdata.cpp
+  playerdata.h
+)
+
+set(SERVER_SRC ${ENGINE_SERVER} ${GAME_SERVER})
 if(TARGET_OS STREQUAL "windows")
   set(SERVER_ICON "other/icons/${SERVER_EXECUTABLE}.rc")
 else()
@@ -511,8 +783,6 @@ add_executable(${TARGET_SERVER}
   $<TARGET_OBJECTS:game-shared>
 )
 target_link_libraries(${TARGET_SERVER} ${LIBS_SERVER})
-target_link_libraries(${TARGET_SERVER} ICU::i18n)
-target_link_libraries(${TARGET_SERVER} ICU::uc)
 list(APPEND TARGETS_OWN ${TARGET_SERVER})
 list(APPEND TARGETS_LINK ${TARGET_SERVER})
 
@@ -844,7 +1114,10 @@ foreach(target ${TARGETS_OWN})
   target_compile_definitions(${target} PRIVATE $<$<CONFIG:Debug>:CONF_DEBUG>)
   target_include_directories(${target} PRIVATE ${ZLIB_INCLUDE_DIRS})
 
-  endforeach()
+  set_target_properties(${target} PROPERTIES CXX_STANDARD_REQUIRED ON)
+  target_compile_features(${target} PUBLIC cxx_std_17)
+
+endforeach()
 
 foreach(target ${TARGETS_DEP})
   if(MSVC)
