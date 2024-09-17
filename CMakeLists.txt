@@ -162,14 +162,19 @@ endif()
 # COMMON FUNCTIONS
 ########################################################################
 
-function(set_glob VAR GLOBBING DIRECTORY) # ...
-  file(${GLOBBING} GLOB_RESULT "${DIRECTORY}/*.c" "${DIRECTORY}/*.cpp" "${DIRECTORY}/*.h")
-  list(SORT GLOB_RESULT)
-  set(FILES)
-  foreach(file ${ARGN})
-    list(APPEND FILES "${PROJECT_SOURCE_DIR}/${DIRECTORY}/${file}")
+function(set_glob VAR GLOBBING EXTS DIRECTORY) # ...
+  set(GLOBS)
+  foreach(ext ${EXTS})
+    list(APPEND GLOBS "${DIRECTORY}/*.${ext}")
   endforeach()
-  set(${VAR} ${FILES} PARENT_SCOPE)
+  file(${GLOBBING} GLOB_RESULT ${GLOBS})
+  list(SORT GLOB_RESULT)
+  set(${VAR} ${GLOB_RESULT} PARENT_SCOPE)
+endfunction()
+
+function(set_src VAR GLOBBING DIRECTORY) # ...
+  set_glob(${VAR} ${GLOBBING} "c;cpp;h" ${DIRECTORY} ${ARGN})
+  set(${VAR} ${${VAR}} PARENT_SCOPE)
 endfunction()
 
 ########################################################################
@@ -241,7 +246,7 @@ find_package(Python3)
 find_package(SDL2)
 find_package(Threads)
 find_package(Wavpack)
-find_package(GLEW REQUIRED)
+find_package(GLEW)
 
 if(TARGET_OS AND TARGET_OS STREQUAL "mac")
   find_program(DMG dmg)
@@ -288,6 +293,7 @@ show_dependency_status("Python3" PYTHON3)
 show_dependency_status("SDL2" SDL2)
 show_dependency_status("Wavpack" WAVPACK)
 show_dependency_status("Zlib" ZLIB)
+show_dependency_status("GLEW" GLEW)
 
 if(NOT(PYTHON3_FOUND))
   message(SEND_ERROR "You must install Python3 to compile Ninslash")
@@ -299,6 +305,10 @@ endif()
 
 if(CLIENT AND NOT(SDL2_FOUND))
   message(SEND_ERROR "You must install SDL2 to compile the Ninslash client")
+endif()
+
+if(CLIENT AND NOT(GLEW_FOUND))
+  message(SEND_ERROR "You must install GLEW to compile the Ninslash client")
 endif()
 
 if(TARGET_OS STREQUAL "windows")
@@ -329,7 +339,7 @@ endif()
 # DEPENDENCY COMPILATION
 ########################################################################
 
-set_glob(DEP_JSON_SRC GLOB src/engine/external/json-parser json.c json.h)
+set_src(DEP_JSON_SRC GLOB src/engine/external/json-parser json.c json.h)
 add_library(json EXCLUDE_FROM_ALL OBJECT ${DEP_JSON_SRC})
 
 list(APPEND TARGETS_DEP json)
@@ -392,7 +402,7 @@ generate_source("src/game/generated/protocol.h" "network_header")
 ########################################################################
 
 # Sources
-set_glob(BASE GLOB_RECURSE src/base
+set_src(BASE GLOB_RECURSE src/base
   tl/algorithm.h
   tl/allocator.h
   tl/array.h
@@ -408,7 +418,7 @@ set_glob(BASE GLOB_RECURSE src/base
   vmath.h
 )
 
-set_glob(ENGINE_INTERFACE GLOB src/engine
+set_src(ENGINE_INTERFACE GLOB src/engine
   client.h
   config.h
   console.h
@@ -432,7 +442,7 @@ set_glob(ENGINE_INTERFACE GLOB src/engine
   textrender.h
 )
 
-set_glob(ENGINE_SHARED GLOB src/engine/shared
+set_src(ENGINE_SHARED GLOB src/engine/shared
   compression.cpp
   compression.h
   config_variables.h
@@ -487,7 +497,7 @@ set_glob(ENGINE_SHARED GLOB src/engine/shared
 
 set(ENGINE_GENERATED_SHARED src/game/generated/protocol.cpp src/game/generated/protocol.h)
 
-set_glob(GAME_SHARED GLOB src/game
+set_src(GAME_SHARED GLOB src/game
   astar.cpp
   buildables.h
   collision.cpp
@@ -545,7 +555,7 @@ if(CLIENT)
 
   set(CLIENT_SRC ${ENGINE_CLIENT} ${PLATFORM_CLIENT} ${GAME_CLIENT} ${GAME_EDITOR})
 
-  set(DEPS_CLIENT ${DEPS} ${PNGLITE_DEP} ${WAVPACK_DEP})
+  set(DEPS_CLIENT ${DEPS} ${GLEW_DEP} ${PNGLITE_DEP} ${WAVPACK_DEP})
 
   # Libraries
   set(LIBS_CLIENT
@@ -555,7 +565,7 @@ if(CLIENT)
     ${SDL2_LIBRARIES}
     ${WAVPACK_LIBRARIES}
     ${PLATFORM_CLIENT_LIBS}
-    GLEW::glew
+    ${GLEW_LIBRARIES}
   )
 
   if(TARGET_OS STREQUAL "windows")
@@ -581,6 +591,7 @@ if(CLIENT)
     ${PNGLITE_INCLUDE_DIRS}
     ${SDL2_INCLUDE_DIRS}
     ${WAVPACK_INCLUDE_DIRS}
+    ${GLEW_INCLUDE_DIRS}
   )
 
   set(PARAMS "${WAVPACK_INCLUDE_DIRS};${WAVPACK_INCLUDE_DIRS}")
@@ -608,7 +619,7 @@ endif()
 ########################################################################
 
 # Sources
-set_glob(ENGINE_SERVER GLOB src/engine/server
+set_src(ENGINE_SERVER GLOB src/engine/server
   localization.cpp
   localization.h
   register.cpp
@@ -617,11 +628,7 @@ set_glob(ENGINE_SERVER GLOB src/engine/server
   server.h
 )
 
-set(SERVER_INCLUDES_DIRS
-  ${MYSQL_INCLUDE_DIRS}
-)
-
-set_glob(GAME_SERVER GLOB_RECURSE src/game/server
+set_src(GAME_SERVER GLOB_RECURSE src/game/server
   ai/def/def_alien1_ai.cpp
   ai/def/def_alien1_ai.h
   ai/def/def_alien2_ai.cpp
@@ -798,8 +805,6 @@ target_link_libraries(${TARGET_SERVER} ${LIBS_SERVER})
 list(APPEND TARGETS_OWN ${TARGET_SERVER})
 list(APPEND TARGETS_LINK ${TARGET_SERVER})
 
-target_include_directories(${TARGET_SERVER} PRIVATE ${SERVER_INCLUDES_DIRS})
-
 if(TARGET_OS AND TARGET_OS STREQUAL "mac")
   set(SERVER_LAUNCHER_SRC src/osxlaunch/server.mm)
   set(TARGET_SERVER_LAUNCHER ${TARGET_SERVER}-Launcher)
@@ -813,8 +818,8 @@ endif()
 # VARIOUS TARGETS
 ########################################################################
 
-set_glob(MASTERSRV_SRC GLOB src/mastersrv mastersrv.cpp mastersrv.h)
-set_glob(VERSIONSRV_SRC GLOB src/versionsrv mapversions.h versionsrv.cpp versionsrv.h)
+set_src(MASTERSRV_SRC GLOB src/mastersrv mastersrv.cpp mastersrv.h)
+set_src(VERSIONSRV_SRC GLOB src/versionsrv mapversions.h versionsrv.cpp versionsrv.h)
 
 set(TARGET_MASTERSRV mastersrv)
 set(TARGET_VERSIONSRV versionsrv)
@@ -1110,6 +1115,8 @@ foreach(target ${TARGETS_LINK})
       target_link_libraries(${target} -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic)
     endif()
   endif()
+
+  target_compile_definitions(${target} PRIVATE GLEW_STATIC)
 endforeach()
 
 foreach(target ${TARGETS_OWN})
