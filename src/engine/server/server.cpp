@@ -2083,12 +2083,12 @@ void CServer::ConReloadLocalizations(IConsole::IResult *pResult, void *pUserData
 	CServer *pSelf = static_cast<CServer *>(pUserData);
 
 	ILocalization *pLocalization = pSelf->Kernel()->RequestInterface<ILocalization>();
-	if(pLocalization && !pLocalization->Init())
+	if(!pLocalization)
 	{
 		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "Localization reload failed.");
 		return;
 	}
-	pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "Localization texts reloaded.");
+	pLocalization->Init();
 }
 
 void CServer::RegisterCommands()
@@ -2175,8 +2175,8 @@ int main(int argc, const char **argv) // ignore_convention
 	IStorage *pStorage = CreateStorage("Ninslash", IStorage::STORAGETYPE_SERVER, argc, argv); // ignore_convention
 	IConfig *pConfig = CreateConfig();
 	ILocalization *pLocalization = CreateLocalization(pStorage);
-	if(!pLocalization->Init())
-		dbg_msg("Localization", "Failed to Init localization.");
+	
+	pLocalization->Init();
 
 	pServer->InitRegister(&pServer->m_NetServer, pEngineMasterServer, pConsole);
 
