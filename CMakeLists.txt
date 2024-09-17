@@ -91,8 +91,8 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
   src/game/version.h
 )
 
-set(SERVER_EXECUTABLE Ninslash-Server CACHE STRING "Name of the built server executable")
-set(CLIENT_EXECUTABLE Ninslash CACHE STRING "Name of the build client executable")
+set(SERVER_EXECUTABLE ninslash CACHE STRING "Name of the built server executable")
+set(CLIENT_EXECUTABLE ninslash_srv CACHE STRING "Name of the build client executable")
 
 ########################################################################
 # Compiler flags
