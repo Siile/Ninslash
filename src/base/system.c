@@ -97,7 +97,7 @@ void dbg_msg(const char *sys, const char *fmt, ...)
 	time_info = localtime(&time_data);
 	strftime(atime, sizeof(atime), "%Y-%m-%d %H-%M-%S", time_info);
 
-	str_format(str, sizeof(str), "%s | [%s]: ", atime, sys);
+	str_format(str, sizeof(str), COLOR_RESET COLOR_BLACK_BRIGHT "%s" COLOR_WHITE_BRIGHT " | " COLOR_CYAN "[%s]: " COLOR_RESET, atime, sys);
 
 	len = strlen(str);
 	msg = (char *)str + len;
