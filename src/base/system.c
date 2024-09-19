@@ -88,9 +88,17 @@ void dbg_msg(const char *sys, const char *fmt, ...)
 	va_list args;
 	char str[1024*4];
 	char *msg;
+	char atime[64];
 	int i, len;
+	time_t time_data;
+	struct tm *time_info;
 
-	str_format(str, sizeof(str), "[%08x][%s]: ", (int)time(0), sys);
+	time(&time_data);
+	time_info = localtime(&time_data);
+	strftime(atime, sizeof(atime), "%Y-%m-%d %H-%M-%S", time_info);
+
+	str_format(str, sizeof(str), "%s | [%s]: ", atime, sys);
+
 	len = strlen(str);
 	msg = (char *)str + len;
 
