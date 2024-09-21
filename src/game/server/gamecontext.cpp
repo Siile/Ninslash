@@ -2361,7 +2361,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			Server()->SetClientClan(ClientID, pMsg->m_pClan);
 			Server()->SetClientCountry(ClientID, pMsg->m_Country);
-			str_copy(pPlayer->m_aLanguage, Localization()->GetLanguageCode(pMsg->m_Country), sizeof(pPlayer->m_aLanguage));
 			str_copy(pPlayer->m_TeeInfos.m_TopperName, pMsg->m_pTopper, sizeof(pPlayer->m_TeeInfos.m_TopperName));
 			str_copy(pPlayer->m_TeeInfos.m_EyeName, pMsg->m_pEye, sizeof(pPlayer->m_TeeInfos.m_EyeName));
 			str_copy(pPlayer->m_TeeInfos.m_HeadName, pMsg->m_pHead, sizeof(pPlayer->m_TeeInfos.m_HeadName));
@@ -2373,6 +2372,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			pPlayer->m_TeeInfos.m_ColorTopper = pMsg->m_ColorTopper;
 			pPlayer->m_TeeInfos.m_BloodColor = pMsg->m_BloodColor;
 			pPlayer->m_TeeInfos.m_ColorSkin = pMsg->m_ColorSkin;
+
+			str_copy(pPlayer->m_aLanguage, Localization()->GetLanguageCode(pMsg->m_Country), sizeof(pPlayer->m_aLanguage));
+			if(pMsg->m_Language)
+				str_copy(pPlayer->m_aLanguage, Localization()->GetLanguageCode(pMsg->m_Language), sizeof(pPlayer->m_aLanguage));
+
 			m_pController->OnPlayerInfoChange(pPlayer);
 		}
 		else if (MsgID == NETMSGTYPE_CL_EMOTICON && !m_World.m_Paused)
@@ -2453,7 +2457,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			Server()->SetClientName(ClientID, pMsg->m_pName);
 			Server()->SetClientClan(ClientID, pMsg->m_pClan);
 			Server()->SetClientCountry(ClientID, pMsg->m_Country);
-			str_copy(pPlayer->m_aLanguage, Localization()->GetLanguageCode(pMsg->m_Country), sizeof(pPlayer->m_aLanguage));
 			str_copy(pPlayer->m_TeeInfos.m_TopperName, pMsg->m_pTopper, sizeof(pPlayer->m_TeeInfos.m_TopperName));
 			str_copy(pPlayer->m_TeeInfos.m_EyeName, pMsg->m_pEye, sizeof(pPlayer->m_TeeInfos.m_EyeName));
 			str_copy(pPlayer->m_TeeInfos.m_HeadName, pMsg->m_pHead, sizeof(pPlayer->m_TeeInfos.m_HeadName));
@@ -2465,6 +2468,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			pPlayer->m_TeeInfos.m_ColorTopper = pMsg->m_ColorTopper;
 			pPlayer->m_TeeInfos.m_ColorSkin = pMsg->m_ColorSkin;
 			pPlayer->m_TeeInfos.m_BloodColor = pMsg->m_BloodColor;
+
+			str_copy(pPlayer->m_aLanguage, Localization()->GetLanguageCode(pMsg->m_Country), sizeof(pPlayer->m_aLanguage));
+			if(pMsg->m_Language)
+				str_copy(pPlayer->m_aLanguage, Localization()->GetLanguageCode(pMsg->m_Language), sizeof(pPlayer->m_aLanguage));
+
 			m_pController->OnPlayerInfoChange(pPlayer);
 
 			// send vote options
