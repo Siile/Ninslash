@@ -336,14 +336,14 @@ CPlayerData *CServer::GetPlayerData(int ClientID, int ColorID)
 			return pData;
 		else
 		{
-			CPlayerData *pNewData = new CPlayerData(m_aClients[ClientID].m_aName, ColorID);
+			CPlayerData *pNewData = new CPlayerData(m_aClients[ClientID].m_aName, ColorID, Storage());
 			m_pPlayerData->Add(pNewData);
 			return pNewData;
 		}
 	}
 	else
 	{
-		m_pPlayerData = new CPlayerData(m_aClients[ClientID].m_aName, ColorID);
+		m_pPlayerData = new CPlayerData(m_aClients[ClientID].m_aName, ColorID, Storage());
 		return m_pPlayerData;
 	}
 	

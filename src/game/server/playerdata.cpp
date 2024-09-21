@@ -1,9 +1,16 @@
 #include <base/system.h>
 #include <base/math.h>
 
+#include <engine/shared/config.h>
+#include <engine/storage.h>
+#include <engine/shared/linereader.h>
+#include <engine/shared/linewriter.h>
+
+#include <stdio.h>
+
 #include "playerdata.h"
 
-CPlayerData::CPlayerData(const char *pName, int ColorID)
+CPlayerData::CPlayerData(const char *pName, int ColorID, IStorage *pStorage)
 {
 	m_pChild1 = 0;
 	m_pChild2 = 0;
@@ -11,6 +18,8 @@ CPlayerData::CPlayerData(const char *pName, int ColorID)
 	str_copy(m_aName, pName, 16);
 	m_ColorID = ColorID;
 	
+	m_pStorage = pStorage;
+	LoadDataFromFile();
 	Reset();
 }
 
@@ -108,4 +117,96 @@ void CPlayerData::Reset()
 	m_Gold = 0;
 	m_HighestLevel = 0;
 	m_HighestLevelSeed = 0;
+}
+
+void CPlayerData::LoadDataFromFile()
+{
+	if (!g_Config.m_SvSavePlayerdata)
+		return;
+
+	char aFilename[32];
+	str_format(aFilename, sizeof(aFilename), "playerdatas/%s_%d.acc", m_aName, m_ColorID);
+
+	IOHANDLE File = m_pStorage->OpenFile(aFilename, IOFLAG_READ, IStorage::TYPE_ALL);
+	if(!File)
+	{
+		SaveToFile(); // Create file
+		return;
+	}
+	CLineReader LineReader;
+	LineReader.Init(File);
+ 
+	// read each line
+	while(char *pLine = LineReader.Get())
+	{
+		// skip blank/empty lines as well as comments
+		if(str_length(pLine) > 0 && pLine[0] != '#' && pLine[0] != '\n' && pLine[0] != '\r'
+			&& pLine[0] != '\t' && pLine[0] != '\v' && pLine[0] != ' ')
+		{
+			// TODO: Ugly, rewrite this
+			if(!str_comp_num(pLine, "Weapon: ", 8)) sscanf(pLine, "Weapon: %d %d %d %d %d %d %d %d %d %d %d %d", &(m_aWeaponType[0]), &(m_aWeaponType[1]), &(m_aWeaponType[2]), &(m_aWeaponType[3]), &(m_aWeaponType[4]), &(m_aWeaponType[5]), &(m_aWeaponType[6]), &(m_aWeaponType[7]), &(m_aWeaponType[8]), &(m_aWeaponType[9]), &(m_aWeaponType[10]), &(m_aWeaponType[11]));
+			if(!str_comp_num(pLine, "Ammo: ", 6)) sscanf(pLine, "Ammo: %d %d %d %d %d %d %d %d %d %d %d %d", &(m_aWeaponAmmo[0]), &(m_aWeaponAmmo[1]), &(m_aWeaponAmmo[2]), &(m_aWeaponAmmo[3]), &(m_aWeaponAmmo[4]), &(m_aWeaponAmmo[5]), &(m_aWeaponAmmo[6]), &(m_aWeaponAmmo[7]), &(m_aWeaponAmmo[8]), &(m_aWeaponAmmo[9]), &(m_aWeaponAmmo[10]), &(m_aWeaponAmmo[11]));
+			if(!str_comp_num(pLine, "Armor: ", 7)) sscanf(pLine, "Armor: %d", &m_Armor);
+			if(!str_comp_num(pLine, "Kits: ", 6)) sscanf(pLine, "Kits: %d", &m_Kits);
+			if(!str_comp_num(pLine, "Score: ", 7)) sscanf(pLine, "Score: %d", &m_Score);
+			if(!str_comp_num(pLine, "Gold: ", 6)) sscanf(pLine, "Gold: %d", &m_Gold);
+			if(!str_comp_num(pLine, "HighestLevelSeed: ", 18)) sscanf(pLine, "HighestLevelSeed: %d", &m_HighestLevelSeed);
+			else if(!str_comp_num(pLine, "HighestLevel: ", 14)) sscanf(pLine, "HighestLevel: %d", &m_HighestLevel);
+		}
+	}
+
+
+	io_close(File);
+}
+
+void CPlayerData::SaveToFile()
+{
+	if (!g_Config.m_SvSavePlayerdata)
+		return;
+
+	m_pStorage->CreateFolder("playerdatas", IStorage::TYPE_SAVE);
+
+	char aFilename[32];
+	str_format(aFilename, sizeof(aFilename), "playerdatas/%s_%d.acc", m_aName, m_ColorID);
+
+	IOHANDLE File = m_pStorage->OpenFile(aFilename, IOFLAG_WRITE, IStorage::TYPE_SAVE);
+	if(!File)
+		return;
+
+	CLineWriter Writer(File);
+
+	char aBuf[256];
+	
+#define WRITE_LINE_INT(w, x) \
+	do \
+	{ \
+		str_format(aBuf, sizeof(aBuf), "%d", x); \
+		(w).Write(aBuf); \
+	} while(0)
+
+	// Warning! Weapon Type change 
+	Writer.Write("Weapon:");
+	for (int i = 0; i < 12; i++)
+	{
+		Writer.Write(" ");
+		WRITE_LINE_INT(Writer, m_aWeaponType[i]);
+	}
+	Writer.Write("\nAmmo:");
+	for (int i = 0; i < 12; i++)
+	{
+		Writer.Write(" ");
+		WRITE_LINE_INT(Writer, m_aWeaponAmmo[i]);
+	}
+
+	Writer.Write("\nArmor: "); WRITE_LINE_INT(Writer, m_Armor);
+
+	Writer.Write("\nKits: "); WRITE_LINE_INT(Writer, m_Kits);
+
+	Writer.Write("\nScore: "); WRITE_LINE_INT(Writer, m_Score);
+
+	Writer.Write("\nGold: "); WRITE_LINE_INT(Writer, m_Gold);
+
+	Writer.Write("\nHighestLevel: "); WRITE_LINE_INT(Writer, m_HighestLevel);
+
+	Writer.Write("\nHighestLevelSeed: "); WRITE_LINE_INT(Writer, m_HighestLevelSeed);
 }

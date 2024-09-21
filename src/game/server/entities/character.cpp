@@ -304,6 +304,8 @@ void CCharacter::SaveData()
 		else
 			pData->m_aWeaponType[i] = 0;
 	}
+
+	pData->SaveToFile();
 	
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "Data save - color=%d", GetPlayer()->GetColorID());
@@ -1209,6 +1211,7 @@ void CCharacter::GiveStartWeapon()
 		
 		// load saved weapons
 		CPlayerData *pData = GameServer()->Server()->GetPlayerData(GetPlayer()->GetCID(), GetPlayer()->GetColorID());
+		pData->LoadDataFromFile();
 		
 		bool GotItems = false;
 		
