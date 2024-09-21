@@ -345,12 +345,6 @@ bool CCharacter::GiveWeapon(CWeapon *pWeapon)
 	
 	if (m_IsBot && GameServer()->m_pController->IsCoop())
 		pWeapon->m_InfiniteAmmo = true;
-
-	if (!m_IsBot && GameServer()->m_pController->IsCoop())
-	{
-		CPlayerData *pData = Server()->GetPlayerData(GetPlayer()->GetCID(), GetPlayer()->GetColorID());
-		pData->SaveToFile();
-	}
 	
 	//SendInventory();
 	return true;
@@ -467,9 +461,6 @@ void CCharacter::SendInventory()
 	Msg.m_Item12 = GetWeaponType(11);
 	Msg.m_Gold = GetPlayer()->GetGold();
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, GetPlayer()->GetCID());
-
-	CPlayerData *pData = Server()->GetPlayerData(GetPlayer()->GetCID(), GetPlayer()->GetColorID());
-	pData->SaveToFile();
 }
 
 
@@ -1220,6 +1211,7 @@ void CCharacter::GiveStartWeapon()
 		
 		// load saved weapons
 		CPlayerData *pData = GameServer()->Server()->GetPlayerData(GetPlayer()->GetCID(), GetPlayer()->GetColorID());
+		pData->LoadDataFromFile();
 		
 		bool GotItems = false;
 		
