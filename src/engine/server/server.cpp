@@ -45,6 +45,24 @@
 #include <sstream>
 #include <string>
 
+#include <csignal>
+
+volatile sig_atomic_t InterruptSignaled = 0;
+
+bool IsInterrupted()
+{
+	return InterruptSignaled;
+}
+
+void HandleSigIntTerm(int Param)
+{
+	InterruptSignaled = 1;
+
+	// Exit the next time a signal is received
+	signal(SIGINT, SIG_DFL);
+	signal(SIGTERM, SIG_DFL);
+}
+
 static const char *StrLtrim(const char *pStr)
 {
 	while(*pStr && *pStr >= 0 && *pStr <= 32)
@@ -1877,6 +1895,12 @@ int CServer::Run()
 				ReportTime += time_freq()*ReportInterval;
 			}
 
+			if (IsInterrupted())
+			{
+				Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "Interrupted");
+				m_RunServer = 0;
+			}
+
 			// wait for incomming data
 			net_socket_read_wait(m_NetServer.Socket(), 5);
 		}
@@ -2150,6 +2174,9 @@ int main(int argc, const char **argv) // ignore_convention
 		}
 	}
 #endif
+
+	signal(SIGINT, HandleSigIntTerm);
+	signal(SIGTERM, HandleSigIntTerm);
 
 	CServer *pServer = CreateServer();
 	IKernel *pKernel = IKernel::Create();
