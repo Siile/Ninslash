@@ -385,15 +385,16 @@ function BuildContent(settings, arch, conf)
 		dl = Python("scripts/download.py")
 		AddJob({
 				"other/freetype/include/ft2build.h", "other/freetype/windows/lib" .. _arch .. "/freetype.dll",
-				"other/sdl2/include/SDL.h", "other/sdl2/windows/lib" .. _arch .. "/SDL2.dll"
-			}, "Downloading freetype and SDL2", dl .. " freetype sdl2"
+				"other/sdl2/include/SDL.h", "other/sdl2/windows/lib" .. _arch .. "/SDL2.dll",
+				"other/glew/include/GL/glew.h", "other/glew/windows/lib" .. _arch .. "/glew32.dll"
+			}, "Downloading freetype, SDL2 and glew", dl .. " freetype sdl2 glew"
 		)
 		table.insert(content, CopyFile(settings.link.Output(settings, "") .. "/SDL2.dll", "other/sdl2/windows/lib" .. _arch .. "/SDL2.dll"))
 		table.insert(content, CopyFile(settings.link.Output(settings, "") .. "/freetype.dll", "other/freetype/windows/lib" .. _arch .. "/freetype.dll"))
 		table.insert(content, CopyFile(settings.link.Output(settings, "") .. "/glew32.dll", "other/glew/windows/lib" .. _arch .. "/glew32.dll"))
 		AddDependency(settings.link.Output(settings, "") .. "/SDL2.dll", "other/sdl2/include/SDL.h")
 		AddDependency(settings.link.Output(settings, "") .. "/freetype.dll", "other/freetype/include/ft2build.h")
-		AddDependency(settings.link.Output(settings, "") .. "/glew32.dll", "other/freetype/include/glew.h")
+		AddDependency(settings.link.Output(settings, "") .. "/glew32.dll", "other/glew/include/GL/glew.h")
 	end
 	PseudoTarget(settings.link.Output(settings, "content") .. settings.link.extension, content)
 end

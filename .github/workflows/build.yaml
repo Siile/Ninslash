@@ -30,7 +30,7 @@ jobs:
       if: contains(matrix.os, 'ubuntu')
       run: |
         sudo apt-get update -y
-        sudo apt-get install bam libsdl2-dev python3 -y
+        sudo apt-get install bam libsdl2-dev python3 libglew-dev -y
 
     - name: Build in debug mode
       run: bam conf=debug
@@ -41,7 +41,8 @@ jobs:
     - name: Package Release
       if: contains(matrix.os, 'ubuntu')
       run: |
-        tar -cf ${{ matrix.package-full-file }} build/x86_64/release/ninslash_srv build/x86_64/release/ninslash data/ cfg/ storage.cfg license.txt autoexec.cfg
+        mv build/x86_64/release/ninslash_srv build/x86_64/release/ninslash .
+        tar -cf ${{ matrix.package-full-file }} ninslash_srv ninslash data/ cfg/ storage.cfg license.txt autoexec.cfg
         
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
