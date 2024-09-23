@@ -6,7 +6,7 @@
 #include <game/client/customstuff.h>
 #include <game/client/components/camera.h>
 #include <game/client/components/particles.h>
-#include <game/generated/game_data.h>
+#include <generated/game_data.h>
 #include <game/client/render.h>
 #include <game/gamecore.h>
 #include "light.h"

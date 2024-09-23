@@ -1,6 +1,6 @@
 #include <engine/shared/config.h>
 #include <engine/shared/protocol.h>
-#include <game/generated/game_data.h>
+#include <generated/game_data.h>
 
 #include "weapons.h"
 

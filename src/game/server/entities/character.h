@@ -2,8 +2,8 @@
 #define GAME_SERVER_ENTITIES_CHARACTER_H
 
 #include <game/server/entity.h>
-#include <game/generated/game_data.h>
-#include <game/generated/protocol.h>
+#include <generated/game_data.h>
+#include <generated/protocol.h>
 
 #include <game/gamecore.h>
 

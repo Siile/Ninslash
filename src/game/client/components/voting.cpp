@@ -2,7 +2,7 @@
 
 #include <engine/shared/config.h>
 
-#include <game/generated/protocol.h>
+#include <generated/protocol.h>
 #include <base/vmath.h>
 #include <game/client/render.h>
 #include "voting.h"

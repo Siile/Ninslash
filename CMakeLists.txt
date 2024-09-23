@@ -91,8 +91,8 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
   src/game/version.h
 )
 
-set(SERVER_EXECUTABLE ninslash CACHE STRING "Name of the built server executable")
-set(CLIENT_EXECUTABLE ninslash_srv CACHE STRING "Name of the build client executable")
+set(SERVER_EXECUTABLE ninslash_srv CACHE STRING "Name of the built server executable")
+set(CLIENT_EXECUTABLE ninslash CACHE STRING "Name of the build client executable")
 
 ########################################################################
 # Compiler flags
@@ -384,17 +384,17 @@ function(generate_source output_file script_parameter)
   )
 endfunction()
 
-file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/src/game/generated/")
-chash("src/game/generated/nethash.cpp"
+file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/src/generated/")
+chash("src/generated/nethash.cpp"
   "src/engine/shared/protocol.h"
-  "${PROJECT_BINARY_DIR}/src/game/generated/protocol.h"
+  "${PROJECT_BINARY_DIR}/src/generated/protocol.h"
   "src/game/tuning.h"
   "src/game/gamecore.cpp"
 )
-generate_source("src/game/generated/game_data.cpp" "game_content_source")
-generate_source("src/game/generated/game_data.h" "game_content_header")
-generate_source("src/game/generated/protocol.cpp" "network_source")
-generate_source("src/game/generated/protocol.h" "network_header")
+generate_source("src/generated/game_data.cpp" "game_content_source")
+generate_source("src/generated/game_data.h" "game_content_header")
+generate_source("src/generated/protocol.cpp" "network_source")
+generate_source("src/generated/protocol.h" "network_header")
 
 
 ########################################################################
@@ -495,7 +495,7 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
   stream.h
 )
 
-set(ENGINE_GENERATED_SHARED src/game/generated/protocol.cpp src/game/generated/protocol.h)
+set(ENGINE_GENERATED_SHARED src/generated/protocol.cpp src/generated/protocol.h)
 
 set_src(GAME_SHARED GLOB src/game
   astar.cpp
@@ -522,10 +522,10 @@ set_src(GAME_SHARED GLOB src/game
 )
 
 set(GAME_GENERATED_SHARED
-  src/game/generated/nethash.cpp
-  src/game/generated/protocol.h
-  src/game/generated/game_data.cpp
-  src/game/generated/game_data.h
+  src/generated/nethash.cpp
+  src/generated/protocol.h
+  src/generated/game_data.cpp
+  src/generated/game_data.h
 )
 
 set(DEPS ${DEP_JSON} ${ZLIB_DEP})
@@ -806,7 +806,7 @@ list(APPEND TARGETS_OWN ${TARGET_SERVER})
 list(APPEND TARGETS_LINK ${TARGET_SERVER})
 
 if(TARGET_OS AND TARGET_OS STREQUAL "mac")
-  set(SERVER_LAUNCHER_SRC src/osxlaunch/server.mm)
+  set(SERVER_LAUNCHER_SRC src/osxlaunch/server.m)
   set(TARGET_SERVER_LAUNCHER ${TARGET_SERVER}-Launcher)
   add_executable(${TARGET_SERVER_LAUNCHER} ${SERVER_LAUNCHER_SRC})
   target_link_libraries(${TARGET_SERVER_LAUNCHER} ${COCOA})

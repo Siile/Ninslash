@@ -1,6 +1,6 @@
 #include "playerinfo.h"
 
-#include <game/generated/game_data.h>
+#include <generated/game_data.h>
 #include <base/math.h>
 
 #include <engine/graphics.h>

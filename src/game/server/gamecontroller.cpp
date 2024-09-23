@@ -1,7 +1,7 @@
 #include <engine/shared/config.h>
 #include <game/mapitems.h>
 
-#include <game/generated/protocol.h>
+#include <generated/protocol.h>
 
 #include "entities/ball.h"
 #include "entities/flag.h"
