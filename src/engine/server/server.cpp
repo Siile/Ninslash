@@ -737,7 +737,7 @@ void CServer::GetAISkin(CAISkin *pAISkin, bool PVP, int Level, int WaveGroup)
 		int i = rand()%(m_AISkinPVECount);
 		int r = i;
 		int j = 0;
-		int l = 0;
+		//int l = 0;
 		
 		while (j++ < 20)
 		{
@@ -1263,8 +1263,6 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 			if(Offset+ChunkSize >= (unsigned int)m_CurrentMapSize)
 			{
 				ChunkSize = m_CurrentMapSize-Offset;
-				if(ChunkSize < 0)
-					ChunkSize = 0;
 				Last = 1;
 			}
 
@@ -2080,6 +2078,19 @@ void CServer::ConMapsList(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CServer::ConReloadLocalizations(IConsole::IResult *pResult, void *pUserData)
+{
+	CServer *pSelf = static_cast<CServer *>(pUserData);
+
+	ILocalization *pLocalization = pSelf->Kernel()->RequestInterface<ILocalization>();
+	if(!pLocalization)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "Localization reload failed.");
+		return;
+	}
+	pLocalization->Init();
+}
+
 void CServer::RegisterCommands()
 {
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
@@ -2097,7 +2108,8 @@ void CServer::RegisterCommands()
 	Console()->Register("stoprecord", "", CFGFLAG_SERVER, ConStopRecord, this, "Stop recording");
 
 	Console()->Register("reload", "", CFGFLAG_SERVER, ConMapReload, this, "Reload the map");
-
+	Console()->Register("reload_localizations", "", CFGFLAG_SERVER, ConReloadLocalizations, this, "Hot reload server localization texts");
+	
 	Console()->Register("sv_maps_list", "?r", CFGFLAG_SERVER, ConMapsList, this, "Maps to rotate between");
 
 	Console()->Chain("sv_name", ConchainSpecialInfoupdate, this);
@@ -2163,8 +2175,8 @@ int main(int argc, const char **argv) // ignore_convention
 	IStorage *pStorage = CreateStorage("Ninslash", IStorage::STORAGETYPE_SERVER, argc, argv); // ignore_convention
 	IConfig *pConfig = CreateConfig();
 	ILocalization *pLocalization = CreateLocalization(pStorage);
-	if(!pLocalization->Init())
-		dbg_msg("Localization", "Failed to Init localization.");
+	
+	pLocalization->Init();
 
 	pServer->InitRegister(&pServer->m_NetServer, pEngineMasterServer, pConsole);
 
@@ -2255,11 +2267,3 @@ void CServer::AddZombie()
 	SetBotDefault(ClientID);
 	SetClientClan(ClientID, "ai");
 }
-
-
-
-
-
-
-
-

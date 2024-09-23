@@ -325,6 +325,7 @@ int CInput::Update()
 					{
 						AddEvent(Event.text.text[i], 0, 0);
 					}
+					break;
 				}
 				// handle keys
 				case SDL_KEYDOWN:

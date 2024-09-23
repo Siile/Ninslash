@@ -6,21 +6,21 @@ CLocalization::CLocalization(IStorage *pStorage)
     m_pStorage = pStorage;
 }
 
-bool CLocalization::Init()
+void CLocalization::Init()
 {
-    if(LoadIndexFile())
-        return true;
-    return false;
+	thread_init(LoadLocalizations, this);
 }
 
-bool CLocalization::LoadIndexFile()
+void CLocalization::LoadLocalizations(void *pUser)
 {
+	CLocalization *pThis = (CLocalization *)pUser;
+
     const char *pIndex = "./data/server/languages/index.json";
-    IOHANDLE File = m_pStorage->OpenFile(pIndex, IOFLAG_READ, IStorage::TYPE_ALL);
+    IOHANDLE File = pThis->m_pStorage->OpenFile(pIndex, IOFLAG_READ, IStorage::TYPE_ALL);
 	if(!File)
 	{
 		dbg_msg("Localization", "can't open ./server_lang/index.json");
-		return false;
+		return;
 	}
 
     const int FileSize = (int)io_length(File);
@@ -37,7 +37,7 @@ bool CLocalization::LoadIndexFile()
     if(pJsonData == nullptr)
 	{
 		dbg_msg("Localization", "Can't load the localization file %s : %s", pIndex, aError);
-		return false;
+		return;
 	}
 
     const json_value &rStart = (*pJsonData)["language indices"];
@@ -47,15 +47,15 @@ bool CLocalization::LoadIndexFile()
 		// Set i = 1, Skip English
         for (unsigned i = 1; i < rStart.u.array.length; ++i)
         {
-			if(!LoadLanguage(rStart[i]["file"]))
-				return false;
-        }
+			if(!pThis->LoadLanguage(rStart[i]["file"]))
+				dbg_msg("Localization", "Can't load the localization file %s", (const char *)rStart[i]["file"]);
+		}
     }
 
     // clean up
     json_value_free(pJsonData);
 
-    return true;
+	dbg_msg("Localization", "Localization loaded");
 }
 
 bool CLocalization::LoadLanguage(const char *pFile)
@@ -247,11 +247,11 @@ const char *CLocalization::GetLanguageCode(int Country)
 		/* uk - Ukrainian **********************************/
 		case 804: //Ukraine
 			return "uk";
-		/* zh-Hans - Chinese (Simplified) **********************************/
+		/* zh-cn - Chinese (Simplified) **********************************/
 		case 156: //People’s Republic of China
 		case 344: //Hong Kong
 		case 446: //Macau
-			return "cn";
+			return "zh-cn";
 		case 826: // United Kingdom of Great Britain and Northern Ireland
 		case 840: // United States of America
 			return "en";

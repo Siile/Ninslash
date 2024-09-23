@@ -2,7 +2,7 @@
 #define GAME_QUESTINFO_H
 
 #include <cstring>
-#include <game/generated/protocol.h>
+#include <generated/protocol.h>
 
 
 

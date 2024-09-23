@@ -3542,3 +3542,15 @@ const char *CGameContext::Localize(const char *pText, int ClientID)
 	
 	return Localization()->Localize(m_apPlayers[ClientID]->m_aLanguage, pText);
 }
+
+/*
+Localize("Terminate the enemies"),Localize("Wave of aliens incoming"),Localize("Wave of robots incoming")
+Localize("Wave of skeletons incoming"),Localize("Wave of furries incoming"),Localize("Wave of cyborgs incoming")
+Localize("Wave incoming"),Localize("Terminate the aliens"),Localize("Terminate the robots")
+Localize("Terminate the skeletons"),Localize("Terminate the furries"),Localize("Terminate the cyborgs")
+Localize("Seek the door"),Localize("Alien wave cleared"),
+Localize("Robot wave cleared"),Localize("Furry wave cleared"),Localize("Skeleton wave cleared")
+Localize("Cyborg wave cleared"),Localize("Aliens terminated"),Localize("Robots terminated")
+Localize("Skeletons terminated"),Localize("Furries terminated"),Localize("Cyborgs terminated")
+Localize("Enemies terminated")
+*/

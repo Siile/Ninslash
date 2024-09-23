@@ -2,7 +2,7 @@
 
 #include <math.h>
 
-#include <game/generated/game_data.h>
+#include <generated/game_data.h>
 
 #include <base/system.h>
 

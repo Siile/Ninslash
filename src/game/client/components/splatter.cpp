@@ -3,7 +3,7 @@
 #include <engine/demo.h>
 #include <engine/shared/config.h>
 
-#include <game/generated/game_data.h>
+#include <generated/game_data.h>
 #include <game/client/render.h>
 #include <game/gamecore.h>
 #include "splatter.h"

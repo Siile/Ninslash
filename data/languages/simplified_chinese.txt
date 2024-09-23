@@ -175,9 +175,6 @@ Current version: %s
 Customize
 == 自定义皮肤
 
-Default Zoom
-== 默认缩放
-
 Delete
 == 删除
 
@@ -373,9 +370,6 @@ Inventory
 Inventory roll
 == 切换物品栏(手中物品)
 
-Inventory roll(All)
-== 切换物品栏(整行切换)
-
 Invisibility device
 == 隐身科技
 
@@ -520,6 +514,9 @@ No servers found
 No servers match your filter criteria
 == 没有任何服务器匹配你的过滤器
 
+Objective
+== 任务
+
 Ok
 == 确定
 
@@ -582,6 +579,9 @@ Quit anyway?
 
 REC %3d:%02d
 == REC %3d:%02d
+
+Reach the door
+== 进入下一层
 
 Reason:
 == 理由:
@@ -763,6 +763,9 @@ Supply grenade
 Survival mode
 == 生存模式
 
+Survive the wave of enemies
+== 在敌人的攻势下活下去
+
 Switch weapon on pickup
 == 拾取武器时自动装备
 
@@ -771,6 +774,9 @@ Team
 
 Team chat
 == 团队聊天
+
+Terminate the enemies
+== 歼灭所有敌人
 
 Teslacoil
 == 特斯拉线圈
@@ -886,14 +892,14 @@ You must restart the game for all settings to take effect.
 Zombie claw
 == 僵尸爪
 
-Zoom In
-== 视角放大
-
-Zoom Out
-== 视角缩小
+enemies remaining
+== 剩余敌人
 
 no limit
 == 无限制
+
+seconds remaining
+== 剩余时间
 
 xbox 360 controller support
 == xbox360手柄支持

@@ -10,8 +10,8 @@
 #include <engine/textrender.h>
 #include <engine/shared/config.h>
 
-#include <game/generated/protocol.h>
-#include <game/generated/game_data.h>
+#include <generated/protocol.h>
+#include <generated/game_data.h>
 
 #include <game/localization.h>
 #include <game/client/render.h>
@@ -111,9 +111,9 @@ void CMenus::RenderGame(CUIRect MainView)
 	ButtonBar.VSplitLeft(100.0f, 0, &ButtonBar);
 	ButtonBar.VSplitLeft(150.0f, &Button, &ButtonBar);
 
-	static int s_DemoButton = 0;
+	/*static int s_DemoButton = 0;
 	bool Recording = DemoRecorder()->IsRecording();
-	/*if(DoButton_Menu(&s_DemoButton, Localize(Recording ? "Stop record" : "Record demo"), 0, &Button))	// Localize("Stop record");Localize("Record demo");
+	if(DoButton_Menu(&s_DemoButton, Localize(Recording ? "Stop record" : "Record demo"), 0, &Button))	// Localize("Stop record");Localize("Record demo");
 	{
 		if(!Recording)
 			Client()->DemoRecorder_Start("demo", true);

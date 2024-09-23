@@ -9,7 +9,7 @@ class ILocalization : public IInterface
     MACRO_INTERFACE("localization", 0)
 public:
 
-    virtual bool Init() = 0;
+    virtual void Init() = 0;
     virtual const char *GetLanguageCode(int Country) = 0;
     virtual const char *Localize(const char *pLanguage, const char *pText) = 0;
 };

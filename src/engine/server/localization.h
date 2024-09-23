@@ -18,17 +18,18 @@ class CLocalization : public ILocalization
 private:
     IStorage *m_pStorage;
     std::map<std::string, SLanguageFile> m_aLocalize;
+
+    static void LoadLocalizations(void *pUser);
+
+    bool LoadLanguage(const char *aFile);
+    void AddNewLocalize(const char *pName, const char *pKey, const char *pValue);
+
 public:
     CLocalization(IStorage *pStorage);
-
-    virtual const char *GetLanguageCode(int Country);
-    virtual bool Init();
-    virtual const char *Localize(const char *pLanguage, const char *pText);
     
-    bool LoadIndexFile();
-    bool LoadLanguage(const char *aFile);
-
-    void AddNewLocalize(const char *pName, const char *pKey, const char *pValue);
+    virtual void Init();
+    virtual const char *GetLanguageCode(int Country);
+    virtual const char *Localize(const char *pLanguage, const char *pText);
 };
 
 #endif

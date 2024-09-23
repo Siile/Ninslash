@@ -7,8 +7,8 @@
 #include <engine/graphics.h>
 #include <engine/storage.h>
 #include <engine/map.h>
-#include <game/generated/game_data.h>
-#include <game/generated/protocol.h>
+#include <generated/game_data.h>
+#include <generated/protocol.h>
 #include <game/layers.h>
 #include "render.h"
 #include "skelebank.h"
