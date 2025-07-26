@@ -134,7 +134,7 @@ void CSplatter::OnRender()
 
 void CSplatter::RenderGroup(int Group)
 {
-	if (!g_Config.m_GfxMultiBuffering)
+	if (!Graphics()->MultiFramebuffering())
 		return;
 	
 	Graphics()->RenderToTexture(RENDERBUFFER_SPLATTER);

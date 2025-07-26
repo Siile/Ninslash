@@ -200,7 +200,7 @@ void CMapLayers::OnRender()
 			
 		
 			// render some tile layers to texture for splatter
-			if (g_Config.m_GfxMultiBuffering)
+			if (Graphics()->MultiFramebuffering())
 			{
 				if (!RenderBufferPassed && PassedGameLayer && Render)
 					Graphics()->RenderToTexture(RENDERBUFFER_TILES);

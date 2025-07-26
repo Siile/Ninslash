@@ -1759,7 +1759,7 @@ void CMenus::RenderBackground()
 	vec2 s = vec2(Graphics()->ScreenWidth(), Graphics()->ScreenHeight())/8;
 	Graphics()->MapScreen(0, 0, s.x, s.y);
 	
-	if (g_Config.m_GfxMultiBuffering && Client()->Loaded())
+	if (Graphics()->MultiFramebuffering() && Client()->Loaded())
 	{
 		// render background shader
 		Graphics()->RenderToTexture(RENDERBUFFER_MENU);
@@ -1796,7 +1796,7 @@ void CMenus::RenderBackground()
 		Graphics()->QuadsDrawTL(&QuadItem, 1);
 	Graphics()->QuadsEnd();
 
-	if (g_Config.m_GfxMultiBuffering && Client()->Loaded())
+	if (Graphics()->MultiFramebuffering() && Client()->Loaded())
 	{
 		Graphics()->TextureSet(-2, RENDERBUFFER_MENU);
 		Graphics()->QuadsBegin();

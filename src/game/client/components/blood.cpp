@@ -92,7 +92,7 @@ void CBlood::Bounce(vec2 Pos, vec2 Dir, int Group, vec4 Color)
 	b.m_Gravity = 1500.0f + frandom()*400;
 	b.m_Friction = 0.7f+frandom()*0.075f;
 
-	if (g_Config.m_GfxMultiBuffering)
+	if (Graphics()->MultiFramebuffering())
 	{
 		b.m_Rotspeed = 0.0f;
 		//b.m_StartSize *= 1.5f;
@@ -110,7 +110,7 @@ void CBlood::Bounce(vec2 Pos, vec2 Dir, int Group, vec4 Color)
 	b.m_Color = Color;
 	m_pClient->m_pBlood->Add(Group, &b);
 	
-	if (g_Config.m_GfxMultiBuffering && frandom()*10 < 3 && Group == GROUP_BLOOD)
+	if (Graphics()->MultiFramebuffering() && frandom()*10 < 3 && Group == GROUP_BLOOD)
 		m_pClient->m_pEffects->Splatter(b.m_Pos + Dir*frandom()*48.0f - Dir*frandom()*16.0f, b.m_Rot, b.m_StartSize * 2, Color);
 }
 
@@ -304,7 +304,7 @@ void CBlood::RenderGroup(int Group)
 	// render acid layer to screen
 	if (Group == GROUP_ACIDLAYER)
 	{
-		if (!g_Config.m_GfxMultiBuffering)
+		if (!Graphics()->MultiFramebuffering())
 			return;
 
 		CUIRect Screen;
@@ -339,7 +339,7 @@ void CBlood::RenderGroup(int Group)
 	
 	
 	// render particles to texture buffers
-	if (g_Config.m_GfxMultiBuffering)
+	if (Graphics()->MultiFramebuffering())
 	{
 		if (Group == GROUP_BLOOD)
 			Graphics()->RenderToTexture(RENDERBUFFER_BLOOD);

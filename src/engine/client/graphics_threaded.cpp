@@ -615,7 +615,7 @@ void CGraphics_Threaded::TextureSet(int TextureID, int BufferTexture)
 
 void CGraphics_Threaded::RenderToScreen()
 {
-	if (!g_Config.m_GfxMultiBuffering)
+	if (!MultiFramebuffering())
 		return;
 	
 	m_State.m_RenderTarget = CCommandBuffer::RENDERTARGET_SCREEN;
@@ -624,7 +624,7 @@ void CGraphics_Threaded::RenderToScreen()
 
 void CGraphics_Threaded::RenderToTexture(int RenderBuffer)
 {
-	if (!g_Config.m_GfxMultiBuffering)
+	if (!MultiFramebuffering())
 		return;
 	
 	m_State.m_RenderTarget = CCommandBuffer::RENDERTARGET_TEXTURE;
@@ -925,6 +925,7 @@ int CGraphics_Threaded::Init()
 	// fetch final resolusion
 	m_ScreenWidth = g_Config.m_GfxScreenWidth;
 	m_ScreenHeight = g_Config.m_GfxScreenHeight;
+	m_MultiFramebuffering = g_Config.m_GfxMultiBuffering;
 
 	// create command buffers
 	for(int i = 0; i < NUM_CMDBUFFERS; i++)

@@ -84,6 +84,7 @@ protected:
 	int m_ScreenHeight;
 	int m_DesktopScreenWidth;
 	int m_DesktopScreenHeight;
+	bool m_MultiFramebuffering;
 public:
 	/* Constants: Texture Loading Flags
 		TEXLOAD_NORESAMPLE - Prevents the texture from any resampling
@@ -109,6 +110,7 @@ public:
 	int ScreenWidth() const { return m_ScreenWidth; }
 	int ScreenHeight() const { return m_ScreenHeight; }
 	float ScreenAspect() const { return (float)ScreenWidth()/(float)ScreenHeight(); }
+	bool MultiFramebuffering() const { return m_MultiFramebuffering; }
 
 	virtual void Clear(float r, float g, float b) = 0;
 	virtual void ClearBufferTexture() = 0;

@@ -43,7 +43,7 @@ void CLight::OnReset()
 
 void CLight::AddSimpleLight(vec2 Pos, vec4 Color, vec2 Size)
 {
-	if (!g_Config.m_ClLighting)
+	if (!g_Config.m_ClLighting || !Graphics()->MultiFramebuffering())
 		return;
 	
 	if (Size.x <= 32 && Size.y <= 32)
@@ -64,7 +64,7 @@ void CLight::AddSimpleLight(vec2 Pos, vec4 Color, vec2 Size)
 
 void CLight::AddBoxLight(vec2 Pos, vec4 Color, vec2 Size, float Rot)
 {
-	if (!g_Config.m_ClLighting)
+	if (!g_Config.m_ClLighting || !Graphics()->MultiFramebuffering())
 		return;
 	
 	if (m_BoxCount >= MAX_LIGHTSOURCES)
@@ -149,7 +149,7 @@ void CLight::RenderLight(vec2 Pos1, vec2 Pos2, vec2 Pos3, vec2 Pos4, vec4 Color)
 
 void CLight::RenderGroup(int Group)
 {
-	if (!g_Config.m_ClLighting)
+	if (!g_Config.m_ClLighting || !Graphics()->MultiFramebuffering())
 		return;
 	
 	if(Client()->State() < IClient::STATE_ONLINE)

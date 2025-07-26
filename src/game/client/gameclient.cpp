@@ -418,7 +418,7 @@ void CGameClient::OnInit()
 	
 	Graphics()->LoadShaders();
 	
-	if (g_Config.m_GfxMultiBuffering)
+	if (Graphics()->MultiFramebuffering())
 	{
 		Graphics()->CreateTextureBuffer(Graphics()->ScreenWidth(),Graphics()->ScreenHeight());
 		Graphics()->ClearBufferTexture();

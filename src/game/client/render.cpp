@@ -606,7 +606,7 @@ void CRenderTools::DrawUIRect(const CUIRect *r, vec4 Color, int Corners, float R
 
 void CRenderTools::RenderFullScreenLayer(vec2 Center)
 {
-	if (!g_Config.m_GfxMultiBuffering)
+	if (!Graphics()->MultiFramebuffering())
 		return;
 	
 	Graphics()->MapScreen(0,0,Graphics()->ScreenWidth(),Graphics()->ScreenHeight());

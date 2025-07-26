@@ -88,7 +88,7 @@ void CEffects::Blood(vec2 Pos, vec2 Dir, vec4 Color)
 	
 	b.m_Friction = 0.85f+frandom()*0.075f;
 	
-	if (g_Config.m_GfxMultiBuffering)
+	if (Graphics()->MultiFramebuffering())
 	{
 		b.m_Spr = SPRITE_BLOOD02;
 		b.m_Rotspeed = 0.0f;
@@ -225,7 +225,7 @@ void CEffects::Acid(vec2 Pos, vec2 Dir)
 		b.m_Gravity = 1400.0f + frandom()*300;
 	}
 	
-	if (g_Config.m_GfxMultiBuffering)
+	if (Graphics()->MultiFramebuffering())
 	{
 		b.m_Spr = SPRITE_BLOOD02;
 		b.m_Rotspeed = 0.0f;

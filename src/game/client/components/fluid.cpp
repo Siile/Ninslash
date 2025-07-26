@@ -165,7 +165,7 @@ void CFluid::AddForce(vec2 Pos, vec2 Vel)
 
 void CFluid::OnRender()
 {
-	if (g_Config.m_GfxMultiBuffering)
+	if (Graphics()->MultiFramebuffering())
 		Graphics()->RenderToTexture(RENDERBUFFER_ACID);
 	
 	for (int i = 0; i < m_PoolCount; i++)
@@ -228,7 +228,7 @@ void CFluid::RenderGlobalAcid()
 	Graphics()->TextureSet(-1);
 	Graphics()->QuadsBegin();
 	
-	if (g_Config.m_GfxMultiBuffering)
+	if (Graphics()->MultiFramebuffering())
 		Graphics()->SetColor(1,1,1,1);
 	else
 		Graphics()->SetColor(0, 0.8f, 0, 0.6f);
@@ -273,7 +273,7 @@ void CFluid::RenderGlobalAcid()
 		}
 		
 		// top outline
-		if (!g_Config.m_GfxMultiBuffering)
+		if (!Graphics()->MultiFramebuffering())
 		{
 			Graphics()->SetColor(0, 0, 0, 0.4f);
 
@@ -308,7 +308,7 @@ void CFluid::RenderPool(int i)
 	Graphics()->TextureSet(-1);
 	Graphics()->QuadsBegin();
 	
-	if (g_Config.m_GfxMultiBuffering)
+	if (Graphics()->MultiFramebuffering())
 		Graphics()->SetColor(1,1,1,1);
 	else
 		Graphics()->SetColor(0, 0.8f, 0, 0.6f);
@@ -334,7 +334,7 @@ void CFluid::RenderPool(int i)
 	}
 	
 	// top outline
-	if (!g_Config.m_GfxMultiBuffering)
+	if (!Graphics()->MultiFramebuffering())
 	{
 		Graphics()->SetColor(0, 0, 0, 0.4f);
 		for (int f = 0; f < Size.x / 16; f++)

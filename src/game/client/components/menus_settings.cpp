@@ -1714,6 +1714,7 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 	static int s_GfxTextureQuality = g_Config.m_GfxTextureQuality;
 	static int s_GfxTextureCompression = g_Config.m_GfxTextureCompression;
 	static int s_GfxThreaded = g_Config.m_GfxThreaded;
+	static int s_GfxMultiBuffering = g_Config.m_GfxMultiBuffering;
 
 	CUIRect ModeList;
 	MainView.VSplitLeft(300.0f, &MainView, &ModeList);
@@ -1842,12 +1843,16 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 			g_Config.m_ClLighting = 0;
 		else
 			g_Config.m_ClLighting = 1;
+		CheckSettings = true;
 	}
-	
-	MainView.HSplitTop(20.0f, &Button, &MainView);
-	Button.VSplitLeft(20.0f, 0, &Button);
-	if(DoButton_CheckBox(&g_Config.m_ClLighting, Localize("Dynamic lighting"), g_Config.m_ClLighting, &Button))
-		g_Config.m_ClLighting ^= 1;
+
+	if(g_Config.m_GfxMultiBuffering)
+	{
+		MainView.HSplitTop(20.0f, &Button, &MainView);
+		Button.VSplitLeft(20.0f, 0, &Button);
+		if(DoButton_CheckBox(&g_Config.m_ClLighting, Localize("Dynamic lighting"), g_Config.m_ClLighting, &Button))
+			g_Config.m_ClLighting ^= 1;
+	}
 
 	// check if the new settings require a restart
 	if(CheckSettings)
@@ -1861,7 +1866,8 @@ void CMenus::RenderSettingsGraphics(CUIRect MainView)
 			s_GfxFsaaSamples == g_Config.m_GfxFsaaSamples &&
 			s_GfxTextureQuality == g_Config.m_GfxTextureQuality &&
 			s_GfxTextureCompression == g_Config.m_GfxTextureCompression &&
-			s_GfxThreaded == g_Config.m_GfxThreaded)
+			s_GfxThreaded == g_Config.m_GfxThreaded && 
+			s_GfxMultiBuffering == g_Config.m_GfxMultiBuffering)
 			m_NeedRestartGraphics = false;
 		else
 			m_NeedRestartGraphics = true;
