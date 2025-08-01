@@ -2,8 +2,8 @@
 
 #include <engine/demo.h>
 #include <engine/graphics.h>
-#include <game/generated/protocol.h>
-#include <game/generated/game_data.h>
+#include <generated/protocol.h>
+#include <generated/game_data.h>
 #include <engine/shared/config.h>
 
 #include <game/gamecore.h> // get_angle

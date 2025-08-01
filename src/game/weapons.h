@@ -2,7 +2,7 @@
 #define GAME_WEAPONS_H
 
 #include <cstring>
-#include <game/generated/protocol.h>
+#include <generated/protocol.h>
 #include <base/vmath.h>
 
 enum PlayerItems
@@ -18,95 +18,123 @@ enum PlayerItems
 	NUM_PLAYERITEMS,
 };
 
-enum WeaponBits
-{
-	// 4 first bits of weapon int are flags / statuses, 5 in case of droids
-	BIT_WEAPON = 1<<0,
-	BIT_TURRET = 1<<1,
-	BIT_BUILDING = 1<<2,
-	BIT_STATICWEAPON = 1<<3,
-	BIT_DROID = 1<<3,
-	BIT_ONDEATH = 1<<4,
-	
-	// game / world
-	WEAPON_NONE = 0,
-	_WEAPON_GAME = 1<<1,
-	_WEAPON_WORLD = 1<<2,
-	WEAPON_ACID = 1<<3,
-	
-	// static / non-modular weapons - needs to have the sprites in same order
-	SW_TOOL = 0,
-	SW_GUN1,
-	SW_GUN2,
-	SW_GRENADE1,
-	SW_GRENADE2,
-	SW_GRENADE3,
-	SW_BAZOOKA,
-	SW_BOUNCER,
-	SW_CHAINSAW,
-	SW_FLAMER,
-	SW_UPGRADE,
-	SW_SHIELD,
-	SW_RESPAWNER,
-	SW_MASK1,
-	SW_MASK2,
-	SW_MASK3,
-	SW_MASK4,
-	SW_MASK5,
-	SW_INVIS,
-	SW_ELECTROWALL,
-	SW_AREASHIELD,
-	SW_SYRINGE,
-	SW_CLUSTER,
-	SW_SHURIKEN,
-	SW_CLAW,
-	SW_BOMB,
-	SW_BALL,
-	NUM_SW,
-	
-	
-	// weapon rendering types
-	WRT_NONE=0,
-	WRT_WEAPON1, // rifles, shotguns etc.
-	WRT_WEAPON2, // gun
-	WRT_ITEM1,
-	WRT_MELEE,
-	WRT_MELEESMALL,
-	WRT_SPIN,
-	
-	// weapon firing types
-	WFT_NONE=0,
-	WFT_MELEE, // swords
-	WFT_PROJECTILE, // rifles, shotguns etc.
-	WFT_CHARGE, // gun 2 & charge weapons
-	WFT_HOLD, // chainsaw & flamer
-	WFT_THROW, // grenades
-	WFT_ACTIVATE // some items
+// Flags
+enum BitFlags {
+    FLAG_NONE       = 0,
+    FLAG_WEAPON     = 1 << 0,
+    FLAG_TURRET     = 1 << 1,
+    FLAG_BUILDING   = 1 << 2,
+    FLAG_STATIC     = 1 << 3,
+    FLAG_DROID      = 1 << 3,
+    FLAG_ONDEATH    = 1 << 4
+};
+
+// Special
+enum WeaponIDs {
+    WEAPON_NONE = 0,
+    WEAPON_ACID = 1 << 3
+};
+
+enum StaticWeaponType {
+    SW_TOOL,
+    SW_GUN1,
+    SW_GUN2,
+    SW_GRENADE1,
+    SW_GRENADE2,
+    SW_GRENADE3,
+    SW_BAZOOKA,
+    SW_BOUNCER,
+    SW_CHAINSAW,
+    SW_FLAMER,
+    SW_UPGRADE,
+    SW_SHIELD,
+    SW_RESPAWNER,
+    SW_MASK1,
+    SW_MASK2,
+    SW_MASK3,
+    SW_MASK4,
+    SW_MASK5,
+    SW_INVIS,
+    SW_ELECTROWALL,
+    SW_AREASHIELD,
+    SW_SYRINGE,
+    SW_CLUSTER,
+    SW_SHURIKEN,
+    SW_CLAW,
+    SW_BOMB,
+    SW_BALL,
+    NUM_STATIC_WEAPONS
+};
+
+enum WeaponRenderType {
+    WRT_NONE,
+    WRT_WEAPON1,
+    WRT_WEAPON2,
+    WRT_ITEM1,
+    WRT_MELEE,
+    WRT_MELEESMALL,
+    WRT_SPIN
+};
+
+enum WeaponFiringType {
+    WFT_NONE,
+    WFT_MELEE,
+    WFT_PROJECTILE,
+    WFT_CHARGE,
+    WFT_HOLD,
+    WFT_THROW,
+    WFT_ACTIVATE
+};
+
+enum WeaponPartGroup {
+    PART_GROUP1 = 0,
+    PART_GROUP2 = 1,
+    MAX_WEAPON_PARTS = 2
+};
+
+enum WeaponPart1 {
+    PART1_BASE1 = 1,
+    PART1_BASE2,
+    PART1_BASE3,
+    PART1_BASE4,
+    PART1_MELEE = 5,
+    PART1_SPIN = 6
+};
+
+enum WeaponPart2 {
+    PART2_BARREL1 = 1,
+    PART2_BARREL2,
+    PART2_BARREL3,
+    PART2_BARREL4,
+    PART2_CHARGE = 5,
+    PART2_MELEE1 = 6,
+    PART2_MELEE2,
+    PART2_MELEE3,
+    PART2_MELEE4
 };
 
 #define WEAPON_GAME_SIZE 15
 
-inline const bool IsWeapon(int Weapon) { return (Weapon & BIT_WEAPON) ? true : false; }
-inline const bool IsTurret(int Weapon) { return (IsWeapon(Weapon) && (Weapon & BIT_TURRET)) ? true : false; }
-inline const bool IsBuilding(int Weapon) { return (!IsWeapon(Weapon) && (Weapon & BIT_BUILDING)) ? true : false; }
-inline const bool IsDroid(int Weapon) { return (!IsWeapon(Weapon) && (Weapon & BIT_DROID)) ? true : false; }
-inline const bool IsStaticWeapon(int Weapon) { return (IsWeapon(Weapon) && (Weapon & BIT_STATICWEAPON)) ? true : false; }
-inline bool const IsModularWeapon(int Weapon) { return (IsWeapon(Weapon) && !(Weapon & BIT_STATICWEAPON)) ? true : false; }
+inline bool IsWeapon(int Weapon) { return (Weapon & FLAG_WEAPON) != 0; }
+inline bool IsTurret(int Weapon) { return IsWeapon(Weapon) && (Weapon & FLAG_TURRET); }
+inline bool IsBuilding(int Weapon) { return !IsWeapon(Weapon) && (Weapon & FLAG_BUILDING); }
+inline bool IsDroid(int Weapon) { return !IsWeapon(Weapon) && (Weapon & FLAG_DROID); }
+inline bool IsStaticWeapon(int Weapon) { return IsWeapon(Weapon) && (Weapon & FLAG_STATIC); }
+inline bool IsModularWeapon(int Weapon) { return IsWeapon(Weapon) && !(Weapon & FLAG_STATIC); }
 
-inline const int GetPart(int Weapon, int Group){ return (Weapon & (15<<(4+Group*4)))>>(4+Group*4); }
-inline const int GetModularWeapon(int Part1, int Part2){ return (!Part1 && !Part2) ? 0 : (Part2<<8 | Part1<<4 | BIT_WEAPON); }
-inline const int GetStaticWeapon(int Weapon){ return (Weapon<<4 | BIT_STATICWEAPON | BIT_WEAPON); }
-inline const int GetStaticType(int Weapon){ return IsStaticWeapon(Weapon) ? 255 & (Weapon>>4) : 0; }
+inline int GetPart(int Weapon, int group) { return (Weapon & (15 << (4 + group * 4))) >> (4 + group * 4); }
+inline int GetModularWeapon(int part1, int part2) { return (!part1 && !part2) ? 0 : (part2 << 8 | part1 << 4 | FLAG_WEAPON); }
+inline int GetStaticWeapon(StaticWeaponType type) { return (static_cast<int>(type) << 4 | FLAG_STATIC | FLAG_WEAPON); }
+inline StaticWeaponType GetStaticType(int Weapon) { return IsStaticWeapon(Weapon) ? static_cast<StaticWeaponType>(255 & (Weapon >> 4)) : SW_TOOL; }
 
-inline const int GetChargedWeapon(int Weapon, int Charge){ return (Weapon & (15<<4 | 15<<8 | 15)) | Charge<<12; }
-inline const int GetWeaponCharge(int Weapon){ return (Weapon & (15<<12))>>12; }
-
-inline const bool IsOnDeath(int Weapon) { return Weapon & BIT_ONDEATH ? true : false; }
+inline int GetChargedWeapon(int Weapon, int charge) { return (Weapon & (15 << 4 | 15 << 8 | 15)) | (charge << 12); }
+inline int GetWeaponCharge(int Weapon) { return (Weapon & (15 << 12)) >> 12; }
+inline bool IsOnDeath(int Weapon) { return Weapon & FLAG_ONDEATH; }
 
 inline const int GetBuildingType(int Weapon) { return IsBuilding(Weapon) ? (Weapon & (1023<<6))>>6 : 0; }
-inline const int GetBuildingWeapon(int Building) { return BIT_BUILDING | Building<<6; }
+inline const int GetBuildingWeapon(int Building) { return FLAG_BUILDING | Building<<6; }
 inline const int GetDroidType(int Weapon) { return IsDroid(Weapon) ? (Weapon & (1023<<6))>>6 : 0; }
-inline const int GetDroidWeapon(int Droid, bool OnDeath = false) { return BIT_DROID | (OnDeath ? BIT_ONDEATH : 0) | Droid<<6; }
+inline const int GetDroidWeapon(int Droid, bool OnDeath = false) { return FLAG_DROID | (OnDeath ? FLAG_ONDEATH : 0) | Droid<<6; }
 
 const bool ValidForTurret(int Weapon);
 

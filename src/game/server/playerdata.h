@@ -8,8 +8,10 @@ private:
 	CPlayerData *m_pChild1;
 	CPlayerData *m_pChild2;
 
+	IStorage *m_pStorage;
+
 public:
-	CPlayerData(const char *pName, int ColorID);
+	CPlayerData(const char *pName, int ColorID, IStorage *pStorage);
 	void Die();
 	void Reset();
 	
@@ -35,6 +37,9 @@ public:
 	
 	int GetHighScore(int Score);
 	int GetPlayerCount(int Score);
+
+	void LoadDataFromFile();
+	void SaveToFile();
 };
 
 #endif

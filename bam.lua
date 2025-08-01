@@ -1,6 +1,5 @@
-
 Import("configure.lua")
-Import("other/sdl2/sdl2.lua")
+Import("other/sdl3/sdl3.lua")
 Import("other/freetype/freetype.lua")
 Import("other/glew/glew.lua")
 
@@ -11,17 +10,23 @@ config:Add(OptTestCompileC("stackprotector", "int main(){return 0;}", "-fstack-p
 config:Add(OptTestCompileC("minmacosxsdk", "int main(){return 0;}", "-mmacosx-version-min=10.5 -isysroot /Developer/SDKs/MacOSX10.5.sdk"))
 config:Add(OptTestCompileC("macosxppc", "int main(){return 0;}", "-arch ppc"))
 config:Add(OptLibrary("zlib", "zlib.h", false))
-config:Add(SDL2.OptFind("sdl2", true))
+config:Add(SDL3.OptFind("sdl3", true))
 config:Add(FreeType.OptFind("freetype", true))
 config:Add(GLEW.OptFind("glew", true))
 config:Finalize("config.lua")
 
+python_in_path = ExecuteSilent("python -V") == 0
+
 -- data compiler
-function Script(name)
+function Python(name)
 	if family == "windows" then
-		return str_replace(name, "/", "\\")
+		name = str_replace(name, "/", "\\")
+		if not python_in_path then
+			-- Python is usually registered for .py files in Windows
+			return name
+		end
 	end
-	return "python3 " .. name
+	return "python " .. name
 end
 
 function CHash(output, ...)
@@ -30,7 +35,7 @@ function CHash(output, ...)
 	output = Path(output)
 
 	-- compile all the files
-	local cmd = Script("scripts/cmd5.py") .. " "
+	local cmd = Python("scripts/cmd5.py") .. " "
 	for index, inname in ipairs(inputs) do
 		cmd = cmd .. Path(inname) .. " "
 	end
@@ -76,7 +81,7 @@ function Dat2c(datafile, sourcefile, arrayname)
 	AddJob(
 		sourcefile,
 		"dat2c " .. PathFilename(sourcefile) .. " = " .. PathFilename(datafile),
-		Script("scripts/dat2c.py").. "\" " .. sourcefile .. " " .. datafile .. " " .. arrayname
+		Python("scripts/dat2c.py").. "\" " .. sourcefile .. " " .. datafile .. " " .. arrayname
 	)
 	AddDependency(sourcefile, datafile)
 	return sourcefile
@@ -87,8 +92,8 @@ function ContentCompile(action, output)
 	AddJob(
 		output,
 		action .. " > " .. output,
-		--Script("datasrc/compile.py") .. "\" ".. Path(output) .. " " .. action
-		Script("datasrc/compile.py") .. " " .. action .. " > " .. Path(output)
+		--Python("datasrc/compile.py") .. "\" ".. Path(output) .. " " .. action
+		Python("datasrc/compile.py") .. " " .. action .. " > " .. Path(output)
 	)
 	AddDependency(output, Path("datasrc/content.py")) -- do this more proper
 	AddDependency(output, Path("datasrc/network.py"))
@@ -98,15 +103,15 @@ function ContentCompile(action, output)
 end
 
 -- Content Compile
-network_source = ContentCompile("network_source", "src/game/generated/protocol.cpp")
-network_header = ContentCompile("network_header", "src/game/generated/protocol.h")
-game_content_source = ContentCompile("game_content_source", "src/game/generated/game_data.cpp")
-game_content_header = ContentCompile("game_content_header", "src/game/generated/game_data.h")
+network_source = ContentCompile("network_source", "src/generated/protocol.cpp")
+network_header = ContentCompile("network_header", "src/generated/protocol.h")
+game_content_source = ContentCompile("game_content_source", "src/generated/game_data.cpp")
+game_content_header = ContentCompile("game_content_header", "src/generated/game_data.h")
 
 AddDependency(network_source, network_header)
 AddDependency(game_content_source, game_content_header)
 
-nethash = CHash("src/game/generated/nethash.cpp", "src/engine/shared/protocol.h", "src/game/generated/protocol.h", "src/game/tuning.h", "src/game/gamecore.cpp", network_header)
+nethash = CHash("src/generated/nethash.cpp", "src/engine/shared/protocol.h", "src/generated/protocol.h", "src/game/tuning.h", "src/game/gamecore.cpp", network_header)
 
 client_link_other = {}
 client_depends = {}
@@ -115,11 +120,11 @@ server_link_other = {}
 if family == "windows" then
 	if platform == "win32" then
 		table.insert(client_depends, CopyToDirectory(".", "other\\freetype\\windows\\lib32\\freetype.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\sdl2\\lib32\\SDL2.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other\\sdl3\\windows\\lib32\\SDL3.dll"))
 		table.insert(client_depends, CopyToDirectory(".", "other\\glew\\windows\\lib32\\glew32.dll"))
 	else
 		table.insert(client_depends, CopyToDirectory(".", "other\\freetype\\windows\\lib64\\freetype.dll"))
-		table.insert(client_depends, CopyToDirectory(".", "other\\sdl2\\lib64\\SDL2.dll"))
+		table.insert(client_depends, CopyToDirectory(".", "other\\sdl3\\windows\\lib64\\SDL3.dll"))
 		table.insert(client_depends, CopyToDirectory(".", "other\\glew\\windows\\lib64\\glew32.dll"))
 	end
 
@@ -237,7 +242,7 @@ function build(settings)
 	end
 
 	-- apply sdl settings
-	config.sdl2:Apply(client_settings)
+	config.sdl3:Apply(client_settings)
 	-- apply freetype settings
 	config.freetype:Apply(client_settings)
 	-- apply glew settings

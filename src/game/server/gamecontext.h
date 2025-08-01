@@ -181,7 +181,7 @@ public:
 	int CreateDeathray(vec2 Pos);
 	void CreatePlayerSpawn(vec2 Pos);
 	void CreateDeath(vec2 Pos, int Who);
-	void CreateSound(vec2 Pos, int Sound, int Mask=-1);
+	void CreateSound(vec2 Pos, int Sound, int64 Mask=-1);
 	void CreateSoundGlobal(int Sound, int Target=-1);
 	
 	bool BuildableSpot(vec2 Pos);
@@ -233,7 +233,7 @@ public:
 	
 	void RegisterGameVote(int ClientID, int Vote);
 	void SendGameVoteStats();
-	const char *GetVoteWinnerConfig();
+	// const char *GetVoteWinnerConfig();
 	void CalculateVoteWinnerConfig();
 
 
@@ -301,8 +301,8 @@ public:
 	const char *Localize(const char *pText, int ClientID);
 };
 
-inline int CmaskAll() { return -1; }
-inline int CmaskOne(int ClientID) { return 1<<ClientID; }
-inline int CmaskAllExceptOne(int ClientID) { return 0x7fffffff^CmaskOne(ClientID); }
-inline bool CmaskIsSet(int Mask, int ClientID) { return (Mask&CmaskOne(ClientID)) != 0; }
+inline int64 CmaskAll() { return -1; }
+inline int64 CmaskOne(int ClientID) { return (int64)1<<ClientID; }
+inline int64 CmaskAllExceptOne(int ClientID) { return CmaskAll()^CmaskOne(ClientID); }
+inline bool CmaskIsSet(int64 Mask, int ClientID) { return (Mask&CmaskOne(ClientID)) != 0; }
 #endif

@@ -14,8 +14,8 @@
 #include <engine/shared/demo.h>
 #include <engine/shared/config.h>
 
-#include <game/generated/protocol.h>
-#include <game/generated/game_data.h>
+#include <generated/protocol.h>
+#include <generated/game_data.h>
 
 #include <game/localization.h>
 #include <game/version.h>
@@ -1688,6 +1688,8 @@ void CGameClient::SendInfo(bool Start)
 		Msg.m_ColorTopper = g_Config.m_PlayerColorTopper;
 		Msg.m_ColorSkin = g_Config.m_PlayerColorSkin;
 		Msg.m_BloodColor = g_Config.m_PlayerBloodColor;
+		Msg.m_IsBot = 0;
+		Msg.m_Language = g_Config.m_ClLanguagecode;
 		Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
 	}
 	else
@@ -1707,6 +1709,8 @@ void CGameClient::SendInfo(bool Start)
 		Msg.m_ColorTopper = g_Config.m_PlayerColorTopper;
 		Msg.m_ColorSkin = g_Config.m_PlayerColorSkin;
 		Msg.m_BloodColor = g_Config.m_PlayerBloodColor;
+		Msg.m_IsBot = 0;
+		Msg.m_Language = g_Config.m_ClLanguagecode;
 		Client()->SendPackMsg(&Msg, MSGFLAG_VITAL);
 
 		// activate timer to resend the info if it gets filtered

@@ -304,6 +304,8 @@ void CCharacter::SaveData()
 		else
 			pData->m_aWeaponType[i] = 0;
 	}
+
+	pData->SaveToFile();
 	
 	char aBuf[256];
 	str_format(aBuf, sizeof(aBuf), "Data save - color=%d", GetPlayer()->GetColorID());
@@ -1209,6 +1211,7 @@ void CCharacter::GiveStartWeapon()
 		
 		// load saved weapons
 		CPlayerData *pData = GameServer()->Server()->GetPlayerData(GetPlayer()->GetCID(), GetPlayer()->GetColorID());
+		pData->LoadDataFromFile();
 		
 		bool GotItems = false;
 		
@@ -1842,7 +1845,7 @@ void CCharacter::TickDefered()
 	*/
 
 	int Events = m_Core.m_TriggeredEvents;
-	int Mask = CmaskAllExceptOne(m_pPlayer->GetCID());
+	int64 Mask = CmaskAllExceptOne(m_pPlayer->GetCID());
 
 	if(Events&COREEVENT_HOOK_ATTACH_PLAYER) GameServer()->CreateSound(m_Pos, SOUND_HOOK_ATTACH_PLAYER, CmaskAll());
 	if(Events&COREEVENT_HOOK_ATTACH_GROUND) GameServer()->CreateSound(m_Pos, SOUND_HOOK_ATTACH_GROUND, Mask);
@@ -2342,7 +2345,7 @@ bool CCharacter::TakeDamage(int From, int Weapon, int Dmg, vec2 Force, vec2 Pos)
 			m_DamageSoundTimer = 2;
 			GameServer()->m_apPlayers[From]->m_InterestPoints += Dmg * 5;
 			
-			int Mask = CmaskOne(From);
+			int64 Mask = CmaskOne(From);
 			for(int i = 0; i < MAX_CLIENTS; i++)
 			{
 				if(GameServer()->m_apPlayers[i] && GameServer()->m_apPlayers[i]->GetTeam() == TEAM_SPECTATORS && GameServer()->m_apPlayers[i]->m_SpectatorID == From)

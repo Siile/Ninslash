@@ -1,7 +1,5 @@
-
-
-#include <SDL.h>
-
+#include <SDL3/SDL.h>
+#include <base/math.h>
 #include <base/system.h>
 #include <engine/shared/config.h>
 #include <engine/graphics.h>
@@ -75,7 +73,7 @@ void CInput::Init()
 {
 	m_pGraphics = Kernel()->RequestInterface<IEngineGraphics>();
 	m_pGamepad = Kernel()->RequestInterface<IEngineGamepad>();
-	SDL_StartTextInput();
+	SDL_StartTextInput((SDL_Window *) m_pGraphics->GetWindowHandle());
 	ShowCursor(true);
 	//m_pGraphics->GrabWindow(true);
 }
@@ -89,10 +87,12 @@ void CInput::LoadHardwareCursor()
 	if(!m_pGraphics->LoadPNG(&CursorImg, "gui_cursor_small.png", IStorage::TYPE_ALL))
 		return;
 
-	m_pCursorSurface = SDL_CreateRGBSurfaceFrom(
-		CursorImg.m_pData, CursorImg.m_Width, CursorImg.m_Height,
-		32, 4*CursorImg.m_Width,
-		0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+	m_pCursorSurface = SDL_CreateSurfaceFrom(
+		CursorImg.m_Width, CursorImg.m_Height,
+        SDL_GetPixelFormatForMasks(32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000),
+        CursorImg.m_pData, 4*CursorImg.m_Width
+	);
+
 	if(!m_pCursorSurface)
 		return;
 
@@ -106,7 +106,7 @@ int CInput::ShowCursor(bool show)
 		LoadHardwareCursor();
 		SDL_SetCursor(m_pCursor);
 	}
-	return SDL_ShowCursor(show);
+	return show ? SDL_ShowCursor() : SDL_HideCursor();
 }
 
 void CInput::SetMouseModes(int modes)
@@ -139,7 +139,7 @@ void CInput::GetMousePosition(float *x, float *y)
 		return;
 
 	float Sens = g_Config.m_InpMousesens/100.0f;
-	int nx = 0, ny = 0;
+	float nx = 0, ny = 0;
 	SDL_GetMouseState(&nx, &ny);
 
 	if(m_FirstWarp)
@@ -181,9 +181,9 @@ void CInput::GetRelativePosition(float *x, float *y)
 
 bool CInput::MouseMoved()
 {
-	int x = 0, y = 0;
+	float x = 0, y = 0;
 	SDL_GetRelativeMouseState(&x, &y);
-	return x != 0 || y != 0;
+	return round_to_int(x) != 0 || round_to_int(y) != 0;
 }
 
 bool CInput::GamepadMoved()
@@ -281,7 +281,7 @@ int CInput::Update()
 
 	{
 		int i;
-		const Uint8 *pState = SDL_GetKeyboardState(&i);
+		const bool *pState = SDL_GetKeyboardState(&i);
 		if(i >= KEY_LAST)
 			i = KEY_LAST-1;
 		mem_copy(m_aInputState[m_InputCurrent], pState, i);
@@ -292,14 +292,14 @@ int CInput::Update()
 
 	// these states must always be updated manually because they are not in the GetKeyState from SDL
 	int i = SDL_GetMouseState(NULL, NULL);
-	if(i&SDL_BUTTON(1)) m_aInputState[m_InputCurrent][KEY_MOUSE_1] = 1; // 1 is left
-	if(i&SDL_BUTTON(3)) m_aInputState[m_InputCurrent][KEY_MOUSE_2] = 1; // 3 is right
-	if(i&SDL_BUTTON(2)) m_aInputState[m_InputCurrent][KEY_MOUSE_3] = 1; // 2 is middle
-	if(i&SDL_BUTTON(4)) m_aInputState[m_InputCurrent][KEY_MOUSE_4] = 1;
-	if(i&SDL_BUTTON(5)) m_aInputState[m_InputCurrent][KEY_MOUSE_5] = 1;
-	if(i&SDL_BUTTON(6)) m_aInputState[m_InputCurrent][KEY_MOUSE_6] = 1;
-	if(i&SDL_BUTTON(7)) m_aInputState[m_InputCurrent][KEY_MOUSE_7] = 1;
-	if(i&SDL_BUTTON(8)) m_aInputState[m_InputCurrent][KEY_MOUSE_8] = 1;
+	if(i&SDL_BUTTON_MASK(1)) m_aInputState[m_InputCurrent][KEY_MOUSE_1] = 1; // 1 is left
+	if(i&SDL_BUTTON_MASK(3)) m_aInputState[m_InputCurrent][KEY_MOUSE_2] = 1; // 3 is right
+	if(i&SDL_BUTTON_MASK(2)) m_aInputState[m_InputCurrent][KEY_MOUSE_3] = 1; // 2 is middle
+	if(i&SDL_BUTTON_MASK(4)) m_aInputState[m_InputCurrent][KEY_MOUSE_4] = 1;
+	if(i&SDL_BUTTON_MASK(5)) m_aInputState[m_InputCurrent][KEY_MOUSE_5] = 1;
+	if(i&SDL_BUTTON_MASK(6)) m_aInputState[m_InputCurrent][KEY_MOUSE_6] = 1;
+	if(i&SDL_BUTTON_MASK(7)) m_aInputState[m_InputCurrent][KEY_MOUSE_7] = 1;
+	if(i&SDL_BUTTON_MASK(8)) m_aInputState[m_InputCurrent][KEY_MOUSE_8] = 1;
 
 	{
 		SDL_Event Event;
@@ -317,7 +317,7 @@ int CInput::Update()
 			
 			switch (Event.type)
 			{
-				case SDL_TEXTINPUT:
+				case SDL_EVENT_TEXT_INPUT:
 				{
 					int TextLength, i;
 					TextLength = strlen(Event.text.text);
@@ -325,54 +325,55 @@ int CInput::Update()
 					{
 						AddEvent(Event.text.text[i], 0, 0);
 					}
+					break;
 				}
 				// handle keys
-				case SDL_KEYDOWN:
-					Key = SDL_GetScancodeFromName(SDL_GetKeyName(Event.key.keysym.sym));
+				case SDL_EVENT_KEY_DOWN:
+					Key = SDL_GetScancodeFromName(SDL_GetKeyName(Event.key.key));
 					break;
-				case SDL_KEYUP:
+				case SDL_EVENT_KEY_UP:
 					Action = IInput::FLAG_RELEASE;
-					Key = SDL_GetScancodeFromName(SDL_GetKeyName(Event.key.keysym.sym));
+					Key = SDL_GetScancodeFromName(SDL_GetKeyName(Event.key.key));
 					break;
 
 					
 				// handle gamepad
-				case SDL_CONTROLLERDEVICEADDED:
+				case SDL_EVENT_GAMEPAD_ADDED:
 					ResetGamepad();
 					Gamepad()->ConnectGamepad();
 					Gamepad()->Rumble(1.0f, 2000);
 					break;
 					
 					
-				case SDL_CONTROLLERDEVICEREMOVED:
+				case SDL_EVENT_GAMEPAD_REMOVED:
 					ResetGamepad();
 					Gamepad()->DisconnectGamepad(0);
 					break;
 				
 				
-				case SDL_CONTROLLERBUTTONUP:
+				case SDL_EVENT_GAMEPAD_BUTTON_UP:
 					Action = IInput::FLAG_RELEASE;
 					
 				// fall through
-				case SDL_CONTROLLERBUTTONDOWN:
+				case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
 					m_UsingGamepad = true;
-					if(Event.cbutton.button == SDL_CONTROLLER_BUTTON_LEFTSHOULDER) Key = KEY_GAMEPAD_SHOULDER_LEFT;
-					if(Event.cbutton.button == SDL_CONTROLLER_BUTTON_RIGHTSHOULDER) Key = KEY_GAMEPAD_SHOULDER_RIGHT;
-					if(Event.cbutton.button == SDL_CONTROLLER_BUTTON_BACK) Key = KEY_GAMEPAD_BUTTON_BACK;
-					if(Event.cbutton.button == SDL_CONTROLLER_BUTTON_LEFTSTICK) Key = KEY_GAMEPAD_BUTTON_LEFTSTICK;
-					if(Event.cbutton.button == SDL_CONTROLLER_BUTTON_RIGHTSTICK) Key = KEY_GAMEPAD_BUTTON_RIGHTSTICK;
-					if(Event.cbutton.button == SDL_CONTROLLER_BUTTON_A) Key = KEY_GAMEPAD_BUTTON_A;
-					if(Event.cbutton.button == SDL_CONTROLLER_BUTTON_B) Key = KEY_GAMEPAD_BUTTON_B;
-					if(Event.cbutton.button == SDL_CONTROLLER_BUTTON_X) Key = KEY_GAMEPAD_BUTTON_X;
-					if(Event.cbutton.button == SDL_CONTROLLER_BUTTON_Y) Key = KEY_GAMEPAD_BUTTON_Y;
+					if(Event.gbutton.button == SDL_GAMEPAD_BUTTON_LEFT_SHOULDER) Key = KEY_GAMEPAD_SHOULDER_LEFT;
+					if(Event.gbutton.button == SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER) Key = KEY_GAMEPAD_SHOULDER_RIGHT;
+					if(Event.gbutton.button == SDL_GAMEPAD_BUTTON_BACK) Key = KEY_GAMEPAD_BUTTON_BACK;
+					if(Event.gbutton.button == SDL_GAMEPAD_BUTTON_LEFT_STICK) Key = KEY_GAMEPAD_BUTTON_LEFTSTICK;
+					if(Event.gbutton.button == SDL_GAMEPAD_BUTTON_RIGHT_STICK) Key = KEY_GAMEPAD_BUTTON_RIGHTSTICK;
+					if(Event.gbutton.button == SDL_GAMEPAD_BUTTON_SOUTH) Key = KEY_GAMEPAD_BUTTON_A;
+					if(Event.gbutton.button == SDL_GAMEPAD_BUTTON_EAST) Key = KEY_GAMEPAD_BUTTON_B;
+					if(Event.gbutton.button == SDL_GAMEPAD_BUTTON_WEST) Key = KEY_GAMEPAD_BUTTON_X;
+					if(Event.gbutton.button == SDL_GAMEPAD_BUTTON_NORTH) Key = KEY_GAMEPAD_BUTTON_Y;
 					break;
 					
-				case SDL_CONTROLLERAXISMOTION:
+				case SDL_EVENT_GAMEPAD_AXIS_MOTION:
 					if (!m_UsingGamepad)
 						break;
 					
 					// attack
-					if (Event.jaxis.axis == SDL_CONTROLLER_AXIS_TRIGGERRIGHT)
+					if (Event.jaxis.axis == SDL_GAMEPAD_AXIS_RIGHT_TRIGGER)
 					{
 						if (Event.jaxis.value < 100)
 							m_GamepadShoot = false;
@@ -381,7 +382,7 @@ int CInput::Update()
 					}
 					
 					// select
-					if (Event.jaxis.axis == SDL_CONTROLLER_AXIS_TRIGGERLEFT)
+					if (Event.jaxis.axis == SDL_GAMEPAD_AXIS_LEFT_TRIGGER)
 					{
 						if (Event.jaxis.value < 100)
 							m_GamepadSelect = false;
@@ -390,7 +391,7 @@ int CInput::Update()
 					}
 					
 					// jump
-					if (Event.jaxis.axis == SDL_CONTROLLER_AXIS_LEFTY)
+					if (Event.jaxis.axis == SDL_GAMEPAD_AXIS_LEFTY)
 					{
 						if (Event.jaxis.value > -20000)
 							m_GamepadJump = false;
@@ -404,7 +405,7 @@ int CInput::Update()
 					}
 					
 					// move
-					if (Event.jaxis.axis == SDL_CONTROLLER_AXIS_LEFTX)
+					if (Event.jaxis.axis == SDL_GAMEPAD_AXIS_LEFTX)
 					{
 						if (Event.jaxis.value > 20000)
 							m_GamepadMove = 1;
@@ -415,16 +416,16 @@ int CInput::Update()
 					}
 					
 					// aim
-					if (Event.jaxis.axis == SDL_CONTROLLER_AXIS_RIGHTX)
+					if (Event.jaxis.axis == SDL_GAMEPAD_AXIS_RIGHTX)
 						m_GamepadAimX = Event.jaxis.value;
 					
-					if (Event.jaxis.axis == SDL_CONTROLLER_AXIS_RIGHTY)
+					if (Event.jaxis.axis == SDL_GAMEPAD_AXIS_RIGHTY)
 						m_GamepadAimY = Event.jaxis.value;
 					break;
 					
 					
 				// handle mouse buttons
-				case SDL_MOUSEBUTTONUP:
+				case SDL_EVENT_MOUSE_BUTTON_UP:
 					Action = IInput::FLAG_RELEASE;
 
 					if(Event.button.button == 1) // ignore_convention
@@ -434,7 +435,7 @@ int CInput::Update()
 					}
 				
 				// fall through
-				case SDL_MOUSEBUTTONDOWN:
+				case SDL_EVENT_MOUSE_BUTTON_DOWN:
 					m_UsingGamepad = false;
 					
 					if(Event.button.button == SDL_BUTTON_LEFT) Key = KEY_MOUSE_1; // ignore_convention
@@ -445,20 +446,21 @@ int CInput::Update()
 					if(Event.button.button == 8) Key = KEY_MOUSE_8; // ignore_convention
 					break;
 
-				case SDL_MOUSEWHEEL:
+				case SDL_EVENT_MOUSE_WHEEL:
 					if(Event.wheel.y > 0) Key = KEY_MOUSE_WHEEL_UP; // ignore_convention
 					if(Event.wheel.y < 0) Key = KEY_MOUSE_WHEEL_DOWN; // ignore_convention
 					AddEvent(0, Key, Action);
 					Action = IInput::FLAG_RELEASE;
 					break;
 
-				case SDL_WINDOWEVENT:
-					if(Event.window.event == SDL_WINDOWEVENT_ENTER) m_MouseEntered = true;
-					if(Event.window.event == SDL_WINDOWEVENT_LEAVE) m_MouseLeft = true;
+				case SDL_EVENT_WINDOW_MOUSE_ENTER:
+					m_MouseEntered = true;
 					break;
-
+				case SDL_EVENT_WINDOW_MOUSE_LEAVE:
+					m_MouseLeft = true;
+					break;
 				// other messages
-				case SDL_QUIT:
+				case SDL_EVENT_QUIT:
 					return 1;
 			}
 

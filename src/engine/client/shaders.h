@@ -1,9 +1,8 @@
 #ifndef ENGINE_CLIENT_SHADERS_H
 #define ENGINE_CLIENT_SHADERS_H
 
-#include "SDL.h"
-#include "SDL_opengl.h"
- 
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_opengl.h>
 
 typedef struct {
 	GLhandleARB program;
@@ -13,7 +12,7 @@ typedef struct {
     const char *frag_source;
 } ShaderData;
 
-#if defined(CONF_FAMILY_WINDOWS)
+/*#if defined(CONF_FAMILY_WINDOWS)
 static PFNGLATTACHOBJECTARBPROC glAttachObjectARB;
 static PFNGLCOMPILESHADERARBPROC glCompileShaderARB;
 static PFNGLCREATEPROGRAMOBJECTARBPROC glCreateProgramObjectARB;
@@ -29,7 +28,7 @@ static PFNGLUNIFORM1FARBPROC glUniform1fARB;
 static PFNGLUNIFORM2FVPROC glUniform2fv;
 static PFNGLUNIFORM4FVPROC glUniform4fv;
 static PFNGLUSEPROGRAMOBJECTARBPROC glUseProgramObjectARB;
-#endif
+#endif*/
 
 
 GLuint LoadShader(const char *vertex_path, const char *fragment_path);

@@ -371,7 +371,7 @@ public:
 
 	virtual ~IGraphicsBackend() {}
 
-	virtual int Init(const char *pName, int *Width, int *Height, int Screen, int FsaaSamples, int Flags, int *pDesktopWidth, int *pDesktopHeight) = 0;
+	virtual int Init(const char *pName, int *Width, int *Height, int *pScreen, int FsaaSamples, int Flags, int *pDesktopWidth, int *pDesktopHeight) = 0;
 	virtual int Shutdown() = 0;
 
 	virtual int MemoryUsage() const = 0;
@@ -386,6 +386,7 @@ public:
 	virtual void RunBuffer(CCommandBuffer *pBuffer) = 0;
 	virtual bool IsIdle() const = 0;
 	virtual void WaitForIdle() = 0;
+	virtual void *GetWindowHandle() = 0;
 };
 
 class CGraphics_Threaded : public IEngineGraphics
@@ -539,6 +540,7 @@ public:
 	virtual void InsertSignal(semaphore *pSemaphore);
 	virtual bool IsIdle();
 	virtual void WaitForIdle();
+	virtual void *GetWindowHandle();
 };
 
 extern IGraphicsBackend *CreateGraphicsBackend();

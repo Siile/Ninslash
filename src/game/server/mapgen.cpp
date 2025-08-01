@@ -181,10 +181,10 @@ void CMapGen::FillMap()
 		ivec2 TilePos(x, (i-x)/m_pLayers->GameLayer()->m_Width);
 		
 		// clear the different layers
-		ModifTile(TilePos, m_pLayers->GetGameLayerIndex(), 0);
-		ModifTile(TilePos, m_pLayers->GetBackgroundLayerIndex(), 0);
-		ModifTile(TilePos, m_pLayers->GetDoodadsLayerIndex(), 0);
-		ModifTile(TilePos, m_pLayers->GetForegroundLayerIndex(), 0);
+		ModifTile(TilePos, m_pLayers->GetGameLayerIndex(), TILE_AIR);
+		ModifTile(TilePos, m_pLayers->GetBackgroundLayerIndex(), TILE_AIR);
+		ModifTile(TilePos, m_pLayers->GetDoodadsLayerIndex(), TILE_AIR);
+		ModifTile(TilePos, m_pLayers->GetForegroundLayerIndex(), TILE_AIR);
 	}
 	dbg_msg("mapgen", "map normalized in %.5fs", (float)(time_get()-ProcessTime)/time_freq());
 

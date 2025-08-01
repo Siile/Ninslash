@@ -45,6 +45,24 @@
 #include <sstream>
 #include <string>
 
+#include <csignal>
+
+volatile sig_atomic_t InterruptSignaled = 0;
+
+bool IsInterrupted()
+{
+	return InterruptSignaled;
+}
+
+void HandleSigIntTerm(int Param)
+{
+	InterruptSignaled = 1;
+
+	// Exit the next time a signal is received
+	signal(SIGINT, SIG_DFL);
+	signal(SIGTERM, SIG_DFL);
+}
+
 static const char *StrLtrim(const char *pStr)
 {
 	while(*pStr && *pStr >= 0 && *pStr <= 32)
@@ -336,14 +354,14 @@ CPlayerData *CServer::GetPlayerData(int ClientID, int ColorID)
 			return pData;
 		else
 		{
-			CPlayerData *pNewData = new CPlayerData(m_aClients[ClientID].m_aName, ColorID);
+			CPlayerData *pNewData = new CPlayerData(m_aClients[ClientID].m_aName, ColorID, Storage());
 			m_pPlayerData->Add(pNewData);
 			return pNewData;
 		}
 	}
 	else
 	{
-		m_pPlayerData = new CPlayerData(m_aClients[ClientID].m_aName, ColorID);
+		m_pPlayerData = new CPlayerData(m_aClients[ClientID].m_aName, ColorID, Storage());
 		return m_pPlayerData;
 	}
 	
@@ -737,7 +755,7 @@ void CServer::GetAISkin(CAISkin *pAISkin, bool PVP, int Level, int WaveGroup)
 		int i = rand()%(m_AISkinPVECount);
 		int r = i;
 		int j = 0;
-		int l = 0;
+		//int l = 0;
 		
 		while (j++ < 20)
 		{
@@ -1263,8 +1281,6 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 			if(Offset+ChunkSize >= (unsigned int)m_CurrentMapSize)
 			{
 				ChunkSize = m_CurrentMapSize-Offset;
-				if(ChunkSize < 0)
-					ChunkSize = 0;
 				Last = 1;
 			}
 
@@ -1877,6 +1893,12 @@ int CServer::Run()
 				ReportTime += time_freq()*ReportInterval;
 			}
 
+			if (IsInterrupted())
+			{
+				Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "Interrupted");
+				m_RunServer = 0;
+			}
+
 			// wait for incomming data
 			net_socket_read_wait(m_NetServer.Socket(), 5);
 		}
@@ -2080,6 +2102,19 @@ void CServer::ConMapsList(IConsole::IResult *pResult, void *pUserData)
 	}
 }
 
+void CServer::ConReloadLocalizations(IConsole::IResult *pResult, void *pUserData)
+{
+	CServer *pSelf = static_cast<CServer *>(pUserData);
+
+	ILocalization *pLocalization = pSelf->Kernel()->RequestInterface<ILocalization>();
+	if(!pLocalization)
+	{
+		pSelf->Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "server", "Localization reload failed.");
+		return;
+	}
+	pLocalization->Init();
+}
+
 void CServer::RegisterCommands()
 {
 	m_pConsole = Kernel()->RequestInterface<IConsole>();
@@ -2097,7 +2132,8 @@ void CServer::RegisterCommands()
 	Console()->Register("stoprecord", "", CFGFLAG_SERVER, ConStopRecord, this, "Stop recording");
 
 	Console()->Register("reload", "", CFGFLAG_SERVER, ConMapReload, this, "Reload the map");
-
+	Console()->Register("reload_localizations", "", CFGFLAG_SERVER, ConReloadLocalizations, this, "Hot reload server localization texts");
+	
 	Console()->Register("sv_maps_list", "?r", CFGFLAG_SERVER, ConMapsList, this, "Maps to rotate between");
 
 	Console()->Chain("sv_name", ConchainSpecialInfoupdate, this);
@@ -2151,6 +2187,9 @@ int main(int argc, const char **argv) // ignore_convention
 	}
 #endif
 
+	signal(SIGINT, HandleSigIntTerm);
+	signal(SIGTERM, HandleSigIntTerm);
+
 	CServer *pServer = CreateServer();
 	IKernel *pKernel = IKernel::Create();
 
@@ -2163,8 +2202,8 @@ int main(int argc, const char **argv) // ignore_convention
 	IStorage *pStorage = CreateStorage("Ninslash", IStorage::STORAGETYPE_SERVER, argc, argv); // ignore_convention
 	IConfig *pConfig = CreateConfig();
 	ILocalization *pLocalization = CreateLocalization(pStorage);
-	if(!pLocalization->Init())
-		dbg_msg("Localization", "Failed to Init localization.");
+	
+	pLocalization->Init();
 
 	pServer->InitRegister(&pServer->m_NetServer, pEngineMasterServer, pConsole);
 
@@ -2223,6 +2262,7 @@ int main(int argc, const char **argv) // ignore_convention
 	delete pEngineMasterServer;
 	delete pStorage;
 	delete pConfig;
+	delete pLocalization;
 	return 0;
 }
 
@@ -2255,11 +2295,3 @@ void CServer::AddZombie()
 	SetBotDefault(ClientID);
 	SetClientClan(ClientID, "ai");
 }
-
-
-
-
-
-
-
-

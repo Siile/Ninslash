@@ -90,28 +90,28 @@ CGenLayer::CGenLayer(int w, int h)
 CGenLayer::~CGenLayer()
 {
 	if (m_pTiles)
-		delete m_pTiles;
+		delete[] m_pTiles;
 	
 	if (m_pBGTiles)
-		delete m_pBGTiles;
+		delete[] m_pBGTiles;
 	
 	if (m_pDoodadsTiles)
-		delete m_pDoodadsTiles;
+		delete[] m_pDoodadsTiles;
 	
 	if (m_pObjectTiles)
-		delete m_pObjectTiles;
+		delete[] m_pObjectTiles;
 	
 	if (m_pFlags)
-		delete m_pFlags;
+		delete[] m_pFlags;
 	
 	if (m_pBGFlags)
-		delete m_pBGFlags;
+		delete[] m_pBGFlags;
 	
 	if (m_pDoodadsFlags)
-		delete m_pDoodadsFlags;
+		delete[] m_pDoodadsFlags;
 	
 	if (m_pObjectFlags)
-		delete m_pObjectFlags;
+		delete[] m_pObjectFlags;
 }
 
 
@@ -333,7 +333,7 @@ void CGenLayer::GenerateMoreForeground()
 				if (apTiles[x + y*m_Width])
 					Set(1, x, y, 0);
 
-		delete apTiles;
+		delete[] apTiles;
 	}
 }
 
@@ -351,7 +351,7 @@ void CGenLayer::GenerateMoreBackground()
 				if (apTiles[x + y*m_Width])
 					Set(1, x, y, 0, BACKGROUND);
 
-		delete apTiles;
+		delete[] apTiles;
 	}
 }
 		

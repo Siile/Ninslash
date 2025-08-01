@@ -18,7 +18,7 @@ MACRO_CONFIG_INT(ClShowChatFriends, cl_show_chat_friends, 0, 0, 1, CFGFLAG_CLIEN
 MACRO_CONFIG_INT(ClShowfps, cl_showfps, 0, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Show ingame FPS counter")
 
 MACRO_CONFIG_INT(ClAirjumpindicator, cl_airjumpindicator, 1, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "")
-MACRO_CONFIG_INT(ClThreadsoundloading, cl_threadsoundloading, 0, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Load sound files threaded")
+MACRO_CONFIG_INT(ClThreadsoundloading, cl_threadsoundloading, 1, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Load sound files threaded")
 
 MACRO_CONFIG_INT(ClWarningTeambalance, cl_warning_teambalance, 1, 0, 1, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Warn about team balance")
 
@@ -38,6 +38,7 @@ MACRO_CONFIG_INT(ClMotdTime, cl_motd_time, 10, 0, 100, CFGFLAG_CLIENT|CFGFLAG_SA
 MACRO_CONFIG_STR(ClVersionServer, cl_version_server, 100, "version.ninslash.com", CFGFLAG_CLIENT|CFGFLAG_SAVE, "Server to use to check for new versions")
 
 MACRO_CONFIG_STR(ClLanguagefile, cl_languagefile, 255, "", CFGFLAG_CLIENT|CFGFLAG_SAVE, "What language file to use")
+MACRO_CONFIG_INT(ClLanguagecode, cl_languagecode, 0, 0, 999, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Language code sent to the server")
 
 MACRO_CONFIG_INT(PlayerColorBody, player_color_body, 0, 0, 0xFFFFFF, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player body color")
 MACRO_CONFIG_INT(PlayerColorFeet, player_color_feet, 0, 0, 0xFFFFFF, CFGFLAG_CLIENT|CFGFLAG_SAVE, "Player feet color")
@@ -149,6 +150,8 @@ MACRO_CONFIG_INT(SvInfiniteGrenades, sv_infinitegrenades, 0, 0, 1, CFGFLAG_SERVE
 MACRO_CONFIG_INT(SvBroadcastLock, sv_broadcastlock, 3, 0, 5, CFGFLAG_SERVER, "Broadcast lock time (seconds)")
 
 MACRO_CONFIG_INT(SvRandomMaps, sv_random_maps, 1, 0, 1, CFGFLAG_SERVER, "Random select map in maps list (1 = on, 0 = off)")
+
+MACRO_CONFIG_INT(SvSavePlayerdata, sv_save_playerdata, 0, 0, 1, CFGFLAG_SERVER, "Save player data to a file")
 
 
 // debug

@@ -97,7 +97,7 @@ ukrainian
 == 804
 
 traditional_chinese
-== 繁體中文(完成进度为0%)
+== 繁體中文
 == 156
 
 simplified_chinese

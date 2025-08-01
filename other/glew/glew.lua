@@ -9,14 +9,6 @@ GLEW = {
 			option.use_winlib = 0
 			option.lib_path = nil
 			
-			if ExecuteSilent("glew-config") > 0 and ExecuteSilent("glew-config --cflags") == 0 then
-				option.value = true
-				option.use_glewconfig = true
-			elseif family ~= "windows" and ExecuteSilent("pkg-config glew") == 0 then
-				option.value = true
-				option.use_pkgconfig = true
-			end
-			
 			if platform == "win32" then
 				option.value = true
 				option.use_winlib = 32
@@ -32,6 +24,12 @@ GLEW = {
 				option.value = true
 ]]			elseif platform == "linux" and arch == "amd64" then
 				option.value = true
+			elseif ExecuteSilent("glew-config") > 0 and ExecuteSilent("glew-config --cflags") == 0 then
+				option.value = true
+				option.use_glewconfig = true
+			elseif family ~= "windows" and ExecuteSilent("pkg-config glew") == 0 then
+				option.value = true
+				option.use_pkgconfig = true
 			end
 		end
 		

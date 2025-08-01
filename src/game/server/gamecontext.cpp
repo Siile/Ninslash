@@ -1002,7 +1002,7 @@ void CGameContext::CreateDeath(vec2 Pos, int ClientID)
 	}
 }
 
-void CGameContext::CreateSound(vec2 Pos, int Sound, int Mask)
+void CGameContext::CreateSound(vec2 Pos, int Sound, int64 Mask)
 {
 	if (Sound < 0)
 		return;
@@ -1252,9 +1252,7 @@ void CGameContext::CalculateVoteWinnerConfig()
 	m_WinnerVote = i;
 }
 
-
-
-const char *CGameContext::GetVoteWinnerConfig()
+/*const char *CGameContext::GetVoteWinnerConfig()
 {
 	int aVotes[6] = {0, 0, 0, 0, 0, 0};
 
@@ -1286,13 +1284,10 @@ const char *CGameContext::GetVoteWinnerConfig()
 		Console()->Print(IConsole::OUTPUT_LEVEL_ADDINFO, "GetVoteWinnerConfig", aBuf);
 		
 		return static_cast < const char * > (aBuf);
-		/*const char * a = aBuf;
-		return a;
-		*/
 		
 		//return static_cast < const char * > (aBuf);
 	}
-}
+}*/
 
 	
 void CGameContext::SendGameVotes(int ClientID)
@@ -2361,7 +2356,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			Server()->SetClientClan(ClientID, pMsg->m_pClan);
 			Server()->SetClientCountry(ClientID, pMsg->m_Country);
-			str_copy(pPlayer->m_aLanguage, Localization()->GetLanguageCode(pMsg->m_Country), sizeof(pPlayer->m_aLanguage));
 			str_copy(pPlayer->m_TeeInfos.m_TopperName, pMsg->m_pTopper, sizeof(pPlayer->m_TeeInfos.m_TopperName));
 			str_copy(pPlayer->m_TeeInfos.m_EyeName, pMsg->m_pEye, sizeof(pPlayer->m_TeeInfos.m_EyeName));
 			str_copy(pPlayer->m_TeeInfos.m_HeadName, pMsg->m_pHead, sizeof(pPlayer->m_TeeInfos.m_HeadName));
@@ -2373,6 +2367,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			pPlayer->m_TeeInfos.m_ColorTopper = pMsg->m_ColorTopper;
 			pPlayer->m_TeeInfos.m_BloodColor = pMsg->m_BloodColor;
 			pPlayer->m_TeeInfos.m_ColorSkin = pMsg->m_ColorSkin;
+
+			str_copy(pPlayer->m_aLanguage, Localization()->GetLanguageCode(pMsg->m_Country), sizeof(pPlayer->m_aLanguage));
+			if(pMsg->m_Language)
+				str_copy(pPlayer->m_aLanguage, Localization()->GetLanguageCode(pMsg->m_Language), sizeof(pPlayer->m_aLanguage));
+
 			m_pController->OnPlayerInfoChange(pPlayer);
 		}
 		else if (MsgID == NETMSGTYPE_CL_EMOTICON && !m_World.m_Paused)
@@ -2453,7 +2452,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			Server()->SetClientName(ClientID, pMsg->m_pName);
 			Server()->SetClientClan(ClientID, pMsg->m_pClan);
 			Server()->SetClientCountry(ClientID, pMsg->m_Country);
-			str_copy(pPlayer->m_aLanguage, Localization()->GetLanguageCode(pMsg->m_Country), sizeof(pPlayer->m_aLanguage));
 			str_copy(pPlayer->m_TeeInfos.m_TopperName, pMsg->m_pTopper, sizeof(pPlayer->m_TeeInfos.m_TopperName));
 			str_copy(pPlayer->m_TeeInfos.m_EyeName, pMsg->m_pEye, sizeof(pPlayer->m_TeeInfos.m_EyeName));
 			str_copy(pPlayer->m_TeeInfos.m_HeadName, pMsg->m_pHead, sizeof(pPlayer->m_TeeInfos.m_HeadName));
@@ -2465,6 +2463,11 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			pPlayer->m_TeeInfos.m_ColorTopper = pMsg->m_ColorTopper;
 			pPlayer->m_TeeInfos.m_ColorSkin = pMsg->m_ColorSkin;
 			pPlayer->m_TeeInfos.m_BloodColor = pMsg->m_BloodColor;
+
+			str_copy(pPlayer->m_aLanguage, Localization()->GetLanguageCode(pMsg->m_Country), sizeof(pPlayer->m_aLanguage));
+			if(pMsg->m_Language)
+				str_copy(pPlayer->m_aLanguage, Localization()->GetLanguageCode(pMsg->m_Language), sizeof(pPlayer->m_aLanguage));
+
 			m_pController->OnPlayerInfoChange(pPlayer);
 
 			// send vote options
@@ -3542,3 +3545,15 @@ const char *CGameContext::Localize(const char *pText, int ClientID)
 	
 	return Localization()->Localize(m_apPlayers[ClientID]->m_aLanguage, pText);
 }
+
+/*
+Localize("Terminate the enemies"),Localize("Wave of aliens incoming"),Localize("Wave of robots incoming")
+Localize("Wave of skeletons incoming"),Localize("Wave of furries incoming"),Localize("Wave of cyborgs incoming")
+Localize("Wave incoming"),Localize("Terminate the aliens"),Localize("Terminate the robots")
+Localize("Terminate the skeletons"),Localize("Terminate the furries"),Localize("Terminate the cyborgs")
+Localize("Seek the door"),Localize("Alien wave cleared"),
+Localize("Robot wave cleared"),Localize("Furry wave cleared"),Localize("Skeleton wave cleared")
+Localize("Cyborg wave cleared"),Localize("Aliens terminated"),Localize("Robots terminated")
+Localize("Skeletons terminated"),Localize("Furries terminated"),Localize("Cyborgs terminated")
+Localize("Enemies terminated")
+*/

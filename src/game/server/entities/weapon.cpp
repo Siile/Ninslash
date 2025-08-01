@@ -124,10 +124,10 @@ void CWeapon::OnPlayerPick()
 void CWeapon::SetTurret(bool TurretBit)
 {
 	if (!TurretBit && IsBuilding(m_WeaponType))
-		m_WeaponType ^= BIT_TURRET;
+		m_WeaponType ^= FLAG_TURRET;
 	
 	if (TurretBit && !IsBuilding(m_WeaponType))
-		m_WeaponType ^= BIT_TURRET;
+		m_WeaponType ^= FLAG_TURRET;
 	
 	m_IsTurret = TurretBit;
 }

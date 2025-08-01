@@ -39,17 +39,17 @@ CCollision::CCollision()
 CCollision::~CCollision()
 {
 	if (m_pBlocks)
-		delete m_pBlocks;
+		delete[] m_pBlocks;
 	
 	if (m_pLightRays)
-		delete m_pLightRays;
+		delete[] m_pLightRays;
 	
 	for (int i = 0; i < MAX_WAYPOINTS; i++)
 		if (m_apWaypoint[i])
 			delete m_apWaypoint[i];
 		
 	if (m_pMapChunk)
-		delete m_pMapChunk;
+		delete[] m_pMapChunk;
 }
 
 void CCollision::Init(class CLayers *pLayers)

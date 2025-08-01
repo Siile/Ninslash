@@ -7,10 +7,12 @@ __pycache__/
 *.pyo
 scripts/work/
 src/game/generated/
+src/generated/
 other/icons/*.res
 /SDL.dll
 /freetype.dll
 
+/data
 /crapnet*
 /dilate*
 /fake_server*
@@ -25,11 +27,22 @@ other/icons/*.res
 /versionsrv*
 Thumbs.db
 build.bat
-SDL2.dll
-glew32.dll
+/SDL3.dll
+/glew32.dll
 notepad.workspace
 
 /.vscode
 /build
 ./temp
 bam.exe
+
+# CMake
+CMakeCache.txt
+CPackConfig.cmake
+CPackSourceConfig.cmake
+# Ninja
+.ninja_deps
+.ninja_log
+build.ninja
+cmake_install.cmake
+CMakeFiles

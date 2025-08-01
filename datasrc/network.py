@@ -653,6 +653,7 @@ Messages = [
 		NetIntAny("m_ColorSkin"),
 		NetIntAny("m_BloodColor"),
 		NetIntRange("m_IsBot", 0, 1),
+		NetIntRange("m_Language", 0, 999),
 	]),
 
 	NetMessage("Cl_ChangeInfo", [
@@ -671,6 +672,7 @@ Messages = [
 		NetIntAny("m_ColorSkin"),
 		NetIntAny("m_BloodColor"),
 		NetIntRange("m_IsBot", 0, 1),
+        NetIntRange("m_Language", 0, 999),
 	]),
 
 	NetMessage("Cl_Kill", []),

@@ -275,6 +275,7 @@ public:
 	static void ConchainModCommandUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConchainConsoleOutputLevelUpdate(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData);
 	static void ConMapsList(IConsole::IResult *pResult, void *pUserData);
+	static void ConReloadLocalizations(IConsole::IResult *pResult, void *pUserData);
 
 	void RegisterCommands();
 

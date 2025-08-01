@@ -21,7 +21,10 @@
 #include <game/server/ai/inv/pyro1_ai.h>
 #include <game/server/ai/inv/pyro2_ai.h>
 
-
+static CAI* CreateAIalien1(CGameContext *pGameServer, CPlayer *pPlayer, int Level) { return new CAIalien1(pGameServer, pPlayer, Level); }
+static CAI* CreateAIbunny1(CGameContext *pGameServer, CPlayer *pPlayer, int Level) { return new CAIbunny1(pGameServer, pPlayer, Level); }
+static CAI* CreateAIrobot1(CGameContext *pGameServer, CPlayer *pPlayer, int Level) { return new CAIrobot1(pGameServer, pPlayer, Level); }
+static CAI* CreateAIpyro1(CGameContext *pGameServer, CPlayer *pPlayer, int Level) { return new CAIpyro1(pGameServer, pPlayer, Level); }
 
 CGameControllerInvasion::CGameControllerInvasion(class CGameContext *pGameServer)
 : IGameController(pGameServer)
@@ -241,31 +244,21 @@ void CGameControllerInvasion::OnCharacterSpawn(CCharacter *pChr, bool RequestAI)
 			//pChr->GetPlayer()->m_pAI = new CAIbase(GameServer(), pChr->GetPlayer());
 			pChr->m_IsBot = true;
 		
-			
-			// todo: rewrite
-			switch (m_QuestWaveType)
-			{
-				case WAVE_ALIENS: 
-					pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer(), Level);
-					break;
-					
-				case WAVE_FURRIES: 
-					pChr->GetPlayer()->m_pAI = new CAIbunny1(GameServer(), pChr->GetPlayer(), Level);
-					break;
-					
-				case WAVE_CYBORGS: 
-				case WAVE_ROBOTS: 
-					pChr->GetPlayer()->m_pAI = new CAIrobot1(GameServer(), pChr->GetPlayer(), Level);
-					break;
-					
-				case WAVE_SKELETONS: 
-					pChr->GetPlayer()->m_pAI = new CAIpyro1(GameServer(), pChr->GetPlayer(), Level);
-					break;
-					
-				default: 
-					pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer(), Level);
-					break;
+			typedef CAI* (*AIFactory)(CGameContext*, CPlayer*, int);
+			static const AIFactory s_aAIFactories[] = {
+			    nullptr,             // WAVE_NONE (0)
+			    CreateAIalien1,      // WAVE_ALIENS (1)
+			    CreateAIbunny1,      // WAVE_FURRIES (2)
+			    CreateAIrobot1,      // WAVE_CYBORGS (3)
+			    CreateAIrobot1,      // WAVE_ROBOTS (4)
+			    CreateAIpyro1,       // WAVE_SKELETONS (5)
 			};
+			static const int s_NumFactories = sizeof(s_aAIFactories) / sizeof(s_aAIFactories[0]);
+
+			if (m_QuestWaveType >= 0 && m_QuestWaveType < s_NumFactories && s_aAIFactories[m_QuestWaveType])
+			    pChr->GetPlayer()->m_pAI = s_aAIFactories[m_QuestWaveType](GameServer(), pChr->GetPlayer(), Level);
+			else 
+			    pChr->GetPlayer()->m_pAI = new CAIalien1(GameServer(), pChr->GetPlayer(), Level);
 			
 			m_EnemyCount++;
 			pChr->m_SkipPickups = 999;

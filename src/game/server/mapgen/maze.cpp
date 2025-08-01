@@ -28,10 +28,10 @@ CMaze::CMaze(int w, int h)
 CMaze::~CMaze()
 {
 	if (m_aOpen)
-		delete m_aOpen;
+		delete[] m_aOpen;
 	
 	if (m_aConnected)
-		delete m_aConnected;
+		delete[] m_aConnected;
 }
 
 

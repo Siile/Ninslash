@@ -210,9 +210,6 @@ public:
 	virtual int GetVideoModes(CVideoMode *pModes, int MaxModes, int screen) = 0;
 	virtual int GetNumScreens() = 0;
 
-	virtual int GetDesktopScreenWidth() = 0;
-	virtual int GetDesktopScreenHeight() = 0;
-
 	virtual void Swap() = 0;
 
 	// syncronization
@@ -243,7 +240,7 @@ public:
 	virtual void WarpMouse(int x, int y) = 0;
 	virtual int WindowActive() = 0;
 	virtual int WindowOpen() = 0;
-
+	virtual void *GetWindowHandle() = 0;
 };
 
 extern IEngineGraphics *CreateEngineGraphics();

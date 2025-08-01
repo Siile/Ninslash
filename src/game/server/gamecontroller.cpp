@@ -1,7 +1,7 @@
 #include <engine/shared/config.h>
 #include <game/mapitems.h>
 
-#include <game/generated/protocol.h>
+#include <generated/protocol.h>
 
 #include "entities/ball.h"
 #include "entities/flag.h"
@@ -1070,8 +1070,6 @@ const char *IGameController::GetTeamName(int Team)
 
 	return "spectators";
 }
-
-static bool IsSeparator(char c) { return c == ';' || c == ' ' || c == ',' || c == '\t'; }
 
 void IGameController::StartRound()
 {

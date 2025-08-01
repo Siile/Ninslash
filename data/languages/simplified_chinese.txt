@@ -65,10 +65,10 @@ Area Shield
 == 小型防御盾
 
 As this is the first time you launch the game, please enter your nick name below. It's recommended that you check the settings to adjust them to your liking before joining a server.
-== 这是你第一次执行游戏, 所以请在下面输入你的昵称. 建议你在进入一个服务器之前, 先确认一下设置是否符合你的习惯.
+== 这是你第一次运行游戏，请在下方输入你的昵称。建议你在进入服务器前，先检查游戏设置是否符合个人习惯
 
 Automatically record demos
-== 自动记录录像
+== 自动记录回放
 
 Automatically take game over screenshot
 == 自动截取游戏结束画面
@@ -175,23 +175,20 @@ Current version: %s
 Customize
 == 自定义皮肤
 
-Default Zoom
-== 默认缩放
-
 Delete
 == 删除
 
 Delete demo
-== 删除录像
+== 删除回放
 
 Demo details
-== 录像详细信息
+== 回放详细信息
 
 Demofile: %s
-== 录像: %s
+== 回放: %s
 
 Demos
-== 录像
+== 回放
 
 Disconnect
 == 断开连接
@@ -245,7 +242,7 @@ Error
 == 错误
 
 Error loading demo
-== 读取录像错误
+== 读取回放错误
 
 Eyes
 == 眼睛部分
@@ -373,9 +370,6 @@ Inventory
 Inventory roll
 == 切换物品栏(手中物品)
 
-Inventory roll(All)
-== 切换物品栏(整行切换)
-
 Invisibility device
 == 隐身科技
 
@@ -434,13 +428,13 @@ Map:
 == 地图:
 
 Mask of melee
-== 混沌面具
+== 战神面具
 
 Mask of plenty
 == 丰盛面具
 
 Mask of protection
-== 保护面具
+== 护体面具
 
 Mask of regeneration
 == 恢复面具
@@ -482,7 +476,7 @@ Multi framebuffering (requires restart)
 == 多帧缓冲（需要重新启动游戏）
 
 Mute when not active
-== 不活动的时候静音
+== 失去焦点时禁音
 
 Name
 == 名字
@@ -506,7 +500,7 @@ Nickname
 == 昵称
 
 Ninslash %s is out! Download it at www.ninslash.com!
-== Ninslash %s 更新了！请访问ninslash.teeworlds.fun下载!
+== Ninslash %s 已经发布！请访问 www.ninslash.com 下载最新版本！
 
 No
 == 否
@@ -519,6 +513,9 @@ No servers found
 
 No servers match your filter criteria
 == 没有任何服务器匹配你的过滤器
+
+Objective
+== 任务目标
 
 Ok
 == 确定
@@ -551,7 +548,7 @@ Player
 == 玩家
 
 Player country:
-== 包含此国旗的玩家:
+== 包含此旗帜的玩家:
 
 Player options
 == 玩家选项
@@ -563,7 +560,7 @@ Please balance teams!
 == 请平衡团队人数!
 
 Power barrel
-== 能量结界
+== 储电桶
 
 Prev. weapon
 == 上一个武器
@@ -583,11 +580,14 @@ Quit anyway?
 REC %3d:%02d
 == REC %3d:%02d
 
+Reach the door
+== 进入下一层
+
 Reason:
 == 理由:
 
 Record demo
-== 录制录像
+== 录制回放
 
 Red
 == 红色
@@ -617,7 +617,7 @@ Rename
 == 重命名
 
 Rename demo
-== 重命名录像
+== 重命名回放
 
 Repair tool
 == 修复工具
@@ -632,7 +632,7 @@ Respawn
 == 重生
 
 Respawn device
-== 复活科技
+== 复活器
 
 Rifle
 == 激光枪
@@ -668,7 +668,7 @@ Server details
 == 服务器详细信息
 
 Server filter
-== 服务器过滤器
+== 服务器筛选
 
 Server info
 == 服务器信息
@@ -683,7 +683,7 @@ Settings
 == 设置
 
 Shield generator
-== 防护盾生成器
+== 能量护盾发生器
 
 Shotgun
 == 霰弹枪
@@ -763,6 +763,9 @@ Supply grenade
 Survival mode
 == 生存模式
 
+Survive the wave of enemies
+== 在敌人的攻势下活下去
+
 Switch weapon on pickup
 == 拾取武器时自动装备
 
@@ -771,6 +774,9 @@ Team
 
 Team chat
 == 团队聊天
+
+Terminate the enemies
+== 歼灭所有敌人
 
 Teslacoil
 == 特斯拉线圈
@@ -788,19 +794,19 @@ The Living
 == 幸存者
 
 The audio device couldn't be initialised.
-== 无法初始化音频设备。
+== 无法初始化音频设备
 
 The server is running a non-standard tuning on a pure game type.
-== 此服务器运行着经过调整的非标准游戏类型.
+== 此服务器运行着经过调整的非标准游戏类型
 
 There's an unsaved map in the editor, you might want to save it before you quit the game.
-== 编辑器中的地图尚未保存, 或许你应该在退出游戏之前保存一下.
+== 编辑器中的地图尚未保存，或许你应该在退出游戏之前保存一下
 
 Threaded rendering
-== 渲染线程
+== 线程化渲染
 
 Threaded sound loading
-== 音效线程加载中
+== 线程化音效加载
 
 Time limit
 == 时间限制
@@ -824,10 +830,10 @@ UI Color
 == 界面颜色
 
 Unable to delete the demo
-== 无法删除这个录像
+== 无法删除这个回放
 
 Unable to rename the demo
-== 无法重命名这个录像
+== 无法重命名这个回放
 
 Use sounds
 == 开启声音
@@ -869,7 +875,7 @@ Warmup
 == 热身
 
 Weapon upgrade
-== 武器升级
+== 升级套件
 
 Weapons & Items
 == 武器 & 物品
@@ -881,19 +887,19 @@ Yes
 == 是
 
 You must restart the game for all settings to take effect.
-== 你必须重启游戏才能让所有设置起效.
+== 你必须重启游戏才能让所有设置起效
 
 Zombie claw
 == 僵尸爪
 
-Zoom In
-== 视角放大
-
-Zoom Out
-== 视角缩小
+enemies remaining
+== 剩余敌人
 
 no limit
 == 无限制
+
+seconds remaining
+== 剩余时间
 
 xbox 360 controller support
 == xbox360手柄支持

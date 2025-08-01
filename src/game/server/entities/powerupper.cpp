@@ -1,5 +1,5 @@
 #include <engine/shared/config.h>
-#include <game/generated/protocol.h>
+#include <generated/protocol.h>
 #include <game/server/gamecontext.h>
 #include <game/weapons.h>
 #include "character.h"
